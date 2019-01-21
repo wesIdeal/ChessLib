@@ -24,6 +24,7 @@ namespace ChessLib
         }
         //indexed by rank,file. a8 = [0, File.a]
         public char?[,] Board { get; set; }
+        public char? PieceOnSquare(Square sq) => Board[sq.Rank, (int)sq.File];
         public BoardProperties Properties { get; set; }
 
         public IEnumerable<Square> GetTargetSquares(Square sq)
@@ -39,8 +40,63 @@ namespace ChessLib
                     return GetTargetSquaresForBishop(sq, pieceOfColor.Color);
                 case Piece.Rook:
                     return GetTargetSquaresForRook(sq, pieceOfColor.Color);
+                case Piece.Pawn:
+                    return GetTargetSquaresForPawn(sq, pieceOfColor.Color);
             }
             return GetTargetSquaresForKnight(sq, pieceOfColor.Color);
+        }
+
+        delegate Square Move(Square sq);
+
+
+        private void GetPawnMoveDelegates(Color color, out Move forward, out Move diag1, out Move diag2)
+        {
+            if (color == Color.White)
+            {
+                forward = MoveN;
+                diag1 = MoveNE;
+                diag2 = MoveNW;
+            }
+            else
+            {
+                forward = MoveS;
+                diag1 = MoveSE;
+                diag2 = MoveSW;
+            }
+        }
+
+        private bool IsWhitePiece(char piece) => Char.IsUpper(piece);
+        private bool IsBlackPiece(char piece) => Char.IsLower(piece);
+        private IEnumerable<Square> GetTargetSquaresForPawn(Square sq, Color color)
+        {
+            var tmpSquare = sq.Copy();
+            var squares = new List<Square>();
+            var startingRankForPawns = color == Color.White ? 2 : 7;
+            GetPawnMoveDelegates(color, out Move moveForward, out Move moveDiag1, out Move moveDiag2);
+            tmpSquare = moveForward(sq);
+            if (PieceOnSquare(tmpSquare) == null)
+            {
+                squares.Add(tmpSquare);
+                if (sq.Rank == Utilities.RealRankToArrayRank(startingRankForPawns))
+                {
+                    tmpSquare = moveForward(tmpSquare);
+                    if (PieceOnSquare(tmpSquare) == null)
+                        squares.Add(tmpSquare);
+                }
+            }
+            var diag1 = moveDiag1(sq);
+            var diag2 = moveDiag2(sq);
+            var pieceOnSquare1 = PieceOnSquare(diag1);
+            var pieceOnSquare2 = PieceOnSquare(diag2);
+            if (pieceOnSquare1 != null && !IsOccupiedWithPieceOfSameColor(diag1, color))
+            {
+                squares.Add(diag1);
+            }
+            if (pieceOnSquare2 != null && !IsOccupiedWithPieceOfSameColor(diag2, color))
+            {
+                squares.Add(diag2);
+            }
+            return squares;
         }
 
         private bool PlacePieceInTargetList(Square sq, Color color, ref List<Square> squares)
@@ -194,11 +250,11 @@ namespace ChessLib
             if (((int)sq.File - 1 < 0) || (sq.Rank - 1 < 0)) { return null; }
             return new Square((File)((int)sq.File - 1), sq.Rank - 1);
         }
-        
 
-       
-        
 
-       
+
+
+
+
     }
 }

@@ -49,7 +49,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibrary1\ChessLib.csproj">
+    <ProjectReference Include="..\ChessLib\ChessLib.csproj">
       <Project>{72305e1f-27aa-407a-8adc-c236aaff0517}</Project>
       <Name>ChessLib</Name>
     </ProjectReference>

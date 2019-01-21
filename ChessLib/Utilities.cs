@@ -45,6 +45,9 @@ namespace ChessLib
                 case 'K':
                     pc.Piece = Piece.King;
                     break;
+                case 'P':
+                    pc.Piece = Piece.Pawn;
+                    break;
                 default: throw new Exception($"Invalid piece passed to Utilities.GetPieceColorFromChar: '{piece}'");
             }
             return pc;
