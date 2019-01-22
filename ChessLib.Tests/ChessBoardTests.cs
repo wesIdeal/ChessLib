@@ -14,8 +14,26 @@ namespace ChessLib.Tests
         public const string initialFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         public const string oneCaptureAvailable = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2";
         public const string twoCapturesAvailable = "rnbqkbnr/ppp1p1pp/8/3p1p2/4P1P1/8/PPPP1P1P/RNBQKBNR w KQkq d6 0 2";
+        public const string preEnPassentPosition = "rnbqkbnr/pp1ppppp/8/2p1P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2";
+        public const string enPassentPosition = "rnbqkbnr/pp1pp1pp/8/2p1Pp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3";
+
+        #region Applying Moves Tests
+        [Test]
+        public void TestInterprettingLegalPawnMoveE4()
+        {
+            var board = new ChessBoard();
+            var move = board.InterpretMove("e4", Color.White);
+            Assert.AreEqual(new Move(Square.FromString("e2"), Square.FromString("e4"), false, Piece.Pawn), move);
+        }
+        #endregion
 
         #region Pawn Move Tests
+        [Test]
+        public void TestEnPassentSquareFlagged()
+        {
+            var board = new ChessBoard(preEnPassentPosition);
+            board.MovePiece("f5", Color.Black);
+        }
         [Test]
         public void TestStartingPositionWhite()
         {

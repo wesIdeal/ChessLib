@@ -1,8 +1,15 @@
 ﻿using System;
 
-namespace Chess
+namespace ChessLib
 {
-    public class Game
+    public class Game : ChessBoard
     {
+        public Game()
+        {
+        }
+
+        public Game(string fen) : base(fen)
+        {
+        }
     }
 }

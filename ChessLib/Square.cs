@@ -46,7 +46,19 @@ namespace ChessLib
         }
         public bool Equals(Square other)
         {
+            if ((object)other == null) return false;
             return other.File == File && other.Rank == Rank;
+        }
+        public static bool operator ==(Square s1, Square s2)
+        {
+            if ((object)s1 == null)
+                return ((object)s2 == null);
+
+            return s1.Equals(s2);
+        }
+        public static bool operator !=(Square s1, Square s2)
+        {
+            return !(s1 == s2);
         }
 
         public Square Copy()
