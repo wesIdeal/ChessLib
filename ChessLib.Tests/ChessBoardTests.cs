@@ -14,6 +14,7 @@ namespace ChessLib.Tests
         public const string initialFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         public const string oneCaptureAvailable = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2";
         public const string twoCapturesAvailable = "rnbqkbnr/ppp1p1pp/8/3p1p2/4P1P1/8/PPPP1P1P/RNBQKBNR w KQkq d6 0 2";
+
         #region Pawn Move Tests
         [Test]
         public void TestStartingPositionWhite()
@@ -118,6 +119,7 @@ namespace ChessLib.Tests
 
         #endregion Pawn Move Tests
 
+        #region Knight Move Tests
         [Test]
         public void GetKnightTargetsFromOccupiedSquare()
         {
@@ -132,8 +134,9 @@ namespace ChessLib.Tests
             }
 
         }
+        #endregion
 
-
+        #region Bishop Move Tests
         [Test]
         public void TestBishopMoves1()
         {
@@ -160,7 +163,9 @@ namespace ChessLib.Tests
                 Assert.Contains(target, retrievedTargets.ToList());
             }
         }
+        #endregion
 
+        #region Rook Move Tests
         [Test]
         public void TestRookMoves()
         {
@@ -174,5 +179,6 @@ namespace ChessLib.Tests
                 Assert.Contains(target, retrievedTargets.ToList());
             }
         }
+        #endregion
     }
 }

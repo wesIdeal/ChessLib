@@ -42,8 +42,18 @@ namespace ChessLib
                     return GetTargetSquaresForRook(sq, pieceOfColor.Color);
                 case Piece.Pawn:
                     return GetTargetSquaresForPawn(sq, pieceOfColor.Color);
+                case Piece.Queen:
+                    return GetTargetSquaresForQueen(sq, pieceOfColor.Color);
             }
             return GetTargetSquaresForKnight(sq, pieceOfColor.Color);
+        }
+
+        private IEnumerable<Square> GetTargetSquaresForQueen(Square sq, Color color)
+        {
+            var squares = new List<Square>();
+            squares.AddRange(GetTargetSquaresForBishop(sq, color));
+            squares.AddRange(GetTargetSquaresForRook(sq, color));
+            return squares.Distinct();
         }
 
         delegate Square Move(Square sq);
