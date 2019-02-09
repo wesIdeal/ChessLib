@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,11 +8,37 @@ namespace MagicBitboard
 {
     public static class MoveHelpers
     {
+        public readonly static Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations;
+        public static ulong[] FileMasks = new ulong[8];
+        public static ulong[] RankMasks = new ulong[8];
+
         static MoveHelpers()
         {
+            HtmlPieceRepresentations = new Dictionary<Color, Dictionary<Piece, string>>();
             InitializeFileMasks();
             InitializRankMasks();
+            InitializeHtmlPieceRepresentations();
         }
+
+        #region Initialization
+        private static void InitializeHtmlPieceRepresentations()
+        {
+            HtmlPieceRepresentations.Add(Color.White, new Dictionary<Piece, string>());
+            HtmlPieceRepresentations.Add(Color.Black, new Dictionary<Piece, string>());
+            var whiteStart = 9817;
+            var blackStart = 9823;
+            foreach (var p in (Piece[])Enum.GetValues(typeof(Piece)))
+            {
+                HtmlPieceRepresentations[Color.White].Add(p, $"&#{whiteStart};");
+                whiteStart--;
+            }
+            foreach (var p in (Piece[])Enum.GetValues(typeof(Piece)))
+            {
+                HtmlPieceRepresentations[Color.Black].Add(p, $"&#{blackStart};");
+                blackStart--;
+            }
+        }
+
         private static void InitializeFileMasks()
         {
             var start = (ulong)0x8080808080808080;
@@ -20,6 +47,7 @@ namespace MagicBitboard
                 FileMasks[f] = start >> f;
             }
         }
+
         private static void InitializRankMasks()
         {
             var start = (ulong)0xFF;
@@ -28,22 +56,33 @@ namespace MagicBitboard
                 RankMasks[r] = start << (r * 8);
             }
         }
+
+        #endregion
+
+        #region Enum ToInt() methods
         public static int ToInt(this Color c) => (int)c;
+
+        public static int ToInt(this Piece p) => (int)p;
+
         public static int ToInt(this File f) => (int)f;
+
         public static int ToInt(this Rank r) => (int)r;
-        public static ulong[] FileMasks = new ulong[8];
-        public static ulong[] RankMasks = new ulong[8];
+        #endregion
+
+        #region Array Position to Friendly Position Helpers
         public static File GetFile(this int square)
         {
             return (File)(square % 8);
         }
 
-        public static Rank Rank(this int square)
+        public static Rank GetRank(this int square)
         {
             var r = square / 8;
             return (Rank)(square / 8);
         }
+        #endregion
 
+        #region Shift Helpers
         public static ulong Not(this ulong u) => ~(u);
         public static ulong Shift2E(this ulong u) { return u >> 2 & ~FileMasks[File.A.ToInt()] & ~FileMasks[File.B.ToInt()]; }
         public static ulong ShiftE(this ulong u) { return u >> 1 & ~FileMasks[File.A.ToInt()]; }
@@ -67,21 +106,53 @@ namespace MagicBitboard
         public static ulong ShiftWNW(this ulong u) { return u.Shift2W().ShiftS(); }
 
 
+        #endregion
+
+        #region Board Print Representation
         public static string PrintBoardHtml(string htmlBoards)
         {
             var htmlFormat = string.Format(htmlMain, htmlStyles, htmlBoards);
             return htmlFormat;
         }
 
-        public static string MakeBoardTable(this ulong u, Rank pieceRank, File pieceFile, string header = "", string pieceRep = "*", string attackSquareRep = "^")
+        public static string MakeBoardTable(this ulong u, string header = "", string pieceRep = "*")
         {
+            string board = Convert.ToString((long)u, 2).PadLeft(64, '0');
             var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
             if (header != string.Empty)
             {
-                sb.AppendLine($"<caption>{header}</caption>");
+                sb.AppendLine($"<caption>{header}<br/>{board}</caption>");
             }
             const string squareFormat = "<td id=\"{1}{0}\" class=\"{3}\">{2}</td>";
+
+            for (Rank r = Enums.Rank.R8; r >= Enums.Rank.R1; r--)
+            {
+                var rank = Math.Abs(r.ToInt() - 7);
+                sb.AppendLine($"<tr id=\"rank{rank}\">");
+
+                for (File f = File.A; f <= File.H; f++)
+                {
+                    var file = f.ToInt();
+
+                    var pieceAtSquare = board[(rank * 8) + file] == '1' ? pieceRep : "&nbsp;";
+                    sb.AppendFormat(squareFormat, f.ToString(), rank, pieceAtSquare, board[(rank * 8) + file] == '1' ? "altColor" : "");
+                }
+                sb.Append("\r\n</tr>\r\n");
+            }
+            sb.AppendLine("</table>");
+            return sb.ToString();
+        }
+
+        public static string MakeBoardTable(this ulong u, Rank pieceRank, File pieceFile, string header = "", string pieceRep = "*", string attackSquareRep = "^")
+        {
             string board = Convert.ToString((long)u, 2).PadLeft(64, '0');
+            var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
+            if (header != string.Empty)
+            {
+                sb.AppendLine($"<caption>{header}<br/>{board}</caption>");
+            }
+            const string squareFormat = "<td id=\"{1}{0}\" class=\"{3}\">{2}</td>";
+
             for (Rank r = Enums.Rank.R8; r >= Enums.Rank.R1; r--)
             {
                 var rank = Math.Abs(r.ToInt() - 7);
@@ -99,6 +170,71 @@ namespace MagicBitboard
             sb.AppendLine("</table>");
             return sb.ToString();
         }
+
+        public static string MakeBoardTable(this BoardRepresentation rep)
+        {
+            var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
+            const string squareFormat = "<td >{0}</td>";
+            var charArrayRep = rep.GetCharacterArrayRepresntation();
+            var rankHtml = new char?[8];
+            var rankIdx = 0;
+           while((rankHtml = charArrayRep.Skip(rankIdx*8).Take(8).ToArray()).Any())
+            {
+                sb.Append("<tr>");
+                var rankString = string.Join("\r\n", rankHtml.Select(x => string.Format(squareFormat, PieceOfColor.GetHtmlRepresentation(x))));
+                sb.AppendLine(rankString);
+                sb.Append("</tr>");
+                rankIdx++;
+            }
+            
+            sb.AppendLine("</table>");
+            return sb.ToString();
+        }
+
+
+        public static string PrintBoard(this ulong u, string header = "", char replaceOnesWith = '1')
+        {
+            if (!string.IsNullOrWhiteSpace(header))
+                header = header + "\r\n";
+            var sb = new StringBuilder(header + " - ");
+
+            var str = Convert.ToString((long)u, 2).PadLeft(64, '0');
+            sb.Append(str + "\r\n");
+            //if (highlightRank.HasValue && highlightFile.HasValue)
+            //{
+            //    var r = highlightFile.Value.ToInt();
+            //    r = 8 - r;
+            //    var f = highlightFile.Value.ToInt();
+            //    var position = (r * 8) + f;
+            //    if (position == 0)
+            //    {
+            //        str = "*" + str.Substring(1);
+            //    }
+            //    else { str = str.Substring(0, position - 1) + "*" + str.Substring(position); }
+            //}
+            var lRanks = new List<string>();
+            var footerHeader = "";
+
+            for (char c = 'a'; c <= 'h'; c++)
+                footerHeader += "  " + c.ToString();
+            var boardBorder = string.Concat(Enumerable.Repeat("-", footerHeader.Length + 3));
+            footerHeader = " " + footerHeader;
+            sb.AppendLine(footerHeader);
+            sb.AppendLine(boardBorder);
+            for (var i = 0; i < 8; i++)
+            {
+                var rankString = (8 - i).ToString();
+                var rank = str.Skip(i * 8).Take(8).Select(x => x.ToString().Replace('1', replaceOnesWith));
+                sb.AppendLine(rankString + " | " + string.Join(" | ", rank) + " |");
+            }
+            sb.AppendLine(boardBorder);
+            sb.AppendLine(footerHeader);
+            return sb.ToString();
+        }
+
+        #endregion
+
+        #region Html Strings
         const string htmlMain = @"<!DOCTYPE html>
 <html>
     <head>
@@ -148,44 +284,8 @@ namespace MagicBitboard
 
 </style>
 ";
+        #endregion
 
-        public static string PrintBoard(this ulong u, string header = "", char replaceOnesWith = '1')
-        {
-            if (!string.IsNullOrWhiteSpace(header))
-                header = header + "\r\n";
-            var sb = new StringBuilder(header);
 
-            var str = Convert.ToString((long)u, 2).PadLeft(64, '0');
-            //if (highlightRank.HasValue && highlightFile.HasValue)
-            //{
-            //    var r = highlightFile.Value.ToInt();
-            //    r = 8 - r;
-            //    var f = highlightFile.Value.ToInt();
-            //    var position = (r * 8) + f;
-            //    if (position == 0)
-            //    {
-            //        str = "*" + str.Substring(1);
-            //    }
-            //    else { str = str.Substring(0, position - 1) + "*" + str.Substring(position); }
-            //}
-            var lRanks = new List<string>();
-            var footerHeader = "";
-
-            for (char c = 'a'; c <= 'h'; c++)
-                footerHeader += "  " + c.ToString();
-            var boardBorder = string.Concat(Enumerable.Repeat("-", footerHeader.Length + 3));
-            footerHeader = " " + footerHeader;
-            sb.AppendLine(footerHeader);
-            sb.AppendLine(boardBorder);
-            for (var i = 0; i < 8; i++)
-            {
-                var rankString = (8 - i).ToString();
-                var rank = str.Skip(i * 8).Take(8).Select(x => x.ToString().Replace('1', replaceOnesWith));
-                sb.AppendLine(rankString + " | " + string.Join(" | ", rank) + " |");
-            }
-            sb.AppendLine(boardBorder);
-            sb.AppendLine(footerHeader);
-            return sb.ToString();
-        }
     }
 }
