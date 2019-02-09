@@ -1,15 +1,35 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace ChessLib
 {
-    public struct PieceOfColor
+    public class PieceOfColor : IEquatable<PieceOfColor>
     {
+        public PieceOfColor()
+        {
+        }
+
+        public static PieceOfColor GetPieceColorFromChar(char? piece)
+        {
+            var pc = new PieceOfColor();
+            //if no piece, color is null. Else if it is uppercase, it is a White piece, else Black piece.
+            pc.Color = piece == null ? Color.NULL : (char.IsUpper((char)piece) ? Color.White : Color.Black);
+            pc.Piece = Utilities.GetPieceFromChar(piece);
+            return pc;
+        }
+
+        public bool Equals(PieceOfColor other)
+        {
+            if (other == null) return false;
+            return other.Piece == Piece && other.Color == Color;
+        }
+
         public Piece Piece { get; set; }
         public Color Color { get; set; }
     }
-    public enum Piece { Pawn, Knight, Bishop, Rook, Queen, King }
-    public enum Color { White, Black }
+    public enum Piece { NULL, Pawn, Knight, Bishop, Rook, Queen, King }
+    public enum Color { NULL, White, Black }
     public enum File { a, b, c, d, e, f, g, h }
     public class BoardProperties
     {

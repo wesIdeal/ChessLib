@@ -3,9 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2019
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib", "ChessLib\ChessLib.csproj", "{72305E1F-27AA-407A-8ADC-C236AAFF0517}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib", "ChessLib\ChessLib.csproj", "{72305E1F-27AA-407A-8ADC-C236AAFF0517}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Tests", "ChessLib.Tests\ChessLib.Tests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard", "Bitboard\MagicBitboard.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitboard.Tests", "Bitboard.Tests\Bitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitboard.Tests.Console", "Bitboard.Tests.Console\Bitboard.Tests.Console.csproj", "{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A06C0B4B-B75C-499B-B0F8-0268DC437B48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A06C0B4B-B75C-499B-B0F8-0268DC437B48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A06C0B4B-B75C-499B-B0F8-0268DC437B48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A06C0B4B-B75C-499B-B0F8-0268DC437B48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

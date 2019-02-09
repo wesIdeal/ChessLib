@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChessLib;
+using System.Diagnostics;
+
 namespace ChessLib.Tests
 {
     [TestFixture]
@@ -41,7 +43,9 @@ namespace ChessLib.Tests
         public void NormalBoard()
         {
             var board = Utilities.BoardFromFEN(initialBoard, out bp);
+            TestContext.Out.Write(board.ToString());
             Assert.AreEqual(GoodBoard, board);
+            
         }
 
         [Test]
@@ -53,7 +57,7 @@ namespace ChessLib.Tests
             Assert.IsTrue(bp.CanWhiteCastleKingSide);
             Assert.IsTrue(bp.CanBlackCastleQueenSide);
             Assert.IsTrue(bp.CanBlackCastleKingSide);
-            Assert.AreEqual(Square.FromString("e3"), bp.EnPassentSquare);
+            Assert.AreEqual(new Square("e3"), bp.EnPassentSquare);
             Assert.AreEqual(0, bp.HalfmoveClock);
             Assert.AreEqual(1, bp.FullMoveNumber);
         }

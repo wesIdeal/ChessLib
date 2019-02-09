@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 
 namespace ChessLib
 {
@@ -21,15 +22,16 @@ namespace ChessLib
             Properties = p;
         }
         //indexed by rank,file. a8 = [0, File.a]
-        public char?[,] Board { get; set; }
-        public char? PieceOnSquare(Square sq) => Board[sq.Rank, (int)sq.File];
+        //public char?[,] Board { get; set; }
+        public Square[,] Board { get; private set; }
+        public Square PieceOnSquare(Square sq) => Board[sq.Rank, (int)sq.File];
         public BoardProperties Properties { get; set; }
 
         public IEnumerable<Square> GetTargetSquares(Square sq)
         {
             var charPiece = Board[sq.Rank, (int)sq.File];
             if (charPiece == null) return new List<Square>();
-            var pieceOfColor = Utilities.GetPieceColorFromChar((char)charPiece);
+            var pieceOfColor = charPiece.PieceOfColor;
             switch (pieceOfColor.Piece)
             {
                 case Piece.Knight:
@@ -53,7 +55,7 @@ namespace ChessLib
 
         public Square GetDestinationFromMoveText(string moveText)
         {
-            return Square.FromString(moveText.Substring(moveText.Length - 2, 2));
+            return new Square(moveText.Substring(moveText.Length - 2, 2));
         }
 
         public Move InterpretMove(string moveText, Color color)
@@ -71,7 +73,7 @@ namespace ChessLib
                 isCapture = moveText.Contains('x');
                 if (!isCapture) //Then pawn started on same file, moved up a rank.
                 {
-                    var searchPiece = color == Color.White ? 'P' : 'p';
+                    var searchPiece = new PieceOfColor() { Color = color, Piece = Piece.Pawn };
                     //find the pawn on file, closest to rank (in case of doubled pawns)
                     MoveDelegate moveBackToFindSquare = MoveS;
                     if (color == Color.Black)
@@ -84,7 +86,7 @@ namespace ChessLib
                         var piece = PieceOnSquare(tmpSquare);
                         if (piece != null)
                         {
-                            if (piece == searchPiece)
+                            if (piece.PieceOfColor.Equals(searchPiece))
                             {
                                 //ensure it is a target square, otherwise it is illegal.
                                 var targets = GetTargetSquaresForPawn(tmpSquare, color);
@@ -269,12 +271,26 @@ namespace ChessLib
             var p = Board[sq.Rank, (int)sq.File];
             if (p != null)
             {
-                return (color == Color.White ? Char.IsUpper((char)p) : Char.IsLower((char)p));
+                return p.PieceOfColor.Color == color;
             }
             return false;
         }
 
-
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("--------------------------------------------------------");
+            for (int r = 0; r < 8; r++)
+            {
+                for (int f = 0; f < 8; f++)
+                {
+                    var chPiece = Utilities.GetCharFromPiece(Board[r, f].PieceOfColor);
+                    sb.Append($" | {(chPiece.HasValue ? chPiece : ' ')} | ");
+                }
+            }
+            sb.Append("--------------------------------------------------------");
+            return sb.ToString();
+        }
 
 
 

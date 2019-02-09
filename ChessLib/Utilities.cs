@@ -5,16 +5,46 @@ using System.Linq;
 namespace ChessLib
 {
     enum FENPieces { Placement = 0, ActiveColor, Casting, EnPassant, HalfmoveClock, FullmoveNumber }
+
+    public static class FileHelpers
+    {
+        public static int ToInt(this File f) => (int)f;
+
+    }
     public static class Utilities
     {
         public static bool IsInBoardsRange(this int i)
         {
             return i < 8 && i >= 0;
         }
-        public static Piece GetPieceFromChar(char piece)
+        delegate char VaryCaseByColor(char c);
+        public static char? GetCharFromPiece(this PieceOfColor p)
         {
-            switch (piece)
+            VaryCaseByColor changeCase;
+            if (p.Color == Color.White) { changeCase = char.ToUpper; }
+            else { changeCase = char.ToLower; }
+
+            switch (p.Piece)
             {
+                case Piece.NULL: return null;
+                case Piece.Pawn: return changeCase('p');
+                case Piece.Knight: return changeCase('n');
+                case Piece.Bishop: return changeCase('b');
+                case Piece.Rook: return changeCase('r');
+                case Piece.Queen: return changeCase('q');
+                case Piece.King: return changeCase('k');
+                default: throw new ArgumentException("Could not determine piece's character.");
+            }
+        }
+        public static Piece GetPieceFromChar(char? piece)
+        {
+            if (piece == null)
+            {
+                return Piece.NULL;
+            }
+            switch (char.ToUpper((char)piece))
+            {
+                case 'P': return Piece.Pawn;
                 case 'N': return Piece.Knight;
                 case 'B': return Piece.Knight;
                 case 'R': return Piece.Rook;
@@ -23,35 +53,7 @@ namespace ChessLib
                 default: throw new Exception($"Invalid piece passed to Utilities.GetPieceFromChar: '{piece}'");
             }
         }
-        public static PieceOfColor GetPieceColorFromChar(char piece)
-        {
-            var pc = new PieceOfColor();
-            pc.Color = Char.IsUpper(piece) ? Color.White : Color.Black;
-            piece = Char.ToUpper(piece);
-            switch (piece)
-            {
-                case 'N':
-                    pc.Piece = Piece.Knight;
-                    break;
-                case 'B':
-                    pc.Piece = Piece.Bishop;
-                    break;
-                case 'R':
-                    pc.Piece = Piece.Rook;
-                    break;
-                case 'Q':
-                    pc.Piece = Piece.Queen;
-                    break;
-                case 'K':
-                    pc.Piece = Piece.King;
-                    break;
-                case 'P':
-                    pc.Piece = Piece.Pawn;
-                    break;
-                default: throw new Exception($"Invalid piece passed to Utilities.GetPieceColorFromChar: '{piece}'");
-            }
-            return pc;
-        }
+
 
         public static int ArrayRankToRealRank(int arrayRank)
         {
@@ -65,7 +67,21 @@ namespace ChessLib
             return Math.Abs(8 - realRank);
         }
 
-        public static char?[,] BoardFromFEN(string fen, out BoardProperties bp)
+        public static Square[,] BoardFromFEN(string fen, out BoardProperties bp)
+        {
+            Square[,] rv = new Square[8, 8];
+            var cBoard = CharBoardFromFEN(fen, out bp);
+            for (int rank = 0; rank < 8; rank++)
+            {
+                for (File f = File.a; f <= File.h; f++)
+                {
+                    rv[rank, f.ToInt()] = new Square(PieceOfColor.GetPieceColorFromChar(cBoard[rank, f.ToInt()]), f, rank);
+                }
+            }
+            return rv;
+        }
+
+        private static char?[,] CharBoardFromFEN(string fen, out BoardProperties bp)
         {
             var FENArray = fen.Split(' ');
             var boardSetup = FENArray[0];
@@ -126,7 +142,7 @@ namespace ChessLib
 
             if (enPassant != "-")
             {
-                bp.EnPassentSquare = Square.FromString(enPassant);
+                bp.EnPassentSquare = new Square(enPassant);
             }
             if (int.TryParse(halfMove, out int hmClock))
             {
@@ -170,7 +186,7 @@ namespace ChessLib
             return possibleSquares.Select(x => new Square((File)x.Item2, x.Item1));
         }
 
-      
+
 
     }
 }

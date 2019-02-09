@@ -23,7 +23,7 @@ namespace ChessLib.Tests
         {
             var board = new ChessBoard();
             var move = board.InterpretMove("e4", Color.White);
-            Assert.AreEqual(new Move(Square.FromString("e2"), Square.FromString("e4"), false, Piece.Pawn), move);
+            Assert.AreEqual(new Move(new Square("e2"), new Square("e4"), false, Piece.Pawn), move);
         }
         #endregion
 
@@ -38,8 +38,8 @@ namespace ChessLib.Tests
         public void TestStartingPositionWhite()
         {
             var board = new ChessBoard(initialFen);
-            var pawnSq = Square.FromString("e2");
-            var expectedTargets = new[] { Square.FromString("e3"), Square.FromString("e4") };
+            var pawnSq = new Square("e2");
+            var expectedTargets = new[] { new Square("e3"), new Square("e4") };
             var receivedTargets = board.GetTargetSquares(pawnSq);
             Assert.AreEqual(expectedTargets.Length, receivedTargets.Count());
             foreach (var target in expectedTargets)
@@ -51,8 +51,8 @@ namespace ChessLib.Tests
         public void TestOneCapturePositionWhite()
         {
             var board = new ChessBoard(oneCaptureAvailable);
-            var pawnSq = Square.FromString("e4");
-            var expectedTargets = new[] { Square.FromString("d5"), Square.FromString("e5") };
+            var pawnSq = new Square("e4");
+            var expectedTargets = new[] { new Square("d5"), new Square("e5") };
             var receivedTargets = board.GetTargetSquares(pawnSq);
             Assert.AreEqual(expectedTargets.Length, receivedTargets.Count());
             foreach (var target in expectedTargets)
@@ -64,8 +64,8 @@ namespace ChessLib.Tests
         public void TestTwoCapturePositionWhite()
         {
             var board = new ChessBoard(twoCapturesAvailable);
-            var pawnSq = Square.FromString("e4");
-            var expectedTargets = new[] { Square.FromString("d5"), Square.FromString("e5"), Square.FromString("f5") };
+            var pawnSq = new Square("e4");
+            var expectedTargets = new[] { new Square("d5"), new Square("e5"), new Square("f5") };
             var receivedTargets = board.GetTargetSquares(pawnSq);
             Assert.AreEqual(expectedTargets.Length, receivedTargets.Count());
             foreach (var target in expectedTargets)
@@ -77,8 +77,8 @@ namespace ChessLib.Tests
         public void TestTwoCapturePositionBlack()
         {
             var board = new ChessBoard(twoCapturesAvailable);
-            var pawnSq = Square.FromString("f5");
-            var expectedTargets = new[] { Square.FromString("g4"), Square.FromString("e4"), Square.FromString("f4") };
+            var pawnSq = new Square("f5");
+            var expectedTargets = new[] { new Square("g4"), new Square("e4"), new Square("f4") };
             var receivedTargets = board.GetTargetSquares(pawnSq);
             Assert.AreEqual(expectedTargets.Length, receivedTargets.Count());
             foreach (var target in expectedTargets)
@@ -90,7 +90,7 @@ namespace ChessLib.Tests
         public void TestNoMoves()
         {
             var board = new ChessBoard("rnbqkbnr/ppp1pppp/8/8/8/3p4/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-            var pawnSq = Square.FromString("d2");
+            var pawnSq = new Square("d2");
 
             var receivedTargets = board.GetTargetSquares(pawnSq);
             Assert.AreEqual(0, receivedTargets.Count());
@@ -100,10 +100,10 @@ namespace ChessLib.Tests
         public void TestOneMove()
         {
             var board = new ChessBoard("rnbqkbnr/ppp1pppp/8/8/3p4/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-            var pawnSq = Square.FromString("d2");
+            var pawnSq = new Square("d2");
 
             var receivedTargets = board.GetTargetSquares(pawnSq).ToList();
-            Assert.Contains(Square.FromString("d3"), receivedTargets);
+            Assert.Contains(new Square("d3"), receivedTargets);
 
         }
 
@@ -112,8 +112,8 @@ namespace ChessLib.Tests
         public void TestStartingPositionBlack()
         {
             var board = new ChessBoard(initialFen);
-            var pawnSq = Square.FromString("e7");
-            var expectedTargets = new[] { Square.FromString("e6"), Square.FromString("e5") };
+            var pawnSq = new Square("e7");
+            var expectedTargets = new[] { new Square("e6"), new Square("e5") };
             var receivedTargets = board.GetTargetSquares(pawnSq);
             Assert.AreEqual(expectedTargets.Length, receivedTargets.Count());
             foreach (var target in expectedTargets)
@@ -125,8 +125,8 @@ namespace ChessLib.Tests
         public void TestOneCapturePositionBlack()
         {
             var board = new ChessBoard(oneCaptureAvailable);
-            var pawnSq = Square.FromString("d5");
-            var expectedTargets = new[] { Square.FromString("d4"), Square.FromString("e4") };
+            var pawnSq = new Square("d5");
+            var expectedTargets = new[] { new Square("d4"), new Square("e4") };
             var receivedTargets = board.GetTargetSquares(pawnSq);
             Assert.AreEqual(expectedTargets.Length, receivedTargets.Count());
             foreach (var target in expectedTargets)
@@ -159,8 +159,8 @@ namespace ChessLib.Tests
         public void TestBishopMoves1()
         {
             var board = new ChessBoard("r1bqkbnr/1ppp1ppp/p1n5/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 4");
-            var a4 = Square.FromString("a4");
-            var targetsFroma4 = new[] { Square.FromString("b5"), Square.FromString("c6"), Square.FromString("b3") };
+            var a4 = new Square("a4");
+            var targetsFroma4 = new[] { new Square("b5"), new Square("c6"), new Square("b3") };
             var retrievedTargets = board.GetTargetSquares(a4);
             Assert.AreEqual(targetsFroma4.Count(), retrievedTargets.Count());
             foreach (var target in targetsFroma4)
@@ -172,8 +172,8 @@ namespace ChessLib.Tests
         public void TestBishopMoves2()
         {
             var board = new ChessBoard("r1bqkbnr/2pp1ppp/p1n5/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQK2R b KQkq - 1 5");
-            var b3 = Square.FromString("b3");
-            var targetsFromb3 = new[] { Square.FromString("a4"), Square.FromString("c4"), Square.FromString("d5"), Square.FromString("e6"), Square.FromString("f7") };
+            var b3 = new Square("b3");
+            var targetsFromb3 = new[] { new Square("a4"), new Square("c4"), new Square("d5"), new Square("e6"), new Square("f7") };
             var retrievedTargets = board.GetTargetSquares(b3);
             Assert.AreEqual(targetsFromb3.Count(), retrievedTargets.Count());
             foreach (var target in targetsFromb3)
@@ -188,8 +188,8 @@ namespace ChessLib.Tests
         public void TestRookMoves()
         {
             var board = new ChessBoard("rnbqkbnr/pppppp1p/6p1/8/4P1R1/8/PPPP1PPP/RNBQKBN1 w KQkq - 0 0");
-            var g4 = Square.FromString("g4");
-            var targetsFroma4 = new[] { Square.FromString("f4"), Square.FromString("g3"), Square.FromString("h4"), Square.FromString("g5"), Square.FromString("g6") };
+            var g4 = new Square("g4");
+            var targetsFroma4 = new[] { new Square("f4"), new Square("g3"), new Square("h4"), new Square("g5"), new Square("g6") };
             var retrievedTargets = board.GetTargetSquares(g4);
             Assert.AreEqual(targetsFroma4.Count(), retrievedTargets.Count());
             foreach (var target in targetsFroma4)

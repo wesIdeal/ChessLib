@@ -2,24 +2,49 @@
 
 namespace ChessLib
 {
+
     public class Square : IEquatable<Square>
     {
+        public Square()
+        {
+        }
         public Square(File f, int arrayRank)
         {
             File = f;
             Rank = arrayRank;
         }
-        public static Square FromArrayRank(File f, int arrayRank) => new Square(f, arrayRank);
-        public static Square FromRealRank(File f, int realRank) => new Square(f, Utilities.RealRankToArrayRank(realRank));
-        public static Square FromString(string square)
+
+        public Square(string strSquareRepresentation)
         {
-            if (square.Length != 2) throw new ArgumentException("String representation must have 2 characters, first for file, second for rank. I.e. e4.");
-            var file = square[0];
-            var rank = square[1];
-            if (!Char.IsLetter(file) || !IsFileCharacterInRange(file))
+            if (strSquareRepresentation.Length != 2)
+            {
+                throw new ArgumentException("String representation must have 2 characters, first for file, second for rank. I.e. e4.");
+            }
+            var strFile = strSquareRepresentation[0];
+            var strRank = strSquareRepresentation[1];
+            if (!Char.IsLetter(strFile) || !IsFileCharacterInRange(strFile))
+            {
                 throw new ArgumentException("First letter in square representation must be a letter, from a-h");
-            return FromRealRank((File)Enum.Parse(typeof(File), file.ToString(), true), int.Parse(rank.ToString()));
+            }
+            var file = (File)Enum.Parse(typeof(File), strFile.ToString(), true);
+            var rank = int.Parse(strRank.ToString());
+            if (rank < 1 || rank > 8)
+            {
+                throw new ArgumentException("Rank must be between 1 and 8, inclusively.");
+            }
+            File = file;
+            Rank = Utilities.RealRankToArrayRank(rank);
         }
+
+        public Square(PieceOfColor pieceOfColor, File file, int rank)
+            : this(file, rank)
+        {
+            PieceOfColor = pieceOfColor;
+        }
+
+        public PieceOfColor PieceOfColor { get; set; }
+
+        public static Square FromRealRank(File f, int realRank) => new Square(f, Utilities.RealRankToArrayRank(realRank));
 
         private static bool IsFileCharacterInRange(char file)
         {
@@ -38,8 +63,8 @@ namespace ChessLib
                 _rank = value;
             }
         }
-        protected void SetRankWithArrayIndex(int arrayIndex) { Rank = arrayIndex; }
-        protected void SetRankWithRealRank(int realRank) { Rank = Utilities.RealRankToArrayRank(realRank); }
+        //protected void SetRankWithArrayIndex(int arrayIndex) { Rank = arrayIndex; }
+        //protected void SetRankWithRealRank(int realRank) { Rank = Utilities.RealRankToArrayRank(realRank); }
         public override string ToString()
         {
             return File.ToString().ToLower() + Utilities.ArrayRankToRealRank(Rank).ToString();

@@ -15,8 +15,8 @@ namespace ChessLib.Tests
         {
             var e4 = Square.FromRealRank(File.e, 4);
             var c4 = Square.FromRealRank(File.c, 4);
-            var e4FromString = Square.FromString("e4");
-            var c4FromString = Square.FromString("c4");
+            var e4FromString = new Square("e4");
+            var c4FromString = new Square("c4");
             Assert.AreEqual(e4, e4FromString);
             Assert.AreEqual(c4, c4FromString);
         }
@@ -24,10 +24,10 @@ namespace ChessLib.Tests
         [Test]
         public void StringToSquareBadArgument()
         {
-            Assert.Throws<ArgumentException>(() => Square.FromString(""));
-            Assert.Throws<ArgumentException>(() => Square.FromString("e44"));
-            Assert.Throws<ArgumentException>(() => Square.FromString("33"));
-            Assert.Throws<ArgumentException>(() => Square.FromString("i3"));
+            Assert.Throws<ArgumentException>(() => new Square(""));
+            Assert.Throws<ArgumentException>(() => new Square("e44"));
+            Assert.Throws<ArgumentException>(() => new Square("33"));
+            Assert.Throws<ArgumentException>(() => new Square("i3"));
         }
 
     }
