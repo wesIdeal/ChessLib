@@ -1,6 +1,7 @@
 ﻿using MagicBitboard;
 using MagicBitboard.Enums;
 using System;
+using System.Linq;
 using System.Text;
 
 namespace Bitboard.Tests.ConsoleApp
@@ -53,12 +54,17 @@ namespace Bitboard.Tests.ConsoleApp
         {
             const string message = "Rook Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
+            var dtStart = DateTime.Now;
             for (var i = 0; i < 64; i++)
             {
+                
                 var file = MoveHelpers.GetFile(i);
                 var rank = MoveHelpers.GetRank(i);
+                //var n = MoveHelpers.GetMaskPermutations(bb.RookAttackMask[rank.ToInt(), file.ToInt()]);
+                var any = n.Any(x => x == 4503668447514624);
                 sb.AppendLine(bb.RookAttackMask[rank.ToInt(), file.ToInt()].MakeBoardTable(rank, file, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Rook], "&#9670;"));
             }
+            var milliseconds = (DateTime.Now - dtStart).TotalMilliseconds;
             var html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("RookMoves.html", html);
         }

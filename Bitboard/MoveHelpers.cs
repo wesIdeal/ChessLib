@@ -6,6 +6,33 @@ using System.Text;
 using MagicBitboard.Enums;
 namespace MagicBitboard
 {
+
+    internal static class PermutationExtensions
+    {
+        public static ulong[] GenerateOccupancyBoardsForMasks(this int[] setBits)
+        {
+            var rv = new List<ulong>();
+            for(int i = 1; i < setBits.Length; i++)
+            {
+                foreach(var combination in DifferentCombinations(setBits,i))
+                {
+                    var mask = (ulong)0;
+                    foreach(var index in combination)
+                    {
+                        mask |= (ulong)1 << (short)index;
+                    }
+                    rv.Add(mask);
+                }
+            }
+            return rv.Distinct().ToArray();
+        }
+        private static IEnumerable<IEnumerable<T>> DifferentCombinations<T>(this IEnumerable<T> elements, int k)
+        {
+            return k == 0 ? new[] { new T[0] } : k == 1 ? new[] { elements } :
+              elements.SelectMany((e, i) =>
+                elements.Skip(i + 1).DifferentCombinations(k - 1).Select(c => (new[] { e }).Concat(c)));
+        }
+    }
     public static class MoveHelpers
     {
         public readonly static Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations;
@@ -20,6 +47,26 @@ namespace MagicBitboard
             InitializeIndividualSquares();
             InitializeHtmlPieceRepresentations();
         }
+
+        public static ulong[] GetMaskPermutations(ulong mask)
+        {
+            var bitArray = BitConverter.GetBytes(mask);
+            var arr = new BitArray(bitArray);
+            var setBits = new List<int>();
+
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if (arr[i] == true)
+                {
+                    setBits.Add(i);
+                }
+            }
+            
+            var permutations = setBits.ToArray().GenerateOccupancyBoardsForMasks();
+           
+            return permutations;
+        }
+
 
         #region Initialization
         private static void InitializeHtmlPieceRepresentations()
@@ -95,7 +142,7 @@ namespace MagicBitboard
         #region Shift Helpers
         public static ulong Not(this ulong u) => ~u;
 
-       
+
 
         #endregion
 
@@ -163,7 +210,7 @@ namespace MagicBitboard
             var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
             if (header != string.Empty)
             {
-                sb.AppendLine($"<caption>{header}<br/>{board}</caption>");
+                sb.AppendLine($"<caption>{header}<br/>{boardBits}</caption>");
             }
             const string squareFormat = "<td id=\"{1}{0}\" class=\"{3}\">{2}</td>";
 

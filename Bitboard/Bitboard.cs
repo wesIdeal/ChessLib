@@ -40,7 +40,7 @@ namespace MagicBitboard
 
         private void InitializeBlockMasks()
         {
-
+                        
         }
 
         private void InitializeKingAttacks()
@@ -56,33 +56,17 @@ namespace MagicBitboard
 
         private void InitializePawnAttacksAndMoves()
         {
-            for (int i = 8; i < 64; i++)
+            for (int i = 8; i < 56; i++)
             {
-                var rank = i.GetRank().ToInt();
-                var file = i.GetFile().ToInt();
                 var square = (ulong)1<<i;
-                PawnAttackMask[Color.White.ToInt(), rank, file] = square.ShiftNE() | square.ShiftNW();
+                PawnAttackMask[Color.White.ToInt(), i/8, i % 8] = square.ShiftNE() | square.ShiftNW();
+                PawnMoveMask[Color.White.ToInt(), i / 8, i % 8] = square.ShiftN() | (square.Shift2N() & MoveHelpers.RankMasks[Rank.R4.ToInt()]);
             }
             for (int i = 8; i < 56; i++)
             {
-                var rank = i.GetRank().ToInt();
-                var file = i.GetFile().ToInt();
                 var square = (ulong)1 << i;
-                PawnAttackMask[Color.Black.ToInt(), rank, file] = square.ShiftSE() | square.ShiftSW();
-            }
-            for (int i = 8; i < 64; i++)
-            {
-                var rank = i.GetRank().ToInt();
-                var file = i.GetFile().ToInt();
-                var square = (ulong)1 << i;
-                PawnMoveMask[Color.White.ToInt(), rank, file] = square.ShiftN() | (square.Shift2N() & MoveHelpers.RankMasks[Rank.R4.ToInt()]);
-            }
-            for (int i = 0; i < 56; i++)
-            {
-                var rank = i.GetRank().ToInt();
-                var file = i.GetFile().ToInt();
-                var square = (ulong)1 << i;
-                PawnMoveMask[Color.Black.ToInt(), rank, file] = square.ShiftS() | (square.Shift2S() & MoveHelpers.RankMasks[Rank.R5.ToInt()]);
+                PawnAttackMask[Color.Black.ToInt(), i / 8, i % 8] = square.ShiftSE() | square.ShiftSW();
+                PawnMoveMask[Color.Black.ToInt(), i / 8, i % 8] = square.ShiftS() | (square.Shift2S() & MoveHelpers.RankMasks[Rank.R5.ToInt()]);
             }
         }
 
