@@ -98,10 +98,10 @@ namespace MagicBitboard
 
         private void InitializeKnightAttacks()
         {
-            for (ulong i = 0; i < 64; i++)
+            for (int i = 0; i < 64; i++)
             {
-                var index = i+1;
-                var kAttack = (index.ShiftNNE() | index.ShiftNNW() | index.ShiftENE() | index.ShiftWNW() | index.ShiftESE() | index.ShiftSSE() | index.ShiftSSW() | index.ShiftWSW());
+                ulong index = (ulong)1 << i;
+                var kAttack = index.ShiftNNE() | index.ShiftNNW() | index.ShiftENE() | index.ShiftWNW() | index.ShiftESE() | index.ShiftSSE() | index.ShiftSSW() | index.ShiftWSW();
 
                 //kAttack |= ();
                 KnightAttackMask[(i / 8), (i % 8)] = kAttack;

@@ -505,7 +505,14 @@ namespace ChessLib.Tests.MoveHelperShifts
             var actual = ShiftHelpers.ShiftNNE(u);
             Assert.AreEqual(expected, actual);
         }
-
+        [Test]
+        public void ShiftNNEFromC1()
+        {
+            ulong u = 0x04;
+            ulong expected = 0x80000;
+            var actual = ShiftHelpers.ShiftNNE(u);
+            Assert.AreEqual(expected, actual);
+        }
         #endregion
 
         #region ShiftENE Tests
