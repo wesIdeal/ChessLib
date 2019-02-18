@@ -61,7 +61,7 @@ namespace Bitboard.Tests.ConsoleApp
                 var file = MoveHelpers.GetFile(i);
                 var rank = MoveHelpers.GetRank(i);
                 //var n = MoveHelpers.GetMaskPermutations(bb.RookAttackMask[rank.ToInt(), file.ToInt()]);
-                var any = n.Any(x => x == 4503668447514624);
+                //var any = n.Any(x => x == 4503668447514624);
                 sb.AppendLine(bb.RookAttackMask[rank.ToInt(), file.ToInt()].MakeBoardTable(rank, file, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Rook], "&#9670;"));
             }
             var milliseconds = (DateTime.Now - dtStart).TotalMilliseconds;
