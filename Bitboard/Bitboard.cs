@@ -56,32 +56,32 @@ namespace MagicBitboard
 
         private void InitializePawnAttacksAndMoves()
         {
-            for (int i = 0; i < 64; i++)
+            for (int i = 8; i < 64; i++)
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var square = MoveHelpers.IndividualSquares[rank, file];
+                var square = (ulong)1<<i;
                 PawnAttackMask[Color.White.ToInt(), rank, file] = square.ShiftNE() | square.ShiftNW();
             }
-            for (int i = 0; i < 64; i++)
+            for (int i = 8; i < 56; i++)
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var square = MoveHelpers.IndividualSquares[rank, file];
+                var square = (ulong)1 << i;
                 PawnAttackMask[Color.Black.ToInt(), rank, file] = square.ShiftSE() | square.ShiftSW();
             }
-            for (int i = 0; i < 64; i++)
+            for (int i = 8; i < 64; i++)
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var square = MoveHelpers.IndividualSquares[rank, file];
+                var square = (ulong)1 << i;
                 PawnMoveMask[Color.White.ToInt(), rank, file] = square.ShiftN() | (square.Shift2N() & MoveHelpers.RankMasks[Rank.R4.ToInt()]);
             }
-            for (int i = 0; i < 64; i++)
+            for (int i = 0; i < 56; i++)
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var square = MoveHelpers.IndividualSquares[rank, file];
+                var square = (ulong)1 << i;
                 PawnMoveMask[Color.Black.ToInt(), rank, file] = square.ShiftS() | (square.Shift2S() & MoveHelpers.RankMasks[Rank.R5.ToInt()]);
             }
         }
