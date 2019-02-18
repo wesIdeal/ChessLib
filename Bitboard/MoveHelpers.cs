@@ -339,17 +339,19 @@ namespace MagicBitboard
             var occupancyMaskBishop = occupancyMask[1];
             rookAttackMask = new ulong[8, 8];
             bishopAttackMask = new ulong[8, 8];
-            for (bitRef = 0; bitRef <= 63; bitRef++)
+            for (bitRef = 0; bitRef < 64; bitRef++)
             {
                 mask = 0;
                 var rank = GetRank(bitRef);
                 var file = GetFile(bitRef);
-                //Up
-                for (i = bitRef + 8; i <= 55; i += 8) { mask |= ((ulong)1) << i; }
-                //Down
+                //NORTH
+                for (i = bitRef + 8; i < 56; i += 8) { mask |= ((ulong)1) << i; }
+                //SOUTH
                 for (i = bitRef - 8; i >= 8; i -= 8) mask |= ((ulong)1) << i;
-                for (i = bitRef + 1; i % 8 != 7 && i % 8 != 0; i++) mask |= ((ulong)1) << i;
-                for (i = bitRef - 1; i % 8 != 7 && i % 8 != 0; i--) mask |= ((ulong)1) << i;
+                //EAST
+                for (i = bitRef + 1; i < 64 && i % 8 != 7; i++) mask |= ((ulong)1) << i;
+                //WEST
+                for (i = bitRef - 1; i > 0 && i % 8 != 0; i--) mask |= ((ulong)1) << i;
                 rookAttackMask[rank.ToInt(), file.ToInt()] = mask;
 
                 mask = 0;

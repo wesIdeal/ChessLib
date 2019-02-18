@@ -114,31 +114,17 @@ namespace MagicBitboard
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var start = MoveHelpers.IndividualSquares[rank, file];
+                var start = (ulong)1<<i;
                 var str = Convert.ToString((long)start, 2).PadLeft(64, '0');
 
                 var bAttack = (ulong)0;
-                var value = (ulong)0;
                 var current = start;
-                while ((current = current.ShiftNE()) != 0)
-                {
-                    bAttack |= current;
-                }
-                current = start;
-                while ((current = current.ShiftNW()) != 0)
-                {
-                    bAttack |= current;
-                }
-                current = start;
-                while ((current = current.ShiftSE()) != 0)
-                {
-                    bAttack |= current;
-                }
-                current = start;
-                while ((current = current.ShiftSW()) != 0)
-                {
-                    bAttack |= current;
-                }
+
+                //NE
+                for (var sq = i; (sq / 8) < 8 && (sq % 8) > 0; sq += 6) bAttack |= ((ulong)1 << sq);
+                //SE
+                for (var sq = i; (sq / 8) > 0 && (sq % 8) > 0; sq -= 6) bAttack |= ((ulong)1 << sq);
+
 
                 //kAttack |= ();
                 BishopAttackMask[rank, file] = bAttack;
