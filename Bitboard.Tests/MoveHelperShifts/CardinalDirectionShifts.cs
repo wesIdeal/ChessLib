@@ -457,6 +457,22 @@ namespace ChessLib.Tests.MoveHelperShifts
 
         #region ShiftNNE
         [Test]
+        public void ShiftNNETestAll()
+        {
+            for (int r = 0; r < 8; r++)
+            {
+                for (int f = 0; f < 8; f++)
+                {
+                    ulong expectedValue = 0;
+                    if (r != 6 && r != 7 && f != 7)
+                    {
+                        expectedValue = MoveHelpers.IndividialSquares[r +2, f+1];
+                    }
+                    Assert.AreEqual(expectedValue, MoveHelpers.IndividialSquares[r, f].ShiftNNE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftNNE()");
+                }
+            }
+        }
+        [Test]
         public void ShiftNNENormal()
         {
             ulong u = 1;
