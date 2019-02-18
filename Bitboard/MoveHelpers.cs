@@ -11,12 +11,13 @@ namespace MagicBitboard
         public readonly static Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations;
         public static ulong[] FileMasks = new ulong[8];
         public static ulong[] RankMasks = new ulong[8];
-
+        public static ulong[,] IndividualSquares = new ulong[8, 8];
         static MoveHelpers()
         {
             HtmlPieceRepresentations = new Dictionary<Color, Dictionary<Piece, string>>();
             InitializeFileMasks();
             InitializRankMasks();
+            InitializeIndividualSquares();
             InitializeHtmlPieceRepresentations();
         }
 
@@ -41,10 +42,11 @@ namespace MagicBitboard
 
         private static void InitializeFileMasks()
         {
-            var start = (ulong)0x8080808080808080;
+            ulong start = 0x101010101010101;
+
             for (int f = 0; f <= 7; f++)
             {
-                FileMasks[f] = start >> f;
+                FileMasks[f] = start << f;
             }
         }
 
@@ -70,6 +72,14 @@ namespace MagicBitboard
         #endregion
 
         #region Array Position to Friendly Position Helpers
+
+        public static int GetBitArrayIndex(Rank rank, File file)
+        {
+            var r = rank.ToInt();
+            var f = file.ToInt();
+            return (r * 8) + f;
+        }
+
         public static File GetFile(this int square)
         {
             return (File)(square % 8);
@@ -83,30 +93,32 @@ namespace MagicBitboard
         #endregion
 
         #region Shift Helpers
-        public static ulong Not(this ulong u) => ~(u);
-        public static ulong Shift2E(this ulong u) { return u >> 2 & ~FileMasks[File.A.ToInt()] & ~FileMasks[File.B.ToInt()]; }
-        public static ulong ShiftE(this ulong u) { return u >> 1 & ~FileMasks[File.A.ToInt()]; }
-        public static ulong ShiftN(this ulong u) { return u << (8); }
-        public static ulong Shift2N(this ulong u) { return u << 16; }
-        public static ulong Shift2S(this ulong u) { return u >> 16; }
-        public static ulong ShiftS(this ulong u, int count = 1) { return u >> (count * 8); }
-        public static ulong ShiftNE(this ulong u) { return u.ShiftE().ShiftN(); }
-        public static ulong ShiftSE(this ulong u) { return u.ShiftE().ShiftS(); }
-        public static ulong ShiftSW(this ulong u) { return u.ShiftW().ShiftS(); }
-        public static ulong ShiftNW(this ulong u) { return u.ShiftW().ShiftN(); }
-        public static ulong ShiftNNE(this ulong u) { return u.ShiftE().Shift2N(); }
-        public static ulong ShiftSSE(this ulong u) { return u.ShiftE().ShiftS(2); }
-        public static ulong ShiftENE(this ulong u) { return u.Shift2E().ShiftN(); }
-        public static ulong ShiftESE(this ulong u) { return u.Shift2E().ShiftS(); }
-        public static ulong ShiftW(this ulong u) { return (ulong)(u << 1) & ~FileMasks[File.H.ToInt()]; }
-        public static ulong Shift2W(this ulong u) { return (ulong)(u << 2) & ~FileMasks[File.H.ToInt()] & ~FileMasks[File.G.ToInt()]; }
-        public static ulong ShiftNNW(this ulong u) { return u.ShiftW().Shift2N(); }
-        public static ulong ShiftSSW(this ulong u) { return u.ShiftW().ShiftS(2); }
-        public static ulong ShiftWSW(this ulong u) { return u.Shift2W().ShiftN(); }
-        public static ulong ShiftWNW(this ulong u) { return u.Shift2W().ShiftS(); }
+        public static ulong Not(this ulong u) => ~u;
 
+       
 
         #endregion
+
+        public static readonly ulong[,] IndividialSquares = new ulong[8, 8];
+
+        public static void InitializeIndividualSquares()
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                IndividialSquares[(i / 8), i % 8] = (ulong)1 << i;
+            }
+        }
+
+        public static string DisplayBits(this ulong u)
+        {
+            var str = Convert.ToString((long)u, 2).PadLeft(64, '0');
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 8; i++)
+            {
+                sb.AppendLine(new string(str.Skip(i * 8).Take(8).Reverse().ToArray()));
+            }
+            return sb.ToString();
+        }
 
         #region Board Print Representation
         public static string PrintBoardHtml(string htmlBoards)
@@ -145,7 +157,9 @@ namespace MagicBitboard
 
         public static string MakeBoardTable(this ulong u, Rank pieceRank, File pieceFile, string header = "", string pieceRep = "*", string attackSquareRep = "^")
         {
-            string board = Convert.ToString((long)u, 2).PadLeft(64, '0');
+            string boardBits = Convert.ToString((long)u, 2).PadLeft(64, '0');
+            var board = new List<string>();
+
             var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
             if (header != string.Empty)
             {
@@ -153,20 +167,47 @@ namespace MagicBitboard
             }
             const string squareFormat = "<td id=\"{1}{0}\" class=\"{3}\">{2}</td>";
 
-            for (Rank r = Enums.Rank.R8; r >= Enums.Rank.R1; r--)
+            var array = new List<string>();
+            var replacementRank = pieceRank.ToInt();
+            var replacementFile = pieceFile.ToInt();
+            for (int r = 7; r >= 0; r--)
             {
-                var rank = Math.Abs(r.ToInt() - 7);
-                sb.AppendLine($"<tr id=\"rank{rank}\">");
 
-                for (File f = File.A; f <= File.H; f++)
+                var shiftNumber = r * 8;
+                var shifted = u >> shiftNumber;
+                var rank = Convert.ToString((ushort)shifted & 0xff, 2).PadLeft(8, '0').Reverse();
+                var file = 0;
+
+                foreach (var p in rank)
                 {
-                    var file = f.ToInt();
-
-                    var pieceAtSquare = (f == pieceFile && r == pieceRank) ? pieceRep.ToString() : board[(rank * 8) + file] == '1' ? attackSquareRep.ToString() : "&nbsp;";
-                    sb.AppendFormat(squareFormat, f.ToString(), rank, pieceAtSquare, board[(rank * 8) + file] == '1' ? "altColor" : "");
+                    string squareContents = "";
+                    if (r == replacementRank && file == replacementFile)
+                    {
+                        squareContents = pieceRep;
+                    }
+                    else if (p == '1')
+                    {
+                        squareContents = attackSquareRep;
+                    }
+                    sb.AppendFormat(squareFormat, file, r, squareContents, "");
+                    file++;
                 }
                 sb.Append("\r\n</tr>\r\n");
             }
+            //for (Rank r = Enums.Rank.R8; r >= Enums.Rank.R1; r--)
+            //{
+            //    var rank = Math.Abs(r.ToInt() - 7);
+            //    sb.AppendLine($"<tr id=\"rank{rank}\">");
+
+            //    for (File f = File.A; f <= File.H; f++)
+            //    {
+            //        var file = f.ToInt();
+            //        var temp = board[(rank * 8) + file];
+            //        var pieceAtSquare = (f == pieceFile && r == pieceRank) ? pieceRep.ToString() : board[(rank * 8) + file] == '1' ? attackSquareRep.ToString() : "&nbsp;";
+            //        sb.AppendFormat(squareFormat, f.ToString(), rank, pieceAtSquare, board[(rank * 8) + file] == '1' ? "altColor" : "");
+            //    }
+            //    
+            //}
             sb.AppendLine("</table>");
             return sb.ToString();
         }
@@ -178,15 +219,16 @@ namespace MagicBitboard
             var charArrayRep = rep.GetCharacterArrayRepresntation();
             var rankHtml = new char?[8];
             var rankIdx = 0;
-           while((rankHtml = charArrayRep.Skip(rankIdx*8).Take(8).ToArray()).Any())
+            while ((rankHtml = charArrayRep.Skip(rankIdx * 8).Take(8).ToArray()).Any())
             {
                 sb.Append("<tr>");
+                rankHtml = rankHtml.Reverse().ToArray();
                 var rankString = string.Join("\r\n", rankHtml.Select(x => string.Format(squareFormat, PieceOfColor.GetHtmlRepresentation(x))));
                 sb.AppendLine(rankString);
                 sb.Append("</tr>");
                 rankIdx++;
             }
-            
+
             sb.AppendLine("</table>");
             return sb.ToString();
         }
@@ -221,10 +263,11 @@ namespace MagicBitboard
             footerHeader = " " + footerHeader;
             sb.AppendLine(footerHeader);
             sb.AppendLine(boardBorder);
-            for (var i = 0; i < 8; i++)
+
+            for (var i = 7; i >= 0; i--)
             {
-                var rankString = (8 - i).ToString();
-                var rank = str.Skip(i * 8).Take(8).Select(x => x.ToString().Replace('1', replaceOnesWith));
+                var rankString = (i + 1).ToString();
+                var rank = str.Skip(i * 8).Take(8).Select(x => x.ToString().Replace('1', replaceOnesWith)).Reverse();
                 sb.AppendLine(rankString + " | " + string.Join(" | ", rank) + " |");
             }
             sb.AppendLine(boardBorder);
@@ -286,6 +329,37 @@ namespace MagicBitboard
 ";
         #endregion
 
+        public static ulong[][] GenerateSlidingPieceOccupancyBoards(out ulong[,] rookAttackMask, out ulong[,] bishopAttackMask)
+        {
+            int i;
+            int bitRef;
+            ulong mask;
+            var occupancyMask = new ulong[2][] { new ulong[64], new ulong[64] };
+            var occupancyMaskRook = occupancyMask[0];
+            var occupancyMaskBishop = occupancyMask[1];
+            rookAttackMask = new ulong[8, 8];
+            bishopAttackMask = new ulong[8, 8];
+            for (bitRef = 0; bitRef <= 63; bitRef++)
+            {
+                mask = 0;
+                var rank = GetRank(bitRef);
+                var file = GetFile(bitRef);
+                //Up
+                for (i = bitRef + 8; i <= 55; i += 8) { mask |= ((ulong)1) << i; }
+                //Down
+                for (i = bitRef - 8; i >= 8; i -= 8) mask |= ((ulong)1) << i;
+                for (i = bitRef + 1; i % 8 != 7 && i % 8 != 0; i++) mask |= ((ulong)1) << i;
+                for (i = bitRef - 1; i % 8 != 7 && i % 8 != 0; i--) mask |= ((ulong)1) << i;
+                rookAttackMask[rank.ToInt(), file.ToInt()] = mask;
 
+                mask = 0;
+                for (i = bitRef + 9; i % 8 != 7 && i % 8 != 0 && i <= 55; i += 9) mask |= ((ulong)1) << i;
+                for (i = bitRef - 9; i % 8 != 7 && i % 8 != 0 && i >= 8; i -= 9) mask |= ((ulong)1) << i;
+                for (i = bitRef + 7; i % 8 != 7 && i % 8 != 0 && i <= 55; i += 7) mask |= ((ulong)1) << i;
+                for (i = bitRef - 7; i % 8 != 7 && i % 8 != 0 && i >= 8; i -= 7) mask |= ((ulong)1) << i;
+                bishopAttackMask[rank.ToInt(), file.ToInt()] = mask;
+            }
+            return occupancyMask;
+        }
     }
 }

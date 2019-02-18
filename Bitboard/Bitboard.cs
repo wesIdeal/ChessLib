@@ -25,12 +25,13 @@ namespace MagicBitboard
 
         public Bitboard()
         {
-
-            InitializeSingleSquares();
             //InitializeRankAndFileAttacks();
-            InitializeRookAttacks();
+            var tOld = DateTime.Now;
+            //InitializeRookAttacks();
+            var trial = MoveHelpers.GenerateSlidingPieceOccupancyBoards(out RookAttackMask, out BishopAttackMask);
+
             InitializeKnightAttacks();
-            InitializeBishopAttacks();
+            //InitializeBishopAttacks();
             InitializeQueenAttacks();
             InitializePawnAttacksAndMoves();
             InitializeKingAttacks();
@@ -48,7 +49,7 @@ namespace MagicBitboard
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var square = IndividialSquares[rank, file];
+                var square = MoveHelpers.IndividualSquares[rank, file];
                 KingMoveMask[rank, file] = square.ShiftN() | square.ShiftNE() | square.ShiftE() | square.ShiftSE() | square.ShiftS() | square.ShiftSW() | square.ShiftW() | square.ShiftNW();
             }
         }
@@ -59,28 +60,28 @@ namespace MagicBitboard
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var square = IndividialSquares[rank, file];
+                var square = MoveHelpers.IndividualSquares[rank, file];
                 PawnAttackMask[Color.White.ToInt(), rank, file] = square.ShiftNE() | square.ShiftNW();
             }
             for (int i = 0; i < 64; i++)
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var square = IndividialSquares[rank, file];
+                var square = MoveHelpers.IndividualSquares[rank, file];
                 PawnAttackMask[Color.Black.ToInt(), rank, file] = square.ShiftSE() | square.ShiftSW();
             }
             for (int i = 0; i < 64; i++)
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var square = IndividialSquares[rank, file];
+                var square = MoveHelpers.IndividualSquares[rank, file];
                 PawnMoveMask[Color.White.ToInt(), rank, file] = square.ShiftN() | (square.Shift2N() & MoveHelpers.RankMasks[Rank.R4.ToInt()]);
             }
             for (int i = 0; i < 64; i++)
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var square = IndividialSquares[rank, file];
+                var square = MoveHelpers.IndividualSquares[rank, file];
                 PawnMoveMask[Color.Black.ToInt(), rank, file] = square.ShiftS() | (square.Shift2S() & MoveHelpers.RankMasks[Rank.R5.ToInt()]);
             }
         }
@@ -97,16 +98,13 @@ namespace MagicBitboard
 
         private void InitializeKnightAttacks()
         {
-            for (int i = 0; i < 64; i++)
+            for (ulong i = 0; i < 64; i++)
             {
-                var rank = i.GetRank().ToInt();
-                var file = i.GetFile().ToInt();
-                var start = IndividialSquares[rank, file];
-                var str = Convert.ToString((long)start, 2).PadLeft(64, '0');
-                var kAttack = (start.ShiftNNE() | start.ShiftNNW() | start.ShiftENE() | start.ShiftWNW() | start.ShiftESE() | start.ShiftSSE() | start.ShiftSSW() | start.ShiftWSW());
+                var index = i+1;
+                var kAttack = (index.ShiftNNE() | index.ShiftNNW() | index.ShiftENE() | index.ShiftWNW() | index.ShiftESE() | index.ShiftSSE() | index.ShiftSSW() | index.ShiftWSW());
 
                 //kAttack |= ();
-                KnightAttackMask[rank, file] = kAttack;
+                KnightAttackMask[(i / 8), (i % 8)] = kAttack;
             }
         }
 
@@ -116,7 +114,7 @@ namespace MagicBitboard
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var start = IndividialSquares[rank, file];
+                var start = MoveHelpers.IndividualSquares[rank, file];
                 var str = Convert.ToString((long)start, 2).PadLeft(64, '0');
 
                 var bAttack = (ulong)0;
@@ -153,24 +151,14 @@ namespace MagicBitboard
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                RookAttackMask[rank, file] = (MoveHelpers.RankMasks[rank] | MoveHelpers.FileMasks[file]) ^ IndividialSquares[rank, file];
+                var fileMask = MoveHelpers.FileMasks[file];
+                var rankMask = MoveHelpers.RankMasks[rank];
+                RookAttackMask[rank, file] = (MoveHelpers.RankMasks[rank] | MoveHelpers.FileMasks[file]) ^ MoveHelpers.IndividualSquares[rank, file];
+                var str = Convert.ToString((long)RookAttackMask[rank, file], 2).PadLeft(64, '0');
+                var strRank = Convert.ToString((long)MoveHelpers.RankMasks[rank], 2).PadLeft(64, '0');
+                var strFile = Convert.ToString((long)MoveHelpers.FileMasks[file], 2).PadLeft(64, '0');
             }
         }
-        public readonly ulong[,] IndividialSquares = new ulong[8, 8];
-        public void InitializeSingleSquares()
-        {
-            for (int i = 0; i < 64; i++)
-            {
-                var rank = i.GetRank().ToInt();
-                var file = i.GetFile().ToInt();
-                ulong rankStart = ((ulong)0x80) << (8 * rank);
-                IndividialSquares[rank, file] = (ulong)(rankStart >> file);
-            }
-        }
-
-
-
-
 
 
     }

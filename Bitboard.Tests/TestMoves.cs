@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using MagicBitboard;
 using NUnit.Framework;
 namespace ChessLib.Tests
 {
@@ -11,69 +11,66 @@ namespace ChessLib.Tests
     public class TestMoves
     {
         [Test]
-        public void TestMoveW()
+        public void TestInitializeFileMasks()
         {
-            var arr = new[] { 1, 2, 3, 4, 5, 6, 7 };
-            List<int?> results = new List<int?>();
-            int? initialSquare = 0;
-            while ((initialSquare = MoveHelpers.MoveW((int)initialSquare)) != null)
-            {
-                results.Add(initialSquare);
-            }
-            Assert.AreEqual(arr, results);
+            Assert.AreEqual(0x101010101010101, MoveHelpers.FileMasks[0]);
+            Assert.AreEqual(0x202020202020202, MoveHelpers.FileMasks[1]);
+            Assert.AreEqual(0x404040404040404, MoveHelpers.FileMasks[2]);
+            Assert.AreEqual(0x808080808080808, MoveHelpers.FileMasks[3]);
+            Assert.AreEqual(0x1010101010101010, MoveHelpers.FileMasks[4]);
+            Assert.AreEqual(0x2020202020202020, MoveHelpers.FileMasks[5]);
+            Assert.AreEqual(0x4040404040404040, MoveHelpers.FileMasks[6]);
+            Assert.AreEqual(0x8080808080808080, MoveHelpers.FileMasks[7]);
         }
 
         [Test]
-        public void TestMoveWRank8()
+        public void TestInitializeRankMasks()
         {
-            var arr = new[] { 57, 58, 59, 60, 61, 62, 63 };
-            List<int?> results = new List<int?>();
-            int? initialSquare = 56;
-            while ((initialSquare = MoveHelpers.MoveW((int)initialSquare)) != null)
-            {
-                results.Add(initialSquare);
-            }
-            Assert.AreEqual(arr, results);
+            Assert.AreEqual(0xff, MoveHelpers.RankMasks[0]);
+            Assert.AreEqual(0xff00, MoveHelpers.RankMasks[1]);
+            Assert.AreEqual(0xff0000, MoveHelpers.RankMasks[2]);
+            Assert.AreEqual(0xff000000, MoveHelpers.RankMasks[3]);
+            Assert.AreEqual(0xff00000000, MoveHelpers.RankMasks[4]);
+            Assert.AreEqual(0xff0000000000, MoveHelpers.RankMasks[5]);
+            Assert.AreEqual(0xff000000000000, MoveHelpers.RankMasks[6]);
+            Assert.AreEqual(0xff00000000000000, MoveHelpers.RankMasks[7]);
+        }
+        [Test]
+        public void TestDisplayBitsMSB()
+        {
+            ulong testVal = 0x8000000000000000;
+            var expected =
+                "00000001\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n";
+            Assert.AreEqual(expected, MoveHelpers.DisplayBits(testVal));
+        }
+        [Test]
+        public void TestDisplayBitsLSB()
+        {
+            ulong testVal = 0x0000000000000001;
+            var expected =
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "00000000\r\n" +
+                "10000000\r\n";
+            Assert.AreEqual(expected, MoveHelpers.DisplayBits(testVal));
         }
 
-        [Test]
-        public void TestMoveE()
-        {
-            var arr = new[] { 6, 5, 4, 3, 2, 1, 0 };
-            List<int?> results = new List<int?>();
-            int? initialSquare = 7;
-            while ((initialSquare = MoveHelpers.MoveE((int)initialSquare)) != null)
-            {
-                results.Add(initialSquare);
-            }
-            Assert.AreEqual(arr.OrderBy(x=>x), results.OrderBy(x=>x));
-        }
+       
 
-        [Test]
-        public void TestMoveENoMoves()
-        {
-            var arr = new int[] { };
-            List<int?> results = new List<int?>();
-            int? initialSquare = 8;
-            while ((initialSquare = MoveHelpers.MoveE((int)initialSquare)) != null)
-            {
-                results.Add(initialSquare);
-            }
-            Assert.AreEqual(arr, results);
-        }
+     
 
-        [Test]
-        public void TestMoveERank8()
-        {
-            var arr = new[] { 62, 61, 60, 59, 58, 57, 56 };
-            List<int?> results = new List<int?>();
-            int? initialSquare = 63;
-            while ((initialSquare = MoveHelpers.MoveE((int)initialSquare)) != null)
-            {
-                results.Add(initialSquare);
-            }
-            Assert.AreEqual(arr, results);
-        }
+
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using MagicBitboard.Enums;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MagicBitboard
@@ -22,9 +23,19 @@ namespace MagicBitboard
             get { return this.PiecePlacement[c.ToInt(), p.ToInt()]; }
         }
 
+        public ulong GetBlockersOfColor(Color c)
+        {
+            var board = (ulong)0;
+            foreach (var p in (Piece[])Enum.GetValues(typeof(Piece)))
+            {
+                board |= this[c, p];
+            }
+            return board;
+        }
+
         public static string BitString(ulong u)
         {
-            return Convert.ToString((long)u, 2).PadLeft(64,'0');
+            return Convert.ToString((long)u, 2).PadLeft(64, '0');
         }
 
         public string BitString(Color c, Piece p)
@@ -67,8 +78,8 @@ namespace MagicBitboard
         {
             var charRep = PieceOfColor.GetCharRepresentation(p, c);
             var str = BitString(this[c, p]);
-            var rv= str.Select(x => x == '0' ? (char?)null : charRep).ToArray();
-                return rv;
+            var rv = str.Select(x => x == '0' ? (char?)null : charRep).ToArray();
+            return rv;
         }
 
         public string FenBoard
