@@ -355,9 +355,13 @@ namespace MagicBitboard
                 rookAttackMask[rank.ToInt(), file.ToInt()] = mask;
 
                 mask = 0;
+                //NE
                 for (i = bitRef + 9; i % 8 != 7 && i % 8 != 0 && i <= 55; i += 9) mask |= ((ulong)1) << i;
+                //SW
                 for (i = bitRef - 9; i % 8 != 7 && i % 8 != 0 && i >= 8; i -= 9) mask |= ((ulong)1) << i;
+                //NW
                 for (i = bitRef + 7; i % 8 != 7 && i % 8 != 0 && i <= 55; i += 7) mask |= ((ulong)1) << i;
+                //SE
                 for (i = bitRef - 7; i % 8 != 7 && i % 8 != 0 && i >= 8; i -= 7) mask |= ((ulong)1) << i;
                 bishopAttackMask[rank.ToInt(), file.ToInt()] = mask;
             }
