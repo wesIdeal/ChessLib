@@ -8,7 +8,8 @@ namespace ChessLib.Tests
     public class MoveHelperTests
     {
         [Test]
-        public void IndividualSquareValidityTest() {
+        public void IndividualSquareValidityTest()
+        {
             Assert.AreEqual(0x0000000000000001, MoveHelpers.IndividialSquares[0, 0]);
             Assert.AreEqual(0x0000000000000002, MoveHelpers.IndividialSquares[0, 1]);
             Assert.AreEqual(0x0000000000000004, MoveHelpers.IndividialSquares[0, 2]);
@@ -75,14 +76,6 @@ namespace ChessLib.Tests
             Assert.AreEqual(0x8000000000000000, MoveHelpers.IndividialSquares[7, 7]);
         }
 
-        [Test]
-        public void BitIndicies()
-        {
-            ulong a = 0b1001;
-            var tStart = DateTime.Now;
-            var bitIndices = MoveHelpers.GetSetBitIndices(a);
-            var expected = new[] { 0, 3 };
-            Assert.AreEqual(expected, bitIndices);
-        }
+        
     }
 }

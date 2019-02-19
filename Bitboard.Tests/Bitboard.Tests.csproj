@@ -40,6 +40,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BitHelpersTests.cs" />
     <Compile Include="MoveHelperShifts\CardinalDirectionShifts.cs" />
     <Compile Include="MoveHelperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
