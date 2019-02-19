@@ -120,7 +120,7 @@ namespace ChessLib.Tests.MoveHelperShifts
         {
             ulong u = 128;
             ulong expected = 0;
-            var display = MoveHelpers.FileMasks[7].DisplayBits();
+            var display = MoveHelpers.FileMasks[7].GetDisplayBits();
             var actual = ShiftHelpers.ShiftE(u);
             Assert.AreEqual(expected, actual);
         }

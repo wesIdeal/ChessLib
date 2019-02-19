@@ -6,4 +6,30 @@
     <RootNamespace>MagicBitboard</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.OData.Client" Version="7.5.0" />
+    <PackageReference Include="Microsoft.OData.Core" Version="7.5.0" />
+    <PackageReference Include="Microsoft.OData.Edm" Version="7.5.0" />
+    <PackageReference Include="Microsoft.Spatial" Version="7.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="OccupencyBoards.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>OccupencyBoards.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="OccupencyBoards.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>OccupencyBoards.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

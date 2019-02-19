@@ -64,16 +64,19 @@ namespace Bitboard.Tests.ConsoleApp
                 var rank = MoveHelpers.GetRank(i);
                 var dtStart = DateTime.Now;
                 var n = bb.RookAttackMask[rank.ToInt(), file.ToInt()].GetAllPermutations();
+                
                 var totalMS = (DateTime.Now - dtStart).TotalMilliseconds;
-                var occupancyPerms = n.ToList();
+                
                 milliseconds += totalMS;
                 if (i == 28)
                 {
-                    masks.AddRange(occupancyPerms);
-                    StringBuilder stringBuilder = new StringBuilder();
-                    masks.ForEach(x => { stringBuilder.AppendLine(x.MakeBoardTable("Mask for Rook at e4")); });
-                    var h = MoveHelpers.PrintBoardHtml(stringBuilder.ToString());
-                    System.IO.File.WriteAllText("RookBlocke4.html", h);
+                    var ob = OccupencyBoards.GetRookBoards(bb.RookAttackMask[rank.ToInt(), file.ToInt()], n, i);
+                    string str = "Blocker Boards Rook on E4\r\n" + bb.RookAttackMask[rank.ToInt(), file.ToInt()].GetDisplayBits() + "\r\n";
+                    for (int i1 = 0; i1 < ob.BlockerBoards.Length; i1++)
+                    {
+                        str += ob.ToString(i1);
+                    }
+                    System.IO.File.WriteAllText("RookBlockerBoardsE4.txt", str);
                 }
                 //var any = n.Any(x => x == 4503668447514624);
                 sb.AppendLine(bb.RookAttackMask[rank.ToInt(), file.ToInt()].MakeBoardTable(rank, file, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Rook], "&#9670;"));

@@ -21,13 +21,6 @@ namespace MagicBitboard
             InitializeHtmlPieceRepresentations();
         }
 
-
-
-
-
-
-
-
         #region Initialization
         private static void InitializeHtmlPieceRepresentations()
         {
@@ -116,13 +109,13 @@ namespace MagicBitboard
             }
         }
 
-        public static string DisplayBits(this ulong u)
+        public static string GetDisplayBits(this ulong u)
         {
             var str = Convert.ToString((long)u, 2).PadLeft(64, '0');
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < 8; i++)
             {
-                sb.AppendLine(new string(str.Skip(i * 8).Take(8).Reverse().ToArray()));
+                sb.AppendLine(string.Join(" ", str.Skip(i * 8).Take(8).Reverse().ToArray()));
             }
             return sb.ToString();
         }

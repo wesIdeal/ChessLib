@@ -7,7 +7,7 @@ namespace MagicBitboard
         public static IEnumerable<ulong> GetAllPermutations(this ulong mask)
         {
             var setBitIndices = BitHelpers.GetSetBits(mask);
-            return GetAllPermutations(setBitIndices, 0, 0);
+            return GetAllPermutations(setBitIndices, 0, 0).Distinct();
         }
 
         private static IEnumerable<ulong> GetAllPermutations(List<int> SetBits, int Index, ulong Value)

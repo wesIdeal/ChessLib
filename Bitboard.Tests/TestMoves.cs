@@ -48,7 +48,7 @@ namespace ChessLib.Tests
                 "00000000\r\n" +
                 "00000000\r\n" +
                 "00000000\r\n";
-            Assert.AreEqual(expected, MoveHelpers.DisplayBits(testVal));
+            Assert.AreEqual(expected, MoveHelpers.GetDisplayBits(testVal));
         }
         [Test]
         public void TestDisplayBitsLSB()
@@ -63,7 +63,7 @@ namespace ChessLib.Tests
                 "00000000\r\n" +
                 "00000000\r\n" +
                 "10000000\r\n";
-            Assert.AreEqual(expected, MoveHelpers.DisplayBits(testVal));
+            Assert.AreEqual(expected, MoveHelpers.GetDisplayBits(testVal));
         }
 
        
