@@ -1,5 +1,7 @@
 ﻿using MagicBitboard;
 using NUnit.Framework;
+using System;
+
 namespace ChessLib.Tests
 {
     [TestFixture]
@@ -71,6 +73,16 @@ namespace ChessLib.Tests
             Assert.AreEqual(0x2000000000000000, MoveHelpers.IndividialSquares[7, 5]);
             Assert.AreEqual(0x4000000000000000, MoveHelpers.IndividialSquares[7, 6]);
             Assert.AreEqual(0x8000000000000000, MoveHelpers.IndividialSquares[7, 7]);
+        }
+
+        [Test]
+        public void BitIndicies()
+        {
+            ulong a = 0b1001;
+            var tStart = DateTime.Now;
+            var bitIndices = MoveHelpers.GetSetBitIndices(a);
+            var expected = new[] { 0, 3 };
+            Assert.AreEqual(expected, bitIndices);
         }
     }
 }

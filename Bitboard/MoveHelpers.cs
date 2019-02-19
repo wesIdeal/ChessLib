@@ -50,21 +50,18 @@ namespace MagicBitboard
 
         public static ulong[] GetMaskPermutations(ulong mask)
         {
-            var bitArray = BitConverter.GetBytes(mask);
-            var arr = new BitArray(bitArray);
-            var setBits = new List<int>();
+            List<int> setBits = GetSetBitIndices(mask);
 
-            for (int i = 0; i < arr.Length; i++)
-            {
-                if (arr[i] == true)
-                {
-                    setBits.Add(i);
-                }
-            }
-            
             var permutations = setBits.ToArray().GenerateOccupancyBoardsForMasks();
-           
+
             return permutations;
+        }
+
+        
+        public static List<int> GetSetBitIndices(ulong mask)
+        {
+            var indices = Convert.ToString((long)mask, 2).Reverse().Select((x, i) => new { bit = x, index = i }).Where(x => x.bit == '1').Select(x => x.index);
+            return indices.ToList();
         }
 
 
