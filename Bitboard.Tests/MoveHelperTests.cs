@@ -76,6 +76,48 @@ namespace ChessLib.Tests
             Assert.AreEqual(0x8000000000000000, MoveHelpers.IndividialSquares[7, 7]);
         }
 
-        
+        [Test]
+        public void IndexToFile()
+        {
+            for(int i = 0; i < 64; i++)
+            {
+                char expected;
+                switch (i % 8)
+                {
+                    case 0: expected = 'a'; break;
+                    case 1: expected = 'b'; break;
+                    case 2: expected = 'c'; break;
+                    case 3: expected = 'd'; break;
+                    case 4: expected = 'e'; break;
+                    case 5: expected = 'f'; break;
+                    case 6: expected = 'g'; break;
+                    case 7: expected = 'h'; break;
+                    default: throw new Exception("Error in IndexToChar test.");
+                }
+                Assert.AreEqual(expected, i.IndexToFileDisplay());
+            }
+        }
+        [Test]
+        public void IndexToRank()
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                char expected;
+                switch (i / 8)
+                {
+                    case 0: expected = '1'; break;
+                    case 1: expected = '2'; break;
+                    case 2: expected = '3'; break;
+                    case 3: expected = '4'; break;
+                    case 4: expected = '5'; break;
+                    case 5: expected = '6'; break;
+                    case 6: expected = '7'; break;
+                    case 7: expected = '8'; break;
+                    default: throw new Exception("Error in IndexToChar test.");
+                }
+                Assert.AreEqual(expected, i.IndexToRankDisplay());
+            }
+        }
+
     }
 }

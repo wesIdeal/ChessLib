@@ -21,6 +21,9 @@ namespace MagicBitboard
             InitializeHtmlPieceRepresentations();
         }
 
+        public static char IndexToFileDisplay(this int i) => (char)((int)'a' + (i % 8));
+        public static char IndexToRankDisplay(this int i) => (char)((int)'1' + (i / 8));
+        public static string IndexToSquareDisplay(this int i) => $"{i.IndexToFileDisplay()}{i.IndexToRankDisplay()}";
         #region Initialization
         private static void InitializeHtmlPieceRepresentations()
         {
@@ -69,6 +72,20 @@ namespace MagicBitboard
         public static int ToInt(this File f) => (int)f;
 
         public static int ToInt(this Rank r) => (int)r;
+
+        public static string ToHexDisplay(this ulong u, bool appendHexNotation = true, bool pad = false, int padSize = 64)
+        {
+            var str = Convert.ToString((long)u, 16);
+            if (pad)
+            {
+                str = str.PadLeft(padSize, '0');
+            }
+            if (appendHexNotation)
+            {
+                str = "0x" + str;
+            }
+            return str;
+        }
         #endregion
 
         #region Array Position to Friendly Position Helpers
@@ -155,21 +172,30 @@ namespace MagicBitboard
             return sb.ToString();
         }
 
-        public static string MakeBoardTable(this ulong u, Rank pieceRank, File pieceFile, string header = "", string pieceRep = "*", string attackSquareRep = "^")
+        public static string MakeBoardTable(this ulong[] uArr, int pieceIndex, string header = "", string pieceRep = "^", string attackSquareRep = "*")
+        {
+            StringBuilder sb = new StringBuilder();
+            uArr.ToList().ForEach(x => sb.AppendLine(MakeBoardTable(x, pieceIndex, header, pieceRep, attackSquareRep)));
+            return PrintBoardHtml(sb.ToString());
+        }
+
+        public static string MakeBoardTable(this ulong u, int pieceIndex, string header = "", string pieceRep = "^", string attackSquareRep = "*")
         {
             string boardBits = Convert.ToString((long)u, 2).PadLeft(64, '0');
             var board = new List<string>();
 
             var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
-            if (header != string.Empty)
+            if (header == string.Empty)
             {
-                sb.AppendLine($"<caption>{header}<br/>{boardBits}</caption>");
+                header = $"Piece at {pieceIndex.IndexToSquareDisplay()}";
             }
+
+            sb.AppendLine($"<caption>{header}<br/>{boardBits}</caption>");
             const string squareFormat = "<td id=\"{1}{0}\" class=\"{3}\">{2}</td>";
 
             var array = new List<string>();
-            var replacementRank = pieceRank.ToInt();
-            var replacementFile = pieceFile.ToInt();
+            var replacementRank = pieceIndex / 8;
+            var replacementFile = pieceIndex % 8;
             for (int r = 7; r >= 0; r--)
             {
 
@@ -349,9 +375,9 @@ namespace MagicBitboard
                 //SOUTH
                 for (i = bitRef - 8; i >= 8; i -= 8) mask |= ((ulong)1) << i;
                 //EAST
-                for (i = bitRef + 1; i < 64 && i % 8 != 7; i++) mask |= ((ulong)1) << i;
+                for (i = bitRef + 1; (i % 8) != 7 && (i % 8) != 0; i++) { mask |= ((ulong)1) << i; }
                 //WEST
-                for (i = bitRef - 1; i > 0 && i % 8 != 0; i--) mask |= ((ulong)1) << i;
+                for (i = bitRef - 1; i > 0 && (i % 8) != 0 && (i % 8) != 7; i--) { mask |= ((ulong)1) << i; }
                 rookAttackMask[rank.ToInt(), file.ToInt()] = mask;
 
                 mask = 0;

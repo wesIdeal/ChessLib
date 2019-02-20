@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 namespace MagicBitboard
 {
     public static class BitHelpers
@@ -31,5 +32,20 @@ namespace MagicBitboard
             u &= notBitValue;
         }
 
+        public static ulong PopLSB(this ulong u)
+        {
+            return u & (u - 1);
+        }
+
+        public static int CountSetBits(this ulong u)
+        {
+            var counter = 0;
+            while (u != 0)
+            {
+                u = u.PopLSB();
+                counter++;
+            }
+            return counter;
+        }
     }
 }

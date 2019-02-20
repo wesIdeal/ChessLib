@@ -40,14 +40,14 @@ namespace ChessLib.Tests
         {
             ulong testVal = 0x8000000000000000;
             var expected =
-                "00000001\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n";
+                "0 0 0 0 0 0 0 1\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n";
             Assert.AreEqual(expected, MoveHelpers.GetDisplayBits(testVal));
         }
         [Test]
@@ -55,14 +55,14 @@ namespace ChessLib.Tests
         {
             ulong testVal = 0x0000000000000001;
             var expected =
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "00000000\r\n" +
-                "10000000\r\n";
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "0 0 0 0 0 0 0 0\r\n" +
+                "1 0 0 0 0 0 0 0\r\n";
             Assert.AreEqual(expected, MoveHelpers.GetDisplayBits(testVal));
         }
 

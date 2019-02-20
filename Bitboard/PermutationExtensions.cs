@@ -1,44 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 namespace MagicBitboard
 {
     public static class PermutationHelpers
     {
-        public static IEnumerable<ulong> GetAllPermutations(this ulong mask)
-        {
-            var setBitIndices = BitHelpers.GetSetBits(mask);
-            return GetAllPermutations(setBitIndices, 0, 0).Distinct();
-        }
+       
 
-        private static IEnumerable<ulong> GetAllPermutations(List<int> SetBits, int Index, ulong Value)
-        {
-            BitHelpers.SetBit(ref Value, SetBits[Index]);
-            yield return Value;
-            int index = Index + 1;
-            if (index < SetBits.Count)
-            {
-                using (IEnumerator<ulong> occupancyPermutations = GetAllPermutations(SetBits, index, Value).GetEnumerator())
-                {
-                    while (occupancyPermutations.MoveNext())
-                    {
-                        yield return occupancyPermutations.Current;
-                    }
-                }
-            }
-            BitHelpers.ClearBit(ref Value, SetBits[Index]);
-            yield return Value;
-            if (index < SetBits.Count)
-            {
-                using (IEnumerator<ulong> occupancyPermutations = GetAllPermutations(SetBits, index, Value).GetEnumerator())
-                {
-                    while (occupancyPermutations.MoveNext())
-                    {
-                        yield return occupancyPermutations.Current;
-                    }
-                }
-            }
-
-        }
         public static ulong[] GenerateOccupancyBoardsForMasks(this int[] setBits)
         {
             var rv = new List<ulong>();

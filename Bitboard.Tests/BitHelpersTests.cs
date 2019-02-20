@@ -1,7 +1,7 @@
 ﻿using MagicBitboard;
 using NUnit.Framework;
 
-namespace ChessLib.Tests
+namespace Bitboard.Tests
 {
     [TestFixture]
     public class BitHelpersTests
@@ -16,14 +16,29 @@ namespace ChessLib.Tests
         }
 
         [Test]
-        public void SetBit()
+        public void BitIndiciesAll()
+        {
+            ulong a = 0b1111;
+            var expected = new[] { 0, 1, 2, 3 };
+            var bitIndices = BitHelpers.GetSetBits(a);
+            Assert.AreEqual(expected, bitIndices);
+        }
+
+        [Test]
+        public void SetBitAll()
         {
             ulong a = 0;
-            var bitIndexToSet = 32;
-            var expectedBitComparisson = (ulong)1 << bitIndexToSet;
-            BitHelpers.SetBit(ref a, bitIndexToSet);
-            Assert.AreEqual(expectedBitComparisson, a);
+
+            for (int i = 0; i < 63; i++)
+            {
+                a = 0;
+                ulong expectedValue = (ulong)1 << i;
+                BitHelpers.SetBit(ref a, i);
+                Assert.AreEqual(expectedValue, a);
+                Assert.IsTrue((a & expectedValue) == expectedValue);
+            }
         }
+
 
         [Test]
         public void ClearBit()

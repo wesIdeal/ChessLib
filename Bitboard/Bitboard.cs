@@ -27,9 +27,9 @@ namespace MagicBitboard
         {
             //InitializeRankAndFileAttacks();
             var tOld = DateTime.Now;
-            //InitializeRookAttacks();
-            var trial = MoveHelpers.GenerateSlidingPieceOccupancyBoards(out RookAttackMask, out BishopAttackMask);
 
+            var trial = MoveHelpers.GenerateSlidingPieceOccupancyBoards(out RookAttackMask, out BishopAttackMask);
+            InitializeRookAttacks();
             InitializeKnightAttacks();
             //InitializeBishopAttacks();
             InitializeQueenAttacks();
@@ -40,7 +40,7 @@ namespace MagicBitboard
 
         private void InitializeBlockMasks()
         {
-                        
+
         }
 
         private void InitializeKingAttacks()
@@ -58,8 +58,8 @@ namespace MagicBitboard
         {
             for (int i = 8; i < 56; i++)
             {
-                var square = (ulong)1<<i;
-                PawnAttackMask[Color.White.ToInt(), i/8, i % 8] = square.ShiftNE() | square.ShiftNW();
+                var square = (ulong)1 << i;
+                PawnAttackMask[Color.White.ToInt(), i / 8, i % 8] = square.ShiftNE() | square.ShiftNW();
                 PawnMoveMask[Color.White.ToInt(), i / 8, i % 8] = square.ShiftN() | (square.Shift2N() & MoveHelpers.RankMasks[Rank.R4.ToInt()]);
             }
             for (int i = 8; i < 56; i++)
@@ -98,7 +98,7 @@ namespace MagicBitboard
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var start = (ulong)1<<i;
+                var start = (ulong)1 << i;
                 var str = Convert.ToString((long)start, 2).PadLeft(64, '0');
 
                 var bAttack = (ulong)0;
@@ -119,14 +119,34 @@ namespace MagicBitboard
         {
             for (int i = 0; i < 64; i++)
             {
-                var rank = i.GetRank().ToInt();
-                var file = i.GetFile().ToInt();
-                var fileMask = MoveHelpers.FileMasks[file];
-                var rankMask = MoveHelpers.RankMasks[rank];
-                RookAttackMask[rank, file] = (MoveHelpers.RankMasks[rank] | MoveHelpers.FileMasks[file]) ^ MoveHelpers.IndividualSquares[rank, file];
-                var str = Convert.ToString((long)RookAttackMask[rank, file], 2).PadLeft(64, '0');
-                var strRank = Convert.ToString((long)MoveHelpers.RankMasks[rank], 2).PadLeft(64, '0');
-                var strFile = Convert.ToString((long)MoveHelpers.FileMasks[file], 2).PadLeft(64, '0');
+                var rv = (ulong)0;
+                var startingValue = (ulong)1 << i;
+                //N
+                var positionalValue = startingValue;
+                while ((i / 8) != 7 && ((positionalValue = positionalValue.ShiftN()) & MoveHelpers.RankMasks[7]) == 0)
+                {
+                    rv |= positionalValue;
+                }
+                //E
+                positionalValue = startingValue;
+                while ((i % 8) != 7 && ((positionalValue = positionalValue.ShiftE()) & MoveHelpers.FileMasks[7]) == 0)
+                {
+                    rv |= positionalValue;
+                }
+                //S
+                positionalValue = startingValue;
+                while ((i/8) != 0 && ((positionalValue = positionalValue.ShiftS()) & MoveHelpers.RankMasks[0]) == 0)
+                {
+                    rv |= positionalValue;
+                }
+                //W
+                positionalValue = startingValue;
+                while ((i%8) != 0 &&((positionalValue = positionalValue.ShiftW()) & MoveHelpers.FileMasks[0]) == 0)
+                {
+                    rv |= positionalValue;
+
+                }
+                RookAttackMask[(i / 8), (i % 8)] = rv;
             }
         }
 
