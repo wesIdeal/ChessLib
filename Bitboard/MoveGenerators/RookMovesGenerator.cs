@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace MagicBitboard
@@ -35,6 +36,7 @@ namespace MagicBitboard
             }
             //E
             positionalValue = startingValue;
+
             while ((positionalValue = positionalValue.ShiftE()) != 0)
             {
                 rv |= positionalValue;
@@ -85,6 +87,7 @@ namespace MagicBitboard
                 }
             }
             var totalMs = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
+            Debug.WriteLine($"Finished with key generation in {(DateTime.Now - dtStart).TotalMilliseconds}ms.");
             var nonZero = attacks.Count(x => x != 0);
             return key;
         }
@@ -92,10 +95,15 @@ namespace MagicBitboard
         public override IEnumerable<BlockerAndMoveBoards> GetPermutationsForMask(ulong attackMask, IEnumerable<ulong> occupancyBoard, int pieceLocationIndex)
         {
             var boardCombos = new List<BlockerAndMoveBoards>();
+            var count = 0;
+            var dtStart = DateTime.Now;
+            var totalBoards = occupancyBoard.Count();
             foreach (var board in occupancyBoard)
             {
+                //Debug.Write(string.Format("\r{0,4} | {1,-4}", count++, totalBoards));
                 boardCombos.Add(new BlockerAndMoveBoards(board, CalculateMovesFromPosition(pieceLocationIndex, board)));
             }
+            Debug.WriteLine($"Finished with index {pieceLocationIndex} in {(DateTime.Now - dtStart).TotalMilliseconds}ms.");
             return boardCombos;
         }
     }
