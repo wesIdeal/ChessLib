@@ -43,34 +43,25 @@ namespace Bitboard.Tests.ConsoleApp
         {
             const string message = "Bishop Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
+            var bishop = new BishopPatterns();
+            var regMs = new List<double>();
             for (var i = 0; i < 64; i++)
             {
                 var file = MoveHelpers.GetFile(i);
                 var rank = MoveHelpers.GetRank(i);
                 var attack = bb.BishopAttackMask[rank.ToInt(), file.ToInt()];
+
                 sb.AppendLine(attack.MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Bishop], "&#9670;"));
-                //var n = bb.BishopAttackMask[rank.ToInt(), file.ToInt()].GetAllPermutations();
-                //if (i == 27)
-                //{
-                //    Debug.WriteLine($"{i.IndexToSquareDisplay()} mask");
-                //    Debug.Write(bb.BishopAttackMask[rank.ToInt(), file.ToInt()].GetDisplayBits());
-                //    var ob = OccupancyBoards.GetBishopBoards(bb.BishopAttackMask[rank.ToInt(), file.ToInt()], n, i);
-                //    string str = $"Blocker Boards Bishop on {i.IndexToSquareDisplay()} \r\n" + bb.BishopAttackMask[rank.ToInt(), file.ToInt()].GetDisplayBits() + "\r\n";
-                //    StringBuilder sbBlock = new StringBuilder();
-                //    for (int i1 = 0; i1 < ob.BlockerBoards.Length; i1++)
-                //    {
-                //        if (i1 <= 10)
-                //        {
-                //            sbBlock.AppendLine(ob.BlockerBoards[i1].BlockerBoard.MakeBoardTable(i, $"{i.IndexToSquareDisplay()} Blocker", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Bishop], "&#9670;"));
-                //            sbBlock.AppendLine(ob.BlockerBoards[i1].MoveBoard.MakeBoardTable(i, $"{i.IndexToSquareDisplay()} Move", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Bishop], "&#9670;")+"<br/><br/>");
-                //        }
-                //        str += ob.ToString(i1);
-                //    }
-                //    var blockHtml = MoveHelpers.PrintBoardHtml(sbBlock.ToString());
-                //    System.IO.File.WriteAllText("BishopBlockerBoards.d4.txt", str);
-                //    System.IO.File.WriteAllText("BishopBlockerBoards.d4.html", blockHtml);
-                //}
+                for (int occupancyIndex = 0; occupancyIndex < bishop.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
+                {
+                    var dtReg = DateTime.Now;
+                    var ob = bishop.GetLegalMoves((uint)i, bishop.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy);
+                    regMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
+                    Debug.Assert(bishop.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard == ob);
+                }
             }
+            Debug.WriteLine($"Avg time to get legal moves for bishop: {regMs.Average()}");
+
             var html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("BishopMoves.html", html);
         }
@@ -79,42 +70,27 @@ namespace Bitboard.Tests.ConsoleApp
         {
             const string message = "Rook Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
-            var milliseconds = (double)0;
+
             var masks = new List<ulong>();
             var dtStart = DateTime.Now;
-            var Rook = new RookPatterns();
+            var rook = new RookPatterns();
             var totalMS = (DateTime.Now - dtStart).TotalMilliseconds;
             var regMs = new List<double>();
             var hashMs = new List<double>();
             for (var i = 0; i < 64; i++)
             {
-
-                ulong attackMask = Rook[i];
-
-
-
-                for (int occupancyIndex = 0; occupancyIndex < Rook.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
+                ulong attackMask = rook[i];
+                for (int occupancyIndex = 0; occupancyIndex < rook.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
                 {
                     var dtReg = DateTime.Now;
-                    var ob = Rook.GetLegalMoves((uint)i, Rook.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy);
+                    var ob = rook.GetLegalMoves((uint)i, rook.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy);
                     regMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
-                    var dtHash = DateTime.Now;
-                    var obHashed = Rook.GetHashedLegalMoves((uint)i, Rook.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy);
-                    hashMs.Add(DateTime.Now.Subtract(dtHash).TotalMilliseconds);
-                    Debug.Assert(obHashed == ob);
-                    Debug.Assert(Rook.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard == obHashed);
+                    Debug.Assert(rook.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard == ob);
                 }
-
-                //System.IO.File.WriteAllText("RookBlockerBoardsE4.txt", str);
-
-
-                //var any = n.Any(x => x == 4503668447514624);
-                sb.AppendLine(Rook[i].MakeBoardTable(i, $"{i.IndexToSquareDisplay()} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Rook], "&#9670;"));
+                sb.AppendLine(rook[i].MakeBoardTable(i, $"{i.IndexToSquareDisplay()} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Rook], "&#9670;"));
             }
             var regAvg = regMs.Average();
-            var hashAvg = hashMs.Average();
-            Debug.WriteLine($"Regular Avg: {regAvg}\r\nHashed Avg: {hashAvg}");
-            Debug.WriteLine($"{(regAvg > hashAvg ? "Hashed" : "Regular")} was faster by {Math.Abs(regAvg - hashAvg)} ms.");
+            Debug.WriteLine($"Avg time to get legal moves for rook: {regAvg}");
             var html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("RookMoves.html", html);
         }

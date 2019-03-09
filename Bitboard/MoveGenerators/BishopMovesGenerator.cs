@@ -1,8 +1,8 @@
 ﻿namespace MagicBitboard
 {
-    public class BishopMovesGenerator
+    public class BishopMovesGenerator : MoveInitializer
     {
-        public ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard)
+        public override ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard)
         {
             var rv = (ulong)0;
             var startingValue = (ulong)1 << positionIndex;
