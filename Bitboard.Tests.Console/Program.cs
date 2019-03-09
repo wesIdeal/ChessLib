@@ -84,26 +84,37 @@ namespace Bitboard.Tests.ConsoleApp
             var dtStart = DateTime.Now;
             var Rook = new RookPatterns();
             var totalMS = (DateTime.Now - dtStart).TotalMilliseconds;
+            var regMs = new List<double>();
+            var hashMs = new List<double>();
             for (var i = 0; i < 64; i++)
             {
-                if (i == 28)
-                {
-                    ulong attackMask = Rook[i];
 
-                    string str = "Blocker Boards Rook on E4\r\n" + Rook[i].GetDisplayBits() + "\r\n";
-                    str += $"Magic Number: {Rook.MagicKey[i].ToHexDisplay()}";
-                    for (int occupancyIndex = 0; occupancyIndex < Rook.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
-                    {
-                        var ob = Rook.OccupancyAndMoveBoards[i][occupancyIndex];
-                         str += ob.ToString();
-                    }
-                    System.IO.File.WriteAllText("RookBlockerBoardsE4.txt", str);
-                    
+                ulong attackMask = Rook[i];
+
+
+
+                for (int occupancyIndex = 0; occupancyIndex < Rook.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
+                {
+                    var dtReg = DateTime.Now;
+                    var ob = Rook.GetLegalMoves((uint)i, Rook.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy);
+                    regMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
+                    var dtHash = DateTime.Now;
+                    var obHashed = Rook.GetHashedLegalMoves((uint)i, Rook.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy);
+                    hashMs.Add(DateTime.Now.Subtract(dtHash).TotalMilliseconds);
+                    Debug.Assert(obHashed == ob);
+                    Debug.Assert(Rook.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard == obHashed);
                 }
+
+                //System.IO.File.WriteAllText("RookBlockerBoardsE4.txt", str);
+
+
                 //var any = n.Any(x => x == 4503668447514624);
                 sb.AppendLine(Rook[i].MakeBoardTable(i, $"{i.IndexToSquareDisplay()} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Rook], "&#9670;"));
             }
-
+            var regAvg = regMs.Average();
+            var hashAvg = hashMs.Average();
+            Debug.WriteLine($"Regular Avg: {regAvg}\r\nHashed Avg: {hashAvg}");
+            Debug.WriteLine($"{(regAvg > hashAvg ? "Hashed" : "Regular")} was faster by {Math.Abs(regAvg - hashAvg)} ms.");
             var html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("RookMoves.html", html);
         }

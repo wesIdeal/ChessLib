@@ -7,7 +7,7 @@ namespace MagicBitboard
     {
         public abstract ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard);
 
-        public abstract ulong GenerateKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int maskLength);
+        public abstract ulong GenerateKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int maskLength, out ulong[] attackArray);
 
         public abstract IEnumerable<BlockerAndMoveBoards> GetPermutationsForMask(ulong attackMask, IEnumerable<ulong> n, int piecePositionIndex);
 
