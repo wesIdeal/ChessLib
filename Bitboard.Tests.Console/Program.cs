@@ -45,6 +45,7 @@ namespace Bitboard.Tests.ConsoleApp
             StringBuilder sb = new StringBuilder(message + "\r\n");
             var bishop = new BishopPatterns();
             var regMs = new List<double>();
+            var arrayMs = new List<double>();
             for (var i = 0; i < 64; i++)
             {
                 var file = MoveHelpers.GetFile(i);
@@ -54,13 +55,19 @@ namespace Bitboard.Tests.ConsoleApp
                 sb.AppendLine(attack.MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Bishop], "&#9670;"));
                 for (int occupancyIndex = 0; occupancyIndex < bishop.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
                 {
+                    var occupancy = bishop.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy;
+                    var legalMovesForOccupancy = bishop.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard;
                     var dtReg = DateTime.Now;
                     var ob = bishop.GetLegalMoves((uint)i, bishop.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy);
                     regMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
+                    dtReg = DateTime.Now;
+                    var obFromQuery = bishop.OccupancyAndMoveBoards[i].FirstOrDefault(x => x.Occupancy == occupancy).MoveBoard;
+                    arrayMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
                     Debug.Assert(bishop.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard == ob);
                 }
             }
-            Debug.WriteLine($"Avg time to get legal moves for bishop: {regMs.Average()}");
+            Debug.WriteLine($"Avg time to get legal moves for bishop from magics: {regMs.Average()}");
+            Debug.WriteLine($"Avg time to get legal moves for bishop from linq query: {arrayMs.Average()}");
 
             var html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("BishopMoves.html", html);
@@ -76,24 +83,62 @@ namespace Bitboard.Tests.ConsoleApp
             var rook = new RookPatterns();
             var totalMS = (DateTime.Now - dtStart).TotalMilliseconds;
             var regMs = new List<double>();
-            var hashMs = new List<double>();
+            var arrayMs = new List<double>();
             for (var i = 0; i < 64; i++)
             {
                 ulong attackMask = rook[i];
                 for (int occupancyIndex = 0; occupancyIndex < rook.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
                 {
+                    var occupancy = rook.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy;
+                    var legalMovesForOccupancy = rook.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard;
                     var dtReg = DateTime.Now;
-                    var ob = rook.GetLegalMoves((uint)i, rook.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy);
+                    var ob = rook.GetLegalMoves((uint)i, occupancy);
                     regMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
-                    Debug.Assert(rook.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard == ob);
+                    dtReg = DateTime.Now;
+                    var obFromQuery = rook.OccupancyAndMoveBoards[i].FirstOrDefault(x => x.Occupancy == occupancy).MoveBoard;
+                    arrayMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
+                    Debug.Assert(legalMovesForOccupancy == ob);
                 }
                 sb.AppendLine(rook[i].MakeBoardTable(i, $"{i.IndexToSquareDisplay()} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Rook], "&#9670;"));
             }
             var regAvg = regMs.Average();
-            Debug.WriteLine($"Avg time to get legal moves for rook: {regAvg}");
+            Debug.WriteLine($"Avg time to get legal moves for rook from magics: {regAvg}");
+            Debug.WriteLine($"Avg time to get legal moves for rook from linq query: {arrayMs.Average()}");
+
             var html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("RookMoves.html", html);
         }
+
+        private static void WriteQueenAttacks(MagicBitboard.Bitboard bb)
+        {
+            const string message = "Queen Moves/Attacks";
+            var queen = new QueenPatterns();
+            var regMs = new List<double>();
+            var arrayMs = new List<double>();
+            StringBuilder sb = new StringBuilder(message + "\r\n");
+            for (var i = 0; i < 64; i++)
+            {
+                ulong attackMask = queen[i];
+                for (int occupancyIndex = 0; occupancyIndex < queen.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
+                {
+                    var occupancy = queen.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy;
+                    var legalMovesForOccupancy = queen.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard;
+                    var dtReg = DateTime.Now;
+                    var ob = queen.GetLegalMoves((uint)i, occupancy);
+                    regMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
+                    dtReg = DateTime.Now;
+                    var obFromQuery = queen.OccupancyAndMoveBoards[i].FirstOrDefault(x => x.Occupancy == occupancy).MoveBoard;
+                    arrayMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
+                    Debug.Assert(legalMovesForOccupancy == ob);
+                }
+            }
+            Debug.WriteLine($"Avg time to get legal moves for queen from magics: { regMs.Average()}");
+            Debug.WriteLine($"Avg time to get legal moves for queen from linq query: {arrayMs.Average()}");
+            var html = MoveHelpers.PrintBoardHtml(sb.ToString());
+            System.IO.File.WriteAllText("QueenMoves.html", html);
+        }
+
+
         private static void WriteKnightAttacks(MagicBitboard.Bitboard bb)
         {
             const string message = "Knight Moves/Attacks";
@@ -108,19 +153,6 @@ namespace Bitboard.Tests.ConsoleApp
             System.IO.File.WriteAllText("KnightMoves.html", html);
         }
 
-        private static void WriteQueenAttacks(MagicBitboard.Bitboard bb)
-        {
-            const string message = "Queen Moves/Attacks";
-            StringBuilder sb = new StringBuilder(message + "\r\n");
-            for (var i = 0; i < 64; i++)
-            {
-                var file = MoveHelpers.GetFile(i);
-                var rank = MoveHelpers.GetRank(i);
-                sb.AppendLine(bb.QueenAttackMask[rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Queen], "&#9670;"));
-            }
-            var html = MoveHelpers.PrintBoardHtml(sb.ToString());
-            System.IO.File.WriteAllText("QueenMoves.html", html);
-        }
 
         private static void WriteKingAttacks(MagicBitboard.Bitboard bb)
         {
