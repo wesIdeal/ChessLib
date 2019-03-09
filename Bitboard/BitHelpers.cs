@@ -37,9 +37,9 @@ namespace MagicBitboard
             return u & (u - 1);
         }
 
-        public static int CountSetBits(this ulong u)
+        public static ushort CountSetBits(this ulong u)
         {
-            var counter = 0;
+            ushort counter = 0;
             while (u != 0)
             {
                 u = u.PopLSB();

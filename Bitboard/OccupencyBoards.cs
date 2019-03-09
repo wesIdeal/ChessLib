@@ -47,23 +47,23 @@ namespace MagicBitboard
     {
         public BlockerAndMoveBoards(ulong blockerBoard, ulong moveBoard)
         {
-            BlockerBoard = blockerBoard;
-            MoveBoard = moveBoard;
+            Occupancy = blockerBoard;
+            MoveBoard = moveBoard;  
         }
 
-        public ulong BlockerBoard { get; private set; }
+        public ulong Occupancy { get; private set; }
         public ulong MoveBoard { get; private set; }
 
         public override string ToString()
         {
-            var bb = Convert.ToString((long)BlockerBoard, 2).PadLeft(64, '0').ToCharArray();
+            var bb = Convert.ToString((long)Occupancy, 2).PadLeft(64, '0').ToCharArray();
             var mb = Convert.ToString((long)MoveBoard, 2).PadLeft(64, '0').ToCharArray();
             var bbHeader = "Blocker";
             var mbHeader = "Move Board";
             StringBuilder sb = new StringBuilder();
             var headerFormat = "{0,-20}{1,-20}\r\n{2,-20}{3,-20}\r\n";
             var format = "{0,-20}{1,-20}\r\n";
-            sb.AppendFormat(headerFormat, bbHeader, mbHeader, BlockerBoard.ToHexDisplay(), MoveBoard.ToHexDisplay());
+            sb.AppendFormat(headerFormat, bbHeader, mbHeader, Occupancy.ToHexDisplay(), MoveBoard.ToHexDisplay());
             
             for (int i = 0; i < 8; i++)
             {

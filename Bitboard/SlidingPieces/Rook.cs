@@ -10,10 +10,10 @@ namespace MagicBitboard.SlidingPieces
     public class MovePatternStorage : IEnumerable<ulong>
     {
         const ushort maxArraySize = 64;
-        public readonly ulong[] Patterns = new ulong[maxArraySize];
-        public readonly BlockerAndMoveBoards[][] OccupancyBoardSet = new BlockerAndMoveBoards[64][];
+        public readonly ulong[] AttackPatterns = new ulong[maxArraySize];
+        public readonly BlockerAndMoveBoards[][] OccupancyAndMoveBoards = new BlockerAndMoveBoards[64][];
         public readonly ulong[] MagicKey = new ulong[64];
-
+        public readonly ushort[] BitCounts = new ushort[64];
         public MovePatternStorage() { }
 
         public MovePatternStorage(ulong[,] moves, MoveInitializer mi)
@@ -26,6 +26,8 @@ namespace MagicBitboard.SlidingPieces
 
             InitializeFromOneDimensionalArray(moves, mi);
         }
+
+
 
         protected void Initialize(ulong[,] moves, MoveInitializer moveInitializer)
         {
@@ -48,11 +50,15 @@ namespace MagicBitboard.SlidingPieces
             if (moves.Length > maxArraySize) throw new ArgumentException($"Cannot hold more than {maxArraySize} elements in Move Storage array.");
             for (int index = 0; index < 64; index++)
             {
-                var attack = moves[index];
-                Patterns[index] = moves[index];
-                var occupancyPermutations = MoveInitializer.GetAllPermutations(attack);
-                OccupancyBoardSet[index] = mi.GetPermutationsForMask(attack, occupancyPermutations, index).ToArray();
-                MagicKey[index] = mi.GenerateKey(OccupancyBoardSet[index], attack.CountSetBits());
+                var attackBoard = moves[index];
+                var setBitCount =(ushort) 12;
+                AttackPatterns[index] = moves[index];
+                var occupancyPermutations = MoveInitializer.GetAllPermutations(attackBoard);
+                var permutations = mi.GetPermutationsForMask(attackBoard, occupancyPermutations, index).ToArray();
+                OccupancyAndMoveBoards[index] = permutations;
+                BitCounts[index] = setBitCount;
+                MagicKey[index] = mi.GenerateKey(OccupancyAndMoveBoards[index], setBitCount);
+
             }
         }
 
@@ -62,7 +68,7 @@ namespace MagicBitboard.SlidingPieces
             {
                 var r = rank.ToInt();
                 var f = file.ToInt();
-                return Patterns[(r * 8) + f];
+                return AttackPatterns[(r * 8) + f];
             }
         }
 
@@ -70,22 +76,33 @@ namespace MagicBitboard.SlidingPieces
         {
             get
             {
-                return Patterns[index];
+                return AttackPatterns[index];
             }
         }
 
-        public IEnumerator<ulong> GetEnumerator() => Patterns.ToList().GetEnumerator();
+        public IEnumerator<ulong> GetEnumerator() => AttackPatterns.ToList().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 
     public class RookPatterns : MovePatternStorage
     {
+        Bitboard bb = new Bitboard();
         public RookPatterns()
         {
-            var bb = new Bitboard();
+
             Initialize(bb.RookAttackMask, new RookMovesGenerator());
+            var movesForRookOna1 = GetLegalMoves(0, 0x101000100000060);
         }
 
+        public ulong GetLegalMoves(uint positionIndex, ulong occupancyBoard)
+        {
+            var relevantOccupancy = occupancyBoard & bb.RookAttackMask[(positionIndex / 8), (positionIndex % 8)];
+            var magicMoveIndex = (relevantOccupancy * MagicKey[positionIndex]) >> (64 - BitCounts[positionIndex]);
+            var tmp = OccupancyAndMoveBoards[positionIndex].Where(x => x.Occupancy == relevantOccupancy);
+            var index = Array.FindIndex(OccupancyAndMoveBoards[positionIndex], x => x.Occupancy == relevantOccupancy);
+            var board = this.OccupancyAndMoveBoards[positionIndex][magicMoveIndex];
+            return board.MoveBoard;
+        }
     }
 }

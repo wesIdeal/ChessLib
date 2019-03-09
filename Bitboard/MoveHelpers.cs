@@ -107,6 +107,9 @@ namespace MagicBitboard
             var r = square / 8;
             return (Rank)(square / 8);
         }
+
+        public static uint RankFromIdx(this uint idx) => idx / 8;
+        public static uint FileFromIdx(this uint idx) => idx % 8;
         #endregion
 
         #region Shift Helpers

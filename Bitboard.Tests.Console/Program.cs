@@ -92,13 +92,13 @@ namespace Bitboard.Tests.ConsoleApp
 
                     string str = "Blocker Boards Rook on E4\r\n" + Rook[i].GetDisplayBits() + "\r\n";
                     str += $"Magic Number: {Rook.MagicKey[i].ToHexDisplay()}";
-                    for (int occupancyIndex = 0; occupancyIndex < Rook.OccupancyBoardSet[i].Length; occupancyIndex++)
+                    for (int occupancyIndex = 0; occupancyIndex < Rook.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
                     {
-                        var ob = Rook.OccupancyBoardSet[i][occupancyIndex];
+                        var ob = Rook.OccupancyAndMoveBoards[i][occupancyIndex];
                          str += ob.ToString();
                     }
                     System.IO.File.WriteAllText("RookBlockerBoardsE4.txt", str);
-                  
+                    
                 }
                 //var any = n.Any(x => x == 4503668447514624);
                 sb.AppendLine(Rook[i].MakeBoardTable(i, $"{i.IndexToSquareDisplay()} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Rook], "&#9670;"));

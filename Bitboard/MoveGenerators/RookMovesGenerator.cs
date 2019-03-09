@@ -61,12 +61,13 @@ namespace MagicBitboard
 
         public override ulong GenerateKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int maskLength)
         {
-            var maxMoves = 1 << 12;
+            var maxMoves = 1 << maskLength;
             var attacks = new ulong[maxMoves];
 
             var key = (ulong)0;
             var fail = true;
             var dtStart = DateTime.Now;
+            var count = 1;
             while (fail)
             {
                 key = GetRandomKey();
@@ -76,10 +77,11 @@ namespace MagicBitboard
 
                 foreach (var pattern in blockerAndMoveBoards)
                 {
-                    var hash = (pattern.BlockerBoard * key) >> (64 - maskLength);
+                    var hash = (pattern.Occupancy * key) >> (64 - maskLength);
                     if (attacks[hash] != 0 && attacks[hash] != pattern.MoveBoard)
                     {
                         fail = true;
+                        count++;
                         break;
                     }
 
@@ -87,7 +89,7 @@ namespace MagicBitboard
                 }
             }
             var totalMs = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
-            Debug.WriteLine($"Finished with key generation in {(DateTime.Now - dtStart).TotalMilliseconds}ms.");
+            Debug.WriteLine($"Finished with key generation in {(DateTime.Now - dtStart).TotalMilliseconds}ms, searched {count} times.");
             var nonZero = attacks.Count(x => x != 0);
             return key;
         }
