@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MagicBitboard;
+using MagicBitboard.Helpers;
+using MagicBitboard.Enums;
+
 namespace MagicBitboard.Tests
 {
     [TestFixture]
@@ -27,6 +30,27 @@ namespace MagicBitboard.Tests
         }
 
         #region FEN
+
+        const string startingFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+        [Test]
+        public void TestInvalidActiceColor()
+        {
+            Assert.Throws(typeof(FENException), () => { FENHelpers.GetActiveColor("z"); });
+        }
+        [Test]
+        public void TestActiceColorWhite()
+        {
+            var expected = Color.White;
+            Assert.AreEqual(expected, FENHelpers.GetActiveColor("w"));
+        }
+        [Test]
+        public void TestActiveColorBlack()
+        {
+            var expected = Color.Black;
+            Assert.AreEqual(expected, FENHelpers.GetActiveColor("b"));
+        }
+
         [Test]
         public void TestIncompleteFEN()
         {

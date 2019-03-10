@@ -27,6 +27,30 @@ namespace MagicBitboard.Helpers
         public static char IndexToRankDisplay(this int i) => (char)((int)'1' + (i / 8));
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string IndexToSquareDisplay(this int i) => $"{i.IndexToFileDisplay()}{i.IndexToRankDisplay()}";
+
+        public static ushort? SquareTextToIndex(this string square)
+        {
+            if(square.Trim() == "-")
+            {
+                return null;
+            }
+            if (square.Length != 2)
+            {
+                throw new ArgumentException($"Square passed to SquareTextToIndex(), {square} has an invalid length.");
+            }
+            var file = char.ToLower(square[0]);
+            var rank = ushort.Parse(square[1].ToString());
+            if (!char.IsLetter(file) || (file < 'a' || file > 'h'))
+            {
+                throw new ArgumentException("File portion of square-text should be a letter, between 'a' and 'h'.");
+            }
+            if (rank < 1 || rank > 8)
+            {
+                throw new ArgumentException("Rank portion of square-text should be a digit with a value between 1 and 8.");
+            }
+            var rankMultiplier = rank - 'a';
+            return (ushort)((rankMultiplier * 8) + file);
+        }
         #region Initialization
         private static void InitializeHtmlPieceRepresentations()
         {
@@ -232,7 +256,7 @@ namespace MagicBitboard.Helpers
                 }
                 sb.Append("\r\n</tr>\r\n");
             }
-           
+
             sb.AppendLine("</table>");
             return sb.ToString();
         }
@@ -267,7 +291,7 @@ namespace MagicBitboard.Helpers
 
             var str = Convert.ToString((long)u, 2).PadLeft(64, '0');
             sb.Append(str + "\r\n");
-           
+
             var lRanks = new List<string>();
             var footerHeader = "";
 

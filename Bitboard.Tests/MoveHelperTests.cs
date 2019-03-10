@@ -3,11 +3,70 @@ using MagicBitboard.Helpers;
 using NUnit.Framework;
 using System;
 
-namespace ChessLib.Tests
+namespace MagicBitboard.Helpers.Tests
 {
     [TestFixture]
     public class MoveHelperTests
     {
+        [Test]
+        public void TestHyphenAsSquareTextReturnsNull()
+        {
+            var expected = (ushort?)null;
+            Assert.AreEqual(expected, MoveHelpers.SquareTextToIndex("-"));
+        }
+
+        [Test]
+        public void TestEmptyTextThrowsExc()
+        {
+            var expected = (ushort?)null;
+            Assert.Throws(typeof(ArgumentException), () => { MoveHelpers.SquareTextToIndex(""); });
+        }
+
+        [Test]
+        public void TestShortSquareTextThrowsExc()
+        {
+            var expected = (ushort?)null;
+            Assert.Throws(typeof(ArgumentException), () => { MoveHelpers.SquareTextToIndex("a"); });
+        }
+        [Test]
+        public void TestLongSquareTextThrowsExc()
+        {
+            var expected = (ushort?)null;
+            var message = "";
+            Assert.Throws(typeof(ArgumentException), () =>
+            {
+                try
+                {
+                    MoveHelpers.SquareTextToIndex("a22");
+                }
+                catch (ArgumentException a)
+                {
+                    message = a.Message;
+                    throw;
+                }
+            });
+            Console.Write(message);
+        }
+        [Test]
+        public void TestFileOutOfRangeSquareTextThrowsExc()
+        {
+            var expected = (ushort?)null;
+            var message = "";
+            Assert.Throws(typeof(ArgumentException), () =>
+            {
+                try
+                {
+                    MoveHelpers.SquareTextToIndex("i2");
+                }
+                catch (ArgumentException a)
+                {
+                    message = a.Message;
+                    throw;
+                }
+            });
+            Console.Write(message);
+        }
+
         [Test]
         public void IndividualSquareValidityTest()
         {
@@ -80,7 +139,7 @@ namespace ChessLib.Tests
         [Test]
         public void IndexToFile()
         {
-            for(int i = 0; i < 64; i++)
+            for (int i = 0; i < 64; i++)
             {
                 char expected;
                 switch (i % 8)

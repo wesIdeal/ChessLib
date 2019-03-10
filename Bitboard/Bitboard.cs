@@ -52,6 +52,9 @@ namespace MagicBitboard
             {
                 throw new FENException($"Invalid Rank{(badRanks.Count() > 1 ? "s" : "")} in FEN {fen}.\r\n{string.Join("\r\n", badRanks.Select(r => "Rank " + r.Rank + " has " + r.Count + " pieces"))}");
             }
+            Color activeColor = FENHelpers.GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
+            var enPassentSquareIndex = MoveHelpers.SquareTextToIndex(fenPieces[(int)FENPieces.EnPassentSquare]);
+
             foreach (var rank in ranks)
             {
 
@@ -74,6 +77,8 @@ namespace MagicBitboard
                 }
             }
         }
+
+
 
         private string getStringRepForRank(string rank)
         {
