@@ -20,6 +20,12 @@ namespace MagicBitboard.Helpers
             return rv;
         }
 
+        public static ulong SetBit(this ulong u, ushort bitIndex)
+        {
+            SetBit(ref u, bitIndex);
+            return u;
+        }
+
         public static void SetBit(ref ulong u, int bitIndex)
         {
             var bitValue = (ulong)1 << bitIndex;

@@ -1,4 +1,5 @@
 ﻿using MagicBitboard.Enums;
+using MagicBitboard.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;

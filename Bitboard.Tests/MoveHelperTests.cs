@@ -1,4 +1,5 @@
 ﻿using MagicBitboard;
+using MagicBitboard.Helpers;
 using NUnit.Framework;
 using System;
 

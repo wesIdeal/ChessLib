@@ -1,5 +1,6 @@
 ﻿using MagicBitboard;
 using MagicBitboard.Enums;
+using MagicBitboard.Helpers;
 using MagicBitboard.SlidingPieces;
 using System;
 using System.Collections.Generic;
@@ -11,19 +12,19 @@ namespace Bitboard.Tests.ConsoleApp
 {
     class Program
     {
+        static MagicBitboard.Bitboard bb = new MagicBitboard.Bitboard();
         static void Main(string[] args)
         {
-            var bb = new MagicBitboard.Bitboard();
 
 
-            //Console.WriteLine(bb.KnightAttackMask[Rank.R1.ToInt(), File.A.ToInt()].PrintBoard("a1 knight Attack", Rank.R1, File.A));
-            //Console.WriteLine(bb.KnightAttackMask[Rank.R4.ToInt(), File.E.ToInt()].PrintBoard("e4 knight Attack", '*'));
-            WritePawnMovesAndAttacks(bb);
-            WriteKingAttacks(bb);
-            WriteQueenAttacks(bb);
-            WriteKnightAttacks(bb);
-            WriteBishopAttacks(bb);
-            WriteRookAttacks(bb);
+
+            //Console.WriteLine(PieceAttackPatternHelper.KnightAttackMask[Rank.R1.ToInt(), File.A.ToInt()].PrintBoard("a1 knight Attack", Rank.R1, File.A));
+            //Console.WriteLine(PieceAttackPatternHelper.KnightAttackMask[Rank.R4.ToInt(), File.E.ToInt()].PrintBoard("e4 knight Attack", '*'));
+            WritePawnMovesAndAttacks();
+            WriteKingAttacks();
+            WriteKnightAttacks();
+            WriteBishopAttacks();
+            WriteRookAttacks();
             var br = new BoardRepresentation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
             var board = br[Color.White, Piece.Knight].MakeBoardTable("Initial White Knight Position", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Knight]);
             var html = MoveHelpers.PrintBoardHtml(board);
@@ -39,7 +40,7 @@ namespace Bitboard.Tests.ConsoleApp
             //Console.ReadKey();
         }
 
-        private static void WriteBishopAttacks(MagicBitboard.Bitboard bb)
+        private static void WriteBishopAttacks()
         {
             const string message = "Bishop Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
@@ -50,7 +51,7 @@ namespace Bitboard.Tests.ConsoleApp
             {
                 var file = MoveHelpers.GetFile(i);
                 var rank = MoveHelpers.GetRank(i);
-                var attack = bb.BishopAttackMask[rank.ToInt(), file.ToInt()];
+                var attack = PieceAttackPatternHelper.BishopAttackMask[rank.ToInt(), file.ToInt()];
 
                 sb.AppendLine(attack.MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Bishop], "&#9670;"));
                 for (int occupancyIndex = 0; occupancyIndex < bishop.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
@@ -73,7 +74,7 @@ namespace Bitboard.Tests.ConsoleApp
             System.IO.File.WriteAllText("BishopMoves.html", html);
         }
 
-        private static void WriteRookAttacks(MagicBitboard.Bitboard bb)
+        private static void WriteRookAttacks()
         {
             const string message = "Rook Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
@@ -109,37 +110,10 @@ namespace Bitboard.Tests.ConsoleApp
             System.IO.File.WriteAllText("RookMoves.html", html);
         }
 
-        private static void WriteQueenAttacks(MagicBitboard.Bitboard bb)
-        {
-            const string message = "Queen Moves/Attacks";
-            var queen = new QueenPatterns();
-            var regMs = new List<double>();
-            var arrayMs = new List<double>();
-            StringBuilder sb = new StringBuilder(message + "\r\n");
-            for (var i = 0; i < 64; i++)
-            {
-                ulong attackMask = queen[i];
-                for (int occupancyIndex = 0; occupancyIndex < queen.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
-                {
-                    var occupancy = queen.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy;
-                    var legalMovesForOccupancy = queen.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard;
-                    var dtReg = DateTime.Now;
-                    var ob = queen.GetLegalMoves((uint)i, occupancy);
-                    regMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
-                    dtReg = DateTime.Now;
-                    var obFromQuery = queen.OccupancyAndMoveBoards[i].FirstOrDefault(x => x.Occupancy == occupancy).MoveBoard;
-                    arrayMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
-                    Debug.Assert(legalMovesForOccupancy == ob);
-                }
-            }
-            Debug.WriteLine($"Avg time to get legal moves for queen from magics: { regMs.Average()}");
-            Debug.WriteLine($"Avg time to get legal moves for queen from linq query: {arrayMs.Average()}");
-            var html = MoveHelpers.PrintBoardHtml(sb.ToString());
-            System.IO.File.WriteAllText("QueenMoves.html", html);
-        }
+       
 
 
-        private static void WriteKnightAttacks(MagicBitboard.Bitboard bb)
+        private static void WriteKnightAttacks()
         {
             const string message = "Knight Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
@@ -147,14 +121,14 @@ namespace Bitboard.Tests.ConsoleApp
             {
                 var file = MoveHelpers.GetFile(i);
                 var rank = MoveHelpers.GetRank(i);
-                sb.AppendLine(bb.KnightAttackMask[rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Knight], "&#9670;"));
+                sb.AppendLine(PieceAttackPatternHelper.KnightAttackMask[rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Knight], "&#9670;"));
             }
             var html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("KnightMoves.html", html);
         }
 
 
-        private static void WriteKingAttacks(MagicBitboard.Bitboard bb)
+        private static void WriteKingAttacks()
         {
             const string message = "King Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
@@ -162,13 +136,13 @@ namespace Bitboard.Tests.ConsoleApp
             {
                 var file = MoveHelpers.GetFile(i);
                 var rank = MoveHelpers.GetRank(i);
-                sb.AppendLine(bb.KingMoveMask[rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.King], "&#9670;"));
+                sb.AppendLine(PieceAttackPatternHelper.KingMoveMask[rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.King], "&#9670;"));
             }
             var html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("KingMoves.html", html);
         }
 
-        private static void WritePawnMovesAndAttacks(MagicBitboard.Bitboard bb)
+        private static void WritePawnMovesAndAttacks()
         {
             StringBuilder sb = new StringBuilder();
             for (var i = 0; i < 64; i++)
@@ -176,7 +150,7 @@ namespace Bitboard.Tests.ConsoleApp
                 var file = MoveHelpers.GetFile(i);
                 var rank = MoveHelpers.GetRank(i);
                 if (rank == Rank.R1 || rank == Rank.R8) continue;
-                sb.AppendLine(bb.PawnAttackMask[Color.White.ToInt(), rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} White Pawn Attack", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Pawn], "&#9670;"));
+                sb.AppendLine(PieceAttackPatternHelper.PawnAttackMask[Color.White.ToInt(), rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} White Pawn Attack", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Pawn], "&#9670;"));
             }
             var html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("WhitePawnAttack.html", html);
@@ -187,7 +161,7 @@ namespace Bitboard.Tests.ConsoleApp
                 var file = MoveHelpers.GetFile(i);
                 var rank = MoveHelpers.GetRank(i);
                 if (rank == Rank.R1 || rank == Rank.R8) continue;
-                sb.AppendLine(bb.PawnAttackMask[Color.Black.ToInt(), rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} Black Pawn Attack", MoveHelpers.HtmlPieceRepresentations[Color.Black][Piece.Pawn], "&#9670;"));
+                sb.AppendLine(PieceAttackPatternHelper.PawnAttackMask[Color.Black.ToInt(), rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} Black Pawn Attack", MoveHelpers.HtmlPieceRepresentations[Color.Black][Piece.Pawn], "&#9670;"));
             }
             html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("BlackPawnAttack.html", html);
@@ -197,7 +171,7 @@ namespace Bitboard.Tests.ConsoleApp
                 var file = MoveHelpers.GetFile(i);
                 var rank = MoveHelpers.GetRank(i);
                 if (rank == Rank.R1 || rank == Rank.R8) continue;
-                sb.AppendLine(bb.PawnMoveMask[Color.White.ToInt(), rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} White Pawn Move", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Pawn], "&#9678;"));
+                sb.AppendLine(PieceAttackPatternHelper.PawnMoveMask[Color.White.ToInt(), rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} White Pawn Move", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Pawn], "&#9678;"));
             }
             html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("WhitePawnMove.html", html);
@@ -207,7 +181,7 @@ namespace Bitboard.Tests.ConsoleApp
                 var file = MoveHelpers.GetFile(i);
                 var rank = MoveHelpers.GetRank(i);
                 if (rank == Rank.R1 || rank == Rank.R8) continue;
-                sb.AppendLine(bb.PawnMoveMask[Color.Black.ToInt(), rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} Black Pawn Move", MoveHelpers.HtmlPieceRepresentations[Color.Black][Piece.Pawn], "&#9678;"));
+                sb.AppendLine(PieceAttackPatternHelper.PawnMoveMask[Color.Black.ToInt(), rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} Black Pawn Move", MoveHelpers.HtmlPieceRepresentations[Color.Black][Piece.Pawn], "&#9678;"));
             }
             html = MoveHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("BlackPawnMove.html", html);

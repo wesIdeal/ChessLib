@@ -1,155 +1,124 @@
 ﻿using MagicBitboard.Enums;
+using MagicBitboard.Helpers;
+using MagicBitboard.SlidingPieces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace MagicBitboard
 {
     public class Bitboard
     {
-
-        public readonly ulong[,] KnightAttackMask = new ulong[8, 8];
-        public readonly ulong[,] BishopAttackMask = new ulong[8, 8];
-        public readonly ulong[,] RookAttackMask = new ulong[8, 8];
-        public readonly ulong[,] QueenAttackMask = new ulong[8, 8];
-        public readonly ulong[,,] PawnAttackMask = new ulong[2, 8, 8];
-        public readonly ulong[,,] PawnMoveMask = new ulong[2, 8, 8];
-        public readonly ulong[,] KingMoveMask = new ulong[8, 8];
-        //public readonly ulong[,] KnightBlockMask = new ulong[8, 8];
-        //public readonly ulong[,] BishopBlockMask = new ulong[8, 8];
-        //public readonly ulong[,] RookBlockMask = new ulong[8, 8];
-        //public readonly ulong[,] QueenBlockMask = new ulong[8, 8];
-        //public readonly ulong[,,] PawnBlockMask = new ulong[2, 8, 8];
-
-
-        public readonly ulong[,] KingBlockMask = new ulong[8, 8];
-
+        public readonly ulong[][] PiecesOnBoard = new ulong[2][];
+        public readonly MovePatternStorage Bishop;
+        public readonly MovePatternStorage Rook;
+        private readonly char[] allowedFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
         public Bitboard()
         {
-            //InitializeRankAndFileAttacks();
-            var tOld = DateTime.Now;
-
-            var trial = MoveHelpers.GenerateSlidingPieceOccupancyBoards(out RookAttackMask, out BishopAttackMask);
-            InitializeRookAttacks();
-            InitializeKnightAttacks();
-            //InitializeBishopAttacks();
-            InitializeQueenAttacks();
-            InitializePawnAttacksAndMoves();
-            InitializeKingAttacks();
-            InitializeBlockMasks();
+            Bishop = new MovePatternStorage();
+            Bishop.Initialize(PieceAttackPatternHelper.BishopAttackMask, new BishopMovesInitializer());
+            Rook = new MovePatternStorage();
+            Rook.Initialize(PieceAttackPatternHelper.RookAttackMask, new RookMovesInitializer());
+            PiecesOnBoard[0] = new ulong[6];
+            PiecesOnBoard[1] = new ulong[6];
         }
 
-        private void InitializeBlockMasks()
+        public Bitboard(string fen, bool chess960 = false)
         {
+            var fenPieces = fen.Split(' ');
 
-        }
-
-        private void InitializeKingAttacks()
-        {
-            for (int i = 0; i < 64; i++)
+            if (fenPieces.Count() != 6)
             {
-                var rank = i.GetRank().ToInt();
-                var file = i.GetFile().ToInt();
-                var square = MoveHelpers.IndividualSquares[rank, file];
-                KingMoveMask[rank, file] = square.ShiftN() | square.ShiftNE() | square.ShiftE() | square.ShiftSE() | square.ShiftS() | square.ShiftSW() | square.ShiftW() | square.ShiftNW();
+                throw new FENException($"Invalid FEN passed in. FEN needs 6 pieces to be valid.\r\nSee https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation");
             }
-        }
-
-        private void InitializePawnAttacksAndMoves()
-        {
-            for (int i = 8; i < 56; i++)
+            var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
+            string[] invalidChars;
+            if ((invalidChars = piecePlacement.Select(x => x).Where(x => !allowedFENChars.Contains(x)).Select(x => x.ToString()).ToArray()).Any())
             {
-                var square = (ulong)1 << i;
-                PawnAttackMask[Color.White.ToInt(), i / 8, i % 8] = square.ShiftNE() | square.ShiftNW();
-                PawnMoveMask[Color.White.ToInt(), i / 8, i % 8] = square.ShiftN() | (square.Shift2N() & MoveHelpers.RankMasks[Rank.R4.ToInt()]);
+                throw new FENException($"Invalid characters in FEN string.\r\nReceived {fen} with the following invalid characters:\r\n{string.Join(", ", invalidChars)}");
             }
-            for (int i = 8; i < 56; i++)
+            var characterTotal = 0;
+            var rankTotal = 0;
+            var ranks = piecePlacement.Split('/').Reverse();
+            if (ranks.Count() != 8)
             {
-                var square = (ulong)1 << i;
-                PawnAttackMask[Color.Black.ToInt(), i / 8, i % 8] = square.ShiftSE() | square.ShiftSW();
-                PawnMoveMask[Color.Black.ToInt(), i / 8, i % 8] = square.ShiftS() | (square.Shift2S() & MoveHelpers.RankMasks[Rank.R5.ToInt()]);
+                throw new FENException($"Invalid number of ranks in FEN string.\r\nReceived {fen} with {ranks.Count()} ranks.");
             }
-        }
-
-        private void InitializeQueenAttacks()
-        {
-            for (int i = 0; i < 64; i++)
+            var ranksValidation = ranks.Select((r, idx) => new { Rank = idx + 1, Count = getStringRepForRank(r).Count() });
+            var badRanks = ranksValidation.Where(x => x.Count != 8);
+            if (badRanks.Any())
             {
-                var rank = i.GetRank().ToInt();
-                var file = i.GetFile().ToInt();
-                QueenAttackMask[rank, file] = BishopAttackMask[rank, file] | RookAttackMask[rank, file];
+                throw new FENException($"Invalid Rank{(badRanks.Count() > 1 ? "s" : "")} in FEN {fen}.\r\n{string.Join("\r\n", badRanks.Select(r => "Rank " + r.Rank + " has " + r.Count + " pieces"))}");
             }
-        }
-
-        private void InitializeKnightAttacks()
-        {
-            for (int i = 0; i < 64; i++)
+            foreach (var rank in ranks)
             {
-                ulong index = (ulong)1 << i;
-                var kAttack = index.ShiftNNE() | index.ShiftNNW() | index.ShiftENE() | index.ShiftWNW() | index.ShiftESE() | index.ShiftSSE() | index.ShiftSSW() | index.ShiftWSW();
 
-                //kAttack |= ();
-                KnightAttackMask[(i / 8), (i % 8)] = kAttack;
-            }
-        }
-
-        private void InitializeBishopAttacks()
-        {
-            for (int i = 0; i < 64; i++)
-            {
-                var rank = i.GetRank().ToInt();
-                var file = i.GetFile().ToInt();
-                var start = (ulong)1 << i;
-                var str = Convert.ToString((long)start, 2).PadLeft(64, '0');
-
-                var bAttack = (ulong)0;
-                var current = start;
-
-                //NE
-                for (var sq = i; (sq / 8) < 8 && (sq % 8) > 0; sq += 6) bAttack |= ((ulong)1 << sq);
-                //SE
-                for (var sq = i; (sq / 8) > 0 && (sq % 8) > 0; sq -= 6) bAttack |= ((ulong)1 << sq);
-
-
-                //kAttack |= ();
-                BishopAttackMask[rank, file] = bAttack;
-            }
-        }
-
-        public void InitializeRookAttacks()
-        {
-            for (int i = 0; i < 64; i++)
-            {
-                var rv = (ulong)0;
-                var startingValue = (ulong)1 << i;
-                //N
-                var positionalValue = startingValue;
-                while ((i / 8) != 7 && ((positionalValue = positionalValue.ShiftN()) & MoveHelpers.RankMasks[7]) == 0)
+                foreach (var f in rank)
                 {
-                    rv |= positionalValue;
+                    switch (Char.IsDigit(f))
+                    {
+                        case true:
+                            var emptySquares = Convert.ToUInt16(f);
+                            rankTotal += emptySquares;
+                            characterTotal += emptySquares;
+                            break;
+                        case false:
+                            var pieceOfColor = PieceOfColor.GetPieceOfColor(f);
+                            PiecesOnBoard[(int)pieceOfColor.Color][(int)pieceOfColor.Piece] |= (1ul << characterTotal);
+                            characterTotal++;
+                            rankTotal++;
+                            break;
+                    }
                 }
-                //E
-                positionalValue = startingValue;
-                while ((i % 8) != 7 && ((positionalValue = positionalValue.ShiftE()) & MoveHelpers.FileMasks[7]) == 0)
-                {
-                    rv |= positionalValue;
-                }
-                //S
-                positionalValue = startingValue;
-                while ((i/8) != 0 && ((positionalValue = positionalValue.ShiftS()) & MoveHelpers.RankMasks[0]) == 0)
-                {
-                    rv |= positionalValue;
-                }
-                //W
-                positionalValue = startingValue;
-                while ((i%8) != 0 &&((positionalValue = positionalValue.ShiftW()) & MoveHelpers.FileMasks[0]) == 0)
-                {
-                    rv |= positionalValue;
-
-                }
-                RookAttackMask[(i / 8), (i % 8)] = rv;
             }
         }
 
+        private string getStringRepForRank(string rank)
+        {
+            var rv = "";
+            foreach (var c in rank)
+            {
+                if (char.IsDigit(c))
+                {
+                    rv += new string('x', UInt16.Parse(c.ToString()));
+                }
+                else rv += "x";
+            }
+            return rv;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected int Rank(ushort idx) => idx / 8;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected int File(ushort idx) => idx % 8;
 
+        public ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color color = Color.White)
+        {
+            var r = Rank(pieceIndex);
+            var f = File(pieceIndex);
+            var bishopSquares = Bishop.GetLegalMoves(pieceIndex, occupancy);
+            var rookSquares = Rook.GetLegalMoves(pieceIndex, occupancy);
+            switch (piece)
+            {
+                case Piece.Bishop:
+                    return bishopSquares;
+                case Piece.Rook:
+                    return rookSquares;
+                case Piece.Queen:
+                    return bishopSquares | rookSquares;
+                case Piece.Pawn:
+                    return PieceAttackPatternHelper.PawnAttackMask[color.ToInt(), r, f];
+                case Piece.King:
+                    return PieceAttackPatternHelper.KingMoveMask[r, f];
+                case Piece.Knight:
+                    return PieceAttackPatternHelper.KnightAttackMask[r, f];
+                default:
+                    throw new Exception("Piece not supported for GetAttackSquares().");
+            }
+        }
+
+        public ulong[] RookOccupancyBoards(ushort index) => Rook.OccupancyAndMoveBoards[index].Select(x => x.Occupancy).ToArray();
+        public ulong[] BishopOccupancyBoards(ushort index) => Bishop.OccupancyAndMoveBoards[index].Select(x => x.Occupancy).ToArray();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MagicBitboard.Enums;
+using MagicBitboard.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +9,14 @@ namespace MagicBitboard
     public abstract class MoveInitializer : IMoveInitializer
     {
         private readonly MoveDirection _moveDirectionFlags;
-        private Random _random = new Random();
-
+        
         protected MoveInitializer(MoveDirection moveDirectionFlags)
         {
             _moveDirectionFlags = moveDirectionFlags;
         }
+
+        #region Random Number Helpers
+        private Random _random = new Random();
 
         public ulong NextRandom()
         {
@@ -26,14 +29,22 @@ namespace MagicBitboard
         private ulong GetRandomKey()
         {
             return NextRandom() & NextRandom() & NextRandom();
-        }
+        } 
+        #endregion
 
-        public IEnumerable<BlockerAndMoveBoards> GetPermutationsForMask(ulong attackMask, IEnumerable<ulong> occupancyBoard, int pieceLocationIndex)
+        /// <summary>
+        /// Gets the permutations of Occupancy/Move boards from a given position
+        /// </summary>
+        /// <param name="pieceLocationIndex">The index of the piece</param>
+        /// <param name="attackMask">The piece's associated attack mask from the position index</param>
+        /// <param name="occupancyBoards">The associated occupancy boards</param>
+        /// <returns></returns>
+        public IEnumerable<BlockerAndMoveBoards> GetAllPermutationsForAttackMask(int pieceLocationIndex, ulong attackMask, IEnumerable<ulong> occupancyBoards)
         {
             var boardCombos = new List<BlockerAndMoveBoards>();
             var dtStart = DateTime.Now;
-            var totalBoards = occupancyBoard.Count();
-            foreach (var board in occupancyBoard)
+            var totalBoards = occupancyBoards.Count();
+            foreach (var board in occupancyBoards)
             {
                 //Debug.Write(string.Format("\r{0,4} | {1,-4}", count++, totalBoards));
                 boardCombos.Add(new BlockerAndMoveBoards(board, CalculateMovesFromPosition(pieceLocationIndex, board)));
@@ -41,11 +52,16 @@ namespace MagicBitboard
             return boardCombos;
         }
 
-        //public abstract ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard);
-
-        public ulong GenerateKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int maskLength, out ulong[] attackArray)
+        /// <summary>
+        /// Generates magic multiplier to retrieve moves for a given piece on a square
+        /// </summary>
+        /// <param name="blockerAndMoveBoards">The object containing occupancy and resultant moves</param>
+        /// <param name="countOfSetBits">The number of set bits in the move mask. Used to determine the array size.</param>
+        /// <param name="attackArray">The newly ordered array of attacks, based on the calculated magic number</param>
+        /// <returns>The magic key which was found</returns>
+        public ulong GenerateMagicKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int countOfSetBits, out ulong[] attackArray)
         {
-            var maxMoves = 1 << maskLength;
+            var maxMoves = 1 << countOfSetBits;
             attackArray = new ulong[maxMoves];
 
             var key = (ulong)0;
@@ -61,7 +77,7 @@ namespace MagicBitboard
 
                 foreach (var pattern in blockerAndMoveBoards)
                 {
-                    var hash = (pattern.Occupancy * key) >> (64 - maskLength);
+                    var hash = (pattern.Occupancy * key) >> (64 - countOfSetBits);
                     if (attackArray[hash] != 0 && attackArray[hash] != pattern.MoveBoard)
                     {
                         fail = true;
@@ -76,103 +92,118 @@ namespace MagicBitboard
             return key;
         }
 
-        protected ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard)
+        /// <summary>
+        /// Gets a board representing the squares a piece on a square can move to.
+        /// </summary>
+        /// <param name="positionIndex">The board index position of the piece</param>
+        /// <param name="occupancyBoard">A bitboard representation of occupied squares</param>
+        /// <param name="moveDirectionFlags">The directions in which the piece can move</param>
+        /// <param name="attackArrayGen">When true, excludes outer board edges.</param>
+        /// <returns>A bitboard representation of legal moves from given position</returns>
+        public static ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard, MoveDirection moveDirectionFlags, bool attackArrayGen = false)
         {
             var rv = (ulong)0;
+            const ulong AllSquares = ulong.MaxValue;
             var startingValue = (ulong)1 << positionIndex;
             var positionalValue = startingValue;
+
             //N
-            if (_moveDirectionFlags.HasFlag(MoveDirection.N))
+            if (moveDirectionFlags.HasFlag(MoveDirection.N))
             {
 
                 while ((positionalValue = positionalValue.ShiftN()) != 0)
                 {
-
-                    rv |= positionalValue;
+                    rv |= positionalValue & (attackArrayGen ? ~MoveHelpers.RankMasks[7] : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
+
+
             }
 
             //E
-            if (_moveDirectionFlags.HasFlag(MoveDirection.E))
+            if (moveDirectionFlags.HasFlag(MoveDirection.E))
             {
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftE()) != 0)
                 {
-                    rv |= positionalValue;
+                    rv |= positionalValue & (attackArrayGen ? ~MoveHelpers.FileMasks[7] : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
 
             //S
-            if (_moveDirectionFlags.HasFlag(MoveDirection.S))
+            if (moveDirectionFlags.HasFlag(MoveDirection.S))
             {
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftS()) != 0)
                 {
-                    rv |= positionalValue;
+                    rv |= positionalValue & (attackArrayGen ? ~MoveHelpers.RankMasks[0] : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
 
             //W
-            if (_moveDirectionFlags.HasFlag(MoveDirection.W))
+            if (moveDirectionFlags.HasFlag(MoveDirection.W))
             {
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftW()) != 0)
                 {
-                    rv |= positionalValue;
+                    rv |= positionalValue & (attackArrayGen ? ~MoveHelpers.FileMasks[0] : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
-                return rv;
             }
 
             //NE
-            if (_moveDirectionFlags.HasFlag(MoveDirection.NE))
+            if (moveDirectionFlags.HasFlag(MoveDirection.NE))
             {
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftNE()) != 0)
                 {
-                    rv |= positionalValue;
+                    rv |= positionalValue & (attackArrayGen ? (~MoveHelpers.FileMasks[7] & ~MoveHelpers.RankMasks[7]) : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
 
             //NW
-            if (_moveDirectionFlags.HasFlag(MoveDirection.NW))
+            if (moveDirectionFlags.HasFlag(MoveDirection.NW))
             {
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftNW()) != 0)
                 {
-                    rv |= positionalValue;
+                    rv |= positionalValue & (attackArrayGen ? (~MoveHelpers.FileMasks[0] & ~MoveHelpers.RankMasks[7]) : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
 
             //SE
-            if (_moveDirectionFlags.HasFlag(MoveDirection.SE))
+            if (moveDirectionFlags.HasFlag(MoveDirection.SE))
             {
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftSE()) != 0)
                 {
-                    rv |= positionalValue;
+                    rv |= positionalValue & (attackArrayGen ? (~MoveHelpers.FileMasks[7] & ~MoveHelpers.RankMasks[0]) : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
 
             //SW
-            if (_moveDirectionFlags.HasFlag(MoveDirection.SW))
+            if (moveDirectionFlags.HasFlag(MoveDirection.SW))
             {
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftSW()) != 0)
                 {
-                    rv |= positionalValue;
+                    rv |= positionalValue & (attackArrayGen ? (~MoveHelpers.FileMasks[0] & ~MoveHelpers.RankMasks[0]) : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
             return rv;
         }
 
+        /// <summary>
+        /// Gets the permutations of blockers for a given attack mask. 
+        /// </summary>
+        /// <param name="mask">The relevant attack mask</param>
+        /// <returns>All relevant occupancy boards for the given mask</returns>
         public static IEnumerable<ulong> GetAllPermutations(ulong mask)
         {
             var setBitIndices = BitHelpers.GetSetBits(mask);
@@ -208,5 +239,14 @@ namespace MagicBitboard
             }
 
         }
+
+        /// <summary>
+        /// Method used to call the static method with member directions.
+        /// </summary>
+        /// <param name="positionIndex">The board index position of the piece</param>
+        /// <param name="occupancyBoard">A bitboard representation of occupied squares</param>
+        /// <returns>A bitboard representation of legal moves from given position</returns>        
+        private ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard) => CalculateMovesFromPosition(positionIndex, occupancyBoard, _moveDirectionFlags);
+
     }
 }

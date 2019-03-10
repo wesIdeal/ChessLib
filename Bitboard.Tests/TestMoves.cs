@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MagicBitboard;
+using MagicBitboard.Helpers;
 using NUnit.Framework;
 namespace ChessLib.Tests
 {

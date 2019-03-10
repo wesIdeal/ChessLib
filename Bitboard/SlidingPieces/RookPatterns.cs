@@ -1,11 +1,13 @@
-﻿namespace MagicBitboard.SlidingPieces
+﻿using MagicBitboard.Helpers;
+
+namespace MagicBitboard.SlidingPieces
 {
     public class RookPatterns : MovePatternStorage
     {
-        Bitboard bb = new Bitboard();
+       
         public RookPatterns()
         {
-            Initialize(bb.RookAttackMask, new RookMovesInitializer());
+            Initialize(PieceAttackPatternHelper.RookAttackMask, new RookMovesInitializer());
         }
     }
 }

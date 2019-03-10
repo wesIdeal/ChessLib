@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MagicBitboard.Helpers;
+using System;
 using System.Linq;
 using System.Text;
 
@@ -6,17 +7,13 @@ namespace MagicBitboard
 {
     public class BlockerAndMoveBoards
     {
+        public ulong Occupancy { get; private set; }
+        public ulong MoveBoard { get; private set; }
+
         public BlockerAndMoveBoards(ulong blockerBoard, ulong moveBoard)
         {
             Occupancy = blockerBoard;
             MoveBoard = moveBoard;
-        }
-        private ushort? _bitCount;
-        public ulong Occupancy { get; private set; }
-        public ulong MoveBoard { get; private set; }
-        public ushort BitCount
-        {
-            get { return _bitCount.HasValue ? _bitCount.Value : (_bitCount = Occupancy.CountSetBits()).Value; }
         }
         public override string ToString()
         {

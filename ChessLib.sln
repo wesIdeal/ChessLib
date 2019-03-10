@@ -9,9 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Tests", "ChessLib.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard", "Bitboard\MagicBitboard.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitboard.Tests", "Bitboard.Tests\Bitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicBitboard.Tests", "Bitboard.Tests\MagicBitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitboard.Tests.Console", "Bitboard.Tests.Console\Bitboard.Tests.Console.csproj", "{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitboard.Tests.Console", "Bitboard.Tests.Console\Bitboard.Tests.Console.csproj", "{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

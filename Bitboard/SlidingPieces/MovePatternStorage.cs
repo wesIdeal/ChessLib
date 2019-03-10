@@ -1,4 +1,5 @@
 ﻿using MagicBitboard.Enums;
+using MagicBitboard.Helpers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,14 +13,10 @@ namespace MagicBitboard.SlidingPieces
         public readonly ulong[] AttackPatterns = new ulong[maxArraySize];
         public readonly BlockerAndMoveBoards[][] OccupancyAndMoveBoards = new BlockerAndMoveBoards[64][];
         public readonly ulong[] MagicKey = new ulong[64];
-        public readonly ushort[] BitCounts = new ushort[64];
         public ulong[][] AttackArray = new ulong[64][];
         public MovePatternStorage() { }
 
-
-
-
-        protected void Initialize(ulong[,] moves, MoveInitializer moveInitializer)
+        public void Initialize(ulong[,] moves, MoveInitializer moveInitializer)
         {
             if (moves.Length > maxArraySize) throw new ArgumentException($"Cannot hold more than {maxArraySize} elements in Move Storage array.");
             var attacks = new ulong[64];
@@ -44,9 +41,9 @@ namespace MagicBitboard.SlidingPieces
                 var setBitCount = attackBoard.CountSetBits();
                 AttackPatterns[index] = moves[index];
                 var occupancyPermutations = MoveInitializer.GetAllPermutations(attackBoard);
-                var permutations = mi.GetPermutationsForMask(attackBoard, occupancyPermutations, index).ToArray();
+                var permutations = mi.GetAllPermutationsForAttackMask(index, attackBoard, occupancyPermutations).ToArray();
                 OccupancyAndMoveBoards[index] = permutations;
-                MagicKey[index] = mi.GenerateKey(OccupancyAndMoveBoards[index], setBitCount, out ulong[] attackArray);
+                MagicKey[index] = mi.GenerateMagicKey(OccupancyAndMoveBoards[index], setBitCount, out ulong[] attackArray);
                 AttackArray[index] = attackArray;
             }
         }

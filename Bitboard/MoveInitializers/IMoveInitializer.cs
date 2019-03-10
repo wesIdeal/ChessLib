@@ -4,7 +4,7 @@ namespace MagicBitboard
 {
     public interface IMoveInitializer
     {
-        ulong GenerateKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int maskLength, out ulong[] attackArray);
-        IEnumerable<BlockerAndMoveBoards> GetPermutationsForMask(ulong attackMask, IEnumerable<ulong> n, int piecePositionIndex);
+        ulong GenerateMagicKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int maskLength, out ulong[] attackArray);
+        IEnumerable<BlockerAndMoveBoards> GetAllPermutationsForAttackMask(int piecePositionIndex, ulong attackMask, IEnumerable<ulong> n);
     }
 }

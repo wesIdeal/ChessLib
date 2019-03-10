@@ -2,10 +2,9 @@
 {
     public class QueenPatterns : MovePatternStorage
     {
-        Bitboard bb = new Bitboard();
         public QueenPatterns()
         {
-            Initialize(bb.QueenAttackMask, new RookMovesInitializer());
+            //Initialize(PieceAttackPatternHelper.QueenAttackMask, new RookMovesInitializer());
         }
     }
 }

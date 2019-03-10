@@ -6,17 +6,19 @@ namespace MagicBitboard.Enums
     public enum File { A = 0, B, C, D, E, F, G, H };
     public enum Color { White = 0, Black }
 
+    public enum FENPieces { PiecePlacement = 0, ActiveColor, CastlingRights, EnPassentSquare, HalfmoveClock, FullMoveNumber }
+
     [Flags]
     public enum MoveDirection
     {
-        N = 0,
-        NE = 1,
-        E = 2,
-        SE = 4,
-        S = 8,
-        SW = 16,
-        W = 32,
-        NW = 64
+        N = 1,
+        NE = 2,
+        E = 4,
+        SE = 8,
+        S = 16,
+        SW = 32,
+        W = 64,
+        NW = 128
     }
     public static class SlidingPieceDirectionContants
     {
