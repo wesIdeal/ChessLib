@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace MagicBitboard.Enums
 {
@@ -24,7 +25,16 @@ namespace MagicBitboard.Enums
     [Flags]
     public enum CastlingAvailability
     {
-        BlackKingside = 1, BlackQueenside = 2, WhiteKingside = 4, WhiteQueenside = 8, NoCastlingAvailable = 16
+        [Description("k")]
+        BlackKingside = 1,
+        [Description("q")]
+        BlackQueenside = 2,
+        [Description("K")]
+        WhiteKingside = 4,
+        [Description("Q")]
+        WhiteQueenside = 8,
+        [Description("-")]
+        NoCastlingAvailable = 16
     }
     public static class SlidingPieceDirectionContants
     {
