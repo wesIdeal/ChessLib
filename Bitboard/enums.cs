@@ -20,6 +20,12 @@ namespace MagicBitboard.Enums
         W = 64,
         NW = 128
     }
+
+    [Flags]
+    public enum CastlingAvailability
+    {
+        BlackKingside = 1, BlackQueenside = 2, WhiteKingside = 4, WhiteQueenside = 8, NoCastlingAvailable = 16
+    }
     public static class SlidingPieceDirectionContants
     {
         public const MoveDirection RookDirections = MoveDirection.N | MoveDirection.E | MoveDirection.S | MoveDirection.W;

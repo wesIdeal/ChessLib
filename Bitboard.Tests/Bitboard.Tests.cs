@@ -19,20 +19,44 @@ namespace MagicBitboard.Tests
         {
 
         }
-        [Test]
-        public void TestQueenAttacksAtRandom()
-        {
-            Bitboard _bb = new Bitboard();
-            var occupancy = 0x1000818011030ul;
-            var expectedAttackBoard = 0x805031e;
-            var actual = _bb.GetAttackedSquares(Piece.Queen, 0, occupancy);
-            Assert.AreEqual(expectedAttackBoard, actual);
-        }
+        //[Test]
+        //public void TestQueenAttacksAtRandom()
+        //{
+        //    Bitboard _bb = new Bitboard();
+        //    var occupancy = 0x1000818011030ul;
+        //    var expectedAttackBoard = 0x805031e;
+        //    var actual = _bb.GetAttackedSquares(Piece.Queen, 0, occupancy);
+        //    Assert.AreEqual(expectedAttackBoard, actual);
+        //}
 
         #region FEN
 
         const string startingFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
+        [Test]
+        public void TestInvalidHalfmoveClock()
+        {
+            var message = "";
+            Assert.Throws(typeof(FENException), () =>
+            {
+                try { FENHelpers.GetMoveNumberFromString("-1"); }
+                catch(FENException e) { message = e.Message; throw; }
+            });
+        }
+        [Test]
+        public void TestBlankStringInHalfmoveClock()
+        {
+            var message = "";
+            Assert.Throws(typeof(FENException), () =>
+            {
+                try { FENHelpers.GetMoveNumberFromString(""); }
+                catch (FENException e) { message = e.Message; throw; }
+            });
+        }
+        [Test]
+        public void TestHalfmoveClock()
+        {
+            Assert.AreEqual((uint?)24, FENHelpers.GetMoveNumberFromString("24"));
+        }
         [Test]
         public void TestInvalidActiceColor()
         {
@@ -49,6 +73,16 @@ namespace MagicBitboard.Tests
         {
             var expected = Color.Black;
             Assert.AreEqual(expected, FENHelpers.GetActiveColor("b"));
+        }
+        [Test]
+        public void TestInvalidCastlingAvailabilityEmptyString()
+        {
+            var message = "";
+            Assert.Throws(typeof(FENException), () =>
+            {
+                try { FENHelpers.GetMoveNumberFromString(""); }
+                catch (FENException e) { message = e.Message; throw; }
+            });
         }
 
         [Test]

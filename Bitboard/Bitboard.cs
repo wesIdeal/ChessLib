@@ -54,7 +54,9 @@ namespace MagicBitboard
             }
             Color activeColor = FENHelpers.GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
             var enPassentSquareIndex = MoveHelpers.SquareTextToIndex(fenPieces[(int)FENPieces.EnPassentSquare]);
-
+            var halfmoveClock = FENHelpers.GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
+            var fullMoveCount = FENHelpers.GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveNumber]);
+            
             foreach (var rank in ranks)
             {
 
