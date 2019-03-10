@@ -18,20 +18,17 @@ namespace MagicBitboard.Helpers.Tests
         [Test]
         public void TestEmptyTextThrowsExc()
         {
-            var expected = (ushort?)null;
             Assert.Throws(typeof(ArgumentException), () => { MoveHelpers.SquareTextToIndex(""); });
         }
 
         [Test]
         public void TestShortSquareTextThrowsExc()
         {
-            var expected = (ushort?)null;
             Assert.Throws(typeof(ArgumentException), () => { MoveHelpers.SquareTextToIndex("a"); });
         }
         [Test]
         public void TestLongSquareTextThrowsExc()
         {
-            var expected = (ushort?)null;
             var message = "";
             Assert.Throws(typeof(ArgumentException), () =>
             {
@@ -50,7 +47,6 @@ namespace MagicBitboard.Helpers.Tests
         [Test]
         public void TestFileOutOfRangeSquareTextThrowsExc()
         {
-            var expected = (ushort?)null;
             var message = "";
             Assert.Throws(typeof(ArgumentException), () =>
             {
@@ -69,7 +65,6 @@ namespace MagicBitboard.Helpers.Tests
         [Test]
         public void TestRankZeroSquareTextThrowsExc()
         {
-            var expected = (ushort?)null;
             var message = "";
             Assert.Throws(typeof(ArgumentException), () =>
             {
@@ -89,7 +84,6 @@ namespace MagicBitboard.Helpers.Tests
         [Test]
         public void TestRankHighSquareTextThrowsExc()
         {
-            var expected = (ushort?)null;
             var message = "";
             Assert.Throws(typeof(ArgumentException), () =>
             {
@@ -104,6 +98,22 @@ namespace MagicBitboard.Helpers.Tests
                 }
             });
             Console.Write(message);
+        }
+        [Test]
+        public void Testa1IsZero()
+        {
+            Assert.AreEqual(0, MoveHelpers.SquareTextToIndex("a1"));
+        }
+
+        [Test]
+        public void Testh8Is63()
+        {
+            Assert.AreEqual(63, MoveHelpers.SquareTextToIndex("h8"));
+        }
+        [Test]
+        public void Teste4Is28()
+        {
+            Assert.AreEqual(28, MoveHelpers.SquareTextToIndex("e4"));
         }
 
         [Test]

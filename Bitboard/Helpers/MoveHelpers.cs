@@ -48,8 +48,8 @@ namespace MagicBitboard.Helpers
             {
                 throw new ArgumentException("Rank portion of square-text should be a digit with a value between 1 and 8.");
             }
-            var rankMultiplier = rank - 'a';
-            return (ushort)((rankMultiplier * 8) + file);
+            var rankMultiplier = rank-1;
+            return (ushort)((rankMultiplier * 8) + file-'a');
         }
         #region Initialization
         private static void InitializeHtmlPieceRepresentations()
