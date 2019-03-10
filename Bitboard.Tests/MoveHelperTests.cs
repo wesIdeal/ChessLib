@@ -66,6 +66,45 @@ namespace MagicBitboard.Helpers.Tests
             });
             Console.Write(message);
         }
+        [Test]
+        public void TestRankZeroSquareTextThrowsExc()
+        {
+            var expected = (ushort?)null;
+            var message = "";
+            Assert.Throws(typeof(ArgumentException), () =>
+            {
+                try
+                {
+                    MoveHelpers.SquareTextToIndex("a0");
+                }
+                catch (ArgumentException a)
+                {
+                    message = a.Message;
+                    throw;
+                }
+            });
+            Console.Write(message);
+        }
+
+        [Test]
+        public void TestRankHighSquareTextThrowsExc()
+        {
+            var expected = (ushort?)null;
+            var message = "";
+            Assert.Throws(typeof(ArgumentException), () =>
+            {
+                try
+                {
+                    MoveHelpers.SquareTextToIndex("a9");
+                }
+                catch (ArgumentException a)
+                {
+                    message = a.Message;
+                    throw;
+                }
+            });
+            Console.Write(message);
+        }
 
         [Test]
         public void IndividualSquareValidityTest()
