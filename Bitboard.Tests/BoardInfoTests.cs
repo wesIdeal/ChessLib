@@ -24,7 +24,7 @@ namespace MagicBitboard.Tests
             var dtStart = DateTime.Now;
             bitBoard = new Bitboard();
             var totalMs = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
-            Debug.WriteLine($"Bitboard made in {totalMs} ms");
+            Console.WriteLine($"Bitboard made in {totalMs} ms");
         }
         [SetUp]
         public void Setup()
@@ -64,6 +64,15 @@ namespace MagicBitboard.Tests
             var d4 = MoveHelpers.SquareTextToIndex("d4");
             var isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d4.Value);
             Assert.IsFalse(isAttacked);
+        }
+
+        [Test]
+        public void Should_Return_True_When_d4_Is_Attacked()
+        {
+            var gi = new GameInfo(bitBoard, fenQueenAttacksd4);
+            var d4 = MoveHelpers.SquareTextToIndex("d4");
+            var isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d4.Value);
+            Assert.IsTrue(isAttacked);
         }
     }
 }
