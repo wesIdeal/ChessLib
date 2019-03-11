@@ -69,6 +69,29 @@ namespace MagicBitboard.Helpers
             ValidateFENPiecePlacementRanks(piecePlacement);
             ValidateFENPiecePlacementKing(piecePlacement);
             ValidateFENPiecePlacementPawns(piecePlacement);
+            ValidateNumberOfPieces(piecePlacement);
+        }
+
+        private static void ValidateNumberOfPieces(string piecePlacement)
+        {
+
+            var whitePieceCount = piecePlacement.Count(p => char.IsLetter(p) && char.IsUpper(p)) > 16;
+            var blackPieceCount = piecePlacement.Count(p => char.IsLetter(p) && char.IsLower(p)) > 16;
+            if (whitePieceCount || blackPieceCount)
+            {
+                var message = "Invalid FEN Piece Placement. ";
+                if (whitePieceCount)
+                {
+                    message += "\r\nWhite has too many pieces, max is 16";
+                }
+                if (blackPieceCount)
+                {
+                    message += "\r\nBlack has too many pieces, max is 16";
+                }
+                message += $"Piece Placement: {piecePlacement}";
+                throw new FENPieceCountTooHighException(message);
+            }
+
         }
 
         public static void ValidateFENPiecePlacementKing(string piecePlacement)
@@ -77,7 +100,11 @@ namespace MagicBitboard.Helpers
             var bkCount = piecePlacement.Count(p => p == 'k');
             if (wkCount != 1 || bkCount != 1)
             {
-                throw new FENPiecePlacementKingException($"Invalid King setup in piece placement portion of FEN. Each side should have one and only one king. Piece Placement: {piecePlacement}");
+                var sideSpecificMessage = "";
+                if (wkCount != 1 && bkCount != 1) sideSpecificMessage = "White and Black must have";
+                else if (wkCount != 1) sideSpecificMessage = "White must have";
+                else sideSpecificMessage = "Black must have";
+                throw new FENPiecePlacementKingException($"Invalid King setup in piece placement portion of FEN. {sideSpecificMessage} one and only one king. Piece Placement: {piecePlacement}");
             }
         }
 
@@ -87,7 +114,17 @@ namespace MagicBitboard.Helpers
             var bpCount = piecePlacement.Count(p => p == 'p');
             if (wpCount > 8 || bpCount > 8)
             {
-                throw new FENPiecePlacementPawnException($"Invalid Pawn setup in piece placement portion of FEN. Each side should have no more than 8 pawns. Piece Placement: {piecePlacement}");
+                var sideSpecificMessage = "";
+                if (wpCount > 8 && bpCount > 8) sideSpecificMessage = "White and Black have";
+                else if (wpCount > 8) sideSpecificMessage = "White has";
+                else sideSpecificMessage = "Black has";
+                throw new FENPiecePlacementPawnException($"Invalid Pawn setup in piece placement portion of FEN. {sideSpecificMessage} more than 8 pawns on the board.\r\nPiece Placement: {piecePlacement}");
+            }
+            var ranks = piecePlacement.Split('/');
+            if (ranks[0].Any(x => char.ToLower(x) == 'p') || ranks[7].Any(x => char.ToLower(x) == 'p'))
+            {
+                throw new FENPiecePlacementPawnException($"Invalid Pawn setup in piece placement portion of FEN. Pawns cannot be on the first or eighth ranks. Piece Placement: {piecePlacement}");
+
             }
         }
 
@@ -152,15 +189,22 @@ namespace MagicBitboard.Helpers
                     }
                 }
             }
-            return new BoardInfo(fen)
+            //if (m_stm == White && (m_epSquare < a6 || m_epSquare > h6))
+            //{
+            //    return InvalidEnPassant;
+            //}
+            //if (m_stm == Black && (m_epSquare < a3 || m_epSquare > h3))
+            //{
+            //    return InvalidEnPassant;
+            //}
+            if ((activePlayer == Color.White && (enPassentSquareIndex < 40 || enPassentSquareIndex > 47))
+                ||
+                (activePlayer == Color.Black && (enPassentSquareIndex < 16 || enPassentSquareIndex > 23)))
             {
-                PiecesOnBoard = pieces,
-                ActivePlayer = activePlayer,
-                CastlingAvailability = GetCastlingFromString(fenPieces[(int)FENPieces.CastlingRights]),
-                EnPassentIndex = enPassentSquareIndex,
-                HalfmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]),
-                MoveCounter = GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveNumber])
-            };
+                throw new FENException("Bad En Passent square in FEN.");
+            }
+            return new BoardInfo(pieces, activePlayer, GetCastlingFromString(fenPieces[(int)FENPieces.CastlingRights]),
+                enPassentSquareIndex, halfmoveClock, fullMoveCount);
         }
 
         private static int getStringRepForRank(string rank)

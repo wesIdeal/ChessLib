@@ -280,6 +280,7 @@ namespace ChessLib.Tests.Helpers
         {
             Assert.Throws(typeof(FENActiveColorException), () => { FENHelpers.GetActiveColor("z"); });
         }
+
         [Test]
         public void Should_Set_Active_Color_As_White_When_Passed_w()
         {
@@ -294,7 +295,32 @@ namespace ChessLib.Tests.Helpers
             Assert.AreEqual(expected, FENHelpers.GetActiveColor("b"));
         }
 
+        [Test]
+        public void Should_Throw_Exception_For_Pawns_On_First_Ranks()
+        {
+            var fen1 = "rnbqkbnr/ppp2ppp/1p6/8/8/8/PPP2PPP/RNBQKBNP";
+            var fen2 = "pnbqkbnr/ppp2pppp/8/8/8/1P6/P2PPPPP/RNBQKBNR";
+            var fen3 = "rnbqkbnr/ppp1pppp/1p6/8/8/8/PPP2PPP/RNBQKBNp";
+            var fen4 = "Pnbqkbnr/ppp1ppppp/8/8/8/1P6/PPPP1PPP/RNBQKBNR";
 
+            Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen1); });
+            Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen2); });
+            Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen3); });
+            Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen4); });
+        }
+
+        [Test]
+        public void Should_Throw_Exception_For_Too_Many_Pieces()
+        {
+            var fen1 = "rnbqkbnr/pppppppp/1r6/8/8/8/PPPPPPPP/RNBQKBNR";
+            var fen2 = "rnbqkbnr/pppppppp/8/8/8/1R6/PPPPPPPP/RNBQKBNR";
+            var fen3 = "rnbqkbnr/pppppppp/1r6/8/8/1R6/PPPPPPPP/RNBQKBNR";
+            
+
+            Assert.Throws(typeof(FENPieceCountTooHighException), () => { FENHelpers.ValidateFENPiecePlacement(fen1); });
+            Assert.Throws(typeof(FENPieceCountTooHighException), () => { FENHelpers.ValidateFENPiecePlacement(fen2); });
+            Assert.Throws(typeof(FENPieceCountTooHighException), () => { FENHelpers.ValidateFENPiecePlacement(fen3); });
+        }
 
         [Test]
         public void Should_Throw_Exception_On_Incomplete_FEN()
@@ -409,11 +435,10 @@ namespace ChessLib.Tests.Helpers
             var fen1 = "rnbqkbnr/pppppppp/1p6/8/8/8/PPPPPPPP/RNBQKBNR";
             var fen2 = "rnbqkbnr/ppppppppp/8/8/8/1P6/PPPPPPPP/RNBQKBNR";
             var fen3 = "rnbqkbnr/ppppppppp/1p6/8/8/1P6/PPPPPPPP/RNBQKBNR";
-            var message = "";
+
             Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen1); });
             Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen2); });
             Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen3); });
-            Console.WriteLine(message);
         }
 
         [Test]

@@ -5,18 +5,25 @@ using System.Text;
 
 namespace MagicBitboard
 {
-    public class FENPiecePlacementPawnException : FENException
+    public class FENPiecePlacementPawnException : FENPiecePlacementException
     {
         public FENPiecePlacementPawnException(string message) : base(message)
         {
         }
     }
-    public class FENPiecePlacementKingException : FENException
+    public class FENPiecePlacementKingException : FENPiecePlacementException
     {
         public FENPiecePlacementKingException(string message) : base(message)
         {
         }
     }
+    public class FENPieceCountTooHighException : FENPiecePlacementException
+    {
+        public FENPieceCountTooHighException(string message) : base(message)
+        {
+        }
+    }
+
     public class FENPiecePlacementException : FENException
     {
         public FENPiecePlacementException(string message) : base(message)

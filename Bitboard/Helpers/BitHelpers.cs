@@ -4,7 +4,8 @@ namespace MagicBitboard.Helpers
 {
     public static class BitHelpers
     {
-        public static bool IsBitSet(ulong u, int bitIndex)
+
+        public static bool IsBitSet(this ulong u, int bitIndex)
         {
             var comparrisson = ((ulong)1 << bitIndex);
             return (comparrisson & u) == comparrisson;
@@ -52,6 +53,23 @@ namespace MagicBitboard.Helpers
                 counter++;
             }
             return counter;
+        }
+
+        public static ushort[] GetSetBitIndexes(this ulong u)
+        {
+            ushort counter = 0;
+           
+            var rv = new ushort[u.CountSetBits()];
+            var idx = 0;
+            var compare = 0;
+            while (counter++ < 64)
+            {
+                if ((u & (1ul << counter)) != 0)
+                {
+                    rv[idx] = counter;
+                }
+            }
+            return rv;
         }
     }
 }

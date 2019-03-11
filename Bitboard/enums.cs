@@ -21,6 +21,8 @@ namespace MagicBitboard.Enums
         W = 64,
         NW = 128
     }
+    [Flags]
+    public enum Check { None = 0, Normal = 1,  Opposite = 2, Double = 4 }
 
     [Flags]
     public enum CastlingAvailability

@@ -10,6 +10,7 @@ namespace MagicBitboard.Helpers
     public static class MoveHelpers
     {
         public readonly static Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations;
+        public static Color Toggle(this Color c) => c == Color.White ? Color.Black : Color.White;
         public static ulong[] FileMasks = new ulong[8];
         public static ulong[] RankMasks = new ulong[8];
         public static ulong[,] IndividualSquares = new ulong[8, 8];
@@ -30,7 +31,7 @@ namespace MagicBitboard.Helpers
 
         public static ushort? SquareTextToIndex(this string square)
         {
-            if(square.Trim() == "-")
+            if (square.Trim() == "-")
             {
                 return null;
             }
@@ -48,8 +49,8 @@ namespace MagicBitboard.Helpers
             {
                 throw new ArgumentException("Rank portion of square-text should be a digit with a value between 1 and 8.");
             }
-            var rankMultiplier = rank-1;
-            return (ushort)((rankMultiplier * 8) + file-'a');
+            var rankMultiplier = rank - 1;
+            return (ushort)((rankMultiplier * 8) + file - 'a');
         }
         #region Initialization
         private static void InitializeHtmlPieceRepresentations()
