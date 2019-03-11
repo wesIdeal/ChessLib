@@ -31,14 +31,14 @@ namespace MagicBitboard.SlidingPieces
             }
             InitializeFromOneDimensionalArray(attacks, moveInitializer);
         }
-
+        private const int ArraySize = 12;
         private void InitializeFromOneDimensionalArray(ulong[] moves, MoveInitializer mi)
         {
             if (moves.Length > maxArraySize) throw new ArgumentException($"Cannot hold more than {maxArraySize} elements in Move Storage array.");
             for (int index = 0; index < 64; index++)
             {
                 var attackBoard = moves[index];
-                var setBitCount = attackBoard.CountSetBits();
+                var setBitCount = ArraySize;//= attackBoard.CountSetBits();
                 AttackPatterns[index] = moves[index];
                 var occupancyPermutations = MoveInitializer.GetAllPermutations(attackBoard);
                 var permutations = mi.GetAllPermutationsForAttackMask(index, attackBoard, occupancyPermutations).ToArray();
@@ -73,7 +73,7 @@ namespace MagicBitboard.SlidingPieces
         public ulong GetLegalMoves(uint positionIndex, ulong occupancyBoard)
         {
             var relevantOccupancy = occupancyBoard & AttackPatterns[positionIndex];
-            var magicMoveIndex = (relevantOccupancy * MagicKey[positionIndex]) >> (64 - AttackPatterns[positionIndex].CountSetBits());
+            var magicMoveIndex = (relevantOccupancy * MagicKey[positionIndex]) >> (64 - ArraySize);
             var board = AttackArray[positionIndex][magicMoveIndex];
             return board;
         }

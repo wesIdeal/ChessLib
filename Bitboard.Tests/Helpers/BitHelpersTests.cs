@@ -2,11 +2,34 @@
 using MagicBitboard.Helpers;
 using NUnit.Framework;
 
-namespace Bitboard.Tests
+namespace MagicBitboard.Helpers.Tests
 {
     [TestFixture]
     public class BitHelpersTests
     {
+        [Test]
+        public void Should_Return_Square_Index_By_Value()
+        {
+            var count = 0;
+            foreach (var sq in MoveHelpers.IndividialSquares)
+            {
+                var idx = BitHelpers.GetSetBitIndexes(sq);
+                Assert.AreEqual(new ushort[] { (ushort)count }, idx);
+            }
+        }
+        [Test]
+        public void Should_Return_Square_Indexes_By_Value()
+        {
+            var expectedR2 = new ushort[] { 8, 9, 10, 11, 12, 13, 14, 15 };
+            var expectedR7 = new ushort[] { 48, 49, 50, 51, 52, 53, 54, 55 };
+            var rank2Value = MoveHelpers.RankMasks[1];
+            var rank2SetBits = BitHelpers.GetSetBitIndexes(rank2Value);
+            Assert.AreEqual(expectedR2, rank2SetBits);
+            Assert.AreEqual(expectedR7, BitHelpers.GetSetBitIndexes(MoveHelpers.RankMasks[6]));
+
+        }
+
+
         [Test]
         public void BitIndicies()
         {

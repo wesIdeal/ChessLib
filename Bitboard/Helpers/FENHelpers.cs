@@ -153,9 +153,13 @@ namespace MagicBitboard.Helpers
             }
         }
 
-        public static BoardInfo BoardInfoFromFen(string fen, bool chess960 = false)
+        public static BoardInfo BoardInfoFromFen(string fen, Bitboard bb = null, bool chess960 = false)
         {
             ValidateFENStructure(fen);
+            if(bb == null)
+            {
+                bb = new Bitboard();
+            }
             var fenPieces = fen.Split(' ');
             var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
             ValidateFENPiecePlacement(fenPieces[(int)FENPieces.PiecePlacement]);
@@ -204,7 +208,7 @@ namespace MagicBitboard.Helpers
                 throw new FENException("Bad En Passent square in FEN.");
             }
             return new BoardInfo(pieces, activePlayer, GetCastlingFromString(fenPieces[(int)FENPieces.CastlingRights]),
-                enPassentSquareIndex, halfmoveClock, fullMoveCount);
+                enPassentSquareIndex, halfmoveClock, fullMoveCount, bb);
         }
 
         private static int getStringRepForRank(string rank)

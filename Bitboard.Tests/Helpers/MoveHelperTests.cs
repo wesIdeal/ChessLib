@@ -3,10 +3,10 @@ using MagicBitboard.Helpers;
 using NUnit.Framework;
 using System;
 
-namespace MagicBitboard.Helpers.MoveHelper.Tests
+namespace MagicBitboard.Helpers.Tests
 {
     [TestFixture]
-    public partial class MoveHelperTests
+    public class MoveHelperTests
     {
         [Test]
         public void TestHyphenAsSquareTextReturnsNull()

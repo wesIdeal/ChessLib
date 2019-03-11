@@ -57,17 +57,18 @@ namespace MagicBitboard.Helpers
 
         public static ushort[] GetSetBitIndexes(this ulong u)
         {
-            ushort counter = 0;
-           
+            ushort counter = 1;
+            if (u == 0) return new ushort[0];
             var rv = new ushort[u.CountSetBits()];
             var idx = 0;
-            var compare = 0;
-            while (counter++ < 64)
+            var compare = 0ul;
+            while (counter < 64 && ((compare = (1ul << counter)) < u))
             {
-                if ((u & (1ul << counter)) != 0)
+                if ((u & compare) != 0)
                 {
-                    rv[idx] = counter;
+                    rv[idx++] = (ushort)(counter);
                 }
+                counter++;
             }
             return rv;
         }

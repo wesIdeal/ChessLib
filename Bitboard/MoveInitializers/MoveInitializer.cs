@@ -8,6 +8,7 @@ namespace MagicBitboard
 {
     public abstract class MoveInitializer : IMoveInitializer
     {
+      
         private readonly MoveDirection _moveDirectionFlags;
         
         protected MoveInitializer(MoveDirection moveDirectionFlags)

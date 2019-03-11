@@ -7,8 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChessLib.Tests.MoveHelperShifts
+namespace MagicBitboard.Helpers.MoveHelper.Tests
 {
+
     [TestFixture]
     public class CardinalDirectionShifts
     {
@@ -407,7 +408,7 @@ namespace ChessLib.Tests.MoveHelperShifts
             Assert.AreEqual(expected, actual);
         }
         #endregion
-        #endregion 
+        #endregion
         #endregion
 
         #endregion
@@ -1271,7 +1272,7 @@ namespace ChessLib.Tests.MoveHelperShifts
             var actual = ShiftHelpers.ShiftNNW(u);
             Assert.AreEqual(expected, actual);
         }
-        #endregion 
+        #endregion
         #endregion
 
         #endregion
