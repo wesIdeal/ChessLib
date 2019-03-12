@@ -1,6 +1,6 @@
-﻿using MagicBitboard.Enums;
+﻿using EnumsNET;
+using MagicBitboard.Enums;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -10,24 +10,125 @@ namespace MagicBitboard.Helpers
     {
         public static readonly char[] ValidCastlingStringChars = new char[] { 'k', 'K', 'q', 'Q', '-' };
         public static readonly char[] ValidFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
-        public static Color GetActiveColor(string v)
+
+
+
+
+
+        public static void ValidateFENStructure(string fen)
         {
-            switch (v)
+            if (string.IsNullOrEmpty(fen)
+                || fen.Split(' ').Count() != 6)
             {
-                case "w": return Color.White;
-                case "b": return Color.Black;
-                default: throw new FENActiveColorException("Invalid active color in FEN. Color character received was " + v + ".");
+                throw new FENException(fen, FENError.InvalidFENString);
             }
         }
 
-        public static uint GetMoveNumberFromString(string v)
+        public static FENError ValidatePiecePlacement(string piecePlacement)
         {
-            if (!uint.TryParse(v, out uint result))
-            {
-                throw new FENMoveNumberException($"Could not parse Halfmove Clock portion of FEN. Received {v}.");
-            }
-            return result;
+            FENError fenError = FENError.NULL;
+            fenError |= ValidatePiecePlacementRanks(piecePlacement);
+            fenError |= ValidatePiecePlacementCharacters(piecePlacement);
+            return fenError;
         }
+        private static FENError ValidatePiecePlacementRanks(string piecePlacement)
+        {
+            FENError fenError = FENError.NULL;
+            var ranks = piecePlacement.Split('/').Reverse();
+            if (ranks.Count() != 8)
+            {
+                fenError |= FENError.PiecePlacementRankCount;
+            }
+            var ranksValidation = ranks.Select((r, idx) => new { Rank = idx + 1, Count = GetStringRepForRank(r) });
+            var badRanks = ranksValidation.Where(x => x.Count != 8);
+
+            if (badRanks.Any())
+            {
+                fenError |= FENError.PiecePlacementPieceCountInRank;
+            }
+            return fenError;
+        }
+        private static FENError ValidatePiecePlacementCharacters(string piecePlacement)
+        {
+            string[] invalidChars;
+            if ((invalidChars = piecePlacement.Select(x => x).Where(x => !ValidFENChars.Contains(x)).Select(x => x.ToString()).ToArray()).Any())
+            {
+                return FENError.PiecePlacementInvalidChars;
+            }
+            return FENError.NULL;
+        }
+
+        public static FENError ValidateActiveColor(string activeColor) => (new[] { "w", "b" }).Contains(activeColor) ? FENError.NULL : FENError.InvalidActiveColor;
+
+        public static FENError ValidateCastlingAvailabilityString(string castleAvailability)
+        {
+            FENError fenError = FENError.NULL;
+            if (castleAvailability == "-") return fenError;
+
+            if (castleAvailability.Trim() == "") { fenError |= FENError.CastlingUnrecognizedChar; }
+            var castlingChars = castleAvailability.ToCharArray();
+            var notAllowed = castlingChars.Where(c => !ValidCastlingStringChars.Contains(c));
+
+            if (notAllowed.Any()) { fenError |= FENError.CastlingUnrecognizedChar; }
+            else
+            {
+                if (castleAvailability.Contains('-'))
+                {
+                    fenError |= FENError.CastlingStringBadSequence;
+                }
+                else
+                {
+                    var castleAvailabilityArray = castleAvailability.ToArray();
+                    if (castleAvailabilityArray.Count() != castleAvailabilityArray.Distinct().Count())
+                    {
+                        fenError |= FENError.CastlingStringRepitition;
+                    }
+                }
+            }
+            return fenError;
+        }
+
+        public static FENError ValidateEnPassentSquare(string v)
+        {
+            if (v == "-") return FENError.NULL;
+            const FENError error = FENError.InvalidEnPassentSquare;
+            bool valid = true;
+            if (v.Length != 2) return error;
+            valid &= (char.IsLetter(v[0]) && char.IsLower(v[0]) && (v[0] >= 'a' && v[0] <= 'h'));
+            valid &= ushort.TryParse(v[1].ToString(), out ushort rank);
+            if (valid)
+            {
+                valid &= (rank >= 1 && rank <= 8);
+            }
+            return valid ? FENError.NULL : error;
+        }
+
+        public static FENError ValidateHalfmoveClock(string n) => ValidateNumberFromString(n) ? FENError.NULL : FENError.HalfmoveClock;
+        public static FENError ValidateFullMoveCounter(string n) => ValidateNumberFromString(n) ? FENError.NULL : FENError.FullMoveCounter;
+        private static bool ValidateNumberFromString(string moveCounter)
+        {
+            return uint.TryParse(moveCounter, out uint result);
+        }
+
+        public static void ValidateFENString(string fen)
+        {
+            ValidateFENStructure(fen);
+            FENError fenError = FENError.NULL;
+            var fenPieces = fen.Split(' ');
+
+            fenError |= ValidatePiecePlacement(fenPieces[(int)FENPieces.PiecePlacement]);
+            fenError |= ValidateActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
+            fenError |= ValidateCastlingAvailabilityString(fenPieces[(int)FENPieces.CastlingAvailability]);
+            fenError |= ValidateEnPassentSquare(fenPieces[(int)FENPieces.EnPassentSquare]);
+            fenError |= ValidateHalfmoveClock(fenPieces[(int)FENPieces.HalfmoveClock]);
+            fenError |= ValidateFullMoveCounter(fenPieces[(int)FENPieces.FullMoveCounter]);
+            if (fenError != FENError.NULL)
+            {
+                throw new FENException(fen, fenError);
+            }
+        }
+
+
 
         public static CastlingAvailability GetCastlingFromString(string castleAvailability)
         {
@@ -41,138 +142,40 @@ namespace MagicBitboard.Helpers
             return (CastlingAvailability)rv;
         }
 
-        public static void ValidateCastlingAvailabilityString(string castleAvailability)
+        public static Color GetActiveColor(string v)
         {
-            if (castleAvailability.Trim() == "") { throw new FENCastlingAvailabilityException($"Cannot get catling availability from empty string."); }
-            var castlingChars = castleAvailability.ToCharArray();
-            var notAllowed = castlingChars.Where(c => !ValidCastlingStringChars.Contains(c));
-            if (notAllowed.Any()) { throw new FENCastlingAvailabilityException($"Found unallowed characters in castling string: {string.Join(", ", notAllowed.Select(x => x.ToString()))}."); }
-            var castleAvailabilityArray = castleAvailability.ToArray();
-            if (castleAvailabilityArray.Count() != castleAvailabilityArray.Distinct().Count())
+            switch (v)
             {
-                throw new FENCastlingAvailabilityException($"Found a repeat of the same castling availability in FEN.\r\nCastle string was {castleAvailability}.");
+                case "w": return Color.White;
+                case "b": return Color.Black;
+                default: return 0;
             }
         }
 
-        public static void ValidateFENStructure(string fen)
+        public static uint GetMoveNumberFromString(string v)
         {
-            var fenPieces = fen.Split(' ');
-            if (fenPieces.Count() != 6)
-            {
-                throw new FENException($"Invalid FEN passed in. FEN needs 6 pieces to be valid.\r\nSee https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation");
-            }
-        }
-
-        public static void ValidateFENPiecePlacement(string piecePlacement)
-        {
-            ValidateFENPiecePlacementCharacters(piecePlacement);
-            ValidateFENPiecePlacementRanks(piecePlacement);
-            ValidateFENPiecePlacementKing(piecePlacement);
-            ValidateFENPiecePlacementPawns(piecePlacement);
-            ValidateNumberOfPieces(piecePlacement);
-        }
-
-        private static void ValidateNumberOfPieces(string piecePlacement)
-        {
-
-            var whitePieceCount = piecePlacement.Count(p => char.IsLetter(p) && char.IsUpper(p)) > 16;
-            var blackPieceCount = piecePlacement.Count(p => char.IsLetter(p) && char.IsLower(p)) > 16;
-            if (whitePieceCount || blackPieceCount)
-            {
-                var message = "Invalid FEN Piece Placement. ";
-                if (whitePieceCount)
-                {
-                    message += "\r\nWhite has too many pieces, max is 16";
-                }
-                if (blackPieceCount)
-                {
-                    message += "\r\nBlack has too many pieces, max is 16";
-                }
-                message += $"Piece Placement: {piecePlacement}";
-                throw new FENPieceCountTooHighException(message);
-            }
-
-        }
-
-        public static void ValidateFENPiecePlacementKing(string piecePlacement)
-        {
-            var wkCount = piecePlacement.Count(p => p == 'K');
-            var bkCount = piecePlacement.Count(p => p == 'k');
-            if (wkCount != 1 || bkCount != 1)
-            {
-                var sideSpecificMessage = "";
-                if (wkCount != 1 && bkCount != 1) sideSpecificMessage = "White and Black must have";
-                else if (wkCount != 1) sideSpecificMessage = "White must have";
-                else sideSpecificMessage = "Black must have";
-                throw new FENPiecePlacementKingException($"Invalid King setup in piece placement portion of FEN. {sideSpecificMessage} one and only one king. Piece Placement: {piecePlacement}");
-            }
-        }
-
-        public static void ValidateFENPiecePlacementPawns(string piecePlacement)
-        {
-            var wpCount = piecePlacement.Count(p => p == 'P');
-            var bpCount = piecePlacement.Count(p => p == 'p');
-            if (wpCount > 8 || bpCount > 8)
-            {
-                var sideSpecificMessage = "";
-                if (wpCount > 8 && bpCount > 8) sideSpecificMessage = "White and Black have";
-                else if (wpCount > 8) sideSpecificMessage = "White has";
-                else sideSpecificMessage = "Black has";
-                throw new FENPiecePlacementPawnException($"Invalid Pawn setup in piece placement portion of FEN. {sideSpecificMessage} more than 8 pawns on the board.\r\nPiece Placement: {piecePlacement}");
-            }
-            var ranks = piecePlacement.Split('/');
-            if (ranks[0].Any(x => char.ToLower(x) == 'p') || ranks[7].Any(x => char.ToLower(x) == 'p'))
-            {
-                throw new FENPiecePlacementPawnException($"Invalid Pawn setup in piece placement portion of FEN. Pawns cannot be on the first or eighth ranks. Piece Placement: {piecePlacement}");
-
-            }
-        }
-
-        private static void ValidateFENPiecePlacementRanks(string piecePlacement)
-        {
-            var ranks = piecePlacement.Split('/').Reverse();
-            if (ranks.Count() != 8)
-            {
-                throw new FENPiecePlacementException($"Invalid number of ranks in FEN string.\r\nReceived {piecePlacement} with {ranks.Count()} ranks.");
-            }
-            var ranksValidation = ranks.Select((r, idx) => new { Rank = idx + 1, Count = getStringRepForRank(r) });
-            var badRanks = ranksValidation.Where(x => x.Count != 8);
-
-            if (badRanks.Any())
-            {
-                throw new FENPiecePlacementException($"Invalid Rank{(badRanks.Count() > 1 ? "s" : "")} in FEN {piecePlacement}.\r\n{string.Join("\r\n", badRanks.Select(r => "Rank " + r.Rank + " has " + r.Count + " pieces"))}");
-            }
-        }
-
-        private static void ValidateFENPiecePlacementCharacters(string piecePlacement)
-        {
-            string[] invalidChars;
-            if ((invalidChars = piecePlacement.Select(x => x).Where(x => !ValidFENChars.Contains(x)).Select(x => x.ToString()).ToArray()).Any())
-            {
-                throw new FENPiecePlacementException($"Invalid characters in FEN string.\r\nReceived {piecePlacement} with the following invalid characters:\r\n{string.Join(", ", invalidChars)}");
-            }
+            return uint.Parse(v);
         }
 
         public static BoardInfo BoardInfoFromFen(string fen, Bitboard bb = null, bool chess960 = false)
         {
             ValidateFENStructure(fen);
-            if(bb == null)
+            if (bb == null)
             {
                 bb = new Bitboard();
             }
             var fenPieces = fen.Split(' ');
             var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
-            ValidateFENPiecePlacement(fenPieces[(int)FENPieces.PiecePlacement]);
-
+            ValidateFENString(fen);
             ulong[][] pieces = new ulong[2][];
             pieces[(int)Color.White] = new ulong[6];
             pieces[(int)Color.Black] = new ulong[6];
             var ranks = piecePlacement.Split('/').Reverse();
 
-            var activePlayer = FENHelpers.GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
-            var enPassentSquareIndex = MoveHelpers.SquareTextToIndex(fenPieces[(int)FENPieces.EnPassentSquare]);
-            var halfmoveClock = FENHelpers.GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
-            var fullMoveCount = FENHelpers.GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveNumber]);
+            var activePlayer = GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
+            ushort? enPassentSquareIndex = MoveHelpers.SquareTextToIndex(fenPieces[(int)FENPieces.EnPassentSquare]);
+            var halfmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
+            var fullMoveCount = GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveCounter]);
             uint pieceIndex = 0;
 
             foreach (var rank in ranks)
@@ -193,25 +196,12 @@ namespace MagicBitboard.Helpers
                     }
                 }
             }
-            //if (m_stm == White && (m_epSquare < a6 || m_epSquare > h6))
-            //{
-            //    return InvalidEnPassant;
-            //}
-            //if (m_stm == Black && (m_epSquare < a3 || m_epSquare > h3))
-            //{
-            //    return InvalidEnPassant;
-            //}
-            if ((activePlayer == Color.White && (enPassentSquareIndex < 40 || enPassentSquareIndex > 47))
-                ||
-                (activePlayer == Color.Black && (enPassentSquareIndex < 16 || enPassentSquareIndex > 23)))
-            {
-                throw new FENException("Bad En Passent square in FEN.");
-            }
-            return new BoardInfo(pieces, activePlayer, GetCastlingFromString(fenPieces[(int)FENPieces.CastlingRights]),
+
+            return new BoardInfo(pieces, activePlayer, GetCastlingFromString(fenPieces[(int)FENPieces.CastlingAvailability]),
                 enPassentSquareIndex, halfmoveClock, fullMoveCount, bb);
         }
 
-        private static int getStringRepForRank(string rank)
+        private static int GetStringRepForRank(string rank)
         {
             var rv = 0;
             foreach (var c in rank)

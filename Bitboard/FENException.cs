@@ -1,67 +1,41 @@
-﻿using System;
+﻿using EnumsNET;
+using MagicBitboard.Enums;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
 namespace MagicBitboard
 {
-    public class FENPiecePlacementPawnException : FENPiecePlacementException
-    {
-        public FENPiecePlacementPawnException(string message) : base(message)
-        {
-        }
-    }
-    public class FENPiecePlacementKingException : FENPiecePlacementException
-    {
-        public FENPiecePlacementKingException(string message) : base(message)
-        {
-        }
-    }
-    public class FENPieceCountTooHighException : FENPiecePlacementException
-    {
-        public FENPieceCountTooHighException(string message) : base(message)
-        {
-        }
-    }
 
-    public class FENPiecePlacementException : FENException
-    {
-        public FENPiecePlacementException(string message) : base(message)
-        {
-        }
-    }
-    public class FENActiveColorException : FENException
-    {
-        public FENActiveColorException(string message) : base(message)
-        {
-        }
-    }
-    public class FENMoveNumberException : FENException
-    {
-        public FENMoveNumberException(string message) : base(message)
-        {
-        }
-    }
-    public class FENCastlingAvailabilityException : FENException
-    {
-        public FENCastlingAvailabilityException(string message) : base(message)
-        {
-        }
-    }
 
     [Serializable]
     public class FENException : Exception
     {
-        public FENException()
+        public readonly FENError FENError;
+        private static string GetFormattedMessage(FENError e) => "* " + e.AsString(EnumFormat.Description);
+        private static string FormatFENError(string fen, FENError e)
         {
+            if (e == FENError.NULL) return "";
+            var sb = new StringBuilder($"FEN Errors Found ({fen}):\r\n");
+            foreach (var error in e.GetFlags().Select(x => new { error = x, message = GetFormattedMessage(x) }))
+            {
+                sb.AppendLine(error.message);
+            }
+            return sb.ToString();
         }
 
-        public FENException(string message) : base(message)
+        public FENException(string fen, FENError fenError)
+                   : base(FormatFENError(fen, fenError))
         {
+            FENError = fenError;
         }
 
-        public FENException(string message, Exception innerException) : base(message, innerException)
+        public FENException(string fen, FENError fenError, Exception innerException)
+            : base(FormatFENError(fen, fenError), innerException)
         {
+            FENError = fenError;
         }
 
         protected FENException(SerializationInfo serializationInfo, StreamingContext context) : base(serializationInfo, context)
