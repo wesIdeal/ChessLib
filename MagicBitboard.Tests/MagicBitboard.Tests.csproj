@@ -57,7 +57,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bitboard\MagicBitboard.csproj">
+    <ProjectReference Include="..\MagicBitboard\MagicBitboard.csproj">
       <Project>{a06c0b4b-b75c-499b-b0f8-0268dc437b48}</Project>
       <Name>MagicBitboard</Name>
     </ProjectReference>

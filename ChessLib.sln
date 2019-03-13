@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib", "ChessLib\ChessL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Tests", "ChessLib.Tests\ChessLib.Tests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard", "Bitboard\MagicBitboard.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard", "MagicBitboard\MagicBitboard.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicBitboard.Tests", "Bitboard.Tests\MagicBitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicBitboard.Tests", "MagicBitboard.Tests\MagicBitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitboard.Tests.Console", "Bitboard.Tests.Console\Bitboard.Tests.Console.csproj", "{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard.Tests.Console", "Bitboard.Tests.Console\MagicBitboard.Tests.Console.csproj", "{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard.Benchmarks", "MagicBitboard.Benchmarks\MagicBitboard.Benchmarks.csproj", "{ECAD6541-722C-43E0-877B-CBAE68A20009}"
 EndProject
@@ -54,5 +54,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AF8A3434-0E80-4910-A22D-D8152818C878}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal
