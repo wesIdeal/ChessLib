@@ -7,7 +7,7 @@ namespace MagicBitboard
 
     public class GameInfo
     {
-        public const string InitialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        
         private readonly Bitboard BitBoard;
         public readonly BoardInfo BoardInfo;
 
@@ -16,7 +16,7 @@ namespace MagicBitboard
 
         }
 
-        public GameInfo(Bitboard bitboard) : this(bitboard, InitialFEN)
+        public GameInfo(Bitboard bitboard) : this(bitboard, FENHelpers.InitialFEN)
         {
 
         }

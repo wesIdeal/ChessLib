@@ -2,15 +2,16 @@
 using MagicBitboard.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace MagicBitboard
 {
     public abstract class MoveInitializer : IMoveInitializer
     {
-      
+
         private readonly MoveDirection _moveDirectionFlags;
-        
+
         protected MoveInitializer(MoveDirection moveDirectionFlags)
         {
             _moveDirectionFlags = moveDirectionFlags;
@@ -30,7 +31,7 @@ namespace MagicBitboard
         private ulong GetRandomKey()
         {
             return NextRandom() & NextRandom() & NextRandom();
-        } 
+        }
         #endregion
 
         /// <summary>
@@ -63,7 +64,9 @@ namespace MagicBitboard
         public ulong GenerateMagicKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int countOfSetBits, out ulong[] attackArray)
         {
             var maxMoves = 1 << countOfSetBits;
+            ulong[] emptyArray = new ulong[maxMoves];
             attackArray = new ulong[maxMoves];
+            Array.Copy(emptyArray, attackArray, maxMoves);
 
             var key = (ulong)0;
             var fail = true;
@@ -74,8 +77,8 @@ namespace MagicBitboard
                 key = GetRandomKey();
                 fail = false;
 
-                Array.Clear(attackArray, 0, maxMoves);
-
+                //Array.Clear(attackArray, 0, maxMoves);
+                attackArray = new ulong[maxMoves];
                 foreach (var pattern in blockerAndMoveBoards)
                 {
                     var hash = (pattern.Occupancy * key) >> (64 - countOfSetBits);
@@ -90,6 +93,8 @@ namespace MagicBitboard
                 }
             }
             var totalMs = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
+
+            Console.WriteLine($"Finished MagicNumber calcs in {totalMs} ms.");
             return key;
         }
 
@@ -211,12 +216,12 @@ namespace MagicBitboard
             return GetAllPermutations(setBitIndices, 0, 0).Distinct();
         }
 
-        private static IEnumerable<ulong> GetAllPermutations(List<int> SetBits, int Index, ulong Value)
+        private static IEnumerable<ulong> GetAllPermutations(int[] SetBits, int Index, ulong Value)
         {
             BitHelpers.SetBit(ref Value, SetBits[Index]);
             yield return Value;
             int index = Index + 1;
-            if (index < SetBits.Count)
+            if (index < SetBits.Count())
             {
                 using (IEnumerator<ulong> occupancyPermutations = GetAllPermutations(SetBits, index, Value).GetEnumerator())
                 {
@@ -228,7 +233,7 @@ namespace MagicBitboard
             }
             BitHelpers.ClearBit(ref Value, SetBits[Index]);
             yield return Value;
-            if (index < SetBits.Count)
+            if (index < SetBits.Count())
             {
                 using (IEnumerator<ulong> occupancyPermutations = GetAllPermutations(SetBits, index, Value).GetEnumerator())
                 {

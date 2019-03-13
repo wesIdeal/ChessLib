@@ -88,7 +88,7 @@ namespace MagicBitboard.Helpers.Tests
         #endregion
 
         #region Making Boards
-        const string initialBoard = GameInfo.InitialFEN;
+        const string initialBoard = FENHelpers.InitialFEN;
         const string after1e4 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
         const string after1e4c5 = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2";
 
@@ -327,6 +327,13 @@ namespace MagicBitboard.Helpers.Tests
         }
 
         [Test]
+        public void Should_Return_Null_When_Color_String_Is_Valid()
+        {
+            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateActiveColor("w"));
+            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateActiveColor("b"));
+        }
+
+        [Test]
         public void Should_Set_Active_Color_As_White_When_Passed_w()
         {
 
@@ -401,7 +408,7 @@ namespace MagicBitboard.Helpers.Tests
         public void Should_Return_Error_When_Ranks_In_Fen_Not_8()
         {
 
-            var fen = ValidPiecePlacement ;
+            var fen = ValidPiecePlacement;
             Assert.AreEqual(FENError.PiecePlacementRankCount, FENHelpers.ValidatePiecePlacement(fen + "/rnbqkbnr"));
             Assert.AreEqual(FENError.PiecePlacementRankCount, FENHelpers.ValidatePiecePlacement("rnbqkbnr/rnbqkbnr"));
         }

@@ -4,7 +4,5 @@ using System.Text;
 
 namespace MagicBitboard
 {
-    public class Board
-    {
-    }
+   
 }

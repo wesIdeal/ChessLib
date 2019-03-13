@@ -11,14 +11,25 @@ namespace MagicBitboard.Helpers
             return (comparrisson & u) == comparrisson;
         }
 
-        public static List<int> GetSetBits(this ulong u)
+        public static int[] GetSetBits(this ulong u)
         {
             var rv = new List<int>();
             for (var i = 0; i < 64; i++)
             {
                 if (IsBitSet(u, i)) rv.Add(i);
             }
-            return rv;
+            return rv.ToArray();
+        }
+
+        public static int[] GetSetBits2(this ulong u)
+        {
+            var idx = 0;
+            var setBits = new int[u.CountSetBits()];
+            for (var i = 0; i < 64; i++)
+            {
+                if (IsBitSet(u, i)) setBits[idx++] = i;
+            }
+            return setBits;
         }
 
         public static ulong SetBit(this ulong u, ushort bitIndex)
@@ -33,16 +44,9 @@ namespace MagicBitboard.Helpers
             u |= bitValue;
         }
 
-        public static void ClearBit(ref ulong u, int bitIndex)
-        {
-            var notBitValue = ~((ulong)1 << bitIndex);
-            u &= notBitValue;
-        }
+        public static void ClearBit(ref ulong u, int bitIndex) => u &= ~((ulong)1 << bitIndex);
 
-        public static ulong PopLSB(this ulong u)
-        {
-            return u & (u - 1);
-        }
+        public static ulong PopLSB(this ulong u) => u & (u - 1);
 
         public static ushort CountSetBits(this ulong u)
         {

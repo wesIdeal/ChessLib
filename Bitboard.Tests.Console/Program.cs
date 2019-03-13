@@ -15,28 +15,18 @@ namespace Bitboard.Tests.ConsoleApp
         static MagicBitboard.Bitboard bb = new MagicBitboard.Bitboard();
         static void Main(string[] args)
         {
-
-
-
+            var dt = DateTime.Now;
             //Console.WriteLine(PieceAttackPatternHelper.KnightAttackMask[Rank.R1.ToInt(), File.A.ToInt()].PrintBoard("a1 knight Attack", Rank.R1, File.A));
             //Console.WriteLine(PieceAttackPatternHelper.KnightAttackMask[Rank.R4.ToInt(), File.E.ToInt()].PrintBoard("e4 knight Attack", '*'));
-            WritePawnMovesAndAttacks();
-            WriteKingAttacks();
-            WriteKnightAttacks();
-            WriteBishopAttacks();
-            WriteRookAttacks();
-            var br = new BoardRepresentation("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-            var board = br[Color.White, Piece.Knight].MakeBoardTable("Initial White Knight Position", MoveHelpers.HtmlPieceRepresentations[Color.White][Piece.Knight]);
-            var html = MoveHelpers.PrintBoardHtml(board);
-            System.IO.File.WriteAllText("InitialWhiteKnights.html", html);
-
-            var fullBoard = br.MakeBoardTable();
-            html = MoveHelpers.PrintBoardHtml(fullBoard);
-            System.IO.File.WriteAllText("initialBoard.html", html);
-
-            board = br[Color.Black, Piece.Pawn].MakeBoardTable("Initial Black Pawns Position", MoveHelpers.HtmlPieceRepresentations[Color.Black][Piece.Pawn]);
-            html = MoveHelpers.PrintBoardHtml(board);
-            System.IO.File.WriteAllText("InitialBlackPawns.html", html);
+            //WritePawnMovesAndAttacks();
+            //WriteKingAttacks();
+            //WriteKnightAttacks();
+            //WriteBishopAttacks();
+            //WriteRookAttacks();
+            var gameInfo = FENHelpers.BoardInfoFromFen(FENHelpers.InitialFEN);
+            var fen = gameInfo.FEN;
+            Console.WriteLine($"{gameInfo.PiecesOnBoard[0][Piece.Queen.ToInt()].GetDisplayBits()}");
+            Console.WriteLine($"Finished in {DateTime.Now.Subtract(dt).TotalMilliseconds} ms.");
             //Console.ReadKey();
         }
 
@@ -110,7 +100,7 @@ namespace Bitboard.Tests.ConsoleApp
             System.IO.File.WriteAllText("RookMoves.html", html);
         }
 
-       
+
 
 
         private static void WriteKnightAttacks()

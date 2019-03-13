@@ -2,10 +2,48 @@
 
 namespace MagicBitboard.Helpers
 {
+    public class Board
+    {
+        public ulong[] MoveBoard = new ulong[64];
+
+        public Board()
+        {
+            MoveBoard = new ulong[64];
+        }
+
+        public Board(ulong[] moveBoard)
+        {
+            MoveBoard = moveBoard;
+        }
+
+        public Board(ulong[,] moveBoard) : this()
+        {
+            for (int rank = 0; rank < 8; rank++)
+            {
+                for (int file = 0; file < 8; file++)
+                {
+                    this[rank, file] = moveBoard[rank, file];
+                }
+            }
+        }
+
+        public ulong this[int k]
+        {
+            get => MoveBoard[k];
+            set => MoveBoard[k] = value;
+        }
+
+        public ulong this[int rank, int file]
+        {
+            get => MoveBoard[(rank * 8) + file];
+            set => MoveBoard[(rank * 8) + file] = value;
+        }
+
+    }
     public static class PieceAttackPatternHelper
     {
-        public static readonly ulong[,] BishopMoveMask = new ulong[8, 8];
-        public static readonly ulong[,] RookMoveMask = new ulong[8, 8];
+        public static readonly Board BishopMoveMask = new Board();
+        public static readonly Board RookMoveMask = new Board();
         public static readonly ulong[,] QueenMoveMask = new ulong[8, 8];
         public static readonly ulong[,] KnightAttackMask = new ulong[8, 8];
         public static readonly ulong[,] BishopAttackMask = new ulong[8, 8];

@@ -262,28 +262,7 @@ namespace MagicBitboard.Helpers
             return sb.ToString();
         }
 
-        public static string MakeBoardTable(this BoardRepresentation rep)
-        {
-            var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
-            const string squareFormat = "<td >{0}</td>";
-            var charArrayRep = rep.GetCharacterArrayRepresntation();
-            var rankHtml = new char?[8];
-            var rankIdx = 0;
-            while ((rankHtml = charArrayRep.Skip(rankIdx * 8).Take(8).ToArray()).Any())
-            {
-                sb.Append("<tr>");
-                rankHtml = rankHtml.Reverse().ToArray();
-                var rankString = string.Join("\r\n", rankHtml.Select(x => string.Format(squareFormat, PieceOfColor.GetHtmlRepresentation(x))));
-                sb.AppendLine(rankString);
-                sb.Append("</tr>");
-                rankIdx++;
-            }
-
-            sb.AppendLine("</table>");
-            return sb.ToString();
-        }
-
-
+    
         public static string PrintBoard(this ulong u, string header = "", char replaceOnesWith = '1')
         {
             if (!string.IsNullOrWhiteSpace(header))
