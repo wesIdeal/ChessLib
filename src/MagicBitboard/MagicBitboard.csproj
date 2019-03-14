@@ -8,10 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Enums.net" Version="2.3.2" />
-    <PackageReference Include="Microsoft.OData.Client" Version="7.5.0" />
-    <PackageReference Include="Microsoft.OData.Core" Version="7.5.0" />
-    <PackageReference Include="Microsoft.OData.Edm" Version="7.5.0" />
-    <PackageReference Include="Microsoft.Spatial" Version="7.5.0" />
   </ItemGroup>
 
   <ItemGroup>

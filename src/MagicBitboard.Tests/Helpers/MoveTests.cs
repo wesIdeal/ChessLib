@@ -31,7 +31,7 @@ namespace ChessLib.Tests.Helpers
                 {
                     var expected = MoveHelpers.GenerateMove(i, (ushort)(i + 8), MoveType.EnPassent, pieceIdx);
                     var input = BoardHelpers.IndexToSquareDisplay(i + 8) + $"={MoveHelpers.GetCharFromPromotionPiece(pieceIdx)}";
-                    Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, biEnPassent));
+                    Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, Color.White));
                 }
             }
             biEnPassent.ActivePlayer = Color.Black;
@@ -41,38 +41,58 @@ namespace ChessLib.Tests.Helpers
                 {
                     var expected = MoveHelpers.GenerateMove(i, (ushort)(i - 8), MoveType.EnPassent, pieceIdx);
                     var input = BoardHelpers.IndexToSquareDisplay(i - 8) + $"={MoveHelpers.GetCharFromPromotionPiece(pieceIdx)}";
-                    Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, biEnPassent));
+                    Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, Color.Black));
                 }
             }
         }
 
         [Test]
-        public void ShouldFailWhenNoPawnIsIncapableOfEnPassent()
+        public void ShouldFailWhenNoPawnIsIncapableOfPromotion()
         {
             var fen = "8/PPPP1PPP/8/2k5/8/2K5/pppp1ppp/8 w - - 0 1";
             var bi = FENHelpers.BoardInfoFromFen(fen);
             Assert.Throws(typeof(MoveException), () =>
             {
-                MoveHelpers.GenerateMoveFromText("e8=Q", bi);
+                MoveHelpers.GenerateMoveFromText("e8=Q", Color.White);
             });
             Assert.Throws(typeof(MoveException), () =>
             {
-                MoveHelpers.GenerateMoveFromText("e2=Q", bi);
+                MoveHelpers.GenerateMoveFromText("e2=Q", Color.Black);
             });
         }
         [Test]
-        public void ShouldFailWhenAPieceBlocksEnPassent()
+        public void ShouldFailWhenAPieceBlocksPromotion()
         {
             var fen = "4q3/PPPPPPPP/8/2k5/8/2K5/pppppppp/4Q3 w - - 0 1";
             var bi = FENHelpers.BoardInfoFromFen(fen);
             Assert.Throws(typeof(MoveException), () =>
             {
-                MoveHelpers.GenerateMoveFromText("e8=Q", bi);
+                MoveHelpers.GenerateMoveFromText("e8=Q", Color.White);
             });
             Assert.Throws(typeof(MoveException), () =>
             {
-                MoveHelpers.GenerateMoveFromText("e2=Q", bi);
+                MoveHelpers.GenerateMoveFromText("e2=Q", Color.White);
             });
+        }
+
+        [Test]
+        public void ShouldGetPromotionPieceFromMove()
+        {
+            foreach (PromotionPiece pp in Enum.GetValues(typeof(PromotionPiece)))
+            {
+                var move = MoveHelpers.GenerateMove(45, 53, MoveType.Promotion, pp);
+                Assert.AreEqual(pp, move.GetPiecePromoted());
+            }
+        }
+
+        [Test]
+        public void ShouldGetMoveTypeFromMove()
+        {
+            foreach (MoveType mt in Enum.GetValues(typeof(MoveType)))
+            {
+                var move = MoveHelpers.GenerateMove(45, 53, mt, PromotionPiece.Knight);
+                Assert.AreEqual(mt, move.GetMoveType());
+            }
         }
     }
 }

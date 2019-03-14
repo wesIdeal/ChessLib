@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 using MagicBitboard.Enums;
 using MagicBitboard.Helpers;
 
 namespace MagicBitboard
 {
+    using Move = UInt16;
     public class BoardInfo
     {
         private readonly string _fen;
@@ -36,6 +38,43 @@ namespace MagicBitboard
             errors.AppendLine(ValidateChecks());
         }
 
+        public void ApplyMove(string moveText)
+        {
+            Move move = MoveHelpers.GenerateMoveFromText(moveText, ActivePlayer);
+            ApplyMove(move);
+        }
+
+        public Piece GetActivePieceByValue(ulong pieceInSquareValue)
+        {
+            for (Piece p = 0; p < Piece.King; p++)
+            {
+                if ((ActivePieceOccupancy[(int)p] & pieceInSquareValue) != 0) return p;
+            }
+            throw new MoveException("No piece found with the specified value.");
+        }
+
+        private void ApplyMove(ushort move)
+        {
+            ValidateMove(move);
+        }
+
+        private void ValidateMove(ushort move)
+        {
+            var source = 1ul << move.Source();
+            var dest = 1ul << move.Destination();
+            var pieceMoving = GetActivePieceByValue(source);
+            var isCapture = (OpponentTotalOccupancy & dest) != 0;
+
+
+            switch (move.GetMoveType())
+            {
+                case MoveType.Promotion:
+                    ValidatePromotion(move);
+                    break;
+                default: return;
+            }
+        }
+
         //private string ValidateChecks() => ValidateChecks(PiecesOnBoard);
         public ulong[] ActivePieceOccupancy => PiecesOnBoard[(int)ActivePlayer];
         public ulong[] OpponentPieceOccupancy => PiecesOnBoard[(int)ActivePlayer.Toggle()];
@@ -57,7 +96,6 @@ namespace MagicBitboard
                 return rv;
             }
         }
-
         public ulong TotalOccupancy
         {
             get
@@ -67,6 +105,7 @@ namespace MagicBitboard
                 return rv;
             }
         }
+
         public string ValidateChecks()
         {
             Check c = GetChecks(ActivePlayer);
@@ -83,6 +122,20 @@ namespace MagicBitboard
 
         public ushort ActivePlayerKingIndex => PiecesOnBoard[(int)ActivePlayer][Piece.King.ToInt()].GetSetBitIndexes()[0];
         public ushort OpposingPlayerKingIndex => PiecesOnBoard[(int)ActivePlayer.Toggle()][Piece.King.ToInt()].GetSetBitIndexes()[0];
+
+        private void ValidatePromotion(Move move)
+        {
+            if ((ActivePieceOccupancy[(int)Piece.Pawn] & ((ulong)1 << move.Source())) == 0)
+            {
+                throw new MoveException("Promotion move issue - no pawn at source.");
+            }
+            else if ((TotalOccupancy & move.Destination()) != 0)
+            {
+                throw new MoveException("Promotion move issue - A piece is at the destination.");
+            }
+        }
+
+
 
         private Check GetChecks(Color activePlayer)
         {

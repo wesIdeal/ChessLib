@@ -40,10 +40,9 @@ namespace MagicBitboard
 
 
 
-        public static Move GenerateMoveFromText(string moveText, BoardInfo boardInfo)
+        public static Move GenerateMoveFromText(string moveText, Color moveColor)
         {
             moveText = moveText.TrimEnd('#', '?', '!', '+').Trim();
-            var moveColor = boardInfo.ActivePlayer;
             MoveType moveType = MoveType.Normal;
             if (castling.Contains(moveText.ToLowerInvariant()))
             {
@@ -55,25 +54,13 @@ namespace MagicBitboard
                 ushort dest = (ushort)BoardHelpers.SquareTextToIndex(promotionPieces[0]).Value;
                 var promotionPiece = GetPromotionPieceFromChar(promotionPieces[1][0]);
                 var source = (ushort)(moveColor == Color.White ? dest - 8 : dest + 8);
-                var proposedMove = GenerateMove(source, dest, MoveType.EnPassent, promotionPiece);
-                ValidateEnPassent(proposedMove, boardInfo);
+                var proposedMove = GenerateMove(source, dest, MoveType.Promotion, promotionPiece);
                 return proposedMove;
             }
 
             return 0;
         }
-        private static void ValidateEnPassent(Move move, BoardInfo boardInfo)
-        {
-            if ((boardInfo.ActivePieceOccupancy[(int)Piece.Pawn] & ((ulong)1 << move.Source())) == 0)
-            {
-                throw new MoveException("En Passent move issue - no pawn at source.");
-            }
-            else if ((boardInfo.TotalOccupancy & move.Destination()) != 0)
-            {
-                throw new MoveException("En Passent move issue - A piece is at the destination.");
-            }
-        }
-
+        
         public static PromotionPiece GetPromotionPieceFromChar(char p)
         {
             switch (char.ToUpper(p))
@@ -85,16 +72,23 @@ namespace MagicBitboard
                 default: throw new Exception("Char / Piece not found in switch cases.");
             }
         }
-        public static ushort Destination(this Move mv)
-        {
-            var rv = (mv & 63);
-            return (ushort)rv;
-        }
-        public static ushort Source(this Move mv)
-        {
-            return (ushort)(((mv >> 6) << 10) >> 10);
-        }
 
+        public static ushort Destination(this Move move)
+        {
+            return (ushort)(move & 63);
+        }
+        public static ushort Source(this Move move)
+        {
+            return (ushort)((move >> 6) & 63);
+        }
+        public static PromotionPiece GetPiecePromoted(this Move move)
+        {
+            return (PromotionPiece)((move >> 12) & 3);
+        }
+        public static MoveType GetMoveType(this Move move)
+        {
+            return (MoveType)((move >> 14) & 3);
+        }
         public static char GetCharFromPromotionPiece(PromotionPiece p)
         {
             switch (p)
@@ -106,8 +100,6 @@ namespace MagicBitboard
                 default: throw new Exception("Promotion Piece not found in switch cases.");
             }
         }
-
-
     }
 
     [Serializable]
