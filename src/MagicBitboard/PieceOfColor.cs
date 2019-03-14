@@ -8,34 +8,38 @@ namespace MagicBitboard
     {
         public Color Color { get; set; }
         public Piece Piece { get; set; }
+
+        public static Piece GetPiece(string p)
+        {
+            if (p.Length > 1) throw new Exception("Piece should be a single char.");
+            return GetPiece(p[0]);
+        }
+        public static Piece GetPiece(char p)
+        {
+            switch (Char.ToLower(p))
+            {
+                case 'k':
+                    return Piece.King;
+                case 'n':
+                    return Piece.Knight;
+                case 'b':
+                    return Piece.Bishop;
+                case 'p':
+                    return Piece.Pawn;
+                case 'r':
+                    return Piece.Rook;
+                case 'q':
+                    return Piece.Queen;
+                default: throw new Exception("Cannot determine piece for " + p.ToString());
+            }
+        }
+
         public static PieceOfColor GetPieceOfColor(char p)
         {
             var poc = new PieceOfColor();
             if (Char.IsUpper(p)) poc.Color = Color.White;
             else poc.Color = Color.Black;
-
-            switch (Char.ToLower(p))
-            {
-                case 'k':
-                    poc.Piece = Piece.King;
-                    break;
-                case 'n':
-                    poc.Piece = Piece.Knight;
-                    break;
-                case 'b':
-                    poc.Piece = Piece.Bishop;
-                    break;
-                case 'p':
-                    poc.Piece = Piece.Pawn;
-                    break;
-                case 'r':
-                    poc.Piece = Piece.Rook;
-                    break;
-                case 'q':
-                    poc.Piece = Piece.Queen;
-                    break;
-                default: throw new Exception("Cannot determine piece for " + p.ToString());
-            }
+            poc.Piece = GetPiece(p);
             return poc;
         }
 
@@ -66,7 +70,7 @@ namespace MagicBitboard
                 case 'k': piece = Piece.King; break;
                 default: throw new Exception("Unexpected FEN char passed into method GetHtmlRepresentation()");
             }
-            return MoveHelpers.HtmlPieceRepresentations[color][piece];
+            return BoardHelpers.HtmlPieceRepresentations[color][piece];
         }
 
         public static char GetCharRepresentation(PieceOfColor poc)
@@ -75,19 +79,24 @@ namespace MagicBitboard
         }
         public static char GetCharRepresentation(Piece p, Color c)
         {
-            ChangeCharCaseForColor changeCase = char.ToUpper;
+            var pChar = GetCharRepresentation(p);
             if (c == Color.Black)
             {
-                changeCase = char.ToLower;
+                return Char.ToLower(pChar);
             }
+            return char.ToUpper(pChar);
+
+        }
+        public static char GetCharRepresentation(Piece p)
+        {
             switch (p)
             {
-                case Piece.Bishop: return changeCase('b');
-                case Piece.Knight: return changeCase('n');
-                case Piece.Rook: return changeCase('r');
-                case Piece.Queen: return changeCase('q');
-                case Piece.King: return changeCase('k');
-                case Piece.Pawn: return changeCase('p');
+                case Piece.Bishop: return 'b';
+                case Piece.Knight: return 'n';
+                case Piece.Rook: return 'r';
+                case Piece.Queen: return 'q';
+                case Piece.King: return 'k';
+                case Piece.Pawn: return 'p';
                 default: throw new Exception("Piece's char representation not found.");
             }
         }

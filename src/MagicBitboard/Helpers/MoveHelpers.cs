@@ -7,14 +7,14 @@ using System.Text;
 using MagicBitboard.Enums;
 namespace MagicBitboard.Helpers
 {
-    public static class MoveHelpers
+    public static class BoardHelpers
     {
         public readonly static Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations;
         public static Color Toggle(this Color c) => c == Color.White ? Color.Black : Color.White;
         public static ulong[] FileMasks = new ulong[8];
         public static ulong[] RankMasks = new ulong[8];
         public static ulong[,] IndividualSquares = new ulong[8, 8];
-        static MoveHelpers()
+        static BoardHelpers()
         {
             HtmlPieceRepresentations = new Dictionary<Color, Dictionary<Piece, string>>();
             InitializeFileMasks();
@@ -23,11 +23,12 @@ namespace MagicBitboard.Helpers
             InitializeHtmlPieceRepresentations();
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static char IndexToFileDisplay(this int i) => (char)((int)'a' + (i % 8));
+        public static char IndexToFileDisplay(this int i) => (char)('a' + (i % 8));
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static char IndexToRankDisplay(this int i) => (char)((int)'1' + (i / 8));
+        public static char IndexToRankDisplay(this int i) => (char)('1' + (i / 8));
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string IndexToSquareDisplay(this int i) => $"{i.IndexToFileDisplay()}{i.IndexToRankDisplay()}";
+
 
         public static ushort? SquareTextToIndex(this string square)
         {
@@ -262,7 +263,7 @@ namespace MagicBitboard.Helpers
             return sb.ToString();
         }
 
-    
+
         public static string PrintBoard(this ulong u, string header = "", char replaceOnesWith = '1')
         {
             if (!string.IsNullOrWhiteSpace(header))

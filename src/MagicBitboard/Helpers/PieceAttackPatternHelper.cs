@@ -71,7 +71,7 @@ namespace MagicBitboard.Helpers
             {
                 var rank = i.GetRank().ToInt();
                 var file = i.GetFile().ToInt();
-                var square = MoveHelpers.IndividualSquares[rank, file];
+                var square = BoardHelpers.IndividualSquares[rank, file];
                 KingMoveMask[rank, file] = square.ShiftN() | square.ShiftNE() | square.ShiftE() | square.ShiftSE() | square.ShiftS() | square.ShiftSW() | square.ShiftW() | square.ShiftNW();
             }
         }
@@ -82,13 +82,13 @@ namespace MagicBitboard.Helpers
             {
                 var square = (ulong)1 << i;
                 PawnAttackMask[Color.White.ToInt(), i / 8, i % 8] = square.ShiftNE() | square.ShiftNW();
-                PawnMoveMask[Color.White.ToInt(), i / 8, i % 8] = square.ShiftN() | (square.Shift2N() & MoveHelpers.RankMasks[Rank.R4.ToInt()]);
+                PawnMoveMask[Color.White.ToInt(), i / 8, i % 8] = square.ShiftN() | (square.Shift2N() & BoardHelpers.RankMasks[Rank.R4.ToInt()]);
             }
             for (int i = 8; i < 56; i++)
             {
                 var square = (ulong)1 << i;
                 PawnAttackMask[Color.Black.ToInt(), i / 8, i % 8] = square.ShiftSE() | square.ShiftSW();
-                PawnMoveMask[Color.Black.ToInt(), i / 8, i % 8] = square.ShiftS() | (square.Shift2S() & MoveHelpers.RankMasks[Rank.R5.ToInt()]);
+                PawnMoveMask[Color.Black.ToInt(), i / 8, i % 8] = square.ShiftS() | (square.Shift2S() & BoardHelpers.RankMasks[Rank.R5.ToInt()]);
             }
         }
 

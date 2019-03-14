@@ -7,29 +7,24 @@ namespace MagicBitboard
 
     public class GameInfo
     {
-        
-        private readonly Bitboard BitBoard;
+
         public readonly BoardInfo BoardInfo;
 
-        public GameInfo() : this(new Bitboard())
+
+
+        public GameInfo() : this(FENHelpers.InitialFEN)
         {
 
         }
 
-        public GameInfo(Bitboard bitboard) : this(bitboard, FENHelpers.InitialFEN)
-        {
-
-        }
-
-        public GameInfo(Bitboard bitboard, string fen)
+        public GameInfo(string fen)
         {
             _fen = fen;
-            Bitboard = bitboard;
-            BoardInfo = FENHelpers.BoardInfoFromFen(fen, bitboard);
+            BoardInfo = FENHelpers.BoardInfoFromFen(fen);
         }
 
         private string _fen;
 
-        public Bitboard Bitboard { get; }
+        
     }
 }

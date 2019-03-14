@@ -9,27 +9,27 @@ using System.Runtime.CompilerServices;
 
 namespace MagicBitboard
 {
-    public class Bitboard
+    public static class Bitboard
     {
-       
-        public readonly MovePatternStorage Bishop;
-        public readonly MovePatternStorage Rook;
-        
-        public Bitboard()
+
+        public static readonly MovePatternStorage Bishop;
+        public static readonly MovePatternStorage Rook;
+
+        static Bitboard()
         {
             Bishop = new MovePatternStorage();
             Bishop.Initialize(PieceAttackPatternHelper.BishopAttackMask, new BishopMovesInitializer());
             Rook = new MovePatternStorage();
             Rook.Initialize(PieceAttackPatternHelper.RookAttackMask, new RookMovesInitializer());
-            
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected int Rank(ushort idx) => idx / 8;
+        public static int Rank(ushort idx) => idx / 8;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected int File(ushort idx) => idx % 8;
+        public static int File(ushort idx) => idx % 8;
 
-        public ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color color = Color.White)
+        public static ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color color = Color.White)
         {
             var r = Rank(pieceIndex);
             var f = File(pieceIndex);
@@ -54,7 +54,7 @@ namespace MagicBitboard
             }
         }
 
-        public ulong[] RookOccupancyBoards(ushort index) => Rook.OccupancyAndMoveBoards[index].Select(x => x.Occupancy).ToArray();
-        public ulong[] BishopOccupancyBoards(ushort index) => Bishop.OccupancyAndMoveBoards[index].Select(x => x.Occupancy).ToArray();
+        public static ulong[] RookOccupancyBoards(ushort index) => Rook.OccupancyAndMoveBoards[index].Select(x => x.Occupancy).ToArray();
+        public static ulong[] BishopOccupancyBoards(ushort index) => Bishop.OccupancyAndMoveBoards[index].Select(x => x.Occupancy).ToArray();
     }
 }

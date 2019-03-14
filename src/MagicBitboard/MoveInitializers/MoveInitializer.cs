@@ -119,7 +119,7 @@ namespace MagicBitboard
 
                 while ((positionalValue = positionalValue.ShiftN()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~MoveHelpers.RankMasks[7] : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.RankMasks[7] : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
 
@@ -132,7 +132,7 @@ namespace MagicBitboard
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftE()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~MoveHelpers.FileMasks[7] : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.FileMasks[7] : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -143,7 +143,7 @@ namespace MagicBitboard
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftS()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~MoveHelpers.RankMasks[0] : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.RankMasks[0] : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -154,7 +154,7 @@ namespace MagicBitboard
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftW()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~MoveHelpers.FileMasks[0] : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.FileMasks[0] : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -165,7 +165,7 @@ namespace MagicBitboard
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftNE()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~MoveHelpers.FileMasks[7] & ~MoveHelpers.RankMasks[7]) : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[7] & ~BoardHelpers.RankMasks[7]) : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -176,7 +176,7 @@ namespace MagicBitboard
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftNW()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~MoveHelpers.FileMasks[0] & ~MoveHelpers.RankMasks[7]) : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[0] & ~BoardHelpers.RankMasks[7]) : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -187,7 +187,7 @@ namespace MagicBitboard
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftSE()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~MoveHelpers.FileMasks[7] & ~MoveHelpers.RankMasks[0]) : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[7] & ~BoardHelpers.RankMasks[0]) : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -198,7 +198,7 @@ namespace MagicBitboard
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftSW()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~MoveHelpers.FileMasks[0] & ~MoveHelpers.RankMasks[0]) : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[0] & ~BoardHelpers.RankMasks[0]) : AllSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }

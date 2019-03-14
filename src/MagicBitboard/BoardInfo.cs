@@ -9,13 +9,12 @@ namespace MagicBitboard
     {
         private readonly string _fen;
         public readonly bool Chess960 = false;
-        public Bitboard Bitboard;
         private BoardInfo(bool chess960 = false)
         {
             Chess960 = chess960;
         }
 
-        public BoardInfo(ulong[][] piecesOnBoard, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassentIndex, uint halfmoveClock, uint moveCounter, Bitboard bitBoard, bool chess960 = false)
+        public BoardInfo(ulong[][] piecesOnBoard, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassentIndex, uint halfmoveClock, uint moveCounter, bool chess960 = false)
         {
             PiecesOnBoard = piecesOnBoard;
             ActivePlayer = activePlayer;
@@ -24,7 +23,7 @@ namespace MagicBitboard
             HalfmoveClock = halfmoveClock;
             MoveCounter = moveCounter;
             Chess960 = chess960;
-            Bitboard = bitBoard;
+
             ValidateFields();
         }
 
@@ -38,7 +37,36 @@ namespace MagicBitboard
         }
 
         //private string ValidateChecks() => ValidateChecks(PiecesOnBoard);
+        public ulong[] ActivePieceOccupancy => PiecesOnBoard[(int)ActivePlayer];
+        public ulong[] OpponentPieceOccupancy => PiecesOnBoard[(int)ActivePlayer.Toggle()];
+        public ulong ActiveTotalOccupancy
+        {
+            get
+            {
+                ulong rv = 0;
+                for (int i = 0; i < ActivePieceOccupancy.Length; i++) rv |= ActivePieceOccupancy[i];
+                return rv;
+            }
+        }
+        public ulong OpponentTotalOccupancy
+        {
+            get
+            {
+                ulong rv = 0;
+                for (int i = 0; i < OpponentPieceOccupancy.Length; i++) rv |= OpponentPieceOccupancy[i];
+                return rv;
+            }
+        }
 
+        public ulong TotalOccupancy
+        {
+            get
+            {
+                ulong rv = 0;
+                for (int i = 0; i < ActivePieceOccupancy.Length; i++) rv |= (PiecesOnBoard[0][i]) | PiecesOnBoard[1][i];
+                return rv;
+            }
+        }
         public string ValidateChecks()
         {
             Check c = GetChecks(ActivePlayer);
@@ -167,18 +195,7 @@ namespace MagicBitboard
             if ((PieceAttackPatternHelper.KingMoveMask[r, f] & PiecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
             return false;
         }
-        public ulong TotalOccupancy
-        {
-            get
-            {
-                ulong accumulator = 0;
-                foreach(var color in PiecesOnBoard)
-                {
-                    accumulator |= color.Aggregate((rv, next) => rv |= next);
-                }
-                return accumulator;
-            }
-        }
+
         public ulong[][] PiecesOnBoard = new ulong[2][];
         public CastlingAvailability CastlingAvailability { get; set; }
         public string FEN { get => _fen; }

@@ -157,13 +157,10 @@ namespace MagicBitboard.Helpers
             return uint.Parse(v);
         }
 
-        public static BoardInfo BoardInfoFromFen(string fen, Bitboard bb = null, bool chess960 = false)
+        public static BoardInfo BoardInfoFromFen(string fen, bool chess960 = false)
         {
             ValidateFENStructure(fen);
-            if (bb == null)
-            {
-                bb = new Bitboard();
-            }
+
             var fenPieces = fen.Split(' ');
             var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
             ValidateFENString(fen);
@@ -173,7 +170,7 @@ namespace MagicBitboard.Helpers
             var ranks = piecePlacement.Split('/').Reverse();
 
             var activePlayer = GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
-            ushort? enPassentSquareIndex = MoveHelpers.SquareTextToIndex(fenPieces[(int)FENPieces.EnPassentSquare]);
+            ushort? enPassentSquareIndex = BoardHelpers.SquareTextToIndex(fenPieces[(int)FENPieces.EnPassentSquare]);
             var halfmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
             var fullMoveCount = GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveCounter]);
             uint pieceIndex = 0;
@@ -198,7 +195,7 @@ namespace MagicBitboard.Helpers
             }
 
             return new BoardInfo(pieces, activePlayer, GetCastlingFromString(fenPieces[(int)FENPieces.CastlingAvailability]),
-                enPassentSquareIndex, halfmoveClock, fullMoveCount, bb);
+                enPassentSquareIndex, halfmoveClock, fullMoveCount);
         }
 
         private static int GetStringRepForRank(string rank)
