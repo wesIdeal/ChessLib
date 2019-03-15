@@ -30,7 +30,7 @@ namespace ChessLib.Parse
                 //var splitTag = Regex.Split(tag, tagEx);
                 var key = tag.Groups[2];
                 var value = tag.Groups[3];
-                rvTagDictionary.Add(key.Value, value.Value);
+                rvTagDictionary.Add(key.Value.Trim(), value.Value.Trim());
             }
             return rvTagDictionary;
         }
