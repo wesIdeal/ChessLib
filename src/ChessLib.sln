@@ -3,17 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2019
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib", ".\ChessLib\ChessLib.csproj", "{72305E1F-27AA-407A-8ADC-C236AAFF0517}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib", "ChessLib\ChessLib.csproj", "{72305E1F-27AA-407A-8ADC-C236AAFF0517}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Tests", ".\ChessLib.Tests\ChessLib.Tests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Tests", "ChessLib.Tests\ChessLib.Tests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard", ".\MagicBitboard\MagicBitboard.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard", "MagicBitboard\MagicBitboard.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicBitboard.Tests", ".\MagicBitboard.Tests\MagicBitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicBitboard.Tests", "MagicBitboard.Tests\MagicBitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard.Tests.Console", ".\MagicBitboard.Tests.Console\MagicBitboard.Tests.Console.csproj", "{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard.Tests.Console", "MagicBitboard.Tests.Console\MagicBitboard.Tests.Console.csproj", "{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard.Benchmarks", ".\MagicBitboard.Benchmarks\MagicBitboard.Benchmarks.csproj", "{ECAD6541-722C-43E0-877B-CBAE68A20009}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard.Benchmarks", "MagicBitboard.Benchmarks\MagicBitboard.Benchmarks.csproj", "{ECAD6541-722C-43E0-877B-CBAE68A20009}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Parse", "ChessLib.Parse\ChessLib.Parse.csproj", "{B21DAC8A-705A-4237-9961-AE0B3E19F033}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Parse.Tests", "ChessLib.Parse.Tests\ChessLib.Parse.Tests.csproj", "{60742E4D-3FE5-4980-8E84-92A8F1ACEBA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{ECAD6541-722C-43E0-877B-CBAE68A20009}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{ECAD6541-722C-43E0-877B-CBAE68A20009}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECAD6541-722C-43E0-877B-CBAE68A20009}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B21DAC8A-705A-4237-9961-AE0B3E19F033}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B21DAC8A-705A-4237-9961-AE0B3E19F033}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B21DAC8A-705A-4237-9961-AE0B3E19F033}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B21DAC8A-705A-4237-9961-AE0B3E19F033}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60742E4D-3FE5-4980-8E84-92A8F1ACEBA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60742E4D-3FE5-4980-8E84-92A8F1ACEBA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60742E4D-3FE5-4980-8E84-92A8F1ACEBA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60742E4D-3FE5-4980-8E84-92A8F1ACEBA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

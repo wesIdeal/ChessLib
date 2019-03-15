@@ -37,7 +37,7 @@ namespace Bitboard.Tests.ConsoleApp
             var bishop = new BishopPatterns();
             var regMs = new List<double>();
             var arrayMs = new List<double>();
-            for (var i = 0; i < 64; i++)
+            for (ushort i = 0; i < 64; i++)
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
@@ -75,7 +75,7 @@ namespace Bitboard.Tests.ConsoleApp
             var totalMS = (DateTime.Now - dtStart).TotalMilliseconds;
             var regMs = new List<double>();
             var arrayMs = new List<double>();
-            for (var i = 0; i < 64; i++)
+            for (ushort i = 0; i < 64; i++)
             {
                 ulong attackMask = rook[i];
                 for (int occupancyIndex = 0; occupancyIndex < rook.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
@@ -107,7 +107,7 @@ namespace Bitboard.Tests.ConsoleApp
         {
             const string message = "Knight Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
-            for (var i = 0; i < 64; i++)
+            for (ushort i = 0; i < 64; i++)
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
@@ -122,7 +122,7 @@ namespace Bitboard.Tests.ConsoleApp
         {
             const string message = "King Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
-            for (var i = 0; i < 64; i++)
+            for (ushort i = 0; i < 64; i++)
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
@@ -135,7 +135,7 @@ namespace Bitboard.Tests.ConsoleApp
         private static void WritePawnMovesAndAttacks()
         {
             StringBuilder sb = new StringBuilder();
-            for (var i = 0; i < 64; i++)
+            for (ushort i = 0; i < 64; i++)
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
@@ -146,7 +146,7 @@ namespace Bitboard.Tests.ConsoleApp
             System.IO.File.WriteAllText("WhitePawnAttack.html", html);
 
             sb.Clear();
-            for (var i = 0; i < 64; i++)
+            for (ushort i = 0; i < 64; i++)
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
@@ -156,7 +156,7 @@ namespace Bitboard.Tests.ConsoleApp
             html = BoardHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("BlackPawnAttack.html", html);
             sb.Clear();
-            for (var i = 0; i < 64; i++)
+            for (ushort i = 0; i < 64; i++)
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
@@ -166,7 +166,7 @@ namespace Bitboard.Tests.ConsoleApp
             html = BoardHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("WhitePawnMove.html", html);
             sb.Clear();
-            for (var i = 0; i < 64; i++)
+            for (ushort i = 0; i < 64; i++)
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
