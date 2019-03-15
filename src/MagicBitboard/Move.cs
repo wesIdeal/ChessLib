@@ -27,6 +27,7 @@ namespace MagicBitboard
         public ulong SourceValue => MoveHelpers.SourceValue(Move);
         public MoveType MoveType => MoveHelpers.GetMoveType(Move);
         public PromotionPiece PromotionPiece => MoveHelpers.GetPiecePromoted(Move);
+        public List<MoveExt> Variations;
 
         public bool Equals(MoveExt other) => Move == other.Move;
         public bool Equals(ushort other) => Move == other;

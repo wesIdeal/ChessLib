@@ -14,6 +14,8 @@ namespace ChessLib.Parse.Tests
     {
         string commentedPgn;
         string unCommentedPgn;
+        string variationPgn;
+        string fullGame01Pgn;
         string tagsNewLines = @"
                 [Event ""The Big Test Event""]
                 [Site ""My City, NY""]
@@ -32,6 +34,8 @@ namespace ChessLib.Parse.Tests
         {
             commentedPgn = File.ReadAllText(".\\PGN\\commented.pgn");
             unCommentedPgn = File.ReadAllText(".\\PGN\\uncommented.pgn");
+            variationPgn = File.ReadAllText(".\\PGN\\withvariations.pgn");
+            fullGame01Pgn = File.ReadAllText(".\\PGN\\fullgame01.pgn");
             expectedTags = new Tags();
             expectedTags.Add("Event", "The Big Test Event");
             expectedTags.Add("Site", "My City, NY");
@@ -65,6 +69,12 @@ namespace ChessLib.Parse.Tests
         {
             var s = RemoveTags(commentedPgn, out Dictionary<string, string> d);
             Assert.AreEqual(unCommentedPgn, RemoveComments(commentedPgn));
+        }
+
+        [Test]
+        public void ShouldRetrieveVariations()
+        {
+            GetMovesFromPGN(variationPgn);
         }
     }
 }
