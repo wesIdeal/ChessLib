@@ -1,9 +1,9 @@
-[Event ""]
-[Site ""]
-[Date ""]
-[Round ""]
-[White ""]
-[Black ""]
-[Result ""]
+[Event "The Big Test Event"]
+[Site "My City, NY"]
+[Date "2019.01.04"]
+[Round "3"]
+[White "Me"]
+[Black "The other guy"]
+[Result "1-0"]
 
 1. e4 { Best by test - e4}  1... c5 { Sicilian, with 1...c5}   
