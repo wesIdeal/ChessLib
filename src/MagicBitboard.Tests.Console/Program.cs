@@ -140,7 +140,7 @@ namespace Bitboard.Tests.ConsoleApp
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
                 if (rank == Rank.R1 || rank == Rank.R8) continue;
-                sb.AppendLine(PieceAttackPatternHelper.PawnAttackMask[Color.White.ToInt(), rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} White Pawn Attack", BoardHelpers.HtmlPieceRepresentations[Color.White][Piece.Pawn], "&#9670;"));
+                sb.AppendLine(PieceAttackPatternHelper.PawnAttackMask[Color.White.ToInt()][i].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} White Pawn Attack", BoardHelpers.HtmlPieceRepresentations[Color.White][Piece.Pawn], "&#9670;"));
             }
             var html = BoardHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("WhitePawnAttack.html", html);
@@ -151,7 +151,7 @@ namespace Bitboard.Tests.ConsoleApp
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
                 if (rank == Rank.R1 || rank == Rank.R8) continue;
-                sb.AppendLine(PieceAttackPatternHelper.PawnAttackMask[Color.Black.ToInt(), rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} Black Pawn Attack", BoardHelpers.HtmlPieceRepresentations[Color.Black][Piece.Pawn], "&#9670;"));
+                sb.AppendLine(PieceAttackPatternHelper.PawnAttackMask[Color.Black.ToInt()][i].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} Black Pawn Attack", BoardHelpers.HtmlPieceRepresentations[Color.Black][Piece.Pawn], "&#9670;"));
             }
             html = BoardHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("BlackPawnAttack.html", html);

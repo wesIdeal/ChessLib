@@ -23,14 +23,14 @@ namespace ChessLib.Tests.Helpers
         }
 
         [Test]
-        public void ShouldGetCorrectMoveWhenEnPassentIsSent()
+        public void ShouldGetCorrectMoveWhenPromotionIsSent()
         {
             for (ushort i = 48; i < 56; i++)
             {
                 for (var pieceIdx = PromotionPiece.Knight; pieceIdx < PromotionPiece.Queen; pieceIdx++)
                 {
-                    var expected = MoveHelpers.GenerateMove(i, (ushort)(i + 8), MoveType.EnPassent, pieceIdx);
-                    var input = BoardHelpers.IndexToSquareDisplay(i + 8) + $"={MoveHelpers.GetCharFromPromotionPiece(pieceIdx)}";
+                    var expected = MoveHelpers.GenerateMove(i, (ushort)(i + 8), MoveType.Promotion, pieceIdx);
+                    var input = BoardHelpers.IndexToSquareDisplay((ushort)(i + 8)) + $"={PieceHelper.GetCharFromPromotionPiece(pieceIdx)}";
                     Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, Color.White));
                 }
             }
@@ -39,8 +39,8 @@ namespace ChessLib.Tests.Helpers
             {
                 for (var pieceIdx = PromotionPiece.Knight; pieceIdx < PromotionPiece.Queen; pieceIdx++)
                 {
-                    var expected = MoveHelpers.GenerateMove(i, (ushort)(i - 8), MoveType.EnPassent, pieceIdx);
-                    var input = BoardHelpers.IndexToSquareDisplay(i - 8) + $"={MoveHelpers.GetCharFromPromotionPiece(pieceIdx)}";
+                    var expected = MoveHelpers.GenerateMove(i, (ushort)(i - 8), MoveType.Promotion, pieceIdx);
+                    var input = BoardHelpers.IndexToSquareDisplay((ushort)(i - 8)) + $"={PieceHelper.GetCharFromPromotionPiece(pieceIdx)}";
                     Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, Color.Black));
                 }
             }
@@ -53,11 +53,11 @@ namespace ChessLib.Tests.Helpers
             var bi = FENHelpers.BoardInfoFromFen(fen);
             Assert.Throws(typeof(MoveException), () =>
             {
-                MoveHelpers.GenerateMoveFromText("e8=Q", Color.White);
+                bi.ValidateMove(MoveHelpers.GenerateMoveFromText("e8=Q", Color.White));
             });
             Assert.Throws(typeof(MoveException), () =>
             {
-                MoveHelpers.GenerateMoveFromText("e2=Q", Color.Black);
+                bi.ValidateMove(MoveHelpers.GenerateMoveFromText("e2=Q", Color.Black));
             });
         }
         [Test]
@@ -67,11 +67,11 @@ namespace ChessLib.Tests.Helpers
             var bi = FENHelpers.BoardInfoFromFen(fen);
             Assert.Throws(typeof(MoveException), () =>
             {
-                MoveHelpers.GenerateMoveFromText("e8=Q", Color.White);
+                bi.ValidateMove(MoveHelpers.GenerateMoveFromText("e8=Q", Color.White));
             });
             Assert.Throws(typeof(MoveException), () =>
             {
-                MoveHelpers.GenerateMoveFromText("e2=Q", Color.White);
+                bi.ValidateMove(MoveHelpers.GenerateMoveFromText("e2=Q", Color.White));
             });
         }
 
@@ -81,7 +81,7 @@ namespace ChessLib.Tests.Helpers
             foreach (PromotionPiece pp in Enum.GetValues(typeof(PromotionPiece)))
             {
                 var move = MoveHelpers.GenerateMove(45, 53, MoveType.Promotion, pp);
-                Assert.AreEqual(pp, move.GetPiecePromoted());
+                Assert.AreEqual(pp, move.PromotionPiece);
             }
         }
 
@@ -91,7 +91,7 @@ namespace ChessLib.Tests.Helpers
             foreach (MoveType mt in Enum.GetValues(typeof(MoveType)))
             {
                 var move = MoveHelpers.GenerateMove(45, 53, mt, PromotionPiece.Knight);
-                Assert.AreEqual(mt, move.GetMoveType());
+                Assert.AreEqual(mt, move.MoveType);
             }
         }
     }

@@ -9,7 +9,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
     public partial class MoveHelperTests
     {
 
-       
+
         [Test]
         public void ConvertTextToSquareShouldWorkForAllSquares()
         {
@@ -190,7 +190,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void IndexToFile()
         {
-            for (int i = 0; i < 64; i++)
+            for (ushort i = 0; i < 64; i++)
             {
                 char expected;
                 switch (i % 8)
@@ -211,7 +211,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void IndexToRank()
         {
-            for (int i = 0; i < 64; i++)
+            for (ushort i = 0; i < 64; i++)
             {
                 char expected;
                 switch (i / 8)

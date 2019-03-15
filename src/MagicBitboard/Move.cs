@@ -1,6 +1,5 @@
 ﻿using MagicBitboard.Enums;
 using MagicBitboard.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,12 +7,6 @@ using System.Text;
 
 namespace MagicBitboard
 {
-    using System.Runtime.Serialization;
-    using Move = UInt16;
-    public enum MoveType
-    {
-        Normal = 0, Promotion = 1, EnPassent = 2, Castle = 3
-    }
     /// <summary>
     /// This is for move storage, long term.
     /// </summary>
@@ -24,26 +17,50 @@ namespace MagicBitboard
     /// bits 12-14: Promotion Piece Type (Knight, Bishop, Rook, Queen)
     /// bits 14-16: MoveType
     /// </remarks>
+    public class MoveExt : System.IEquatable<MoveExt>
+    {
+        public readonly ushort Move;
+        public MoveExt(ushort move) { Move = move; }
+        public ushort DestinationIndex => MoveHelpers.DestinationIndex(Move);
+        public ushort SourceIndex => MoveHelpers.SourceIndex(Move);
+        public ulong DestinationValue => MoveHelpers.DestinationValue(Move);
+        public ulong SourceValue => MoveHelpers.SourceValue(Move);
+        public MoveType MoveType => MoveHelpers.GetMoveType(Move);
+        public PromotionPiece PromotionPiece => MoveHelpers.GetPiecePromoted(Move);
+
+        public bool Equals(MoveExt other) => Move == other.Move;
+        public bool Equals(ushort other) => Move == other;
+
+        public override string ToString()
+        {
+            if (MoveType == MoveType.Promotion)
+            {
+                return $"{DestinationIndex.IndexToSquareDisplay()}={PieceHelper.GetCharFromPromotionPiece(PromotionPiece)}";
+            }
+            return "";
+        }
+    }
+
+
 
 
     public static class MoveHelpers
     {
         private static string[] castling = new[] { "O-O", "O-O-O" };
-        public static Move GenerateMove(ushort fromIdx, ushort toIdx, MoveType moveType = MoveType.Normal, PromotionPiece promotionPiece = 0)
+        public static MoveExt GenerateMove(ushort fromIdx, ushort toIdx, MoveType moveType = MoveType.Normal, PromotionPiece promotionPiece = 0)
         {
             var mt = (ushort)moveType << 14;
             var pp = (ushort)promotionPiece << 12;
             var origin = fromIdx << 6;
             var dest = toIdx << 0;
-            return (Move)(mt | pp | origin | dest);
+            return new MoveExt((ushort)(mt | pp | origin | dest));
         }
 
-
-
-        public static Move GenerateMoveFromText(string moveText, Color moveColor)
+        public static MoveExt GenerateMoveFromText(string moveText, Color moveColor)
         {
             moveText = moveText.TrimEnd('#', '?', '!', '+').Trim();
             MoveType moveType = MoveType.Normal;
+            MoveExt rvMove = new MoveExt(0);
             if (castling.Contains(moveText.ToLowerInvariant()))
             {
                 moveType = MoveType.Castle;
@@ -52,73 +69,23 @@ namespace MagicBitboard
             {
                 var promotionPieces = moveText.Split('=');
                 ushort dest = (ushort)BoardHelpers.SquareTextToIndex(promotionPieces[0]).Value;
-                var promotionPiece = GetPromotionPieceFromChar(promotionPieces[1][0]);
+                var promotionPiece = PieceHelper.GetPromotionPieceFromChar(promotionPieces[1][0]);
                 var source = (ushort)(moveColor == Color.White ? dest - 8 : dest + 8);
-                var proposedMove = GenerateMove(source, dest, MoveType.Promotion, promotionPiece);
-                return proposedMove;
+                rvMove = GenerateMove(source, dest, MoveType.Promotion, promotionPiece);
+
             }
 
-            return 0;
-        }
-        
-        public static PromotionPiece GetPromotionPieceFromChar(char p)
-        {
-            switch (char.ToUpper(p))
-            {
-                case 'B': return PromotionPiece.Bishop;
-                case 'N': return PromotionPiece.Knight;
-                case 'Q': return PromotionPiece.Queen;
-                case 'R': return PromotionPiece.Rook;
-                default: throw new Exception("Char / Piece not found in switch cases.");
-            }
+            return rvMove;
         }
 
-        public static ushort Destination(this Move move)
-        {
-            return (ushort)(move & 63);
-        }
-        public static ushort Source(this Move move)
-        {
-            return (ushort)((move >> 6) & 63);
-        }
-        public static PromotionPiece GetPiecePromoted(this Move move)
-        {
-            return (PromotionPiece)((move >> 12) & 3);
-        }
-        public static MoveType GetMoveType(this Move move)
-        {
-            return (MoveType)((move >> 14) & 3);
-        }
-        public static char GetCharFromPromotionPiece(PromotionPiece p)
-        {
-            switch (p)
-            {
-                case PromotionPiece.Bishop: return 'B';
-                case PromotionPiece.Knight: return 'N';
-                case PromotionPiece.Queen: return 'Q';
-                case PromotionPiece.Rook: return 'R';
-                default: throw new Exception("Promotion Piece not found in switch cases.");
-            }
-        }
-    }
+        public static ushort DestinationIndex(this ushort move) => (ushort)(move & 63);
+        public static ushort SourceIndex(this ushort move) => (ushort)((move >> 6) & 63);
 
-    [Serializable]
-    public class MoveException : Exception
-    {
-        public MoveException()
-        {
-        }
+        public static ulong DestinationValue(this ushort move) => 1ul << (move & 63);
+        public static ulong SourceValue(this ushort move) => 1ul << ((move >> 6) & 63);
 
-        public MoveException(string message) : base(message)
-        {
-        }
+        public static PromotionPiece GetPiecePromoted(this ushort move) => (PromotionPiece)((move >> 12) & 3);
+        public static MoveType GetMoveType(this ushort move) => (MoveType)((move >> 14) & 3);
 
-        public MoveException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected MoveException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 }

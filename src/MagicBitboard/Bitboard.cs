@@ -44,7 +44,7 @@ namespace MagicBitboard
                 case Piece.Queen:
                     return bishopSquares | rookSquares;
                 case Piece.Pawn:
-                    return PieceAttackPatternHelper.PawnAttackMask[color.ToInt(), r, f];
+                    return PieceAttackPatternHelper.PawnAttackMask[color.ToInt()][pieceIndex];
                 case Piece.King:
                     return PieceAttackPatternHelper.KingMoveMask[r, f];
                 case Piece.Knight:

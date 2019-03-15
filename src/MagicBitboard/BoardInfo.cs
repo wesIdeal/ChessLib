@@ -40,8 +40,8 @@ namespace MagicBitboard
 
         public void ApplyMove(string moveText)
         {
-            Move move = MoveHelpers.GenerateMoveFromText(moveText, ActivePlayer);
-            ApplyMove(move);
+            MoveExt move = MoveHelpers.GenerateMoveFromText(moveText, ActivePlayer);
+
         }
 
         public Piece GetActivePieceByValue(ulong pieceInSquareValue)
@@ -53,23 +53,20 @@ namespace MagicBitboard
             throw new MoveException("No piece found with the specified value.");
         }
 
-        private void ApplyMove(ushort move)
+        private void ApplyMove(MoveExt move)
         {
             ValidateMove(move);
         }
 
-        private void ValidateMove(ushort move)
+        public void ValidateMove(MoveExt move)
         {
-            var source = 1ul << move.Source();
-            var dest = 1ul << move.Destination();
-            var pieceMoving = GetActivePieceByValue(source);
-            var isCapture = (OpponentTotalOccupancy & dest) != 0;
+            var pieceMoving = GetActivePieceByValue(move.SourceValue);
+            var isCapture = (OpponentTotalOccupancy & move.DestinationValue) != 0;
 
-
-            switch (move.GetMoveType())
+            switch (move.MoveType)
             {
                 case MoveType.Promotion:
-                    ValidatePromotion(move);
+                    ValidatePromotion(ActivePlayer, move.SourceIndex, move.DestinationIndex);
                     break;
                 default: return;
             }
@@ -123,19 +120,20 @@ namespace MagicBitboard
         public ushort ActivePlayerKingIndex => PiecesOnBoard[(int)ActivePlayer][Piece.King.ToInt()].GetSetBitIndexes()[0];
         public ushort OpposingPlayerKingIndex => PiecesOnBoard[(int)ActivePlayer.Toggle()][Piece.King.ToInt()].GetSetBitIndexes()[0];
 
-        private void ValidatePromotion(Move move)
+        public void ValidatePromotion(Color color, ushort moveSourceIdx, ushort moveDestIdx)
         {
-            if ((ActivePieceOccupancy[(int)Piece.Pawn] & ((ulong)1 << move.Source())) == 0)
+            var moveSourceVal = 1ul << moveSourceIdx;
+            var moveDestVal = 1ul << moveDestIdx;
+
+            if ((ActivePieceOccupancy[(int)Piece.Pawn] & moveSourceVal) == 0)
             {
                 throw new MoveException("Promotion move issue - no pawn at source.");
             }
-            else if ((TotalOccupancy & move.Destination()) != 0)
+            else if ((TotalOccupancy & moveDestVal) != 0 && (PieceAttackPatternHelper.PawnAttackMask[(int)color][moveDestIdx] == 0))
             {
                 throw new MoveException("Promotion move issue - A piece is at the destination.");
             }
         }
-
-
 
         private Check GetChecks(Color activePlayer)
         {
@@ -241,7 +239,7 @@ namespace MagicBitboard
             var totalOccupancy = TotalOccupancy;
             var bishopAttack = Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, totalOccupancy);
             var rookAttack = Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, totalOccupancy);
-            if ((PieceAttackPatternHelper.PawnAttackMask[notNColor, r, f] & PiecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
+            if ((PieceAttackPatternHelper.PawnAttackMask[notNColor][squareIndex] & PiecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
             if ((PieceAttackPatternHelper.KnightAttackMask[r, f] & PiecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
             if ((bishopAttack & (PiecesOnBoard[nColor][Piece.Bishop.ToInt()] | PiecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
             if ((rookAttack & (PiecesOnBoard[nColor][Piece.Rook.ToInt()] | PiecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;

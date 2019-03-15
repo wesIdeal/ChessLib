@@ -5,8 +5,12 @@ namespace MagicBitboard.Enums
 {
     public enum Rank { R1 = 0, R2, R3, R4, R5, R6, R7, R8 };
     public enum File { A = 0, B, C, D, E, F, G, H };
-    public enum Color { White = 0, Black }
+    public enum Color { White = 0, Black =1 }
 
+    public enum MoveType
+    {
+        Normal = 0, Promotion = 1, EnPassent = 2, Castle = 3
+    }
     public enum FENPieces { PiecePlacement = 0, ActiveColor, CastlingAvailability, EnPassentSquare, HalfmoveClock, FullMoveCounter }
 
     [Flags]
