@@ -14,12 +14,13 @@ namespace ChessLib.Parse
     {
         const string tagEx = "(\\[\\s*(?<tagName>\\w+)\\s*\"(?<tagValue>[^\"]*)\\\"\\s*\\]\\s*)";
         string movesRegex;
-            
+        const string moveNew = @"(?<pgnGame>\s*(?:\[\s*(?<tagName>\w+)\s*""(?<tagValue>[^""]*)""\s*\]\s*)+(?:(?<moveNumber>\d+)(?<moveMarker>\.|\.{3})\s*(?<moveValue>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?)(?:\s*(?<moveValue2>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?))?\s*(?:\(\s*(?<variation>(?:(?<varMoveNumber>\d+)(?<varMoveMarker>\.|\.{3})\s*(?<varMoveValue>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?)(?:\s*(?<varMoveValue2>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?))?\s*(?:\((?<varVariation>.*)\)\s*)?(?:\{(?<varComment>[^\}]*?)\}\s*)?)*)\s*\)\s*)*(?:\{(?<comment>[^\}]*?)\}\s*)?)*(?<endMarker>1\-?0|0\-?1|1/2\-?1/2|\*)?\s*)";
         const string moveToPlySplitRegex = @"\s+";
         const string variations = @"\(([^)]*)\)";
 
         public ParsePGN()
         {
+
             movesRegex = @"\s*(\d{1,3})\.?\s*((?:(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)(?:\s*\d+\.?\d+?m?s)?\.?\s*((?:(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)?(?:\s*\d+\.?\d+?m?s)?";
             var reMoveNumber = @"(\d{1,3})\.?\s*";
             var altmoves = @"(?:(?<mn>\d{1,3}.?)\s+((?<wm>(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)\s?(?<nag>\$\d)\s+((?<bm>(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)?\s?(?<nag>\$\d)?)";
@@ -59,7 +60,7 @@ namespace ChessLib.Parse
 
         protected string[] GetVariations(string pgn)
         {
-            
+
             var vars = Regex.Matches(pgn, variations);
             return new string[] { };
         }
@@ -67,11 +68,14 @@ namespace ChessLib.Parse
         public string[] GetMovesFromPGN(string pgn)
         {
             var rv = new List<string>();
-            var mainMoves = GetMainMoves(pgn);
-            foreach (var mv in mainMoves)
-            {
-                var splits = Regex.Split(mv, moveToPlySplitRegex);
-            }
+            //var withoutComments = RemoveComments(pgn);
+            //var withoutNewlines = pgn.Replace('\r', ' ');
+            //var mainMoves = GetMainMoves(pgn);
+            var mainMoves = Regex.Matches(pgn, moveNew);
+            //foreach (var mv in mainMoves)
+            //{
+            //    var splits = Regex.Split(mv, moveToPlySplitRegex);
+            //}
             return rv.ToArray();
         }
 
