@@ -65,18 +65,9 @@ namespace ChessLib.Parse
             return new string[] { };
         }
 
-        public string[] GetMovesFromPGN(string pgn)
+        public void GetMovesFromPGN(string pgn)
         {
-            var rv = new List<string>();
-            //var withoutComments = RemoveComments(pgn);
-            //var withoutNewlines = pgn.Replace('\r', ' ');
-            //var mainMoves = GetMainMoves(pgn);
-            var mainMoves = Regex.Matches(pgn, moveNew);
-            //foreach (var mv in mainMoves)
-            //{
-            //    var splits = Regex.Split(mv, moveToPlySplitRegex);
-            //}
-            return rv.ToArray();
+
         }
 
         protected string[] GetMainMoves(string pgn)

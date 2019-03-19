@@ -2,6 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+	<Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4" Version="4.6.6">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Grammar\PGN.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>ChessLib.Parse.Parser</CustomToolNamespace>
+    </None>
+  </ItemGroup>
 
 </Project>
