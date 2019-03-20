@@ -7,9 +7,12 @@ namespace ChessLib.Parse.Parser
 {
     class PGNVisitor : PGNBaseVisitor<object>
     {
+        public List<string> Games { get; set; }
         public override object VisitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
         {
-            return base.VisitPgn_game(context);
+            var gameText = context.GetText();
+            Games.Add(gameText);
+            return gameText;
         }
     }
 }

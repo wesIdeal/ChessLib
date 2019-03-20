@@ -19,6 +19,9 @@
     <None Update="PGN\fullgame01.pgn">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="PGN\tal.pgn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="PGN\uncommented.pgn">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

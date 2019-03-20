@@ -17,28 +17,28 @@ namespace ChessLib.Parse
     }
     public class ParsePGN
     {
-        private readonly PGNLexer pgnLexer;
-        private readonly PGNParser pgnParser;
-        private readonly ParseTreeWalker treeWalker;
-        private readonly PGNParser.ParseContext context;
-        private readonly PGNVisitor visitor;
-
-        public ParsePGN(string pgn)
+        AntlrFileStream fileStream;
+        public ParsePGN(string pgnPath)
         {
-            pgnLexer = new PGNLexer(new AntlrInputStream(pgn));
-            pgnParser = new PGNParser(new CommonTokenStream(pgnLexer));
-            treeWalker = new ParseTreeWalker();
-            context = pgnParser.parse();
-            visitor = new PGNVisitor();
-
+            fileStream = new AntlrFileStream(pgnPath);
         }
 
 
 
-        public void GetMovesFromPGN(string pgn)
+        public void GetMovesFromPGN()
         {
-
-            visitor.VisitPgn_game(pgnParser.pgn_game());
+            TestWalkingListener();
+        }
+        private void TestWalkingListener()
+        {
+            PGNLexer lexer = new PGNLexer(fileStream);
+            var tokens = new CommonTokenStream(lexer);
+            var parser = new PGNParser(tokens);
+            var parseTree = parser.parse();
+            var walker = new ParseTreeWalker();
+            var listener = new PGNListener();
+            walker.Walk(listener, parseTree);
+            var moveTexts = listener.Games;
         }
     }
 }
