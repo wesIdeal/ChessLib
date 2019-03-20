@@ -22,28 +22,27 @@ Rxf7 24.gxf7 hxg5 25.Nxg5 Qxf2 26.Ne6+ Kxf7 27.Qg7+ Kxe6
 [Event "Riga"]
 [Site "Riga"]
 [Date "1952.??.??"]
-[EventDate "?"]
 [Round "?"]
-[Result "1-0"]
 [White "Mikhail Tal"]
 [Black "Karlis Klasup"]
+[Result "1-0"]
 [ECO "A80"]
-[WhiteElo "?"]
-[BlackElo "?"]
 [PlyCount "127"]
 
-1.d4 f5 2.e4 fxe4 3.Nc3 Nf6 4.f3 d5 5.fxe4 dxe4 6.Bc4 Bf5
-7.Nge2 Nc6 8.O-O e6 9.Bb5 a6 10.Ba4 Qd7 11.Bg5 O-O-O 12.Kh1
-Be7 13.Bxf6 Bxf6 14.d5 exd5 15.Bxc6 bxc6 16.Nd4 Bg4 17.Qd2 Qd6
-18.Nb3 c5 19.h3 h5 20.Na5 e3 21.Qxe3 d4 22.Qe4 dxc3 23.Qb7+
-Kd7 24.Nc4 Qd4 25.Nb6+ Ke8 26.bxc3 Qd6 27.Nc4 Qg3 28.Rae1+ Kf8
-29.Re3 Qh4 30.Qxc7 Kg8 31.Kg1 Bc8 32.Rf4 Qg5 33.Ref3 Kh7 34.h4
-Rd1+ 35.Kh2 Qd5 36.Rg3 Bg4 37.Rxf6 Qxc4 38.Rf5 Kh6 39.Rxh5+
-Kxh5 40.Qxg7 Qf4 41.Qxh8+ Kg6 42.Qg8+ Kf5 43.Qc8+ Ke5 44.Qxg4
-Qxg4 45.Rxg4 Rd2 46.Rg5+ Kf4 47.Rxc5 Rxc2 48.Rc6 Kg4 49.Rc4+
-Kh5 50.a4 Rd2 51.Kh3 Rd3+ 52.g3 Rd6 53.a5 Rd5 54.g4 Kg6
-55.Rc6+ Kf7 56.Rxa6 Rd3+ 57.Kg2 Rxc3 58.h5 Kg7 59.Rb6 Ra3
-60.a6 Kf7 61.Kh2 Kg7 62.g5 Ra5 63.Rb7+ Kg8 64.a7 1-0
+1. d4 f5 2. e4 fxe4 3. Nc3 
+    ( 3. Qh5+ )
+3... Nf6 4. f3 d5 5. fxe4 dxe4 6. Bc4 Bf5 7. Nge2 Nc6 8. O-O e6 9. Bb5 
+a6 10. Ba4 Qd7 11. Bg5 O-O-O 12. Kh1 Be7 13. Bxf6 Bxf6 14. d5 exd5 15. 
+Bxc6 bxc6 16. Nd4 Bg4 17. Qd2 Qd6 18. Nb3 c5 19. h3 h5 20. Na5 e3 21. Qxe3
+d4 22. Qe4 dxc3 23. Qb7+ Kd7 24. Nc4 Qd4 25. Nb6+ Ke8 26. bxc3 Qd6 27. Nc4
+Qg3 28. Rae1+ Kf8 29. Re3 Qh4 30. Qxc7 Kg8 31. Kg1 Bc8 32. Rf4 Qg5 33. 
+Ref3 Kh7 34. h4 Rd1+ 35. Kh2 Qd5 36. Rg3 Bg4 37. Rxf6 Qxc4 38. Rf5 Kh6 39.
+ Rxh5+ Kxh5 40. Qxg7 Qf4 41. Qxh8+ Kg6 42. Qg8+ Kf5 43. Qc8+ Ke5 44. Qxg4 
+Qxg4 45. Rxg4 Rd2 46. Rg5+ Kf4 47. Rxc5 Rxc2 48. Rc6 Kg4 49. Rc4+ Kh5 50. 
+a4 Rd2 51. Kh3 Rd3+ 52. g3 Rd6 53. a5 Rd5 54. g4+ Kg6 55. Rc6+ Kf7 56. 
+Rxa6 Rd3+ 57. Kg2 Rxc3 58. h5 Kg7 59. Rb6 Ra3 60. a6 Kf7 61. Kh2 Kg7 62. 
+g5 Ra5 63. Rb7+ Kg8 64. a7 1-0
+
 
 [Event "LAT-ch"]
 [Site "Riga LAT"]
