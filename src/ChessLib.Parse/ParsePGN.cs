@@ -41,9 +41,15 @@ namespace ChessLib.Parse
         private void TestWalkingListener()
         {
             var splitPgn = Regex.Matches(PgnDatabase, GameRegEx);
+            var variationBeginRegEx = @"\s*(?<var>\()";
+            var variationEndRegEx = @"(?<close>\s*\))";
+
             foreach (Match game in splitPgn)
             {
-                inputStream = new AntlrInputStream(game.Value);
+                var pgn = "";
+                
+                //gamePgn = Regex.Replace(gamePgn, @"(\n+\s*\))", ") ");
+                inputStream = new AntlrInputStream(pgn);
                 PGNLexer lexer = new PGNLexer(inputStream);
                 var tokens = new CommonTokenStream(lexer);
                 var parser = new PGNParser(tokens);
