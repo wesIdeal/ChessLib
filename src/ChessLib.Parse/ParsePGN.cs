@@ -8,6 +8,7 @@ using Antlr4.Runtime.Tree;
 using ChessLib.Parse.Parser.Base;
 using ChessLib.Parse.Parser;
 using System;
+using System.Diagnostics;
 
 namespace ChessLib.Parse
 {
@@ -23,13 +24,18 @@ namespace ChessLib.Parse
     public class ParsePGN
     {
         AntlrFileStream fileStream;
-        public readonly string PgnDatabase;
+        public string PgnDatabase;
         AntlrInputStream inputStream;
-        public const string GameRegEx = @"(?<pgnGame>\s*(?:\[\s*(?<tagName>\w+)\s*""(?<tagValue>[^""]*)""\s*\]\s*)+(?:(?<moveNumber>\d+)(?<moveMarker>\.|\.{3})\s*(?<moveValue>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?)(?:\s*(?<moveValue2>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?))?\s*(?:\(\s*(?<variation>(?:(?<varMoveNumber>\d+)(?<varMoveMarker>\.|\.{3})\s*(?<varMoveValue>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?)(?:\s*(?<varMoveValue2>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?))?\s*(?:\((?<varVariation>.*)\)\s*)?(?:\{(?<varComment>[^\}]*?)\}\s*)?)*)\s*\)\s*)*(?:\{(?<comment>[^\}]*?)\}\s*)?)*(?<endMarker>1\-?0|0\-?1|1/2\-?1/2|\*)?\s*)";
+        public const string GameRegEx = @"(?<pgnGame>\s*(?:\[\s*(?<tagName>\w+)\s*""(?<tagValue>[^""]*)""\s*\]\s*)+(?:(?<moveNumber>\d+)(?<moveMarker>\.|\.{3})\s*(?<moveValue>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?)(?:\s*(?<moveValue2>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?))?\s*(?:\s*\(\s*(?<variation>(?:(?<varMoveNumber>\d+)(?<varMoveMarker>\.|\.{3})\s*(?<varMoveValue>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?)(?:\s*(?<varMoveValue2>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?))?\s*(?:\((?<varVariation>.*)\s*\)\s*)?(?:\{(?<varComment>[^\}]*?)\}\s*)?)*)\s*\)\s*)*(?:\{(?<comment>[^\}]*?)\}\s*)?)*(?<endMarker>1\-?0|0\-?1|1/2\-?1/2|\*)?\s*)";
         public ParsePGN(string pgnPath)
         {
             PgnDatabase = System.IO.File.ReadAllText(pgnPath);
+            PgnDatabase = Regex.Replace(PgnDatabase, @"(\s)*(?<var>(\))(\s)*)", "${var}", RegexOptions.RightToLeft);
 
+            Debug.WriteLine(PgnDatabase);
+            PgnDatabase = Regex.Replace(PgnDatabase, @"(\s)*(?<var>\()", "${var} ");
+            PgnDatabase = Regex.Replace(PgnDatabase, @"\)(\n)*(\s)*(?<moveNumber>[\d]+)", ") ${moveNumber}", RegexOptions.RightToLeft);
+            Debug.WriteLine(PgnDatabase);
         }
 
 
@@ -40,16 +46,16 @@ namespace ChessLib.Parse
         }
         private void TestWalkingListener()
         {
+            
             var splitPgn = Regex.Matches(PgnDatabase, GameRegEx);
-            var variationBeginRegEx = @"\s*(?<var>\()";
-            var variationEndRegEx = @"(?<close>\s*\))";
 
             foreach (Match game in splitPgn)
             {
-                var pgn = "";
-                
+                MatchCollection mc= Regex.Matches(game.Value, GameRegEx);
+                var ms = mc[0].Groups["moveNumber"];
+                Debug.WriteLine(game.Value);
                 //gamePgn = Regex.Replace(gamePgn, @"(\n+\s*\))", ") ");
-                inputStream = new AntlrInputStream(pgn);
+                inputStream = new AntlrInputStream(game.Value);
                 PGNLexer lexer = new PGNLexer(inputStream);
                 var tokens = new CommonTokenStream(lexer);
                 var parser = new PGNParser(tokens);
