@@ -14,5 +14,9 @@ namespace ChessLib.Parse.Parser
             Games.Add(gameText);
             return gameText;
         }
+        public override object VisitRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
+        {
+            return context.GetText();
+        }
     }
 }

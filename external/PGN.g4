@@ -52,7 +52,8 @@ pgn_database
 
 /// <PGN-game> ::= <tag-section> <movetext-section>
 pgn_game
- : tag_section movetext_section
+ : tag_section 
+movetext_section
  ;
 
 /// <tag-section> ::= <tag-pair> <tag-section>
