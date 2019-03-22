@@ -57,7 +57,6 @@ pgn_game
 
 movetext_section 
  ;
-
 /// <tag-section> ::= <tag-pair> <tag-section>
 ///                   <empty>
 tag_section
@@ -81,7 +80,7 @@ tag_value
  
 /// <movetext-section> ::= <element-sequence> <game-termination>
 movetext_section
- : element_sequence game_termination
+ :  element_sequence game_termination
  ;
 
 /// <element-sequence> ::= <element> <element-sequence>
@@ -169,6 +168,9 @@ ESCAPE
 NEW_LINE: '\r'? '\n'
 		  ;
 
+SECTION_SEPARATOR
+	: NEW_LINE NEW_LINE -> skip
+;
 
 SPACES
  : [ \t\r\n]+ -> skip
@@ -199,7 +201,7 @@ INTEGER
 /// A period character (".") is a token by itself.  It is used for move number
 /// indications (see below).  It is self terminating.
 PERIOD
- : '.'
+ : ('.' | '...')
  ;
 
 /// An asterisk character ("*") is a token by itself.  It is used as one of the
