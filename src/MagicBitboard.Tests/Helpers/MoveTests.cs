@@ -15,7 +15,6 @@ namespace ChessLib.Tests.Helpers
     {
         const string fenEP = "8/PPPPPPPP/8/2k5/8/2K5/pppppppp/8 w - - 0 1";
         BoardInfo biEnPassent = FENHelpers.BoardInfoFromFen(fenEP);
-        ulong[] whitePiecesEnPassent, blackPiecesEnPassent;
         [SetUp]
         public void Setup()
         {
@@ -30,7 +29,7 @@ namespace ChessLib.Tests.Helpers
                 for (var pieceIdx = PromotionPiece.Knight; pieceIdx < PromotionPiece.Queen; pieceIdx++)
                 {
                     var expected = MoveHelpers.GenerateMove(i, (ushort)(i + 8), MoveType.Promotion, pieceIdx);
-                    var input = BoardHelpers.IndexToSquareDisplay((ushort)(i + 8)) + $"={PieceHelper.GetCharFromPromotionPiece(pieceIdx)}";
+                    var input = BoardHelpers.IndexToSquareDisplay((ushort)(i + 8)) + $"={PieceHelpers.GetCharFromPromotionPiece(pieceIdx)}";
                     Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, Color.White));
                 }
             }
@@ -40,7 +39,7 @@ namespace ChessLib.Tests.Helpers
                 for (var pieceIdx = PromotionPiece.Knight; pieceIdx < PromotionPiece.Queen; pieceIdx++)
                 {
                     var expected = MoveHelpers.GenerateMove(i, (ushort)(i - 8), MoveType.Promotion, pieceIdx);
-                    var input = BoardHelpers.IndexToSquareDisplay((ushort)(i - 8)) + $"={PieceHelper.GetCharFromPromotionPiece(pieceIdx)}";
+                    var input = BoardHelpers.IndexToSquareDisplay((ushort)(i - 8)) + $"={PieceHelpers.GetCharFromPromotionPiece(pieceIdx)}";
                     Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, Color.Black));
                 }
             }

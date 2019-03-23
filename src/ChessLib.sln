@@ -13,11 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicBitboard.Tests", "Magi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard.Tests.Console", "MagicBitboard.Tests.Console\MagicBitboard.Tests.Console.csproj", "{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard.Benchmarks", "MagicBitboard.Benchmarks\MagicBitboard.Benchmarks.csproj", "{ECAD6541-722C-43E0-877B-CBAE68A20009}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Parse", "ChessLib.Parse\ChessLib.Parse.csproj", "{B21DAC8A-705A-4237-9961-AE0B3E19F033}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Parse", "ChessLib.Parse\ChessLib.Parse.csproj", "{B21DAC8A-705A-4237-9961-AE0B3E19F033}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Parse.Tests", "ChessLib.Parse.Tests\ChessLib.Parse.Tests.csproj", "{60742E4D-3FE5-4980-8E84-92A8F1ACEBA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Parse.Tests", "ChessLib.Parse.Tests\ChessLib.Parse.Tests.csproj", "{60742E4D-3FE5-4980-8E84-92A8F1ACEBA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,10 +43,6 @@ Global
 		{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ECAD6541-722C-43E0-877B-CBAE68A20009}.Debug|Any CPU.ActiveCfg = Release|Any CPU
-		{ECAD6541-722C-43E0-877B-CBAE68A20009}.Debug|Any CPU.Build.0 = Release|Any CPU
-		{ECAD6541-722C-43E0-877B-CBAE68A20009}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ECAD6541-722C-43E0-877B-CBAE68A20009}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B21DAC8A-705A-4237-9961-AE0B3E19F033}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B21DAC8A-705A-4237-9961-AE0B3E19F033}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B21DAC8A-705A-4237-9961-AE0B3E19F033}.Release|Any CPU.ActiveCfg = Release|Any CPU

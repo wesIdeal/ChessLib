@@ -40,7 +40,6 @@
     </Reference>
     <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
-     
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -50,6 +49,7 @@
     <Compile Include="BoardInfoTests.cs" />
     <Compile Include="Helpers\BitHelpersTests.cs" />
     <Compile Include="Helpers\FENHelpersTests.cs" />
+    <Compile Include="Helpers\MoveHelpers.cs" />
     <Compile Include="Helpers\MoveTests.cs" />
     <Compile Include="MoveHelperShifts\CardinalDirectionShifts.cs" />
     <Compile Include="MoveHelperTests.cs" />
@@ -77,7 +77,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.11.0\build\NUnit.props'))" />
     <Error Condition="!Exists('..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props'))" />
-
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

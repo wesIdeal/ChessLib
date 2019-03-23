@@ -9,7 +9,6 @@ namespace MagicBitboard
     using Move = UInt16;
     public class BoardInfo
     {
-        private readonly string _fen;
         public readonly bool Chess960 = false;
         private BoardInfo(bool chess960 = false)
         {
@@ -249,7 +248,7 @@ namespace MagicBitboard
 
         public ulong[][] PiecesOnBoard = new ulong[2][];
         public CastlingAvailability CastlingAvailability { get; set; }
-        public string FEN { get => _fen; }
+        public string FEN { get; }
         public uint HalfmoveClock { get; set; }
         public uint MoveCounter { get; set; }
         public Color ActivePlayer { get; set; }

@@ -16,17 +16,17 @@ namespace ChessLib.Parse.Tests
         string unCommentedPgn;
         string variationPgn;
         string fullGame01Pgn;
-        string tagsNewLines = @"
-                [Event ""The Big Test Event""]
-                [Site ""My City, NY""]
-                [Date ""2019.01.04""]
-                [Round ""3""]
-                [White ""Me""]
-                [Black ""The other guy""]
-                [Result ""1-0""]
-                ";
-        string tagsNoNewLines = @"[Event ""The Big Test Event""][Site ""My City, NY""][Date ""2019.01.04""][Round ""3""][White ""Me""][Black ""The other guy""][Result ""1-0""]";
-        string tagsRandomWhiteSpace = "[Event  \"The Big Test Event\"]\t\t[Site \"My City, NY  \"]\r\n\r\n[Date \"2019.01.04\"][Round \"3\"][White              \"Me\"][Black\"The other guy\"][Result \t\t   \"1-0\"]";
+        //string tagsNewLines = @"
+        //        [Event ""The Big Test Event""]
+        //        [Site ""My City, NY""]
+        //        [Date ""2019.01.04""]
+        //        [Round ""3""]
+        //        [White ""Me""]
+        //        [Black ""The other guy""]
+        //        [Result ""1-0""]
+        //        ";
+        //string tagsNoNewLines = @"[Event ""The Big Test Event""][Site ""My City, NY""][Date ""2019.01.04""][Round ""3""][White ""Me""][Black ""The other guy""][Result ""1-0""]";
+        //string tagsRandomWhiteSpace = "[Event  \"The Big Test Event\"]\t\t[Site \"My City, NY  \"]\r\n\r\n[Date \"2019.01.04\"][Round \"3\"][White              \"Me\"][Black\"The other guy\"][Result \t\t   \"1-0\"]";
         Tags expectedTags;
 
         [OneTimeSetUp]

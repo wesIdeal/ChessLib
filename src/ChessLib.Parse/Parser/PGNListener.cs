@@ -17,7 +17,7 @@ namespace ChessLib.Parse.Parser
             Games = new List<Game<MoveText>>();
             times = new List<double>();
         }
-        int gCount = 0;
+
         private Stack<MoveTree<MoveText>> _moveTreeStack = new Stack<MoveTree<MoveText>>();
         private Game<MoveText> _game;
         public List<Game<MoveText>> Games;

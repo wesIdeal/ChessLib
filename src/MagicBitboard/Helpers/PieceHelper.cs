@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MagicBitboard.Helpers
 {
-    public static class PieceHelper
+    public static class PieceHelpers
     {
         public static char GetCharFromPromotionPiece(PromotionPiece p)
         {

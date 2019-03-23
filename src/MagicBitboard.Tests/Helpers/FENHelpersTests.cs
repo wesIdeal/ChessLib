@@ -417,7 +417,7 @@ namespace MagicBitboard.Helpers.Tests
         public void Should_Return_Error_When_Too_Many_Squares_In_Fen()
         {
             var fen = "rnbqkbnr/ppppppppp/8/8/8/8/PPPPPPPP/RNBQrKBNR";
-            var message = "";
+
             Assert.AreEqual(FENError.PiecePlacementPieceCountInRank, FENHelpers.ValidatePiecePlacement(fen));
         }
 
