@@ -47,9 +47,10 @@
   <ItemGroup>
     <Compile Include="Bitboard.Tests.cs" />
     <Compile Include="BoardInfoTests.cs" />
+    <Compile Include="Helpers\DisplayHelpersTests.cs" />
     <Compile Include="Helpers\BitHelpersTests.cs" />
     <Compile Include="Helpers\FENHelpersTests.cs" />
-    <Compile Include="Helpers\MoveHelpers.cs" />
+    <Compile Include="Helpers\MoveHelpersTests.cs" />
     <Compile Include="Helpers\MoveTests.cs" />
     <Compile Include="MoveHelperShifts\CardinalDirectionShifts.cs" />
     <Compile Include="MoveHelperTests.cs" />

@@ -26,9 +26,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (f != 7)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r, f + 1];
+                        expectedValue = BoardHelpers.IndividualSquares[r, f + 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftE()");
                 }
             }
         }
@@ -43,9 +43,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 0)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r - 1, f];
+                        expectedValue = BoardHelpers.IndividualSquares[r - 1, f];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftS(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftS()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftS(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftS()");
                 }
             }
         }
@@ -60,9 +60,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (f != 0)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r, f - 1];
+                        expectedValue = BoardHelpers.IndividualSquares[r, f - 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftW()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftW()");
                 }
             }
         }
@@ -77,9 +77,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 7)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r + 1, f];
+                        expectedValue = BoardHelpers.IndividualSquares[r + 1, f];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftN(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftN()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftN(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftN()");
                 }
             }
         }
@@ -100,9 +100,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (f != 6 && f != 7)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r, f + 2];
+                        expectedValue = BoardHelpers.IndividualSquares[r, f + 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].Shift2E(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2E(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
                 }
             }
         }
@@ -182,9 +182,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 0 && r != 1)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r - 2, f];
+                        expectedValue = BoardHelpers.IndividualSquares[r - 2, f];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].Shift2S(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2S()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2S(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2S()");
                 }
             }
         }
@@ -262,9 +262,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (f != 1 && f != 0)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r, f - 2];
+                        expectedValue = BoardHelpers.IndividualSquares[r, f - 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].Shift2W(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2W()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2W(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2W()");
                 }
             }
         }
@@ -342,9 +342,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 6 && r != 7)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r + 2, f];
+                        expectedValue = BoardHelpers.IndividualSquares[r + 2, f];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].Shift2N(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2N()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2N(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2N()");
                 }
             }
         }
@@ -425,9 +425,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 6 && r != 7 && f != 7)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r + 2, f + 1];
+                        expectedValue = BoardHelpers.IndividualSquares[r + 2, f + 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftNNE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftNNE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNNE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftNNE()");
                 }
             }
         }
@@ -442,9 +442,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (f != 7 && r != 7)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r + 1, f + 1];
+                        expectedValue = BoardHelpers.IndividualSquares[r + 1, f + 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftNE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
                 }
             }
         }
@@ -459,9 +459,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 7 && f != 7 && f != 6)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r + 1, f + 2];
+                        expectedValue = BoardHelpers.IndividualSquares[r + 1, f + 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftENE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftENE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftENE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftENE()");
                 }
             }
         }
@@ -476,9 +476,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 0 && f != 7 && f != 6)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r - 1, f + 2];
+                        expectedValue = BoardHelpers.IndividualSquares[r - 1, f + 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftESE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftESE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftESE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftESE()");
                 }
             }
         }
@@ -493,9 +493,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (f != 7 && r != 0)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r - 1, f + 1];
+                        expectedValue = BoardHelpers.IndividualSquares[r - 1, f + 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftSE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftSE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftSE()");
                 }
             }
         }
@@ -510,9 +510,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 0 && r != 1 && f != 7)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r - 2, f + 1];
+                        expectedValue = BoardHelpers.IndividualSquares[r - 2, f + 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftSSE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftSSE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSSE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftSSE()");
                 }
             }
         }
@@ -527,9 +527,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 0 && r != 1 && f != 0)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r - 2, f - 1];
+                        expectedValue = BoardHelpers.IndividualSquares[r - 2, f - 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftSSW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftSSW()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSSW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftSSW()");
                 }
             }
         }
@@ -544,9 +544,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (f != 0 && r != 0)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r - 1, f - 1];
+                        expectedValue = BoardHelpers.IndividualSquares[r - 1, f - 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftSW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
                 }
             }
         }
@@ -561,9 +561,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 0 && f != 0 && f != 1)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r - 1, f - 2];
+                        expectedValue = BoardHelpers.IndividualSquares[r - 1, f - 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftWSW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftWSW()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftWSW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftWSW()");
                 }
             }
         }
@@ -578,9 +578,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 7 && f != 0 && f != 1)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r + 1, f - 2];
+                        expectedValue = BoardHelpers.IndividualSquares[r + 1, f - 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftWNW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftWNW()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftWNW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftWNW()");
                 }
             }
         }
@@ -595,9 +595,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (f != 0 && r != 7)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r + 1, f - 1];
+                        expectedValue = BoardHelpers.IndividualSquares[r + 1, f - 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftNW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
                 }
             }
         }
@@ -612,9 +612,9 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
                     ulong expectedValue = 0;
                     if (r != 7 && r != 6 && f != 0)
                     {
-                        expectedValue = BoardHelpers.IndividialSquares[r + 2, f - 1];
+                        expectedValue = BoardHelpers.IndividualSquares[r + 2, f - 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividialSquares[r, f].ShiftNNW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftNNW()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNNW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftNNW()");
                 }
             }
         }
@@ -792,16 +792,16 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftESENormal()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 0];
-            ulong expected = BoardHelpers.IndividialSquares[6, 2];
+            ulong u = BoardHelpers.IndividualSquares[7, 0];
+            ulong expected = BoardHelpers.IndividualSquares[6, 2];
             var actual = ShiftHelpers.ShiftESE(u);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void ShiftESEFromD4()
         {
-            ulong u = BoardHelpers.IndividialSquares[3, 3];
-            ulong expected = BoardHelpers.IndividialSquares[2, 5];
+            ulong u = BoardHelpers.IndividualSquares[3, 3];
+            ulong expected = BoardHelpers.IndividualSquares[2, 5];
             var actual = ShiftHelpers.ShiftESE(u);
             Assert.AreEqual(expected, actual);
         }
@@ -809,7 +809,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftESEFromH6()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 6];
+            ulong u = BoardHelpers.IndividualSquares[7, 6];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftESE(u);
             Assert.AreEqual(expected, actual);
@@ -817,7 +817,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftESEFromF8()
         {
-            ulong u = BoardHelpers.IndividialSquares[6, 6];
+            ulong u = BoardHelpers.IndividualSquares[6, 6];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftESE(u);
             Assert.AreEqual(expected, actual);
@@ -825,8 +825,8 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftESEFromH8()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 5];
-            ulong expected = BoardHelpers.IndividialSquares[6, 7];
+            ulong u = BoardHelpers.IndividualSquares[7, 5];
+            ulong expected = BoardHelpers.IndividualSquares[6, 7];
             var actual = ShiftHelpers.ShiftESE(u);
             Assert.AreEqual(expected, actual);
         }
@@ -877,7 +877,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftSEFromH2()
         {
-            ulong u = BoardHelpers.IndividialSquares[1, 7];
+            ulong u = BoardHelpers.IndividualSquares[1, 7];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftSE(u);
             Assert.AreEqual(expected, actual);
@@ -886,7 +886,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftSEFromG1()
         {
-            ulong u = BoardHelpers.IndividialSquares[0, 6];
+            ulong u = BoardHelpers.IndividualSquares[0, 6];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftSE(u);
             Assert.AreEqual(expected, actual);
@@ -914,8 +914,8 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftSSEFromD4()
         {
-            ulong u = BoardHelpers.IndividialSquares[3, 3];
-            ulong expected = BoardHelpers.IndividialSquares[1, 4];
+            ulong u = BoardHelpers.IndividualSquares[3, 3];
+            ulong expected = BoardHelpers.IndividualSquares[1, 4];
             var actual = ShiftHelpers.ShiftSSE(u);
             Assert.AreEqual(expected, actual);
         }
@@ -923,7 +923,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftSSEFromF2()
         {
-            ulong u = BoardHelpers.IndividialSquares[1, 5];
+            ulong u = BoardHelpers.IndividualSquares[1, 5];
             ulong expected = 0;
             var actual = ShiftHelpers.ShiftSSE(u);
             Assert.AreEqual(expected, actual);
@@ -931,7 +931,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftSSEFromG2()
         {
-            ulong u = BoardHelpers.IndividialSquares[1, 6];
+            ulong u = BoardHelpers.IndividualSquares[1, 6];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftSSE(u);
             Assert.AreEqual(expected, actual);
@@ -939,7 +939,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftSSEFromH8()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 7];
+            ulong u = BoardHelpers.IndividualSquares[7, 7];
             ulong expected = 0;
             var actual = ShiftHelpers.ShiftSSE(u);
             Assert.AreEqual(expected, actual);
@@ -982,15 +982,15 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftSSWFromH8()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 7];//h8
-            ulong expected = BoardHelpers.IndividialSquares[5, 6]; //g6
+            ulong u = BoardHelpers.IndividualSquares[7, 7];//h8
+            ulong expected = BoardHelpers.IndividualSquares[5, 6]; //g6
             var actual = ShiftHelpers.ShiftSSW(u);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void ShiftSSWFromA8()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 0];
+            ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftSSW(u);
             Assert.AreEqual(expected, actual);
@@ -999,7 +999,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftSSWFromA3()
         {
-            ulong u = BoardHelpers.IndividialSquares[2, 0]; //a3
+            ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftSSW(u);
             Assert.AreEqual(expected, actual);
@@ -1042,7 +1042,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftSWFromA2()
         {
-            ulong u = BoardHelpers.IndividialSquares[1, 0];
+            ulong u = BoardHelpers.IndividualSquares[1, 0];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftSW(u);
             Assert.AreEqual(expected, actual);
@@ -1051,7 +1051,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftSWFromG1()
         {
-            ulong u = BoardHelpers.IndividialSquares[0, 6];
+            ulong u = BoardHelpers.IndividualSquares[0, 6];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftSW(u);
             Assert.AreEqual(expected, actual);
@@ -1070,8 +1070,8 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftWSWNormal()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 2];//c8
-            ulong expected = BoardHelpers.IndividialSquares[6, 0];//a7
+            ulong u = BoardHelpers.IndividualSquares[7, 2];//c8
+            ulong expected = BoardHelpers.IndividualSquares[6, 0];//a7
             var actual = ShiftHelpers.ShiftWSW(u);
             Assert.AreEqual(expected, actual);
         }
@@ -1086,15 +1086,15 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftWSWFromH8()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 7];//h8
-            ulong expected = BoardHelpers.IndividialSquares[6, 5]; //f7
+            ulong u = BoardHelpers.IndividualSquares[7, 7];//h8
+            ulong expected = BoardHelpers.IndividualSquares[6, 5]; //f7
             var actual = ShiftHelpers.ShiftWSW(u);
             Assert.AreEqual(expected, actual);
         }
         [Test]
         public void ShiftWSWFromA8()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 0];
+            ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftWSW(u);
             Assert.AreEqual(expected, actual);
@@ -1103,7 +1103,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftWSWFromA3()
         {
-            ulong u = BoardHelpers.IndividialSquares[2, 0]; //a3
+            ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftWSW(u);
             Assert.AreEqual(expected, actual);
@@ -1112,7 +1112,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         public void ShiftWSWFromH2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
-            ulong expected = 0x00;
+            ulong expected = 0x01<<5;
             var actual = ShiftHelpers.ShiftWSW(u);
             Assert.AreEqual(expected, actual);
         }
@@ -1138,7 +1138,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftWNWFromH8()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 7];//h8
+            ulong u = BoardHelpers.IndividualSquares[7, 7];//h8
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftWNW(u);
             Assert.AreEqual(expected, actual);
@@ -1146,7 +1146,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftWNWFromA8()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 0];
+            ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftWNW(u);
             Assert.AreEqual(expected, actual);
@@ -1155,7 +1155,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftWNWFromA3()
         {
-            ulong u = BoardHelpers.IndividialSquares[2, 0]; //a3
+            ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftWNW(u);
             Assert.AreEqual(expected, actual);
@@ -1198,7 +1198,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftNWFromA2()
         {
-            ulong u = BoardHelpers.IndividialSquares[1, 0];
+            ulong u = BoardHelpers.IndividualSquares[1, 0];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftNW(u);
             Assert.AreEqual(expected, actual);
@@ -1207,7 +1207,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftNWFromA8()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 0];
+            ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftNW(u);
             Assert.AreEqual(expected, actual);
@@ -1216,7 +1216,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         public void ShiftNWFromH1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 7];
-            ulong expected = 0x00;
+            ulong expected = 0x01 << 14;
             var actual = ShiftHelpers.ShiftNW(u);
             Assert.AreEqual(expected, actual);
         }
@@ -1250,7 +1250,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftNNWFromA8()
         {
-            ulong u = BoardHelpers.IndividialSquares[7, 0];
+            ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftNNW(u);
             Assert.AreEqual(expected, actual);
@@ -1259,7 +1259,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         [Test]
         public void ShiftNNWFromA3()
         {
-            ulong u = BoardHelpers.IndividialSquares[2, 0]; //a3
+            ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
             var actual = ShiftHelpers.ShiftNNW(u);
             Assert.AreEqual(expected, actual);
@@ -1268,7 +1268,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         public void ShiftNNWFromH2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
-            ulong expected = 0x00;
+            ulong expected = 0x01<<30;
             var actual = ShiftHelpers.ShiftNNW(u);
             Assert.AreEqual(expected, actual);
         }

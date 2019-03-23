@@ -186,7 +186,7 @@ namespace MagicBitboard.Helpers
                             pieceIndex += emptySquares;
                             break;
                         case false:
-                            var pieceOfColor = PieceOfColor.GetPieceOfColor(f);
+                            var pieceOfColor = PieceHelpers.GetPieceOfColor(f);
                             pieces[(int)pieceOfColor.Color][(int)pieceOfColor.Piece] |= (1ul << (int)pieceIndex);
                             pieceIndex++;
                             break;

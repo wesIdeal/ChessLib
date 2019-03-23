@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChessLib.Tests.Helpers
+namespace MagicBitboard.Helpers.Tests   
 {
     [TestFixture]
     public class MoveTests
@@ -21,58 +21,6 @@ namespace ChessLib.Tests.Helpers
 
         }
 
-        [Test]
-        public void ShouldGetCorrectMoveWhenPromotionIsSent()
-        {
-            for (ushort i = 48; i < 56; i++)
-            {
-                for (var pieceIdx = PromotionPiece.Knight; pieceIdx < PromotionPiece.Queen; pieceIdx++)
-                {
-                    var expected = MoveHelpers.GenerateMove(i, (ushort)(i + 8), MoveType.Promotion, pieceIdx);
-                    var input = BoardHelpers.IndexToSquareDisplay((ushort)(i + 8)) + $"={PieceHelpers.GetCharFromPromotionPiece(pieceIdx)}";
-                    Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, Color.White));
-                }
-            }
-            biEnPassent.ActivePlayer = Color.Black;
-            for (ushort i = 8; i < 16; i++)
-            {
-                for (var pieceIdx = PromotionPiece.Knight; pieceIdx < PromotionPiece.Queen; pieceIdx++)
-                {
-                    var expected = MoveHelpers.GenerateMove(i, (ushort)(i - 8), MoveType.Promotion, pieceIdx);
-                    var input = BoardHelpers.IndexToSquareDisplay((ushort)(i - 8)) + $"={PieceHelpers.GetCharFromPromotionPiece(pieceIdx)}";
-                    Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, Color.Black));
-                }
-            }
-        }
-
-        [Test]
-        public void ShouldFailWhenNoPawnIsIncapableOfPromotion()
-        {
-            var fen = "8/PPPP1PPP/8/2k5/8/2K5/pppp1ppp/8 w - - 0 1";
-            var bi = FENHelpers.BoardInfoFromFen(fen);
-            Assert.Throws(typeof(MoveException), () =>
-            {
-                bi.ValidateMove(MoveHelpers.GenerateMoveFromText("e8=Q", Color.White));
-            });
-            Assert.Throws(typeof(MoveException), () =>
-            {
-                bi.ValidateMove(MoveHelpers.GenerateMoveFromText("e2=Q", Color.Black));
-            });
-        }
-        [Test]
-        public void ShouldFailWhenAPieceBlocksPromotion()
-        {
-            var fen = "4q3/PPPPPPPP/8/2k5/8/2K5/pppppppp/4Q3 w - - 0 1";
-            var bi = FENHelpers.BoardInfoFromFen(fen);
-            Assert.Throws(typeof(MoveException), () =>
-            {
-                bi.ValidateMove(MoveHelpers.GenerateMoveFromText("e8=Q", Color.White));
-            });
-            Assert.Throws(typeof(MoveException), () =>
-            {
-                bi.ValidateMove(MoveHelpers.GenerateMoveFromText("e2=Q", Color.White));
-            });
-        }
 
         [Test]
         public void ShouldGetPromotionPieceFromMove()

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using MagicBitboard.Enums;
 using MagicBitboard.Helpers;
+using static MagicBitboard.Helpers.MoveHelpers;
 
 namespace MagicBitboard
 {
@@ -39,10 +40,124 @@ namespace MagicBitboard
 
         public void ApplyMove(string moveText)
         {
-            MoveExt move = MoveHelpers.GenerateMoveFromText(moveText, ActivePlayer);
+            MoveExt move = GenerateMoveFromText(moveText);
 
         }
 
+        public MoveExt GenerateMoveFromText(string moveText)
+        {
+            var md = MoveHelpers.GetAvailableMoveDetails(moveText, ActivePlayer);
+            if (!md.SourceFile.HasValue || !md.SourceRank.HasValue)
+            {
+                var sourceIndex = FindPieceSource(md);
+            }
+            if (md.MoveType == MoveType.Promotion)
+            {
+
+            }
+            bool isValid = true;
+
+            switch (ActivePlayer)
+            {
+                case Color.Black:
+                    break;
+                case Color.White:
+                    break;
+            }
+
+            return new MoveExt(0);
+        }
+
+        private ushort FindPieceSource(MoveDetail md)
+        {
+
+            switch (md.Piece)
+            {
+                case Piece.Pawn:
+                    if (md.IsCapture)
+                    {
+                        throw new MoveException("Could not determine source square for pawn capture.");
+                    }
+                    return FindPawnMoveSourceIndex(md, ActivePieceOccupancy[(int)Piece.Pawn]);
+
+                case Piece.Knight:
+                    return FindKnightMoveSourceIndex(md);
+                case Piece.Bishop:
+                case Piece.Rook:
+                case Piece.Queen:
+                case Piece.King:
+                    break;
+
+            }
+            return 0;
+        }
+
+        private ushort FindKnightMoveSourceIndex(MoveDetail md)
+        {
+            var possibleSquares = PieceAttackPatternHelper.KnightAttackMask[md.DestRank.Value, md.DestFile.Value];
+            var occupancy = ActivePieceOccupancy[(int)Piece.Knight];
+            var squares = possibleSquares & occupancy;
+            if (squares == 0) throw new MoveException("No Knight can possible get to the specified destination.");
+            var indices = squares.GetSetBitIndexes();
+            if (indices.Count() > 1) throw new MoveException("More than one Knight can get to the specified square.");
+            return indices[0];
+        }
+
+        public ushort FindPawnMoveSourceIndex(MoveDetail md, ulong? relevantPieceOccupancy = null)
+        {
+            var file = md.DestFile;
+            var rank = md.Color == Color.Black ? md.DestRank.Value.RankCompliment() : md.DestRank;
+            ushort sourceIndex = 0;
+            if (!relevantPieceOccupancy.HasValue) relevantPieceOccupancy = ActivePieceOccupancy[(int)Piece.Pawn];
+            var adjustedRelevantPieceOccupancy = md.Color == Color.Black ? relevantPieceOccupancy.Value.FlipVertically() : relevantPieceOccupancy;
+            if (md.Color == Color.Black)
+            {
+                //if (md.DestRank == 4) // 2 possible source ranks, 6 & 7 (offsets 2 & 3)
+                //{
+                //    //Check 6th rank first, logically if a pawn is there that is the source
+                //    if ((relevantPieceOccupancy & BoardHelpers.RankMasks[5]) != 0) sourceIndex = (ushort)((5 * 8) + file % 8);
+                //    if ((relevantPieceOccupancy & BoardHelpers.RankMasks[6]) != 0) sourceIndex = (ushort)((6 * 8) + file % 8);
+                //}
+                //else //else source square was destination + 8, but we need to make sure a pawn was there
+                //{
+                //    var supposedRank = (ushort)md.DestRank + 1;
+                //    if (md.DestRank > 6) { throw new MoveException($"{md.MoveText}: Cannot possibly be a pawn at the source square implied by move."); }
+                //    sourceIndex = (ushort)((supposedRank * 8) + md.DestFile.Value);
+                //}
+
+            }
+            ushort supposedRank = (ushort)(rank - 1);
+            if (rank == 3) // 2 possible source ranks, 2 & 3 (offsets 1 & 2)
+            {
+                //Check 3rd rank first, logically if a pawn is there that is the source
+                if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[2]) != 0) sourceIndex = (ushort)((2 * 8) + (file % 8));
+                if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[1]) != 0) sourceIndex = (ushort)((1 * 8) + (file % 8));
+            }
+            else //else source square was destination + 8, but we need to make sure a pawn was there
+            {
+
+                var supposedIndex = BoardHelpers.RankAndFileToIndex(md.Color == Color.Black ? supposedRank.RankCompliment() : supposedRank, md.DestFile.Value);
+                if (supposedRank == 0) { throw new MoveException($"{md.MoveText}: Cannot possibly be a pawn at the source square {supposedIndex.IndexToSquareDisplay()} implied by move."); }
+                sourceIndex = (ushort)((supposedRank * 8) + md.DestFile.Value);
+            }
+
+            var idx = md.Color == Color.Black ? sourceIndex.FlipIndexVertically() : sourceIndex;
+            ValidatePawnMove(md.Color, idx, md.DestinationIndex.Value, relevantPieceOccupancy.Value, md.MoveText);
+            return idx;
+        }
+        protected static void ValidatePawnMove(Color c, ushort sourceIndex, ushort destinationIndex, ulong pawnOccupancy, string moveText = "")
+        {
+            var sourceValue = sourceIndex.IndexToValue();
+            var destValue = destinationIndex.IndexToValue();
+            var pawnAtSource = sourceValue & pawnOccupancy;
+            if (pawnAtSource == 0) throw new MoveException($"There is no pawn on {sourceIndex.IndexToSquareDisplay()} to move to {destinationIndex.IndexToSquareDisplay()}.");
+            var pawnMoves = PieceAttackPatternHelper.PawnMoveMask[(int)c][sourceIndex];
+            if ((pawnMoves & destValue) == 0)
+            {
+                moveText = moveText + ": ";
+                throw new MoveException($"{moveText}Pawn from {sourceIndex.IndexToSquareDisplay()} to {destinationIndex.IndexToSquareDisplay()} is illegal.");
+            }
+        }
         public Piece GetActivePieceByValue(ulong pieceInSquareValue)
         {
             for (Piece p = 0; p < Piece.King; p++)
@@ -210,13 +325,13 @@ namespace MagicBitboard
             }
 
             //Check for King placement
-            if ((castlingAvailability.HasFlag(CastlingAvailability.WhiteQueenside) || (castlingAvailability.HasFlag(CastlingAvailability.WhiteKingside))
-                && !piecesOnBoard[white][king].IsBitSet(4)))
+            if (castlingAvailability.HasFlag(CastlingAvailability.WhiteQueenside) || castlingAvailability.HasFlag(CastlingAvailability.WhiteKingside)
+                && !piecesOnBoard[white][king].IsBitSet(4))
             {
                 message.AppendLine("White cannot castle witout the King on e1.");
             }
-            if ((castlingAvailability.HasFlag(CastlingAvailability.BlackQueenside) || (castlingAvailability.HasFlag(CastlingAvailability.BlackKingside))
-                && !piecesOnBoard[black][king].IsBitSet(60)))
+            if (castlingAvailability.HasFlag(CastlingAvailability.BlackQueenside) || castlingAvailability.HasFlag(CastlingAvailability.BlackKingside)
+                && !piecesOnBoard[black][king].IsBitSet(60))
             {
                 message.AppendLine("Black cannot castle witout the King on e1.");
             }

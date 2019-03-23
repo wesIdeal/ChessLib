@@ -11,7 +11,7 @@ namespace MagicBitboard.Helpers.Tests
         public void Should_Return_Square_Index_By_Value()
         {
             var count = 0;
-            foreach (var sq in BoardHelpers.IndividialSquares)
+            foreach (var sq in BoardHelpers.IndividualSquares)
             {
                 var idx = BitHelpers.GetSetBitIndexes(sq);
                 Assert.AreEqual(new ushort[] { (ushort)count }, idx);

@@ -1,23 +1,24 @@
 ﻿using MagicBitboard.Enums;
 using MagicBitboard.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MagicBitboard.Helpers
 {
-    public static class MoveHelpers
+    public static partial class MoveHelpers
     {
         private const string rxPieces = "[NBRQK]";
         private const string rxFiles = "[a-h]";
         private const string rxRanks = "[1-8]";
         private static readonly string rxMoveDetails = $"((?<piece>{rxPieces})((?<sourceFile>{rxFiles})|(?<sourceRank>{rxRanks}))?|(?<pawnFile>{rxFiles}))(?<capture>x)?(?<destinationFile>{rxFiles})(?<destinationRank>{rxRanks})|((?<pawnFile>{rxFiles})(?<destinationRank>{rxRanks}))";
         private const string rxCastleLongGroup = "castleLong";
-        private const string rxEnPassent = "(?<sourceFile>[a-h])(((?<capture>x)(?<destinationFile>[a-h])(?<destinationRank>[1-8]))|(?<destinationRank>[1-8]))=(?<promotionPiece>[NBRQK])";
+        private const string rxPromotion = "(?<sourceFile>[a-h])(((?<capture>x)(?<destinationFile>[a-h])(?<destinationRank>[1-8]))|(?<destinationRank>[1-8]))=(?<promotionPiece>[NBRQK])";
         private const string rxCastleShortGroup = "castleShort";
         private static readonly string rxCastle = $"(?<{rxCastleLongGroup}>O-O-O)|(?<{rxCastleShortGroup}>O-O)";
+
+        public static ulong IndexToValue(this ushort idx) => (ulong)((ulong)0x01 << idx);
 
         public static MoveExt GenerateMove(ushort fromIdx, ushort toIdx, MoveType moveType = MoveType.Normal, PromotionPiece promotionPiece = 0)
         {
@@ -28,36 +29,18 @@ namespace MagicBitboard.Helpers
             return new MoveExt((ushort)(mt | pp | origin | dest));
         }
 
-        public static MoveExt GenerateMoveFromText(string moveText, Color moveColor)
-        {
-            var md = GetAvailableMoveDetails(moveText, moveColor);
-            bool isValid = true;
-            switch (md.Piece)
-            {
-                case Piece.Pawn:
-                    break;
-                case Piece.Knight:
-                case Piece.Bishop:
-                case Piece.Rook:
-                case Piece.Queen:
-                case Piece.King:
-                    break;
+        public static ushort DestinationIndex(this ushort move) => (ushort)(move & 63);
+        public static ushort SourceIndex(this ushort move) => (ushort)((move >> 6) & 63);
 
-            }
-            switch (moveColor)
-            {
-                case Color.Black:
-                    break;
-                case Color.White:
-                    break;
-            }
+        public static ulong DestinationValue(this ushort move) => 1ul << (move & 63);
+        public static ulong SourceValue(this ushort move) => 1ul << ((move >> 6) & 63);
 
-            return new MoveExt(0);
-        }
+        public static PromotionPiece GetPiecePromoted(this ushort move) => (PromotionPiece)((move >> 12) & 3);
+        public static MoveType GetMoveType(this ushort move) => (MoveType)((move >> 14) & 3);
 
         public static MoveDetail GetAvailableMoveDetails(string move, Color color)
         {
-            MoveDetail md = new MoveDetail();
+            MoveDetail md = new MoveDetail() { MoveText = move };
             if (move.Length < 2) throw new System.Exception("Invalid move.");
             Match match, promotionMatch, castleMatch;
             match = Regex.Match(move, rxMoveDetails);
@@ -66,11 +49,11 @@ namespace MagicBitboard.Helpers
             md.DestFile = match.Groups["destinationFile"].Success ? (ushort)(match.Groups["destinationFile"].Value[0] - 'a') : (ushort?)null;
             md.DestRank = match.Groups["destinationRank"].Success ? (ushort)(ushort.Parse((match.Groups["destinationRank"].Value)) - 1) : (ushort?)null;
             md.IsCapture = match.Groups["capture"].Success;
-            if ((promotionMatch = Regex.Match(move, rxEnPassent)).Success)
+            if ((promotionMatch = Regex.Match(move, rxPromotion)).Success)
             {
                 md.MoveType = MoveType.Promotion;
                 md.Piece = Piece.Pawn;
-                md.PromotionPiece = PieceOfColor.GetPiece(promotionMatch.Groups["promotionPiece"].Value[0]);
+                md.PromotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionMatch.Groups["promotionPiece"].Value[0]);
                 if (!md.IsCapture)
                 {
                     md.DestFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
@@ -91,81 +74,27 @@ namespace MagicBitboard.Helpers
             if (match.Groups["pawnFile"].Success)
             {
                 md.Piece = Piece.Pawn;
-                md.DestFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
+                md.DestFile = match.Groups["pawnFile"].Success ? (ushort)(match.Groups["pawnFile"].Value[0] - 'a') : (ushort?)null;
+                if (md.IsCapture)
+                {
+                    md.SourceFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
+                    if (color == Color.Black)
+                    {
+                        md.SourceRank = (ushort)(md.DestRank.Value + 1);
+                    }
+                    else
+                    {
+                        md.SourceRank = (ushort)(md.DestRank.Value - 1);
+                    }
+                }
             }
             else
             {
                 var pieceMatch = match.Groups["piece"];
-                md.Piece = PieceOfColor.GetPiece(pieceMatch.Value[0]);
+                md.Piece = PieceHelpers.GetPiece(pieceMatch.Value[0]);
             }
 
             return md;
-        }
-
-        public static ushort DestinationIndex(this ushort move) => (ushort)(move & 63);
-        public static ushort SourceIndex(this ushort move) => (ushort)((move >> 6) & 63);
-
-        public static ulong DestinationValue(this ushort move) => 1ul << (move & 63);
-        public static ulong SourceValue(this ushort move) => 1ul << ((move >> 6) & 63);
-
-        public static PromotionPiece GetPiecePromoted(this ushort move) => (PromotionPiece)((move >> 12) & 3);
-        public static MoveType GetMoveType(this ushort move) => (MoveType)((move >> 14) & 3);
-
-        public class MoveDetail : IEquatable<MoveDetail>
-        {
-            public MoveDetail()
-            {
-            }
-
-            public MoveDetail(ushort? sourceFile, ushort? sourceRank, ushort? destFile, ushort? destRank, Piece piece, bool isCapture, MoveType moveType)
-            {
-                SourceFile = sourceFile;
-                SourceRank = sourceRank;
-                DestFile = destFile;
-                DestRank = destRank;
-                Piece = piece;
-                IsCapture = isCapture;
-                MoveType = moveType;
-            }
-
-            public ushort? SourceFile { get; set; }
-            public ushort? SourceRank { get; set; }
-            public ushort? DestFile { get; set; }
-            public ushort? DestRank { get; set; }
-            public Piece Piece { get; set; }
-            public Piece? PromotionPiece { get; set; }
-            public MoveType MoveType { get; set; }
-            public bool IsCapture { get; set; }
-            public override bool Equals(object obj)
-            {
-                var detail = obj as MoveDetail;
-                return this.Equals(detail);
-            }
-
-            public bool Equals(MoveDetail other)
-            {
-                return other != null &&
-                      SourceFile == other.SourceFile &&
-                      SourceRank == other.SourceRank &&
-                      DestFile == other.DestFile &&
-                      DestRank == other.DestRank &&
-                      Piece == other.Piece &&
-                      IsCapture == other.IsCapture &&
-                      MoveType == other.MoveType;
-            }
-
-            public override int GetHashCode()
-            {
-                var hashCode = -1528112291;
-                hashCode = hashCode * -1521134295 + EqualityComparer<ushort?>.Default.GetHashCode(SourceFile);
-                hashCode = hashCode * -1521134295 + EqualityComparer<ushort?>.Default.GetHashCode(SourceRank);
-                hashCode = hashCode * -1521134295 + EqualityComparer<ushort?>.Default.GetHashCode(DestFile);
-                hashCode = hashCode * -1521134295 + EqualityComparer<ushort?>.Default.GetHashCode(DestRank);
-                hashCode = hashCode * -1521134295 + Piece.GetHashCode();
-                hashCode = hashCode * -1521134295 + IsCapture.GetHashCode();
-                hashCode = hashCode * -1521134295 + MoveType.GetHashCode();
-                return hashCode;
-            }
         }
     }
 }
