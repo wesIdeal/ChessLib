@@ -12,19 +12,10 @@ using System.IO;
 
 namespace ChessLib.Parse
 {
-    public class MoveText
+    public class Game<T> where T : IEquatable<T>
     {
-        public MoveText()
-        {
-            Variations = new LinkedList<LinkedList<MoveText>>();
-        }
-
-        public int MoveNumber { get; set; }
-        public string Move { get; set; }
-        public LinkedList<LinkedList<MoveText>> Variations { get; set; }
-        public string MoveSAN { get; set; }
-        public string PremoveComment { get; set; }
-        public string MoveComment { get; set; }
+        public Tags TagSection = new Tags();
+        public MoveTree<T> MoveSection = new MoveTree<T>(null);
     }
     public class ParsePGN
     {
@@ -35,6 +26,12 @@ namespace ChessLib.Parse
         public ParsePGN(string pgnPath)
         {
             PgnDatabase = File.ReadAllText(pgnPath);
+            SanitizePgnFile();
+
+        }
+
+        private void SanitizePgnFile()
+        {
             var whiteSpace = "(\\s)+";
             var openParen = "(\\()";
             var closeParn = "(\\))+";
@@ -42,46 +39,36 @@ namespace ChessLib.Parse
             var regCloseParn = $"{whiteSpace}(?<var>{closeParn}){whiteSpace}";
             PgnDatabase = Regex.Replace(PgnDatabase, @"((\r\n)|\n){2,}", "##BREAK##");
             PgnDatabase = PgnDatabase.Replace(Environment.NewLine, " ");
-            PgnDatabase = PgnDatabase.Replace("##BREAK##", Environment.NewLine + Environment.NewLine);
-            Debug.WriteLine(PgnDatabase);
+            PgnDatabase = PgnDatabase.Replace("##BREAK##", Environment.NewLine);
             PgnDatabase = Regex.Replace(PgnDatabase, @"(\ {2,})", " ");
             PgnDatabase = Regex.Replace(PgnDatabase, @"(?<b>\S)(?<p>\))", @"${b} ${p}");
-            Debug.WriteLine(PgnDatabase);
-            //PgnDatabase = Regex.Replace(PgnDatabase, $"{whiteSpace}{regCloseParn}", " ${var} ", RegexOptions.RightToLeft);
-            //PgnDatabase = Regex.Replace(PgnDatabase, regOpenParen, " ${var} ");
-            ////PgnDatabase = Regex.Replace(PgnDatabase, @"\)(\n)*(\s)*(?<moveNumber>[\d]+)", ") ${moveNumber}", RegexOptions.RightToLeft);
-
-            Debug.WriteLine(PgnDatabase);
         }
-
 
 
         public void GetMovesFromPGN()
         {
-            TestWalkingListener();
+            var games = GetGameObjects();
         }
-        private void TestWalkingListener()
+
+        private List<Game<MoveText>> GetGameObjects()
         {
-
             var splitPgn = Regex.Matches(PgnDatabase, GameRegEx);
-
+            var games = new List<Game<MoveText>>();
             foreach (Match game in splitPgn)
             {
-                MatchCollection mc = Regex.Matches(game.Value, GameRegEx);
-                var ms = mc[0].Groups["moveNumber"];
-                Debug.WriteLine(game.Value);
-                File.WriteAllText(".\\PGN\\testWrite.pgn", game.Value);
-                //gamePgn = Regex.Replace(gamePgn, @"(\n+\s*\))", ") ");
+                var listener = new PGNListener();
                 inputStream = new AntlrInputStream(game.Value);
                 PGNLexer lexer = new PGNLexer(inputStream);
                 var tokens = new CommonTokenStream(lexer);
                 var parser = new PGNParser(tokens);
                 var parseTree = parser.parse();
                 var walker = new ParseTreeWalker();
-                var listener = new PGNListener();
                 walker.Walk(listener, parseTree);
-                var moves = listener.Moves;
+                games.Add(listener.Game);
             }
+            return games;
         }
+
+
     }
 }
