@@ -93,6 +93,12 @@ public interface IPGNVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitElement([NotNull] PGNParser.ElementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="PGNParser.nag_item"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitNag_item([NotNull] PGNParser.Nag_itemContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="PGNParser.move_number_indication"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

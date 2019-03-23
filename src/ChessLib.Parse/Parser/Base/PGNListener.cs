@@ -132,6 +132,16 @@ public interface IPGNListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitElement([NotNull] PGNParser.ElementContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="PGNParser.nag_item"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterNag_item([NotNull] PGNParser.Nag_itemContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="PGNParser.nag_item"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitNag_item([NotNull] PGNParser.Nag_itemContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="PGNParser.move_number_indication"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

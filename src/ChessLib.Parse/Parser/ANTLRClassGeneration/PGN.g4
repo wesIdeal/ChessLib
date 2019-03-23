@@ -95,9 +95,12 @@ element_sequence
 ///               <numeric-annotation-glyph>
 element
  : move_number_indication
- | san_move
- | NUMERIC_ANNOTATION_GLYPH
+ | san_move nag_item?
  ;
+
+nag_item
+	: NUMERIC_ANNOTATION_GLYPH
+	  ;
 
 move_number_indication
  : INTEGER PERIOD?

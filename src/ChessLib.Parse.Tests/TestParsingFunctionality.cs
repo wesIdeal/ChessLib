@@ -74,7 +74,7 @@ namespace ChessLib.Parse.Tests
         [Test]
         public void ShouldRetrieveVariations()
         {
-            var parser = new ParsePGN(".\\PGN\\tal.pgn");
+            var parser = new ParsePGN(".\\PGN\\withnag.pgn");
             parser.GetMovesFromPGN();
         }
     }

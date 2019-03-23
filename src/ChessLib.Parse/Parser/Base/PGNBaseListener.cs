@@ -156,6 +156,18 @@ public partial class PGNBaseListener : IPGNListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitElement([NotNull] PGNParser.ElementContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="PGNParser.nag_item"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterNag_item([NotNull] PGNParser.Nag_itemContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="PGNParser.nag_item"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitNag_item([NotNull] PGNParser.Nag_itemContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="PGNParser.move_number_indication"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

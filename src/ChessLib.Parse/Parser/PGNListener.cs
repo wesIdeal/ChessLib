@@ -42,7 +42,6 @@ namespace ChessLib.Parse.Parser
         public override void ExitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
         {
             times.Add(DateTime.Now.Subtract(_dtStart).TotalMilliseconds);
-
         }
         public override void EnterTag_section([NotNull] PGNParser.Tag_sectionContext context)
         {
@@ -72,6 +71,9 @@ namespace ChessLib.Parse.Parser
         {
             //Debug.WriteLine("Reading moves");
         }
+
+
+
         public override void ExitMovetext_section([NotNull] PGNParser.Movetext_sectionContext context)
         {
             Games.Add(_game);
@@ -79,10 +81,17 @@ namespace ChessLib.Parse.Parser
         }
         public override void EnterElement_sequence([NotNull] PGNParser.Element_sequenceContext context)
         {
-            //Debug.WriteLine($"Reading element sequence {context.ToString()} {context.GetText()}");
+            Debug.WriteLine($"Reading element sequence {context.ToString()} {context.GetText()}");
         }
+        public override void EnterNag_item([NotNull] PGNParser.Nag_itemContext context)
+        {
 
-
+            _currentMove.Value.NAG = context.GetText();
+        }
+        public override void EnterElement([NotNull] PGNParser.ElementContext context)
+        {
+            var element = context.GetText();
+        }
         public override void EnterSan_move([NotNull] PGNParser.San_moveContext context)
         {
             var moveText = context.GetText();

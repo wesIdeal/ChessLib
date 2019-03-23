@@ -49,7 +49,7 @@ namespace ChessLib.Parse
             }
         }
 
-
+        public string NAG { get; internal set; }
 
         public override int GetHashCode()
         {
