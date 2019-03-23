@@ -142,21 +142,40 @@ namespace MagicBitboard
             }
 
             var idx = md.Color == Color.Black ? sourceIndex.FlipIndexVertically() : sourceIndex;
-            ValidatePawnMove(md.Color, idx, md.DestinationIndex.Value, relevantPieceOccupancy.Value, md.MoveText);
+            ValidatePawnMove(md.Color, idx, md.DestinationIndex.Value, relevantPieceOccupancy.Value, TotalOccupancy, md.MoveText);
             return idx;
         }
-        protected static void ValidatePawnMove(Color c, ushort sourceIndex, ushort destinationIndex, ulong pawnOccupancy, string moveText = "")
+        public static void ValidatePawnMove(Color c, ushort sourceIndex, ushort destinationIndex, ulong pawnOccupancy, ulong boardOccupancy, string moveText = "")
         {
+            moveText = moveText != "" ? moveText + ": " : "";
             var sourceValue = sourceIndex.IndexToValue();
+            var isCapture = sourceIndex.FileFromIdx() != destinationIndex.FileFromIdx();
             var destValue = destinationIndex.IndexToValue();
+            //validate pawn is at supposed source
             var pawnAtSource = sourceValue & pawnOccupancy;
             if (pawnAtSource == 0) throw new MoveException($"There is no pawn on {sourceIndex.IndexToSquareDisplay()} to move to {destinationIndex.IndexToSquareDisplay()}.");
-            var pawnMoves = PieceAttackPatternHelper.PawnMoveMask[(int)c][sourceIndex];
+
+            //validate pawn move to square is valid
+            var pawnMoves = isCapture ? PieceAttackPatternHelper.PawnAttackMask[(int)c][sourceIndex] : PieceAttackPatternHelper.PawnMoveMask[(int)c][sourceIndex];
             if ((pawnMoves & destValue) == 0)
             {
-                moveText = moveText + ": ";
+
                 throw new MoveException($"{moveText}Pawn from {sourceIndex.IndexToSquareDisplay()} to {destinationIndex.IndexToSquareDisplay()} is illegal.");
             }
+
+            var destinationOccupancy = (destValue & boardOccupancy);
+            //validate pawn is not blocked from move, if move is not a capture
+            if (!isCapture)
+            {
+                if (destinationOccupancy != 0)
+                    throw new MoveException($"{moveText}Destination square is occupied.");
+            }
+            else // validate Piece is on destination for capture
+            {
+                if (destinationOccupancy == 0)
+                    throw new MoveException($"{moveText}Destination capture square is unoccupied.");
+            }
+
         }
         public Piece GetActivePieceByValue(ulong pieceInSquareValue)
         {

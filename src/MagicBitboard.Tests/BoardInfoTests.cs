@@ -147,8 +147,9 @@ namespace MagicBitboard.Helpers.Tests
                 md.MoveText = destIndex.IndexToSquareDisplay();
                 md.DestFile = (ushort)(destIndex % 8);
                 md.DestRank = (ushort)(destIndex / 8);
-                var expectedSource = md.DestRank > 32 ? md.DestRank + 1 : md.DestRank + 2;
+                var expectedSource = 48 + destIndex.FileFromIdx();
                 var actual = boardInfo.FindPawnMoveSourceIndex(md, blackPawnOcc);
+                Assert.AreEqual(expectedSource, actual);
             }
             md.Color = Color.White;
 
@@ -157,9 +158,74 @@ namespace MagicBitboard.Helpers.Tests
                 md.MoveText = destIndex.IndexToSquareDisplay();
                 md.DestFile = (ushort)(destIndex % 8);
                 md.DestRank = (ushort)(destIndex / 8);
-                var expectedSource = md.DestRank > 16 ? md.DestRank + 2 : md.DestRank + 1;
+                var expectedSource = 8 + destIndex.FileFromIdx();
                 var actual = boardInfo.FindPawnMoveSourceIndex(md, whitePawnOcc);
+                Assert.AreEqual(expectedSource, actual);
             }
         }
+
+        [Test]
+        public void ShouldThrowExcWhenMoveIsBlocked()
+        {
+            const ulong cOccupancyBothRanks = 0x1010000;
+            const ulong cOccupancy3rdRank = 0x10000;
+
+            var bi = new GameInfo().BoardInfo;
+            ulong occBoth, occ3, occ4;
+            var md = new MoveDetail { SourceRank = 1, Color = Color.White };
+            ushort pawnSourceIndex = 8;
+            for (ushort idx = 16; idx < 23; idx++)
+            {
+                md.DestFile = (ushort)(idx.FileFromIdx());
+                md.DestRank = (ushort)idx.RankFromIdx();
+                occBoth = (cOccupancyBothRanks << (pawnSourceIndex - 8));
+                occ3 = cOccupancy3rdRank << (pawnSourceIndex - 8);
+                occ4 = occ3 << 8;
+
+                var pawnOcc = BoardHelpers.RankMasks[1];
+                var destinationIndex = (ushort)(pawnSourceIndex + (ushort)8);
+                Assert.Throws(typeof(MoveException), () => { BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc, occBoth | pawnOcc); });
+                Assert.Throws(typeof(MoveException), () => { BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc, occ3 | pawnOcc); });
+                if (pawnSourceIndex >= 16)
+                {
+                    Assert.Throws(typeof(MoveException), () => { BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc, occ4 | pawnOcc); });
+                }
+                else
+                {
+                    Assert.DoesNotThrow(() => { BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc, occ4 | pawnOcc); });
+                }
+            }
+        }
+        [Test]
+        public void ShouldThrowExcIfNoPieceAvailableForCapture()
+        {
+            const ulong cOccupancyBothRanks = 0x1010000;
+            const ulong cOccupancy3rdRank = 0x10000;
+
+            var bi = new GameInfo().BoardInfo;
+            ulong occBoth, occ3, occ4;
+            var md = new MoveDetail { SourceRank = 1, Color = Color.White };
+            ushort pawnSourceIndex = 8;
+            var pawnAttackBoards = PieceAttackPatternHelper.PawnAttackMask[(int)Color.White];
+            for (ushort idx = 8; idx < 16; idx++)
+            {
+                var attackBoard = pawnAttackBoards[idx];
+                var notAttackBoard = ~attackBoard;
+                var attackSquare = attackBoard.GetSetBitIndexes()[0];
+                var pawnOccupancy = BoardHelpers.RankMasks[1];
+                Assert.Throws(typeof(MoveException),
+                    () =>
+                    {
+                        BoardInfo.ValidatePawnMove(Color.White, idx, attackSquare, pawnOccupancy, pawnOccupancy | notAttackBoard);
+                    });
+                Assert.DoesNotThrow(
+                    () =>
+                    {
+                        BoardInfo.ValidatePawnMove(Color.White, idx, attackSquare, pawnOccupancy, pawnOccupancy | attackBoard);
+                    });
+            }
+        }
+
     }
 }
+

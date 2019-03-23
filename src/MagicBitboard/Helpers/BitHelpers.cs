@@ -66,8 +66,9 @@ namespace MagicBitboard.Helpers
             var rv = new ushort[u.CountSetBits()];
             var idx = 0;
             var compare = 0ul;
-            while (counter < 64 && ((compare = (1ul << counter)) < u))
+            while (counter < 64)
             {
+                compare = (ulong)0x01 << counter;
                 if ((u & compare) != 0)
                 {
                     rv[idx++] = (ushort)(counter);
