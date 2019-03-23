@@ -1,4 +1,5 @@
 ﻿using MagicBitboard;
+using MagicBitboard.Enums;
 using NUnit.Framework;
 using System;
 using System.Collections;
@@ -16,25 +17,25 @@ namespace ChessLib.Tests.Helpers
         [Test]
         public void ShouldReturnCorrectDetailWhenBlackCastlesShort()
         {
-            var mdExpected = new MoveDetail(4, 7, 6, 7, MagicBitboard.Piece.King, false, true);
+            var mdExpected = new MoveDetail(4, 7, 6, 7, MagicBitboard.Piece.King, false, MagicBitboard.Enums.MoveType.Castle);
             Assert.AreEqual(mdExpected, GetAvailableMoveDetails("O-O", MagicBitboard.Enums.Color.Black));
         }
         [Test]
         public void ShouldReturnCorrectDetailWhenWhiteCastlesShort()
         {
-            var mdExpected = new MoveDetail(4, 0, 6, 0, MagicBitboard.Piece.King, false, true);
+            var mdExpected = new MoveDetail(4, 0, 6, 0, MagicBitboard.Piece.King, false, MagicBitboard.Enums.MoveType.Castle);
             Assert.AreEqual(mdExpected, GetAvailableMoveDetails("O-O", MagicBitboard.Enums.Color.White));
         }
         [Test]
         public void ShouldReturnCorrectDetailWhenBlackCastlesLong()
         {
-            var mdExpected = new MoveDetail(4, 7, 2, 7, MagicBitboard.Piece.King, false, true);
+            var mdExpected = new MoveDetail(4, 7, 2, 7, MagicBitboard.Piece.King, false, MagicBitboard.Enums.MoveType.Castle);
             Assert.AreEqual(mdExpected, GetAvailableMoveDetails("O-O-O", MagicBitboard.Enums.Color.Black));
         }
         [Test]
         public void ShouldReturnCorrectDetailWhenWhiteCastlesLong()
         {
-            var mdExpected = new MoveDetail(4, 0, 2, 0, MagicBitboard.Piece.King, false, true);
+            var mdExpected = new MoveDetail(4, 0, 2, 0, MagicBitboard.Piece.King, false, MagicBitboard.Enums.MoveType.Castle);
             Assert.AreEqual(mdExpected, GetAvailableMoveDetails("O-O-O", MagicBitboard.Enums.Color.White));
         }
         [Test]
@@ -50,7 +51,7 @@ namespace ChessLib.Tests.Helpers
                     Assert.AreEqual(Piece.Pawn, actual.Piece);
                     if (fmt.Contains('x'))
                     {
-                        Assert.IsTrue(actual.Capture);
+                        Assert.IsTrue(actual.IsCapture);
                     }
                 }
             }
@@ -70,7 +71,7 @@ namespace ChessLib.Tests.Helpers
                     Assert.AreEqual(expectedPiece, actual.Piece);
                     if (fmt.Contains('x'))
                     {
-                        Assert.IsTrue(actual.Capture);
+                        Assert.IsTrue(actual.IsCapture);
                     }
                 }
             }
@@ -90,7 +91,7 @@ namespace ChessLib.Tests.Helpers
                     Assert.AreEqual(1, actual.SourceFile);
                     if (fmt.Contains('x'))
                     {
-                        Assert.IsTrue(actual.Capture);
+                        Assert.IsTrue(actual.IsCapture);
                     }
                 }
             }
@@ -110,7 +111,7 @@ namespace ChessLib.Tests.Helpers
                     Assert.AreEqual(0, actual.SourceRank);
                     if (fmt.Contains('x'))
                     {
-                        Assert.IsTrue(actual.Capture);
+                        Assert.IsTrue(actual.IsCapture);
                     }
                 }
             }
@@ -131,7 +132,7 @@ namespace ChessLib.Tests.Helpers
                     Assert.AreEqual(4, actual.DestFile);
                     if (fmt.Contains('x'))
                     {
-                        Assert.IsTrue(actual.Capture);
+                        Assert.IsTrue(actual.IsCapture);
                     }
                 }
             }
@@ -151,7 +152,28 @@ namespace ChessLib.Tests.Helpers
                     Assert.AreEqual(3, actual.DestRank);
                     if (fmt.Contains('x'))
                     {
-                        Assert.IsTrue(actual.Capture);
+                        Assert.IsTrue(actual.IsCapture);
+                    }
+                }
+            }
+        }
+        [Test]
+        public void ShouldReturnCorrectPromotionObject()
+        {
+            var moveFormat = new[] { "fxe8={0}", "e8={0}" };
+            var pieces = new[] { "N", "B", "R", "Q" };
+            foreach (var piece in pieces)
+            {
+                var expectedPiece = PieceOfColor.GetPiece(piece);
+                foreach (var fmt in moveFormat)
+                {
+                    var move = string.Format(fmt, piece);
+                    var actual = GetAvailableMoveDetails(move, MagicBitboard.Enums.Color.White);
+                    Assert.AreEqual(expectedPiece, actual.PromotionPiece);
+                    Assert.AreEqual(MoveType.Promotion, actual.MoveType);
+                    if (fmt.Contains('x'))
+                    {
+                        Assert.IsTrue(actual.IsCapture);
                     }
                 }
             }
