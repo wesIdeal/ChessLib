@@ -30,25 +30,29 @@ namespace MagicBitboard.Helpers
 
         public static MoveExt GenerateMoveFromText(string moveText, Color moveColor)
         {
-            moveText = moveText.TrimEnd('#', '?', '!', '+').Trim();
-            MoveType moveType = MoveType.Normal;
-            MoveExt rvMove = new MoveExt(0);
-            //var pieceMoved = GetMoveDetails(moveText);
-            if (Regex.IsMatch(moveText, rxCastle))
+            var md = GetAvailableMoveDetails(moveText, moveColor);
+            bool isValid = true;
+            switch (md.Piece)
             {
-                moveType = MoveType.Castle;
-            }
-            else if (moveText.Contains("="))
-            {
-                var promotionPieces = moveText.Split('=');
-                ushort dest = (ushort)BoardHelpers.SquareTextToIndex(promotionPieces[0]).Value;
-                var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionPieces[1][0]);
-                var source = (ushort)(moveColor == Color.White ? dest - 8 : dest + 8);
-                rvMove = GenerateMove(source, dest, MoveType.Promotion, promotionPiece);
+                case Piece.Pawn:
+                    break;
+                case Piece.Knight:
+                case Piece.Bishop:
+                case Piece.Rook:
+                case Piece.Queen:
+                case Piece.King:
+                    break;
 
             }
+            switch (moveColor)
+            {
+                case Color.Black:
+                    break;
+                case Color.White:
+                    break;
+            }
 
-            return rvMove;
+            return new MoveExt(0);
         }
 
         public static MoveDetail GetAvailableMoveDetails(string move, Color color)
@@ -67,6 +71,10 @@ namespace MagicBitboard.Helpers
                 md.MoveType = MoveType.Promotion;
                 md.Piece = Piece.Pawn;
                 md.PromotionPiece = PieceOfColor.GetPiece(promotionMatch.Groups["promotionPiece"].Value[0]);
+                if (!md.IsCapture)
+                {
+                    md.DestFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
+                }
                 return md;
             }
             if ((castleMatch = Regex.Match(move, rxCastle)).Success)
@@ -81,7 +89,10 @@ namespace MagicBitboard.Helpers
             }
 
             if (match.Groups["pawnFile"].Success)
+            {
                 md.Piece = Piece.Pawn;
+                md.DestFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
+            }
             else
             {
                 var pieceMatch = match.Groups["piece"];

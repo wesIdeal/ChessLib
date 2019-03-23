@@ -18,25 +18,32 @@ namespace ChessLib.Tests.Helpers
         public void ShouldReturnCorrectDetailWhenBlackCastlesShort()
         {
             var mdExpected = new MoveDetail(4, 7, 6, 7, MagicBitboard.Piece.King, false, MagicBitboard.Enums.MoveType.Castle);
-            Assert.AreEqual(mdExpected, GetAvailableMoveDetails("O-O", MagicBitboard.Enums.Color.Black));
+            var actual = GetAvailableMoveDetails("O-O", MagicBitboard.Enums.Color.Black);
+            Assert.AreEqual(mdExpected, actual);
+            ValidateHasDestInfo(actual);
         }
         [Test]
         public void ShouldReturnCorrectDetailWhenWhiteCastlesShort()
         {
             var mdExpected = new MoveDetail(4, 0, 6, 0, MagicBitboard.Piece.King, false, MagicBitboard.Enums.MoveType.Castle);
+            var actual = GetAvailableMoveDetails("O-O", MagicBitboard.Enums.Color.White);
             Assert.AreEqual(mdExpected, GetAvailableMoveDetails("O-O", MagicBitboard.Enums.Color.White));
         }
         [Test]
         public void ShouldReturnCorrectDetailWhenBlackCastlesLong()
         {
             var mdExpected = new MoveDetail(4, 7, 2, 7, MagicBitboard.Piece.King, false, MagicBitboard.Enums.MoveType.Castle);
-            Assert.AreEqual(mdExpected, GetAvailableMoveDetails("O-O-O", MagicBitboard.Enums.Color.Black));
+            var actual = GetAvailableMoveDetails("O-O-O", MagicBitboard.Enums.Color.Black);
+            Assert.AreEqual(mdExpected, actual);
+            ValidateHasDestInfo(actual);
         }
         [Test]
         public void ShouldReturnCorrectDetailWhenWhiteCastlesLong()
         {
             var mdExpected = new MoveDetail(4, 0, 2, 0, MagicBitboard.Piece.King, false, MagicBitboard.Enums.MoveType.Castle);
-            Assert.AreEqual(mdExpected, GetAvailableMoveDetails("O-O-O", MagicBitboard.Enums.Color.White));
+            var actual = GetAvailableMoveDetails("O-O-O", MagicBitboard.Enums.Color.White);
+            Assert.AreEqual(mdExpected, actual);
+            ValidateHasDestInfo(actual);
         }
         [Test]
         public void ShouldReturnCorrectPiece_Pawn()
@@ -49,6 +56,7 @@ namespace ChessLib.Tests.Helpers
                     var move = string.Format(fmt, i);
                     var actual = GetAvailableMoveDetails(move, MagicBitboard.Enums.Color.White);
                     Assert.AreEqual(Piece.Pawn, actual.Piece);
+                    ValidateHasDestInfo(actual);
                     if (fmt.Contains('x'))
                     {
                         Assert.IsTrue(actual.IsCapture);
@@ -69,6 +77,7 @@ namespace ChessLib.Tests.Helpers
                     var move = string.Format(fmt, piece);
                     var actual = GetAvailableMoveDetails(move, MagicBitboard.Enums.Color.White);
                     Assert.AreEqual(expectedPiece, actual.Piece);
+                    ValidateHasDestInfo(actual);
                     if (fmt.Contains('x'))
                     {
                         Assert.IsTrue(actual.IsCapture);
@@ -89,6 +98,7 @@ namespace ChessLib.Tests.Helpers
                     var move = string.Format(fmt, piece);
                     var actual = GetAvailableMoveDetails(move, MagicBitboard.Enums.Color.White);
                     Assert.AreEqual(1, actual.SourceFile);
+                    ValidateHasDestInfo(actual);
                     if (fmt.Contains('x'))
                     {
                         Assert.IsTrue(actual.IsCapture);
@@ -109,6 +119,7 @@ namespace ChessLib.Tests.Helpers
                     var move = string.Format(fmt, piece);
                     var actual = GetAvailableMoveDetails(move, MagicBitboard.Enums.Color.White);
                     Assert.AreEqual(0, actual.SourceRank);
+                    ValidateHasDestInfo(actual);
                     if (fmt.Contains('x'))
                     {
                         Assert.IsTrue(actual.IsCapture);
@@ -130,6 +141,7 @@ namespace ChessLib.Tests.Helpers
                     var move = string.Format(fmt, piece);
                     var actual = GetAvailableMoveDetails(move, MagicBitboard.Enums.Color.White);
                     Assert.AreEqual(4, actual.DestFile);
+                    ValidateHasDestInfo(actual);
                     if (fmt.Contains('x'))
                     {
                         Assert.IsTrue(actual.IsCapture);
@@ -150,6 +162,7 @@ namespace ChessLib.Tests.Helpers
                     var move = string.Format(fmt, piece);
                     var actual = GetAvailableMoveDetails(move, MagicBitboard.Enums.Color.White);
                     Assert.AreEqual(3, actual.DestRank);
+                    ValidateHasDestInfo(actual);
                     if (fmt.Contains('x'))
                     {
                         Assert.IsTrue(actual.IsCapture);
@@ -171,12 +184,20 @@ namespace ChessLib.Tests.Helpers
                     var actual = GetAvailableMoveDetails(move, MagicBitboard.Enums.Color.White);
                     Assert.AreEqual(expectedPiece, actual.PromotionPiece);
                     Assert.AreEqual(MoveType.Promotion, actual.MoveType);
+                    ValidateHasDestInfo(actual);
                     if (fmt.Contains('x'))
                     {
                         Assert.IsTrue(actual.IsCapture);
                     }
                 }
             }
+        }
+
+
+        public void ValidateHasDestInfo(MoveDetail m)
+        {
+            Assert.IsNotNull(m.DestFile);
+            Assert.IsNotNull(m.DestRank);
         }
     }
 }
