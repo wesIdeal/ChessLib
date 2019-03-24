@@ -457,6 +457,7 @@ namespace MagicBitboard.Helpers.Tests
         public void GetPinnedPieces_ShouldReturnValueOfPinnedPiece_WhenPieceIsPinned()
         {
             var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pp1ppppp/8/1Bp5/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2");
+            var s = bi.XRayBishopAttacks(60, bi.OpponentTotalOccupancy);
             var expectedPinnedPiece = 0x8000000000000ul; //the pawn on d7 is pinned
             var actual = bi.GetPinnedPieces();
             Assert.AreEqual(expectedPinnedPiece, actual, "Method did not determine that the pawn on d7 was pinned by the Bishop.");

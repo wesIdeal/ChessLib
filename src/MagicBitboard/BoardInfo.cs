@@ -168,23 +168,12 @@ namespace MagicBitboard
 
         public ulong GetPinnedPieces()
         {
-            throw new Exception("Not implemented");
             ulong pinned = 0;
-            //var pinner = XRayRookAttacks(ActivePlayerKingIndex, ActiveTotalOccupancy) & opRQ;
-            //while (pinner)
-            //{
-            //    int sq = bitScanForward(pinner);
-            //    pinned |= obstructed(sq, squareOfKing) & ownPieces;
-            //    pinner &= pinner - 1;
-            //}
-            //pinner = xrayBishopAttacks(occupiedBB, ownPieces, squareOfKing) & opBQ;
-            //while (pinner)
-            //{
-            //    int sq = bitScanForward(pinner);
-            //    pinned |= obstructed(sq, squareOfKing) & ownPieces;
-            //    pinner &= pinner - 1;
-            //}
-            return 0;
+            ulong bPinners = OpponentPieceOccupancy[(int)Piece.Bishop] & PieceAttackPatternHelper.BishopAttackMask[ActivePlayerKingIndex / 8, ActivePlayerKingIndex % 8];
+            ulong rPinners = OpponentPieceOccupancy[(int)Piece.Rook] & PieceAttackPatternHelper.RookAttackMask[ActivePlayerKingIndex / 8, ActivePlayerKingIndex % 8];
+            var pinners = rPinners | bPinners;
+           
+            return pinned;
         }
 
         public MoveExt GenerateMoveFromText(string moveText)
@@ -401,9 +390,10 @@ namespace MagicBitboard
             }
             return null;
         }
+        public Color OpponentColor => ActivePlayer == Color.Black ? Color.White : Color.Black;
         //private string ValidateChecks() => ValidateChecks(PiecesOnBoard);
         public ulong[] ActivePieceOccupancy => PiecesOnBoard[(int)ActivePlayer];
-        public ulong[] OpponentPieceOccupancy => PiecesOnBoard[(int)ActivePlayer.Toggle()];
+        public ulong[] OpponentPieceOccupancy => PiecesOnBoard[(int)OpponentColor];
         public ulong ActiveTotalOccupancy
         {
             get
