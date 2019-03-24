@@ -226,6 +226,121 @@ namespace MagicBitboard.Helpers.Tests
             }
         }
 
+        [Test]
+        public void ShouldFindKnightMoveSource()
+        {
+            var bi = new GameInfo().BoardInfo;
+            var md = new MoveDetail(null, null, 2, 5, Piece.Knight, Color.White, "Nf3");
+            var actual = bi.FindKnightMoveSourceIndex(md);
+            Assert.AreEqual(6, actual);
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenNoKnightAttacksSquare()
+        {
+            var bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PNP5/1P2NPPP/R2QKB1R w KQkq - 1 5").BoardInfo;
+            var md = new MoveDetail(null, null, 3, 4, Piece.Knight, Color.White, "Ne4");
+            Assert.Throws(typeof(MoveException), () => { bi.FindKnightMoveSourceIndex(md); });
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenTwoKnightsAttackSquare()
+        {
+            var bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PNP5/1P2NPPP/R2QKB1R w KQkq - 1 5").BoardInfo;
+            var md = new MoveDetail(null, null, 5, 0, Piece.Knight, Color.White, "Nxd4");
+            Assert.Throws(typeof(MoveException), () => { bi.FindKnightMoveSourceIndex(md); });
+        }
+
+        [Test]
+        public void ShouldFindBishopMoveSource()
+        {
+            var bi = new GameInfo("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2").BoardInfo;
+            var md = new MoveDetail(null, null, 3, 2, Piece.Bishop, Color.White, "Bc4");
+            var actual = bi.FindBishopMoveSourceIndex(md);
+            Assert.AreEqual(5, actual);
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenNoBishopAttacksSquare()
+        {
+            var bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1qp5/3PP3/P1P5/1P3PPP/RNBQKBNR w KQkq - 1 5").BoardInfo;
+            var md = new MoveDetail(null, null, 5, 0, Piece.Bishop, Color.White, "Ba6");
+            Assert.Throws(typeof(MoveException), () => { bi.FindBishopMoveSourceIndex(md); });
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenTwoBishopsAttackSquare()
+        {
+            var bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PBP5/1P3PPP/RN1QKBNR w KQkq - 1 5").BoardInfo;
+            var md = new MoveDetail(null, null, 3, 2, Piece.Bishop, Color.White, "Bc4");
+            Assert.Throws(typeof(MoveException), () => { bi.FindBishopMoveSourceIndex(md); });
+        }
+
+        [Test]
+        public void ShouldFindRookMoveSource()
+        {
+            var bi = new GameInfo("4k3/8/8/8/8/8/8/R1qbK3 w - - 0 1").BoardInfo;
+            var md = new MoveDetail(null, null, 7, 0, Piece.Rook, Color.White, "Ra8+");
+            Assert.AreEqual(0, bi.FindRookMoveSourceIndex(md));
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenNoRookAttacksSquare()
+        {
+            var bi = new GameInfo("4k3/8/8/8/8/8/8/R1qbK3 w - - 0 1").BoardInfo;
+            var md = new MoveDetail(null, null, 0, 3, Piece.Rook, Color.White, "Rxd1");
+            Assert.Throws(typeof(MoveException), () => { bi.FindRookMoveSourceIndex(md); });
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenTwoRooksAttackSquare()
+        {
+            var bi = new GameInfo("4k3/8/8/8/8/8/2R5/R1qbK3 w - - 0 1").BoardInfo;
+            var md = new MoveDetail(null, null, 0, 2, Piece.Rook, Color.White, "Rxd1");
+            Assert.Throws(typeof(MoveException), () => { bi.FindRookMoveSourceIndex(md); });
+        }
+
+        [Test]
+        public void ShouldFindQueenMoveSource()
+        {
+            var bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
+            var md = new MoveDetail(null, null, 7, 0, Piece.Queen, Color.White, "Qa8+");
+            Assert.AreEqual(0, bi.FindQueenMoveSourceIndex(md));
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenNoQueenAttacksSquare()
+        {
+            var bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
+            var md = new MoveDetail(null, null, 0, 3, Piece.Queen, Color.White, "Qxd1");
+            Assert.Throws(typeof(MoveException), () => { bi.FindQueenMoveSourceIndex(md); });
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenTwoQueensAttackSquare()
+        {
+            var bi = new GameInfo("4k3/8/8/8/8/8/2Q5/Q1qbK3 w - - 0 1").BoardInfo;
+            var md = new MoveDetail(null, null, 0, 2, Piece.Queen, Color.White, "Qxc1");
+            Assert.Throws(typeof(MoveException), () => { bi.FindQueenMoveSourceIndex(md); });
+        }
+
+
+        [Test]
+        public void ShouldFindKingMoveSource()
+        {
+            var bi = new GameInfo("4k3/8/8/8/8/8/8/4K3 w - - 0 1").BoardInfo;
+            var md = new MoveDetail(null, null, 0, 3, Piece.King, Color.White, "Kd1");
+            Assert.AreEqual(4, bi.FindKingMoveSourceIndex(md));
+        }
+
+        [Test]
+        public void ShouldThrowExceptionWhenNoKingAttacksSquare()
+        {
+            var bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
+            var md = new MoveDetail(null, null, 0, 2, Piece.King, Color.White, "Kc1");
+            Assert.Throws(typeof(MoveException), () => { bi.FindKingMoveSourceIndex(md); });
+        }
+
     }
 }
 

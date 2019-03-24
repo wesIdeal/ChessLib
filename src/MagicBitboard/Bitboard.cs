@@ -33,16 +33,14 @@ namespace MagicBitboard
         {
             var r = Rank(pieceIndex);
             var f = File(pieceIndex);
-            var bishopSquares = Bishop.GetLegalMoves(pieceIndex, occupancy);
-            var rookSquares = Rook.GetLegalMoves(pieceIndex, occupancy);
             switch (piece)
             {
                 case Piece.Bishop:
-                    return bishopSquares;
+                    return Bishop.GetLegalMoves(pieceIndex, occupancy);
                 case Piece.Rook:
-                    return rookSquares;
+                    return Rook.GetLegalMoves(pieceIndex, occupancy);
                 case Piece.Queen:
-                    return bishopSquares | rookSquares;
+                    return Bishop.GetLegalMoves(pieceIndex, occupancy) | Rook.GetLegalMoves(pieceIndex, occupancy);
                 case Piece.Pawn:
                     return PieceAttackPatternHelper.PawnAttackMask[color.ToInt()][pieceIndex];
                 case Piece.King:

@@ -19,7 +19,7 @@ namespace MagicBitboard.Helpers.Tests
         public void ShouldReturnCorrectDetailWhenBlackCastlesShort()
         {
             var move = "O-O";
-            var mdExpected = new MoveDetail(4, 7, 6, 7, Piece.King, Color.Black, "O-O", false, MoveType.Castle);
+            var mdExpected = new MoveDetail(7, 4, 7, 6, Piece.King, Color.Black, "O-O", false, MoveType.Castle);
             var actual = GetAvailableMoveDetails(move, Color.Black);
             Assert.AreEqual(mdExpected, actual);
             ValidateHasDestInfo(actual, move);
@@ -28,7 +28,7 @@ namespace MagicBitboard.Helpers.Tests
         public void ShouldReturnCorrectDetailWhenWhiteCastlesShort()
         {
             var move = "O-O";
-            var mdExpected = new MoveDetail(4, 0, 6, 0, Piece.King, Color.White, "O-O", false, MoveType.Castle);
+            var mdExpected = new MoveDetail(0, 4, 0, 6, Piece.King, Color.White, "O-O", false, MoveType.Castle);
             var actual = GetAvailableMoveDetails(move, Color.White);
             Assert.AreEqual(mdExpected, actual);
         }
@@ -36,7 +36,7 @@ namespace MagicBitboard.Helpers.Tests
         public void ShouldReturnCorrectDetailWhenBlackCastlesLong()
         {
             var move = "O-O-O";
-            var mdExpected = new MoveDetail(4, 7, 2, 7, Piece.King, Color.Black, "O-O-O", false, MoveType.Castle);
+            var mdExpected = new MoveDetail(7, 4, 7, 2, Piece.King, Color.Black, "O-O-O", false, MoveType.Castle);
             var actual = GetAvailableMoveDetails(move, Color.Black);
             Assert.AreEqual(mdExpected, actual);
             ValidateHasDestInfo(actual, move);
@@ -45,7 +45,7 @@ namespace MagicBitboard.Helpers.Tests
         public void ShouldReturnCorrectDetailWhenWhiteCastlesLong()
         {
             var move = "O-O-O";
-            var mdExpected = new MoveDetail(4, 0, 2, 0, Piece.King, Color.White, "O-O-O", false, MoveType.Castle);
+            var mdExpected = new MoveDetail(0, 4, 0, 2, Piece.King, Color.White, "O-O-O", false, MoveType.Castle);
             var actual = GetAvailableMoveDetails(move, Color.White);
             Assert.AreEqual(mdExpected, actual);
             ValidateHasDestInfo(actual, move);
@@ -199,8 +199,7 @@ namespace MagicBitboard.Helpers.Tests
                 }
             }
         }
-
-
+        
         public void ValidateHasDestInfo(MoveDetail m, string moveText)
         {
             Assert.IsNotNull(m.DestRank, $"Destination rank should be specified for move {moveText}");

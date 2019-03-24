@@ -83,24 +83,77 @@ namespace MagicBitboard
                 case Piece.Knight:
                     return FindKnightMoveSourceIndex(md);
                 case Piece.Bishop:
+                    return FindBishopMoveSourceIndex(md);
                 case Piece.Rook:
+                    return FindRookMoveSourceIndex(md);
                 case Piece.Queen:
+                    return FindQueenMoveSourceIndex(md);
                 case Piece.King:
+
                     break;
 
             }
             return 0;
         }
 
-        private ushort FindKnightMoveSourceIndex(MoveDetail md)
+        public ushort FindKingMoveSourceIndex(MoveDetail md)
         {
-            var possibleSquares = PieceAttackPatternHelper.KnightAttackMask[md.DestRank.Value, md.DestFile.Value];
-            var occupancy = ActivePieceOccupancy[(int)Piece.Knight];
-            var squares = possibleSquares & occupancy;
-            if (squares == 0) throw new MoveException("No Knight can possible get to the specified destination.");
-            var indices = squares.GetSetBits();
-            if (indices.Count() > 1) throw new MoveException("More than one Knight can get to the specified square.");
+            var occupancy = ActivePieceOccupancy[(int)Piece.King];
+            var possibleSquares = Bitboard.GetAttackedSquares(Piece.King, md.DestinationIndex.Value, TotalOccupancy);
+            var sourceSquare = FindPieceMoveSourceIndex(md.DestinationIndex.Value, possibleSquares, occupancy);
+            if (!sourceSquare.HasValue) throw new MoveException("The King can possibly get to the specified destination.");
+            return sourceSquare.Value;
+        }
+
+        private ushort? FindPieceMoveSourceIndex(ushort destinationIndes, ulong pieceMoveMask, ulong pieceOccupancy)
+        {
+            ulong sourceSquares = 0;
+            if ((sourceSquares = pieceMoveMask & pieceOccupancy) == 0) return null;
+            var indices = sourceSquares.GetSetBits();
+            if (indices.Count() != 1) return ushort.MaxValue;
             return indices[0];
+        }
+
+        public ushort FindQueenMoveSourceIndex(MoveDetail md)
+        {
+            var occupancy = ActivePieceOccupancy[(int)Piece.Queen];
+            var possibleSquares = Bitboard.GetAttackedSquares(Piece.Queen, md.DestinationIndex.Value, TotalOccupancy);
+            var sourceSquare = FindPieceMoveSourceIndex(md.DestinationIndex.Value, possibleSquares, occupancy);
+            if (!sourceSquare.HasValue) throw new MoveException("No Queen can possibly get to the specified destination.");
+            if (sourceSquare == ushort.MaxValue) throw new MoveException("More than one Queen can get to the specified square.");
+            return sourceSquare.Value;
+        }
+
+        public ushort FindRookMoveSourceIndex(MoveDetail md)
+        {
+            //var possibleSquares = PieceAttackPatternHelper.BishopMoveMask[md.DestRank.Value, md.DestFile.Value];
+            var occupancy = ActivePieceOccupancy[(int)Piece.Rook];
+            var possibleSquares = Bitboard.GetAttackedSquares(Piece.Rook, md.DestinationIndex.Value, TotalOccupancy);
+            var sourceSquare = FindPieceMoveSourceIndex(md.DestinationIndex.Value, possibleSquares, occupancy);
+            if (!sourceSquare.HasValue) throw new MoveException("No Rook can possibly get to the specified destination.");
+            if (sourceSquare == ushort.MaxValue) throw new MoveException("More than one Rook can get to the specified square.");
+            return sourceSquare.Value;
+        }
+
+        public ushort FindBishopMoveSourceIndex(MoveDetail md)
+        {
+            //var possibleSquares = PieceAttackPatternHelper.BishopMoveMask[md.DestRank.Value, md.DestFile.Value];
+            var occupancy = ActivePieceOccupancy[(int)Piece.Bishop];
+            var possibleSquares = Bitboard.GetAttackedSquares(Piece.Bishop, md.DestinationIndex.Value, TotalOccupancy);
+            var sourceSquare = FindPieceMoveSourceIndex(md.DestinationIndex.Value, possibleSquares, occupancy);
+            if (!sourceSquare.HasValue) throw new MoveException("No Bishop can possibly get to the specified destination.");
+            if (sourceSquare == ushort.MaxValue) throw new MoveException("More than one Bishop can get to the specified square.");
+            return sourceSquare.Value;
+        }
+
+        public ushort FindKnightMoveSourceIndex(MoveDetail md, ulong? relevantPieceOccupancy = null)
+        {
+            var possibleSquares = PieceAttackPatternHelper.KnightAttackMask[md.DestinationIndex.Value];
+            var occupancy = ActivePieceOccupancy[(int)Piece.Knight];
+            var sourceSquare = FindPieceMoveSourceIndex(md.DestinationIndex.Value, possibleSquares, occupancy);
+            if (!sourceSquare.HasValue) throw new MoveException("No Knight can possibly get to the specified destination.");
+            if (sourceSquare == short.MaxValue) throw new MoveException("More than one Knight can get to the specified square.");
+            return sourceSquare.Value;
         }
 
         public ushort FindPawnMoveSourceIndex(MoveDetail md, ulong? relevantPieceOccupancy = null)
@@ -110,22 +163,7 @@ namespace MagicBitboard
             ushort sourceIndex = 0;
             if (!relevantPieceOccupancy.HasValue) relevantPieceOccupancy = ActivePieceOccupancy[(int)Piece.Pawn];
             var adjustedRelevantPieceOccupancy = md.Color == Color.Black ? relevantPieceOccupancy.Value.FlipVertically() : relevantPieceOccupancy;
-            if (md.Color == Color.Black)
-            {
-                //if (md.DestRank == 4) // 2 possible source ranks, 6 & 7 (offsets 2 & 3)
-                //{
-                //    //Check 6th rank first, logically if a pawn is there that is the source
-                //    if ((relevantPieceOccupancy & BoardHelpers.RankMasks[5]) != 0) sourceIndex = (ushort)((5 * 8) + file % 8);
-                //    if ((relevantPieceOccupancy & BoardHelpers.RankMasks[6]) != 0) sourceIndex = (ushort)((6 * 8) + file % 8);
-                //}
-                //else //else source square was destination + 8, but we need to make sure a pawn was there
-                //{
-                //    var supposedRank = (ushort)md.DestRank + 1;
-                //    if (md.DestRank > 6) { throw new MoveException($"{md.MoveText}: Cannot possibly be a pawn at the source square implied by move."); }
-                //    sourceIndex = (ushort)((supposedRank * 8) + md.DestFile.Value);
-                //}
 
-            }
             ushort supposedRank = (ushort)(rank - 1);
             if (rank == 3) // 2 possible source ranks, 2 & 3 (offsets 1 & 2)
             {
@@ -135,7 +173,6 @@ namespace MagicBitboard
             }
             else //else source square was destination + 8, but we need to make sure a pawn was there
             {
-
                 var supposedIndex = BoardHelpers.RankAndFileToIndex(md.Color == Color.Black ? supposedRank.RankCompliment() : supposedRank, md.DestFile.Value);
                 if (supposedRank == 0) { throw new MoveException($"{md.MoveText}: Cannot possibly be a pawn at the source square {supposedIndex.IndexToSquareDisplay()} implied by move."); }
                 sourceIndex = (ushort)((supposedRank * 8) + md.DestFile.Value);

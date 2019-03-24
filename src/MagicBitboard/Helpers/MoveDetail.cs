@@ -12,7 +12,7 @@ namespace MagicBitboard.Helpers
             {
             }
 
-            public MoveDetail(ushort? sourceFile, ushort? sourceRank, ushort? destFile, ushort? destRank, Piece piece, Color color, string moveText, bool isCapture = false, MoveType moveType = MoveType.Normal, PromotionPiece? promotionPiece = null)
+            public MoveDetail(ushort? sourceRank, ushort? sourceFile, ushort? destRank, ushort? destFile, Piece piece, Color color, string moveText, bool isCapture = false, MoveType moveType = MoveType.Normal, PromotionPiece? promotionPiece = null)
             {
                 SourceFile = sourceFile;
                 SourceRank = sourceRank;
