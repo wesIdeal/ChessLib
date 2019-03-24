@@ -1,17 +1,15 @@
 ﻿using MagicBitboard;
-using MagicBitboard.Helpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using ChessLib.Data.Helpers;
 namespace ChessLib.Data.Helpers.Tests
 {
-
     [TestFixture]
-    public class CardinalDirectionShiftTests
+    public class ShiftHelpersTests
     {
         #region Cardinal Direction Shifts
 
@@ -88,7 +86,6 @@ namespace ChessLib.Data.Helpers.Tests
 
         #region Cardinal Direction Sanity Checks
         #region ShiftE Tests
-
 
         [Test]
         public void Shift2ETestAll()

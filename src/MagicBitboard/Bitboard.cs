@@ -1,7 +1,6 @@
 ﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveInitializers;
 using ChessLib.Data.Types;
-using MagicBitboard.Helpers;
 using MagicBitboard.SlidingPieces;
 using System;
 using System.Linq;

@@ -6,7 +6,7 @@ namespace ChessLib.Data.Helpers.Tests
     public class BitHelpersTests
     {
         [Test]
-        public void Should_Return_Square_Index_By_Value()
+        public void GetSetBits_ShouldReturnASquareIndex_GivenOneSquareOfInput()
         {
             var count = 0;
             foreach (var sq in BoardHelpers.IndividualSquares)
@@ -17,7 +17,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
         }
         [Test]
-        public void Should_Return_Square_Indexes_By_Value()
+        public void GetSetBits_ShouldReturnASquareIndexes_GivenManySquaresOfInput()
         {
             var expectedR2 = new ushort[] { 8, 9, 10, 11, 12, 13, 14, 15 };
             var expectedR7 = new ushort[] { 48, 49, 50, 51, 52, 53, 54, 55 };
@@ -30,7 +30,7 @@ namespace ChessLib.Data.Helpers.Tests
 
 
         [Test]
-        public void BitIndicies()
+        public void GetSetBits_ShouldReturnASquareIndexes_Given2SquaresOfInput()
         {
             ulong a = 0b1001;
             var expected = new[] { 0, 3 };
@@ -39,7 +39,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void BitIndiciesAll()
+        public void GetSetBits_ShouldReturnASquareIndexes_Given4SquaresOfInput()
         {
             ulong a = 0b1111;
             var expected = new[] { 0, 1, 2, 3 };
@@ -48,7 +48,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void SetBitAll()
+        public void SetBit_ShouldSetBit_GivenAnySquareInRange()
         {
             ulong a = 0;
 
@@ -64,7 +64,7 @@ namespace ChessLib.Data.Helpers.Tests
 
 
         [Test]
-        public void ClearBit()
+        public void ClearBit_ShouldSetBitIndexToZero()
         {
             ulong a = 0xff;
             var bitIndexToClear = 1;
@@ -73,12 +73,22 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void IsBitSet()
+        public void IsBitSet_ShouldReturnTrue_InputBitIndexIsSet()
         {
             ulong a = 0;
             ushort bitIndexToSet = 32;
             BitHelpers.SetBit(ref a, bitIndexToSet);
             Assert.IsTrue(BitHelpers.IsBitSet(a, bitIndexToSet));
+        }
+
+        [Test]
+        public void IsBitSet_ShouldReturnFalse_InputBitIndexIsNotSet()
+        {
+            ulong a = 0;
+            ushort bitIndexToSet = 32;
+            BitHelpers.SetBit(ref a, bitIndexToSet);
+            a = ~a;
+            Assert.IsFalse(BitHelpers.IsBitSet(a, bitIndexToSet));
         }
     }
 }

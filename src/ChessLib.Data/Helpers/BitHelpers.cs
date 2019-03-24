@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 namespace ChessLib.Data.Helpers
 {
     using PieceIndex = System.UInt16;

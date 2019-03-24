@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MagicBitboard.Helpers
+﻿namespace ChessLib.Data.Helpers
 {
     public static class ShiftHelpers
     {

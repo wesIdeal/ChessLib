@@ -2,7 +2,6 @@
 
 using ChessLib.Data.MoveInitializers;
 using ChessLib.Data.Types;
-using MagicBitboard.Helpers;
 
 namespace ChessLib.Data.Helpers
 {

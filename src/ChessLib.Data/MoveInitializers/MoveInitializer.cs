@@ -1,6 +1,5 @@
 ﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.Types;
-using MagicBitboard.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,5 +1,4 @@
 ﻿using ChessLib.Data.Helpers;
-using MagicBitboard.Helpers;
 using System;
 using System.Linq;
 using System.Text;

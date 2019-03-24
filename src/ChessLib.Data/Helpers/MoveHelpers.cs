@@ -1,6 +1,5 @@
 ﻿using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
-using MagicBitboard.Helpers;
 using System.Text.RegularExpressions;
 
 namespace ChessLib.Data.Helpers

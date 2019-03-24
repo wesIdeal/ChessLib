@@ -87,9 +87,7 @@ namespace ChessLib.Data.Helpers.Tests
 
         #endregion
 
-
-
-        #region FEN
+        #region Constant Fields
 
         const string startingFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         const string fenFormat = "{0} {1} {2} {3} {4} {5}";
@@ -100,21 +98,27 @@ namespace ChessLib.Data.Helpers.Tests
         const string ValidEnPassentSquare = "e6";
         const int ValidHalfMove = 0;
         const int ValidFullMove = 0;
-        private string GetFen(string piecePlacement, string activeColor, string castling, string enPassent, int halfMove, int fullMove)
+        #endregion
+
+        #region Delegates
+        private delegate void ValidationDelegate(string s);
+
+        private ValidationDelegate MainValidation = FENHelpers.ValidateFENString;
+        #endregion
+
+        private string GetFENFromProvidedFENPieceInfo(string piecePlacement, string activeColor, string castling, string enPassent, int halfMove, int fullMove)
         {
             return string.Format(fenFormat, piecePlacement, activeColor, castling, enPassent, halfMove, fullMove);
         }
 
-        private delegate void ValidationDelegate(string s);
-        private ValidationDelegate MainValidation = FENHelpers.ValidateFENString;
-        private FENException AssertThrowsFenException(ValidationDelegate validate, string fen, FENError errorTypeExpected = FENError.NULL)
+        private FENException AssertThrowsFenException(ValidationDelegate validate, string fen, FENError errorTypeExpected = FENError.NULL, string assertMessage = "")
         {
             FENException exc = new FENException(fen, FENError.NULL);
             Assert.Throws(typeof(FENException), () =>
             {
                 try { validate(fen); }
                 catch (FENException e) { exc = e; throw; }
-            });
+            }, assertMessage);
             if (errorTypeExpected != FENError.NULL)
             {
                 Assert.AreEqual(errorTypeExpected, exc.FENError);
@@ -123,21 +127,20 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
 
-
         [Test]
-        public void Should_Throw_Exception_On_Invalid_Castling_Characters()
+        public void ValidateCastlingAvailabilityString_ShouldThrowException_WhenGivenInvalidCastlingCharacters()
         {
             var message = "";
             foreach (var c in DisallowedCastlingChars)
             {
                 Assert.AreEqual(FENError.CastlingUnrecognizedChar, FENHelpers.ValidateCastlingAvailabilityString(c.ToString()));
-                AssertThrowsFenException(MainValidation, GetFen(ValidPiecePlacement, ValidColor, c.ToString(), ValidEnPassent, 0, 0));
+                AssertThrowsFenException(MainValidation, GetFENFromProvidedFENPieceInfo(ValidPiecePlacement, ValidColor, c.ToString(), ValidEnPassent, 0, 0));
             }
             Console.WriteLine(message);
         }
 
         [Test]
-        public void Should_Be_Valid_When_Valid_Castling_Chars_Are_Passed()
+        public void ValidateCastlingAvailabilityString_ShouldNotHaveError_WhenCastlingAvailabilityStringIsValid()
         {
             foreach (var info in CastleInfos)
             {
@@ -148,7 +151,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void Should_Be_Invalid_When_EnPassent_Is_Bad()
+        public void ValidateEnPassentSquare_ShouldThrowException_WhenEnPassentSqIsInvalid()
         {
             Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("4e"));
             Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("4"));
@@ -158,11 +161,11 @@ namespace ChessLib.Data.Helpers.Tests
             Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("--"));
             Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("12"));
             Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("ee"));
-            AssertThrowsFenException(MainValidation, GetFen(ValidPiecePlacement, ValidColor, ValidCastling, "e9", 0, 0), FENError.InvalidEnPassentSquare);
+            // AssertThrowsFenException(MainValidation, GetFENFromProvidedFENPieceInfo(ValidPiecePlacement, ValidColor, ValidCastling, "e9", 0, 0), FENError.InvalidEnPassentSquare);
         }
 
         [Test]
-        public void Should_Be_Valid_When_EnPassent_Square_Is_OK()
+        public void ValidateEnPassentSquare_ShouldNotReturnError_GivenValidSquare()
         {
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassentSquare("e6"));
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassentSquare("a3"));
@@ -171,123 +174,76 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void Should_Return_Error_When_Bad_Move_Number_Passed_Into_NumberParsers()
+        public void ValidateHalfmoveClock_ShouldReturnAppropriateFENError_GivenInvalidInput()
         {
-
             Assert.AreEqual(FENError.HalfmoveClock, FENHelpers.ValidateHalfmoveClock("-1"));
             Assert.AreEqual(FENError.HalfmoveClock, FENHelpers.ValidateHalfmoveClock(""));
             Assert.AreEqual(FENError.HalfmoveClock, FENHelpers.ValidateHalfmoveClock("-"));
+        }
+
+
+        [Test]
+        public void ValidateFullMoveCounter_ShouldReturnAppropriateFENError_GivenInvalidInput()
+        {
             Assert.AreEqual(FENError.FullMoveCounter, FENHelpers.ValidateFullMoveCounter("-1"));
             Assert.AreEqual(FENError.FullMoveCounter, FENHelpers.ValidateFullMoveCounter(""));
             Assert.AreEqual(FENError.FullMoveCounter, FENHelpers.ValidateFullMoveCounter("-"));
         }
 
         [Test]
-        public void Should_Return_0_When_Good_Move_Number_Passed_Into_NumberParsers()
+        public void ValidateHalfmoveClock_ShouldReturnNullFENError_GivenValidInput()
         {
-
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateHalfmoveClock("1"));
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateHalfmoveClock("0"));
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateHalfmoveClock("3"));
+        }
+
+
+        [Test]
+        public void ValidateFullMoveCounter_ShouldReturnNullFENError_GivenValidInput()
+        {
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateFullMoveCounter("31"));
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateFullMoveCounter("0"));
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateFullMoveCounter("1"));
         }
 
-
         [Test]
-        public void Should_Return_NonNegative_Int_From_FEN_Move_Piece()
+        public void GetMoveNumberFromString_ShouldReturnAppropriateUINT_GivenValidInput()
         {
             Assert.AreEqual((uint?)24, FENHelpers.GetMoveNumberFromString("24"));
         }
 
         [Test]
-        public void Should_Return_Error_When_Color_String_Is_Invalid()
+        public void ValidateActiveColor_ShouldReturnAppropriateFENError_GivenInvalidInput()
         {
             Assert.AreEqual(FENError.InvalidActiveColor, FENHelpers.ValidateActiveColor("z"));
             Assert.AreEqual(FENError.InvalidActiveColor, FENHelpers.ValidateActiveColor(""));
         }
 
         [Test]
-        public void Should_Return_Null_When_Color_String_Is_Valid()
+        public void ValidateActiveColor_ShouldReturnNullFENError_GivenValidInput()
         {
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateActiveColor("w"));
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateActiveColor("b"));
         }
 
         [Test]
-        public void Should_Set_Active_Color_As_White_When_Passed_w()
+        public void GetActiveColor_ShouldReturnAppropriateColor_GivenValidInput()
         {
 
             Assert.AreEqual(Color.White, FENHelpers.GetActiveColor("w"));
             Assert.AreEqual(Color.Black, FENHelpers.GetActiveColor("b"));
         }
-
-
-
-        //[Test]
-        //public void Should_Throw_Exception_For_Pawns_On_First_Ranks()
-        //{
-        //    var fen1 = "rnbqkbnr/ppp2ppp/1p6/8/8/8/PPP2PPP/RNBQKBNP";
-        //    var fen2 = "pnbqkbnr/ppp2pppp/8/8/8/1P6/P2PPPPP/RNBQKBNR";
-        //    var fen3 = "rnbqkbnr/ppp1pppp/1p6/8/8/8/PPP2PPP/RNBQKBNp";
-        //    var fen4 = "Pnbqkbnr/ppp1ppppp/8/8/8/1P6/PPPP1PPP/RNBQKBNR";
-
-        //    Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen1); });
-        //    Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen2); });
-        //    Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen3); });
-        //    Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen4); });
-        //}
-
-        //[Test]
-        //public void Should_Throw_Exception_For_Too_Many_Pieces()
-        //{
-        //    var fen1 = "rnbqkbnr/pppppppp/1r6/8/8/8/PPPPPPPP/RNBQKBNR";
-        //    var fen2 = "rnbqkbnr/pppppppp/8/8/8/1R6/PPPPPPPP/RNBQKBNR";
-        //    var fen3 = "rnbqkbnr/pppppppp/1r6/8/8/1R6/PPPPPPPP/RNBQKBNR";
-
-
-        //    Assert.Throws(typeof(FENPieceCountTooHighException), () => { FENHelpers.ValidateFENPiecePlacement(fen1); });
-        //    Assert.Throws(typeof(FENPieceCountTooHighException), () => { FENHelpers.ValidateFENPiecePlacement(fen2); });
-        //    Assert.Throws(typeof(FENPieceCountTooHighException), () => { FENHelpers.ValidateFENPiecePlacement(fen3); });
-        //}
-
-        //[Test]
-        //public void Should_Throw_Exception_On_Incomplete_FEN()
-        //{
-        //    var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0";
-        //    Assert.Throws(typeof(FENException), () => { FENHelpers.ValidateFENStructure(fen); });
-        //}
-
-        //[Test]
-        //public void Should_Throw_Exception_On_Too_Many_Ranks()
-        //{
-        //    var fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        //    var message = "";
-        //    Assert.Throws(typeof(FENPiecePlacementException), () =>
-        //    {
-        //        try
-        //        {
-        //            FENHelpers.ValidateFENPiecePlacement(fen);
-        //        }
-        //        catch (FENPiecePlacementException f)
-        //        {
-        //            message = f.Message;
-        //            throw;
-        //        }
-        //    });
-        //    Console.WriteLine(message);
-        //}
-
+       
         [Test]
-        public void Should_Return_Error_On_Invalid_Piece_Characters_In_Fen()
+        public void ValidatePiecePlacement_ShouldReturnAppropriateFENError_GivenInvalidPieceInput()
         {
             var fen = "rnbqkbnr/ppspppzp/8/8/8/8/PPPPPPPP/RNBQKBNR";
             Assert.AreEqual(FENError.PiecePlacementInvalidChars, FENHelpers.ValidatePiecePlacement(fen));
         }
 
         [Test]
-        public void Should_Return_Error_When_Ranks_In_Fen_Not_8()
+        public void ValidatePiecePlacement_ShouldReturnAppropriateFENError_GivenInvalidRankCount()
         {
 
             var fen = ValidPiecePlacement;
@@ -296,7 +252,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void Should_Return_Error_When_Too_Many_Squares_In_Fen()
+        public void ValidatePiecePlacement_ShouldReturnAppropriateFENError_GivenTooManyPieceInRank()
         {
             var fen = "rnbqkbnr/ppppppppp/8/8/8/8/PPPPPPPP/RNBQrKBNR";
 
@@ -304,61 +260,10 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void Should_Return_Null_When_Right_Squares_In_Fen()
+        public void ValidatePiecePlacement_ShouldReturnNullFENError_GivenValidPieceInput()
         {
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidatePiecePlacement(ValidPiecePlacement));
         }
 
-        //[Test]
-        //public void Should_Throw_Exception_When_Too_Many_Kings_In_Fen()
-        //{
-        //    var fen1 = "rnbqkbnr/pppppppp/1k6/8/8/8/PPPPPPPP/RNBQKBNR";
-        //    var fen2 = "rnbqkbnr/ppppppppp/8/8/8/1K6/PPPPPPPP/RNBQKBNR";
-        //    var fen3 = "rnbqkbnr/ppppppppp/1k6/8/8/1K6/PPPPPPPP/RNBQKBNR";
-        //    var fen4 = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQRBNR";
-        //    var fen5 = "rnbqrbnr/ppppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-        //    var fen6 = "rnbqrbnr/ppppppppp/8/8/8/8/PPPPPPPP/RNBQRBNR";
-        //    var message = "";
-        //    Assert.Throws(typeof(FENPiecePlacementKingException), () => { FENHelpers.ValidateFENPiecePlacementKing(fen1); });
-        //    Assert.Throws(typeof(FENPiecePlacementKingException), () => { FENHelpers.ValidateFENPiecePlacementKing(fen2); });
-        //    Assert.Throws(typeof(FENPiecePlacementKingException), () => { FENHelpers.ValidateFENPiecePlacementKing(fen3); });
-        //    Assert.Throws(typeof(FENPiecePlacementKingException), () => { FENHelpers.ValidateFENPiecePlacementKing(fen4); });
-        //    Assert.Throws(typeof(FENPiecePlacementKingException), () => { FENHelpers.ValidateFENPiecePlacementKing(fen5); });
-        //    Assert.Throws(typeof(FENPiecePlacementKingException), () => { FENHelpers.ValidateFENPiecePlacementKing(fen6); });
-        //    Console.WriteLine(message);
-        //}
-
-        //[Test]
-        //public void Should_Throw_Exception_When_Too_Many_Pawns_In_Fen()
-        //{
-        //    var fen1 = "rnbqkbnr/pppppppp/1p6/8/8/8/PPPPPPPP/RNBQKBNR";
-        //    var fen2 = "rnbqkbnr/ppppppppp/8/8/8/1P6/PPPPPPPP/RNBQKBNR";
-        //    var fen3 = "rnbqkbnr/ppppppppp/1p6/8/8/1P6/PPPPPPPP/RNBQKBNR";
-
-        //    Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen1); });
-        //    Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen2); });
-        //    Assert.Throws(typeof(FENPiecePlacementPawnException), () => { FENHelpers.ValidateFENPiecePlacementPawns(fen3); });
-        //}
-
-        //[Test]
-        //public void Should_Throw_Exception_When_All_Squares_Unaccounted_For_In_Fen()
-        //{
-        //    var fen = "rnbqkbnr/ppppppp/8/8/8/8/PPPPPPPP/PPPPPPPP/RNBQKBNR";
-        //    var message = "";
-        //    Assert.Throws(typeof(FENPiecePlacementException), () =>
-        //    {
-        //        try
-        //        {
-        //            FENHelpers.ValidateFENPiecePlacement(fen);
-        //        }
-        //        catch (FENException f)
-        //        {
-        //            message = f.Message;
-        //            throw;
-        //        }
-        //    });
-        //    Console.WriteLine(message);
-        //}
-        #endregion
     }
 }
