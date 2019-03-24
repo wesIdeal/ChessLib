@@ -6,12 +6,15 @@ using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
+using static ChessLib.Data.Helpers.PieceHelpers;
 
 namespace MagicBitboard
 {
     public class BoardInfo
     {
+
         public readonly bool Chess960 = false;
+        public ushort? EnPassentIndex { get; private set; }
         MoveTree<MoveExt> MoveTree = new MoveTree<MoveExt>(null);
         private BoardInfo(bool chess960 = false)
         {
@@ -89,7 +92,99 @@ namespace MagicBitboard
 
         protected void ApplyMove(MoveExt move)
         {
+            GetPiecesAtSourceAandDestination(move, out PieceOfColor? pocSource, out PieceOfColor? pocDestination);
             ValidateMove(move);
+
+            SetAppropriateEnPassentFlag(move, pocSource);
+        }
+
+        private void SetAppropriateEnPassentFlag(MoveExt move, PieceOfColor? pocSource)
+        {
+            if (pocSource.HasValue)
+            {
+                var startRank = pocSource.Value.Color == Color.White ? 1 : 6;
+                var endRank = pocSource.Value.Color == Color.White ? 3 : 4;
+                var enPassentIndexOffset = pocSource.Value.Color == Color.White ? 1 : -1;
+                if (pocSource.Value.Piece == Piece.Pawn)
+                {
+                    if (((move.SourceValue & BoardHelpers.RankMasks[startRank]) != 0)
+                        && ((move.DestinationValue & BoardHelpers.RankMasks[endRank]) != 0))
+                    {
+                        EnPassentIndex = (ushort)(move.SourceIndex + enPassentIndexOffset);
+                        return;
+                    }
+                }
+            }
+            EnPassentIndex = null;
+        }
+
+        private void GetPiecesAtSourceAandDestination(MoveExt move, out PieceOfColor? pocSource, out PieceOfColor? pocDestination)
+        {
+            var sVal = move.SourceValue;
+            var dVal = move.DestinationValue;
+            pocSource = null;
+            pocDestination = null;
+            foreach (Piece piece in Enum.GetValues(typeof(Piece)))
+            {
+                var p = (int)piece;
+                if (pocSource == null)
+                {
+                    if ((PiecesOnBoard[(int)Color.White][p] & sVal) != 0)
+                    {
+                        pocSource = new PieceOfColor() { Color = Color.White, Piece = piece };
+                    }
+                    if ((PiecesOnBoard[(int)Color.Black][p] & sVal) != 0)
+                    {
+                        pocSource = new PieceOfColor() { Color = Color.Black, Piece = piece };
+                    }
+                }
+                if (pocDestination == null)
+                {
+                    if ((PiecesOnBoard[(int)Color.White][p] & sVal) != 0)
+                    {
+                        pocDestination = new PieceOfColor() { Color = Color.White, Piece = piece };
+                    }
+                    if ((PiecesOnBoard[(int)Color.Black][p] & sVal) != 0)
+                    {
+                        pocDestination = new PieceOfColor() { Color = Color.Black, Piece = piece };
+                    }
+                }
+            }
+        }
+
+        public ulong XRayRookAttacks(ushort sqIndex, ulong blockers)
+        {
+            var rookAttacksFromSquare = Bitboard.GetAttackedSquares(Piece.Rook, sqIndex, TotalOccupancy);
+            blockers &= rookAttacksFromSquare;
+            return rookAttacksFromSquare ^ Bitboard.GetAttackedSquares(Piece.Rook, sqIndex, TotalOccupancy);
+        }
+
+        public ulong XRayBishopAttacks(ushort sqIndex, ulong blockers)
+        {
+            var BishopAttacksFromSquare = Bitboard.GetAttackedSquares(Piece.Bishop, sqIndex, TotalOccupancy);
+            blockers &= BishopAttacksFromSquare;
+            return BishopAttacksFromSquare ^ Bitboard.GetAttackedSquares(Piece.Bishop, sqIndex, TotalOccupancy);
+        }
+
+        public ulong GetPinnedPieces()
+        {
+            throw new Exception("Not implemented");
+            ulong pinned = 0;
+            //var pinner = XRayRookAttacks(ActivePlayerKingIndex, ActiveTotalOccupancy) & opRQ;
+            //while (pinner)
+            //{
+            //    int sq = bitScanForward(pinner);
+            //    pinned |= obstructed(sq, squareOfKing) & ownPieces;
+            //    pinner &= pinner - 1;
+            //}
+            //pinner = xrayBishopAttacks(occupiedBB, ownPieces, squareOfKing) & opBQ;
+            //while (pinner)
+            //{
+            //    int sq = bitScanForward(pinner);
+            //    pinned |= obstructed(sq, squareOfKing) & ownPieces;
+            //    pinner &= pinner - 1;
+            //}
+            return 0;
         }
 
         public MoveExt GenerateMoveFromText(string moveText)
@@ -352,6 +447,9 @@ namespace MagicBitboard
         }
 
         public ushort ActivePlayerKingIndex => (ushort)PiecesOnBoard[(int)ActivePlayer][Piece.King.ToInt()].GetSetBits()[0];
+
+        public ulong ActivePlayerKingValue => (ulong)(0x01 << ActivePlayerKingIndex);
+
         public ushort OpposingPlayerKingIndex => (ushort)PiecesOnBoard[(int)ActivePlayer.Toggle()][Piece.King.ToInt()].GetSetBits()[0];
 
         public void ValidatePromotion(Color color, ushort moveSourceIdx, ushort moveDestIdx)
@@ -487,6 +585,6 @@ namespace MagicBitboard
         public uint HalfmoveClock { get; set; }
         public uint MoveCounter { get; set; }
         public Color ActivePlayer { get; set; }
-        public ushort? EnPassentIndex { get; set; }
+
     }
 }

@@ -33,6 +33,7 @@ namespace ChessLib.Data.MoveRepresentation
                 Move |= mt;
             }
         }
+
         public PromotionPiece PromotionPiece => MoveHelpers.GetPiecePromoted(Move);
         public List<MoveExt> Variations;
 

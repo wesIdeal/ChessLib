@@ -106,6 +106,7 @@ namespace ChessLib.Data.Helpers.Tests
         private ValidationDelegate MainValidation = FENHelpers.ValidateFENString;
         #endregion
 
+        #region Private Methods
         private string GetFENFromProvidedFENPieceInfo(string piecePlacement, string activeColor, string castling, string enPassent, int halfMove, int fullMove)
         {
             return string.Format(fenFormat, piecePlacement, activeColor, castling, enPassent, halfMove, fullMove);
@@ -126,7 +127,9 @@ namespace ChessLib.Data.Helpers.Tests
             return exc;
         }
 
+        #endregion
 
+        #region Tests
         [Test]
         public void ValidateCastlingAvailabilityString_ShouldThrowException_WhenGivenInvalidCastlingCharacters()
         {
@@ -181,7 +184,6 @@ namespace ChessLib.Data.Helpers.Tests
             Assert.AreEqual(FENError.HalfmoveClock, FENHelpers.ValidateHalfmoveClock("-"));
         }
 
-
         [Test]
         public void ValidateFullMoveCounter_ShouldReturnAppropriateFENError_GivenInvalidInput()
         {
@@ -197,7 +199,6 @@ namespace ChessLib.Data.Helpers.Tests
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateHalfmoveClock("0"));
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidateHalfmoveClock("3"));
         }
-
 
         [Test]
         public void ValidateFullMoveCounter_ShouldReturnNullFENError_GivenValidInput()
@@ -234,7 +235,7 @@ namespace ChessLib.Data.Helpers.Tests
             Assert.AreEqual(Color.White, FENHelpers.GetActiveColor("w"));
             Assert.AreEqual(Color.Black, FENHelpers.GetActiveColor("b"));
         }
-       
+
         [Test]
         public void ValidatePiecePlacement_ShouldReturnAppropriateFENError_GivenInvalidPieceInput()
         {
@@ -265,5 +266,6 @@ namespace ChessLib.Data.Helpers.Tests
             Assert.AreEqual(FENError.NULL, FENHelpers.ValidatePiecePlacement(ValidPiecePlacement));
         }
 
+        #endregion
     }
 }

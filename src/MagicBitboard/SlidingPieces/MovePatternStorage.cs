@@ -33,7 +33,7 @@ namespace MagicBitboard.SlidingPieces
             InitializeFromOneDimensionalArray(attacks, moveInitializer);
         }
         private const int ArraySize = 12;
-        private void InitializeFromOneDimensionalArray(ulong[] moves, MoveInitializer mi)
+        public void InitializeFromOneDimensionalArray(ulong[] moves, MoveInitializer mi)
         {
             if (moves.Length > maxArraySize) throw new ArgumentException($"Cannot hold more than {maxArraySize} elements in Move Storage array.");
             for (int index = 0; index < 64; index++)
