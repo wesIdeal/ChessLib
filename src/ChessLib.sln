@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2019
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib", "ChessLib\ChessLib.csproj", "{72305E1F-27AA-407A-8ADC-C236AAFF0517}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Tests", "ChessLib.Tests\ChessLib.Tests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard", "MagicBitboard\MagicBitboard.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicBitboard.Tests", "MagicBitboard.Tests\MagicBitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
@@ -17,9 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Parse", "ChessLib.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Parse.Tests", "ChessLib.Parse.Tests\ChessLib.Parse.Tests.csproj", "{60742E4D-3FE5-4980-8E84-92A8F1ACEBA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Data", "ChessLib.Data\ChessLib.Data.csproj", "{B7C1799C-A422-46B1-BE5D-B2579C7006A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Data", "ChessLib.Data\ChessLib.Data.csproj", "{B7C1799C-A422-46B1-BE5D-B2579C7006A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Data.Tests", "ChessLib.Data.Tests\ChessLib.Data.Tests.csproj", "{2B22E531-EED0-41AD-B46E-389B8B198F52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Data.Tests", "ChessLib.Data.Tests\ChessLib.Data.Tests.csproj", "{2B22E531-EED0-41AD-B46E-389B8B198F52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,14 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{72305E1F-27AA-407A-8ADC-C236AAFF0517}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{72305E1F-27AA-407A-8ADC-C236AAFF0517}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{72305E1F-27AA-407A-8ADC-C236AAFF0517}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{72305E1F-27AA-407A-8ADC-C236AAFF0517}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A06C0B4B-B75C-499B-B0F8-0268DC437B48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A06C0B4B-B75C-499B-B0F8-0268DC437B48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A06C0B4B-B75C-499B-B0F8-0268DC437B48}.Release|Any CPU.ActiveCfg = Release|Any CPU
