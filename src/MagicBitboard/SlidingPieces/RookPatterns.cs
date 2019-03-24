@@ -1,4 +1,6 @@
-﻿using MagicBitboard.Helpers;
+﻿using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveInitializers;
+using MagicBitboard.Helpers;
 
 namespace MagicBitboard.SlidingPieces
 {

@@ -1,4 +1,6 @@
-﻿using MagicBitboard.Enums;
+﻿using ChessLib.Data;
+using ChessLib.Data.MoveInitializers;
+using ChessLib.Data.Types;
 using MagicBitboard.Helpers;
 using System;
 using System.Collections;
@@ -52,8 +54,8 @@ namespace MagicBitboard.SlidingPieces
         {
             get
             {
-                var r = rank.ToInt();
-                var f = file.ToInt();
+                var r = (int)rank;
+                var f = (int)file;
                 return AttackPatterns[(r * 8) + f];
             }
         }

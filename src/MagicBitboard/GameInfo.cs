@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using MagicBitboard.Helpers;
+﻿using ChessLib.Data.Helpers;
 
 namespace MagicBitboard
 {
@@ -20,11 +18,11 @@ namespace MagicBitboard
         public GameInfo(string fen)
         {
             _fen = fen;
-            BoardInfo = FENHelpers.BoardInfoFromFen(fen);
+            BoardInfo = BoardInfo.BoardInfoFromFen(fen);
         }
 
         private string _fen;
 
-        
+
     }
 }

@@ -1,13 +1,4 @@
 ﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MagicBitboard;
-using MagicBitboard.Helpers;
-using MagicBitboard.Enums;
-using EnumsNET;
 namespace MagicBitboard.Tests
 {
     [TestFixture]

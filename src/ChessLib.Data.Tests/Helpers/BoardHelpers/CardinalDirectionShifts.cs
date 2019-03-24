@@ -1,5 +1,4 @@
-﻿using ChessLib.Data.Helpers;
-using MagicBitboard;
+﻿using MagicBitboard;
 using MagicBitboard.Helpers;
 using NUnit.Framework;
 using System;
@@ -8,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MagicBitboard.Helpers.MoveHelper.Tests
+namespace ChessLib.Data.Helpers.Tests
 {
 
     [TestFixture]
-    public class CardinalDirectionShifts
+    public class CardinalDirectionShiftTests
     {
         #region Cardinal Direction Shifts
 
@@ -1113,7 +1112,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         public void ShiftWSWFromH2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
-            ulong expected = 0x01<<5;
+            ulong expected = 0x01 << 5;
             var actual = ShiftHelpers.ShiftWSW(u);
             Assert.AreEqual(expected, actual);
         }
@@ -1269,7 +1268,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         public void ShiftNNWFromH2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
-            ulong expected = 0x01<<30;
+            ulong expected = 0x01 << 30;
             var actual = ShiftHelpers.ShiftNNW(u);
             Assert.AreEqual(expected, actual);
         }

@@ -1,20 +1,15 @@
-﻿using MagicBitboard;
-using MagicBitboard.Enums;
-using MagicBitboard.Helpers;
+﻿using ChessLib.Data.Helpers;
+using ChessLib.Data.Types;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MagicBitboard.Helpers.Tests   
+namespace MagicBitboard.Helpers.Tests
 {
     [TestFixture]
     public class MoveTests
     {
         const string fenEP = "8/PPPPPPPP/8/2k5/8/2K5/pppppppp/8 w - - 0 1";
-        BoardInfo biEnPassent = FENHelpers.BoardInfoFromFen(fenEP);
+        BoardInfo biEnPassent = BoardInfo.BoardInfoFromFen(fenEP);
         [SetUp]
         public void Setup()
         {

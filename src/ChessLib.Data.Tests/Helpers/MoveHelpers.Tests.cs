@@ -2,9 +2,8 @@
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
 using NUnit.Framework;
-using System.Linq;
 
-namespace MagicBitboard.Helpers.Tests
+namespace ChessLib.Data.Helpers.Tests
 {
     [TestFixture]
     public class MoveHelpersTests
@@ -14,7 +13,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             var move = "O-O";
             var mdExpected = new MoveDetail(7, 4, 7, 6, Piece.King, Color.Black, "O-O", false, MoveType.Castle);
-            var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.Black);
+            var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.Black);
             Assert.AreEqual(mdExpected, actual);
             ValidateHasDestInfo(actual, move);
         }
@@ -23,7 +22,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             var move = "O-O";
             var mdExpected = new MoveDetail(0, 4, 0, 6, Piece.King, Color.White, "O-O", false, MoveType.Castle);
-            var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
+            var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.White);
             Assert.AreEqual(mdExpected, actual);
         }
         [Test]
@@ -31,7 +30,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             var move = "O-O-O";
             var mdExpected = new MoveDetail(7, 4, 7, 2, Piece.King, Color.Black, "O-O-O", false, MoveType.Castle);
-            var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.Black);
+            var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.Black);
             Assert.AreEqual(mdExpected, actual);
             ValidateHasDestInfo(actual, move);
         }
@@ -40,7 +39,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             var move = "O-O-O";
             var mdExpected = new MoveDetail(0, 4, 0, 2, Piece.King, Color.White, "O-O-O", false, MoveType.Castle);
-            var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
+            var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.White);
             Assert.AreEqual(mdExpected, actual);
             ValidateHasDestInfo(actual, move);
         }
@@ -53,7 +52,7 @@ namespace MagicBitboard.Helpers.Tests
                 for (char i = 'a'; i <= 'h'; i++)
                 {
                     var move = string.Format(fmt, i);
-                    var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
+                    var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.White);
                     Assert.AreEqual(Piece.Pawn, actual.Piece);
                     ValidateHasDestInfo(actual, move);
                     if (fmt.Contains('x'))
@@ -76,7 +75,7 @@ namespace MagicBitboard.Helpers.Tests
                 foreach (var fmt in moveFormat)
                 {
                     var move = string.Format(fmt, piece);
-                    var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
+                    var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.White);
                     Assert.AreEqual(expectedPiece, actual.Piece);
                     ValidateHasDestInfo(actual, move);
                     if (fmt.Contains('x'))
@@ -97,7 +96,7 @@ namespace MagicBitboard.Helpers.Tests
                 foreach (var fmt in moveFormat)
                 {
                     var move = string.Format(fmt, piece);
-                    var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
+                    var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.White);
                     Assert.AreEqual(1, actual.SourceFile);
                     ValidateHasDestInfo(actual, move);
                     if (fmt.Contains('x'))
@@ -118,7 +117,7 @@ namespace MagicBitboard.Helpers.Tests
                 foreach (var fmt in moveFormat)
                 {
                     var move = string.Format(fmt, piece);
-                    var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
+                    var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.White);
                     Assert.AreEqual(0, actual.SourceRank);
                     ValidateHasDestInfo(actual, move);
                     if (fmt.Contains('x'))
@@ -140,7 +139,7 @@ namespace MagicBitboard.Helpers.Tests
                 foreach (var fmt in moveFormat)
                 {
                     var move = string.Format(fmt, piece);
-                    var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
+                    var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.White);
                     Assert.AreEqual(4, actual.DestinationFile);
                     ValidateHasDestInfo(actual, move);
                     if (fmt.Contains('x'))
@@ -161,7 +160,7 @@ namespace MagicBitboard.Helpers.Tests
                 foreach (var fmt in moveFormat)
                 {
                     var move = string.Format(fmt, piece);
-                    var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
+                    var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.White);
                     Assert.AreEqual(3, actual.DestinationRank);
                     ValidateHasDestInfo(actual, move);
                     if (fmt.Contains('x'))
@@ -182,7 +181,7 @@ namespace MagicBitboard.Helpers.Tests
                 foreach (var fmt in moveFormat)
                 {
                     var move = string.Format(fmt, piece);
-                    var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
+                    var actual =  MoveHelpers.GetAvailableMoveDetails(move, Color.White);
                     Assert.AreEqual(expectedPiece, actual.PromotionPiece);
                     Assert.AreEqual(MoveType.Promotion, actual.MoveType);
                     ValidateHasDestInfo(actual, move);
@@ -193,7 +192,7 @@ namespace MagicBitboard.Helpers.Tests
                 }
             }
         }
-
+        
         public void ValidateHasDestInfo(MoveDetail m, string moveText)
         {
             Assert.IsNotNull(m.DestinationRank, $"Destination rank should be specified for move {moveText}");

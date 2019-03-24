@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Antlr4.Runtime.Misc;
+using ChessLib.Data;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Parse.Parser.Base;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Tree;
-using ChessLib.Parse.Parser.Base;
 namespace ChessLib.Parse.Parser
 {
     class PGNListener : PGNBaseListener

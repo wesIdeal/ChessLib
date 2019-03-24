@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MagicBitboard;
-using MagicBitboard.Enums;
-using MagicBitboard.Helpers;
+﻿using ChessLib.Data.Exceptions;
+using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types;
 using NUnit.Framework;
-using static MagicBitboard.Helpers.MoveHelpers;
+using System;
 
 namespace MagicBitboard.Helpers.Tests
 {
@@ -38,7 +33,7 @@ namespace MagicBitboard.Helpers.Tests
         public void Should_Return_True_When_d5_Is_Attacked()
         {
             ushort? d5 = BoardHelpers.SquareTextToIndex("d5");
-            bool isAttacked = biScandi.IsAttackedBy(MagicBitboard.Enums.Color.White, d5.Value);
+            bool isAttacked = biScandi.IsAttackedBy(Color.White, d5.Value);
             Assert.IsTrue(isAttacked);
         }
 
@@ -47,7 +42,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             GameInfo gi = new GameInfo(fenQueenIsBlockedFromAttackingd4);
             ushort? d5 = BoardHelpers.SquareTextToIndex("d5");
-            bool isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d5.Value);
+            bool isAttacked = gi.BoardInfo.IsAttackedBy(Color.Black, d5.Value);
             Assert.IsTrue(isAttacked);
         }
 
@@ -55,7 +50,7 @@ namespace MagicBitboard.Helpers.Tests
         public void Should_Return_False_When_d4_Is_Not_Attacked()
         {
             ushort? d4 = BoardHelpers.SquareTextToIndex("d4");
-            bool isAttacked = biScandi.IsAttackedBy(MagicBitboard.Enums.Color.White, d4.Value);
+            bool isAttacked = biScandi.IsAttackedBy(Color.White, d4.Value);
             Assert.IsFalse(isAttacked);
         }
 
@@ -64,7 +59,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             GameInfo gi = new GameInfo(fenQueenIsBlockedFromAttackingd4);
             ushort? d4 = BoardHelpers.SquareTextToIndex("d4");
-            bool isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d4.Value);
+            bool isAttacked = gi.BoardInfo.IsAttackedBy(Color.Black, d4.Value);
             Assert.IsFalse(isAttacked);
         }
 
@@ -73,7 +68,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             GameInfo gi = new GameInfo(fenQueenAttacksd4);
             ushort? d4 = BoardHelpers.SquareTextToIndex("d4");
-            bool isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d4.Value);
+            bool isAttacked = gi.BoardInfo.IsAttackedBy(Color.Black, d4.Value);
             Assert.IsTrue(isAttacked);
         }
 
@@ -104,7 +99,7 @@ namespace MagicBitboard.Helpers.Tests
         public void ShouldFailWhenNoPawnIsIncapableOfPromotion()
         {
             string fen = "8/PPPP1PPP/8/2k5/8/2K5/pppp1ppp/8 w - - 0 1";
-            BoardInfo bi = FENHelpers.BoardInfoFromFen(fen);
+            BoardInfo bi = BoardInfo.BoardInfoFromFen(fen);
             Assert.Throws(typeof(MoveException), () =>
             {
                 bi.ActivePlayer = Color.White;
@@ -121,7 +116,7 @@ namespace MagicBitboard.Helpers.Tests
         public void ShouldFailWhenAPieceBlocksPromotion()
         {
             string fen = "4q3/PPPPPPPP/8/2k5/8/2K5/pppppppp/4Q3 w - - 0 1";
-            BoardInfo bi = FENHelpers.BoardInfoFromFen(fen);
+            BoardInfo bi = BoardInfo.BoardInfoFromFen(fen);
             Assert.Throws(typeof(MoveException), () =>
             {
                 bi.ActivePlayer = Color.White;
@@ -336,7 +331,127 @@ namespace MagicBitboard.Helpers.Tests
             MoveDetail md = new MoveDetail(null, null, 0, 2, Piece.King, Color.White, "Kc1");
             Assert.Throws(typeof(MoveException), () => { bi.FindKingMoveSourceIndex(md); });
         }
+        #region Making Boards
+        const string initialBoard = FENHelpers.InitialFEN;
+        const string after1e4 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
+        const string after1e4c5 = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2";
 
+
+
+
+        [Test]
+        public void Should_Set_Initial_Board()
+        {
+            var white = (int)Color.White;
+            var black = (int)Color.Black;
+            var whitePawns = 0xff00;
+            var blackPawns = 0xff000000000000;
+            var whiteRooks = 0x81;
+            var blackRooks = 0x8100000000000000;
+            var whiteKnights = 0x42;
+            var blackKnights = 0x4200000000000000;
+            var whiteBishops = 0x24;
+            var blackBishops = 0x2400000000000000;
+            var whiteQueen = 0x8;
+            var blackQueen = 0x800000000000000;
+            var whiteKing = 0x10;
+            var blackKing = 0x1000000000000000;
+            var rv = BoardInfo.BoardInfoFromFen(initialBoard);
+            Assert.AreEqual(whitePawns, rv.PiecesOnBoard[white][(int)Piece.Pawn]);
+            Assert.AreEqual(blackPawns, rv.PiecesOnBoard[black][(int)Piece.Pawn]);
+
+            Assert.AreEqual(whiteRooks, rv.PiecesOnBoard[white][(int)Piece.Rook]);
+            Assert.AreEqual(blackRooks, rv.PiecesOnBoard[black][(int)Piece.Rook]);
+
+            Assert.AreEqual(whiteKnights, rv.PiecesOnBoard[white][(int)Piece.Knight]);
+            Assert.AreEqual(blackKnights, rv.PiecesOnBoard[black][(int)Piece.Knight]);
+
+            Assert.AreEqual(whiteBishops, rv.PiecesOnBoard[white][(int)Piece.Bishop]);
+            Assert.AreEqual(blackBishops, rv.PiecesOnBoard[black][(int)Piece.Bishop]);
+
+            Assert.AreEqual(whiteQueen, rv.PiecesOnBoard[white][(int)Piece.Queen]);
+            Assert.AreEqual(blackQueen, rv.PiecesOnBoard[black][(int)Piece.Queen]);
+
+            Assert.AreEqual(whiteKing, rv.PiecesOnBoard[white][(int)Piece.King]);
+            Assert.AreEqual(blackKing, rv.PiecesOnBoard[black][(int)Piece.King]);
+        }
+
+        [Test]
+        public void Should_Set_Board_After_1e4()
+        {
+            var white = (int)Color.White;
+            var black = (int)Color.Black;
+            var whitePawns = 0x1000ef00;
+            var blackPawns = 0xff000000000000;
+            var whiteRooks = 0x81;
+            var blackRooks = 0x8100000000000000;
+            var whiteKnights = 0x42;
+            var blackKnights = 0x4200000000000000;
+            var whiteBishops = 0x24;
+            var blackBishops = 0x2400000000000000;
+            var whiteQueen = 0x8;
+            var blackQueen = 0x800000000000000;
+            var whiteKing = 0x10;
+            var blackKing = 0x1000000000000000;
+            var rv = BoardInfo.BoardInfoFromFen(after1e4);
+
+            Assert.AreEqual(whitePawns, rv.PiecesOnBoard[white][(int)Piece.Pawn]);
+            Assert.AreEqual(blackPawns, rv.PiecesOnBoard[black][(int)Piece.Pawn]);
+
+            Assert.AreEqual(whiteRooks, rv.PiecesOnBoard[white][(int)Piece.Rook]);
+            Assert.AreEqual(blackRooks, rv.PiecesOnBoard[black][(int)Piece.Rook]);
+
+            Assert.AreEqual(whiteKnights, rv.PiecesOnBoard[white][(int)Piece.Knight]);
+            Assert.AreEqual(blackKnights, rv.PiecesOnBoard[black][(int)Piece.Knight]);
+
+            Assert.AreEqual(whiteBishops, rv.PiecesOnBoard[white][(int)Piece.Bishop]);
+            Assert.AreEqual(blackBishops, rv.PiecesOnBoard[black][(int)Piece.Bishop]);
+
+            Assert.AreEqual(whiteQueen, rv.PiecesOnBoard[white][(int)Piece.Queen]);
+            Assert.AreEqual(blackQueen, rv.PiecesOnBoard[black][(int)Piece.Queen]);
+
+            Assert.AreEqual(whiteKing, rv.PiecesOnBoard[white][(int)Piece.King]);
+            Assert.AreEqual(blackKing, rv.PiecesOnBoard[black][(int)Piece.King]);
+        }
+
+        [Test]
+        public void Should_Set_Board_After_1e4_c5()
+        {
+            var white = (int)Color.White;
+            var black = (int)Color.Black;
+            var whitePawns = 0x1000ef00;
+            var blackPawns = 0xfb000400000000;
+            var whiteRooks = 0x81;
+            var blackRooks = 0x8100000000000000;
+            var whiteKnights = 0x42;
+            var blackKnights = 0x4200000000000000;
+            var whiteBishops = 0x24;
+            var blackBishops = 0x2400000000000000;
+            var whiteQueen = 0x8;
+            var blackQueen = 0x800000000000000;
+            var whiteKing = 0x10;
+            var blackKing = 0x1000000000000000;
+            var rv = BoardInfo.BoardInfoFromFen(after1e4c5);
+
+            Assert.AreEqual(whitePawns, rv.PiecesOnBoard[white][(int)Piece.Pawn]);
+            Assert.AreEqual(blackPawns, rv.PiecesOnBoard[black][(int)Piece.Pawn]);
+
+            Assert.AreEqual(whiteRooks, rv.PiecesOnBoard[white][(int)Piece.Rook]);
+            Assert.AreEqual(blackRooks, rv.PiecesOnBoard[black][(int)Piece.Rook]);
+
+            Assert.AreEqual(whiteKnights, rv.PiecesOnBoard[white][(int)Piece.Knight]);
+            Assert.AreEqual(blackKnights, rv.PiecesOnBoard[black][(int)Piece.Knight]);
+
+            Assert.AreEqual(whiteBishops, rv.PiecesOnBoard[white][(int)Piece.Bishop]);
+            Assert.AreEqual(blackBishops, rv.PiecesOnBoard[black][(int)Piece.Bishop]);
+
+            Assert.AreEqual(whiteQueen, rv.PiecesOnBoard[white][(int)Piece.Queen]);
+            Assert.AreEqual(blackQueen, rv.PiecesOnBoard[black][(int)Piece.Queen]);
+
+            Assert.AreEqual(whiteKing, rv.PiecesOnBoard[white][(int)Piece.King]);
+            Assert.AreEqual(blackKing, rv.PiecesOnBoard[black][(int)Piece.King]);
+        }
+        #endregion
     }
 }
 

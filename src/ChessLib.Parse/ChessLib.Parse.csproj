@@ -14,4 +14,8 @@
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,14 +1,14 @@
-﻿using ChessLib.Parse.PGNPieces;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using Antlr4.Runtime;
+﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using ChessLib.Parse.Parser.Base;
+using ChessLib.Data;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.Parser;
+using ChessLib.Parse.Parser.Base;
+using ChessLib.Parse.PGNPieces;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace ChessLib.Parse
 {

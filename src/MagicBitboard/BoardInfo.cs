@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using MagicBitboard.Enums;
-using MagicBitboard.Helpers;
-using static MagicBitboard.Helpers.MoveHelpers;
+using ChessLib.Data;
+using ChessLib.Data.Exceptions;
+using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types;
 
 namespace MagicBitboard
 {
-    using Move = UInt16;
     public class BoardInfo
     {
         public readonly bool Chess960 = false;
+        MoveTree<MoveExt> MoveTree = new MoveTree<MoveExt>(null);
         private BoardInfo(bool chess960 = false)
         {
             Chess960 = chess960;
@@ -27,6 +29,47 @@ namespace MagicBitboard
             Chess960 = chess960;
 
             ValidateFields();
+        }
+
+        public static BoardInfo BoardInfoFromFen(string fen, bool chess960 = false)
+        {
+            FENHelpers.ValidateFENStructure(fen);
+
+            var fenPieces = fen.Split(' ');
+            var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
+            FENHelpers.ValidateFENString(fen);
+            ulong[][] pieces = new ulong[2][];
+            pieces[(int)Color.White] = new ulong[6];
+            pieces[(int)Color.Black] = new ulong[6];
+            var ranks = piecePlacement.Split('/').Reverse();
+
+            var activePlayer = FENHelpers.GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
+            ushort? enPassentSquareIndex = BoardHelpers.SquareTextToIndex(fenPieces[(int)FENPieces.EnPassentSquare]);
+            var halfmoveClock = FENHelpers.GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
+            var fullMoveCount = FENHelpers.GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveCounter]);
+            uint pieceIndex = 0;
+
+            foreach (var rank in ranks)
+            {
+                foreach (var f in rank)
+                {
+                    switch (Char.IsDigit(f))
+                    {
+                        case true:
+                            var emptySquares = uint.Parse(f.ToString());
+                            pieceIndex += emptySquares;
+                            break;
+                        case false:
+                            var pieceOfColor = PieceHelpers.GetPieceOfColor(f);
+                            pieces[(int)pieceOfColor.Color][(int)pieceOfColor.Piece] |= (1ul << (int)pieceIndex);
+                            pieceIndex++;
+                            break;
+                    }
+                }
+            }
+
+            return new BoardInfo(pieces, activePlayer, FENHelpers.GetCastlingFromString(fenPieces[(int)FENPieces.CastlingAvailability]),
+                enPassentSquareIndex, halfmoveClock, fullMoveCount);
         }
 
         private void ValidateFields()

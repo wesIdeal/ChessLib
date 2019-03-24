@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="OccupencyBoards.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>OccupencyBoards.cs</LastGenOutput>
@@ -19,6 +23,10 @@
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Helpers\" />
   </ItemGroup>
 
 </Project>

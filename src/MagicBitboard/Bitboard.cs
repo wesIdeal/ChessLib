@@ -1,9 +1,9 @@
-﻿using MagicBitboard.Enums;
+﻿using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveInitializers;
+using ChessLib.Data.Types;
 using MagicBitboard.Helpers;
 using MagicBitboard.SlidingPieces;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 

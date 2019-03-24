@@ -1,5 +1,6 @@
-﻿using MagicBitboard;
-using MagicBitboard.Enums;
+﻿using ChessLib.Data.Helpers;
+using ChessLib.Data.Types;
+using MagicBitboard;
 using MagicBitboard.Helpers;
 using MagicBitboard.SlidingPieces;
 using System;
@@ -23,7 +24,7 @@ namespace Bitboard.Tests.ConsoleApp
             //WriteKnightAttacks();
             //WriteBishopAttacks();
             //WriteRookAttacks();
-            var gameInfo = FENHelpers.BoardInfoFromFen(FENHelpers.InitialFEN);
+            var gameInfo = BoardInfo.BoardInfoFromFen(FENHelpers.InitialFEN);
             var fen = gameInfo.FEN;
             Console.WriteLine($"{gameInfo.PiecesOnBoard[0][Piece.Queen.ToInt()].GetDisplayBits()}");
             Console.WriteLine($"Finished in {DateTime.Now.Subtract(dt).TotalMilliseconds} ms.");
