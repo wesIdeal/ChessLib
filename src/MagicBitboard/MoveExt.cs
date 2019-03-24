@@ -16,14 +16,23 @@ namespace MagicBitboard
     /// </remarks>
     public class MoveExt : System.IEquatable<MoveExt>
     {
-        public readonly ushort Move;
-
+        public ushort Move { get => _move; private set { _move = value; } }
+        public ushort _move;
         public MoveExt(ushort move) { Move = move; }
         public ushort DestinationIndex => MoveHelpers.DestinationIndex(Move);
         public ushort SourceIndex => MoveHelpers.SourceIndex(Move);
         public ulong DestinationValue => MoveHelpers.DestinationValue(Move);
         public ulong SourceValue => MoveHelpers.SourceValue(Move);
-        public MoveType MoveType => MoveHelpers.GetMoveType(Move);
+        public MoveType MoveType
+        {
+            get { return MoveHelpers.GetMoveType(Move); }
+            internal set
+            {
+                ushort mt = (ushort)((ushort)value << 14);
+                Move &= 0x1fff;
+                Move |= mt;
+            }
+        }
         public PromotionPiece PromotionPiece => MoveHelpers.GetPiecePromoted(Move);
         public List<MoveExt> Variations;
 

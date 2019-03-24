@@ -12,16 +12,13 @@ namespace MagicBitboard
     public static class Bitboard
     {
 
-        public static readonly MovePatternStorage Bishop;
-        public static readonly MovePatternStorage Rook;
+        public static readonly MovePatternStorage Bishop = new MovePatternStorage();
+        public static readonly MovePatternStorage Rook = new MovePatternStorage();
 
         static Bitboard()
         {
-            Bishop = new MovePatternStorage();
             Bishop.Initialize(PieceAttackPatternHelper.BishopAttackMask, new BishopMovesInitializer());
-            Rook = new MovePatternStorage();
             Rook.Initialize(PieceAttackPatternHelper.RookAttackMask, new RookMovesInitializer());
-
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

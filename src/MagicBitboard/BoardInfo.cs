@@ -41,7 +41,12 @@ namespace MagicBitboard
         public void ApplyMove(string moveText)
         {
             MoveExt move = GenerateMoveFromText(moveText);
+            ApplyMove(move);
+        }
 
+        protected void ApplyMove(MoveExt move)
+        {
+            ValidateMove(move);
         }
 
         public MoveExt GenerateMoveFromText(string moveText)
@@ -49,28 +54,14 @@ namespace MagicBitboard
             var md = MoveHelpers.GetAvailableMoveDetails(moveText, ActivePlayer);
             if (!md.SourceFile.HasValue || !md.SourceRank.HasValue)
             {
-                var sourceIndex = FindPieceSource(md);
+                var sourceIndex = FindPieceSourceIndex(md);
             }
-            if (md.MoveType == MoveType.Promotion)
-            {
-
-            }
-            bool isValid = true;
-
-            switch (ActivePlayer)
-            {
-                case Color.Black:
-                    break;
-                case Color.White:
-                    break;
-            }
-
-            return new MoveExt(0);
+            var moveExt = MoveHelpers.GenerateMove(md.SourceIndex.Value, md.DestinationIndex.Value, md.MoveType, md.PromotionPiece ?? 0);
+            return moveExt;
         }
 
-        private ushort FindPieceSource(MoveDetail md)
+        private ushort FindPieceSourceIndex(MoveDetail md)
         {
-
             switch (md.Piece)
             {
                 case Piece.Pawn:
@@ -89,11 +80,9 @@ namespace MagicBitboard
                 case Piece.Queen:
                     return FindQueenMoveSourceIndex(md);
                 case Piece.King:
-
-                    break;
-
+                    return FindKingMoveSourceIndex(md);
+                default: throw new MoveException("Invalid piece specified for move.");
             }
-            return 0;
         }
 
         public ushort FindKingMoveSourceIndex(MoveDetail md)
@@ -105,7 +94,7 @@ namespace MagicBitboard
             return sourceSquare.Value;
         }
 
-        private ushort? FindPieceMoveSourceIndex(ushort destinationIndes, ulong pieceMoveMask, ulong pieceOccupancy)
+        private static ushort? FindPieceMoveSourceIndex(ushort destinationIndes, ulong pieceMoveMask, ulong pieceOccupancy)
         {
             ulong sourceSquares = 0;
             if ((sourceSquares = pieceMoveMask & pieceOccupancy) == 0) return null;
@@ -158,8 +147,8 @@ namespace MagicBitboard
 
         public ushort FindPawnMoveSourceIndex(MoveDetail md, ulong? relevantPieceOccupancy = null)
         {
-            var file = md.DestFile;
-            var rank = md.Color == Color.Black ? md.DestRank.Value.RankCompliment() : md.DestRank;
+            var file = md.DestinationFile;
+            var rank = md.Color == Color.Black ? md.DestinationRank.Value.RankCompliment() : md.DestinationRank;
             ushort sourceIndex = 0;
             if (!relevantPieceOccupancy.HasValue) relevantPieceOccupancy = ActivePieceOccupancy[(int)Piece.Pawn];
             var adjustedRelevantPieceOccupancy = md.Color == Color.Black ? relevantPieceOccupancy.Value.FlipVertically() : relevantPieceOccupancy;
@@ -173,18 +162,19 @@ namespace MagicBitboard
             }
             else //else source square was destination + 8, but we need to make sure a pawn was there
             {
-                var supposedIndex = BoardHelpers.RankAndFileToIndex(md.Color == Color.Black ? supposedRank.RankCompliment() : supposedRank, md.DestFile.Value);
+                var supposedIndex = BoardHelpers.RankAndFileToIndex(md.Color == Color.Black ? supposedRank.RankCompliment() : supposedRank, md.DestinationFile.Value);
                 if (supposedRank == 0) { throw new MoveException($"{md.MoveText}: Cannot possibly be a pawn at the source square {supposedIndex.IndexToSquareDisplay()} implied by move."); }
-                sourceIndex = (ushort)((supposedRank * 8) + md.DestFile.Value);
+                sourceIndex = (ushort)((supposedRank * 8) + md.DestinationFile.Value);
             }
 
             var idx = md.Color == Color.Black ? sourceIndex.FlipIndexVertically() : sourceIndex;
             ValidatePawnMove(md.Color, idx, md.DestinationIndex.Value, relevantPieceOccupancy.Value, TotalOccupancy, md.MoveText);
             return idx;
         }
+
         public static void ValidatePawnMove(Color c, ushort sourceIndex, ushort destinationIndex, ulong pawnOccupancy, ulong boardOccupancy, string moveText = "")
         {
-            moveText = moveText != "" ? moveText + ": " : "";
+            moveText = !string.IsNullOrEmpty(moveText) ? moveText + ": " : "";
             var sourceValue = sourceIndex.IndexToValue();
             var isCapture = sourceIndex.FileFromIdx() != destinationIndex.FileFromIdx();
             var destValue = destinationIndex.IndexToValue();
@@ -196,7 +186,6 @@ namespace MagicBitboard
             var pawnMoves = isCapture ? PieceAttackPatternHelper.PawnAttackMask[(int)c][sourceIndex] : PieceAttackPatternHelper.PawnMoveMask[(int)c][sourceIndex];
             if ((pawnMoves & destValue) == 0)
             {
-
                 throw new MoveException($"{moveText}Pawn from {sourceIndex.IndexToSquareDisplay()} to {destinationIndex.IndexToSquareDisplay()} is illegal.");
             }
 
@@ -214,6 +203,7 @@ namespace MagicBitboard
             }
 
         }
+
         public Piece GetActivePieceByValue(ulong pieceInSquareValue)
         {
             for (Piece p = 0; p < Piece.King; p++)
@@ -223,15 +213,14 @@ namespace MagicBitboard
             throw new MoveException("No piece found with the specified value.");
         }
 
-        private void ApplyMove(MoveExt move)
-        {
-            ValidateMove(move);
-        }
+
 
         public void ValidateMove(MoveExt move)
         {
             var pieceMoving = GetActivePieceByValue(move.SourceValue);
             var isCapture = (OpponentTotalOccupancy & move.DestinationValue) != 0;
+            ValidateSourceIsNonVacant(move);
+            ValidateDestinationIsNotOccupiedByActiveColor(move);
 
             switch (move.MoveType)
             {
@@ -242,6 +231,38 @@ namespace MagicBitboard
             }
         }
 
+        private void ValidateDestinationIsNotOccupiedByActiveColor(MoveExt move)
+        {
+            if ((ActiveTotalOccupancy & move.DestinationValue) != 0)
+            {
+                //Could be castling move
+                var pFrom = PieceOnSquare(move.SourceValue);
+                var pTo = PieceOnSquare(move.DestinationValue);
+                if (pFrom != Piece.King && pTo != Piece.Rook)
+                    throw new MoveException("Move destination is occupied by the active player's color.", move, ActivePlayer);
+                else
+                    move.MoveType = MoveType.Castle;
+            }
+
+        }
+
+        private void ValidateSourceIsNonVacant(MoveExt move)
+        {
+            if ((ActiveTotalOccupancy & move.SourceValue) == 0) throw new MoveException("Move source square is vacant.", move, ActivePlayer);
+        }
+
+        public Piece? PieceOnSquare(ulong squareValue)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                foreach (var p in (Piece[])Enum.GetValues(typeof(Piece)))
+                {
+                    var nP = (int)p;
+                    if ((PiecesOnBoard[i][nP] & squareValue) != 0) return p;
+                }
+            }
+            return null;
+        }
         //private string ValidateChecks() => ValidateChecks(PiecesOnBoard);
         public ulong[] ActivePieceOccupancy => PiecesOnBoard[(int)ActivePlayer];
         public ulong[] OpponentPieceOccupancy => PiecesOnBoard[(int)ActivePlayer.Toggle()];

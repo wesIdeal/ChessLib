@@ -24,8 +24,8 @@ namespace MagicBitboard.Helpers.Tests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            var dtStart = DateTime.Now;
-            var totalMs = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
+            DateTime dtStart = DateTime.Now;
+            double totalMs = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
             Console.WriteLine($"Bitboard made in {totalMs} ms");
         }
         [SetUp]
@@ -37,43 +37,43 @@ namespace MagicBitboard.Helpers.Tests
         [Test]
         public void Should_Return_True_When_d5_Is_Attacked()
         {
-            var d5 = BoardHelpers.SquareTextToIndex("d5");
-            var isAttacked = biScandi.IsAttackedBy(MagicBitboard.Enums.Color.White, d5.Value);
+            ushort? d5 = BoardHelpers.SquareTextToIndex("d5");
+            bool isAttacked = biScandi.IsAttackedBy(MagicBitboard.Enums.Color.White, d5.Value);
             Assert.IsTrue(isAttacked);
         }
 
         [Test]
         public void Should_Return_True_When_d5_Is_Attacked_2()
         {
-            var gi = new GameInfo(fenQueenIsBlockedFromAttackingd4);
-            var d5 = BoardHelpers.SquareTextToIndex("d5");
-            var isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d5.Value);
+            GameInfo gi = new GameInfo(fenQueenIsBlockedFromAttackingd4);
+            ushort? d5 = BoardHelpers.SquareTextToIndex("d5");
+            bool isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d5.Value);
             Assert.IsTrue(isAttacked);
         }
 
         [Test]
         public void Should_Return_False_When_d4_Is_Not_Attacked()
         {
-            var d4 = BoardHelpers.SquareTextToIndex("d4");
-            var isAttacked = biScandi.IsAttackedBy(MagicBitboard.Enums.Color.White, d4.Value);
+            ushort? d4 = BoardHelpers.SquareTextToIndex("d4");
+            bool isAttacked = biScandi.IsAttackedBy(MagicBitboard.Enums.Color.White, d4.Value);
             Assert.IsFalse(isAttacked);
         }
 
         [Test]
         public void Should_Return_False_When_d4_Is_Not_Attacked_2()
         {
-            var gi = new GameInfo(fenQueenIsBlockedFromAttackingd4);
-            var d4 = BoardHelpers.SquareTextToIndex("d4");
-            var isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d4.Value);
+            GameInfo gi = new GameInfo(fenQueenIsBlockedFromAttackingd4);
+            ushort? d4 = BoardHelpers.SquareTextToIndex("d4");
+            bool isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d4.Value);
             Assert.IsFalse(isAttacked);
         }
 
         [Test]
         public void Should_Return_True_When_d4_Is_Attacked()
         {
-            var gi = new GameInfo(fenQueenAttacksd4);
-            var d4 = BoardHelpers.SquareTextToIndex("d4");
-            var isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d4.Value);
+            GameInfo gi = new GameInfo(fenQueenAttacksd4);
+            ushort? d4 = BoardHelpers.SquareTextToIndex("d4");
+            bool isAttacked = gi.BoardInfo.IsAttackedBy(MagicBitboard.Enums.Color.Black, d4.Value);
             Assert.IsTrue(isAttacked);
         }
 
@@ -103,8 +103,8 @@ namespace MagicBitboard.Helpers.Tests
         [Test]
         public void ShouldFailWhenNoPawnIsIncapableOfPromotion()
         {
-            var fen = "8/PPPP1PPP/8/2k5/8/2K5/pppp1ppp/8 w - - 0 1";
-            var bi = FENHelpers.BoardInfoFromFen(fen);
+            string fen = "8/PPPP1PPP/8/2k5/8/2K5/pppp1ppp/8 w - - 0 1";
+            BoardInfo bi = FENHelpers.BoardInfoFromFen(fen);
             Assert.Throws(typeof(MoveException), () =>
             {
                 bi.ActivePlayer = Color.White;
@@ -120,8 +120,8 @@ namespace MagicBitboard.Helpers.Tests
         [Test]
         public void ShouldFailWhenAPieceBlocksPromotion()
         {
-            var fen = "4q3/PPPPPPPP/8/2k5/8/2K5/pppppppp/4Q3 w - - 0 1";
-            var bi = FENHelpers.BoardInfoFromFen(fen);
+            string fen = "4q3/PPPPPPPP/8/2k5/8/2K5/pppppppp/4Q3 w - - 0 1";
+            BoardInfo bi = FENHelpers.BoardInfoFromFen(fen);
             Assert.Throws(typeof(MoveException), () =>
             {
                 bi.ActivePlayer = Color.White;
@@ -139,16 +139,16 @@ namespace MagicBitboard.Helpers.Tests
         {
             const ulong blackPawnOcc = 0xff000000000000;
             const ulong whitePawnOcc = 0x0000000000ff00;
-            var boardInfo = new GameInfo().BoardInfo;
-            var md = new MoveDetail();
+            BoardInfo boardInfo = new GameInfo().BoardInfo;
+            MoveDetail md = new MoveDetail();
             md.Color = Color.Black;
             for (ushort destIndex = 40; destIndex >= 32; destIndex--)
             {
                 md.MoveText = destIndex.IndexToSquareDisplay();
-                md.DestFile = (ushort)(destIndex % 8);
-                md.DestRank = (ushort)(destIndex / 8);
-                var expectedSource = 48 + destIndex.FileFromIdx();
-                var actual = boardInfo.FindPawnMoveSourceIndex(md, blackPawnOcc);
+                md.DestinationFile = (ushort)(destIndex % 8);
+                md.DestinationRank = (ushort)(destIndex / 8);
+                int expectedSource = 48 + destIndex.FileFromIdx();
+                ushort actual = boardInfo.FindPawnMoveSourceIndex(md, blackPawnOcc);
                 Assert.AreEqual(expectedSource, actual);
             }
             md.Color = Color.White;
@@ -156,10 +156,10 @@ namespace MagicBitboard.Helpers.Tests
             for (ushort destIndex = 31; destIndex >= 16; destIndex--)
             {
                 md.MoveText = destIndex.IndexToSquareDisplay();
-                md.DestFile = (ushort)(destIndex % 8);
-                md.DestRank = (ushort)(destIndex / 8);
-                var expectedSource = 8 + destIndex.FileFromIdx();
-                var actual = boardInfo.FindPawnMoveSourceIndex(md, whitePawnOcc);
+                md.DestinationFile = (ushort)(destIndex % 8);
+                md.DestinationRank = (ushort)(destIndex / 8);
+                int expectedSource = 8 + destIndex.FileFromIdx();
+                ushort actual = boardInfo.FindPawnMoveSourceIndex(md, whitePawnOcc);
                 Assert.AreEqual(expectedSource, actual);
             }
         }
@@ -170,20 +170,20 @@ namespace MagicBitboard.Helpers.Tests
             const ulong cOccupancyBothRanks = 0x1010000;
             const ulong cOccupancy3rdRank = 0x10000;
 
-            var bi = new GameInfo().BoardInfo;
+            BoardInfo bi = new GameInfo().BoardInfo;
             ulong occBoth, occ3, occ4;
-            var md = new MoveDetail { SourceRank = 1, Color = Color.White };
+            MoveDetail md = new MoveDetail { SourceRank = 1, Color = Color.White };
             ushort pawnSourceIndex = 8;
             for (ushort idx = 16; idx < 23; idx++)
             {
-                md.DestFile = (ushort)(idx.FileFromIdx());
-                md.DestRank = (ushort)idx.RankFromIdx();
+                md.DestinationFile = (ushort)(idx.FileFromIdx());
+                md.DestinationRank = (ushort)idx.RankFromIdx();
                 occBoth = (cOccupancyBothRanks << (pawnSourceIndex - 8));
                 occ3 = cOccupancy3rdRank << (pawnSourceIndex - 8);
                 occ4 = occ3 << 8;
 
-                var pawnOcc = BoardHelpers.RankMasks[1];
-                var destinationIndex = (ushort)(pawnSourceIndex + (ushort)8);
+                ulong pawnOcc = BoardHelpers.RankMasks[1];
+                ushort destinationIndex = (ushort)(pawnSourceIndex + (ushort)8);
                 Assert.Throws(typeof(MoveException), () => { BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc, occBoth | pawnOcc); });
                 Assert.Throws(typeof(MoveException), () => { BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc, occ3 | pawnOcc); });
                 if (pawnSourceIndex >= 16)
@@ -199,20 +199,16 @@ namespace MagicBitboard.Helpers.Tests
         [Test]
         public void ShouldThrowExcIfNoPieceAvailableForCapture()
         {
-            const ulong cOccupancyBothRanks = 0x1010000;
-            const ulong cOccupancy3rdRank = 0x10000;
 
-            var bi = new GameInfo().BoardInfo;
-            ulong occBoth, occ3, occ4;
-            var md = new MoveDetail { SourceRank = 1, Color = Color.White };
-            ushort pawnSourceIndex = 8;
-            var pawnAttackBoards = PieceAttackPatternHelper.PawnAttackMask[(int)Color.White];
+            BoardInfo bi = new GameInfo().BoardInfo;
+            MoveDetail md = new MoveDetail { SourceRank = 1, Color = Color.White };
+            Board pawnAttackBoards = PieceAttackPatternHelper.PawnAttackMask[(int)Color.White];
             for (ushort idx = 8; idx < 16; idx++)
             {
-                var attackBoard = pawnAttackBoards[idx];
-                var notAttackBoard = ~attackBoard;
-                var attackSquare = attackBoard.GetSetBits()[0];
-                var pawnOccupancy = BoardHelpers.RankMasks[1];
+                ulong attackBoard = pawnAttackBoards[idx];
+                ulong notAttackBoard = ~attackBoard;
+                ushort attackSquare = attackBoard.GetSetBits()[0];
+                ulong pawnOccupancy = BoardHelpers.RankMasks[1];
                 Assert.Throws(typeof(MoveException),
                     () =>
                     {
@@ -229,98 +225,98 @@ namespace MagicBitboard.Helpers.Tests
         [Test]
         public void ShouldFindKnightMoveSource()
         {
-            var bi = new GameInfo().BoardInfo;
-            var md = new MoveDetail(null, null, 2, 5, Piece.Knight, Color.White, "Nf3");
-            var actual = bi.FindKnightMoveSourceIndex(md);
+            BoardInfo bi = new GameInfo().BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 2, 5, Piece.Knight, Color.White, "Nf3");
+            ushort actual = bi.FindKnightMoveSourceIndex(md);
             Assert.AreEqual(6, actual);
         }
 
         [Test]
         public void ShouldThrowExceptionWhenNoKnightAttacksSquare()
         {
-            var bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PNP5/1P2NPPP/R2QKB1R w KQkq - 1 5").BoardInfo;
-            var md = new MoveDetail(null, null, 3, 4, Piece.Knight, Color.White, "Ne4");
+            BoardInfo bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PNP5/1P2NPPP/R2QKB1R w KQkq - 1 5").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 3, 4, Piece.Knight, Color.White, "Ne4");
             Assert.Throws(typeof(MoveException), () => { bi.FindKnightMoveSourceIndex(md); });
         }
 
         [Test]
         public void ShouldThrowExceptionWhenTwoKnightsAttackSquare()
         {
-            var bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PNP5/1P2NPPP/R2QKB1R w KQkq - 1 5").BoardInfo;
-            var md = new MoveDetail(null, null, 5, 0, Piece.Knight, Color.White, "Nxd4");
+            BoardInfo bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PNP5/1P2NPPP/R2QKB1R w KQkq - 1 5").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 5, 0, Piece.Knight, Color.White, "Nxd4");
             Assert.Throws(typeof(MoveException), () => { bi.FindKnightMoveSourceIndex(md); });
         }
 
         [Test]
         public void ShouldFindBishopMoveSource()
         {
-            var bi = new GameInfo("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2").BoardInfo;
-            var md = new MoveDetail(null, null, 3, 2, Piece.Bishop, Color.White, "Bc4");
-            var actual = bi.FindBishopMoveSourceIndex(md);
+            BoardInfo bi = new GameInfo("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 3, 2, Piece.Bishop, Color.White, "Bc4");
+            ushort actual = bi.FindBishopMoveSourceIndex(md);
             Assert.AreEqual(5, actual);
         }
 
         [Test]
         public void ShouldThrowExceptionWhenNoBishopAttacksSquare()
         {
-            var bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1qp5/3PP3/P1P5/1P3PPP/RNBQKBNR w KQkq - 1 5").BoardInfo;
-            var md = new MoveDetail(null, null, 5, 0, Piece.Bishop, Color.White, "Ba6");
+            BoardInfo bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1qp5/3PP3/P1P5/1P3PPP/RNBQKBNR w KQkq - 1 5").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 5, 0, Piece.Bishop, Color.White, "Ba6");
             Assert.Throws(typeof(MoveException), () => { bi.FindBishopMoveSourceIndex(md); });
         }
 
         [Test]
         public void ShouldThrowExceptionWhenTwoBishopsAttackSquare()
         {
-            var bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PBP5/1P3PPP/RN1QKBNR w KQkq - 1 5").BoardInfo;
-            var md = new MoveDetail(null, null, 3, 2, Piece.Bishop, Color.White, "Bc4");
+            BoardInfo bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PBP5/1P3PPP/RN1QKBNR w KQkq - 1 5").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 3, 2, Piece.Bishop, Color.White, "Bc4");
             Assert.Throws(typeof(MoveException), () => { bi.FindBishopMoveSourceIndex(md); });
         }
 
         [Test]
         public void ShouldFindRookMoveSource()
         {
-            var bi = new GameInfo("4k3/8/8/8/8/8/8/R1qbK3 w - - 0 1").BoardInfo;
-            var md = new MoveDetail(null, null, 7, 0, Piece.Rook, Color.White, "Ra8+");
+            BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/R1qbK3 w - - 0 1").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 7, 0, Piece.Rook, Color.White, "Ra8+");
             Assert.AreEqual(0, bi.FindRookMoveSourceIndex(md));
         }
 
         [Test]
         public void ShouldThrowExceptionWhenNoRookAttacksSquare()
         {
-            var bi = new GameInfo("4k3/8/8/8/8/8/8/R1qbK3 w - - 0 1").BoardInfo;
-            var md = new MoveDetail(null, null, 0, 3, Piece.Rook, Color.White, "Rxd1");
+            BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/R1qbK3 w - - 0 1").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 0, 3, Piece.Rook, Color.White, "Rxd1");
             Assert.Throws(typeof(MoveException), () => { bi.FindRookMoveSourceIndex(md); });
         }
 
         [Test]
         public void ShouldThrowExceptionWhenTwoRooksAttackSquare()
         {
-            var bi = new GameInfo("4k3/8/8/8/8/8/2R5/R1qbK3 w - - 0 1").BoardInfo;
-            var md = new MoveDetail(null, null, 0, 2, Piece.Rook, Color.White, "Rxd1");
+            BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/2R5/R1qbK3 w - - 0 1").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 0, 2, Piece.Rook, Color.White, "Rxd1");
             Assert.Throws(typeof(MoveException), () => { bi.FindRookMoveSourceIndex(md); });
         }
 
         [Test]
         public void ShouldFindQueenMoveSource()
         {
-            var bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
-            var md = new MoveDetail(null, null, 7, 0, Piece.Queen, Color.White, "Qa8+");
+            BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 7, 0, Piece.Queen, Color.White, "Qa8+");
             Assert.AreEqual(0, bi.FindQueenMoveSourceIndex(md));
         }
 
         [Test]
         public void ShouldThrowExceptionWhenNoQueenAttacksSquare()
         {
-            var bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
-            var md = new MoveDetail(null, null, 0, 3, Piece.Queen, Color.White, "Qxd1");
+            BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 0, 3, Piece.Queen, Color.White, "Qxd1");
             Assert.Throws(typeof(MoveException), () => { bi.FindQueenMoveSourceIndex(md); });
         }
 
         [Test]
         public void ShouldThrowExceptionWhenTwoQueensAttackSquare()
         {
-            var bi = new GameInfo("4k3/8/8/8/8/8/2Q5/Q1qbK3 w - - 0 1").BoardInfo;
-            var md = new MoveDetail(null, null, 0, 2, Piece.Queen, Color.White, "Qxc1");
+            BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/2Q5/Q1qbK3 w - - 0 1").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 0, 2, Piece.Queen, Color.White, "Qxc1");
             Assert.Throws(typeof(MoveException), () => { bi.FindQueenMoveSourceIndex(md); });
         }
 
@@ -328,16 +324,16 @@ namespace MagicBitboard.Helpers.Tests
         [Test]
         public void ShouldFindKingMoveSource()
         {
-            var bi = new GameInfo("4k3/8/8/8/8/8/8/4K3 w - - 0 1").BoardInfo;
-            var md = new MoveDetail(null, null, 0, 3, Piece.King, Color.White, "Kd1");
+            BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/4K3 w - - 0 1").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 0, 3, Piece.King, Color.White, "Kd1");
             Assert.AreEqual(4, bi.FindKingMoveSourceIndex(md));
         }
 
         [Test]
         public void ShouldThrowExceptionWhenNoKingAttacksSquare()
         {
-            var bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
-            var md = new MoveDetail(null, null, 0, 2, Piece.King, Color.White, "Kc1");
+            BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
+            MoveDetail md = new MoveDetail(null, null, 0, 2, Piece.King, Color.White, "Kc1");
             Assert.Throws(typeof(MoveException), () => { bi.FindKingMoveSourceIndex(md); });
         }
 

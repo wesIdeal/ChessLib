@@ -147,7 +147,7 @@ namespace MagicBitboard.Helpers.Tests
                 {
                     var move = string.Format(fmt, piece);
                     var actual = GetAvailableMoveDetails(move, Color.White);
-                    Assert.AreEqual(4, actual.DestFile);
+                    Assert.AreEqual(4, actual.DestinationFile);
                     ValidateHasDestInfo(actual, move);
                     if (fmt.Contains('x'))
                     {
@@ -168,7 +168,7 @@ namespace MagicBitboard.Helpers.Tests
                 {
                     var move = string.Format(fmt, piece);
                     var actual = GetAvailableMoveDetails(move, Color.White);
-                    Assert.AreEqual(3, actual.DestRank);
+                    Assert.AreEqual(3, actual.DestinationRank);
                     ValidateHasDestInfo(actual, move);
                     if (fmt.Contains('x'))
                     {
@@ -202,8 +202,8 @@ namespace MagicBitboard.Helpers.Tests
         
         public void ValidateHasDestInfo(MoveDetail m, string moveText)
         {
-            Assert.IsNotNull(m.DestRank, $"Destination rank should be specified for move {moveText}");
-            Assert.IsNotNull(m.DestFile, $"Destination file should be specified for move {moveText}");
+            Assert.IsNotNull(m.DestinationRank, $"Destination rank should be specified for move {moveText}");
+            Assert.IsNotNull(m.DestinationFile, $"Destination file should be specified for move {moveText}");
 
         }
     }

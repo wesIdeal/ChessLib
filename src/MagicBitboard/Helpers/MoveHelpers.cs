@@ -46,8 +46,8 @@ namespace MagicBitboard.Helpers
             match = Regex.Match(move, rxMoveDetails);
             md.SourceFile = match.Groups["sourceFile"].Success ? (ushort)(match.Groups["sourceFile"].Value[0] - 'a') : (ushort?)null;
             md.SourceRank = match.Groups["sourceRank"].Success ? (ushort)(ushort.Parse(match.Groups["sourceRank"].Value) - 1) : (ushort?)null;
-            md.DestFile = match.Groups["destinationFile"].Success ? (ushort)(match.Groups["destinationFile"].Value[0] - 'a') : (ushort?)null;
-            md.DestRank = match.Groups["destinationRank"].Success ? (ushort)(ushort.Parse((match.Groups["destinationRank"].Value)) - 1) : (ushort?)null;
+            md.DestinationFile = match.Groups["destinationFile"].Success ? (ushort)(match.Groups["destinationFile"].Value[0] - 'a') : (ushort?)null;
+            md.DestinationRank = match.Groups["destinationRank"].Success ? (ushort)(ushort.Parse((match.Groups["destinationRank"].Value)) - 1) : (ushort?)null;
             md.IsCapture = match.Groups["capture"].Success;
             if ((promotionMatch = Regex.Match(move, rxPromotion)).Success)
             {
@@ -56,7 +56,7 @@ namespace MagicBitboard.Helpers
                 md.PromotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionMatch.Groups["promotionPiece"].Value[0]);
                 if (!md.IsCapture)
                 {
-                    md.DestFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
+                    md.DestinationFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
                 }
                 return md;
             }
@@ -65,26 +65,26 @@ namespace MagicBitboard.Helpers
                 md.Piece = Piece.King;
                 md.MoveType = MoveType.Castle;
                 md.SourceFile = 4;
-                md.DestRank = md.SourceRank = (ushort)(color == Color.Black ? 7 : 0);
-                if (castleMatch.Groups[rxCastleLongGroup].Success) { md.DestFile = 2; }
-                else { md.DestFile = 6; }
+                md.DestinationRank = md.SourceRank = (ushort)(color == Color.Black ? 7 : 0);
+                if (castleMatch.Groups[rxCastleLongGroup].Success) { md.DestinationFile = 2; }
+                else { md.DestinationFile = 6; }
                 return md;
             }
 
             if (match.Groups["pawnFile"].Success)
             {
                 md.Piece = Piece.Pawn;
-                md.DestFile = match.Groups["pawnFile"].Success ? (ushort)(match.Groups["pawnFile"].Value[0] - 'a') : (ushort?)null;
+                md.DestinationFile = match.Groups["pawnFile"].Success ? (ushort)(match.Groups["pawnFile"].Value[0] - 'a') : (ushort?)null;
                 if (md.IsCapture)
                 {
                     md.SourceFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
                     if (color == Color.Black)
                     {
-                        md.SourceRank = (ushort)(md.DestRank.Value + 1);
+                        md.SourceRank = (ushort)(md.DestinationRank.Value + 1);
                     }
                     else
                     {
-                        md.SourceRank = (ushort)(md.DestRank.Value - 1);
+                        md.SourceRank = (ushort)(md.DestinationRank.Value - 1);
                     }
                 }
             }
