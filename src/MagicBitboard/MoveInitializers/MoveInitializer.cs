@@ -216,11 +216,11 @@ namespace MagicBitboard
             return GetAllPermutations(setBitIndices, 0, 0).Distinct();
         }
 
-        private static IEnumerable<ulong> GetAllPermutations(int[] SetBits, int Index, ulong Value)
+        private static IEnumerable<ulong> GetAllPermutations(ushort[] SetBits, int idx, ulong Value)
         {
-            BitHelpers.SetBit(ref Value, SetBits[Index]);
+            BitHelpers.SetBit(ref Value, SetBits[idx]);
             yield return Value;
-            int index = Index + 1;
+            int index = idx + 1;
             if (index < SetBits.Count())
             {
                 using (IEnumerator<ulong> occupancyPermutations = GetAllPermutations(SetBits, index, Value).GetEnumerator())
@@ -231,7 +231,7 @@ namespace MagicBitboard
                     }
                 }
             }
-            BitHelpers.ClearBit(ref Value, SetBits[Index]);
+            BitHelpers.ClearBit(ref Value, SetBits[idx]);
             yield return Value;
             if (index < SetBits.Count())
             {

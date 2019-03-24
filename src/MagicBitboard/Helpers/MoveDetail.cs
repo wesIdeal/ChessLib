@@ -12,16 +12,18 @@ namespace MagicBitboard.Helpers
             {
             }
 
-            public MoveDetail(Color color, ushort? sourceFile, ushort? sourceRank, ushort? destFile, ushort? destRank, Piece piece, bool isCapture, MoveType moveType = MoveType.Normal, PromotionPiece? promotionPiece = null)
+            public MoveDetail(ushort? sourceFile, ushort? sourceRank, ushort? destFile, ushort? destRank, Piece piece, Color color, string moveText, bool isCapture = false, MoveType moveType = MoveType.Normal, PromotionPiece? promotionPiece = null)
             {
                 SourceFile = sourceFile;
                 SourceRank = sourceRank;
                 DestFile = destFile;
                 DestRank = destRank;
                 Piece = piece;
-                IsCapture = isCapture;
-                MoveType = moveType;
                 PromotionPiece = promotionPiece;
+                MoveType = moveType;
+                IsCapture = isCapture;
+                Color = color;
+                MoveText = moveText;
             }
 
             public ushort? SourceFile { get; set; }
@@ -33,7 +35,7 @@ namespace MagicBitboard.Helpers
             public MoveType MoveType { get; set; }
             public bool IsCapture { get; set; }
             public Color Color { get; set; }
-            public string MoveText { get;  set; }
+            public string MoveText { get; set; }
             public ushort? DestinationIndex
             {
                 get => DestFile.HasValue && DestRank.HasValue ? (ushort)(DestFile + (DestRank * 8)) : (ushort?)null;

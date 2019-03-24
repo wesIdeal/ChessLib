@@ -40,7 +40,7 @@ namespace MagicBitboard.Helpers
 
         public static MoveDetail GetAvailableMoveDetails(string move, Color color)
         {
-            MoveDetail md = new MoveDetail() { MoveText = move };
+            MoveDetail md = new MoveDetail() { MoveText = move, Color = color };
             if (move.Length < 2) throw new System.Exception("Invalid move.");
             Match match, promotionMatch, castleMatch;
             match = Regex.Match(move, rxMoveDetails);

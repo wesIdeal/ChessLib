@@ -211,7 +211,7 @@ namespace MagicBitboard.Helpers.Tests
             {
                 var attackBoard = pawnAttackBoards[idx];
                 var notAttackBoard = ~attackBoard;
-                var attackSquare = attackBoard.GetSetBitIndexes()[0];
+                var attackSquare = attackBoard.GetSetBits()[0];
                 var pawnOccupancy = BoardHelpers.RankMasks[1];
                 Assert.Throws(typeof(MoveException),
                     () =>

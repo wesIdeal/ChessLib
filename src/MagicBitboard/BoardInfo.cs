@@ -98,7 +98,7 @@ namespace MagicBitboard
             var occupancy = ActivePieceOccupancy[(int)Piece.Knight];
             var squares = possibleSquares & occupancy;
             if (squares == 0) throw new MoveException("No Knight can possible get to the specified destination.");
-            var indices = squares.GetSetBitIndexes();
+            var indices = squares.GetSetBits();
             if (indices.Count() > 1) throw new MoveException("More than one Knight can get to the specified square.");
             return indices[0];
         }
@@ -250,8 +250,8 @@ namespace MagicBitboard
             return "";
         }
 
-        public ushort ActivePlayerKingIndex => PiecesOnBoard[(int)ActivePlayer][Piece.King.ToInt()].GetSetBitIndexes()[0];
-        public ushort OpposingPlayerKingIndex => PiecesOnBoard[(int)ActivePlayer.Toggle()][Piece.King.ToInt()].GetSetBitIndexes()[0];
+        public ushort ActivePlayerKingIndex => (ushort)PiecesOnBoard[(int)ActivePlayer][Piece.King.ToInt()].GetSetBits()[0];
+        public ushort OpposingPlayerKingIndex => (ushort)PiecesOnBoard[(int)ActivePlayer.Toggle()][Piece.King.ToInt()].GetSetBits()[0];
 
         public void ValidatePromotion(Color color, ushort moveSourceIdx, ushort moveDestIdx)
         {

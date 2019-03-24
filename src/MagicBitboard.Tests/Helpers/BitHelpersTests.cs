@@ -13,8 +13,9 @@ namespace MagicBitboard.Helpers.Tests
             var count = 0;
             foreach (var sq in BoardHelpers.IndividualSquares)
             {
-                var idx = BitHelpers.GetSetBitIndexes(sq);
-                Assert.AreEqual(new ushort[] { (ushort)count }, idx);
+                var idx = BitHelpers.GetSetBits(sq);
+                Assert.AreEqual(count, idx[0]);
+                count++;
             }
         }
         [Test]
@@ -23,9 +24,9 @@ namespace MagicBitboard.Helpers.Tests
             var expectedR2 = new ushort[] { 8, 9, 10, 11, 12, 13, 14, 15 };
             var expectedR7 = new ushort[] { 48, 49, 50, 51, 52, 53, 54, 55 };
             var rank2Value = BoardHelpers.RankMasks[1];
-            var rank2SetBits = BitHelpers.GetSetBitIndexes(rank2Value);
+            var rank2SetBits = BitHelpers.GetSetBits(rank2Value);
             Assert.AreEqual(expectedR2, rank2SetBits);
-            Assert.AreEqual(expectedR7, BitHelpers.GetSetBitIndexes(BoardHelpers.RankMasks[6]));
+            Assert.AreEqual(expectedR7, BitHelpers.GetSetBits(BoardHelpers.RankMasks[6]));
 
         }
 
@@ -77,7 +78,7 @@ namespace MagicBitboard.Helpers.Tests
         public void IsBitSet()
         {
             ulong a = 0;
-            var bitIndexToSet = 32;
+            ushort bitIndexToSet = 32;
             BitHelpers.SetBit(ref a, bitIndexToSet);
             Assert.IsTrue(BitHelpers.IsBitSet(a, bitIndexToSet));
         }
