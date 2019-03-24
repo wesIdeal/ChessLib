@@ -1,10 +1,5 @@
-﻿// NUnit 3 tests
-// See documentation : https://github.com/nunit/docs/wiki/NUnit-Documentation
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using ChessLib.Parse.PGNPieces;
+﻿using System.IO;
+using ChessLib.Parse.PGN;
 using NUnit.Framework;
 
 namespace ChessLib.Parse.Tests

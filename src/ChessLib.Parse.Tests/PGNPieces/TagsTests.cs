@@ -6,19 +6,19 @@ using System.Text;
 namespace ChessLib.Parse.Tests.PGNPieces
 {
     [TestFixture]
-    public class TagsTests : ChessLib.Parse.PGNPieces.Tags
+    public class TagsTests : PGN.Tags
     {
 
         //#region Result Tests
         //[Test]
         //public void TestResultGetter_WhiteWins()
         //{
-            //var whiteWins = new string[] { "1-0", " 1-0", " 1-0 ", " 1 - 0", "    1-    0" };
-            //foreach (var ww in whiteWins)
-            //{
-            //    ResultValue = ww;
-            //    Assert.AreEqual(Result.WhiteWins, ResultObj);
-            //}
+        //    var whiteWins = new string[] { "1-0", " 1-0", " 1-0 ", " 1 - 0", "    1-    0" };
+        //    foreach (var ww in whiteWins)
+        //    {
+        //        ResultValue = ww;
+        //        Assert.AreEqual(Result.WhiteWins, ResultObj);
+        //    }
         //}
 
         //[Test]
@@ -72,7 +72,7 @@ namespace ChessLib.Parse.Tests.PGNPieces
         //    DateValue = "11/8/78";
         //    Assert.AreEqual(DateOfGame, new DateTime(1978, 11, 8));
         //    Assert.AreEqual("1978.11.08", DateValue);
-        //} 
+        //}
         //#endregion
     }
 }
