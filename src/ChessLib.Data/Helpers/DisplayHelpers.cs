@@ -189,6 +189,9 @@ namespace ChessLib.Data.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string IndexToSquareDisplay(this ushort i) => $"{i.IndexToFileDisplay()}{i.IndexToRankDisplay()}";
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string IndexToSquareDisplay(this int i) => $"{((ushort)i).IndexToFileDisplay()}{((ushort)i).IndexToRankDisplay()}";
+
 
         #region Html Strings
         const string htmlMain = @"<!DOCTYPE html>

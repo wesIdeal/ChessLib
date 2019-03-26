@@ -115,6 +115,56 @@ namespace ChessLib.Data.Helpers.Tests
                 Assert.AreEqual(0x4000000000000000, BoardHelpers.IndividualSquares[7, 6]);
                 Assert.AreEqual(0x8000000000000000, BoardHelpers.IndividualSquares[7, 7]);
             }
+
+            [Test]
+            public void InBetween_ShouldReturnCorrectValue_GivenA1H8()
+            {
+                var expected = 0x40201008040200;
+                var actual = BoardHelpers.InBetween(0, 63);
+                Assert.AreEqual(expected, actual, "Should return correct value for a1-h8");
+            }
+
+            [Test]
+            public void InBetween_ShouldReturnCorrectValue_GivenH8A1()
+            {
+                var expected = 0x40201008040200;
+                var actual = BoardHelpers.InBetween(63, 0);
+                Assert.AreEqual(expected, actual, "Should return correct value for h8-a1");
+            }
+
+            [Test]
+            public void InBetween_ShouldReturnZero_GivenTwoEWOneAnother()
+            {
+                var expected = (ulong)0x00;
+                var actual = BoardHelpers.InBetween(3, 4);
+                Assert.AreEqual(expected, actual, "Should not be any squares between squares E+W of ona another (d1-e1)");
+            }
+
+            [Test]
+            public void InBetween_ShouldReturnZero_GivenTwoNSOneAnother()
+            {
+                var expected = (ulong)0x00;
+                var actual = BoardHelpers.InBetween(1, 9);
+                Assert.AreEqual(expected, actual, "Should not be any squares between squares N+S of ona another (b1-b2)");
+            }
+
+            [Test]
+            public void InBetween_ShouldReturnCorrectValue_GivenRandomPositions()
+            {
+                var expected = (ulong)0x00;
+                var actual = BoardHelpers.InBetween(3, 8);
+                Assert.AreEqual(expected, actual, $"Should not be any squares between {3.IndexToSquareDisplay()}{8.IndexToSquareDisplay()}");
+
+                expected = 0x200;
+                actual = BoardHelpers.InBetween(16, 2);
+                Assert.AreEqual(expected, actual, $"Did not return correct value for in between {16.IndexToSquareDisplay()} - {2.IndexToSquareDisplay()}");
+
+                expected = 0x2040800000000;
+                actual = BoardHelpers.InBetween(28, 56);
+                Assert.AreEqual(expected, actual, $"Did not return correct value for in between {28.IndexToSquareDisplay()} - {56.IndexToSquareDisplay()}");
+
+            }
+
         }
 
     }

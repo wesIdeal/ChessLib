@@ -1,5 +1,7 @@
 ﻿
 
+using System;
+using System.Collections.Generic;
 using ChessLib.Data.MoveInitializers;
 using ChessLib.Data.Types;
 
@@ -43,6 +45,8 @@ namespace ChessLib.Data.Helpers
         }
 
     }
+
+
     public static class PieceAttackPatternHelper
     {
         public static readonly Board BishopMoveMask = new Board();
@@ -56,7 +60,7 @@ namespace ChessLib.Data.Helpers
         public static readonly ulong[,] KingBlockMask = new ulong[8, 8];
         public static readonly Board[] PawnAttackMask = new Board[2];
         public static readonly Board[] PawnMoveMask = new Board[2];
-
+        public static ulong[][][] SquaresBetween = new ulong[64][][];
 
         static PieceAttackPatternHelper()
         {
@@ -66,7 +70,9 @@ namespace ChessLib.Data.Helpers
             InitializeQueenAttacks();
             InitializePawnAttacksAndMoves();
             InitializeKingAttacks();
+            
         }
+      
 
         private static void InitializeKingAttacks()
         {

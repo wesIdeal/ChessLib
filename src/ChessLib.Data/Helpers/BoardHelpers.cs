@@ -11,34 +11,49 @@ namespace ChessLib.Data.Helpers
         public static readonly ulong[,] IndividualSquares = new ulong[8, 8];
         public static ulong[] FileMasks = new ulong[8];
         public static ulong[] RankMasks = new ulong[8];
-
-        public static ulong InBetween(ushort sq1, ushort sq2)
-        {
-            const long m1 = (-1);
-            const long a2a7 = (0x0001010101010100);
-            const long b2g7 = (0x0040201008040200);
-            const long h1b7 = (0x0002040810204080);
-            long btwn, line, rank, file;
-
-            btwn = (m1 << sq1) ^ (m1 << sq2);
-            file = (sq2 & 7) - (sq1 & 7);
-            rank = ((sq2 | 7) - sq1) >> 3;
-            line = ((file & 7) - 1) & a2a7; /* a2a7 if same file */
-            line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
-            line += (((rank - file) & 15) - 1) & b2g7; /* b2g7 if same diagonal */
-            line += (((rank + file) & 15) - 1) & h1b7; /* h1b7 if same antidiag */
-            line *= btwn & -btwn; /* mul acts like shift by smaller square */
-            return (ulong)(line & btwn);   /* return the bits on that line in-between */
-        }
-
-
+        private readonly static ulong[,] _inBetween = new ulong[64, 64];
 
         static BoardHelpers()
         {
             InitializeFileMasks();
             InitializRankMasks();
             InitializeIndividualSquares();
+            InitializeInBetween();
         }
+
+        public static void InitializeInBetween()
+        {
+            for (var f = 0; f < 64; f++)
+            {
+                for (var t = f; t < 64; t++)
+                {
+                    const long m1 = (-1);
+                    const long a2a7 = (0x0001010101010100);
+                    const long b2g7 = (0x0040201008040200);
+                    const long h1b7 = (0x0002040810204080);
+                    long btwn, line, rank, file;
+
+                    btwn = (m1 << f) ^ (m1 << t);
+                    file = (t & 7) - (f & 7);
+                    rank = ((t | 7) - f) >> 3;
+                    line = ((file & 7) - 1) & a2a7; /* a2a7 if same file */
+                    line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
+                    line += (((rank - file) & 15) - 1) & b2g7; /* b2g7 if same diagonal */
+                    line += (((rank + file) & 15) - 1) & h1b7; /* h1b7 if same antidiag */
+                    line *= btwn & -btwn; /* mul acts like shift by smaller square */
+                    _inBetween[f, t] = (ulong)(line & btwn);   /* return the bits on that line in-between */
+
+                }
+            }
+        }
+
+        public static ulong InBetween(int from, int to)
+        {
+            var square1 = Math.Min(from, to);
+            var square2 = Math.Max(from, to);
+            return _inBetween[square1, square2];
+        }
+
 
         #region Initialization
 
@@ -180,5 +195,27 @@ namespace ChessLib.Data.Helpers
             var rankCompliment = rank.RankCompliment();
             return (ushort)((rankCompliment * 8) + file);
         }
+
+        public static ulong RotateLeft(ulong x)
+        {
+            return FlipDiagA1H8(FlipVertically(x));
+        }
+
+        public static ulong FlipDiagA1H8(ulong x)
+        {
+            ulong t;
+            const ulong k1 = 0x5500550055005500;
+            const ulong k2 = 0x3333000033330000;
+            const ulong k4 = 0x0f0f0f0f00000000;
+            t = k4 & (x ^ (x << 28));
+            x ^= t ^ (t >> 28);
+            t = k2 & (x ^ (x << 14));
+            x ^= t ^ (t >> 14);
+            t = k1 & (x ^ (x << 7));
+            x ^= t ^ (t >> 7);
+            return x;
+        }
+
+
     }
 }
