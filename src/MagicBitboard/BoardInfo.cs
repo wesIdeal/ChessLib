@@ -16,6 +16,9 @@ namespace MagicBitboard
         public readonly bool Chess960 = false;
         public ushort? EnPassentIndex { get; private set; }
         MoveTree<MoveExt> MoveTree = new MoveTree<MoveExt>(null);
+        const int BISHOP = (int)Piece.Bishop;
+        const int ROOK = (int)Piece.Rook;
+        const int QUEEN = (int)Piece.Queen;
         private BoardInfo(bool chess960 = false)
         {
             Chess960 = chess960;
@@ -182,8 +185,11 @@ namespace MagicBitboard
         public ulong GetPinnedPieces()
         {
             ulong pinned = 0;
-            ulong bPinners = OpponentPieceOccupancy[(int)Piece.Bishop] & PieceAttackPatternHelper.BishopAttackMask[ActivePlayerKingIndex / 8, ActivePlayerKingIndex % 8];
-            ulong rPinners = OpponentPieceOccupancy[(int)Piece.Rook] & PieceAttackPatternHelper.RookAttackMask[ActivePlayerKingIndex / 8, ActivePlayerKingIndex % 8];
+            ulong xRayBishopAttacks = XRayBishopAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
+            ulong xRayRookAttacks = XRayRookAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
+            ulong bPinners = (OpponentPieceOccupancy[BISHOP] | OpponentPieceOccupancy[QUEEN]) & xRayBishopAttacks;
+            ulong rPinners = (OpponentPieceOccupancy[ROOK] | OpponentPieceOccupancy[QUEEN]) & xRayRookAttacks;
+
             var pinners = rPinners | bPinners;
 
             return pinned;
