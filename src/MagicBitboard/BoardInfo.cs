@@ -34,6 +34,12 @@ namespace MagicBitboard
             ValidateFields();
         }
 
+        /// <summary>
+        /// Creates a BoardInfo object given FEN notation.
+        /// </summary>
+        /// <param name="fen">string of FEN notation. <see cref="https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation"/></param>
+        /// <param name="chess960">[unused right now] Is this a chess960 position (possible non-standard starting position)</param>
+        /// <returns>A BoardInfo object representing the boardstate after parsing the FEN</returns>
         public static BoardInfo BoardInfoFromFen(string fen, bool chess960 = false)
         {
             FENHelpers.ValidateFENStructure(fen);
@@ -152,18 +158,25 @@ namespace MagicBitboard
             }
         }
 
-        public ulong XRayRookAttacks(ushort sqIndex, ulong blockers)
+        public static ulong XRayRookAttacks(ulong occupancy, ulong blockers, ushort squareIndex)
         {
-            var rookAttacksFromSquare = Bitboard.GetAttackedSquares(Piece.Rook, sqIndex, TotalOccupancy);
+            var rookAttacksFromSquare = Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, occupancy);
             blockers &= rookAttacksFromSquare;
-            return rookAttacksFromSquare ^ Bitboard.GetAttackedSquares(Piece.Rook, sqIndex, TotalOccupancy);
+            return rookAttacksFromSquare ^ Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, occupancy);
         }
 
-        public ulong XRayBishopAttacks(ushort sqIndex, ulong blockers)
+
+        public static ulong XRayBishopAttacks(ulong occupancy, ulong blockers, ushort squareIndex)
         {
-            var BishopAttacksFromSquare = Bitboard.GetAttackedSquares(Piece.Bishop, sqIndex, TotalOccupancy);
+            var BishopAttacksFromSquare = PieceAttackPatternHelper.BishopAttackMask[squareIndex];
             blockers &= BishopAttacksFromSquare;
-            return BishopAttacksFromSquare ^ Bitboard.GetAttackedSquares(Piece.Bishop, sqIndex, TotalOccupancy);
+            return BishopAttacksFromSquare ^ Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, occupancy);
+        }
+
+        public bool IsPiecePinned(ulong pieceValue)
+        {
+            var xRayFromBishop = XRayBishopAttacks(TotalOccupancy, OpponentPieceOccupancy[(int)Piece.Bishop], ActivePlayerKingIndex);
+            return false;
         }
 
         public ulong GetPinnedPieces()
@@ -172,7 +185,7 @@ namespace MagicBitboard
             ulong bPinners = OpponentPieceOccupancy[(int)Piece.Bishop] & PieceAttackPatternHelper.BishopAttackMask[ActivePlayerKingIndex / 8, ActivePlayerKingIndex % 8];
             ulong rPinners = OpponentPieceOccupancy[(int)Piece.Rook] & PieceAttackPatternHelper.RookAttackMask[ActivePlayerKingIndex / 8, ActivePlayerKingIndex % 8];
             var pinners = rPinners | bPinners;
-           
+
             return pinned;
         }
 

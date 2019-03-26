@@ -1,4 +1,5 @@
 ﻿using ChessLib.Data;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveInitializers;
 using ChessLib.Data.Types;
 using System;
@@ -17,6 +18,10 @@ namespace MagicBitboard.SlidingPieces
         public ulong[][] AttackArray = new ulong[64][];
         public MovePatternStorage() { }
 
+        public void Initialize(Board board, MoveInitializer moveInitializer)
+        {
+            InitializeFromOneDimensionalArray(board.MoveBoard, moveInitializer);
+        }
         public void Initialize(ulong[,] moves, MoveInitializer moveInitializer)
         {
             if (moves.Length > maxArraySize) throw new ArgumentException($"Cannot hold more than {maxArraySize} elements in Move Storage array.");

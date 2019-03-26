@@ -53,7 +53,7 @@ namespace ChessLib.Data.Helpers
         public static readonly Board RookMoveMask = new Board();
         public static readonly ulong[,] QueenMoveMask = new ulong[8, 8];
         public static readonly Board KnightAttackMask = new Board();
-        public static readonly ulong[,] BishopAttackMask = new ulong[8, 8];
+        public static readonly Board BishopAttackMask = new Board();
         public static readonly ulong[,] RookAttackMask = new ulong[8, 8];
         public static readonly ulong[,] QueenAttackMask = new ulong[8, 8];
         public static readonly ulong[,] KingMoveMask = new ulong[8, 8];
@@ -70,9 +70,9 @@ namespace ChessLib.Data.Helpers
             InitializeQueenAttacks();
             InitializePawnAttacksAndMoves();
             InitializeKingAttacks();
-            
+
         }
-      
+
 
         private static void InitializeKingAttacks()
         {
