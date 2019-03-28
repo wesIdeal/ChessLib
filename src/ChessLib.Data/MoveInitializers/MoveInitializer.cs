@@ -92,8 +92,6 @@ namespace ChessLib.Data.MoveInitializers
                 }
             }
             var totalMs = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
-
-            Console.WriteLine($"Finished MagicNumber calcs in {totalMs} ms.");
             return key;
         }
 

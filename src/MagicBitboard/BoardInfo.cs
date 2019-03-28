@@ -188,22 +188,17 @@ namespace MagicBitboard
             ulong xRayRookAttacks = XRayRookAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
             ulong bPinners = (OpponentPieceOccupancy[BISHOP] | OpponentPieceOccupancy[QUEEN]) & xRayBishopAttacks;
             ulong rPinners = (OpponentPieceOccupancy[ROOK] | OpponentPieceOccupancy[QUEEN]) & xRayRookAttacks;
-
-            while (bPinners != 0)
+            var pinners = rPinners | bPinners;
+            while (pinners != 0)
             {
-                var square = BitHelpers.BitScanForward(bPinners);
+                var square = BitHelpers.BitScanForward(pinners);
                 var squaresBetween = BoardHelpers.InBetween(square, ActivePlayerKingIndex);
-                pinned |= squaresBetween & ActiveTotalOccupancy;
-                bPinners &= bPinners - 1;
-
-            }
-
-            while (rPinners != 0)
-            {
-                var square = BitHelpers.BitScanForward(rPinners);
-                var squaresBetween = BoardHelpers.InBetween(square, ActivePlayerKingIndex);
-                pinned |= squaresBetween & ActiveTotalOccupancy;
-                rPinners &= rPinners - 1;
+                var piecesBetween = squaresBetween & ActiveTotalOccupancy;
+                if (piecesBetween.CountSetBits() == 1)
+                {
+                    pinned |= piecesBetween;
+                }
+                pinners &= pinners - 1;
 
             }
 
