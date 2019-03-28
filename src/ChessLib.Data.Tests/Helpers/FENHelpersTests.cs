@@ -94,8 +94,8 @@ namespace ChessLib.Data.Helpers.Tests
         const string ValidPiecePlacement = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
         const string ValidColor = "w";
         const string ValidCastling = "KQkq";
-        const string ValidEnPassent = "-";
-        const string ValidEnPassentSquare = "e6";
+        const string ValidEnPassant = "-";
+        const string ValidEnPassantSquare = "e6";
         const int ValidHalfMove = 0;
         const int ValidFullMove = 0;
         #endregion
@@ -107,9 +107,9 @@ namespace ChessLib.Data.Helpers.Tests
         #endregion
 
         #region Private Methods
-        private string GetFENFromProvidedFENPieceInfo(string piecePlacement, string activeColor, string castling, string enPassent, int halfMove, int fullMove)
+        private string GetFENFromProvidedFENPieceInfo(string piecePlacement, string activeColor, string castling, string enPassant, int halfMove, int fullMove)
         {
-            return string.Format(fenFormat, piecePlacement, activeColor, castling, enPassent, halfMove, fullMove);
+            return string.Format(fenFormat, piecePlacement, activeColor, castling, enPassant, halfMove, fullMove);
         }
 
         private FENException AssertThrowsFenException(ValidationDelegate validate, string fen, FENError errorTypeExpected = FENError.NULL, string assertMessage = "")
@@ -137,7 +137,7 @@ namespace ChessLib.Data.Helpers.Tests
             foreach (var c in DisallowedCastlingChars)
             {
                 Assert.AreEqual(FENError.CastlingUnrecognizedChar, FENHelpers.ValidateCastlingAvailabilityString(c.ToString()));
-                AssertThrowsFenException(MainValidation, GetFENFromProvidedFENPieceInfo(ValidPiecePlacement, ValidColor, c.ToString(), ValidEnPassent, 0, 0));
+                AssertThrowsFenException(MainValidation, GetFENFromProvidedFENPieceInfo(ValidPiecePlacement, ValidColor, c.ToString(), ValidEnPassant, 0, 0));
             }
             Console.WriteLine(message);
         }
@@ -154,26 +154,25 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void ValidateEnPassentSquare_ShouldThrowException_WhenEnPassentSqIsInvalid()
+        public void ValidateEnPassantSquare_ShouldThrowException_WhenEnPassantSqIsInvalid()
         {
-            Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("4e"));
-            Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("4"));
-            Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("e9"));
-            Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("i3"));
-            Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("z8"));
-            Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("--"));
-            Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("12"));
-            Assert.AreEqual(FENError.InvalidEnPassentSquare, FENHelpers.ValidateEnPassentSquare("ee"));
-            // AssertThrowsFenException(MainValidation, GetFENFromProvidedFENPieceInfo(ValidPiecePlacement, ValidColor, ValidCastling, "e9", 0, 0), FENError.InvalidEnPassentSquare);
+            Assert.AreEqual(FENError.InvalidEnPassantSquare, FENHelpers.ValidateEnPassantSquare("4e"));
+            Assert.AreEqual(FENError.InvalidEnPassantSquare, FENHelpers.ValidateEnPassantSquare("4"));
+            Assert.AreEqual(FENError.InvalidEnPassantSquare, FENHelpers.ValidateEnPassantSquare("e9"));
+            Assert.AreEqual(FENError.InvalidEnPassantSquare, FENHelpers.ValidateEnPassantSquare("i3"));
+            Assert.AreEqual(FENError.InvalidEnPassantSquare, FENHelpers.ValidateEnPassantSquare("z8"));
+            Assert.AreEqual(FENError.InvalidEnPassantSquare, FENHelpers.ValidateEnPassantSquare("--"));
+            Assert.AreEqual(FENError.InvalidEnPassantSquare, FENHelpers.ValidateEnPassantSquare("12"));
+            Assert.AreEqual(FENError.InvalidEnPassantSquare, FENHelpers.ValidateEnPassantSquare("ee"));
         }
 
         [Test]
-        public void ValidateEnPassentSquare_ShouldNotReturnError_GivenValidSquare()
+        public void ValidateEnPassantSquare_ShouldNotReturnError_GivenValidSquare()
         {
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassentSquare("e6"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassentSquare("a3"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassentSquare("h3"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassentSquare("-"));
+            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassantSquare("e6"));
+            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassantSquare("a3"));
+            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassantSquare("h3"));
+            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassantSquare("-"));
         }
 
         [Test]

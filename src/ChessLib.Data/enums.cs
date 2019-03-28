@@ -27,13 +27,13 @@ namespace ChessLib.Data.Types
     /// </summary>
     public enum MoveType
     {
-        Normal = 0, Promotion = 1, EnPassent = 2, Castle = 3
+        Normal = 0, Promotion = 1, EnPassant = 2, Castle = 3
     }
 
     /// <summary>
     /// Pieces/sections of a FEN. <seealso cref="https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation"/>
     /// </summary>
-    public enum FENPieces { PiecePlacement = 0, ActiveColor, CastlingAvailability, EnPassentSquare, HalfmoveClock, FullMoveCounter }
+    public enum FENPieces { PiecePlacement = 0, ActiveColor, CastlingAvailability, EnPassantSquare, HalfmoveClock, FullMoveCounter }
 
     [Flags]
     public enum MoveDirection
@@ -91,8 +91,8 @@ namespace ChessLib.Data.Types
         DoubleCheck = 16,
         [Description("Active side (side to move) is in check.")]
         OppositeCheck = 32,
-        [Description("Bad En Passent square in board setup.")]
-        BadEnPassent = 64,
+        [Description("Bad En Passant square in board setup.")]
+        BadEnPassant = 64,
         [Description("Bad Castle Information- White has no Rook on h1.")]
         WhiteCastleShort = 128,
         [Description("Bad Castle Information- Black has no Rook on h8.")]
@@ -136,7 +136,7 @@ namespace ChessLib.Data.Types
         HalfmoveClock = 256,
         [Description("Invalid Full Move Counter.")]
         FullMoveCounter = 512,
-        [Description("En Passent square is invalid. Must be 2 characters long and translate to a square on a chessboard. Ex. [file_letter][rank_number].")]
-        InvalidEnPassentSquare = 1024,
+        [Description("En Passant square is invalid. Must be 2 characters long and translate to a square on a chessboard. Ex. [file_letter][rank_number].")]
+        InvalidEnPassantSquare = 1024,
     }
 }

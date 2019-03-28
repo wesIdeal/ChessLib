@@ -87,10 +87,10 @@ namespace ChessLib.Data.Helpers
             return fenError;
         }
 
-        public static FENError ValidateEnPassentSquare(string v)
+        public static FENError ValidateEnPassantSquare(string v)
         {
             if (v == "-") return FENError.NULL;
-            const FENError error = FENError.InvalidEnPassentSquare;
+            const FENError error = FENError.InvalidEnPassantSquare;
             bool valid = true;
             if (v.Length != 2) return error;
             valid &= (char.IsLetter(v[0]) && char.IsLower(v[0]) && (v[0] >= 'a' && v[0] <= 'h'));
@@ -118,7 +118,7 @@ namespace ChessLib.Data.Helpers
             fenError |= ValidatePiecePlacement(fenPieces[(int)FENPieces.PiecePlacement]);
             fenError |= ValidateActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
             fenError |= ValidateCastlingAvailabilityString(fenPieces[(int)FENPieces.CastlingAvailability]);
-            fenError |= ValidateEnPassentSquare(fenPieces[(int)FENPieces.EnPassentSquare]);
+            fenError |= ValidateEnPassantSquare(fenPieces[(int)FENPieces.EnPassantSquare]);
             fenError |= ValidateHalfmoveClock(fenPieces[(int)FENPieces.HalfmoveClock]);
             fenError |= ValidateFullMoveCounter(fenPieces[(int)FENPieces.FullMoveCounter]);
             if (fenError != FENError.NULL)

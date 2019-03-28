@@ -85,7 +85,7 @@ namespace MagicBitboard.Helpers.Tests
             //        Assert.AreEqual(expected, MoveHelpers.GenerateMoveFromText(input, Color.White));
             //    }
             //}
-            //biEnPassent.ActivePlayer = Color.Black;
+            //biEnPassant.ActivePlayer = Color.Black;
             //for (ushort i = 8; i < 16; i++)
             //{
             //    for (var pieceIdx = PromotionPiece.Knight; pieceIdx < PromotionPiece.Queen; pieceIdx++)
@@ -637,6 +637,16 @@ namespace MagicBitboard.Helpers.Tests
                     throw e;
                 }
             }, "ValidateMove should throw and exception if the move leaves the King in check.");
+        }
+
+        [Test]
+        public void SetEnPassantFlag_ShouldSetFlagToEnPassantCaptureSquare_WhenPawnsMove2SquaresForward()
+        {
+            for (ushort i = 8; i < 16; i++)
+            {
+                var move = MoveHelpers.GenerateMove(i, (ushort)(i + 16), MoveType.Normal);
+            }
+
         }
     }
 }

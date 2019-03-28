@@ -14,7 +14,7 @@ namespace MagicBitboard
     {
 
         public readonly bool Chess960 = false;
-        public ushort? EnPassentIndex { get; private set; }
+        public ushort? EnPassantIndex { get; private set; }
         MoveTree<MoveExt> MoveTree = new MoveTree<MoveExt>(null);
 
         #region General Board Information
@@ -116,12 +116,12 @@ namespace MagicBitboard
             Chess960 = chess960;
         }
 
-        public BoardInfo(ulong[][] piecesOnBoard, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassentIndex, uint halfmoveClock, uint moveCounter, bool chess960 = false)
+        public BoardInfo(ulong[][] piecesOnBoard, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIndex, uint halfmoveClock, uint moveCounter, bool chess960 = false)
         {
             PiecesOnBoard = piecesOnBoard;
             ActivePlayer = activePlayer;
             CastlingAvailability = castlingAvailability;
-            EnPassentIndex = enPassentIndex;
+            EnPassantIndex = enPassantIndex;
             HalfmoveClock = halfmoveClock;
             MoveCounter = moveCounter;
             Chess960 = chess960;
@@ -148,7 +148,7 @@ namespace MagicBitboard
             var ranks = piecePlacement.Split('/').Reverse();
 
             var activePlayer = FENHelpers.GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
-            ushort? enPassentSquareIndex = BoardHelpers.SquareTextToIndex(fenPieces[(int)FENPieces.EnPassentSquare]);
+            ushort? enPassantSquareIndex = BoardHelpers.SquareTextToIndex(fenPieces[(int)FENPieces.EnPassantSquare]);
             var halfmoveClock = FENHelpers.GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
             var fullMoveCount = FENHelpers.GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveCounter]);
             uint pieceIndex = 0;
@@ -173,14 +173,14 @@ namespace MagicBitboard
             }
 
             return new BoardInfo(pieces, activePlayer, FENHelpers.GetCastlingFromString(fenPieces[(int)FENPieces.CastlingAvailability]),
-                enPassentSquareIndex, halfmoveClock, fullMoveCount);
+                enPassantSquareIndex, halfmoveClock, fullMoveCount);
         }
 
         private void ValidateFields()
         {
             var errors = new StringBuilder();
             errors.AppendLine(ValidateNumberOfPiecesOnBoard());
-            errors.AppendLine(ValidateEnPassentSquare());
+            errors.AppendLine(ValidateEnPassantSquare());
             errors.AppendLine(ValidateCastlingRights());
             errors.AppendLine(ValidateChecks());
         }
@@ -196,27 +196,27 @@ namespace MagicBitboard
             GetPiecesAtSourceAandDestination(move, out PieceOfColor? pocSource, out PieceOfColor? pocDestination);
             ValidateMove(move);
 
-            SetAppropriateEnPassentFlag(move, pocSource);
+            SetEnPassantFlag(move, pocSource);
         }
 
-        private void SetAppropriateEnPassentFlag(MoveExt move, PieceOfColor? pocSource)
+        public void SetEnPassantFlag(MoveExt move, PieceOfColor? pocSource)
         {
             if (pocSource.HasValue)
             {
                 var startRank = pocSource.Value.Color == Color.White ? 1 : 6;
                 var endRank = pocSource.Value.Color == Color.White ? 3 : 4;
-                var enPassentIndexOffset = pocSource.Value.Color == Color.White ? 1 : -1;
+                var enPassantIndexOffset = pocSource.Value.Color == Color.White ? 1 : -1;
                 if (pocSource.Value.Piece == Piece.Pawn)
                 {
                     if (((move.SourceValue & BoardHelpers.RankMasks[startRank]) != 0)
                         && ((move.DestinationValue & BoardHelpers.RankMasks[endRank]) != 0))
                     {
-                        EnPassentIndex = (ushort)(move.SourceIndex + enPassentIndexOffset);
+                        EnPassantIndex = (ushort)(move.SourceIndex + enPassantIndexOffset);
                         return;
                     }
                 }
             }
-            EnPassentIndex = null;
+            EnPassantIndex = null;
         }
 
         private void GetPiecesAtSourceAandDestination(MoveExt move, out PieceOfColor? pocSource, out PieceOfColor? pocDestination)
@@ -641,8 +641,8 @@ namespace MagicBitboard
             }
             return null;
         }
-        
-      
+
+
         public string ValidateChecks()
         {
             Check c = GetChecks(ActivePlayer);
@@ -710,15 +710,15 @@ namespace MagicBitboard
             return message.ToString();
         }
 
-        public static string ValidateEnPassentSquare(ulong[][] piecesOnBoard, ushort? enPassentSquare, Color activePlayer)
+        public static string ValidateEnPassantSquare(ulong[][] piecesOnBoard, ushort? enPassantSquare, Color activePlayer)
         {
-            if (enPassentSquare == null) return "";
+            if (enPassantSquare == null) return "";
             var message = new StringBuilder("");
-            if ((activePlayer == Color.White && (enPassentSquare < 40 || enPassentSquare > 47))
+            if ((activePlayer == Color.White && (enPassantSquare < 40 || enPassantSquare > 47))
                 ||
-                (activePlayer == Color.Black && (enPassentSquare < 16 || enPassentSquare > 23)))
+                (activePlayer == Color.Black && (enPassantSquare < 16 || enPassantSquare > 23)))
             {
-                return "Bad En Passent Square deteced.";
+                return "Bad En Passant Square deteced.";
             }
             return "";
         }
@@ -765,7 +765,7 @@ namespace MagicBitboard
 
 
         private string ValidateNumberOfPiecesOnBoard() => ValidateNumberOfPiecesOnBoard(PiecesOnBoard);
-        private string ValidateEnPassentSquare() => ValidateEnPassentSquare(PiecesOnBoard, EnPassentIndex, ActivePlayer);
+        private string ValidateEnPassantSquare() => ValidateEnPassantSquare(PiecesOnBoard, EnPassantIndex, ActivePlayer);
         private string ValidateCastlingRights() => ValidateCastlingRights(PiecesOnBoard, CastlingAvailability, Chess960);
 
         /// <summary>

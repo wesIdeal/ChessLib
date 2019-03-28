@@ -9,7 +9,7 @@ namespace MagicBitboard.Helpers.Tests
     public class MoveTests
     {
         const string fenEP = "8/PPPPPPPP/8/2k5/8/2K5/pppppppp/8 w - - 0 1";
-        BoardInfo biEnPassent = BoardInfo.BoardInfoFromFen(fenEP);
+        BoardInfo biEnPassant = BoardInfo.BoardInfoFromFen(fenEP);
         [SetUp]
         public void Setup()
         {
