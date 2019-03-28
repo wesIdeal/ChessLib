@@ -163,23 +163,22 @@ namespace MagicBitboard
 
         public static ulong XRayRookAttacks(ulong occupancy, ulong blockers, ushort squareIndex)
         {
-            var rookAttacksFromSquare = Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, occupancy);
-            blockers &= rookAttacksFromSquare;
-            return rookAttacksFromSquare ^ Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, occupancy);
+            var rookMovesFromSquare = PieceAttackPatternHelper.RookMoveMask[squareIndex];
+            blockers &= rookMovesFromSquare;
+            return rookMovesFromSquare ^ Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, occupancy);
         }
 
 
         public static ulong XRayBishopAttacks(ulong occupancy, ulong blockers, ushort squareIndex)
         {
-            var BishopAttacksFromSquare = PieceAttackPatternHelper.BishopAttackMask[squareIndex];
-            blockers &= BishopAttacksFromSquare;
-            return BishopAttacksFromSquare ^ Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, occupancy);
+            var bishopMovesFromSquare = PieceAttackPatternHelper.BishopMoveMask[squareIndex];
+            blockers &= bishopMovesFromSquare;
+            return bishopMovesFromSquare ^ Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, occupancy);
         }
 
         public bool IsPiecePinned(ulong pieceValue)
         {
-            var xRayFromBishop = XRayBishopAttacks(TotalOccupancy, OpponentPieceOccupancy[(int)Piece.Bishop], ActivePlayerKingIndex);
-            return false;
+            return (GetPinnedPieces() & pieceValue) != 0;
         }
 
         public ulong GetPinnedPieces()
@@ -190,7 +189,23 @@ namespace MagicBitboard
             ulong bPinners = (OpponentPieceOccupancy[BISHOP] | OpponentPieceOccupancy[QUEEN]) & xRayBishopAttacks;
             ulong rPinners = (OpponentPieceOccupancy[ROOK] | OpponentPieceOccupancy[QUEEN]) & xRayRookAttacks;
 
-            var pinners = rPinners | bPinners;
+            while (bPinners != 0)
+            {
+                var square = BitHelpers.BitScanForward(bPinners);
+                var squaresBetween = BoardHelpers.InBetween(square, ActivePlayerKingIndex);
+                pinned |= squaresBetween & ActiveTotalOccupancy;
+                bPinners &= bPinners - 1;
+
+            }
+
+            while (rPinners != 0)
+            {
+                var square = BitHelpers.BitScanForward(rPinners);
+                var squaresBetween = BoardHelpers.InBetween(square, ActivePlayerKingIndex);
+                pinned |= squaresBetween & ActiveTotalOccupancy;
+                rPinners &= rPinners - 1;
+
+            }
 
             return pinned;
         }

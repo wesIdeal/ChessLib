@@ -46,7 +46,7 @@ namespace ChessLib.Data.Helpers
                 }
             }
         }
-
+        
         public static ulong InBetween(int from, int to)
         {
             var square1 = Math.Min(from, to);

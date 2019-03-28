@@ -461,6 +461,15 @@ namespace MagicBitboard.Helpers.Tests
             var expectedPinnedPiece = 0x8000000000000ul; //the pawn on d7 is pinned
             var actual = bi.GetPinnedPieces();
             Assert.AreEqual(expectedPinnedPiece, actual, "Method did not determine that the pawn on d7 was pinned by the Bishop.");
+            bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pp1ppppp/8/2p5/B3P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2");
+            actual = bi.GetPinnedPieces();
+            Assert.AreEqual(expectedPinnedPiece, actual, "Method did not determine that the pawn on d7 was pinned by the Bishop.");
+            bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/pp1pbppp/2p5/8/B7/8/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
+            expectedPinnedPiece = 0x10000000000000ul;
+            actual = bi.GetPinnedPieces();
+            Assert.AreEqual(expectedPinnedPiece, actual, "Method did not determine that the Bishop on e7 was pinned by the Queen on e2.");
+
+
         }
     }
 }

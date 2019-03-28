@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\BlackKing.svg" />
+    <None Remove="Images\WhiteKing.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Images\BlackKing.svg" />
+    <EmbeddedResource Include="Images\WhiteKing.svg" />
+  </ItemGroup>
+
+</Project>
