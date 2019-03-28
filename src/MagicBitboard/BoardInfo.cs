@@ -365,7 +365,7 @@ namespace MagicBitboard
 
         public Piece GetActivePieceByValue(ulong pieceInSquareValue)
         {
-            for (Piece p = 0; p < Piece.King; p++)
+            for (Piece p = 0; p <= Piece.King; p++)
             {
                 if ((ActivePieceOccupancy[(int)p] & pieceInSquareValue) != 0) return p;
             }
@@ -378,16 +378,82 @@ namespace MagicBitboard
         {
             var pieceMoving = GetActivePieceByValue(move.SourceValue);
             var isCapture = (OpponentTotalOccupancy & move.DestinationValue) != 0;
+            var resultantBoard = BoardPostMove(move, pieceMoving);
+            Validate_PieceIsOfActiveColor(move);
             ValidateSourceIsNonVacant(move);
             ValidateDestinationIsNotOccupiedByActiveColor(move);
-
+            var isKingInCheckBeforeMove = IsAttackedBy(OpponentColor, ActivePlayerKingIndex);
+            var isKingInCheckAfterMove = IsAttackedBy(OpponentColor, ActivePlayerKingIndex, resultantBoard);
+            if (isKingInCheckAfterMove)
+            {
+                throw new MoveException("Move leaves King in check.", MoveExceptionType.MoveLeavesKingInCheck, move, ActivePlayer);
+            }
             switch (move.MoveType)
             {
                 case MoveType.Promotion:
                     ValidatePromotion(ActivePlayer, move.SourceIndex, move.DestinationIndex);
                     break;
+                case MoveType.Castle:
+                    ValidateMove_Castle(move);
+                    break;
+                case MoveType.Normal:
+
+                    break;
                 default: return;
             }
+        }
+
+        private ulong[][] BoardPostMove(MoveExt move, Piece pieceMoving)
+        {
+            var resultantBoard = new ulong[2][];
+            for (int i = 0; i < 2; i++)
+            {
+                resultantBoard[i] = new ulong[6];
+                foreach (var p in Enum.GetValues(typeof(Piece)))
+                {
+                    resultantBoard[i][(int)p] = PiecesOnBoard[i][(int)p];
+                    resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.SourceIndex);
+                    resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.DestinationIndex);
+                    if (i == (int)ActivePlayer && (Piece)p == pieceMoving)
+                    {
+                        resultantBoard[i][(int)p] = resultantBoard[i][(int)p].SetBit(move.DestinationIndex);
+                    }
+                }
+            }
+            return resultantBoard;
+        }
+
+        public void Validate_PieceIsOfActiveColor(MoveExt move)
+        {
+            if ((ActiveTotalOccupancy & move.SourceValue) == 0)
+            {
+                throw new MoveException(
+                    $"It is {ActivePlayer.ToString()}'s turn to move and that color has no piece on {move.SourceIndex.IndexToSquareDisplay()}.",
+                    MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare,
+                    move,
+                    ActivePlayer);
+            }
+        }
+
+        public void ValidateMove_Castle(MoveExt move)
+        {
+            if (AnySquaresInCheck(move))
+            {
+                throw new MoveException("Cannot Castle through check.", MoveExceptionType.Castle_ThroughCheck, move, ActivePlayer);
+            }
+        }
+
+        public bool AnySquaresInCheck(MoveExt move)
+        {
+            var moveToAndFromValues = move.SourceValue | move.DestinationValue;
+            var squaresBetween = BoardHelpers.InBetween(move.SourceIndex, move.DestinationIndex) | moveToAndFromValues;
+            while (squaresBetween != 0)
+            {
+                var square = BitHelpers.BitScanForward(squaresBetween);
+                if (IsAttackedBy(OpponentColor, square)) return true;
+                squaresBetween &= squaresBetween - 1;
+            }
+            return false;
         }
 
         private void ValidateDestinationIsNotOccupiedByActiveColor(MoveExt move)
@@ -585,19 +651,31 @@ namespace MagicBitboard
 
         public bool IsAttackedBy(Color color, ushort squareIndex)
         {
+            return IsAttackedBy(color, squareIndex, PiecesOnBoard);
+            return false;
+        }
+
+        public static bool IsAttackedBy(Color color, ushort squareIndex, ulong[][] piecesOnBoard)
+        {
 
             var nColor = (int)color;
             var notNColor = nColor ^ 1;
             var r = squareIndex / 8;
             var f = squareIndex % 8;
-            var totalOccupancy = TotalOccupancy;
+            var totalOcc = 0ul;
+            foreach (var cOcc in piecesOnBoard)
+            {
+                foreach (var pieceOcc in cOcc)
+                    totalOcc |= pieceOcc;
+            }
+            var totalOccupancy = totalOcc;
             var bishopAttack = Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, totalOccupancy);
             var rookAttack = Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, totalOccupancy);
-            if ((PieceAttackPatternHelper.PawnAttackMask[notNColor][squareIndex] & PiecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
-            if ((PieceAttackPatternHelper.KnightAttackMask[r, f] & PiecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
-            if ((bishopAttack & (PiecesOnBoard[nColor][Piece.Bishop.ToInt()] | PiecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
-            if ((rookAttack & (PiecesOnBoard[nColor][Piece.Rook.ToInt()] | PiecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
-            if ((PieceAttackPatternHelper.KingMoveMask[r, f] & PiecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
+            if ((PieceAttackPatternHelper.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
+            if ((PieceAttackPatternHelper.KnightAttackMask[r, f] & piecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
+            if ((bishopAttack & (piecesOnBoard[nColor][Piece.Bishop.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
+            if ((rookAttack & (piecesOnBoard[nColor][Piece.Rook.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
+            if ((PieceAttackPatternHelper.KingMoveMask[r, f] & piecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
             return false;
         }
 
@@ -610,3 +688,4 @@ namespace MagicBitboard
 
     }
 }
+

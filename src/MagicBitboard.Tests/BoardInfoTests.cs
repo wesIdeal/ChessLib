@@ -487,7 +487,7 @@ namespace MagicBitboard.Helpers.Tests
             var actual = bi.GetPinnedPieces();
             Console.WriteLine($"The following are pinned:\r\n{actual.GetDisplayBits()}");
             Assert.AreEqual(expectedPinnedPiece, actual, "Method did not determine that the pawn on d7 was pinned by the Bishop.");
-           
+
         }
 
         [Test]
@@ -499,7 +499,7 @@ namespace MagicBitboard.Helpers.Tests
             Assert.IsTrue(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
         }
 
-       
+
 
         [Test]
         public void GetPinnedPieces_ShoudReturnZero_WhenPieceIsNotPinned()
@@ -539,6 +539,95 @@ namespace MagicBitboard.Helpers.Tests
             var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/p2pb1pp/2p2p2/8/B7/2p5/PPPPRPPP/RNBQK1N1 b Qkq - 1 2");
             Assert.IsFalse(bi.IsPiecePinned(51), "IsPiecePinned() should have returned false for square index 42.");//Not pinned
             Assert.IsTrue(bi.IsPiecePinned(52), "IsPiecePinned() should have returned true as the Bishop at index 52 is pinned by the Rook.");//Not pinned
+        }
+
+        [Test]
+        public void AnySquaresInCheck_ShouldReturnTrue_IfAnySquareIsAttacked()
+        {
+            var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+            var pos1 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4KR2 b kq - 1 2");
+            var pos2 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K1R1 b kq - 1 2");
+
+            var pos4 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/4R3/4K3 b kq - 1 2");
+            var all = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4KRRR b kq - 1 2");
+            Assert.IsTrue(pos1.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on f1 blocks castling privilege.");
+            Assert.IsTrue(pos2.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on g1 blocks castling privilege.");
+
+            Assert.IsTrue(pos4.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on e2 blocks castling privilege.");
+            Assert.IsTrue(pos4.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rooks on f1-h1 block castling privilege.");
+
+        }
+
+        [Test]
+        public void AnySquaresInCheck_ShouldReturnFalse_IfKingUnaffectedByOpposingRook()
+        {
+            var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+            var pos3 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
+            Assert.IsFalse(pos3.AnySquaresInCheck(move), "AnySquaresInCheck() should return false when Rook on h1 doesn't block castling privilege.");
+        }
+
+        [Test]
+        public void AnySquaresInCheck_ShouldReturnFalse_IfKingUnaffectedByAnyPiece()
+        {
+            var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+            var pos3 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K3 b kq - 1 2");
+            Assert.IsFalse(pos3.AnySquaresInCheck(move), "AnySquaresInCheck() should return false when nothing blocks castling privilege.");
+        }
+        [Test]
+        public void ValidateMove_ShouldThrowException_IfMoveLeavesKingInCheck()
+        {
+            var move = MoveHelpers.GenerateMove(62, 44, MoveType.Normal);
+            var kingInCheck = BoardInfo.BoardInfoFromFen("5kb1/8/8/8/8/8/6K1/5R2 b - - 1 2");
+            Assert.Throws(typeof(MoveException), () =>
+            {
+                try
+                {
+                    kingInCheck.ValidateMove(move);
+                }
+                catch (MoveException e)
+                {
+                    Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, e.ExceptionType, "Exception type should represent that the move leaves the King in check.");
+                    throw e;
+                }
+            }, "ValidateMove should throw and exception if the move leaves the King in check.");
+        }
+
+        [Test]
+        public void ValidateMove_ShouldThrowException_IfMoveLeavesKingInCheck2()
+        {
+            var move = MoveHelpers.GenerateMove(53, 62, MoveType.Normal);
+            var kingInCheck = BoardInfo.BoardInfoFromFen("5k2/5b2/8/8/8/8/6K1/5R2 b - - 1 2");
+            Assert.Throws(typeof(MoveException), () =>
+            {
+                try
+                {
+                    kingInCheck.ValidateMove(move);
+                }
+                catch (MoveException e)
+                {
+                    Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, e.ExceptionType, "Exception type should represent that the move leaves the King in check.");
+                    throw e;
+                }
+            }, "ValidateMove should throw and exception if the move leaves the King in check.");
+        }
+
+        [Test]
+        public void ValidateMove_ShouldThrowException_IfMoveLeavesKingInCheck3()
+        {
+            var move = MoveHelpers.GenerateMove(61, 60, MoveType.Normal);
+            var kingInCheck = BoardInfo.BoardInfoFromFen("5k2/3B4/8/8/8/1b6/6K1/5R2 b - - 1 2");
+            Assert.Throws(typeof(MoveException), () =>
+            {
+                try
+                {
+                    kingInCheck.ValidateMove(move);
+                }
+                catch (MoveException e)
+                {
+                    Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, e.ExceptionType, "Exception type should represent that the move leaves the King in check.");
+                    throw e;
+                }
+            }, "ValidateMove should throw and exception if the move leaves the King in check.");
         }
     }
 }

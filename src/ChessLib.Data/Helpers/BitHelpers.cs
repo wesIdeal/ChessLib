@@ -55,6 +55,8 @@ namespace ChessLib.Data.Helpers
 
         public static void ClearBit(ref BoardRepresentation u, int bitIndex) => u &= ~((BoardRepresentation)1 << bitIndex);
 
+        public static BoardRepresentation ClearBit(BoardRepresentation u, int bitIndex) => u &= ~((BoardRepresentation)1 << bitIndex);
+
         public static BoardRepresentation PopLSB(this BoardRepresentation u) => u & (u - 1);
 
         public static PieceIndex CountSetBits(this BoardRepresentation u)
