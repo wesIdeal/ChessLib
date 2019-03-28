@@ -495,11 +495,50 @@ namespace MagicBitboard.Helpers.Tests
         {
             var bi = BoardInfo.BoardInfoFromFen("4k3/8/2p5/1B6/8/8/6K1/8 b - - 0 1");
             var actual = bi.GetPinnedPieces();
-        } [Test]
+            Assert.AreEqual(0x40000000000, actual, "Did not calculate pawn on c6 as pinned by the Bishop on b5.");
+            Assert.IsTrue(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
+        }
+
+       
+
+        [Test]
         public void GetPinnedPieces_ShoudReturnZero_WhenPieceIsNotPinned()
         {
             var bi = BoardInfo.BoardInfoFromFen("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1");
             var actual = bi.GetPinnedPieces();
+            Assert.AreEqual(0x00, actual, "No piece is pinned, with two pawns in front of King.");
+        }
+
+        [Test]
+        public void IsPiecePinned_ShoudReturnflse_WhenPieceIsNotPinned()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("4k3/8/2p5/1B6/8/8/6K1/8 b - - 0 1");
+            Assert.IsTrue(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
+        }
+
+        [Test]
+        public void IsPiecePinned_ShoudReturnfalse_WhenPieceIsNotPinned2()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1");
+            Assert.IsFalse(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
+        }
+        [Test]
+        public void IsPiecePinned_ShoudReturntrue_WhenBothPiecesArePinned()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/pp1pb1pp/5p2/8/B7/2p5/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
+            var actual = bi.GetPinnedPieces();
+            Console.WriteLine($"The following are pinned:\r\n{actual.GetDisplayBits()}");
+            Assert.IsTrue(bi.IsPiecePinned(51), "IsPiecePinned() did not determine that the pawn at index 51 is pinned by the Bishop.");
+            Assert.IsTrue(bi.IsPiecePinned(52), "IsPiecePinned() did not determine that the Bishop at index 52 is pinned by the Queen.");
+
+        }
+
+        [Test]
+        public void IsPiecePinned_ShoudReturntrue_WhenPieceIsPinnedByRook()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/p2pb1pp/2p2p2/8/B7/2p5/PPPPRPPP/RNBQK1N1 b Qkq - 1 2");
+            Assert.IsFalse(bi.IsPiecePinned(51), "IsPiecePinned() should have returned false for square index 42.");//Not pinned
+            Assert.IsTrue(bi.IsPiecePinned(52), "IsPiecePinned() should have returned true as the Bishop at index 52 is pinned by the Rook.");//Not pinned
         }
     }
 }

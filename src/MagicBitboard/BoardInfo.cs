@@ -180,7 +180,10 @@ namespace MagicBitboard
         {
             return (GetPinnedPieces() & pieceValue) != 0;
         }
-
+        public bool IsPiecePinned(ushort indexOfSquare)
+        {
+            return IsPiecePinned(indexOfSquare.IndexToValue());
+        }
         public ulong GetPinnedPieces()
         {
             ulong pinned = 0;
