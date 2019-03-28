@@ -136,15 +136,17 @@ namespace MagicBitboard.Helpers.Tests
             const ulong blackPawnOcc = 0xff000000000000;
             const ulong whitePawnOcc = 0x0000000000ff00;
             BoardInfo boardInfo = new GameInfo().BoardInfo;
-            MoveDetail md = new MoveDetail();
-            md.Color = Color.Black;
+            MoveDetail md = new MoveDetail
+            {
+                Color = Color.Black
+            };
             for (ushort destIndex = 40; destIndex >= 32; destIndex--)
             {
                 md.MoveText = destIndex.IndexToSquareDisplay();
                 md.DestinationFile = (ushort)(destIndex % 8);
                 md.DestinationRank = (ushort)(destIndex / 8);
                 int expectedSource = 48 + destIndex.FileFromIdx();
-                ushort actual = boardInfo.FindPawnMoveSourceIndex(md, blackPawnOcc);
+                ushort actual = BoardInfo.FindPawnMoveSourceIndex(md, blackPawnOcc, boardInfo.TotalOccupancy);
                 Assert.AreEqual(expectedSource, actual);
             }
             md.Color = Color.White;
@@ -155,7 +157,7 @@ namespace MagicBitboard.Helpers.Tests
                 md.DestinationFile = (ushort)(destIndex % 8);
                 md.DestinationRank = (ushort)(destIndex / 8);
                 int expectedSource = 8 + destIndex.FileFromIdx();
-                ushort actual = boardInfo.FindPawnMoveSourceIndex(md, whitePawnOcc);
+                ushort actual = BoardInfo.FindPawnMoveSourceIndex(md, whitePawnOcc, boardInfo.TotalOccupancy);
                 Assert.AreEqual(expectedSource, actual);
             }
         }
@@ -224,7 +226,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo().BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 2, 5, Piece.Knight, Color.White, "Nf3");
-            ushort actual = bi.FindKnightMoveSourceIndex(md);
+            ushort actual = BoardInfo.FindKnightMoveSourceIndex(md, bi.ActiveKnightOccupancy);
             Assert.AreEqual(6, actual);
         }
 
@@ -233,7 +235,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PNP5/1P2NPPP/R2QKB1R w KQkq - 1 5").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 3, 4, Piece.Knight, Color.White, "Ne4");
-            Assert.Throws(typeof(MoveException), () => { bi.FindKnightMoveSourceIndex(md); });
+            Assert.Throws(typeof(MoveException), () => { BoardInfo.FindKnightMoveSourceIndex(md, bi.ActiveKnightOccupancy); });
         }
 
         [Test]
@@ -241,7 +243,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PNP5/1P2NPPP/R2QKB1R w KQkq - 1 5").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 5, 0, Piece.Knight, Color.White, "Nxd4");
-            Assert.Throws(typeof(MoveException), () => { bi.FindKnightMoveSourceIndex(md); });
+            Assert.Throws(typeof(MoveException), () => { BoardInfo.FindKnightMoveSourceIndex(md, bi.ActiveKnightOccupancy); });
         }
 
         [Test]
@@ -249,7 +251,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 3, 2, Piece.Bishop, Color.White, "Bc4");
-            ushort actual = bi.FindBishopMoveSourceIndex(md);
+            ushort actual = BoardInfo.FindBishopMoveSourceIndex(md, bi.ActiveBishopOccupancy, bi.TotalOccupancy);
             Assert.AreEqual(5, actual);
         }
 
@@ -258,7 +260,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1qp5/3PP3/P1P5/1P3PPP/RNBQKBNR w KQkq - 1 5").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 5, 0, Piece.Bishop, Color.White, "Ba6");
-            Assert.Throws(typeof(MoveException), () => { bi.FindBishopMoveSourceIndex(md); });
+            Assert.Throws(typeof(MoveException), () => { BoardInfo.FindBishopMoveSourceIndex(md, bi.ActiveBishopOccupancy, bi.TotalOccupancy); });
         }
 
         [Test]
@@ -266,7 +268,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PBP5/1P3PPP/RN1QKBNR w KQkq - 1 5").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 3, 2, Piece.Bishop, Color.White, "Bc4");
-            Assert.Throws(typeof(MoveException), () => { bi.FindBishopMoveSourceIndex(md); });
+            Assert.Throws(typeof(MoveException), () => { BoardInfo.FindBishopMoveSourceIndex(md, bi.ActiveBishopOccupancy, bi.TotalOccupancy); });
         }
 
         [Test]
@@ -274,7 +276,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/R1qbK3 w - - 0 1").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 7, 0, Piece.Rook, Color.White, "Ra8+");
-            Assert.AreEqual(0, bi.FindRookMoveSourceIndex(md));
+            Assert.AreEqual(0, BoardInfo.FindRookMoveSourceIndex(md, bi.ActiveRookOccupancy, bi.ActiveRookOccupancy));
         }
 
         [Test]
@@ -282,7 +284,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/R1qbK3 w - - 0 1").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 0, 3, Piece.Rook, Color.White, "Rxd1");
-            Assert.Throws(typeof(MoveException), () => { bi.FindRookMoveSourceIndex(md); });
+            Assert.Throws(typeof(MoveException), () => { BoardInfo.FindRookMoveSourceIndex(md, bi.ActiveRookOccupancy, bi.TotalOccupancy); });
         }
 
         [Test]
@@ -290,7 +292,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/2R5/R1qbK3 w - - 0 1").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 0, 2, Piece.Rook, Color.White, "Rxd1");
-            Assert.Throws(typeof(MoveException), () => { bi.FindRookMoveSourceIndex(md); });
+            Assert.Throws(typeof(MoveException), () => { BoardInfo.FindRookMoveSourceIndex(md, bi.ActiveRookOccupancy, bi.TotalOccupancy); });
         }
 
         [Test]
@@ -298,7 +300,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 7, 0, Piece.Queen, Color.White, "Qa8+");
-            Assert.AreEqual(0, bi.FindQueenMoveSourceIndex(md));
+            Assert.AreEqual(0, BoardInfo.FindQueenMoveSourceIndex(md, bi.ActiveQueenOccupancy, bi.TotalOccupancy));
         }
 
         [Test]
@@ -306,7 +308,10 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 0, 3, Piece.Queen, Color.White, "Qxd1");
-            Assert.Throws(typeof(MoveException), () => { bi.FindQueenMoveSourceIndex(md); });
+            Assert.Throws(typeof(MoveException), () =>
+            {
+                BoardInfo.FindQueenMoveSourceIndex(md, bi.ActiveQueenOccupancy, bi.TotalOccupancy);
+            });
         }
 
         [Test]
@@ -314,7 +319,10 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/2Q5/Q1qbK3 w - - 0 1").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 0, 2, Piece.Queen, Color.White, "Qxc1");
-            Assert.Throws(typeof(MoveException), () => { bi.FindQueenMoveSourceIndex(md); });
+            Assert.Throws(typeof(MoveException), () =>
+            {
+                BoardInfo.FindQueenMoveSourceIndex(md, bi.ActiveQueenOccupancy, bi.TotalOccupancy);
+            });
         }
 
 
@@ -323,7 +331,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/4K3 w - - 0 1").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 0, 3, Piece.King, Color.White, "Kd1");
-            Assert.AreEqual(4, bi.FindKingMoveSourceIndex(md));
+            Assert.AreEqual(4, BoardInfo.FindKingMoveSourceIndex(md, bi.ActivePlayerKingOccupancy, bi.TotalOccupancy));
         }
 
         [Test]
@@ -331,8 +339,9 @@ namespace MagicBitboard.Helpers.Tests
         {
             BoardInfo bi = new GameInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1").BoardInfo;
             MoveDetail md = new MoveDetail(null, null, 0, 2, Piece.King, Color.White, "Kc1");
-            Assert.Throws(typeof(MoveException), () => { bi.FindKingMoveSourceIndex(md); });
+            Assert.Throws(typeof(MoveException), () => { BoardInfo.FindKingMoveSourceIndex(md, bi.ActivePlayerKingOccupancy, bi.TotalOccupancy); });
         }
+
         #region Making Boards
         const string initialBoard = FENHelpers.InitialFEN;
         const string after1e4 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";

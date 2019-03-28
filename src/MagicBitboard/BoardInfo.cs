@@ -16,9 +16,104 @@ namespace MagicBitboard
         public readonly bool Chess960 = false;
         public ushort? EnPassentIndex { get; private set; }
         MoveTree<MoveExt> MoveTree = new MoveTree<MoveExt>(null);
+
+        #region General Board Information
+        public ulong[][] PiecesOnBoard = new ulong[2][];
+        public string FEN { get; }
+        public uint HalfmoveClock { get; set; }
+        public uint MoveCounter { get; set; }
+
+        #region Color Properties and related fields
+        public Color ActivePlayer { get; set; }
+        public Color OpponentColor => ActivePlayer == Color.Black ? Color.White : Color.Black;
+        private int _nActiveColor => (int)ActivePlayer;
+        private int _nOpponentColor => (int)OpponentColor;
+        #endregion
+
+        #endregion
+
+        #region Constant Piece Values for Indexing arrays
+        const int PAWN = (int)Piece.Pawn;
         const int BISHOP = (int)Piece.Bishop;
+        const int KNIGHT = (int)Piece.Knight;
         const int ROOK = (int)Piece.Rook;
         const int QUEEN = (int)Piece.Queen;
+        #endregion
+
+        #region Occupancy / Index Properties for shorthand access to occupancy board arrays
+
+        /// <summary>
+        /// Occupancy of side-to-move's Knights
+        /// </summary>
+        public ulong ActiveKnightOccupancy => PiecesOnBoard[_nActiveColor][KNIGHT];
+
+        /// <summary>
+        /// Occupancy of side-to-move's Bishops
+        /// </summary>
+        public ulong ActiveBishopOccupancy => PiecesOnBoard[_nActiveColor][BISHOP];
+
+        /// <summary>
+        /// Occupancy of side-to-move's Rooks
+        /// </summary>
+        public ulong ActiveRookOccupancy => PiecesOnBoard[_nActiveColor][ROOK];
+
+        /// <summary>
+        /// Occupancy of side-to-move's Queen(s)
+        /// </summary>
+        public ulong ActiveQueenOccupancy => PiecesOnBoard[_nActiveColor][QUEEN];
+
+        /// <summary>
+        /// Occupancy of side-to-move's pieces
+        /// </summary>
+        public ulong ActiveTotalOccupancy
+        {
+            get
+            {
+                ulong rv = 0;
+                var activeOcc = PiecesOnBoard[_nActiveColor];
+                for (int i = 0; i < activeOcc.Length; i++) rv |= activeOcc[i];
+                return rv;
+            }
+        }
+
+        /// <summary>
+        /// Occupancy of opponent's pieces
+        /// </summary>
+        public ulong OpponentTotalOccupancy
+        {
+            get
+            {
+                ulong rv = 0;
+                for (int i = 0; i < PiecesOnBoard[_nOpponentColor].Length; i++) rv |= PiecesOnBoard[_nOpponentColor][i];
+                return rv;
+            }
+        }
+
+        /// <summary>
+        /// Total board occupancy
+        /// </summary>
+        public ulong TotalOccupancy => ActiveTotalOccupancy | OpponentTotalOccupancy;
+
+        /// <summary>
+        /// Index of side-to-move's King
+        /// </summary>
+        public ushort ActivePlayerKingIndex => PiecesOnBoard[(int)ActivePlayer][Piece.King.ToInt()].GetSetBits()[0];
+
+        /// <summary>
+        /// Value (occupancy board) of side-to-move's King
+        /// </summary>
+        public ulong ActivePlayerKingOccupancy => (ulong)(0x01 << ActivePlayerKingIndex);
+
+        /// <summary>
+        /// Opponent's King's square index
+        /// </summary>
+        public ushort OpposingPlayerKingIndex => PiecesOnBoard[(int)ActivePlayer.Toggle()][Piece.King.ToInt()].GetSetBits()[0];
+
+        #endregion
+
+
+
+
         private BoardInfo(bool chess960 = false)
         {
             Chess960 = chess960;
@@ -168,7 +263,6 @@ namespace MagicBitboard
             return rookMovesFromSquare ^ Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, occupancy);
         }
 
-
         public static ulong XRayBishopAttacks(ulong occupancy, ulong blockers, ushort squareIndex)
         {
             var bishopMovesFromSquare = PieceAttackPatternHelper.BishopMoveMask[squareIndex];
@@ -189,8 +283,8 @@ namespace MagicBitboard
             ulong pinned = 0;
             ulong xRayBishopAttacks = XRayBishopAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
             ulong xRayRookAttacks = XRayRookAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
-            ulong bPinners = (OpponentPieceOccupancy[BISHOP] | OpponentPieceOccupancy[QUEEN]) & xRayBishopAttacks;
-            ulong rPinners = (OpponentPieceOccupancy[ROOK] | OpponentPieceOccupancy[QUEEN]) & xRayRookAttacks;
+            ulong bPinners = (PiecesOnBoard[_nOpponentColor][BISHOP] | PiecesOnBoard[_nOpponentColor][QUEEN]) & xRayBishopAttacks;
+            ulong rPinners = (PiecesOnBoard[_nOpponentColor][ROOK] | PiecesOnBoard[_nOpponentColor][QUEEN]) & xRayRookAttacks;
             var pinners = rPinners | bPinners;
             while (pinners != 0)
             {
@@ -219,38 +313,36 @@ namespace MagicBitboard
             return moveExt;
         }
 
-        private ushort FindPieceSourceIndex(MoveDetail md)
+        #region MoveDetail- Finding the Source Square From SAN
+        /// <summary>
+        /// Find's a piece's source index, given some textual clues, such as piece type, color, and destination
+        /// </summary>
+        /// <param name="moveDetail">Details of move, gathered from text description (SAN)</param>
+        /// <returns>The index from which the move was made.</returns>
+        /// <exception cref="MoveException">Thrown when the source can't be determined, piece on square cannot be determined, more than one piece of type could reach destination, or piece cannot reach destination.</exception>
+        private ushort FindPieceSourceIndex(MoveDetail moveDetail)
         {
-            switch (md.Piece)
+            switch (moveDetail.Piece)
             {
                 case Piece.Pawn:
-                    if (md.IsCapture)
+                    if (moveDetail.IsCapture)
                     {
                         throw new MoveException("Could not determine source square for pawn capture.");
                     }
-                    return FindPawnMoveSourceIndex(md, ActivePieceOccupancy[(int)Piece.Pawn]);
+                    return FindPawnMoveSourceIndex(moveDetail, PiecesOnBoard[_nActiveColor][PAWN], TotalOccupancy);
 
                 case Piece.Knight:
-                    return FindKnightMoveSourceIndex(md);
+                    return FindKnightMoveSourceIndex(moveDetail, ActiveKnightOccupancy);
                 case Piece.Bishop:
-                    return FindBishopMoveSourceIndex(md);
+                    return FindBishopMoveSourceIndex(moveDetail, ActiveBishopOccupancy, TotalOccupancy);
                 case Piece.Rook:
-                    return FindRookMoveSourceIndex(md);
+                    return FindRookMoveSourceIndex(moveDetail, ActiveRookOccupancy, TotalOccupancy);
                 case Piece.Queen:
-                    return FindQueenMoveSourceIndex(md);
+                    return FindQueenMoveSourceIndex(moveDetail, ActiveQueenOccupancy, TotalOccupancy);
                 case Piece.King:
-                    return FindKingMoveSourceIndex(md);
+                    return FindKingMoveSourceIndex(moveDetail, ActivePlayerKingOccupancy, TotalOccupancy);
                 default: throw new MoveException("Invalid piece specified for move.");
             }
-        }
-
-        public ushort FindKingMoveSourceIndex(MoveDetail md)
-        {
-            var occupancy = ActivePieceOccupancy[(int)Piece.King];
-            var possibleSquares = Bitboard.GetAttackedSquares(Piece.King, md.DestinationIndex.Value, TotalOccupancy);
-            var sourceSquare = FindPieceMoveSourceIndex(md.DestinationIndex.Value, possibleSquares, occupancy);
-            if (!sourceSquare.HasValue) throw new MoveException("The King can possibly get to the specified destination.");
-            return sourceSquare.Value;
         }
 
         private static ushort? FindPieceMoveSourceIndex(ushort destinationIndes, ulong pieceMoveMask, ulong pieceOccupancy)
@@ -262,56 +354,98 @@ namespace MagicBitboard
             return indices[0];
         }
 
-        public ushort FindQueenMoveSourceIndex(MoveDetail md)
+        /// <summary>
+        /// Finds the source square index for a King's move
+        /// </summary>
+        /// <param name="moveDetail">Move details, gathered from text input</param>
+        /// <param name="kingOccupancy">The King's occupancy board</param>
+        /// <param name="totalOccupancy">The board's occupancy</param>
+        /// <returns></returns>
+        public static ushort FindKingMoveSourceIndex(MoveDetail moveDetail, ulong kingOccupancy, ulong totalOccupancy)
         {
-            var occupancy = ActivePieceOccupancy[(int)Piece.Queen];
-            var possibleSquares = Bitboard.GetAttackedSquares(Piece.Queen, md.DestinationIndex.Value, TotalOccupancy);
-            var sourceSquare = FindPieceMoveSourceIndex(md.DestinationIndex.Value, possibleSquares, occupancy);
+            var possibleSquares = Bitboard.GetAttackedSquares(Piece.King, moveDetail.DestinationIndex.Value, totalOccupancy);
+            var sourceSquare = FindPieceMoveSourceIndex(moveDetail.DestinationIndex.Value, possibleSquares, kingOccupancy);
+            if (!sourceSquare.HasValue) throw new MoveException("The King can possibly get to the specified destination.");
+            return sourceSquare.Value;
+        }
+
+        /// <summary>
+        ///  Finds the source square index for a Queen's move
+        /// </summary>
+        /// <param name="moveDetail">Move details, gathered from text input</param>
+        /// <param name="queenOccupancy">The Queen's occupancy board</param>
+        /// <param name="totalOccupancy">The board's occupancy</param>
+        /// <returns></returns>
+        public static ushort FindQueenMoveSourceIndex(MoveDetail moveDetail, ulong queenOccupancy, ulong totalOccupancy)
+        {
+            var possibleSquares = Bitboard.GetAttackedSquares(Piece.Queen, moveDetail.DestinationIndex.Value, totalOccupancy);
+            var sourceSquare = FindPieceMoveSourceIndex(moveDetail.DestinationIndex.Value, possibleSquares, queenOccupancy);
             if (!sourceSquare.HasValue) throw new MoveException("No Queen can possibly get to the specified destination.");
             if (sourceSquare == ushort.MaxValue) throw new MoveException("More than one Queen can get to the specified square.");
             return sourceSquare.Value;
         }
 
-        public ushort FindRookMoveSourceIndex(MoveDetail md)
+        /// <summary>
+        ///  Finds the source square index for a Rook's move
+        /// </summary>
+        /// <param name="moveDetail">Move details, gathered from text input</param>
+        /// <param name="rookOccupancy">The Rook's occupancy board</param>
+        /// <param name="totalOccupancy">The board's occupancy</param>
+        /// <returns></returns>
+        public static ushort FindRookMoveSourceIndex(MoveDetail moveDetail, ulong rookOccupancy, ulong totalOccupancy)
         {
             //var possibleSquares = PieceAttackPatternHelper.BishopMoveMask[md.DestRank.Value, md.DestFile.Value];
-            var occupancy = ActivePieceOccupancy[(int)Piece.Rook];
-            var possibleSquares = Bitboard.GetAttackedSquares(Piece.Rook, md.DestinationIndex.Value, TotalOccupancy);
-            var sourceSquare = FindPieceMoveSourceIndex(md.DestinationIndex.Value, possibleSquares, occupancy);
+            var possibleSquares = Bitboard.GetAttackedSquares(Piece.Rook, moveDetail.DestinationIndex.Value, totalOccupancy);
+            var sourceSquare = FindPieceMoveSourceIndex(moveDetail.DestinationIndex.Value, possibleSquares, rookOccupancy);
             if (!sourceSquare.HasValue) throw new MoveException("No Rook can possibly get to the specified destination.");
             if (sourceSquare == ushort.MaxValue) throw new MoveException("More than one Rook can get to the specified square.");
             return sourceSquare.Value;
         }
 
-        public ushort FindBishopMoveSourceIndex(MoveDetail md)
+        /// <summary>
+        ///  Finds the source square index for a Bishop's move
+        /// </summary>
+        /// <param name="moveDetail">Move details, gathered from text input</param>
+        /// <param name="bishopOccupancy">The Bishop's occupancy board</param>
+        /// <param name="totalOccupancy">The board's occupancy</param>
+        /// <returns></returns>
+        public static ushort FindBishopMoveSourceIndex(MoveDetail moveDetail, ulong bishopOccupancy, ulong totalOccupancy)
         {
-            //var possibleSquares = PieceAttackPatternHelper.BishopMoveMask[md.DestRank.Value, md.DestFile.Value];
-            var occupancy = ActivePieceOccupancy[(int)Piece.Bishop];
-            var possibleSquares = Bitboard.GetAttackedSquares(Piece.Bishop, md.DestinationIndex.Value, TotalOccupancy);
-            var sourceSquare = FindPieceMoveSourceIndex(md.DestinationIndex.Value, possibleSquares, occupancy);
+            var possibleSquares = Bitboard.GetAttackedSquares(Piece.Bishop, moveDetail.DestinationIndex.Value, totalOccupancy);
+            var sourceSquare = FindPieceMoveSourceIndex(moveDetail.DestinationIndex.Value, possibleSquares, bishopOccupancy);
             if (!sourceSquare.HasValue) throw new MoveException("No Bishop can possibly get to the specified destination.");
             if (sourceSquare == ushort.MaxValue) throw new MoveException("More than one Bishop can get to the specified square.");
             return sourceSquare.Value;
         }
 
-        public ushort FindKnightMoveSourceIndex(MoveDetail md, ulong? relevantPieceOccupancy = null)
+        /// <summary>
+        ///  Finds the source square index for a Knight's move
+        /// </summary>
+        /// <param name="moveDetail">Move details, gathered from text input</param>
+        /// <param name="relevantPieceOccupancy">The Knight's occupancy board</param>
+        /// <returns></returns>
+        public static ushort FindKnightMoveSourceIndex(MoveDetail moveDetail, ulong relevantPieceOccupancy)
         {
-            var possibleSquares = PieceAttackPatternHelper.KnightAttackMask[md.DestinationIndex.Value];
-            var occupancy = ActivePieceOccupancy[(int)Piece.Knight];
-            var sourceSquare = FindPieceMoveSourceIndex(md.DestinationIndex.Value, possibleSquares, occupancy);
+            var possibleSquares = PieceAttackPatternHelper.KnightAttackMask[moveDetail.DestinationIndex.Value];
+            var sourceSquare = FindPieceMoveSourceIndex(moveDetail.DestinationIndex.Value, possibleSquares, relevantPieceOccupancy);
             if (!sourceSquare.HasValue) throw new MoveException("No Knight can possibly get to the specified destination.");
             if (sourceSquare == short.MaxValue) throw new MoveException("More than one Knight can get to the specified square.");
             return sourceSquare.Value;
         }
 
-        public ushort FindPawnMoveSourceIndex(MoveDetail md, ulong? relevantPieceOccupancy = null)
+        /// <summary>
+        ///  Finds the source square index for a Pawn's move
+        /// </summary>
+        /// <param name="moveDetail">Move details, gathered from text input</param>
+        /// <param name="pawnOccupancy">The pawn's occupancy board</param>
+        /// <param name="totalOccupancy">The board's occupancy</param>
+        /// <returns></returns>
+        public static ushort FindPawnMoveSourceIndex(MoveDetail moveDetail, ulong pawnOccupancy, ulong totalOccupancy)
         {
-            var file = md.DestinationFile;
-            var rank = md.Color == Color.Black ? md.DestinationRank.Value.RankCompliment() : md.DestinationRank;
+            var file = moveDetail.DestinationFile;
+            var rank = moveDetail.Color == Color.Black ? moveDetail.DestinationRank.Value.RankCompliment() : moveDetail.DestinationRank;
             ushort sourceIndex = 0;
-            if (!relevantPieceOccupancy.HasValue) relevantPieceOccupancy = ActivePieceOccupancy[(int)Piece.Pawn];
-            var adjustedRelevantPieceOccupancy = md.Color == Color.Black ? relevantPieceOccupancy.Value.FlipVertically() : relevantPieceOccupancy;
-
+            var adjustedRelevantPieceOccupancy = moveDetail.Color == Color.Black ? pawnOccupancy.FlipVertically() : pawnOccupancy;
             ushort supposedRank = (ushort)(rank - 1);
             if (rank == 3) // 2 possible source ranks, 2 & 3 (offsets 1 & 2)
             {
@@ -321,17 +455,27 @@ namespace MagicBitboard
             }
             else //else source square was destination + 8, but we need to make sure a pawn was there
             {
-                var supposedIndex = BoardHelpers.RankAndFileToIndex(md.Color == Color.Black ? supposedRank.RankCompliment() : supposedRank, md.DestinationFile.Value);
-                if (supposedRank == 0) { throw new MoveException($"{md.MoveText}: Cannot possibly be a pawn at the source square {supposedIndex.IndexToSquareDisplay()} implied by move."); }
-                sourceIndex = (ushort)((supposedRank * 8) + md.DestinationFile.Value);
+                var supposedIndex = BoardHelpers.RankAndFileToIndex(moveDetail.Color == Color.Black ? supposedRank.RankCompliment() : supposedRank, moveDetail.DestinationFile.Value);
+                if (supposedRank == 0) { throw new MoveException($"{moveDetail.MoveText}: Cannot possibly be a pawn at the source square {supposedIndex.IndexToSquareDisplay()} implied by move."); }
+                sourceIndex = (ushort)((supposedRank * 8) + moveDetail.DestinationFile.Value);
             }
 
-            var idx = md.Color == Color.Black ? sourceIndex.FlipIndexVertically() : sourceIndex;
-            ValidatePawnMove(md.Color, idx, md.DestinationIndex.Value, relevantPieceOccupancy.Value, TotalOccupancy, md.MoveText);
+            var idx = moveDetail.Color == Color.Black ? sourceIndex.FlipIndexVertically() : sourceIndex;
+            ValidatePawnMove(moveDetail.Color, idx, moveDetail.DestinationIndex.Value, pawnOccupancy, totalOccupancy, moveDetail.MoveText);
             return idx;
         }
 
-        public static void ValidatePawnMove(Color c, ushort sourceIndex, ushort destinationIndex, ulong pawnOccupancy, ulong boardOccupancy, string moveText = "")
+        /// <summary>
+        ///  Validates a pawn move that has been parsed via SAN, after the source has been determined.
+        /// </summary>
+        /// <param name="pawnColor"></param>
+        /// <param name="sourceIndex"></param>
+        /// <param name="destinationIndex"></param>
+        /// <param name="pawnOccupancy">Active pawn occupancy board</param>
+        /// <param name="opponentOccupancy">Opponent's occupancy board; used to validate captures</param>
+        /// <param name="moveText">SAN that is used in the error messages only.</param>
+        /// <exception cref="MoveException">Thrown if no pawn exists at source, pawn cannot move from source to destination (blocked, wrong square), destination is occupied, or if move is capture, but no opposing piece is there for capture.</exception>
+        public static void ValidatePawnMove(Color pawnColor, ushort sourceIndex, ushort destinationIndex, ulong pawnOccupancy, ulong opponentOccupancy, string moveText = "")
         {
             moveText = !string.IsNullOrEmpty(moveText) ? moveText + ": " : "";
             var sourceValue = sourceIndex.IndexToValue();
@@ -342,13 +486,13 @@ namespace MagicBitboard
             if (pawnAtSource == 0) throw new MoveException($"There is no pawn on {sourceIndex.IndexToSquareDisplay()} to move to {destinationIndex.IndexToSquareDisplay()}.");
 
             //validate pawn move to square is valid
-            var pawnMoves = isCapture ? PieceAttackPatternHelper.PawnAttackMask[(int)c][sourceIndex] : PieceAttackPatternHelper.PawnMoveMask[(int)c][sourceIndex];
+            var pawnMoves = isCapture ? PieceAttackPatternHelper.PawnAttackMask[(int)pawnColor][sourceIndex] : PieceAttackPatternHelper.PawnMoveMask[(int)pawnColor][sourceIndex];
             if ((pawnMoves & destValue) == 0)
             {
                 throw new MoveException($"{moveText}Pawn from {sourceIndex.IndexToSquareDisplay()} to {destinationIndex.IndexToSquareDisplay()} is illegal.");
             }
 
-            var destinationOccupancy = (destValue & boardOccupancy);
+            var destinationOccupancy = (destValue & opponentOccupancy);
             //validate pawn is not blocked from move, if move is not a capture
             if (!isCapture)
             {
@@ -363,16 +507,16 @@ namespace MagicBitboard
 
         }
 
+        #endregion
+
         public Piece GetActivePieceByValue(ulong pieceInSquareValue)
         {
-            for (Piece p = 0; p <= Piece.King; p++)
+            for (int p = 0; p <= (int)Piece.King; p++)
             {
-                if ((ActivePieceOccupancy[(int)p] & pieceInSquareValue) != 0) return p;
+                if ((PiecesOnBoard[_nActiveColor][p] & pieceInSquareValue) != 0) return (Piece)p;
             }
             throw new MoveException("No piece found with the specified value.");
         }
-
-
 
         public void ValidateMove(MoveExt move)
         {
@@ -488,37 +632,10 @@ namespace MagicBitboard
             }
             return null;
         }
-        public Color OpponentColor => ActivePlayer == Color.Black ? Color.White : Color.Black;
+
+
         //private string ValidateChecks() => ValidateChecks(PiecesOnBoard);
-        public ulong[] ActivePieceOccupancy => PiecesOnBoard[(int)ActivePlayer];
-        public ulong[] OpponentPieceOccupancy => PiecesOnBoard[(int)OpponentColor];
-        public ulong ActiveTotalOccupancy
-        {
-            get
-            {
-                ulong rv = 0;
-                for (int i = 0; i < ActivePieceOccupancy.Length; i++) rv |= ActivePieceOccupancy[i];
-                return rv;
-            }
-        }
-        public ulong OpponentTotalOccupancy
-        {
-            get
-            {
-                ulong rv = 0;
-                for (int i = 0; i < OpponentPieceOccupancy.Length; i++) rv |= OpponentPieceOccupancy[i];
-                return rv;
-            }
-        }
-        public ulong TotalOccupancy
-        {
-            get
-            {
-                ulong rv = 0;
-                for (int i = 0; i < ActivePieceOccupancy.Length; i++) rv |= (PiecesOnBoard[0][i]) | PiecesOnBoard[1][i];
-                return rv;
-            }
-        }
+
 
         public string ValidateChecks()
         {
@@ -534,18 +651,12 @@ namespace MagicBitboard
             return "";
         }
 
-        public ushort ActivePlayerKingIndex => (ushort)PiecesOnBoard[(int)ActivePlayer][Piece.King.ToInt()].GetSetBits()[0];
-
-        public ulong ActivePlayerKingValue => (ulong)(0x01 << ActivePlayerKingIndex);
-
-        public ushort OpposingPlayerKingIndex => (ushort)PiecesOnBoard[(int)ActivePlayer.Toggle()][Piece.King.ToInt()].GetSetBits()[0];
-
         public void ValidatePromotion(Color color, ushort moveSourceIdx, ushort moveDestIdx)
         {
             var moveSourceVal = 1ul << moveSourceIdx;
             var moveDestVal = 1ul << moveDestIdx;
 
-            if ((ActivePieceOccupancy[(int)Piece.Pawn] & moveSourceVal) == 0)
+            if ((PiecesOnBoard[_nActiveColor][PAWN] & moveSourceVal) == 0)
             {
                 throw new MoveException("Promotion move issue - no pawn at source.");
             }
@@ -610,7 +721,7 @@ namespace MagicBitboard
             var message = new StringBuilder();
             var white = (int)Color.White;
             var black = (int)Color.Black;
-            var rook = (int)Piece.Rook;
+            var rook = ROOK;
             var king = (int)Piece.King;
             //Check for Rook placement
             if (castlingAvailability.HasFlag(CastlingAvailability.WhiteQueenside) && !piecesOnBoard[white][rook].IsBitSet(0))
@@ -634,12 +745,12 @@ namespace MagicBitboard
             if (castlingAvailability.HasFlag(CastlingAvailability.WhiteQueenside) || castlingAvailability.HasFlag(CastlingAvailability.WhiteKingside)
                 && !piecesOnBoard[white][king].IsBitSet(4))
             {
-                message.AppendLine("White cannot castle witout the King on e1.");
+                message.AppendLine("White cannot castle without the King on e1.");
             }
             if (castlingAvailability.HasFlag(CastlingAvailability.BlackQueenside) || castlingAvailability.HasFlag(CastlingAvailability.BlackKingside)
                 && !piecesOnBoard[black][king].IsBitSet(60))
             {
-                message.AppendLine("Black cannot castle witout the King on e1.");
+                message.AppendLine("Black cannot castle without the King on e1.");
             }
             return message.ToString();
         }
@@ -652,7 +763,6 @@ namespace MagicBitboard
         public bool IsAttackedBy(Color color, ushort squareIndex)
         {
             return IsAttackedBy(color, squareIndex, PiecesOnBoard);
-            return false;
         }
 
         public static bool IsAttackedBy(Color color, ushort squareIndex, ulong[][] piecesOnBoard)
@@ -679,12 +789,10 @@ namespace MagicBitboard
             return false;
         }
 
-        public ulong[][] PiecesOnBoard = new ulong[2][];
+
         public CastlingAvailability CastlingAvailability { get; set; }
-        public string FEN { get; }
-        public uint HalfmoveClock { get; set; }
-        public uint MoveCounter { get; set; }
-        public Color ActivePlayer { get; set; }
+
+
 
     }
 }

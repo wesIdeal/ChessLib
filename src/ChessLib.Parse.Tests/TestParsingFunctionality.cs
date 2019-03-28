@@ -31,14 +31,16 @@ namespace ChessLib.Parse.Tests
             unCommentedPgn = File.ReadAllText(".\\PGN\\uncommented.pgn");
             variationPgn = File.ReadAllText(".\\PGN\\withvariations.pgn");
             fullGame01Pgn = File.ReadAllText(".\\PGN\\fullgame01.pgn");
-            expectedTags = new Tags();
-            expectedTags.Add("Event", "The Big Test Event");
-            expectedTags.Add("Site", "My City, NY");
-            expectedTags.Add("Date", "2019.01.04");
-            expectedTags.Add("Round", "3");
-            expectedTags.Add("White", "Me");
-            expectedTags.Add("Black", "The other guy");
-            expectedTags.Add("Result", "1-0");
+            expectedTags = new Tags
+            {
+                { "Event", "The Big Test Event" },
+                { "Site", "My City, NY" },
+                { "Date", "2019.01.04" },
+                { "Round", "3" },
+                { "White", "Me" },
+                { "Black", "The other guy" },
+                { "Result", "1-0" }
+            };
         }
         //[Test]
         //public void ShouldRetrieveTagsWithNewLines()

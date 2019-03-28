@@ -176,6 +176,8 @@ namespace ChessLib.Data.Helpers
         public static ushort IndexVerticalCompliment(ushort idx) => (ushort)((idx.RankFromIdx().RankCompliment() * 8) + idx.FileFromIdx());
         #endregion
 
+
+
         public static ulong FlipVertically(this ulong board)
         {
             var x = board;
@@ -188,6 +190,7 @@ namespace ChessLib.Data.Helpers
                     ((x >> 40) & 0x000000000000ff00) |
                     (x >> 56);
         }
+
         public static ushort FlipIndexVertically(this ushort idx)
         {
             var rank = idx.RankFromIdx();
