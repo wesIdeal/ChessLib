@@ -22,7 +22,7 @@ namespace MagicBitboard
         public string FEN { get; }
         public uint HalfmoveClock { get; set; }
         public uint MoveCounter { get; set; }
-
+        public CastlingAvailability CastlingAvailability { get; set; }
         #region Color Properties and related fields
         public Color ActivePlayer { get; set; }
         public Color OpponentColor => ActivePlayer == Color.Black ? Color.White : Color.Black;
@@ -110,9 +110,6 @@ namespace MagicBitboard
         public ushort OpposingPlayerKingIndex => PiecesOnBoard[(int)ActivePlayer.Toggle()][Piece.King.ToInt()].GetSetBits()[0];
 
         #endregion
-
-
-
 
         private BoardInfo(bool chess960 = false)
         {
@@ -345,7 +342,14 @@ namespace MagicBitboard
             }
         }
 
-        private static ushort? FindPieceMoveSourceIndex(ushort destinationIndes, ulong pieceMoveMask, ulong pieceOccupancy)
+        /// <summary>
+        /// Used by the Find[piece]MoveSourceIndex to find the source of a piece moving parsed from SAN text.
+        /// </summary>
+        /// <param name="destinationIndex">Index of destination</param>
+        /// <param name="pieceMoveMask">The move mask for the piece</param>
+        /// <param name="pieceOccupancy">The occupancy for the piece in question</param>
+        /// <returns></returns>
+        private static ushort? FindPieceMoveSourceIndex(ushort destinationIndex, ulong pieceMoveMask, ulong pieceOccupancy)
         {
             ulong sourceSquares = 0;
             if ((sourceSquares = pieceMoveMask & pieceOccupancy) == 0) return null;
@@ -509,6 +513,11 @@ namespace MagicBitboard
 
         #endregion
 
+        /// <summary>
+        /// Finds a piece belonging to side-to-move based on it's value (not index).
+        /// </summary>
+        /// <param name="pieceInSquareValue">Value of active/side-to-move's piece</param>
+        /// <returns>The <see cref="Piece">piece occupying the <paramref name="pieceInSquareValue">square-value</paramref> parameter.</see>/></returns>
         public Piece GetActivePieceByValue(ulong pieceInSquareValue)
         {
             for (int p = 0; p <= (int)Piece.King; p++)
@@ -632,11 +641,8 @@ namespace MagicBitboard
             }
             return null;
         }
-
-
-        //private string ValidateChecks() => ValidateChecks(PiecesOnBoard);
-
-
+        
+      
         public string ValidateChecks()
         {
             Check c = GetChecks(ActivePlayer);
@@ -703,6 +709,7 @@ namespace MagicBitboard
             }
             return message.ToString();
         }
+
         public static string ValidateEnPassentSquare(ulong[][] piecesOnBoard, ushort? enPassentSquare, Color activePlayer)
         {
             if (enPassentSquare == null) return "";
@@ -715,6 +722,7 @@ namespace MagicBitboard
             }
             return "";
         }
+
         public static string ValidateCastlingRights(ulong[][] piecesOnBoard, CastlingAvailability castlingAvailability, bool chess960 = false)
         {
             if (castlingAvailability == CastlingAvailability.NoCastlingAvailable) return "";
@@ -760,11 +768,24 @@ namespace MagicBitboard
         private string ValidateEnPassentSquare() => ValidateEnPassentSquare(PiecesOnBoard, EnPassentIndex, ActivePlayer);
         private string ValidateCastlingRights() => ValidateCastlingRights(PiecesOnBoard, CastlingAvailability, Chess960);
 
+        /// <summary>
+        /// Instance method to find if <paramref name="squareIndex"/> is attacked by a piece of <paramref name="color"/>
+        /// </summary>
+        /// <param name="color">Color of possible attacker</param>
+        /// <param name="squareIndex">Square which is possibly under attack</param>
+        /// <returns>true if <paramref name="squareIndex"/> is attacked by <paramref name="color"/>. False if not.</returns>
         public bool IsAttackedBy(Color color, ushort squareIndex)
         {
             return IsAttackedBy(color, squareIndex, PiecesOnBoard);
         }
 
+        /// <summary>
+        /// Determines if piece on <paramref name="squareIndex"/> is attacked by <paramref name="color"/>
+        /// </summary>
+        /// <param name="color">Color of attacker</param>
+        /// <param name="squareIndex">Index of possible attack target</param>
+        /// <param name="piecesOnBoard">Occupancy arrays for both colors, indexed as [color_enum][piece_enum]</param>
+        /// <returns>true if <paramref name="squareIndex"/> is attacked by any piece of <paramref name="color"/></returns>
         public static bool IsAttackedBy(Color color, ushort squareIndex, ulong[][] piecesOnBoard)
         {
 
@@ -778,9 +799,8 @@ namespace MagicBitboard
                 foreach (var pieceOcc in cOcc)
                     totalOcc |= pieceOcc;
             }
-            var totalOccupancy = totalOcc;
-            var bishopAttack = Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, totalOccupancy);
-            var rookAttack = Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, totalOccupancy);
+            var bishopAttack = Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc);
+            var rookAttack = Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, totalOcc);
             if ((PieceAttackPatternHelper.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
             if ((PieceAttackPatternHelper.KnightAttackMask[r, f] & piecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
             if ((bishopAttack & (piecesOnBoard[nColor][Piece.Bishop.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
@@ -788,12 +808,6 @@ namespace MagicBitboard
             if ((PieceAttackPatternHelper.KingMoveMask[r, f] & piecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
             return false;
         }
-
-
-        public CastlingAvailability CastlingAvailability { get; set; }
-
-
-
     }
 }
 
