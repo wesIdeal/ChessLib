@@ -115,6 +115,8 @@ namespace MagicBitboard
             Chess960 = chess960;
         }
 
+
+
         public BoardInfo(ulong[][] piecesOnBoard, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIndex, uint halfmoveClock, uint moveCounter, bool chess960 = false)
         {
             PiecesOnBoard = piecesOnBoard;
@@ -953,25 +955,66 @@ namespace MagicBitboard
             return false;
         }
 
-        //public string MakeFENFromBoardInfo()
-        //{
-        //    var pieces = Enumerable.Repeat((char)0, 64);
-        //    foreach (var c in Enum.GetValues(typeof(Color)))
-        //    {
-        //        foreach (var p in Enum.GetValues(typeof(Piece)))
-        //        {
-        //            var cPiece = PieceHelpers.GetCharRepresentation((Piece)p, (Color)c);
-        //            var pieceString = "";
-        //            var bitString = new string( Convert.ToString((long)PiecesOnBoard[(int)c][(int)p], 2)
-        //            for (var idx = 56; idx >= 0; idx -= 8)
-        //            {
-        //                pieceString +=
-        //            }
-        //        }
-        //    }
+        #region FEN String Retrieval
 
-        //    var strFen = "{}";
-        //}
+        public string GetPiecePlacement()
+        {
+            char[] pieceSection = new char[64];
+            for (int iColor = 0; iColor < 2; iColor++)
+            {
+                for (int iPiece = 0; iPiece < 6; iPiece++)
+                {
+                    var pieceArray = PiecesOnBoard[iColor][iPiece];
+                    var charRepForPieceOfColor = PieceHelpers.GetCharRepresentation((Color)iColor, (Piece)iPiece);
+                    while (pieceArray != 0)
+                    {
+                        var squareIndex = BitHelpers.BitScanForward(pieceArray);
+                        var FENIndex = FENHelpers.BoardIndexToFENIndex(squareIndex);
+                        pieceSection[FENIndex] = charRepForPieceOfColor;
+                        pieceArray &= pieceArray - 1;
+                    }
+
+                }
+            }
+            var sb = new StringBuilder();
+            for (int rank = 0; rank < 8; rank++) //start at FEN Rank of zero -> 7
+            {
+                var emptyCount = 0;
+                for (int file = 0; file < 8; file++)
+                {
+                    var paChar = pieceSection[(rank * 8) + file];
+                    if (paChar == 0) emptyCount++;
+                    else
+                    {
+                        if (emptyCount != 0)
+                        {
+                            sb.Append(emptyCount.ToString());
+                            emptyCount = 0;
+                        }
+                        sb.Append(paChar);
+                    }
+
+                }
+                if (emptyCount != 0)
+                {
+                    sb.Append(emptyCount);
+                }
+                if (rank != 7) sb.Append('/');
+            }
+            return sb.ToString();
+        }
+        public string GetSideToMoveStrRepresentation() => ActivePlayer == Color.Black ? "b" : "w";
+
+        public string GetCastlingAvailabilityString() => FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability);
+
+        public string GetEnPassantString() => EnPassantIndex == null ? "-" : EnPassantIndex.Value.IndexToSquareDisplay();
+
+        public string GetHalfMoveClockString() => HalfmoveClock.ToString();
+
+        public string GetMoveCounterString() => MoveCounter.ToString();
+
+        public string ToFEN() => $"{GetPiecePlacement()} {GetSideToMoveStrRepresentation()} {GetCastlingAvailabilityString()} {GetEnPassantString()} {GetHalfMoveClockString()} {GetMoveCounterString()}";
+        #endregion
     }
 }
 

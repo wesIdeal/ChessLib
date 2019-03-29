@@ -184,6 +184,11 @@ namespace ChessLib.Data.Helpers
             return s;
         }
 
-       
+        public static int BoardIndexToFENIndex(ushort idx)
+        {
+            var fenIdx = 0;
+            var rankOffset = BoardHelpers.RankCompliment((ushort)(idx / 8));
+            return (rankOffset*8) + (idx % 8);
+        }
     }
 }

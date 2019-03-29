@@ -62,7 +62,7 @@ namespace ChessLib.Data.Helpers
             }
         }
 
-        public static char GetCharRepresentation(Piece p, Color c)
+        public static char GetCharRepresentation(Color c, Piece p)
         {
             var pChar = GetCharRepresentation(p);
             if (c == Color.Black)

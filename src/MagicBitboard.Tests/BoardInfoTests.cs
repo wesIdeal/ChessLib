@@ -30,6 +30,90 @@ namespace MagicBitboard.Tests
             giScandi = new GameInfo(fenScandi);
             biScandi = giScandi.BoardInfo;
         }
+
+        #region FEN Tests
+        [Test(Description = "Test piece section retrieval")]
+        public void GetPiecePlacement_ShouldReturnCorrectString()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var expected = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+            var piecePlacementActual = bi.GetPiecePlacement();
+            Assert.AreEqual(expected, piecePlacementActual);
+        }
+
+        [Test(Description = "Test side-to-move retrieval")]
+        public void GetSideToMoveChar_ShouldReturnCorrectString()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var expected = "w";
+            var stm = bi.GetSideToMoveStrRepresentation();
+            Assert.AreEqual(expected, stm);
+        }
+
+        [Test(Description = "Test Castling Availability Retrieval")]
+        public void GetCastlingAvailabilityString()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+            var expected = "KQkq";
+            var stm = bi.GetCastlingAvailabilityString();
+            Assert.AreEqual(expected, stm);
+        }
+
+        [Test(Description = "Test En Passant Retrieval to return a string square representation or '-'")]
+        public void GetEnPassantString_ShouldReturnEPRepresentation()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+            var expected = "-";
+            var stm = bi.GetEnPassantString();
+            Assert.AreEqual(expected, stm);
+            bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+            expected = "e3";
+            Assert.AreEqual(expected, bi.GetEnPassantString());
+        }
+
+        [Test(Description = "Tests halfmove clock to string representation")]
+        public void GetHalfMoveClockString_ShouldReturnCorrectValue()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var expected = "0";
+            Assert.AreEqual(expected, bi.GetHalfMoveClockString());
+
+            bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 30 1");
+            expected = "30";
+            Assert.AreEqual(expected, bi.GetHalfMoveClockString());
+        }
+
+        [Test(Description = "Tests fullmove counter to string representation")]
+        public void GetMoveCountString_ShouldReturnCorrectValue()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var expected = "1";
+            Assert.AreEqual(expected, bi.GetMoveCounterString());
+
+            bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 30 31");
+            expected = "31";
+            Assert.AreEqual(expected, bi.GetMoveCounterString());
+        }
+
+       
+
+        [Test(Description ="ToFEN() should return the FEN of the current board's state")]
+        public void ToFEN_ShouldReturnCurrentBoardState()
+        {
+            const string initialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            var bi = BoardInfo.BoardInfoFromFen(initialFEN);
+            var actual = bi.ToFEN();
+            Assert.AreEqual(initialFEN, actual);
+
+            const string closedRuyFEN = "r1bqkbnr/1ppp1ppp/p1n5/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 4";
+            bi = BoardInfo.BoardInfoFromFen(closedRuyFEN);
+            actual = bi.ToFEN();
+            Assert.AreEqual(closedRuyFEN, actual);
+        }
+
+        #endregion
         [Test]
         public void Should_Return_True_When_d5_Is_Attacked()
         {

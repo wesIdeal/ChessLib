@@ -59,14 +59,15 @@ namespace ChessLib.Data.Types
     {
         [Description("-")]
         NoCastlingAvailable = 0,
-        [Description("k")]
-        BlackKingside = 1,
-        [Description("q")]
-        BlackQueenside = 2,
         [Description("K")]
-        WhiteKingside = 4,
+        WhiteKingside = 1,
         [Description("Q")]
-        WhiteQueenside = 8
+        WhiteQueenside = 2,
+        [Description("k")]
+        BlackKingside = 4,
+        [Description("q")]
+        BlackQueenside = 8
+
 
     }
     public static class SlidingPieceDirectionContants
