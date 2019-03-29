@@ -16,7 +16,6 @@ namespace MagicBitboard
         public readonly bool Chess960 = false;
         public ushort? EnPassantIndex { get; private set; }
         MoveTree<MoveExt> MoveTree = new MoveTree<MoveExt>(null);
-
         #region General Board Information
         public ulong[][] PiecesOnBoard = new ulong[2][];
         public string FEN { get; }
@@ -195,10 +194,37 @@ namespace MagicBitboard
         {
             GetPiecesAtSourceAandDestination(move, out PieceOfColor? pocSource, out PieceOfColor? pocDestination);
             ValidateMove(move);
-
+            UnsetCastlingAvailability(move, pocSource.Value.Piece);
             SetEnPassantFlag(move, pocSource);
         }
 
+        /// <summary>
+        /// Unsets appropriate castling availability flag when <paramref name="movingPiece">piece moving</paramref> is a <see cref="Piece.Rook">Rook</see> or <see cref="Piece.King">King</see>
+        /// </summary>
+        /// <param name="move">Move object</param>
+        /// <param name="movingPiece">Piece that is moving</param>
+        public void UnsetCastlingAvailability(MoveExt move, Piece movingPiece)
+        {
+            switch (movingPiece)
+            {
+                case Piece.Rook:
+                    if (move.SourceIndex == 56) CastlingAvailability &= ~CastlingAvailability.BlackQueenside;
+                    if (move.SourceIndex == 63) CastlingAvailability &= ~CastlingAvailability.BlackKingside;
+                    if (move.SourceIndex == 0) CastlingAvailability &= ~CastlingAvailability.WhiteQueenside;
+                    if (move.SourceIndex == 7) CastlingAvailability &= ~CastlingAvailability.WhiteKingside;
+                    break;
+                case Piece.King:
+                    if (move.SourceIndex == 60) CastlingAvailability &= ~(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside);
+                    if (move.SourceIndex == 4) CastlingAvailability &= ~(CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Sets EnPassant flag appropriately, clearing it if no En Passant is available
+        /// </summary>
+        /// <param name="move"></param>
+        /// <param name="pocSource"></param>
         public void SetEnPassantFlag(MoveExt move, PieceOfColor? pocSource)
         {
             if (pocSource.HasValue)
@@ -543,22 +569,29 @@ namespace MagicBitboard
             }
             switch (move.MoveType)
             {
+                case MoveType.EnPassant:
+                    if (move.DestinationIndex != EnPassantIndex)
+                        throw new MoveException("En Passant not possible.", MoveExceptionType.EnPassantNotAvailalbe, move, ActivePlayer);
+                    break;
                 case MoveType.Promotion:
                     ValidatePromotion(ActivePlayer, move.SourceIndex, move.DestinationIndex);
                     break;
                 case MoveType.Castle:
                     ValidateMove_Castle(move);
+                    var castlingAvailabilityToRemove = ActivePlayer == Color.Black ? CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside
+                        : CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
+                    CastlingAvailability &= ~(castlingAvailabilityToRemove);
                     break;
-                case MoveType.Normal:
 
-                    break;
                 default: return;
             }
         }
 
         private ulong[][] BoardPostMove(MoveExt move, Piece pieceMoving)
         {
+
             var resultantBoard = new ulong[2][];
+
             for (int i = 0; i < 2; i++)
             {
                 resultantBoard[i] = new ulong[6];
@@ -573,7 +606,58 @@ namespace MagicBitboard
                     }
                 }
             }
+            if (move.MoveType == MoveType.Castle)
+            {
+                resultantBoard[_nActiveColor][ROOK] = GetRookBoardPostCastle(move, resultantBoard[_nActiveColor][ROOK]);
+            }
+            else if (move.MoveType == MoveType.EnPassant)
+            {
+                var capturedPawnValue = 1ul << (OpponentColor == Color.Black ? move.DestinationIndex - 8 : move.DestinationIndex + 8);
+                resultantBoard[_nOpponentColor][PAWN] &= ~(capturedPawnValue);
+            }
+            else if (move.MoveType == MoveType.Promotion)
+            {
+                resultantBoard[_nActiveColor][PAWN] &= ~(move.DestinationValue);
+                switch (move.PromotionPiece)
+                {
+                    case PromotionPiece.Knight:
+                        resultantBoard[_nActiveColor][KNIGHT] |= move.DestinationValue;
+                        break;
+                    case PromotionPiece.Bishop:
+                        resultantBoard[_nActiveColor][BISHOP] |= move.DestinationValue;
+                        break;
+                    case PromotionPiece.Rook:
+                        resultantBoard[_nActiveColor][ROOK] |= move.DestinationValue;
+                        break;
+                    case PromotionPiece.Queen:
+                        resultantBoard[_nActiveColor][QUEEN] |= move.DestinationValue;
+                        break;
+                }
+            }
             return resultantBoard;
+        }
+
+        private ulong GetRookBoardPostCastle(MoveExt move, ulong rookBoard)
+        {
+            var rank = move.DestinationIndex.RankFromIdx();
+            var file = move.DestinationIndex.FileFromIdx();
+            var rookSource = rank == 7      // black castling
+                ? file == 2
+                    ? 0x100000000000000ul           // BLACK O-O-O
+                        : 0x8000000000000000ul      // BLACK O-O
+                    : file == 2
+                    ? 0x01ul                        // WHITE O-O-O
+                        : 0x80ul;                   // WHITE O-O
+
+            var rookDest = rank == 7        // black castling
+                ? file == 2
+                    ? 0x800000000000000ul           // BLACK O-O-O
+                        : 0x2000000000000000ul      // BLACK O-O
+                    : file == 2
+                    ? 0x08ul                        // WHITE O-O-O
+                        : 0x20ul;                   // WHITE O-O
+
+            return (rookBoard & ~(rookSource)) | rookDest;
         }
 
         public void Validate_PieceIsOfActiveColor(MoveExt move)
@@ -593,6 +677,66 @@ namespace MagicBitboard
             if (AnySquaresInCheck(move))
             {
                 throw new MoveException("Cannot Castle through check.", MoveExceptionType.Castle_ThroughCheck, move, ActivePlayer);
+            }
+            ValidateMove_CastleOccupancyBetween(move);
+            ValidateMove_CastleAvailability(move);
+        }
+
+        /// <summary>
+        /// Validates castling move with availability flags
+        /// </summary>
+        /// <param name="move"></param>
+        public void ValidateMove_CastleAvailability(MoveExt move)
+        {
+            var castleChar = (CastlingAvailability?)null;
+            switch (move.DestinationIndex)
+            {
+                case 58:
+                    castleChar = CastlingAvailability.BlackQueenside;
+                    break;
+                case 62:
+                    castleChar = CastlingAvailability.BlackKingside;
+                    break;
+                case 2:
+                    castleChar = CastlingAvailability.WhiteQueenside;
+                    break;
+                case 6:
+                    castleChar = CastlingAvailability.WhiteKingside;
+                    break;
+                default:
+                    throw new MoveException("Castling was applied to move when King's destination wasn't correctly set.", MoveExceptionType.Castle_BadDestinationSquare, move, ActivePlayer);
+            }
+            if (!CastlingAvailability.HasFlag(castleChar))
+                throw new MoveException("Castling in the direction specified is not allowed.", MoveExceptionType.Castle_Unavailable, move, ActivePlayer);
+        }
+
+        /// <summary>
+        /// Validates that no pieces are between castling King and Rook.
+        /// </summary>
+        /// <param name="move"></param>
+        public void ValidateMove_CastleOccupancyBetween(MoveExt move)
+        {
+            ulong piecesBetween = 0;
+            switch (move.DestinationIndex)
+            {
+                case 58:
+                    piecesBetween = BoardHelpers.InBetween(56, 60);
+                    break;
+                case 62:
+                    piecesBetween = BoardHelpers.InBetween(60, 63);
+                    break;
+                case 2:
+                    piecesBetween = BoardHelpers.InBetween(0, 4);
+                    break;
+                case 6:
+                    piecesBetween = BoardHelpers.InBetween(4, 7);
+                    break;
+                default:
+                    throw new MoveException("Castle's King destination is out of range.", MoveExceptionType.Castle_BadDestinationSquare, move, ActivePlayer);
+            }
+            if ((TotalOccupancy & piecesBetween) != 0)
+            {
+                throw new MoveException("Cannot castle with pieces between King and Rook.", MoveExceptionType.Castle_OccupancyBetween, move, ActivePlayer);
             }
         }
 
@@ -808,6 +952,26 @@ namespace MagicBitboard
             if ((PieceAttackPatternHelper.KingMoveMask[r, f] & piecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
             return false;
         }
+
+        //public string MakeFENFromBoardInfo()
+        //{
+        //    var pieces = Enumerable.Repeat((char)0, 64);
+        //    foreach (var c in Enum.GetValues(typeof(Color)))
+        //    {
+        //        foreach (var p in Enum.GetValues(typeof(Piece)))
+        //        {
+        //            var cPiece = PieceHelpers.GetCharRepresentation((Piece)p, (Color)c);
+        //            var pieceString = "";
+        //            var bitString = new string( Convert.ToString((long)PiecesOnBoard[(int)c][(int)p], 2)
+        //            for (var idx = 56; idx >= 0; idx -= 8)
+        //            {
+        //                pieceString +=
+        //            }
+        //        }
+        //    }
+
+        //    var strFen = "{}";
+        //}
     }
 }
 

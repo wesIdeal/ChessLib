@@ -130,6 +130,58 @@ namespace ChessLib.Data.Helpers.Tests
         #endregion
 
         #region Tests
+        #region CastlingAvailability to string
+        [Test(Description = "Should make appropriate FEN Castling Availability string (-) when empty.")]
+        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenEmpty()
+        {
+            Assert.AreEqual("-", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.NoCastlingAvailable));
+        }
+        [Test(Description = "Should make appropriate FEN Castling Availability string (KQ) when White Kingside and Queenside.")]
+        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenKQ()
+        {
+            Assert.AreEqual("KQ", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside));
+        }
+        [Test(Description = "Should make appropriate FEN Castling Availability string (K) when White Kingside.")]
+        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenK()
+        {
+            Assert.AreEqual("K", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.WhiteKingside));
+
+        }
+        [Test(Description = "Should make appropriate FEN Castling Availability string (Q) when White Queenside.")]
+        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenQ()
+        {
+            Assert.AreEqual("Q", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.WhiteQueenside));
+
+        }
+        [Test(Description = "Should make appropriate FEN Castling Availability string (kq) when Black Kingside and Queenside.")]
+        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_Whenkq()
+        {
+            Assert.AreEqual("kq", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside));
+        }
+
+        [Test(Description = "Should make appropriate FEN Castling Availability string (k) when Black Kingside.")]
+        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_Whenk()
+        {
+            Assert.AreEqual("k", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside));
+        }
+        [Test(Description = "Should make appropriate FEN Castling Availability string (kQ) when Black Kingside and White Queenside.")]
+        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenkQ()
+        {
+            Assert.AreEqual("kQ", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside | CastlingAvailability.WhiteQueenside));
+        }
+        [Test(Description = "Should make appropriate FEN Castling Availability string (qK) when White Kingside and Black Queenside.")]
+        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenKq()
+        {
+            Assert.AreEqual("qK", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside));
+        }
+        [Test(Description = "Should make appropriate FEN Castling Availability string (KQkq) when all castling is available.")]
+        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenKQkq()
+        {
+            Assert.AreEqual("kqKQ", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteQueenside | CastlingAvailability.WhiteKingside));
+
+        } 
+        #endregion
+
         [Test]
         public void ValidateCastlingAvailabilityString_ShouldThrowException_WhenGivenInvalidCastlingCharacters()
         {

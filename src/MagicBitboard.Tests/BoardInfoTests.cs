@@ -6,7 +6,7 @@ using NUnit.Framework;
 using System;
 using System.Diagnostics;
 
-namespace MagicBitboard.Helpers.Tests
+namespace MagicBitboard.Tests
 {
     [TestFixture]
     public class BoardInfoTests
@@ -508,8 +508,6 @@ namespace MagicBitboard.Helpers.Tests
             Assert.IsTrue(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
         }
 
-
-
         [Test]
         public void GetPinnedPieces_ShoudReturnZero_WhenPieceIsNotPinned()
         {
@@ -550,38 +548,8 @@ namespace MagicBitboard.Helpers.Tests
             Assert.IsTrue(bi.IsPiecePinned(52), "IsPiecePinned() should have returned true as the Bishop at index 52 is pinned by the Rook.");//Not pinned
         }
 
-        [Test]
-        public void AnySquaresInCheck_ShouldReturnTrue_IfAnySquareIsAttacked()
-        {
-            var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
-            var pos1 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4KR2 b kq - 1 2");
-            var pos2 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K1R1 b kq - 1 2");
 
-            var pos4 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/4R3/4K3 b kq - 1 2");
-            var all = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4KRRR b kq - 1 2");
-            Assert.IsTrue(pos1.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on f1 blocks castling privilege.");
-            Assert.IsTrue(pos2.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on g1 blocks castling privilege.");
 
-            Assert.IsTrue(pos4.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on e2 blocks castling privilege.");
-            Assert.IsTrue(pos4.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rooks on f1-h1 block castling privilege.");
-
-        }
-
-        [Test]
-        public void AnySquaresInCheck_ShouldReturnFalse_IfKingUnaffectedByOpposingRook()
-        {
-            var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
-            var pos3 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
-            Assert.IsFalse(pos3.AnySquaresInCheck(move), "AnySquaresInCheck() should return false when Rook on h1 doesn't block castling privilege.");
-        }
-
-        [Test]
-        public void AnySquaresInCheck_ShouldReturnFalse_IfKingUnaffectedByAnyPiece()
-        {
-            var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
-            var pos3 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K3 b kq - 1 2");
-            Assert.IsFalse(pos3.AnySquaresInCheck(move), "AnySquaresInCheck() should return false when nothing blocks castling privilege.");
-        }
         [Test]
         public void ValidateMove_ShouldThrowException_IfMoveLeavesKingInCheck()
         {
@@ -647,6 +615,332 @@ namespace MagicBitboard.Helpers.Tests
                 var move = MoveHelpers.GenerateMove(i, (ushort)(i + 16), MoveType.Normal);
             }
 
+        }
+
+        [TestFixture]
+        class CastlingValidation
+        {
+            /// <summary>
+            /// Tests that availability is unset appropriately, depending on color and piece moved.
+            /// </summary>
+            [TestFixture(Description = "Tests that availability is unset appropriately, depending on color and piece moved.")]
+            class AvailabilityUnset
+            {
+
+                BoardInfo bi;
+                const string castlingFen = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1";
+                [SetUp]
+                public void Setup()
+                {
+                    bi = BoardInfo.BoardInfoFromFen(castlingFen);
+                }
+                #region Castling Availabilty
+
+                [Test]
+                public void UnsetCastlingAvailability_ShouldUnsetBlackKingside_Whenh8RookMoves()
+                {
+                    var move = MoveHelpers.GenerateMove(63, 62);
+                    var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
+                    bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal qKQ after h8 Rook moves.");
+                }
+                [Test]
+                public void UnsetCastlingAvailability_ShouldUnsetBlackQueenside_Whena8RookMoves()
+                {
+                    var move = MoveHelpers.GenerateMove(56, 57);
+                    var expected = CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
+                    bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal kKQ after a8 Rook moves.");
+                }
+                [Test]
+                public void UnsetCastlingAvailability_ShouldUnsetWhiteKingside_Whenh1RookMoves()
+                {
+                    var move = MoveHelpers.GenerateMove(7, 6);
+                    var expected = CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteQueenside;
+                    bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal kqQ after h1 Rook moves.");
+                }
+                [Test]
+                public void UnsetCastlingAvailability_ShouldUnsetWhiteQueenside_Whena1RookMoves()
+                {
+                    var move = MoveHelpers.GenerateMove(0, 1);
+                    var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside;
+                    bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal kqK after a1 Rook moves.");
+                }
+                [Test]
+                public void UnsetCastlingAvailability_ShouldUnsetBoth_WhenBlackKingMoves()
+                {
+                    var move = MoveHelpers.GenerateMove(60, 61);
+                    var expected = CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
+                    bi.UnsetCastlingAvailability(move, Piece.King);
+                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal KQ after Black King moves.");
+                }
+                [Test]
+                public void UnsetCastlingAvailability_ShouldUnsetBoth_WhenWhiteKingMoves()
+                {
+                    var move = MoveHelpers.GenerateMove(4, 5);
+                    var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.BlackKingside;
+                    bi.UnsetCastlingAvailability(move, Piece.King);
+                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal kq after White King moves.");
+
+                }
+                #endregion
+            }
+
+            /// <summary>
+            /// Tests for castling through checks.
+            /// </summary>
+            [TestFixture(Description = "Tests for castling through checks.")]
+            class ThroughCheck
+            {
+                [Test]
+                public void AnySquaresInCheck_ShouldReturnFalse_IfKingUnaffectedByAnyPiece()
+                {
+                    var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+                    var pos3 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K3 b kq - 1 2");
+                    Assert.IsFalse(pos3.AnySquaresInCheck(move), "AnySquaresInCheck() should return false when nothing blocks castling privilege.");
+                }
+
+                [Test]
+                public void AnySquaresInCheck_ShouldReturnTrue_IfAnySquareIsAttacked()
+                {
+                    var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+                    var pos1 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4KR2 b kq - 1 2");
+                    var pos2 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K1R1 b kq - 1 2");
+
+                    var pos4 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/4R3/4K3 b kq - 1 2");
+                    var all = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4KRRR b kq - 1 2");
+                    Assert.IsTrue(pos1.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on f1 blocks castling privilege.");
+                    Assert.IsTrue(pos2.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on g1 blocks castling privilege.");
+
+                    Assert.IsTrue(pos4.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on e2 blocks castling privilege.");
+                    Assert.IsTrue(pos4.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rooks on f1-h1 block castling privilege.");
+
+                }
+                [Test]
+                public void AnySquaresInCheck_ShouldReturnFalse_IfKingUnaffectedByOpposingRook()
+                {
+                    var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+                    var pos3 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
+                    Assert.IsFalse(pos3.AnySquaresInCheck(move), "AnySquaresInCheck() should return false when Rook on h1 doesn't block castling privilege.");
+                }
+
+            }
+
+            /// <summary>
+            /// Tests for castling through occupied and non-occupied squares between castling King and Rook
+            /// </summary>
+            [TestFixture(Description = "Tests for castling through occupied and non-occupied squares between castling King and Rook")]
+            class OccupiedSquares
+            {
+                BoardInfo biOccupied, biNonOccupied;
+                [SetUp]
+                public void Setup()
+                {
+                    biOccupied = BoardInfo.BoardInfoFromFen("r1N1k1Nr/8/8/8/8/8/8/R1B1K1BR w KQkq - 0 1");
+                    biNonOccupied = BoardInfo.BoardInfoFromFen("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+                }
+
+                #region Occupancy Between Castle
+                [Test]
+                public void ValidateMove_CastleOccupancyBetween_ShouldThrowExceptionIfPiecesAreBetween_q()
+                {
+                    var move = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
+                    AssertOccupiedExceptionThrown(move);
+                }
+
+                [Test]
+                public void ValidateMove_CastleOccupancyBetween_ShouldThrowExceptionIfPiecesAreBetween_k()
+                {
+                    var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+                    AssertOccupiedExceptionThrown(move);
+                }
+
+                [Test]
+                public void ValidateMove_CastleOccupancyBetween_ShouldThrowExceptionIfPiecesAreBetween_Q()
+                {
+                    var move = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
+                    AssertOccupiedExceptionThrown(move);
+                }
+
+                [Test]
+                public void ValidateMove_CastleOccupancyBetween_ShouldThrowExceptionIfPiecesAreBetween_K()
+                {
+                    var move = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
+                    AssertOccupiedExceptionThrown(move);
+                }
+                #endregion
+
+                #region No Occupancy Between Castle
+                [Test]
+                public void ValidateMove_CastleOccupancyBetween_ShouldNotThrowExceptionIfNoPiecesAreBetween_q()
+                {
+                    var move = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
+                    AssertOccupiedExceptionNotThrown(move);
+                }
+
+                [Test]
+                public void ValidateMove_CastleOccupancyBetween_ShouldNotThrowExceptionIfNoPiecesAreBetween_k()
+                {
+                    var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+                    AssertOccupiedExceptionNotThrown(move);
+                }
+
+                [Test]
+                public void ValidateMove_CastleOccupancyBetween_ShouldNotThrowExceptionIfNoPiecesAreBetween_Q()
+                {
+                    var move = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
+                    AssertOccupiedExceptionNotThrown(move);
+                }
+
+                [Test]
+                public void ValidateMove_CastleOccupancyBetween_ShouldNotThrowExceptionIfNoPiecesAreBetween_K()
+                {
+                    var move = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
+                    AssertOccupiedExceptionNotThrown(move);
+                }
+                #endregion
+
+
+                private void AssertOccupiedExceptionThrown(MoveExt move)
+                {
+                    Assert.Throws(typeof(MoveException),
+                        () =>
+                        {
+                            try
+                            {
+                                biOccupied.ValidateMove_CastleOccupancyBetween(move);
+                            }
+                            catch (MoveException e)
+                            {
+                                Assert.AreEqual(MoveExceptionType.Castle_OccupancyBetween, e.ExceptionType, "Expected exception to contain error type Castle_OccupancyBetween.");
+                                throw e;
+                            }
+                        });
+                }
+
+                private void AssertOccupiedExceptionNotThrown(MoveExt move)
+                {
+                    Assert.DoesNotThrow(
+                        () => { biNonOccupied.ValidateMove_CastleOccupancyBetween(move); });
+                }
+            }
+
+            /// <summary>
+            /// Tests that appropriate castling availability flag is set for castling.
+            /// </summary>
+            [TestFixture(Description = "Tests that appropriate castling availability flag is set for castling.")]
+            class AvailabilityForCastleSet
+            {
+                BoardInfo bi;
+                [Test(Description = "Test that no exception is thrown when Black castles Queenside with BlackQueenside flag set.")]
+                public void ValidateMove_CastleKeyPiecesMoved_ShouldNotThrowExceptionWhenCastlingFlagIsSet_q()
+                {
+                    bi = MakeCastlingBoard(CastlingAvailability.BlackQueenside);
+                    var move = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionNotThrown(move);
+                }
+
+                [Test(Description = "Test that an exception is thrown when Black castles Queenside with BlackQueenside flag not set.")]
+                public void ValidateMove_CastleKeyPiecesMoved_ShouldThrowExceptionWhenCastlingFlagIsNotSet_q()
+                {
+                    bi = MakeCastlingBoard(CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
+                    var move = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionThrown(move);
+                }
+
+                [Test(Description = "Test that no exception is thrown when Black castles Kingside with BlackKingside flag set.")]
+                public void ValidateMove_CastleKeyPiecesMoved_ShouldNotThrowExceptionWhenCastlingFlagIsSet_k()
+                {
+                    bi = MakeCastlingBoard(CastlingAvailability.BlackKingside);
+                    var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionNotThrown(move);
+                }
+
+                [Test(Description = "Test that an exception is thrown when Black castles Kingside with BlackKingside flag not set.")]
+                public void ValidateMove_CastleKeyPiecesMoved_ShouldThrowExceptionWhenCastlingFlagIsNotSet_k()
+                {
+                    bi = MakeCastlingBoard(CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
+                    var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionThrown(move);
+                }
+
+                [Test(Description = "Test that no exception is thrown when White castles Queenside with WhiteQueenside flag set.")]
+                public void ValidateMove_CastleKeyPiecesMoved_ShouldNotThrowExceptionWhenCastlingFlagIsSet_Q()
+                {
+                    bi = MakeCastlingBoard(CastlingAvailability.WhiteQueenside);
+                    var move = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionNotThrown(move);
+                }
+
+                [Test(Description = "Test that an exception is thrown when White castles Queenside with WhiteQueenside flag not set.")]
+                public void ValidateMove_CastleKeyPiecesMoved_ShouldThrowExceptionWhenCastlingFlagIsNotSet_Q()
+                {
+                    bi = MakeCastlingBoard(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.BlackQueenside);
+                    var move = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionThrown(move);
+                }
+
+                [Test(Description = "Test that no exception is thrown when White castles Kingside with WhiteKingside flag set.")]
+                public void ValidateMove_CastleKeyPiecesMoved_ShouldNotThrowExceptionWhenCastlingFlagIsSet_K()
+                {
+                    bi = MakeCastlingBoard(CastlingAvailability.WhiteKingside);
+                    var move = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionNotThrown(move);
+                }
+
+                [Test(Description = "Test that an exception is thrown when White castles Kingside with WhiteKingside flag not set.")]
+                public void ValidateMove_CastleKeyPiecesMoved_ShouldThrowExceptionWhenCastlingFlagIsNotSet_K()
+                {
+                    bi = MakeCastlingBoard(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside);
+                    var move = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionThrown(move);
+                }
+
+                [Test(Description = "Test that an exception is thrown when White castles Kingside with WhiteKingside flag not set.")]
+                public void ValidateMove_CastleKeyPiecesMoved_ShouldThrowExceptionWhenNoCastlingFlagIsSet()
+                {
+                    bi = MakeCastlingBoard(CastlingAvailability.NoCastlingAvailable);
+                    var move = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionThrown(move);
+                    move = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionThrown(move);
+                    move = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionThrown(move);
+                    move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+                    AssertCastlingAvailabilityExceptionThrown(move);
+                }
+
+                private BoardInfo MakeCastlingBoard(CastlingAvailability ca, char color = 'b')
+                {
+                    string baseBoard = $"r3k2r/8/8/8/8/8/8/R3K2R {color} {FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(ca)} - 0 1";
+                    return BoardInfo.BoardInfoFromFen(baseBoard);
+                }
+
+                private void AssertCastlingAvailabilityExceptionThrown(MoveExt move)
+                {
+                    Assert.Throws(typeof(MoveException),
+                        () =>
+                        {
+                            try
+                            {
+                                bi.ValidateMove_CastleAvailability(move);
+                            }
+                            catch (MoveException e)
+                            {
+                                Assert.AreEqual(MoveExceptionType.Castle_Unavailable, e.ExceptionType, "Expected exception to contain error type Castle_Unavailable.");
+                                throw e;
+                            }
+                        }, "Expected MoveException to be thrown if castling availability disallows castling.");
+                }
+
+                private void AssertCastlingAvailabilityExceptionNotThrown(MoveExt move)
+                {
+                    Assert.DoesNotThrow(
+                        () => { bi.ValidateMove_CastleAvailability(move); });
+                }
+            }
         }
     }
 }

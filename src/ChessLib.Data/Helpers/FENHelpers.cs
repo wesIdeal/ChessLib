@@ -1,5 +1,6 @@
 ﻿using ChessLib.Data.Exceptions;
 using ChessLib.Data.Types;
+using EnumsNET;
 using System;
 using System.Linq;
 
@@ -10,9 +11,6 @@ namespace ChessLib.Data.Helpers
         public static readonly char[] ValidCastlingStringChars = new char[] { 'k', 'K', 'q', 'Q', '-' };
         public static readonly char[] ValidFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
         public const string InitialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-
-
 
         public static void ValidateFENStructure(string fen)
         {
@@ -156,7 +154,7 @@ namespace ChessLib.Data.Helpers
             return uint.Parse(v);
         }
 
-       
+
 
         private static int GetStringRepForRank(string rank)
         {
@@ -171,5 +169,21 @@ namespace ChessLib.Data.Helpers
             }
             return rv;
         }
+
+        public static string MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability caBitFlags)
+        {
+            var s = "";
+            if (caBitFlags == (CastlingAvailability)0) s = CastlingAvailability.NoCastlingAvailable.AsString(EnumFormat.Description);
+            else
+            {
+                foreach (var caFlag in caBitFlags.GetFlags().OrderBy(x => x))
+                {
+                    s += caFlag.AsString(EnumFormat.Description);
+                }
+            }
+            return s;
+        }
+
+       
     }
 }

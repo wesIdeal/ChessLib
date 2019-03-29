@@ -57,6 +57,8 @@ namespace ChessLib.Data.Types
     [Flags]
     public enum CastlingAvailability
     {
+        [Description("-")]
+        NoCastlingAvailable = 0,
         [Description("k")]
         BlackKingside = 1,
         [Description("q")]
@@ -64,9 +66,8 @@ namespace ChessLib.Data.Types
         [Description("K")]
         WhiteKingside = 4,
         [Description("Q")]
-        WhiteQueenside = 8,
-        [Description("-")]
-        NoCastlingAvailable = 16
+        WhiteQueenside = 8
+
     }
     public static class SlidingPieceDirectionContants
     {
