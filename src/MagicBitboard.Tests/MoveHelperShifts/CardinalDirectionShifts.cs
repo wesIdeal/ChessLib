@@ -1,24 +1,17 @@
 ﻿using ChessLib.Data.Helpers;
-using MagicBitboard;
-using MagicBitboard.Helpers;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MagicBitboard.Helpers.MoveHelper.Tests
 {
 
     [TestFixture]
-    public class CardinalDirectionShifts
+    public static class CardinalDirectionShifts
     {
         #region Cardinal Direction Shifts
 
         #region Cardinal Direction Test All Methods
         [Test]
-        public void ShiftETestAll()
+        public static void ShiftETestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -35,7 +28,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftSTestAll()
+        public static void ShiftSTestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -52,7 +45,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftWTestAll()
+        public static void ShiftWTestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -69,7 +62,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftNTestAll()
+        public static void ShiftNTestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -92,7 +85,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
 
         [Test]
-        public void Shift2ETestAll()
+        public static void Shift2ETestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -110,7 +103,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftE
 
         [Test]
-        public void ShiftENormal()
+        public static void ShiftENormal()
         {
             ulong u = 1;
             ulong expected = 2;
@@ -119,7 +112,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftEHFile()
+        public static void ShiftEHFile()
         {
             ulong u = 128;
             ulong expected = 0;
@@ -129,7 +122,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftEE4()
+        public static void ShiftEE4()
         {
             ulong u = 0x10000000;
             ulong expected = 0x20000000;
@@ -142,7 +135,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
 
         [Test]
-        public void Shift2ENormal()
+        public static void Shift2ENormal()
         {
             ulong u = 0x10000000;//e4
             ulong expected = 0x40000000;//g4
@@ -151,7 +144,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void Shift2EFromGFile()
+        public static void Shift2EFromGFile()
         {
             ulong u = 0x40000000;
             ulong expected = 0x00;
@@ -160,7 +153,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void Shift2EFromFFile()
+        public static void Shift2EFromFFile()
         {
             ulong u = 0x80000000;
             ulong expected = 0x00;
@@ -174,7 +167,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftS Tests
 
         [Test]
-        public void ShiftS2TestAll()
+        public static void ShiftS2TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -192,7 +185,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftS
 
         [Test]
-        public void ShiftSNormal()
+        public static void ShiftSNormal()
         {
             ulong u = 0x100;
             ulong expected = 0x01;
@@ -201,7 +194,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftS1stRank()
+        public static void ShiftS1stRank()
         {
             ulong u = 0x01;
             ulong expected = 0;
@@ -210,7 +203,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftSD4()
+        public static void ShiftSD4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x80000;
@@ -222,7 +215,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region Shift2S
 
         [Test]
-        public void Shift2SNormal()
+        public static void Shift2SNormal()
         {
             ulong u = 0x8000000;
             ulong expected = 0x800;
@@ -231,7 +224,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void Shift2SFrom2ndRank()
+        public static void Shift2SFrom2ndRank()
         {
             ulong u = 0x800;
             ulong expected = 0x00;
@@ -240,7 +233,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void Shift2SFrom1stRank()
+        public static void Shift2SFrom1stRank()
         {
             ulong u = 0x08;
             ulong expected = 0x00;
@@ -254,7 +247,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
 
         [Test]
-        public void Shift2WTestAll()
+        public static void Shift2WTestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -272,7 +265,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftW
 
         [Test]
-        public void ShiftWNormal()
+        public static void ShiftWNormal()
         {
             ulong u = 0x2000000;
             ulong expected = 0x1000000;
@@ -281,7 +274,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftWAFile()
+        public static void ShiftWAFile()
         {
             ulong u = 0x1000000;
             ulong expected = 0;
@@ -290,7 +283,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftWE4()
+        public static void ShiftWE4()
         {
             ulong u = 0x10000000;
             ulong expected = 0x8000000;
@@ -302,7 +295,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region Shift2W
 
         [Test]
-        public void Shift2WNormal()
+        public static void Shift2WNormal()
         {
             ulong u = 0x10000000;
             ulong expected = 0x4000000;
@@ -311,7 +304,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void Shift2WFromBFile()
+        public static void Shift2WFromBFile()
         {
             ulong u = 0x2000000;
             ulong expected = 0x00;
@@ -320,7 +313,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void Shift2WFromAFile()
+        public static void Shift2WFromAFile()
         {
             ulong u = 0x1000000;
             ulong expected = 0x00;
@@ -334,7 +327,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
 
         [Test]
-        public void ShiftN2TestAll()
+        public static void ShiftN2TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -352,7 +345,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftN
 
         [Test]
-        public void ShiftNNormal()
+        public static void ShiftNNormal()
         {
             ulong u = 0x01;
             ulong expected = 0x100;
@@ -361,7 +354,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftN8thRank()
+        public static void ShiftN8thRank()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0;
@@ -370,7 +363,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftND4()
+        public static void ShiftND4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x800000000;
@@ -383,7 +376,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
 
         [Test]
-        public void Shift2NNormal()
+        public static void Shift2NNormal()
         {
             ulong u = 0x8000000;
             ulong expected = 0x80000000000;
@@ -392,7 +385,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void Shift2NFrom7thRank()
+        public static void Shift2NFrom7thRank()
         {
             ulong u = 0x8000000000000;
             ulong expected = 0x00;
@@ -401,7 +394,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void Shift2NFrom8thRank()
+        public static void Shift2NFrom8thRank()
         {
             ulong u = 0x800000000000000;
             ulong expected = 0x00;
@@ -417,7 +410,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region Divided Cardinal Direction Shifts
         #region Divided Cardinal Test All Methods
         [Test]
-        public void ShiftNNETestAll()
+        public static void ShiftNNETestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -434,7 +427,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftNETestAll()
+        public static void ShiftNETestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -451,7 +444,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftENETestAll()
+        public static void ShiftENETestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -468,7 +461,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftESETestAll()
+        public static void ShiftESETestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -485,7 +478,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftSETestAll()
+        public static void ShiftSETestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -502,7 +495,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftSSETestAll()
+        public static void ShiftSSETestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -519,7 +512,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftSSWTestAll()
+        public static void ShiftSSWTestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -536,7 +529,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftSWTestAll()
+        public static void ShiftSWTestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -553,7 +546,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftWSWTestAll()
+        public static void ShiftWSWTestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -570,7 +563,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftWNWTestAll()
+        public static void ShiftWNWTestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -587,7 +580,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftNWTestAll()
+        public static void ShiftNWTestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -604,7 +597,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftNNWTestAll()
+        public static void ShiftNNWTestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -625,7 +618,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftNNE
 
         [Test]
-        public void ShiftNNENormal()
+        public static void ShiftNNENormal()
         {
             ulong u = 1;
             ulong expected = 0x20000;
@@ -633,7 +626,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNNEFromD4()
+        public static void ShiftNNEFromD4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x100000000000;
@@ -642,7 +635,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftNNEFromH6()
+        public static void ShiftNNEFromH6()
         {
             ulong u = 0x800000000000;
             ulong expected = 0x00;
@@ -650,7 +643,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNNEFromF8()
+        public static void ShiftNNEFromF8()
         {
             ulong u = 0x2000000000000000;
             ulong expected = 0x00;
@@ -658,7 +651,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNNEFromH8()
+        public static void ShiftNNEFromH8()
         {
             ulong u = 0x8000000000000000;
             ulong expected = 0x00;
@@ -666,7 +659,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNNEFromA8()
+        public static void ShiftNNEFromA8()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0x00;
@@ -674,7 +667,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNNEFromC1()
+        public static void ShiftNNEFromC1()
         {
             ulong u = 0x04;
             ulong expected = 0x80000;
@@ -686,7 +679,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftNE Tests
 
         [Test]
-        public void ShiftNENormal()
+        public static void ShiftNENormal()
         {
             ulong u = 1;
             ulong expected = 0x0200;
@@ -694,7 +687,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNEFromD4()
+        public static void ShiftNEFromD4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x1000000000;
@@ -702,7 +695,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNEFromH6()
+        public static void ShiftNEFromH6()
         {
             ulong u = 0x800000000000;
             ulong expected = 0x00;
@@ -710,7 +703,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNEFromF8()
+        public static void ShiftNEFromF8()
         {
             ulong u = 0x2000000000000000;
             ulong expected = 0x00;
@@ -718,7 +711,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNEFromH8()
+        public static void ShiftNEFromH8()
         {
             ulong u = 0x8000000000000000;
             ulong expected = 0x00;
@@ -726,7 +719,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNEFromA8()
+        public static void ShiftNEFromA8()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0x00;
@@ -738,7 +731,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftENE Tests
 
         [Test]
-        public void ShiftENENormal()
+        public static void ShiftENENormal()
         {
             ulong u = 1;
             ulong expected = 0x0400;
@@ -746,7 +739,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftENEFromD4()
+        public static void ShiftENEFromD4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x2000000000;
@@ -755,7 +748,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftENEFromH6()
+        public static void ShiftENEFromH6()
         {
             ulong u = 0x800000000000;
             ulong expected = 0x00;
@@ -763,7 +756,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftENEFromF8()
+        public static void ShiftENEFromF8()
         {
             ulong u = 0x2000000000000000;
             ulong expected = 0x00;
@@ -771,7 +764,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftENEFromH8()
+        public static void ShiftENEFromH8()
         {
             ulong u = 0x8000000000000000;
             ulong expected = 0x00;
@@ -779,7 +772,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftENEFromA8()
+        public static void ShiftENEFromA8()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0x00;
@@ -791,7 +784,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftESE Tests
 
         [Test]
-        public void ShiftESENormal()
+        public static void ShiftESENormal()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = BoardHelpers.IndividualSquares[6, 2];
@@ -799,7 +792,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftESEFromD4()
+        public static void ShiftESEFromD4()
         {
             ulong u = BoardHelpers.IndividualSquares[3, 3];
             ulong expected = BoardHelpers.IndividualSquares[2, 5];
@@ -808,7 +801,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftESEFromH6()
+        public static void ShiftESEFromH6()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 6];
             ulong expected = 0x00;
@@ -816,7 +809,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftESEFromF8()
+        public static void ShiftESEFromF8()
         {
             ulong u = BoardHelpers.IndividualSquares[6, 6];
             ulong expected = 0x00;
@@ -824,7 +817,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftESEFromH8()
+        public static void ShiftESEFromH8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 5];
             ulong expected = BoardHelpers.IndividualSquares[6, 7];
@@ -832,7 +825,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftESEFromG2()
+        public static void ShiftESEFromG2()
         {
             ulong u = 0x4000;
             ulong expected = 0x00;
@@ -840,7 +833,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftESEFromA8()
+        public static void ShiftESEFromA8()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0x4000000000000;
@@ -852,7 +845,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftSE Tests
 
         [Test]
-        public void ShiftSENormal()
+        public static void ShiftSENormal()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0x2000000000000;
@@ -860,7 +853,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSEFromD4()
+        public static void ShiftSEFromD4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x100000;
@@ -868,7 +861,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSEFromH6()
+        public static void ShiftSEFromH6()
         {
             ulong u = 0x800000000000;
             ulong expected = 0x00;
@@ -876,7 +869,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSEFromH2()
+        public static void ShiftSEFromH2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
             ulong expected = 0x00;
@@ -885,7 +878,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         }
         [Test]
-        public void ShiftSEFromG1()
+        public static void ShiftSEFromG1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 6];
             ulong expected = 0x00;
@@ -893,7 +886,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSEFromH1()
+        public static void ShiftSEFromH1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 7];
             ulong expected = 0x00;
@@ -905,7 +898,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         #region ShiftSSE Tests
 
         [Test]
-        public void ShiftSSENormal()
+        public static void ShiftSSENormal()
         {
             ulong u = 0x400000; //G3
             ulong expected = 0x80;//H1
@@ -913,7 +906,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSSEFromD4()
+        public static void ShiftSSEFromD4()
         {
             ulong u = BoardHelpers.IndividualSquares[3, 3];
             ulong expected = BoardHelpers.IndividualSquares[1, 4];
@@ -922,7 +915,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
         }
 
         [Test]
-        public void ShiftSSEFromF2()
+        public static void ShiftSSEFromF2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 5];
             ulong expected = 0;
@@ -930,7 +923,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSSEFromG2()
+        public static void ShiftSSEFromG2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 6];
             ulong expected = 0x00;
@@ -938,7 +931,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSSEFromH8()
+        public static void ShiftSSEFromH8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 7];
             ulong expected = 0;
@@ -946,7 +939,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSSEFromH3()
+        public static void ShiftSSEFromH3()
         {
             ulong u = 0x800000;
             ulong expected = 0x00;
@@ -954,7 +947,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSSEFromA2()
+        public static void ShiftSSEFromA2()
         {
             ulong u = 0x100;
             ulong expected = 0;
@@ -965,7 +958,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         #region ShiftSSW Tests
         [Test]
-        public void ShiftSSWNormal()
+        public static void ShiftSSWNormal()
         {
             ulong u = 0x200000000000000;//b8
             ulong expected = 0x10000000000;//a6
@@ -973,7 +966,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSSWFromH3()
+        public static void ShiftSSWFromH3()
         {
             ulong u = 0x800000;//H3
             ulong expected = 0x40; //g1
@@ -981,7 +974,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSSWFromH8()
+        public static void ShiftSSWFromH8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 7];//h8
             ulong expected = BoardHelpers.IndividualSquares[5, 6]; //g6
@@ -989,7 +982,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSSWFromA8()
+        public static void ShiftSSWFromA8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
@@ -998,7 +991,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         }
         [Test]
-        public void ShiftSSWFromA3()
+        public static void ShiftSSWFromA3()
         {
             ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
@@ -1006,7 +999,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSSWFromH2()
+        public static void ShiftSSWFromH2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
             ulong expected = 0x00;
@@ -1017,7 +1010,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         #region ShiftSW Tests
         [Test]
-        public void ShiftSWNormal()
+        public static void ShiftSWNormal()
         {
             ulong u = 0x8000000000000000;
             ulong expected = 0x40000000000000;
@@ -1025,7 +1018,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSWFromD4()
+        public static void ShiftSWFromD4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x40000; //c3
@@ -1033,7 +1026,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSWFromH6()
+        public static void ShiftSWFromH6()
         {
             ulong u = 0x800000000000;
             ulong expected = 0x4000000000;
@@ -1041,7 +1034,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSWFromA2()
+        public static void ShiftSWFromA2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 0];
             ulong expected = 0x00;
@@ -1050,7 +1043,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         }
         [Test]
-        public void ShiftSWFromG1()
+        public static void ShiftSWFromG1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 6];
             ulong expected = 0x00;
@@ -1058,7 +1051,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftSWFromH1()
+        public static void ShiftSWFromH1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 7];
             ulong expected = 0x00;
@@ -1069,7 +1062,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         #region ShiftWSW Tests
         [Test]
-        public void ShiftWSWNormal()
+        public static void ShiftWSWNormal()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 2];//c8
             ulong expected = BoardHelpers.IndividualSquares[6, 0];//a7
@@ -1077,7 +1070,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftWSWFromH3()
+        public static void ShiftWSWFromH3()
         {
             ulong u = 0x800000;//H3
             ulong expected = 0x2000; //f2
@@ -1085,7 +1078,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftWSWFromH8()
+        public static void ShiftWSWFromH8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 7];//h8
             ulong expected = BoardHelpers.IndividualSquares[6, 5]; //f7
@@ -1093,7 +1086,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftWSWFromA8()
+        public static void ShiftWSWFromA8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
@@ -1102,7 +1095,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         }
         [Test]
-        public void ShiftWSWFromA3()
+        public static void ShiftWSWFromA3()
         {
             ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
@@ -1110,10 +1103,10 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftWSWFromH2()
+        public static void ShiftWSWFromH2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
-            ulong expected = 0x01<<5;
+            ulong expected = 0x01 << 5;
             var actual = ShiftHelpers.ShiftWSW(u);
             Assert.AreEqual(expected, actual);
         }
@@ -1121,7 +1114,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         #region ShiftWNW Tests
         [Test]
-        public void ShiftWNWNormal()
+        public static void ShiftWNWNormal()
         {
             ulong u = 0x4000000000000; //c7
             ulong expected = 0x100000000000000; // a8
@@ -1129,7 +1122,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftWNWFromH3()
+        public static void ShiftWNWFromH3()
         {
             ulong u = 0x800000;//H3
             ulong expected = 0x20000000; //f4
@@ -1137,7 +1130,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftWNWFromH8()
+        public static void ShiftWNWFromH8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 7];//h8
             ulong expected = 0x00;
@@ -1145,7 +1138,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftWNWFromA8()
+        public static void ShiftWNWFromA8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
@@ -1154,7 +1147,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         }
         [Test]
-        public void ShiftWNWFromA3()
+        public static void ShiftWNWFromA3()
         {
             ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
@@ -1162,7 +1155,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftWNWFromH2()
+        public static void ShiftWNWFromH2()
         {
             ulong u = 0x8000; //h2
             ulong expected = 0x200000;
@@ -1173,7 +1166,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         #region ShiftNW Tests
         [Test]
-        public void ShiftNWNormal()
+        public static void ShiftNWNormal()
         {
             ulong u = 0x2000000000000;//b7
             ulong expected = 0x100000000000000;//a8
@@ -1181,7 +1174,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNWFromD4()
+        public static void ShiftNWFromD4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x400000000; //c5
@@ -1189,7 +1182,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNWFromH6()
+        public static void ShiftNWFromH6()
         {
             ulong u = 0x800000000000;//h6
             ulong expected = 0x40000000000000;//g7
@@ -1197,7 +1190,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNWFromA2()
+        public static void ShiftNWFromA2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 0];
             ulong expected = 0x00;
@@ -1206,7 +1199,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         }
         [Test]
-        public void ShiftNWFromA8()
+        public static void ShiftNWFromA8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
@@ -1214,7 +1207,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNWFromH1()
+        public static void ShiftNWFromH1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 7];
             ulong expected = 0x01 << 14;
@@ -1225,7 +1218,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         #region ShiftNNW Tests
         [Test]
-        public void ShiftNNWNormal()
+        public static void ShiftNNWNormal()
         {
             ulong u = 0x20000000000;//b6
             ulong expected = 0x100000000000000;//a8
@@ -1233,7 +1226,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNNWFromB7()
+        public static void ShiftNNWFromB7()
         {
             ulong u = 0x2000000000000;//b7
             ulong expected = 0x00;
@@ -1241,7 +1234,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNNWFromH6()
+        public static void ShiftNNWFromH6()
         {
             ulong u = 0x800000000000;//h6
             ulong expected = 0x4000000000000000; //g6
@@ -1249,7 +1242,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNNWFromA8()
+        public static void ShiftNNWFromA8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
@@ -1258,7 +1251,7 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
 
         }
         [Test]
-        public void ShiftNNWFromA3()
+        public static void ShiftNNWFromA3()
         {
             ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
@@ -1266,10 +1259,10 @@ namespace MagicBitboard.Helpers.MoveHelper.Tests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void ShiftNNWFromH2()
+        public static void ShiftNNWFromH2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
-            ulong expected = 0x01<<30;
+            ulong expected = 0x01 << 30;
             var actual = ShiftHelpers.ShiftNNW(u);
             Assert.AreEqual(expected, actual);
         }

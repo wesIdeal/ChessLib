@@ -76,8 +76,8 @@ namespace ChessLib.Data.MoveRepresentation
                     SourceRank = SourceFile = null;
                     return;
                 }
-                ushort r, f;
-                ValidateIndexes(value.Value, out r, out f);
+
+                ValidateIndexes(value.Value, out ushort r, out ushort f);
                 SourceRank = r;
                 SourceFile = f;
             }
@@ -96,8 +96,7 @@ namespace ChessLib.Data.MoveRepresentation
                     DestinationRank = DestinationFile = null;
                     return;
                 }
-                ushort r, f;
-                ValidateIndexes(value.Value, out r, out f);
+                ValidateIndexes(value.Value, out ushort r, out ushort f);
                 DestinationRank = r;
                 DestinationFile = f;
             }
@@ -110,7 +109,7 @@ namespace ChessLib.Data.MoveRepresentation
         public Color Color { get; set; }
         public string MoveText { get; set; }
 
-        private void ValidateIndexes(ushort ids, out ushort r, out ushort f)
+        private static void ValidateIndexes(ushort ids, out ushort r, out ushort f)
         {
             r = (ushort)(ids / 8);
             f = (ushort)(ids % 8);

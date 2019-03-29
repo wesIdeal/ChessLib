@@ -10,11 +10,10 @@ namespace ChessLib.Data.Helpers
 {
     public static class DisplayHelpers
     {
-        public readonly static Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations;
+        public readonly static Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations = new Dictionary<Color, Dictionary<Piece, string>>();
 
         static DisplayHelpers()
         {
-            HtmlPieceRepresentations = new Dictionary<Color, Dictionary<Piece, string>>();
             InitializeHtmlPieceRepresentations();
         }
 
@@ -71,7 +70,7 @@ namespace ChessLib.Data.Helpers
             var board = new List<string>();
 
             var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
-            if (header == string.Empty)
+            if (string.IsNullOrWhiteSpace(header))
             {
                 header = $"Piece at {pieceIndex.IndexToSquareDisplay()}";
             }
@@ -151,7 +150,7 @@ namespace ChessLib.Data.Helpers
         {
             string board = Convert.ToString((long)u, 2).PadLeft(64, '0');
             var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
-            if (header != string.Empty)
+            if (!string.IsNullOrWhiteSpace(header))
             {
                 sb.AppendLine($"<caption>{header}<br/>{board}</caption>");
             }
@@ -168,6 +167,34 @@ namespace ChessLib.Data.Helpers
 
                     var pieceAtSquare = board[(rank * 8) + file] == '1' ? pieceRep : "&nbsp;";
                     sb.AppendFormat(squareFormat, f.ToString(), rank, pieceAtSquare, board[(rank * 8) + file] == '1' ? "altColor" : "");
+                }
+                sb.Append("\r\n</tr>\r\n");
+            }
+            sb.AppendLine("</table>");
+            return sb.ToString();
+        }
+
+        public static string MakeBoardTableFromFEN(string FEN, string header = "")
+        {
+            var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
+            if (!string.IsNullOrWhiteSpace(header))
+            {
+                sb.AppendLine($"<caption>{header}</caption>");
+            }
+            const string squareFormat = "<td id=\"{0}\">{1}</td>";
+
+            for (Rank r = Rank.R8; r >= Rank.R1; r--)
+            {
+                var rank = ((ushort)r).RankCompliment();
+                sb.AppendLine($"<tr id=\"rank{rank}\">");
+
+                for (File f = File.A; f <= File.H; f++)
+                {
+                    var file = (int)f;
+                    var piece = FEN[(BoardHelpers.RankCompliment((ushort)r) * 8) + (ushort)f];
+                    var pieceRep = GetHtmlRepresentation(piece);
+
+                    sb.AppendFormat(squareFormat, f.ToString() + r.ToString(), pieceRep ?? "&nbsp;");
                 }
                 sb.Append("\r\n</tr>\r\n");
             }
@@ -204,7 +231,7 @@ namespace ChessLib.Data.Helpers
     {1}
     </body>
 </html>";
-        private static string htmlStyles = @"
+        private const string htmlStyles = @"
 <style>
     * 
     {

@@ -96,10 +96,41 @@ namespace ChessLib.Data.Helpers
             return poc;
         }
 
-        public struct PieceOfColor
+       
+    }
+    public struct PieceOfColor
+    {
+        public Color Color { get; set; }
+        public Piece Piece { get; set; }
+
+        public override bool Equals(object obj)
         {
-            public Color Color { get; set; }
-            public Piece Piece { get; set; }
+            if (!(obj is PieceOfColor))
+            {
+                return false;
+            }
+
+            var actual = (PieceOfColor)obj;
+            return Color == actual.Color &&
+                   Piece == actual.Piece;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 1709797085;
+            hashCode = hashCode * -1521134295 + Color.GetHashCode();
+            hashCode = hashCode * -1521134295 + Piece.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(PieceOfColor left, PieceOfColor right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(PieceOfColor left, PieceOfColor right)
+        {
+            return !(left == right);
         }
     }
 }

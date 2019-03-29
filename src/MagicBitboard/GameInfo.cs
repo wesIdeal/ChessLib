@@ -17,12 +17,7 @@ namespace MagicBitboard
 
         public GameInfo(string fen)
         {
-            _fen = fen;
             BoardInfo = BoardInfo.BoardInfoFromFen(fen);
         }
-
-        private string _fen;
-
-
     }
 }

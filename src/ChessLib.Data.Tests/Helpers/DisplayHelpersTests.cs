@@ -2,10 +2,10 @@
 namespace ChessLib.Data.Helpers.Tests
 {
     [TestFixture]
-    public class DisplayHelpersTests
+    public static class DisplayHelpersTests
     {
         [Test]
-        public void GetDisplayBits_PlacesMSBAtH8()
+        public static void GetDisplayBits_PlacesMSBAtH8()
         {
             ulong testVal = 0x8000000000000000;
             var expected =
@@ -21,7 +21,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void GetDisplayBits_PlacesLSBAtA1()
+        public static void GetDisplayBits_PlacesLSBAtA1()
         {
             ulong testVal = 0x0000000000000001;
             var expected =

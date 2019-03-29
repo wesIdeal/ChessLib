@@ -15,7 +15,7 @@ namespace ChessLib.Data.Exceptions
         private static string GetFormattedMessage(FENError e) => "* " + e.AsString(EnumFormat.Description);
         private static string FormatFENError(string fen, FENError e)
         {
-            if (e == FENError.NULL) return "";
+            if (e == FENError.Null) return "";
             var sb = new StringBuilder($"FEN Errors Found ({fen}):\r\n");
             foreach (var error in e.GetFlags().Select(x => new { error = x, message = GetFormattedMessage(x) }))
             {
@@ -37,6 +37,18 @@ namespace ChessLib.Data.Exceptions
         }
 
         protected FENException(SerializationInfo serializationInfo, StreamingContext context) : base(serializationInfo, context)
+        {
+        }
+
+        public FENException()
+        {
+        }
+
+        public FENException(string message) : base(message)
+        {
+        }
+
+        public FENException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

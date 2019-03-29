@@ -5,7 +5,6 @@ namespace ChessLib.Data
 {
     public class MoveNode<T> where T : IEquatable<T>
     {
-        private MoveNode<T> _parent;
         private MoveNode()
         {
             Variations = new LinkedList<MoveTree<T>>();
@@ -18,22 +17,14 @@ namespace ChessLib.Data
             Parent = parent;
         }
 
-        public MoveNode<T> Parent
-        {
-            get { return _parent; }
+        public MoveNode<T> Parent { get; set; }
 
-            set
-            {
-
-                _parent = value;
-            }
-        }
         public MoveTree<T> AddVariation()
         {
             return Variations.AddLast(new MoveTree<T>(this)).Value;
         }
-        public LinkedList<MoveTree<T>> Variations { get; private set; }
-        public T Move { get; set; }
+        public LinkedList<MoveTree<T>> Variations { get; }
+        public T Move { get; }
         public uint Depth
         {
             get
@@ -61,7 +52,7 @@ namespace ChessLib.Data
             var str = Move.ToString();
             foreach (var variation in Variations)
             {
-                str += $"\r\n\t[{Depth}]{variation.ToString()}";
+                str += $"\r\n\t[{Depth}]{variation}";
             }
             return str;
         }

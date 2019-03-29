@@ -56,7 +56,7 @@ namespace ChessLib.Parse.PGN.Parser
         public override void EnterTag_value([NotNull] PGNParser.Tag_valueContext context)
         {
             var tagVal = context.GetText();
-            if (tagName != "")
+            if (!string.IsNullOrWhiteSpace(tagName))
             {
                 _game.TagSection.Add(tagName, tagVal);
             }

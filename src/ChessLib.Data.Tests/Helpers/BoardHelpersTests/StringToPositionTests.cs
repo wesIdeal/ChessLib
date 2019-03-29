@@ -4,14 +4,14 @@ using System;
 namespace ChessLib.Data.Helpers.Tests
 {
     [TestFixture]
-    public partial class BoardHelpersTests
+    public static partial class BoardHelpersTests
     {
         [TestFixture]
-        public class StringToPositionTests
+        public static class StringToPositionTests
         {
 
             [Test]
-            public void SquareTextToIndex_ShouldReturnIndex_OnGoodInput()
+            public static void SquareTextToIndex_ShouldReturnIndex_OnGoodInput()
             {
                 var counter = 0;
                 for (char r = '1'; r <= '8'; r++)
@@ -27,26 +27,26 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-            public void SquareTextToIndex_ShouldReturnNull_OnUninterpretableSquare()
+            public static void SquareTextToIndex_ShouldReturnNull_OnUninterpretableSquare()
             {
                 var expected = (ushort?)null;
                 Assert.AreEqual(expected, BoardHelpers.SquareTextToIndex("-"));
             }
 
             [Test]
-            public void SquareTextToIndex_ShouldThrowException_OnEmpty()
+           public static void SquareTextToIndex_ShouldThrowException_OnEmpty()
             {
                 Assert.Throws(typeof(ArgumentException), () => { BoardHelpers.SquareTextToIndex(""); });
             }
 
             [Test]
-            public void SquareTextToIndex_ShouldThrowException_OnInputLessThan2Chars()
+           public static void SquareTextToIndex_ShouldThrowException_OnInputLessThan2Chars()
             {
                 Assert.Throws(typeof(ArgumentException), () => { BoardHelpers.SquareTextToIndex("a"); });
             }
 
             [Test]
-            public void SquareTextToIndex_ShouldThrowException_OnInputGreaterThan2Chars()
+           public static void SquareTextToIndex_ShouldThrowException_OnInputGreaterThan2Chars()
             {
                 var message = "";
                 Assert.Throws(typeof(ArgumentException), () =>
@@ -65,7 +65,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-            public void SquareTextToIndex_ShouldThrowException_OnInvalidFile()
+           public static void SquareTextToIndex_ShouldThrowException_OnInvalidFile()
             {
                 var message = "";
                 Assert.Throws(typeof(ArgumentException), () =>
@@ -84,7 +84,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-            public void SquareTextToIndex_ShouldThrowException_OnRankZero()
+           public static void SquareTextToIndex_ShouldThrowException_OnRankZero()
             {
                 var message = "";
                 Assert.Throws(typeof(ArgumentException), () =>
@@ -103,7 +103,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-            public void SquareTextToIndex_ShouldThrowException_OnRankAboveValidRange()
+           public static void SquareTextToIndex_ShouldThrowException_OnRankAboveValidRange()
             {
                 var message = "";
                 Assert.Throws(typeof(ArgumentException), () =>
@@ -122,7 +122,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-            public void IndexToFileDisplay_ShouldReturnCorrespondingFileChar_ValidInput()
+           public static void IndexToFileDisplay_ShouldReturnCorrespondingFileChar_ValidInput()
             {
                 for (ushort i = 0; i < 64; i++)
                 {
@@ -144,7 +144,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-            public void IndexToRankDisplay_ShouldReturnCorrespondingRankChar_ValidInput()
+           public static void IndexToRankDisplay_ShouldReturnCorrespondingRankChar_ValidInput()
             {
                 for (ushort i = 0; i < 64; i++)
                 {

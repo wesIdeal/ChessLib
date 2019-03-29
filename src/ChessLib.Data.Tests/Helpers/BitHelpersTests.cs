@@ -3,10 +3,10 @@
 namespace ChessLib.Data.Helpers.Tests
 {
     [TestFixture]
-    public class BitHelpersTests
+    public static class BitHelpersTests
     {
         [Test]
-        public void GetSetBits_ShouldReturnASquareIndex_GivenOneSquareOfInput()
+        public static void GetSetBits_ShouldReturnASquareIndex_GivenOneSquareOfInput()
         {
             var count = 0;
             foreach (var sq in BoardHelpers.IndividualSquares)
@@ -16,8 +16,9 @@ namespace ChessLib.Data.Helpers.Tests
                 count++;
             }
         }
+
         [Test]
-        public void GetSetBits_ShouldReturnASquareIndexes_GivenManySquaresOfInput()
+        public static void GetSetBits_ShouldReturnASquareIndexes_GivenManySquaresOfInput()
         {
             var expectedR2 = new ushort[] { 8, 9, 10, 11, 12, 13, 14, 15 };
             var expectedR7 = new ushort[] { 48, 49, 50, 51, 52, 53, 54, 55 };
@@ -28,9 +29,8 @@ namespace ChessLib.Data.Helpers.Tests
 
         }
 
-
         [Test]
-        public void GetSetBits_ShouldReturnASquareIndexes_Given2SquaresOfInput()
+        public static void GetSetBits_ShouldReturnASquareIndexes_Given2SquaresOfInput()
         {
             ulong a = 0b1001;
             var expected = new[] { 0, 3 };
@@ -39,7 +39,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void GetSetBits_ShouldReturnASquareIndexes_Given4SquaresOfInput()
+        public static void GetSetBits_ShouldReturnASquareIndexes_Given4SquaresOfInput()
         {
             ulong a = 0b1111;
             var expected = new[] { 0, 1, 2, 3 };
@@ -48,7 +48,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void SetBit_ShouldSetBit_GivenAnySquareInRange()
+        public static void SetBit_ShouldSetBit_GivenAnySquareInRange()
         {
             ulong a = 0;
 
@@ -64,7 +64,7 @@ namespace ChessLib.Data.Helpers.Tests
 
 
         [Test]
-        public void ClearBit_ShouldSetBitIndexToZero()
+        public static void ClearBit_ShouldSetBitIndexToZero()
         {
             ulong a = 0xff;
             var bitIndexToClear = 1;
@@ -73,7 +73,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void IsBitSet_ShouldReturnTrue_InputBitIndexIsSet()
+        public static void IsBitSet_ShouldReturnTrue_InputBitIndexIsSet()
         {
             ulong a = 0;
             ushort bitIndexToSet = 32;
@@ -82,7 +82,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void IsBitSet_ShouldReturnFalse_InputBitIndexIsNotSet()
+        public static void IsBitSet_ShouldReturnFalse_InputBitIndexIsNotSet()
         {
             ulong a = 0;
             ushort bitIndexToSet = 32;

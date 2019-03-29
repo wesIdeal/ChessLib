@@ -103,24 +103,24 @@ namespace ChessLib.Data.Helpers.Tests
         #region Delegates
         private delegate void ValidationDelegate(string s);
 
-        private ValidationDelegate MainValidation = FENHelpers.ValidateFENString;
+        private readonly ValidationDelegate MainValidation = FENHelpers.ValidateFENString;
         #endregion
 
         #region Private Methods
-        private string GetFENFromProvidedFENPieceInfo(string piecePlacement, string activeColor, string castling, string enPassant, int halfMove, int fullMove)
+        private static string GetFENFromProvidedFENPieceInfo(string piecePlacement, string activeColor, string castling, string enPassant, int halfMove, int fullMove)
         {
             return string.Format(fenFormat, piecePlacement, activeColor, castling, enPassant, halfMove, fullMove);
         }
 
-        private FENException AssertThrowsFenException(ValidationDelegate validate, string fen, FENError errorTypeExpected = FENError.NULL, string assertMessage = "")
+        private static FENException AssertThrowsFenException(ValidationDelegate validate, string fen, FENError errorTypeExpected = FENError.Null, string assertMessage = "")
         {
-            FENException exc = new FENException(fen, FENError.NULL);
+            FENException exc = new FENException(fen, FENError.Null);
             Assert.Throws(typeof(FENException), () =>
             {
                 try { validate(fen); }
                 catch (FENException e) { exc = e; throw; }
             }, assertMessage);
-            if (errorTypeExpected != FENError.NULL)
+            if (errorTypeExpected != FENError.Null)
             {
                 Assert.AreEqual(errorTypeExpected, exc.FENError);
             }
@@ -132,54 +132,31 @@ namespace ChessLib.Data.Helpers.Tests
         #region Tests
         #region CastlingAvailability to string
         [Test(Description = "Should make appropriate FEN Castling Availability string (-) when empty.")]
-        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenEmpty()
-        {
-            Assert.AreEqual("-", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.NoCastlingAvailable));
-        }
+        public static void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenEmpty() => Assert.AreEqual("-", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.NoCastlingAvailable));
+
         [Test(Description = "Should make appropriate FEN Castling Availability string (KQ) when White Kingside and Queenside.")]
-        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenKQ()
-        {
-            Assert.AreEqual("KQ", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside));
-        }
+        public static void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenKQ() => Assert.AreEqual("KQ", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside));
+
         [Test(Description = "Should make appropriate FEN Castling Availability string (K) when White Kingside.")]
-        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenK()
-        {
-            Assert.AreEqual("K", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.WhiteKingside));
+        public static void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenK() => Assert.AreEqual("K", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.WhiteKingside));
 
-        }
         [Test(Description = "Should make appropriate FEN Castling Availability string (Q) when White Queenside.")]
-        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenQ()
-        {
-            Assert.AreEqual("Q", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.WhiteQueenside));
+        public static void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenQ() => Assert.AreEqual("Q", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.WhiteQueenside));
 
-        }
         [Test(Description = "Should make appropriate FEN Castling Availability string (kq) when Black Kingside and Queenside.")]
-        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_Whenkq()
-        {
-            Assert.AreEqual("kq", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside));
-        }
+        public static void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_Whenkq() => Assert.AreEqual("kq", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside));
 
         [Test(Description = "Should make appropriate FEN Castling Availability string (k) when Black Kingside.")]
-        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_Whenk()
-        {
-            Assert.AreEqual("k", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside));
-        }
-        [Test(Description = "Should make appropriate FEN Castling Availability string (Qk) when Black Kingside and White Queenside.")]
-        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenkQ()
-        {
-            Assert.AreEqual("Qk", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside | CastlingAvailability.WhiteQueenside));
-        }
-        [Test(Description = "Should make appropriate FEN Castling Availability string (Kq) when White Kingside and Black Queenside.")]
-        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenKq()
-        {
-            Assert.AreEqual("Kq", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside));
-        }
-        [Test(Description = "Should make appropriate FEN Castling Availability string (KQkq) when all castling is available.")]
-        public void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenKQkq()
-        {
-            Assert.AreEqual("KQkq", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteQueenside | CastlingAvailability.WhiteKingside));
+        public static void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_Whenk() => Assert.AreEqual("k", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside));
 
-        } 
+        [Test(Description = "Should make appropriate FEN Castling Availability string (Qk) when Black Kingside and White Queenside.")]
+        public static void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenkQ() => Assert.AreEqual("Qk", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside | CastlingAvailability.WhiteQueenside));
+
+        [Test(Description = "Should make appropriate FEN Castling Availability string (Kq) when White Kingside and Black Queenside.")]
+        public static void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenKq() => Assert.AreEqual("Kq", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside));
+
+        [Test(Description = "Should make appropriate FEN Castling Availability string (KQkq) when all castling is available.")]
+        public static void MakeCastlingAvailabilityStringFromBitFlags_ShouldReturnAppropriateResults_WhenKQkq() => Assert.AreEqual("KQkq", FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteQueenside | CastlingAvailability.WhiteKingside));
         #endregion
 
         [Test]
@@ -201,12 +178,12 @@ namespace ChessLib.Data.Helpers.Tests
             {
                 var s = string.Join(" | ", info.CastlingAvailability.GetFlags().Select(x => x.ToString()));
                 Console.WriteLine($"{info.CastlingAvailabilityString} should equal {s}");
-                Assert.AreEqual(FENError.NULL, FENHelpers.ValidateCastlingAvailabilityString(info.CastlingAvailabilityString));
+                Assert.AreEqual(FENError.Null, FENHelpers.ValidateCastlingAvailabilityString(info.CastlingAvailabilityString));
             }
         }
 
         [Test]
-        public void ValidateEnPassantSquare_ShouldThrowException_WhenEnPassantSqIsInvalid()
+        public static void ValidateEnPassantSquare_ShouldThrowException_WhenEnPassantSqIsInvalid()
         {
             Assert.AreEqual(FENError.InvalidEnPassantSquare, FENHelpers.ValidateEnPassantSquare("4e"));
             Assert.AreEqual(FENError.InvalidEnPassantSquare, FENHelpers.ValidateEnPassantSquare("4"));
@@ -219,16 +196,16 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void ValidateEnPassantSquare_ShouldNotReturnError_GivenValidSquare()
+        public static void ValidateEnPassantSquare_ShouldNotReturnError_GivenValidSquare()
         {
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassantSquare("e6"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassantSquare("a3"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassantSquare("h3"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateEnPassantSquare("-"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateEnPassantSquare("e6"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateEnPassantSquare("a3"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateEnPassantSquare("h3"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateEnPassantSquare("-"));
         }
 
         [Test]
-        public void ValidateHalfmoveClock_ShouldReturnAppropriateFENError_GivenInvalidInput()
+        public static void ValidateHalfmoveClock_ShouldReturnAppropriateFENError_GivenInvalidInput()
         {
             Assert.AreEqual(FENError.HalfmoveClock, FENHelpers.ValidateHalfmoveClock("-1"));
             Assert.AreEqual(FENError.HalfmoveClock, FENHelpers.ValidateHalfmoveClock(""));
@@ -236,7 +213,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void ValidateFullMoveCounter_ShouldReturnAppropriateFENError_GivenInvalidInput()
+        public static void ValidateFullMoveCounter_ShouldReturnAppropriateFENError_GivenInvalidInput()
         {
             Assert.AreEqual(FENError.FullMoveCounter, FENHelpers.ValidateFullMoveCounter("-1"));
             Assert.AreEqual(FENError.FullMoveCounter, FENHelpers.ValidateFullMoveCounter(""));
@@ -244,43 +221,43 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void ValidateHalfmoveClock_ShouldReturnNullFENError_GivenValidInput()
+        public static void ValidateHalfmoveClock_ShouldReturnNullFENError_GivenValidInput()
         {
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateHalfmoveClock("1"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateHalfmoveClock("0"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateHalfmoveClock("3"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateHalfmoveClock("1"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateHalfmoveClock("0"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateHalfmoveClock("3"));
         }
 
         [Test]
-        public void ValidateFullMoveCounter_ShouldReturnNullFENError_GivenValidInput()
+        public static void ValidateFullMoveCounter_ShouldReturnNullFENError_GivenValidInput()
         {
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateFullMoveCounter("31"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateFullMoveCounter("0"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateFullMoveCounter("1"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateFullMoveCounter("31"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateFullMoveCounter("0"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateFullMoveCounter("1"));
         }
 
         [Test]
-        public void GetMoveNumberFromString_ShouldReturnAppropriateUINT_GivenValidInput()
+        public static void GetMoveNumberFromString_ShouldReturnAppropriateUINT_GivenValidInput()
         {
             Assert.AreEqual((uint?)24, FENHelpers.GetMoveNumberFromString("24"));
         }
 
         [Test]
-        public void ValidateActiveColor_ShouldReturnAppropriateFENError_GivenInvalidInput()
+        public static void ValidateActiveColor_ShouldReturnAppropriateFENError_GivenInvalidInput()
         {
             Assert.AreEqual(FENError.InvalidActiveColor, FENHelpers.ValidateActiveColor("z"));
             Assert.AreEqual(FENError.InvalidActiveColor, FENHelpers.ValidateActiveColor(""));
         }
 
         [Test]
-        public void ValidateActiveColor_ShouldReturnNullFENError_GivenValidInput()
+        public static void ValidateActiveColor_ShouldReturnNullFENError_GivenValidInput()
         {
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateActiveColor("w"));
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidateActiveColor("b"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateActiveColor("w"));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidateActiveColor("b"));
         }
 
         [Test]
-        public void GetActiveColor_ShouldReturnAppropriateColor_GivenValidInput()
+        public static void GetActiveColor_ShouldReturnAppropriateColor_GivenValidInput()
         {
 
             Assert.AreEqual(Color.White, FENHelpers.GetActiveColor("w"));
@@ -288,14 +265,14 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void ValidatePiecePlacement_ShouldReturnAppropriateFENError_GivenInvalidPieceInput()
+        public static void ValidatePiecePlacement_ShouldReturnAppropriateFENError_GivenInvalidPieceInput()
         {
             var fen = "rnbqkbnr/ppspppzp/8/8/8/8/PPPPPPPP/RNBQKBNR";
             Assert.AreEqual(FENError.PiecePlacementInvalidChars, FENHelpers.ValidatePiecePlacement(fen));
         }
 
         [Test]
-        public void ValidatePiecePlacement_ShouldReturnAppropriateFENError_GivenInvalidRankCount()
+        public static void ValidatePiecePlacement_ShouldReturnAppropriateFENError_GivenInvalidRankCount()
         {
 
             var fen = ValidPiecePlacement;
@@ -304,7 +281,7 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void ValidatePiecePlacement_ShouldReturnAppropriateFENError_GivenTooManyPieceInRank()
+        public static void ValidatePiecePlacement_ShouldReturnAppropriateFENError_GivenTooManyPieceInRank()
         {
             var fen = "rnbqkbnr/ppppppppp/8/8/8/8/PPPPPPPP/RNBQrKBNR";
 
@@ -312,9 +289,9 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
-        public void ValidatePiecePlacement_ShouldReturnNullFENError_GivenValidPieceInput()
+        public static void ValidatePiecePlacement_ShouldReturnNullFENError_GivenValidPieceInput()
         {
-            Assert.AreEqual(FENError.NULL, FENHelpers.ValidatePiecePlacement(ValidPiecePlacement));
+            Assert.AreEqual(FENError.Null, FENHelpers.ValidatePiecePlacement(ValidPiecePlacement));
         }
 
         #endregion

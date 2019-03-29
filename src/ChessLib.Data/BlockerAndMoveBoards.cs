@@ -7,8 +7,8 @@ namespace ChessLib.Data
 {
     public class BlockerAndMoveBoards
     {
-        public ulong Occupancy { get; private set; }
-        public ulong MoveBoard { get; private set; }
+        public ulong Occupancy { get; }
+        public ulong MoveBoard { get; }
 
         public BlockerAndMoveBoards(ulong blockerBoard, ulong moveBoard)
         {

@@ -6,7 +6,6 @@ using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
-using static ChessLib.Data.Helpers.PieceHelpers;
 
 namespace MagicBitboard
 {
@@ -14,7 +13,7 @@ namespace MagicBitboard
     {
         public readonly bool Chess960 = false;
         public ushort? EnPassantIndex { get; private set; }
-        MoveTree<MoveHashStorage> MoveTree = new MoveTree<MoveHashStorage>(null);
+        public readonly MoveTree<MoveHashStorage> MoveTree = new MoveTree<MoveHashStorage>(null);
 
         #region General Board Information
         public ulong[][] PiecesOnBoard = new ulong[2][];
@@ -25,18 +24,20 @@ namespace MagicBitboard
         #region Color Properties and related fields
         public Color ActivePlayer { get; set; }
         public Color OpponentColor => ActivePlayer == Color.Black ? Color.White : Color.Black;
-        private int _nActiveColor => (int)ActivePlayer;
-        private int _nOpponentColor => (int)OpponentColor;
+        private int NActiveColor => (int)ActivePlayer;
+        private int NOpponentColor => (int)OpponentColor;
         #endregion
 
         #endregion
 
         #region Constant Piece Values for Indexing arrays
+        // ReSharper disable InconsistentNaming
         const int PAWN = (int)Piece.Pawn;
         const int BISHOP = (int)Piece.Bishop;
         const int KNIGHT = (int)Piece.Knight;
         const int ROOK = (int)Piece.Rook;
         const int QUEEN = (int)Piece.Queen;
+        // ReSharper restore InconsistentNaming
         #endregion
 
         #region Occupancy / Index Properties for shorthand access to occupancy board arrays
@@ -44,27 +45,27 @@ namespace MagicBitboard
         /// <summary>
         /// Occupancy of side-to-move's pawns
         /// </summary>
-        public ulong ActivePawnOccupancy => PiecesOnBoard[_nActiveColor][PAWN];
+        public ulong ActivePawnOccupancy => PiecesOnBoard[NActiveColor][PAWN];
 
         /// <summary>
         /// Occupancy of side-to-move's Knights
         /// </summary>
-        public ulong ActiveKnightOccupancy => PiecesOnBoard[_nActiveColor][KNIGHT];
+        public ulong ActiveKnightOccupancy => PiecesOnBoard[NActiveColor][KNIGHT];
 
         /// <summary>
         /// Occupancy of side-to-move's Bishops
         /// </summary>
-        public ulong ActiveBishopOccupancy => PiecesOnBoard[_nActiveColor][BISHOP];
+        public ulong ActiveBishopOccupancy => PiecesOnBoard[NActiveColor][BISHOP];
 
         /// <summary>
         /// Occupancy of side-to-move's Rooks
         /// </summary>
-        public ulong ActiveRookOccupancy => PiecesOnBoard[_nActiveColor][ROOK];
+        public ulong ActiveRookOccupancy => PiecesOnBoard[NActiveColor][ROOK];
 
         /// <summary>
         /// Occupancy of side-to-move's Queen(s)
         /// </summary>
-        public ulong ActiveQueenOccupancy => PiecesOnBoard[_nActiveColor][QUEEN];
+        public ulong ActiveQueenOccupancy => PiecesOnBoard[NActiveColor][QUEEN];
 
         /// <summary>
         /// Occupancy of side-to-move's pieces
@@ -74,7 +75,7 @@ namespace MagicBitboard
             get
             {
                 ulong rv = 0;
-                var activeOcc = PiecesOnBoard[_nActiveColor];
+                var activeOcc = PiecesOnBoard[NActiveColor];
                 for (int i = 0; i < activeOcc.Length; i++) rv |= activeOcc[i];
                 return rv;
             }
@@ -88,7 +89,7 @@ namespace MagicBitboard
             get
             {
                 ulong rv = 0;
-                for (int i = 0; i < PiecesOnBoard[_nOpponentColor].Length; i++) rv |= PiecesOnBoard[_nOpponentColor][i];
+                for (int i = 0; i < PiecesOnBoard[NOpponentColor].Length; i++) rv |= PiecesOnBoard[NOpponentColor][i];
                 return rv;
             }
         }
@@ -120,8 +121,6 @@ namespace MagicBitboard
             Chess960 = chess960;
         }
 
-
-
         public BoardInfo(ulong[][] piecesOnBoard, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIndex, uint halfmoveClock, uint moveCounter, bool chess960 = false)
         {
             PiecesOnBoard = piecesOnBoard;
@@ -138,9 +137,9 @@ namespace MagicBitboard
         /// <summary>
         /// Creates a BoardInfo object given FEN notation.
         /// </summary>
-        /// <param name="fen">string of FEN notation. <see cref="https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation"/></param>
+        /// <param name="fen">string of FEN notation.</param>
         /// <param name="chess960">[unused right now] Is this a chess960 position (possible non-standard starting position)</param>
-        /// <returns>A BoardInfo object representing the boardstate after parsing the FEN</returns>
+        /// <returns>A BoardInfo object representing the board state after parsing the FEN</returns>
         public static BoardInfo BoardInfoFromFen(string fen, bool chess960 = false)
         {
             FENHelpers.ValidateFENStructure(fen);
@@ -154,7 +153,7 @@ namespace MagicBitboard
             var ranks = piecePlacement.Split('/').Reverse();
 
             var activePlayer = FENHelpers.GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
-            ushort? enPassantSquareIndex = BoardHelpers.SquareTextToIndex(fenPieces[(int)FENPieces.EnPassantSquare]);
+            ushort? enPassantSquareIndex = fenPieces[(int)FENPieces.EnPassantSquare].SquareTextToIndex();
             var halfmoveClock = FENHelpers.GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
             var fullMoveCount = FENHelpers.GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveCounter]);
             uint pieceIndex = 0;
@@ -199,13 +198,13 @@ namespace MagicBitboard
 
         public void ApplyMove(MoveExt move)
         {
-            GetPiecesAtSourceAandDestination(move, out PieceOfColor? pocSource, out PieceOfColor? pocDestination);
+            GetPiecesAtSourceAndDestination(move, out PieceOfColor? pocSource, out _);
             var resultBoard = ValidateAndGetResultingBoardFromMove(move);
             var isCapture = (OpponentTotalOccupancy & move.DestinationValue) != 0;
             var isPawnMove = (ActivePawnOccupancy & move.SourceValue) != 0;
             if (isCapture || isPawnMove) HalfmoveClock = 0;
             else HalfmoveClock++;
-
+            if (!pocSource.HasValue) throw new MoveException("No piece found at source.", MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, move, ActivePlayer);
             UnsetCastlingAvailability(move, pocSource.Value.Piece);
             SetEnPassantFlag(move, pocSource);
             if (ActivePlayer == Color.Black)
@@ -219,7 +218,7 @@ namespace MagicBitboard
         }
 
         /// <summary>
-        /// Unsets appropriate castling availability flag when <paramref name="movingPiece">piece moving</paramref> is a <see cref="Piece.Rook">Rook</see> or <see cref="Piece.King">King</see>
+        /// Clears appropriate castling availability flag when <paramref name="movingPiece">piece moving</paramref> is a <see cref="Piece.Rook">Rook</see> or <see cref="Piece.King">King</see>
         /// </summary>
         /// <param name="move">Move object</param>
         /// <param name="movingPiece">Piece that is moving</param>
@@ -265,7 +264,7 @@ namespace MagicBitboard
             EnPassantIndex = null;
         }
 
-        private void GetPiecesAtSourceAandDestination(MoveExt move, out PieceOfColor? pocSource, out PieceOfColor? pocDestination)
+        private void GetPiecesAtSourceAndDestination(MoveExt move, out PieceOfColor? pocSource, out PieceOfColor? pocDestination)
         {
             var sVal = move.SourceValue;
             var dVal = move.DestinationValue;
@@ -326,9 +325,9 @@ namespace MagicBitboard
             ulong pinned = 0;
             ulong xRayBishopAttacks = XRayBishopAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
             ulong xRayRookAttacks = XRayRookAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
-            ulong bPinners = (PiecesOnBoard[_nOpponentColor][BISHOP] | PiecesOnBoard[_nOpponentColor][QUEEN]) & xRayBishopAttacks;
-            ulong rPinners = (PiecesOnBoard[_nOpponentColor][ROOK] | PiecesOnBoard[_nOpponentColor][QUEEN]) & xRayRookAttacks;
-            var pinners = rPinners | bPinners;
+            ulong bishopPinnedPieces = (PiecesOnBoard[NOpponentColor][BISHOP] | PiecesOnBoard[NOpponentColor][QUEEN]) & xRayBishopAttacks;
+            ulong rookPinnedPieces = (PiecesOnBoard[NOpponentColor][ROOK] | PiecesOnBoard[NOpponentColor][QUEEN]) & xRayRookAttacks;
+            var pinners = rookPinnedPieces | bishopPinnedPieces;
             while (pinners != 0)
             {
                 var square = BitHelpers.BitScanForward(pinners);
@@ -351,6 +350,7 @@ namespace MagicBitboard
             if (!md.SourceFile.HasValue || !md.SourceRank.HasValue)
             {
                 var sourceIndex = FindPieceSourceIndex(md);
+                md.SourceIndex = sourceIndex;
             }
             var moveExt = MoveHelpers.GenerateMove(md.SourceIndex.Value, md.DestinationIndex.Value, md.MoveType, md.PromotionPiece ?? 0);
             return moveExt;
@@ -372,7 +372,7 @@ namespace MagicBitboard
                     {
                         throw new MoveException("Could not determine source square for pawn capture.");
                     }
-                    return FindPawnMoveSourceIndex(moveDetail, PiecesOnBoard[_nActiveColor][PAWN], TotalOccupancy);
+                    return FindPawnMoveSourceIndex(moveDetail, PiecesOnBoard[NActiveColor][PAWN], TotalOccupancy);
 
                 case Piece.Knight:
                     return FindKnightMoveSourceIndex(moveDetail, ActiveKnightOccupancy);
@@ -568,7 +568,7 @@ namespace MagicBitboard
         {
             for (int p = 0; p <= (int)Piece.King; p++)
             {
-                if ((PiecesOnBoard[_nActiveColor][p] & pieceInSquareValue) != 0) return (Piece)p;
+                if ((PiecesOnBoard[NActiveColor][p] & pieceInSquareValue) != 0) return (Piece)p;
             }
             throw new MoveException("No piece found with the specified value.");
         }
@@ -581,7 +581,6 @@ namespace MagicBitboard
             Validate_PieceIsOfActiveColor(move);
             ValidateSourceIsNonVacant(move);
             ValidateDestinationIsNotOccupiedByActiveColor(move);
-            var isKingInCheckBeforeMove = IsAttackedBy(OpponentColor, ActivePlayerKingIndex);
             var isKingInCheckAfterMove = IsAttackedBy(OpponentColor, ActivePlayerKingIndex, resultantBoard);
             if (isKingInCheckAfterMove)
             {
@@ -627,36 +626,36 @@ namespace MagicBitboard
             }
             if (move.MoveType == MoveType.Castle)
             {
-                resultantBoard[_nActiveColor][ROOK] = GetRookBoardPostCastle(move, resultantBoard[_nActiveColor][ROOK]);
+                resultantBoard[NActiveColor][ROOK] = GetRookBoardPostCastle(move, resultantBoard[NActiveColor][ROOK]);
             }
             else if (move.MoveType == MoveType.EnPassant)
             {
                 var capturedPawnValue = 1ul << (OpponentColor == Color.Black ? move.DestinationIndex - 8 : move.DestinationIndex + 8);
-                resultantBoard[_nOpponentColor][PAWN] &= ~(capturedPawnValue);
+                resultantBoard[NOpponentColor][PAWN] &= ~(capturedPawnValue);
             }
             else if (move.MoveType == MoveType.Promotion)
             {
-                resultantBoard[_nActiveColor][PAWN] &= ~(move.DestinationValue);
+                resultantBoard[NActiveColor][PAWN] &= ~(move.DestinationValue);
                 switch (move.PromotionPiece)
                 {
                     case PromotionPiece.Knight:
-                        resultantBoard[_nActiveColor][KNIGHT] |= move.DestinationValue;
+                        resultantBoard[NActiveColor][KNIGHT] |= move.DestinationValue;
                         break;
                     case PromotionPiece.Bishop:
-                        resultantBoard[_nActiveColor][BISHOP] |= move.DestinationValue;
+                        resultantBoard[NActiveColor][BISHOP] |= move.DestinationValue;
                         break;
                     case PromotionPiece.Rook:
-                        resultantBoard[_nActiveColor][ROOK] |= move.DestinationValue;
+                        resultantBoard[NActiveColor][ROOK] |= move.DestinationValue;
                         break;
                     case PromotionPiece.Queen:
-                        resultantBoard[_nActiveColor][QUEEN] |= move.DestinationValue;
+                        resultantBoard[NActiveColor][QUEEN] |= move.DestinationValue;
                         break;
                 }
             }
             return resultantBoard;
         }
 
-        private ulong GetRookBoardPostCastle(MoveExt move, ulong rookBoard)
+        private static ulong GetRookBoardPostCastle(MoveExt move, ulong rookBoard)
         {
             var rank = move.DestinationIndex.RankFromIdx();
             var file = move.DestinationIndex.FileFromIdx();
@@ -707,7 +706,7 @@ namespace MagicBitboard
         /// <param name="move"></param>
         public void ValidateMove_CastleAvailability(MoveExt move)
         {
-            var castleChar = (CastlingAvailability?)null;
+            CastlingAvailability? castleChar;
             switch (move.DestinationIndex)
             {
                 case 58:
@@ -735,7 +734,7 @@ namespace MagicBitboard
         /// <param name="move"></param>
         public void ValidateMove_CastleOccupancyBetween(MoveExt move)
         {
-            ulong piecesBetween = 0;
+            ulong piecesBetween;
             switch (move.DestinationIndex)
             {
                 case 58:
@@ -825,7 +824,7 @@ namespace MagicBitboard
             var moveSourceVal = 1ul << moveSourceIdx;
             var moveDestVal = 1ul << moveDestIdx;
 
-            if ((PiecesOnBoard[_nActiveColor][PAWN] & moveSourceVal) == 0)
+            if ((PiecesOnBoard[NActiveColor][PAWN] & moveSourceVal) == 0)
             {
                 throw new MoveException("Promotion move issue - no pawn at source.");
             }
@@ -876,12 +875,11 @@ namespace MagicBitboard
         public static string ValidateEnPassantSquare(ulong[][] piecesOnBoard, ushort? enPassantSquare, Color activePlayer)
         {
             if (enPassantSquare == null) return "";
-            var message = new StringBuilder("");
             if ((activePlayer == Color.White && (enPassantSquare < 40 || enPassantSquare > 47))
                 ||
                 (activePlayer == Color.Black && (enPassantSquare < 16 || enPassantSquare > 23)))
             {
-                return "Bad En Passant Square deteced.";
+                return "Bad En Passant Square detected.";
             }
             return "";
         }
@@ -986,8 +984,8 @@ namespace MagicBitboard
                     while (pieceArray != 0)
                     {
                         var squareIndex = BitHelpers.BitScanForward(pieceArray);
-                        var FENIndex = FENHelpers.BoardIndexToFENIndex(squareIndex);
-                        pieceSection[FENIndex] = charRepForPieceOfColor;
+                        var fenIndex = FENHelpers.BoardIndexToFENIndex(squareIndex);
+                        pieceSection[fenIndex] = charRepForPieceOfColor;
                         pieceArray &= pieceArray - 1;
                     }
 

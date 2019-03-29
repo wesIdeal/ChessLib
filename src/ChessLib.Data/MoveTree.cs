@@ -6,8 +6,8 @@ namespace ChessLib.Data
 {
     public class MoveTree<T> : LinkedList<MoveNode<T>> where T : IEquatable<T>
     {
-       
-        public MoveNode<T> ParentMove { get; private set; }
+
+        public MoveNode<T> ParentMove { get; }
         public MoveTree(MoveNode<T> parentMove)
         {
             ParentMove = parentMove;
@@ -18,16 +18,6 @@ namespace ChessLib.Data
             return AddLast(move);
         }
 
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -36,11 +26,6 @@ namespace ChessLib.Data
                 sb.AppendLine(mv.ToString());
             }
             return sb.ToString();
-        }
-
-        public static implicit operator List<T>(MoveTree<T> v)
-        {
-            throw new NotImplementedException();
         }
     }
 }

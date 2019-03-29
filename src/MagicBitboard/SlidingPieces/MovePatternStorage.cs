@@ -11,12 +11,11 @@ namespace MagicBitboard.SlidingPieces
 {
     public class MovePatternStorage : IEnumerable<ulong>
     {
-        const ushort maxArraySize = 64;
-        public readonly ulong[] AttackPatterns = new ulong[maxArraySize];
+        const ushort MaxArraySize = 64;
+        public readonly ulong[] AttackPatterns = new ulong[MaxArraySize];
         public readonly BlockerAndMoveBoards[][] OccupancyAndMoveBoards = new BlockerAndMoveBoards[64][];
         public readonly ulong[] MagicKey = new ulong[64];
         public ulong[][] AttackArray = new ulong[64][];
-        public MovePatternStorage() { }
 
         public void Initialize(Board board, MoveInitializer moveInitializer)
         {
@@ -24,7 +23,7 @@ namespace MagicBitboard.SlidingPieces
         }
         public void Initialize(ulong[,] moves, MoveInitializer moveInitializer)
         {
-            if (moves.Length > maxArraySize) throw new ArgumentException($"Cannot hold more than {maxArraySize} elements in Move Storage array.");
+            if (moves.Length > MaxArraySize) throw new ArgumentException($"Cannot hold more than {MaxArraySize} elements in Move Storage array.");
             var attacks = new ulong[64];
             for (int r = 0; r < 8; r++)
             {
@@ -40,7 +39,7 @@ namespace MagicBitboard.SlidingPieces
         private const int ArraySize = 12;
         public void InitializeFromOneDimensionalArray(ulong[] moves, MoveInitializer mi)
         {
-            if (moves.Length > maxArraySize) throw new ArgumentException($"Cannot hold more than {maxArraySize} elements in Move Storage array.");
+            if (moves.Length > MaxArraySize) throw new ArgumentException($"Cannot hold more than {MaxArraySize} elements in Move Storage array.");
             for (int index = 0; index < 64; index++)
             {
                 var attackBoard = moves[index];
@@ -64,17 +63,11 @@ namespace MagicBitboard.SlidingPieces
             }
         }
 
-        public ulong this[int index]
-        {
-            get
-            {
-                return AttackPatterns[index];
-            }
-        }
+        public ulong this[int index] => AttackPatterns[index];
 
         public IEnumerator<ulong> GetEnumerator() => AttackPatterns.ToList().GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public ulong GetLegalMoves(uint positionIndex, ulong occupancyBoard)
         {

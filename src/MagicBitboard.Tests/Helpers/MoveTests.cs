@@ -9,16 +9,15 @@ namespace MagicBitboard.Helpers.Tests
     public class MoveTests
     {
         const string fenEP = "8/PPPPPPPP/8/2k5/8/2K5/pppppppp/8 w - - 0 1";
-        BoardInfo biEnPassant = BoardInfo.BoardInfoFromFen(fenEP);
+        readonly BoardInfo biEnPassant = BoardInfo.BoardInfoFromFen(fenEP);
         [SetUp]
-        public void Setup()
+        public static void Setup()
         {
 
         }
 
-
         [Test]
-        public void ShouldGetPromotionPieceFromMove()
+        public static void ShouldGetPromotionPieceFromMove()
         {
             foreach (PromotionPiece pp in Enum.GetValues(typeof(PromotionPiece)))
             {
@@ -28,7 +27,7 @@ namespace MagicBitboard.Helpers.Tests
         }
 
         [Test]
-        public void ShouldGetMoveTypeFromMove()
+        public static void ShouldGetMoveTypeFromMove()
         {
             foreach (MoveType mt in Enum.GetValues(typeof(MoveType)))
             {

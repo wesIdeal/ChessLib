@@ -3,7 +3,6 @@ using ChessLib.Data.MoveInitializers;
 using ChessLib.Data.Types;
 using MagicBitboard.SlidingPieces;
 using System;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace MagicBitboard
@@ -47,8 +46,5 @@ namespace MagicBitboard
                     throw new Exception("Piece not supported for GetAttackSquares().");
             }
         }
-
-        public static ulong[] RookOccupancyBoards(ushort index) => Rook.OccupancyAndMoveBoards[index].Select(x => x.Occupancy).ToArray();
-        public static ulong[] BishopOccupancyBoards(ushort index) => Bishop.OccupancyAndMoveBoards[index].Select(x => x.Occupancy).ToArray();
     }
 }

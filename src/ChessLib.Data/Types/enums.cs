@@ -31,15 +31,18 @@ namespace ChessLib.Data.Types
     }
 
     /// <summary>
-    /// Pieces/sections of a FEN. <seealso cref="https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation"/>
+    /// Pieces/sections of a FEN. />
     /// </summary>
     public enum FENPieces { PiecePlacement = 0, ActiveColor, CastlingAvailability, EnPassantSquare, HalfmoveClock, FullMoveCounter }
 
+    // ReSharper disable InconsistentNaming
     [Flags]
     public enum MoveDirection
     {
         N = 1,
+
         NE = 2,
+
         E = 4,
         SE = 8,
         S = 16,
@@ -47,12 +50,13 @@ namespace ChessLib.Data.Types
         W = 64,
         NW = 128
     }
+    // ReSharper restore InconsistentNaming
 
     /// <summary>
     /// Flags to represent a check and the nature of the check.
     /// </summary>
     [Flags]
-    public enum Check { NULL = 0, None = 1, Normal = 2, Opposite = 4, Double = 8 }
+    public enum Check { Null = 0, None = 1, Normal = 2, Opposite = 4, Double = 8 }
 
     [Flags]
     public enum CastlingAvailability
@@ -117,7 +121,7 @@ namespace ChessLib.Data.Types
     public enum FENError
     {
         [Description("")]
-        NULL = 0,
+        Null = 0,
         [Description("Invalid FEN. FEN string must have 6 pieces. See See https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation for more information")]
         InvalidFENString = 1,
         [Description("Piece Placement section should have exactly 8 ranks.")]
@@ -131,7 +135,7 @@ namespace ChessLib.Data.Types
         [Description("Invalid Castling information - unrecognized character found. Only the following are accepted: 'k', 'K', 'q', 'Q', '-' (no castling availability)")]
         CastlingUnrecognizedChar = 32,
         [Description("Invalid Castling Information - repeated characters found.")]
-        CastlingStringRepitition = 64,
+        CastlingStringRepetition = 64,
         [Description("Invalid Castling Information - cannot use '-' with other castling character.")]
         CastlingStringBadSequence = 128,
         [Description("Invalid Halfmove clock.")]

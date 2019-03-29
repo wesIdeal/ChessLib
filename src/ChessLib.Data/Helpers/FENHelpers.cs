@@ -25,14 +25,14 @@ namespace ChessLib.Data.Helpers
 
         public static FENError ValidatePiecePlacement(string piecePlacement)
         {
-            FENError fenError = FENError.NULL;
+            FENError fenError = FENError.Null;
             fenError |= ValidatePiecePlacementRanks(piecePlacement);
             fenError |= ValidatePiecePlacementCharacters(piecePlacement);
             return fenError;
         }
         private static FENError ValidatePiecePlacementRanks(string piecePlacement)
         {
-            FENError fenError = FENError.NULL;
+            FENError fenError = FENError.Null;
             var ranks = piecePlacement.Split('/').Reverse();
             if (ranks.Count() != 8)
             {
@@ -54,17 +54,17 @@ namespace ChessLib.Data.Helpers
             {
                 return FENError.PiecePlacementInvalidChars;
             }
-            return FENError.NULL;
+            return FENError.Null;
         }
 
-        public static FENError ValidateActiveColor(string activeColor) => (new[] { "w", "b" }).Contains(activeColor) ? FENError.NULL : FENError.InvalidActiveColor;
+        public static FENError ValidateActiveColor(string activeColor) => (new[] { "w", "b" }).Contains(activeColor) ? FENError.Null : FENError.InvalidActiveColor;
 
         public static FENError ValidateCastlingAvailabilityString(string castleAvailability)
         {
-            FENError fenError = FENError.NULL;
+            FENError fenError = FENError.Null;
             if (castleAvailability == "-") return fenError;
 
-            if (castleAvailability.Trim() == "") { fenError |= FENError.CastlingUnrecognizedChar; }
+            if (string.IsNullOrWhiteSpace(castleAvailability)) { fenError |= FENError.CastlingUnrecognizedChar; }
             var castlingChars = castleAvailability.ToCharArray();
             var notAllowed = castlingChars.Where(c => !ValidCastlingStringChars.Contains(c));
 
@@ -80,7 +80,7 @@ namespace ChessLib.Data.Helpers
                     var castleAvailabilityArray = castleAvailability.ToArray();
                     if (castleAvailabilityArray.Count() != castleAvailabilityArray.Distinct().Count())
                     {
-                        fenError |= FENError.CastlingStringRepitition;
+                        fenError |= FENError.CastlingStringRepetition;
                     }
                 }
             }
@@ -89,7 +89,7 @@ namespace ChessLib.Data.Helpers
 
         public static FENError ValidateEnPassantSquare(string v)
         {
-            if (v == "-") return FENError.NULL;
+            if (v == "-") return FENError.Null;
             const FENError error = FENError.InvalidEnPassantSquare;
             bool valid = true;
             if (v.Length != 2) return error;
@@ -99,11 +99,11 @@ namespace ChessLib.Data.Helpers
             {
                 valid &= (rank >= 1 && rank <= 8);
             }
-            return valid ? FENError.NULL : error;
+            return valid ? FENError.Null : error;
         }
 
-        public static FENError ValidateHalfmoveClock(string n) => ValidateNumberFromString(n) ? FENError.NULL : FENError.HalfmoveClock;
-        public static FENError ValidateFullMoveCounter(string n) => ValidateNumberFromString(n) ? FENError.NULL : FENError.FullMoveCounter;
+        public static FENError ValidateHalfmoveClock(string n) => ValidateNumberFromString(n) ? FENError.Null : FENError.HalfmoveClock;
+        public static FENError ValidateFullMoveCounter(string n) => ValidateNumberFromString(n) ? FENError.Null : FENError.FullMoveCounter;
         private static bool ValidateNumberFromString(string moveCounter)
         {
             return uint.TryParse(moveCounter, out uint result);
@@ -112,7 +112,7 @@ namespace ChessLib.Data.Helpers
         public static void ValidateFENString(string fen)
         {
             ValidateFENStructure(fen);
-            FENError fenError = FENError.NULL;
+            FENError fenError = FENError.Null;
             var fenPieces = fen.Split(' ');
 
             fenError |= ValidatePiecePlacement(fenPieces[(int)FENPieces.PiecePlacement]);
@@ -121,7 +121,7 @@ namespace ChessLib.Data.Helpers
             fenError |= ValidateEnPassantSquare(fenPieces[(int)FENPieces.EnPassantSquare]);
             fenError |= ValidateHalfmoveClock(fenPieces[(int)FENPieces.HalfmoveClock]);
             fenError |= ValidateFullMoveCounter(fenPieces[(int)FENPieces.FullMoveCounter]);
-            if (fenError != FENError.NULL)
+            if (fenError != FENError.Null)
             {
                 throw new FENException(fen, fenError);
             }
@@ -188,7 +188,6 @@ namespace ChessLib.Data.Helpers
 
         public static int BoardIndexToFENIndex(ushort idx)
         {
-            var fenIdx = 0;
             var rankOffset = BoardHelpers.RankCompliment((ushort)(idx / 8));
             return (rankOffset * 8) + (idx % 8);
         }

@@ -7,16 +7,16 @@ namespace MagicBitboard
 {
     public class MoveHashStorage : IEquatable<MoveHashStorage>
     {
-        public MoveHashStorage(MoveExt move, string fEN)
+        public MoveHashStorage(MoveExt move, string fen)
         {
             Move = move.Move;
-            FEN = fEN;
+            FEN = fen;
             BoardStateHash = GetHashString(FEN.Split(' ')[0]);
         }
 
-        public ushort Move { get; private set; }
-        public string FEN { get; private set; }
-        public string BoardStateHash { get; private set; }
+        public ushort Move { get; }
+        public string FEN { get; }
+        public string BoardStateHash { get; }
 
         public static byte[] GetHash(string inputString)
         {
@@ -35,7 +35,7 @@ namespace MagicBitboard
 
         public bool Equals(MoveHashStorage other)
         {
-            return other.Move == Move && other.FEN == other.FEN;
+            return other != null && other.Move == Move && other.FEN == FEN;
         }
     }
 }
