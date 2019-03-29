@@ -42,6 +42,11 @@ namespace MagicBitboard
         #region Occupancy / Index Properties for shorthand access to occupancy board arrays
 
         /// <summary>
+        /// Occupancy of side-to-move's pawns
+        /// </summary>
+        public ulong ActivePawnOccupancy => PiecesOnBoard[_nActiveColor][PAWN];
+
+        /// <summary>
         /// Occupancy of side-to-move's Knights
         /// </summary>
         public ulong ActiveKnightOccupancy => PiecesOnBoard[_nActiveColor][KNIGHT];
@@ -192,12 +197,24 @@ namespace MagicBitboard
             ApplyMove(move);
         }
 
-        protected void ApplyMove(MoveExt move)
+        public void ApplyMove(MoveExt move)
         {
             GetPiecesAtSourceAandDestination(move, out PieceOfColor? pocSource, out PieceOfColor? pocDestination);
-            ValidateMove(move);
+            var resultBoard = ValidateAndGetResultingBoardFromMove(move);
+            var isCapture = (OpponentTotalOccupancy & move.DestinationValue) != 0;
+            var isPawnMove = (ActivePawnOccupancy & move.SourceValue) != 0;
+            if (isCapture || isPawnMove) HalfmoveClock = 0;
+            else HalfmoveClock++;
+
             UnsetCastlingAvailability(move, pocSource.Value.Piece);
             SetEnPassantFlag(move, pocSource);
+            if (ActivePlayer == Color.Black)
+            {
+                MoveCounter++;
+                ActivePlayer = Color.White;
+            }
+            else { ActivePlayer = Color.Black; }
+            PiecesOnBoard = resultBoard;
         }
 
         /// <summary>
@@ -233,7 +250,7 @@ namespace MagicBitboard
             {
                 var startRank = pocSource.Value.Color == Color.White ? 1 : 6;
                 var endRank = pocSource.Value.Color == Color.White ? 3 : 4;
-                var enPassantIndexOffset = pocSource.Value.Color == Color.White ? 1 : -1;
+                var enPassantIndexOffset = pocSource.Value.Color == Color.White ? 8 : -8;
                 if (pocSource.Value.Piece == Piece.Pawn)
                 {
                     if (((move.SourceValue & BoardHelpers.RankMasks[startRank]) != 0)
@@ -555,7 +572,7 @@ namespace MagicBitboard
             throw new MoveException("No piece found with the specified value.");
         }
 
-        public void ValidateMove(MoveExt move)
+        public ulong[][] ValidateAndGetResultingBoardFromMove(MoveExt move)
         {
             var pieceMoving = GetActivePieceByValue(move.SourceValue);
             var isCapture = (OpponentTotalOccupancy & move.DestinationValue) != 0;
@@ -584,9 +601,8 @@ namespace MagicBitboard
                         : CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
                     CastlingAvailability &= ~(castlingAvailabilityToRemove);
                     break;
-
-                default: return;
             }
+            return resultantBoard;
         }
 
         private ulong[][] BoardPostMove(MoveExt move, Piece pieceMoving)

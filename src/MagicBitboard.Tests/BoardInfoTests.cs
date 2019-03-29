@@ -97,9 +97,9 @@ namespace MagicBitboard.Tests
             Assert.AreEqual(expected, bi.GetMoveCounterString());
         }
 
-       
 
-        [Test(Description ="ToFEN() should return the FEN of the current board's state")]
+
+        [Test(Description = "ToFEN() should return the FEN of the current board's state")]
         public void ToFEN_ShouldReturnCurrentBoardState()
         {
             const string initialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -188,12 +188,12 @@ namespace MagicBitboard.Tests
             Assert.Throws(typeof(MoveException), () =>
             {
                 bi.ActivePlayer = Color.White;
-                bi.ValidateMove(bi.GenerateMoveFromText("e8=Q"));
+                bi.ValidateAndGetResultingBoardFromMove(bi.GenerateMoveFromText("e8=Q"));
             });
             Assert.Throws(typeof(MoveException), () =>
             {
                 bi.ActivePlayer = Color.Black;
-                bi.ValidateMove(bi.GenerateMoveFromText("e1=Q"));
+                bi.ValidateAndGetResultingBoardFromMove(bi.GenerateMoveFromText("e1=Q"));
             });
         }
 
@@ -205,12 +205,12 @@ namespace MagicBitboard.Tests
             Assert.Throws(typeof(MoveException), () =>
             {
                 bi.ActivePlayer = Color.White;
-                bi.ValidateMove(bi.GenerateMoveFromText("e8=Q"));
+                bi.ValidateAndGetResultingBoardFromMove(bi.GenerateMoveFromText("e8=Q"));
             });
             Assert.Throws(typeof(MoveException), () =>
             {
                 bi.ActivePlayer = Color.Black;
-                bi.ValidateMove(bi.GenerateMoveFromText("e1=Q"));
+                bi.ValidateAndGetResultingBoardFromMove(bi.GenerateMoveFromText("e1=Q"));
             });
         }
 
@@ -643,7 +643,7 @@ namespace MagicBitboard.Tests
             {
                 try
                 {
-                    kingInCheck.ValidateMove(move);
+                    kingInCheck.ValidateAndGetResultingBoardFromMove(move);
                 }
                 catch (MoveException e)
                 {
@@ -662,7 +662,7 @@ namespace MagicBitboard.Tests
             {
                 try
                 {
-                    kingInCheck.ValidateMove(move);
+                    kingInCheck.ValidateAndGetResultingBoardFromMove(move);
                 }
                 catch (MoveException e)
                 {
@@ -681,7 +681,7 @@ namespace MagicBitboard.Tests
             {
                 try
                 {
-                    kingInCheck.ValidateMove(move);
+                    kingInCheck.ValidateAndGetResultingBoardFromMove(move);
                 }
                 catch (MoveException e)
                 {
@@ -1023,6 +1023,64 @@ namespace MagicBitboard.Tests
                 {
                     Assert.DoesNotThrow(
                         () => { bi.ValidateMove_CastleAvailability(move); });
+                }
+            }
+
+
+        }
+        [TestFixture(Description = "Tests move application on board.")]
+        class MoveApplication
+        {
+            const string initialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            BoardInfo bInitial;
+            [SetUp]
+            public void Setup()
+            {
+                bInitial = BoardInfo.BoardInfoFromFen(initialFEN);
+            }
+
+            [Test(Description = "1. e4 test")]
+            public void ApplyMove_ShouldReflectCorrectBoardStatusAftere4()
+            {
+                var move = MoveHelpers.GenerateMove(12, 28);
+                var expectedFEN = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
+                bInitial.ApplyMove(move);
+                Assert.AreEqual(expectedFEN, bInitial.ToFEN());
+            }
+
+
+            [Test(Description = "Ruy - applying series of moves")]
+            public void ApplyMove_ShouldReflectCorrectBoardStatusAfterSeriesOfMoves()
+            {
+                var move = MoveHelpers.GenerateMove(12, 28);
+                var expectedFEN = new string[] {
+                    "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",      //1. e4
+                    "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2",    //1...e5
+                    "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",   //2. Nf3
+                    "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3", //2...Nc6
+                    "r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3", //3. Bb5
+                    "r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4",//3...a6
+                    "r1bqkbnr/1ppp1ppp/p1n5/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 4", //4. Ba4
+                    "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 5",// 4...Nf6
+                    "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5" //O-O
+                };
+                var moves = new MoveExt[] {
+                    MoveHelpers.GenerateMove(12, 28),
+                    MoveHelpers.GenerateMove(52,36),
+                    MoveHelpers.GenerateMove(6,21),
+                    MoveHelpers.GenerateMove(57,42),
+                    MoveHelpers.GenerateMove(5, 33),
+                    MoveHelpers.GenerateMove(48,40),
+                    MoveHelpers.GenerateMove(33,24),
+                    MoveHelpers.GenerateMove(62,45),
+                    MoveHelpers.GenerateMove(4,6,MoveType.Castle)
+            };
+                Assert.AreEqual(expectedFEN.Length, moves.Length);
+                for(int i = 0; i < moves.Length; i++)
+                {
+                    var expected = expectedFEN[i];
+                    bInitial.ApplyMove(moves[i]);
+                    Assert.AreEqual(expected, bInitial.ToFEN());
                 }
             }
         }
