@@ -12,10 +12,10 @@ namespace MagicBitboard
 {
     public class BoardInfo
     {
-
         public readonly bool Chess960 = false;
         public ushort? EnPassantIndex { get; private set; }
-        MoveTree<MoveExt> MoveTree = new MoveTree<MoveExt>(null);
+        MoveTree<MoveHashStorage> MoveTree = new MoveTree<MoveHashStorage>(null);
+
         #region General Board Information
         public ulong[][] PiecesOnBoard = new ulong[2][];
         public string FEN { get; }
@@ -215,6 +215,7 @@ namespace MagicBitboard
             }
             else { ActivePlayer = Color.Black; }
             PiecesOnBoard = resultBoard;
+            MoveTree.AddLast(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, ToFEN())));
         }
 
         /// <summary>

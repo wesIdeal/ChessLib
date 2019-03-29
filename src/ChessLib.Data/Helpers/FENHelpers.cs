@@ -12,6 +12,8 @@ namespace ChessLib.Data.Helpers
         public static readonly char[] ValidFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
         public const string InitialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
+
+
         public static void ValidateFENStructure(string fen)
         {
             if (string.IsNullOrEmpty(fen)
@@ -188,7 +190,7 @@ namespace ChessLib.Data.Helpers
         {
             var fenIdx = 0;
             var rankOffset = BoardHelpers.RankCompliment((ushort)(idx / 8));
-            return (rankOffset*8) + (idx % 8);
+            return (rankOffset * 8) + (idx % 8);
         }
     }
 }
