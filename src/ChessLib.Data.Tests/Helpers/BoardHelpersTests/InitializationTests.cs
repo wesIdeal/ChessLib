@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Text;
+using ChessLib.Data.Types;
+using NUnit.Framework;
 namespace ChessLib.Data.Helpers.Tests
 {
     [TestFixture]
@@ -35,7 +38,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-           public static void InitializeRankMasks_RankMasksProperlyInitialized()
+            public static void InitializeRankMasks_RankMasksProperlyInitialized()
             {
                 Assert.AreEqual(0xff, BoardHelpers.RankMasks[0], $"Rank 1 Mask not initialized properly.");
                 Assert.AreEqual(0xff00, BoardHelpers.RankMasks[1], $"Rank 2 Mask not initialized properly.");
@@ -48,7 +51,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-           public static void IndividualSquareValidityTest()
+            public static void IndividualSquareValidityTest()
             {
                 Assert.AreEqual(0x0000000000000001, BoardHelpers.IndividualSquares[0, 0]);
                 Assert.AreEqual(0x0000000000000002, BoardHelpers.IndividualSquares[0, 1]);
@@ -114,10 +117,69 @@ namespace ChessLib.Data.Helpers.Tests
                 Assert.AreEqual(0x2000000000000000, BoardHelpers.IndividualSquares[7, 5]);
                 Assert.AreEqual(0x4000000000000000, BoardHelpers.IndividualSquares[7, 6]);
                 Assert.AreEqual(0x8000000000000000, BoardHelpers.IndividualSquares[7, 7]);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < 64; i++)
+                {
+                    sb.Append(
+                        $"0x{Convert.ToString((long)BoardHelpers.IndividualSquares[i / 8, i % 8], 16)}, {(i != 0 && i % 7 == 0 ? "\r\n" : "")}");
+                }
+                Console.WriteLine(sb.ToString());
             }
 
             [Test]
-           public static void InBetween_ShouldReturnCorrectValue_GivenA1H8()
+            public static void GetFile_ShouldReturnCorrectFile()
+            {
+                for (int i = 0; i < 64; i++)
+                {
+                    var expected = (File)(i % 8);
+                    Assert.AreEqual(expected, BoardHelpers.GetFile(i));
+                }
+            }
+            [Test]
+            public static void GetRank_ShouldReturnCorrectRank()
+            {
+                for (int i = 0; i < 64; i++)
+                {
+                    var expected = (Rank)(i / 8);
+                    Assert.AreEqual(expected, BoardHelpers.GetRank(i));
+                }
+            }
+
+            [Test]
+            public static void FileToIntFunctionality_ShouldConvertFileEnumValueToInt()
+            {
+                var c = 0;
+                foreach (var f in (File[])Enum.GetValues(typeof(File)))
+                {
+                    Assert.AreEqual(c, f.ToInt());
+                    c++;
+                }
+            }
+
+            [Test]
+            public static void RankToIntFunctionality_ShouldConvertRankEnumValueToInt()
+            {
+                var c = 0;
+                foreach (var r in (Rank[])Enum.GetValues(typeof(Rank)))
+                {
+                    Assert.AreEqual(c, r.ToInt(), $"Rank {r.ToString()} should convert to {c}");
+                    c++;
+                }
+            }
+
+            [Test]
+            public static void ToHexDisplay_ShouldGiveProperHexStringRepresentation()
+            {
+                var expectedPad2 = "0x10";
+                var expectedPad4 = "0x0010";
+                var expectedNoHexId = "10";
+                Assert.AreEqual(expectedPad2, 0x10ul.ToHexDisplay(true, true, 2));
+                Assert.AreEqual(expectedPad4, 0x10ul.ToHexDisplay(true, true, 4));
+                Assert.AreEqual(expectedNoHexId, 0x10ul.ToHexDisplay(false));
+            }
+
+            [Test]
+            public static void InBetween_ShouldReturnCorrectValue_GivenA1H8()
             {
                 var expected = 0x40201008040200;
                 var actual = BoardHelpers.InBetween(0, 63);
@@ -125,7 +187,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-           public static void InBetween_ShouldReturnCorrectValue_GivenH8A1()
+            public static void InBetween_ShouldReturnCorrectValue_GivenH8A1()
             {
                 var expected = 0x40201008040200;
                 var actual = BoardHelpers.InBetween(63, 0);
@@ -133,7 +195,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-           public static void InBetween_ShouldReturnZero_GivenTwoEWOneAnother()
+            public static void InBetween_ShouldReturnZero_GivenTwoEWOneAnother()
             {
                 var expected = (ulong)0x00;
                 var actual = BoardHelpers.InBetween(3, 4);
@@ -141,7 +203,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-           public static void InBetween_ShouldReturnZero_GivenTwoNSOneAnother()
+            public static void InBetween_ShouldReturnZero_GivenTwoNSOneAnother()
             {
                 var expected = (ulong)0x00;
                 var actual = BoardHelpers.InBetween(1, 9);
@@ -149,7 +211,7 @@ namespace ChessLib.Data.Helpers.Tests
             }
 
             [Test]
-           public static void InBetween_ShouldReturnCorrectValue_GivenRandomPositions()
+            public static void InBetween_ShouldReturnCorrectValue_GivenRandomPositions()
             {
                 var expected = (ulong)0x00;
                 var actual = BoardHelpers.InBetween(3, 8);

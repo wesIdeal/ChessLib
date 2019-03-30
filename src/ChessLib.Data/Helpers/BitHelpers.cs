@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace ChessLib.Data.Helpers
@@ -7,7 +8,7 @@ namespace ChessLib.Data.Helpers
     using BoardRepresentation = System.UInt64;
     public static class BitHelpers
     {
-        readonly static ushort[] index64 = new ushort[64] {
+        static readonly ushort[] Index64 = new ushort[64] {
                                     0, 47,  1, 56, 48, 27,  2, 60,
                                    57, 49, 41, 37, 28, 16,  3, 61,
                                    54, 58, 35, 52, 50, 42, 21, 44,
@@ -17,11 +18,17 @@ namespace ChessLib.Data.Helpers
                                    25, 39, 14, 33, 19, 30,  9, 24,
                                    13, 18,  8, 12,  7,  6,  5, 63
                                 };
-        public static ushort BitScanForward(ulong bb)
+
+        /// <summary>
+        /// Uses de Bruijn Sequences to find the least-significant index for the first '1' in a ulong
+        /// </summary>
+        /// <param name="boardRep">A ulong 'array of bits' representing a chess board.</param>
+        /// <returns>index of the least-significant set bit in ulong</returns>
+        public static ushort BitScanForward(BoardRepresentation boardRep)
         {
             const ulong debruijn64 = (0x03f79d71b4cb0a89ul);
-            Debug.Assert(bb != 0);
-            return index64[((bb ^ (bb - 1)) * debruijn64) >> 58];
+            Debug.Assert(boardRep != 0);
+            return Index64[((boardRep ^ (boardRep - 1)) * debruijn64) >> 58];
         }
 
         public static bool IsBitSet(this BoardRepresentation u, PieceIndex bitIndex)
@@ -32,40 +39,54 @@ namespace ChessLib.Data.Helpers
 
         public static PieceIndex[] GetSetBits(this BoardRepresentation u)
         {
-            var rv = new List<PieceIndex>();
-            for (PieceIndex i = 0; i < 64; i++)
+            var rv = new List<PieceIndex>(64); //Set max capacity to 64, since our 'array of bits' will be no larger.
+            while (u != 0)
             {
-                if (IsBitSet(u, i)) rv.Add(i);
+                rv.Add(BitScanForward(u));
+                u &= (u - 1);
             }
             return rv.ToArray();
         }
 
+        /// <summary>
+        /// Sets a bit (specified by <paramref name="bitIndex">bitIndex</paramref>) on a ulong by ORing the value with 1 SHL bitIndex 
+        /// </summary>
+        /// <param name="u">ulong board representation</param>
+        /// <param name="bitIndex">index of bit to set</param>
+        public static BoardRepresentation SetBit(this BoardRepresentation u, PieceIndex bitIndex) => u | (1ul << bitIndex);
 
-        public static BoardRepresentation SetBit(this BoardRepresentation u, PieceIndex bitIndex)
-        {
-            SetBit(ref u, bitIndex);
-            return u;
-        }
 
-        public static void SetBit(ref BoardRepresentation u, int bitIndex)
-        {
-            var bitValue = (BoardRepresentation)1 << bitIndex;
-            u |= bitValue;
-        }
+        /// <summary>
+        /// Sets a bit (specified by <paramref name="bitIndex">bitIndex</paramref>) on a ulong reference using <see cref="SetBit(ulong,ushort)">SetBit()</see>  
+        /// </summary>
+        /// <param name="u">ulong ref of a board representation</param>
+        /// <param name="bitIndex">index of bit to set</param>
+        public static void SetBit(ref BoardRepresentation u, PieceIndex bitIndex) => u = SetBit(u, bitIndex);
 
-        public static void ClearBit(ref BoardRepresentation u, int bitIndex) => u &= ~((BoardRepresentation)1 << bitIndex);
+        /// <summary>
+        /// Performs <see cref="ClearBit(ulong,int)">ClearBit()</see> on a ulong ref parameter.
+        /// </summary>
+        /// <param name="boardRep">A ulong reference, in this case representing a chessboard</param>
+        /// <param name="bitIndex">Index of bit to clear</param>
+        public static void ClearBit(ref BoardRepresentation boardRep, int bitIndex) =>
+            boardRep = ClearBit(boardRep, bitIndex);
 
-        public static BoardRepresentation ClearBit(BoardRepresentation u, int bitIndex) => u &= ~((BoardRepresentation)1 << bitIndex);
-
-        public static BoardRepresentation PopLSB(this BoardRepresentation u) => u & (u - 1);
+        /// <summary>
+        /// Bitwise 'and' operation with the 'not' of the bit's index to clear.
+        /// </summary>
+        /// <remarks>Ex. boardRep = 7, clear bit index of 3: boardRep = 0111b; return boardRep ANDed with NOT((1 shl 3)= 0100b) or 0111b AND 1011b returns 0011b</remarks>
+        /// <param name="boardRep">A ulong, in this case representing a chessboard</param>
+        /// <param name="bitIndex">Index of bit to clear</param>
+        /// <returns>ulong, <paramref name="boardRep">boardRep</paramref>, with the index of <paramref name="bitIndex">bitIndex</paramref> cleared.</returns>
+        public static BoardRepresentation ClearBit(BoardRepresentation boardRep, int bitIndex) => boardRep & ~(1ul << bitIndex);
 
         public static PieceIndex CountSetBits(this BoardRepresentation u)
         {
             PieceIndex counter = 0;
             while (u != 0)
             {
-                u = u.PopLSB();
                 counter++;
+                u &= (u - 1);
             }
             return counter;
         }

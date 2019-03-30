@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ChessLib.Data.MoveInitializers
+namespace ChessLib.Data.PieceMobility
 {
     public interface IMoveInitializer
     {

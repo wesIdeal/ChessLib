@@ -1,6 +1,6 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveInitializers;
+using ChessLib.Data.PieceMobility;
 using ChessLib.Data.Types;
 using System;
 using System.Collections;

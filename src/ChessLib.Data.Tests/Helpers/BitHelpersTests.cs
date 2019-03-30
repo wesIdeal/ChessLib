@@ -6,10 +6,42 @@ namespace ChessLib.Data.Helpers.Tests
     public static class BitHelpersTests
     {
         [Test]
+        public static void BitScanForward_ShouldReturnIndexOfBit_WhereBitIs1()
+        {
+            for (ushort expected = 0; expected < 64; expected++)
+            {
+                var testValue = BitHelpers.SetBit(0, expected) | 0x8000000000000000; //always set the MSB for testing
+                Assert.AreEqual(expected, BitHelpers.BitScanForward(testValue));
+            }
+        }
+        [Test]
+        public static void SetBit_ShouldReturnValueWithBitSet()
+        {
+            for (ushort i = 0; i < 64; i++)
+            {
+                var expected = 1ul << i;
+                var actual = BitHelpers.SetBit(0, i);
+                Assert.AreEqual(expected, actual);
+            }
+        }
+
+        [Test]
+        public static void SetBit_ShouldSetReferencesBit()
+        {
+            for (ushort i = 0; i < 64; i++)
+            {
+                var expected = 1ul << i;
+                ulong actual = 0;
+                BitHelpers.SetBit(ref actual, i);
+                Assert.AreEqual(expected, actual);
+            }
+        }
+
+        [Test]
         public static void GetSetBits_ShouldReturnASquareIndex_GivenOneSquareOfInput()
         {
             var count = 0;
-            foreach (var sq in BoardHelpers.IndividualSquares)
+            foreach (ulong sq in BoardHelpers.IndividualSquares)
             {
                 var idx = BitHelpers.GetSetBits(sq);
                 Assert.AreEqual(count, idx[0]);
@@ -47,19 +79,14 @@ namespace ChessLib.Data.Helpers.Tests
             Assert.AreEqual(expected, bitIndices);
         }
 
-        [Test]
-        public static void SetBit_ShouldSetBit_GivenAnySquareInRange()
-        {
-            ulong a = 0;
 
-            for (int i = 0; i < 63; i++)
-            {
-                a = 0;
-                ulong expectedValue = (ulong)1 << i;
-                BitHelpers.SetBit(ref a, i);
-                Assert.AreEqual(expectedValue, a);
-                Assert.IsTrue((a & expectedValue) == expectedValue);
-            }
+        [Test]
+        public static void ClearBit_ShouldSetRefBitIndexToZero()
+        {
+            ulong a = 0xff;
+            var bitIndexToClear = 1;
+            BitHelpers.ClearBit(ref a, bitIndexToClear);
+            Assert.AreEqual(0xfd, a);
         }
 
 
@@ -68,8 +95,8 @@ namespace ChessLib.Data.Helpers.Tests
         {
             ulong a = 0xff;
             var bitIndexToClear = 1;
-            BitHelpers.ClearBit(ref a, bitIndexToClear);
-            Assert.AreEqual(0xfd, a);
+            var actual = BitHelpers.ClearBit(a, bitIndexToClear);
+            Assert.AreEqual(0xfd, actual);
         }
 
         [Test]

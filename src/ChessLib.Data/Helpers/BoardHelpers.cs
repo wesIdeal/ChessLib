@@ -8,81 +8,89 @@ namespace ChessLib.Data.Helpers
 
         public static Color Toggle(this Color c) => c == Color.White ? Color.Black : Color.White;
 
-        public static readonly ulong[,] IndividualSquares = new ulong[8, 8];
-        public static ulong[] FileMasks = new ulong[8];
-        public static ulong[] RankMasks = new ulong[8];
-        private readonly static ulong[,] _inBetween = new ulong[64, 64];
+        public static readonly Board IndividualSquares = new Board(
+        new ulong[]{
+            0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80,
+            0x100, 0x200, 0x400, 0x800, 0x1000, 0x2000, 0x4000,
+            0x8000, 0x10000, 0x20000, 0x40000, 0x80000, 0x100000, 0x200000,
+            0x400000, 0x800000, 0x1000000, 0x2000000, 0x4000000, 0x8000000, 0x10000000,
+            0x20000000, 0x40000000, 0x80000000, 0x100000000, 0x200000000, 0x400000000, 0x800000000,
+            0x1000000000, 0x2000000000, 0x4000000000, 0x8000000000, 0x10000000000, 0x20000000000, 0x40000000000,
+            0x80000000000, 0x100000000000, 0x200000000000, 0x400000000000, 0x800000000000, 0x1000000000000, 0x2000000000000,
+            0x4000000000000, 0x8000000000000, 0x10000000000000, 0x20000000000000, 0x40000000000000, 0x80000000000000, 0x100000000000000,
+            0x200000000000000, 0x400000000000000, 0x800000000000000, 0x1000000000000000, 0x2000000000000000, 0x4000000000000000, 0x8000000000000000,
+        });
+
+        public static ulong[] RankMasks = {
+            0xff,               //R1
+            0xff00,             //R2
+            0xff0000,           //R3
+            0xff000000,         //R4
+            0xff00000000,       //R5
+            0xff0000000000,     //R6
+            0xff000000000000,   //R7
+            0xff00000000000000  //R8
+        };
+
+        public static ulong[] FileMasks = {
+            0x101010101010101,  //A
+            0x202020202020202,  //B
+            0x404040404040404,  //C
+            0x808080808080808,  //D
+            0x1010101010101010, //E
+            0x2020202020202020, //F
+            0x4040404040404040, //G
+            0x8080808080808080  //H
+        };
+
+        private static readonly ulong[,] ArrInBetween = new ulong[64, 64];
 
         static BoardHelpers()
         {
-            InitializeFileMasks();
-            InitializRankMasks();
-            InitializeIndividualSquares();
             InitializeInBetween();
         }
 
-        public static void InitializeInBetween()
+        private static void InitializeInBetween()
         {
             for (var f = 0; f < 64; f++)
             {
                 for (var t = f; t < 64; t++)
                 {
                     const long m1 = (-1);
-                    const long a2a7 = (0x0001010101010100);
-                    const long b2g7 = (0x0040201008040200);
-                    const long h1b7 = (0x0002040810204080);
-                    long btwn, line, rank, file;
+                    const long aFileBorder = (0x0001010101010100);
+                    const long b2DiagonalBorder = (0x0040201008040200);
+                    const long hFileBorder = (0x0002040810204080);
 
-                    btwn = (m1 << f) ^ (m1 << t);
-                    file = (t & 7) - (f & 7);
-                    rank = ((t | 7) - f) >> 3;
-                    line = ((file & 7) - 1) & a2a7; /* a2a7 if same file */
+                    var between = (m1 << f) ^ (m1 << t);
+                    long file = (t & 7) - (f & 7);
+                    long rank = ((t | 7) - f) >> 3;
+                    var line = ((file & 7) - 1) & aFileBorder;
                     line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
-                    line += (((rank - file) & 15) - 1) & b2g7; /* b2g7 if same diagonal */
-                    line += (((rank + file) & 15) - 1) & h1b7; /* h1b7 if same antidiag */
-                    line *= btwn & -btwn; /* mul acts like shift by smaller square */
-                    _inBetween[f, t] = (ulong)(line & btwn);   /* return the bits on that line in-between */
-
+                    line += (((rank - file) & 15) - 1) & b2DiagonalBorder; /* b2g7 if same diagonal */
+                    line += (((rank + file) & 15) - 1) & hFileBorder; /* h1b7 if same anti-diagonal */
+                    line *= between & -between; /* mul acts like shift by smaller square */
+                    ArrInBetween[f, t] = (ulong)(line & between);   /* return the bits on that line in-between */
                 }
             }
         }
-        
+
         public static ulong InBetween(int from, int to)
         {
             var square1 = Math.Min(from, to);
             var square2 = Math.Max(from, to);
-            return _inBetween[square1, square2];
+            return ArrInBetween[square1, square2];
         }
 
 
         #region Initialization
 
-        private static void InitializeFileMasks()
-        {
-            ulong start = 0x101010101010101;
-
-            for (int f = 0; f <= 7; f++)
-            {
-                FileMasks[f] = start << f;
-            }
-        }
-
-        private static void InitializRankMasks()
-        {
-            var start = (ulong)0xFF;
-            for (int r = 0; r <= 7; r++)
-            {
-                RankMasks[r] = start << (r * 8);
-            }
-        }
-
-        private static void InitializeIndividualSquares()
-        {
-            for (int i = 0; i < 64; i++)
-            {
-                IndividualSquares[i / 8, i % 8] = (ulong)1 << i;
-            }
-        }
+        //private static void InitializeIndividualSquares()
+        //{
+        //    for (int i = 0; i < 64; i++)
+        //    {
+        //        IndividualSquares[i / 8, i % 8] = (ulong)1 << i;
+        //    }
+        //}
 
         #endregion
 
@@ -155,15 +163,8 @@ namespace ChessLib.Data.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Rank GetRank(this int square)
         {
-            var r = square / 8;
             return (Rank)(square / 8);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint RankFromIdx(this uint idx) => idx / 8;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint FileFromIdx(this uint idx) => idx % 8;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort RankFromIdx(this ushort idx) => (ushort)(idx / 8);
@@ -171,12 +172,10 @@ namespace ChessLib.Data.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort FileFromIdx(this ushort idx) => (ushort)(idx % 8);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort RankCompliment(this ushort rank) => (ushort)Math.Abs(rank - 7);
 
-        public static ushort IndexVerticalCompliment(ushort idx) => (ushort)((idx.RankFromIdx().RankCompliment() * 8) + idx.FileFromIdx());
         #endregion
-
-
 
         public static ulong FlipVertically(this ulong board)
         {
@@ -198,27 +197,5 @@ namespace ChessLib.Data.Helpers
             var rankCompliment = rank.RankCompliment();
             return (ushort)((rankCompliment * 8) + file);
         }
-
-        public static ulong RotateLeft(ulong x)
-        {
-            return FlipDiagA1H8(FlipVertically(x));
-        }
-
-        public static ulong FlipDiagA1H8(ulong x)
-        {
-            ulong t;
-            const ulong k1 = 0x5500550055005500;
-            const ulong k2 = 0x3333000033330000;
-            const ulong k4 = 0x0f0f0f0f00000000;
-            t = k4 & (x ^ (x << 28));
-            x ^= t ^ (t >> 28);
-            t = k2 & (x ^ (x << 14));
-            x ^= t ^ (t >> 14);
-            t = k1 & (x ^ (x << 7));
-            x ^= t ^ (t >> 7);
-            return x;
-        }
-
-
     }
 }

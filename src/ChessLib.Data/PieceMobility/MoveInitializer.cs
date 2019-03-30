@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ChessLib.Data.MoveInitializers
+namespace ChessLib.Data.PieceMobility
 {
     public abstract class MoveInitializer : IMoveInitializer
     {
@@ -17,7 +17,7 @@ namespace ChessLib.Data.MoveInitializers
         }
 
         #region Random Number Helpers
-        private Random _random = new Random();
+        private readonly Random _random = new Random();
 
         public ulong NextRandom()
         {
@@ -39,15 +39,12 @@ namespace ChessLib.Data.MoveInitializers
         /// <param name="pieceLocationIndex">The index of the piece</param>
         /// <param name="attackMask">The piece's associated attack mask from the position index</param>
         /// <param name="occupancyBoards">The associated occupancy boards</param>
-        /// <returns></returns>
+        /// <returns>An array of blocker boards and corresponding moves based on blocker placement.</returns>
         public IEnumerable<BlockerAndMoveBoards> GetAllPermutationsForAttackMask(int pieceLocationIndex, ulong attackMask, IEnumerable<ulong> occupancyBoards)
         {
             var boardCombos = new List<BlockerAndMoveBoards>();
-            var dtStart = DateTime.Now;
-            var totalBoards = occupancyBoards.Count();
             foreach (var board in occupancyBoards)
             {
-                //Debug.Write(string.Format("\r{0,4} | {1,-4}", count++, totalBoards));
                 boardCombos.Add(new BlockerAndMoveBoards(board, CalculateMovesFromPosition(pieceLocationIndex, board)));
             }
             return boardCombos;
@@ -69,14 +66,10 @@ namespace ChessLib.Data.MoveInitializers
 
             var key = (ulong)0;
             var fail = true;
-            var dtStart = DateTime.Now;
-            var count = 1;
             while (fail)
             {
                 key = GetRandomKey();
                 fail = false;
-
-                //Array.Clear(attackArray, 0, maxMoves);
                 attackArray = new ulong[maxMoves];
                 foreach (var pattern in blockerAndMoveBoards)
                 {
@@ -84,14 +77,12 @@ namespace ChessLib.Data.MoveInitializers
                     if (attackArray[hash] != 0 && attackArray[hash] != pattern.MoveBoard)
                     {
                         fail = true;
-                        count++;
                         break;
                     }
 
                     attackArray[hash] = pattern.MoveBoard;
                 }
             }
-            var totalMs = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
             return key;
         }
 
@@ -101,12 +92,12 @@ namespace ChessLib.Data.MoveInitializers
         /// <param name="positionIndex">The board index position of the piece</param>
         /// <param name="occupancyBoard">A bitboard representation of occupied squares</param>
         /// <param name="moveDirectionFlags">The directions in which the piece can move</param>
-        /// <param name="attackArrayGen">When true, excludes outer board edges.</param>
+        /// <param name="attackArrayGen">When true, excludes outer board edges (for attack masks). When false, provides all possible moves.</param>
         /// <returns>A bitboard representation of legal moves from given position</returns>
         public static ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard, MoveDirection moveDirectionFlags, bool attackArrayGen = false)
         {
             var rv = (ulong)0;
-            const ulong AllSquares = ulong.MaxValue;
+            const ulong allSquares = ulong.MaxValue;
             var startingValue = (ulong)1 << positionIndex;
             var positionalValue = startingValue;
 
@@ -116,7 +107,7 @@ namespace ChessLib.Data.MoveInitializers
 
                 while ((positionalValue = positionalValue.ShiftN()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.RankMasks[7] : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.RankMasks[7] : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
 
@@ -129,7 +120,7 @@ namespace ChessLib.Data.MoveInitializers
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftE()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.FileMasks[7] : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.FileMasks[7] : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -140,7 +131,7 @@ namespace ChessLib.Data.MoveInitializers
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftS()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.RankMasks[0] : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.RankMasks[0] : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -151,7 +142,7 @@ namespace ChessLib.Data.MoveInitializers
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftW()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.FileMasks[0] : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.FileMasks[0] : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -162,7 +153,7 @@ namespace ChessLib.Data.MoveInitializers
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftNE()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[7] & ~BoardHelpers.RankMasks[7]) : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[7] & ~BoardHelpers.RankMasks[7]) : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -173,7 +164,7 @@ namespace ChessLib.Data.MoveInitializers
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftNW()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[0] & ~BoardHelpers.RankMasks[7]) : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[0] & ~BoardHelpers.RankMasks[7]) : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -184,7 +175,7 @@ namespace ChessLib.Data.MoveInitializers
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftSE()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[7] & ~BoardHelpers.RankMasks[0]) : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[7] & ~BoardHelpers.RankMasks[0]) : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -195,7 +186,7 @@ namespace ChessLib.Data.MoveInitializers
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftSW()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[0] & ~BoardHelpers.RankMasks[0]) : AllSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[0] & ~BoardHelpers.RankMasks[0]) : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -209,7 +200,7 @@ namespace ChessLib.Data.MoveInitializers
         /// <returns>All relevant occupancy boards for the given mask</returns>
         public static IEnumerable<ulong> GetAllPermutations(ulong mask)
         {
-            var setBitIndices = BitHelpers.GetSetBits(mask);
+            var setBitIndices = mask.GetSetBits();
             return GetAllPermutations(setBitIndices, 0, 0).Distinct();
         }
 

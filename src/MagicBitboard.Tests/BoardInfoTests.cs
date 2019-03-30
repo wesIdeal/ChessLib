@@ -4,6 +4,7 @@ using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
 using NUnit.Framework;
 using System;
+using ChessLib.Data;
 
 namespace MagicBitboard.Tests
 {
@@ -668,7 +669,7 @@ namespace MagicBitboard.Tests
                     Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, e.ExceptionType, "Exception type should represent that the move leaves the King in check.");
                     throw e;
                 }
-            }, "ValidateMove should throw and exception if the move leaves the King in check.");
+            }, "ValidateMove should throw and exception if the move leaves the King in check. Move is Bg7.");
         }
 
         [Test]

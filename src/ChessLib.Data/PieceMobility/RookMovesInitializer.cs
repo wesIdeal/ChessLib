@@ -1,6 +1,6 @@
 ﻿using ChessLib.Data.Types;
 
-namespace ChessLib.Data.MoveInitializers
+namespace ChessLib.Data.PieceMobility
 {
     public class RookMovesInitializer : MoveInitializer
     {

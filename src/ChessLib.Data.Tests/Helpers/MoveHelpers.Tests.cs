@@ -2,6 +2,7 @@
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
 using NUnit.Framework;
+using System.Linq;
 
 namespace ChessLib.Data.Helpers.Tests
 {
@@ -55,7 +56,7 @@ namespace ChessLib.Data.Helpers.Tests
                     var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
                     Assert.AreEqual(Piece.Pawn, actual.Piece);
                     ValidateHasDestInfo(actual, move);
-                    if (fmt.Contains('x'))
+                    if (fmt.Contains("x"))
                     {
                         Assert.IsTrue(actual.IsCapture, $"Capture flag should be set on pawn capture for move {move}");
                         Assert.IsNotNull(actual.SourceFile, $"Source file should be set on pawn capture for move {move}");
@@ -78,7 +79,7 @@ namespace ChessLib.Data.Helpers.Tests
                     var actual = MoveHelpers.GetAvailableMoveDetails(move, Color.White);
                     Assert.AreEqual(expectedPiece, actual.Piece);
                     ValidateHasDestInfo(actual, move);
-                    if (fmt.Contains('x'))
+                    if (fmt.Contains("x"))
                     {
                         Assert.IsTrue(actual.IsCapture);
                     }
