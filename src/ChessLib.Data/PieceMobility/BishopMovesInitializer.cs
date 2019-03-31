@@ -4,7 +4,7 @@ namespace ChessLib.Data.PieceMobility
 {
     public class BishopMovesInitializer : MoveInitializer
     {
-        public BishopMovesInitializer() : base(SlidingPieceDirectionContants.BishopDirections)
+        public BishopMovesInitializer() : base(SlidingPieceDirectionConstants.BishopDirections)
         {
         }
     }

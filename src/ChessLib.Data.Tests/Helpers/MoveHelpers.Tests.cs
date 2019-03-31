@@ -2,9 +2,9 @@
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
 using NUnit.Framework;
-using System.Linq;
+using System;
 
-namespace ChessLib.Data.Helpers.Tests
+namespace ChessLib.Data.Tests.Helpers
 {
     [TestFixture]
     public static class MoveHelpersTests
@@ -65,6 +65,27 @@ namespace ChessLib.Data.Helpers.Tests
                 }
             }
         }
+
+        [Test]
+        public static void GetAvailableMoveDetails_ShouldThrowException_IfMoveIsLessThan2Chars()
+        {
+            var expectedMessage = "Invalid move. Must have at least 2 characters.";
+            Assert.Throws<Exception>(() =>
+            {
+                try
+                {
+                    MoveHelpers.GetAvailableMoveDetails("e", Color.Black);
+                }
+                catch (Exception e)
+                {
+                    Assert.AreEqual(expectedMessage, e.Message);
+                    throw;
+                }
+            });
+
+
+        }
+
         [Test]
         public static void ShouldReturnCorrectPiece()
         {
@@ -93,7 +114,6 @@ namespace ChessLib.Data.Helpers.Tests
             var moveFormat = new[] { "{0}bxe4", "{0}bd4" };
             foreach (var piece in pieces)
             {
-                var expectedPiece = PieceHelpers.GetPiece(piece);
                 foreach (var fmt in moveFormat)
                 {
                     var move = string.Format(fmt, piece);
@@ -114,7 +134,6 @@ namespace ChessLib.Data.Helpers.Tests
             var moveFormat = new[] { "{0}1xe4", "{0}1d4" };
             foreach (var piece in pieces)
             {
-                var expectedPiece = PieceHelpers.GetPiece(piece);
                 foreach (var fmt in moveFormat)
                 {
                     var move = string.Format(fmt, piece);
@@ -136,7 +155,6 @@ namespace ChessLib.Data.Helpers.Tests
             var moveFormat = new[] { "{0}bxe4", "{0}be4" };
             foreach (var piece in pieces)
             {
-                var expectedPiece = PieceHelpers.GetPiece(piece);
                 foreach (var fmt in moveFormat)
                 {
                     var move = string.Format(fmt, piece);
@@ -157,7 +175,6 @@ namespace ChessLib.Data.Helpers.Tests
             var moveFormat = new[] { "{0}1xe4", "{0}1d4" };
             foreach (var piece in pieces)
             {
-                var expectedPiece = PieceHelpers.GetPiece(piece);
                 foreach (var fmt in moveFormat)
                 {
                     var move = string.Format(fmt, piece);
@@ -192,6 +209,17 @@ namespace ChessLib.Data.Helpers.Tests
                     }
                 }
             }
+        }
+        /// <summary>
+        /// Should not get pawn source-- let the move validate that, as pawn source is variable, depending on board state
+        /// </summary>
+        [Test]
+        public static void GetAvailableMoveDetails_ShouldNotGetPawnSource()
+        {
+            var moveW = "e4";
+            var moveB = "e5";
+            Assert.AreEqual(null, MoveHelpers.GetAvailableMoveDetails(moveW, Color.White).SourceIndex);
+            Assert.AreEqual(null, MoveHelpers.GetAvailableMoveDetails(moveB, Color.Black).SourceIndex);
         }
 
         public static void ValidateHasDestInfo(MoveDetail m, string moveText)

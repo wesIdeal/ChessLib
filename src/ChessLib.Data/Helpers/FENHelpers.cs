@@ -8,16 +8,14 @@ namespace ChessLib.Data.Helpers
 {
     public static class FENHelpers
     {
+        public const string FENInitial = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         public static readonly char[] ValidCastlingStringChars = new char[] { 'k', 'K', 'q', 'Q', '-' };
         public static readonly char[] ValidFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
-        public const string InitialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-
 
         public static void ValidateFENStructure(string fen)
         {
             if (string.IsNullOrEmpty(fen)
-                || fen.Split(' ').Count() != 6)
+                || fen.Split(' ').Length != 6)
             {
                 throw new FENException(fen, FENError.InvalidFENString);
             }
@@ -33,8 +31,8 @@ namespace ChessLib.Data.Helpers
         private static FENError ValidatePiecePlacementRanks(string piecePlacement)
         {
             FENError fenError = FENError.Null;
-            var ranks = piecePlacement.Split('/').Reverse();
-            if (ranks.Count() != 8)
+            var ranks = piecePlacement.Split('/').Reverse().ToArray();
+            if (ranks.Length != 8)
             {
                 fenError |= FENError.PiecePlacementRankCount;
             }
@@ -49,8 +47,7 @@ namespace ChessLib.Data.Helpers
         }
         private static FENError ValidatePiecePlacementCharacters(string piecePlacement)
         {
-            string[] invalidChars;
-            if ((invalidChars = piecePlacement.Select(x => x).Where(x => !ValidFENChars.Contains(x)).Select(x => x.ToString()).ToArray()).Any())
+            if ((piecePlacement.Select(x => x).Where(x => !ValidFENChars.Contains(x)).Select(x => x.ToString()).ToArray()).Any())
             {
                 return FENError.PiecePlacementInvalidChars;
             }
@@ -62,9 +59,13 @@ namespace ChessLib.Data.Helpers
         public static FENError ValidateCastlingAvailabilityString(string castleAvailability)
         {
             FENError fenError = FENError.Null;
+            if (string.IsNullOrWhiteSpace(castleAvailability))
+            {
+                return FENError.CastlingNoStringPresent;
+            }
+
             if (castleAvailability == "-") return fenError;
 
-            if (string.IsNullOrWhiteSpace(castleAvailability)) { fenError |= FENError.CastlingUnrecognizedChar; }
             var castlingChars = castleAvailability.ToCharArray();
             var notAllowed = castlingChars.Where(c => !ValidCastlingStringChars.Contains(c));
 
@@ -78,7 +79,7 @@ namespace ChessLib.Data.Helpers
                 else
                 {
                     var castleAvailabilityArray = castleAvailability.ToArray();
-                    if (castleAvailabilityArray.Count() != castleAvailabilityArray.Distinct().Count())
+                    if (castleAvailabilityArray.Length != castleAvailabilityArray.Distinct().Count())
                     {
                         fenError |= FENError.CastlingStringRepetition;
                     }
@@ -106,7 +107,7 @@ namespace ChessLib.Data.Helpers
         public static FENError ValidateFullMoveCounter(string n) => ValidateNumberFromString(n) ? FENError.Null : FENError.FullMoveCounter;
         private static bool ValidateNumberFromString(string moveCounter)
         {
-            return uint.TryParse(moveCounter, out uint result);
+            return uint.TryParse(moveCounter, out _);
         }
 
         public static void ValidateFENString(string fen)
@@ -147,7 +148,7 @@ namespace ChessLib.Data.Helpers
             {
                 case "w": return Color.White;
                 case "b": return Color.Black;
-                default: return 0;
+                default: throw new FENException(v, FENError.InvalidActiveColor);
             }
         }
 
@@ -175,7 +176,7 @@ namespace ChessLib.Data.Helpers
         public static string MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability caBitFlags)
         {
             var s = "";
-            if (caBitFlags == (CastlingAvailability)0) s = CastlingAvailability.NoCastlingAvailable.AsString(EnumFormat.Description);
+            if (caBitFlags == 0) s = CastlingAvailability.NoCastlingAvailable.AsString(EnumFormat.Description);
             else
             {
                 foreach (var caFlag in caBitFlags.GetFlags().OrderBy(x => x))
@@ -188,7 +189,7 @@ namespace ChessLib.Data.Helpers
 
         public static int BoardIndexToFENIndex(ushort idx)
         {
-            var rankOffset = BoardHelpers.RankCompliment((ushort)(idx / 8));
+            var rankOffset = ((ushort)(idx / 8)).RankCompliment();
             return (rankOffset * 8) + (idx % 8);
         }
     }

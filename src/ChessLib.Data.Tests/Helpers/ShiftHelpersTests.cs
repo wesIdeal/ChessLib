@@ -1,12 +1,6 @@
-﻿using MagicBitboard;
+﻿using ChessLib.Data.Helpers;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChessLib.Data.Helpers;
-namespace ChessLib.Data.Helpers.Tests
+namespace ChessLib.Data.Tests.Helpers
 {
     [TestFixture]
     public static class ShiftHelpersTests
@@ -26,7 +20,7 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r, f + 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftE(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftE()");
                 }
             }
         }
@@ -43,7 +37,7 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r - 1, f];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftS(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftS()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftS(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftS()");
                 }
             }
         }
@@ -60,7 +54,7 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r, f - 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftW()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftW(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftW()");
                 }
             }
         }
@@ -77,7 +71,7 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r + 1, f];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftN(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftN()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftN(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftN()");
                 }
             }
         }
@@ -99,37 +93,37 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r, f + 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2E(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2E(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.Shift2E()");
                 }
             }
         }
         #region ShiftE
 
         [Test]
-        public static void ShiftENormal()
+        public static void ShiftE_Normal()
         {
             ulong u = 1;
             ulong expected = 2;
-            var actual = ShiftHelpers.ShiftE(u);
+            var actual = u.ShiftE();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftEHFile()
+        public static void ShiftE_hFile()
         {
             ulong u = 128;
             ulong expected = 0;
-            var display = BoardHelpers.FileMasks[7].GetDisplayBits();
-            var actual = ShiftHelpers.ShiftE(u);
+            BoardHelpers.FileMasks[7].GetDisplayBits();
+            var actual = u.ShiftE();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftEE4()
+        public static void ShiftEe4()
         {
             ulong u = 0x10000000;
             ulong expected = 0x20000000;
-            var actual = ShiftHelpers.ShiftE(u);
+            var actual = u.ShiftE();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -138,29 +132,29 @@ namespace ChessLib.Data.Helpers.Tests
 
 
         [Test]
-        public static void Shift2ENormal()
+        public static void Shift2E_Normal()
         {
             ulong u = 0x10000000;//e4
             ulong expected = 0x40000000;//g4
-            var actual = ShiftHelpers.Shift2E(u);
+            var actual = u.Shift2E();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void Shift2EFromGFile()
+        public static void Shift2E_GFile()
         {
             ulong u = 0x40000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.Shift2E(u);
+            var actual = u.Shift2E();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void Shift2EFromFFile()
+        public static void Shift2E_FFile()
         {
             ulong u = 0x80000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.Shift2E(u);
+            var actual = u.Shift2E();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -181,36 +175,36 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r - 2, f];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2S(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2S()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2S(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.Shift2S()");
                 }
             }
         }
         #region ShiftS
 
         [Test]
-        public static void ShiftSNormal()
+        public static void ShiftS_Normal()
         {
             ulong u = 0x100;
             ulong expected = 0x01;
-            var actual = ShiftHelpers.ShiftS(u);
+            var actual = u.ShiftS();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftS1stRank()
+        public static void ShiftS_1stRank()
         {
             ulong u = 0x01;
             ulong expected = 0;
-            var actual = ShiftHelpers.ShiftS(u);
+            var actual = u.ShiftS();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftSD4()
+        public static void ShiftS_d4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x80000;
-            var actual = ShiftHelpers.ShiftS(u);
+            var actual = u.ShiftS();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -218,29 +212,29 @@ namespace ChessLib.Data.Helpers.Tests
         #region Shift2S
 
         [Test]
-        public static void Shift2SNormal()
+        public static void Shift2S_Normal()
         {
             ulong u = 0x8000000;
             ulong expected = 0x800;
-            var actual = ShiftHelpers.Shift2S(u);
+            var actual = u.Shift2S();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void Shift2SFrom2ndRank()
+        public static void Shift2S__2ndRank()
         {
             ulong u = 0x800;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.Shift2S(u);
+            var actual = u.Shift2S();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void Shift2SFrom1stRank()
+        public static void Shift2S_1stRank()
         {
             ulong u = 0x08;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.Shift2S(u);
+            var actual = u.Shift2S();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -261,36 +255,36 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r, f - 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2W(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2W()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2W(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.Shift2W()");
                 }
             }
         }
         #region ShiftW
 
         [Test]
-        public static void ShiftWNormal()
+        public static void ShiftW_Normal()
         {
             ulong u = 0x2000000;
             ulong expected = 0x1000000;
-            var actual = ShiftHelpers.ShiftW(u);
+            var actual = u.ShiftW();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftWAFile()
+        public static void ShiftW_aFile()
         {
             ulong u = 0x1000000;
             ulong expected = 0;
-            var actual = ShiftHelpers.ShiftW(u);
+            var actual = u.ShiftW();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftWE4()
+        public static void ShiftW_e4()
         {
             ulong u = 0x10000000;
             ulong expected = 0x8000000;
-            var actual = ShiftHelpers.ShiftW(u);
+            var actual = u.ShiftW();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -298,29 +292,29 @@ namespace ChessLib.Data.Helpers.Tests
         #region Shift2W
 
         [Test]
-        public static void Shift2WNormal()
+        public static void Shift2_Normal()
         {
             ulong u = 0x10000000;
             ulong expected = 0x4000000;
-            var actual = ShiftHelpers.Shift2W(u);
+            var actual = u.Shift2W();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void Shift2WFromBFile()
+        public static void Shift2W_BFile()
         {
             ulong u = 0x2000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.Shift2W(u);
+            var actual = u.Shift2W();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void Shift2WFromAFile()
+        public static void Shift2W_AFile()
         {
             ulong u = 0x1000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.Shift2W(u);
+            var actual = u.Shift2W();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -341,36 +335,36 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r + 2, f];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2N(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2N()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].Shift2N(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.Shift2N()");
                 }
             }
         }
         #region ShiftN
 
         [Test]
-        public static void ShiftNNormal()
+        public static void Shift_Normal()
         {
             ulong u = 0x01;
             ulong expected = 0x100;
-            var actual = ShiftHelpers.ShiftN(u);
+            var actual = u.ShiftN();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftN8thRank()
+        public static void ShiftN_8thRank()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0;
-            var actual = ShiftHelpers.ShiftN(u);
+            var actual = u.ShiftN();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftND4()
+        public static void ShiftN_d4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x800000000;
-            var actual = ShiftHelpers.ShiftN(u);
+            var actual = u.ShiftN();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -379,29 +373,29 @@ namespace ChessLib.Data.Helpers.Tests
 
 
         [Test]
-        public static void Shift2NNormal()
+        public static void Shift2N_Normal()
         {
             ulong u = 0x8000000;
             ulong expected = 0x80000000000;
-            var actual = ShiftHelpers.Shift2N(u);
+            var actual = u.Shift2N();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void Shift2NFrom7thRank()
+        public static void Shift2N_7thRank()
         {
             ulong u = 0x8000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.Shift2N(u);
+            var actual = u.Shift2N();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void Shift2NFrom8thRank()
+        public static void Shift2N_8thRank()
         {
             ulong u = 0x800000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.Shift2N(u);
+            var actual = u.Shift2N();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -424,13 +418,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r + 2, f + 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNNE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftNNE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNNE(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftNNE()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftNETestAll()
+        public static void ShiftNE_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -441,13 +435,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r + 1, f + 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNE(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.Shift2E()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftENETestAll()
+        public static void ShiftENE_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -458,13 +452,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r + 1, f + 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftENE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftENE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftENE(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftENE()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftESETestAll()
+        public static void ShiftESE_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -475,13 +469,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r - 1, f + 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftESE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftESE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftESE(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftESE()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftSETestAll()
+        public static void ShiftSE_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -492,13 +486,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r - 1, f + 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftSE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSE(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftSE()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftSSETestAll()
+        public static void ShiftSSE_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -509,13 +503,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r - 2, f + 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSSE(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftSSE()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSSE(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftSSE()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftSSWTestAll()
+        public static void ShiftSSW_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -526,13 +520,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r - 2, f - 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSSW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftSSW()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSSW(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftSSW()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftSWTestAll()
+        public static void ShiftSW_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -543,13 +537,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r - 1, f - 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftSW(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.Shift2E()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftWSWTestAll()
+        public static void ShiftWSW_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -560,13 +554,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r - 1, f - 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftWSW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftWSW()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftWSW(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftWSW()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftWNWTestAll()
+        public static void ShiftWNW_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -577,13 +571,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r + 1, f - 2];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftWNW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftWNW()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftWNW(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftWNW()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftNWTestAll()
+        public static void ShiftNW_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -594,13 +588,13 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r + 1, f - 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.Shift2E()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNW(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.Shift2E()");
                 }
             }
         }
 
         [Test]
-        public static void ShiftNNWTestAll()
+        public static void ShiftNNW_TestAll()
         {
             for (int r = 0; r < 8; r++)
             {
@@ -611,7 +605,7 @@ namespace ChessLib.Data.Helpers.Tests
                     {
                         expectedValue = BoardHelpers.IndividualSquares[r + 2, f - 1];
                     }
-                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNNW(), $"Expected value of {expectedValue} from {(char)('a' + r)}{f + 1}.ShiftNNW()");
+                    Assert.AreEqual(expectedValue, BoardHelpers.IndividualSquares[r, f].ShiftNNW(), $"Expected value of {expectedValue} _ {(char)('a' + r)}{f + 1}.ShiftNNW()");
                 }
             }
         }
@@ -621,60 +615,60 @@ namespace ChessLib.Data.Helpers.Tests
         #region ShiftNNE
 
         [Test]
-        public static void ShiftNNENormal()
+        public static void ShiftNNE_Normal()
         {
             ulong u = 1;
             ulong expected = 0x20000;
-            var actual = ShiftHelpers.ShiftNNE(u);
+            var actual = u.ShiftNNE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNNEFromD4()
+        public static void ShiftNNE_d4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x100000000000;
-            var actual = ShiftHelpers.ShiftNNE(u);
+            var actual = u.ShiftNNE();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftNNEFromH6()
+        public static void ShiftNNE_h6()
         {
             ulong u = 0x800000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNNE(u);
+            var actual = u.ShiftNNE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNNEFromF8()
+        public static void ShiftNNE_F8()
         {
             ulong u = 0x2000000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNNE(u);
+            var actual = u.ShiftNNE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNNEFromH8()
+        public static void ShiftNNE_H8()
         {
             ulong u = 0x8000000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNNE(u);
+            var actual = u.ShiftNNE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNNEFromA8()
+        public static void ShiftNNE_A8()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNNE(u);
+            var actual = u.ShiftNNE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNNEFromC1()
+        public static void ShiftNNE_C1()
         {
             ulong u = 0x04;
             ulong expected = 0x80000;
-            var actual = ShiftHelpers.ShiftNNE(u);
+            var actual = u.ShiftNNE();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -682,51 +676,51 @@ namespace ChessLib.Data.Helpers.Tests
         #region ShiftNE Tests
 
         [Test]
-        public static void ShiftNENormal()
+        public static void ShiftNE_Normal()
         {
             ulong u = 1;
             ulong expected = 0x0200;
-            var actual = ShiftHelpers.ShiftNE(u);
+            var actual = u.ShiftNE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNEFromD4()
+        public static void ShiftNE__d4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x1000000000;
-            var actual = ShiftHelpers.ShiftNE(u);
+            var actual = u.ShiftNE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNEFromH6()
+        public static void ShiftNE_h6()
         {
             ulong u = 0x800000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNE(u);
+            var actual = u.ShiftNE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNEFromF8()
+        public static void ShiftNE_f8()
         {
             ulong u = 0x2000000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNE(u);
+            var actual = u.ShiftNE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNEFromH8()
+        public static void ShiftNE_H8()
         {
             ulong u = 0x8000000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNE(u);
+            var actual = u.ShiftNE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNEFromA8()
+        public static void ShiftNE_a8()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNE(u);
+            var actual = u.ShiftNE();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -734,52 +728,52 @@ namespace ChessLib.Data.Helpers.Tests
         #region ShiftENE Tests
 
         [Test]
-        public static void ShiftENENormal()
+        public static void ShiftENE_Normal()
         {
             ulong u = 1;
             ulong expected = 0x0400;
-            var actual = ShiftHelpers.ShiftENE(u);
+            var actual = u.ShiftENE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftENEFromD4()
+        public static void ShiftENE_d4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x2000000000;
-            var actual = ShiftHelpers.ShiftENE(u);
+            var actual = u.ShiftENE();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftENEFromH6()
+        public static void ShiftENE_h6()
         {
             ulong u = 0x800000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftENE(u);
+            var actual = u.ShiftENE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftENEFromF8()
+        public static void ShiftENE_F8()
         {
             ulong u = 0x2000000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftENE(u);
+            var actual = u.ShiftENE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftENEFromH8()
+        public static void ShiftENE_H8()
         {
             ulong u = 0x8000000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftENE(u);
+            var actual = u.ShiftENE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftENEFromA8()
+        public static void ShiftENE_A8()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftENE(u);
+            var actual = u.ShiftENE();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -787,60 +781,60 @@ namespace ChessLib.Data.Helpers.Tests
         #region ShiftESE Tests
 
         [Test]
-        public static void ShiftESENormal()
+        public static void ShiftESE_Normal()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = BoardHelpers.IndividualSquares[6, 2];
-            var actual = ShiftHelpers.ShiftESE(u);
+            var actual = u.ShiftESE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftESEFromD4()
+        public static void ShiftESE_d4()
         {
             ulong u = BoardHelpers.IndividualSquares[3, 3];
             ulong expected = BoardHelpers.IndividualSquares[2, 5];
-            var actual = ShiftHelpers.ShiftESE(u);
+            var actual = u.ShiftESE();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftESEFromH6()
+        public static void ShiftESE_h6()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 6];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftESE(u);
+            var actual = u.ShiftESE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftESEFromF8()
+        public static void ShiftESE_F8()
         {
             ulong u = BoardHelpers.IndividualSquares[6, 6];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftESE(u);
+            var actual = u.ShiftESE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftESEFromH8()
+        public static void ShiftESE_H8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 5];
             ulong expected = BoardHelpers.IndividualSquares[6, 7];
-            var actual = ShiftHelpers.ShiftESE(u);
+            var actual = u.ShiftESE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftESEFromG2()
+        public static void ShiftESE_G2()
         {
             ulong u = 0x4000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftESE(u);
+            var actual = u.ShiftESE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftESEFromA8()
+        public static void ShiftESE_A8()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0x4000000000000;
-            var actual = ShiftHelpers.ShiftESE(u);
+            var actual = u.ShiftESE();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -848,52 +842,52 @@ namespace ChessLib.Data.Helpers.Tests
         #region ShiftSE Tests
 
         [Test]
-        public static void ShiftSENormal()
+        public static void ShiftSE_Normal()
         {
             ulong u = 0x100000000000000;
             ulong expected = 0x2000000000000;
-            var actual = ShiftHelpers.ShiftSE(u);
+            var actual = u.ShiftSE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSEFromD4()
+        public static void ShiftSE_d4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x100000;
-            var actual = ShiftHelpers.ShiftSE(u);
+            var actual = u.ShiftSE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSEFromH6()
+        public static void ShiftSE_h6()
         {
             ulong u = 0x800000000000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSE(u);
+            var actual = u.ShiftSE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSEFromH2()
+        public static void ShiftSE_H2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSE(u);
+            var actual = u.ShiftSE();
             Assert.AreEqual(expected, actual);
 
         }
         [Test]
-        public static void ShiftSEFromG1()
+        public static void ShiftSE_G1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 6];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSE(u);
+            var actual = u.ShiftSE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSEFromH1()
+        public static void ShiftSE_H1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 7];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSE(u);
+            var actual = u.ShiftSE();
             Assert.AreEqual(expected, actual);
         }
         #endregion
@@ -901,372 +895,372 @@ namespace ChessLib.Data.Helpers.Tests
         #region ShiftSSE Tests
 
         [Test]
-        public static void ShiftSSENormal()
+        public static void ShiftSSE_Normal()
         {
             ulong u = 0x400000; //G3
             ulong expected = 0x80;//H1
-            var actual = ShiftHelpers.ShiftSSE(u);
+            var actual = u.ShiftSSE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSSEFromD4()
+        public static void ShiftSSE_d4()
         {
             ulong u = BoardHelpers.IndividualSquares[3, 3];
             ulong expected = BoardHelpers.IndividualSquares[1, 4];
-            var actual = ShiftHelpers.ShiftSSE(u);
+            var actual = u.ShiftSSE();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public static void ShiftSSEFromF2()
+        public static void ShiftSSE_F2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 5];
             ulong expected = 0;
-            var actual = ShiftHelpers.ShiftSSE(u);
+            var actual = u.ShiftSSE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSSEFromG2()
+        public static void ShiftSSE_G2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 6];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSSE(u);
+            var actual = u.ShiftSSE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSSEFromH8()
+        public static void ShiftSSE_H8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 7];
             ulong expected = 0;
-            var actual = ShiftHelpers.ShiftSSE(u);
+            var actual = u.ShiftSSE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSSEFromH3()
+        public static void ShiftSSE_H3()
         {
             ulong u = 0x800000;
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSSE(u);
+            var actual = u.ShiftSSE();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSSEFromA2()
+        public static void ShiftSSE_A2()
         {
             ulong u = 0x100;
             ulong expected = 0;
-            var actual = ShiftHelpers.ShiftSSE(u);
+            var actual = u.ShiftSSE();
             Assert.AreEqual(expected, actual);
         }
         #endregion
 
         #region ShiftSSW Tests
         [Test]
-        public static void ShiftSSWNormal()
+        public static void ShiftSS_Normal()
         {
             ulong u = 0x200000000000000;//b8
             ulong expected = 0x10000000000;//a6
-            var actual = ShiftHelpers.ShiftSSW(u);
+            var actual = u.ShiftSSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSSWFromH3()
+        public static void ShiftSSW_H3()
         {
             ulong u = 0x800000;//H3
             ulong expected = 0x40; //g1
-            var actual = ShiftHelpers.ShiftSSW(u);
+            var actual = u.ShiftSSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSSWFromH8()
+        public static void ShiftSSW_H8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 7];//h8
             ulong expected = BoardHelpers.IndividualSquares[5, 6]; //g6
-            var actual = ShiftHelpers.ShiftSSW(u);
+            var actual = u.ShiftSSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSSWFromA8()
+        public static void ShiftSSW_A8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSSW(u);
+            var actual = u.ShiftSSW();
             Assert.AreEqual(expected, actual);
 
         }
         [Test]
-        public static void ShiftSSWFromA3()
+        public static void ShiftSSW_A3()
         {
             ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSSW(u);
+            var actual = u.ShiftSSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSSWFromH2()
+        public static void ShiftSSW_H2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSSW(u);
+            var actual = u.ShiftSSW();
             Assert.AreEqual(expected, actual);
         }
         #endregion
 
         #region ShiftSW Tests
         [Test]
-        public static void ShiftSWNormal()
+        public static void ShiftSW_Normal()
         {
             ulong u = 0x8000000000000000;
             ulong expected = 0x40000000000000;
-            var actual = ShiftHelpers.ShiftSW(u);
+            var actual = u.ShiftSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSWFromD4()
+        public static void ShiftSW_d4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x40000; //c3
-            var actual = ShiftHelpers.ShiftSW(u);
+            var actual = u.ShiftSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSWFromH6()
+        public static void ShiftSW_h6()
         {
             ulong u = 0x800000000000;
             ulong expected = 0x4000000000;
-            var actual = ShiftHelpers.ShiftSW(u);
+            var actual = u.ShiftSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSWFromA2()
+        public static void ShiftSW_A2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 0];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSW(u);
+            var actual = u.ShiftSW();
             Assert.AreEqual(expected, actual);
 
         }
         [Test]
-        public static void ShiftSWFromG1()
+        public static void ShiftSW_G1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 6];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSW(u);
+            var actual = u.ShiftSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftSWFromH1()
+        public static void ShiftSW_H1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 7];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftSW(u);
+            var actual = u.ShiftSW();
             Assert.AreEqual(expected, actual);
         }
         #endregion
 
         #region ShiftWSW Tests
         [Test]
-        public static void ShiftWSWNormal()
+        public static void ShiftWS_Normal()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 2];//c8
             ulong expected = BoardHelpers.IndividualSquares[6, 0];//a7
-            var actual = ShiftHelpers.ShiftWSW(u);
+            var actual = u.ShiftWSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftWSWFromH3()
+        public static void ShiftWSW_H3()
         {
             ulong u = 0x800000;//H3
             ulong expected = 0x2000; //f2
-            var actual = ShiftHelpers.ShiftWSW(u);
+            var actual = u.ShiftWSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftWSWFromH8()
+        public static void ShiftWSW_H8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 7];//h8
             ulong expected = BoardHelpers.IndividualSquares[6, 5]; //f7
-            var actual = ShiftHelpers.ShiftWSW(u);
+            var actual = u.ShiftWSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftWSWFromA8()
+        public static void ShiftWSW_A8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftWSW(u);
+            var actual = u.ShiftWSW();
             Assert.AreEqual(expected, actual);
 
         }
         [Test]
-        public static void ShiftWSWFromA3()
+        public static void ShiftWSW_A3()
         {
             ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftWSW(u);
+            var actual = u.ShiftWSW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftWSWFromH2()
+        public static void ShiftWSW_H2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
             ulong expected = 0x01 << 5;
-            var actual = ShiftHelpers.ShiftWSW(u);
+            var actual = u.ShiftWSW();
             Assert.AreEqual(expected, actual);
         }
         #endregion
 
         #region ShiftWNW Tests
         [Test]
-        public static void ShiftWNWNormal()
+        public static void ShiftWN_Normal()
         {
             ulong u = 0x4000000000000; //c7
             ulong expected = 0x100000000000000; // a8
-            var actual = ShiftHelpers.ShiftWNW(u);
+            var actual = u.ShiftWNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftWNWFromH3()
+        public static void ShiftWNW_H3()
         {
             ulong u = 0x800000;//H3
             ulong expected = 0x20000000; //f4
-            var actual = ShiftHelpers.ShiftWNW(u);
+            var actual = u.ShiftWNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftWNWFromH8()
+        public static void ShiftWNW_H8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 7];//h8
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftWNW(u);
+            var actual = u.ShiftWNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftWNWFromA8()
+        public static void ShiftWNW_A8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftWNW(u);
+            var actual = u.ShiftWNW();
             Assert.AreEqual(expected, actual);
 
         }
         [Test]
-        public static void ShiftWNWFromA3()
+        public static void ShiftWNW_A3()
         {
             ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftWNW(u);
+            var actual = u.ShiftWNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftWNWFromH2()
+        public static void ShiftWNW_H2()
         {
             ulong u = 0x8000; //h2
             ulong expected = 0x200000;
-            var actual = ShiftHelpers.ShiftWNW(u);
+            var actual = u.ShiftWNW();
             Assert.AreEqual(expected, actual);
         }
         #endregion
 
         #region ShiftNW Tests
         [Test]
-        public static void ShiftNWNormal()
+        public static void ShiftN_Normal()
         {
             ulong u = 0x2000000000000;//b7
             ulong expected = 0x100000000000000;//a8
-            var actual = ShiftHelpers.ShiftNW(u);
+            var actual = u.ShiftNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNWFromD4()
+        public static void ShiftNW_d4()
         {
             ulong u = 0x8000000;
             ulong expected = 0x400000000; //c5
-            var actual = ShiftHelpers.ShiftNW(u);
+            var actual = u.ShiftNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNWFromH6()
+        public static void ShiftNW_h6()
         {
             ulong u = 0x800000000000;//h6
             ulong expected = 0x40000000000000;//g7
-            var actual = ShiftHelpers.ShiftNW(u);
+            var actual = u.ShiftNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNWFromA2()
+        public static void ShiftNW_A2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 0];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNW(u);
+            var actual = u.ShiftNW();
             Assert.AreEqual(expected, actual);
 
         }
         [Test]
-        public static void ShiftNWFromA8()
+        public static void ShiftNW_A8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNW(u);
+            var actual = u.ShiftNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNWFromH1()
+        public static void ShiftNW_H1()
         {
             ulong u = BoardHelpers.IndividualSquares[0, 7];
             ulong expected = 0x01 << 14;
-            var actual = ShiftHelpers.ShiftNW(u);
+            var actual = u.ShiftNW();
             Assert.AreEqual(expected, actual);
         }
         #endregion
 
         #region ShiftNNW Tests
         [Test]
-        public static void ShiftNNWNormal()
+        public static void ShiftNN_Normal()
         {
             ulong u = 0x20000000000;//b6
             ulong expected = 0x100000000000000;//a8
-            var actual = ShiftHelpers.ShiftNNW(u);
+            var actual = u.ShiftNNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNNWFromB7()
+        public static void ShiftNNW_B7()
         {
             ulong u = 0x2000000000000;//b7
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNNW(u);
+            var actual = u.ShiftNNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNNWFromH6()
+        public static void ShiftNNW_h6()
         {
             ulong u = 0x800000000000;//h6
             ulong expected = 0x4000000000000000; //g6
-            var actual = ShiftHelpers.ShiftNNW(u);
+            var actual = u.ShiftNNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNNWFromA8()
+        public static void ShiftNNW_A8()
         {
             ulong u = BoardHelpers.IndividualSquares[7, 0];
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNNW(u);
+            var actual = u.ShiftNNW();
             Assert.AreEqual(expected, actual);
 
         }
         [Test]
-        public static void ShiftNNWFromA3()
+        public static void ShiftNNW_A3()
         {
             ulong u = BoardHelpers.IndividualSquares[2, 0]; //a3
             ulong expected = 0x00;
-            var actual = ShiftHelpers.ShiftNNW(u);
+            var actual = u.ShiftNNW();
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public static void ShiftNNWFromH2()
+        public static void ShiftNNW_H2()
         {
             ulong u = BoardHelpers.IndividualSquares[1, 7];
             ulong expected = 0x01 << 30;
-            var actual = ShiftHelpers.ShiftNNW(u);
+            var actual = u.ShiftNNW();
             Assert.AreEqual(expected, actual);
         }
         #endregion

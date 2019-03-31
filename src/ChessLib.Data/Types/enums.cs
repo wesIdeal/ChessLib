@@ -74,11 +74,10 @@ namespace ChessLib.Data.Types
 
 
     }
-    public static class SlidingPieceDirectionContants
+    public static class SlidingPieceDirectionConstants
     {
         public const MoveDirection RookDirections = MoveDirection.N | MoveDirection.E | MoveDirection.S | MoveDirection.W;
         public const MoveDirection BishopDirections = MoveDirection.NE | MoveDirection.SE | MoveDirection.SW | MoveDirection.NW;
-        public const MoveDirection QueenDirections = RookDirections | BishopDirections;
     }
 
     [Flags]
@@ -138,11 +137,14 @@ namespace ChessLib.Data.Types
         CastlingStringRepetition = 64,
         [Description("Invalid Castling Information - cannot use '-' with other castling character.")]
         CastlingStringBadSequence = 128,
+        [Description("Invalid Castling Information - no castling availability found.")]
+        CastlingNoStringPresent = 256,
         [Description("Invalid Halfmove clock.")]
-        HalfmoveClock = 256,
+        HalfmoveClock = 512,
         [Description("Invalid Full Move Counter.")]
-        FullMoveCounter = 512,
+        FullMoveCounter = 1024,
         [Description("En Passant square is invalid. Must be 2 characters long and translate to a square on a chessboard. Ex. [file_letter][rank_number].")]
-        InvalidEnPassantSquare = 1024,
+        InvalidEnPassantSquare = 2048,
+
     }
 }

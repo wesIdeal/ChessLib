@@ -31,10 +31,8 @@ namespace ChessLib.Data.Helpers
         {
             for (var i = 0; i < 64; i++)
             {
-                var rank = i / 8;
-                var file = i % 8;
-                var square = BoardHelpers.IndividualSquares[rank, file];
-                KingMoveMask[rank, file] = square.ShiftN() | square.ShiftNE() | square.ShiftE() | square.ShiftSE() |
+                var square = (ulong)(1 << i);
+                KingMoveMask[i] = square.ShiftN() | square.ShiftNE() | square.ShiftE() | square.ShiftSE() |
                                            square.ShiftS() | square.ShiftSW() | square.ShiftW() | square.ShiftNW();
             }
         }
@@ -89,10 +87,10 @@ namespace ChessLib.Data.Helpers
             for (var i = 0; i < 64; i++)
             {
                 var bishopAttackForSquare =
-                    MoveInitializer.CalculateMovesFromPosition(i, 0, SlidingPieceDirectionContants.BishopDirections,
+                    MoveInitializer.CalculateMovesFromPosition(i, 0, SlidingPieceDirectionConstants.BishopDirections,
                         true);
                 var bishopMovesForSquare =
-                    MoveInitializer.CalculateMovesFromPosition(i, 0, SlidingPieceDirectionContants.BishopDirections);
+                    MoveInitializer.CalculateMovesFromPosition(i, 0, SlidingPieceDirectionConstants.BishopDirections);
                 BishopAttackMask[i] = bishopAttackForSquare;
                 BishopMoveMask[i] = bishopMovesForSquare;
             }
@@ -103,10 +101,10 @@ namespace ChessLib.Data.Helpers
             for (var i = 0; i < 64; i++)
             {
                 var rookAttackForSquare =
-                    MoveInitializer.CalculateMovesFromPosition(i, 0, SlidingPieceDirectionContants.RookDirections,
+                    MoveInitializer.CalculateMovesFromPosition(i, 0, SlidingPieceDirectionConstants.RookDirections,
                         true);
                 var rookMovesForSquare =
-                    MoveInitializer.CalculateMovesFromPosition(i, 0, SlidingPieceDirectionContants.RookDirections,
+                    MoveInitializer.CalculateMovesFromPosition(i, 0, SlidingPieceDirectionConstants.RookDirections,
                         true);
                 RookAttackMask[i] = rookAttackForSquare;
                 RookMoveMask[i] = rookMovesForSquare;

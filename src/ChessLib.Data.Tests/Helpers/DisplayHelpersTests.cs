@@ -1,5 +1,6 @@
-﻿using NUnit.Framework;
-namespace ChessLib.Data.Helpers.Tests
+﻿using ChessLib.Data.Helpers;
+using NUnit.Framework;
+namespace ChessLib.Data.Tests.Helpers
 {
     [TestFixture]
     public static class DisplayHelpersTests
@@ -17,7 +18,7 @@ namespace ChessLib.Data.Helpers.Tests
                 "0 0 0 0 0 0 0 0\r\n" +
                 "0 0 0 0 0 0 0 0\r\n" +
                 "0 0 0 0 0 0 0 0\r\n";
-            Assert.AreEqual(expected, DisplayHelpers.GetDisplayBits(testVal), "GetDisplayBits() didn't locate H8 as MSB.");
+            Assert.AreEqual(expected, testVal.GetDisplayBits(), "GetDisplayBits() didn't locate H8 as MSB.");
         }
 
         [Test]
@@ -33,7 +34,7 @@ namespace ChessLib.Data.Helpers.Tests
                 "0 0 0 0 0 0 0 0\r\n" +
                 "0 0 0 0 0 0 0 0\r\n" +
                 "1 0 0 0 0 0 0 0\r\n";
-            Assert.AreEqual(expected, DisplayHelpers.GetDisplayBits(testVal), "GetDisplayBits() didn't locate A1 as LSB.");
+            Assert.AreEqual(expected, testVal.GetDisplayBits(), "GetDisplayBits() didn't locate A1 as LSB.");
         }
 
 

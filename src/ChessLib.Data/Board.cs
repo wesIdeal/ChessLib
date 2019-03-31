@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace ChessLib.Data
@@ -8,7 +6,7 @@ namespace ChessLib.Data
     /// <summary>
     /// Holds 64 move/attack boards. Usually used to represent a piece's possible attacks or moves from each square.
     /// </summary>
-    public class Board : IEnumerable<ulong>
+    public class Board
     {
         public ulong[] MoveBoard;
 
@@ -32,14 +30,6 @@ namespace ChessLib.Data
             set => MoveBoard[rank * 8 + file] = value;
         }
 
-        public IEnumerator GetEnumerator()
-        {
-            return MoveBoard.GetEnumerator();
-        }
 
-        IEnumerator<ulong> IEnumerable<ulong>.GetEnumerator()
-        {
-            return ((IEnumerable<ulong>)MoveBoard).GetEnumerator();
-        }
     }
 }

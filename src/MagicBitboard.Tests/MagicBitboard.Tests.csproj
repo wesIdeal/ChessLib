@@ -45,11 +45,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bitboard.Tests.cs" />
     <Compile Include="BoardInfoTests.cs" />
-    <Compile Include="Helpers\MoveHelpersTests.cs" />
-    <Compile Include="Helpers\MoveTests.cs" />
-    <Compile Include="MoveHelperShifts\CardinalDirectionShifts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

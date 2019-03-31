@@ -23,7 +23,7 @@ namespace Bitboard.Tests.ConsoleApp
             //WriteKnightAttacks();
             //WriteBishopAttacks();
             //WriteRookAttacks();
-            var gameInfo = BoardInfo.BoardInfoFromFen(FENHelpers.InitialFEN);
+            var gameInfo = BoardInfo.BoardInfoFromFen(FENHelpers.FENInitial);
             var fen = gameInfo.FEN;
             Console.WriteLine($"{gameInfo.PiecesOnBoard[0][Piece.Queen.ToInt()].GetDisplayBits()}");
             Console.WriteLine($"Finished in {DateTime.Now.Subtract(dt).TotalMilliseconds} ms.");

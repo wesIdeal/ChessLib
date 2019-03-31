@@ -10,7 +10,7 @@ namespace MagicBitboard
 
 
 
-        public GameInfo() : this(FENHelpers.InitialFEN)
+        public GameInfo() : this(FENHelpers.FENInitial)
         {
 
         }

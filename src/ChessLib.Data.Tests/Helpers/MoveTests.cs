@@ -3,13 +3,11 @@ using ChessLib.Data.Types;
 using NUnit.Framework;
 using System;
 
-namespace MagicBitboard.Helpers.Tests
+namespace ChessLib.Data.Tests.Helpers
 {
     [TestFixture]
     public class MoveTests
     {
-        const string fenEP = "8/PPPPPPPP/8/2k5/8/2K5/pppppppp/8 w - - 0 1";
-        readonly BoardInfo biEnPassant = BoardInfo.BoardInfoFromFen(fenEP);
         [SetUp]
         public static void Setup()
         {
@@ -31,7 +29,7 @@ namespace MagicBitboard.Helpers.Tests
         {
             foreach (MoveType mt in Enum.GetValues(typeof(MoveType)))
             {
-                var move = MoveHelpers.GenerateMove(45, 53, mt, PromotionPiece.Knight);
+                var move = MoveHelpers.GenerateMove(45, 53, mt);
                 Assert.AreEqual(mt, move.MoveType);
             }
         }

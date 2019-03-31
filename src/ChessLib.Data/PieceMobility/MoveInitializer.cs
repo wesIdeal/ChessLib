@@ -204,14 +204,14 @@ namespace ChessLib.Data.PieceMobility
             return GetAllPermutations(setBitIndices, 0, 0).Distinct();
         }
 
-        private static IEnumerable<ulong> GetAllPermutations(ushort[] SetBits, int idx, ulong Value)
+        private static IEnumerable<ulong> GetAllPermutations(ushort[] setBits, int idx, ulong value)
         {
-            BitHelpers.SetBit(ref Value, SetBits[idx]);
-            yield return Value;
+            BitHelpers.SetBit(ref value, setBits[idx]);
+            yield return value;
             int index = idx + 1;
-            if (index < SetBits.Count())
+            if (index < setBits.Length)
             {
-                using (IEnumerator<ulong> occupancyPermutations = GetAllPermutations(SetBits, index, Value).GetEnumerator())
+                using (IEnumerator<ulong> occupancyPermutations = GetAllPermutations(setBits, index, value).GetEnumerator())
                 {
                     while (occupancyPermutations.MoveNext())
                     {
@@ -219,11 +219,11 @@ namespace ChessLib.Data.PieceMobility
                     }
                 }
             }
-            BitHelpers.ClearBit(ref Value, SetBits[idx]);
-            yield return Value;
-            if (index < SetBits.Count())
+            BitHelpers.ClearBit(ref value, setBits[idx]);
+            yield return value;
+            if (index < setBits.Length)
             {
-                using (IEnumerator<ulong> occupancyPermutations = GetAllPermutations(SetBits, index, Value).GetEnumerator())
+                using (IEnumerator<ulong> occupancyPermutations = GetAllPermutations(setBits, index, value).GetEnumerator())
                 {
                     while (occupancyPermutations.MoveNext())
                     {

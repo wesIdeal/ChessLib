@@ -6,17 +6,18 @@ using NUnit.Framework;
 using System;
 using ChessLib.Data;
 
+// ReSharper disable once CheckNamespace
 namespace MagicBitboard.Tests
 {
     [TestFixture]
     public class BoardInfoTests
     {
 
-        const string fenScandi = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2";
-        const string fenQueenAttacksd4 = "8/1k6/8/3q4/3P4/8/6K1/8 w - - 0 2";
-        const string fenQueenIsBlockedFromAttackingd4 = "8/1k6/3q4/3P4/3P4/8/6K1/8 w - - 0 2";
-        GameInfo giScandi;
-        BoardInfo biScandi;
+        const string FENScandi = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2";
+        const string FENQueenAttacksd4 = "8/1k6/8/3q4/3P4/8/6K1/8 w - - 0 2";
+        const string FENQueenIsBlockedFromAttackingSquared4 = "8/1k6/3q4/3P4/3P4/8/6K1/8 w - - 0 2";
+        GameInfo _giScandi;
+        BoardInfo _biScandi;
         [OneTimeSetUp]
         public static void OneTimeSetup()
         {
@@ -27,15 +28,15 @@ namespace MagicBitboard.Tests
         [SetUp]
         public void Setup()
         {
-            giScandi = new GameInfo(fenScandi);
-            biScandi = giScandi.BoardInfo;
+            _giScandi = new GameInfo(FENScandi);
+            _biScandi = _giScandi.BoardInfo;
         }
 
         #region FEN Tests
         [Test(Description = "Test piece section retrieval")]
         public static void GetPiecePlacement_ShouldReturnCorrectString()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
             var expected = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
             var piecePlacementActual = bi.GetPiecePlacement();
             Assert.AreEqual(expected, piecePlacementActual);
@@ -44,7 +45,7 @@ namespace MagicBitboard.Tests
         [Test(Description = "Test side-to-move retrieval")]
         public static void GetSideToMoveChar_ShouldReturnCorrectString()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
             var expected = "w";
             var stm = bi.GetSideToMoveStrRepresentation();
             Assert.AreEqual(expected, stm);
@@ -53,7 +54,7 @@ namespace MagicBitboard.Tests
         [Test(Description = "Test Castling Availability Retrieval")]
         public static void GetCastlingAvailabilityString()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
 
             var expected = "KQkq";
             var stm = bi.GetCastlingAvailabilityString();
@@ -63,7 +64,7 @@ namespace MagicBitboard.Tests
         [Test(Description = "Test En Passant Retrieval to return a string square representation or '-'")]
         public static void GetEnPassantString_ShouldReturnEPRepresentation()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
 
             var expected = "-";
             var stm = bi.GetEnPassantString();
@@ -76,7 +77,7 @@ namespace MagicBitboard.Tests
         [Test(Description = "Tests halfmove clock to string representation")]
         public static void GetHalfMoveClockString_ShouldReturnCorrectValue()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
             var expected = "0";
             Assert.AreEqual(expected, bi.GetHalfMoveClockString());
 
@@ -85,10 +86,10 @@ namespace MagicBitboard.Tests
             Assert.AreEqual(expected, bi.GetHalfMoveClockString());
         }
 
-        [Test(Description = "Tests fullmove counter to string representation")]
+        [Test(Description = "Tests move counter to string representation")]
         public static void GetMoveCountString_ShouldReturnCorrectValue()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
             var expected = "1";
             Assert.AreEqual(expected, bi.GetMoveCounterString());
 
@@ -102,7 +103,7 @@ namespace MagicBitboard.Tests
         [Test(Description = "ToFEN() should return the FEN of the current board's state")]
         public static void ToFEN_ShouldReturnCurrentBoardState()
         {
-            const string initialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            const string initialFEN = InitialFEN;
             var bi = BoardInfo.BoardInfoFromFen(initialFEN);
             var actual = bi.ToFEN();
             Assert.AreEqual(initialFEN, actual);
@@ -117,16 +118,18 @@ namespace MagicBitboard.Tests
         [Test]
         public void Should_Return_True_When_d5_Is_Attacked()
         {
-            ushort? d5 = BoardHelpers.SquareTextToIndex("d5");
-            bool isAttacked = biScandi.IsAttackedBy(Color.White, d5.Value);
+            ushort? d5 = "d5".SquareTextToIndex();
+            Assert.IsNotNull(d5);
+            bool isAttacked = _biScandi.IsAttackedBy(Color.White, d5.Value);
             Assert.IsTrue(isAttacked);
         }
 
         [Test]
         public static void Should_Return_True_When_d5_Is_Attacked_2()
         {
-            GameInfo gi = new GameInfo(fenQueenIsBlockedFromAttackingd4);
-            ushort? d5 = BoardHelpers.SquareTextToIndex("d5");
+            GameInfo gi = new GameInfo(FENQueenIsBlockedFromAttackingSquared4);
+            ushort? d5 = "d5".SquareTextToIndex();
+            Assert.IsNotNull(d5);
             bool isAttacked = gi.BoardInfo.IsAttackedBy(Color.Black, d5.Value);
             Assert.IsTrue(isAttacked);
         }
@@ -134,16 +137,18 @@ namespace MagicBitboard.Tests
         [Test]
         public void Should_Return_False_When_d4_Is_Not_Attacked()
         {
-            ushort? d4 = BoardHelpers.SquareTextToIndex("d4");
-            bool isAttacked = biScandi.IsAttackedBy(Color.White, d4.Value);
+            ushort? d4 = "d4".SquareTextToIndex();
+            Assert.IsNotNull(d4);
+            bool isAttacked = _biScandi.IsAttackedBy(Color.White, d4.Value);
             Assert.IsFalse(isAttacked);
         }
 
         [Test]
         public static void Should_Return_False_When_d4_Is_Not_Attacked_2()
         {
-            GameInfo gi = new GameInfo(fenQueenIsBlockedFromAttackingd4);
-            ushort? d4 = BoardHelpers.SquareTextToIndex("d4");
+            GameInfo gi = new GameInfo(FENQueenIsBlockedFromAttackingSquared4);
+            ushort? d4 = "d4".SquareTextToIndex();
+            Assert.IsNotNull(d4);
             bool isAttacked = gi.BoardInfo.IsAttackedBy(Color.Black, d4.Value);
             Assert.IsFalse(isAttacked);
         }
@@ -151,8 +156,9 @@ namespace MagicBitboard.Tests
         [Test]
         public static void Should_Return_True_When_d4_Is_Attacked()
         {
-            GameInfo gi = new GameInfo(fenQueenAttacksd4);
-            ushort? d4 = BoardHelpers.SquareTextToIndex("d4");
+            GameInfo gi = new GameInfo(FENQueenAttacksd4);
+            ushort? d4 = "d4".SquareTextToIndex();
+            Assert.IsNotNull(d4);
             bool isAttacked = gi.BoardInfo.IsAttackedBy(Color.Black, d4.Value);
             Assert.IsTrue(isAttacked);
         }
@@ -249,23 +255,22 @@ namespace MagicBitboard.Tests
         [Test]
         public static void ValidatePawnMove_ShouldThrowExc_WhenMoveIsBlocked()
         {
-            const ulong cOccupancyBothRanks = 0x1010000;
-            const ulong cOccupancy3rdRank = 0x10000;
+            const ulong occupancyBothRanks = 0x1010000;
+            const ulong occupancy3RdRank = 0x10000;
 
-            BoardInfo bi = new GameInfo().BoardInfo;
             ulong occBoth, occ3, occ4;
             MoveDetail md = new MoveDetail { SourceRank = 1, Color = Color.White };
             ushort pawnSourceIndex = 8;
             for (ushort idx = 16; idx < 23; idx++)
             {
-                md.DestinationFile = (ushort)(idx.FileFromIdx());
-                md.DestinationRank = (ushort)idx.RankFromIdx();
-                occBoth = (cOccupancyBothRanks << (pawnSourceIndex - 8));
-                occ3 = cOccupancy3rdRank << (pawnSourceIndex - 8);
+                md.DestinationFile = idx.FileFromIdx();
+                md.DestinationRank = idx.RankFromIdx();
+                occBoth = (occupancyBothRanks << (pawnSourceIndex - 8));
+                occ3 = occupancy3RdRank << (pawnSourceIndex - 8);
                 occ4 = occ3 << 8;
 
                 ulong pawnOcc = BoardHelpers.RankMasks[1];
-                ushort destinationIndex = (ushort)(pawnSourceIndex + (ushort)8);
+                ushort destinationIndex = (ushort)(pawnSourceIndex + 8);
                 Assert.Throws(typeof(MoveException), () => { BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc, occBoth | pawnOcc); });
                 Assert.Throws(typeof(MoveException), () => { BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc, occ3 | pawnOcc); });
                 if (pawnSourceIndex >= 16)
@@ -282,9 +287,6 @@ namespace MagicBitboard.Tests
         [Test]
         public static void ValidatePawnMove_ShouldThrowExc_IfNoPieceAvailableForCapture()
         {
-
-            BoardInfo bi = new GameInfo().BoardInfo;
-            MoveDetail md = new MoveDetail { SourceRank = 1, Color = Color.White };
             Board pawnAttackBoards = PieceAttackPatternHelper.PawnAttackMask[(int)Color.White];
             for (ushort idx = 8; idx < 16; idx++)
             {
@@ -427,12 +429,10 @@ namespace MagicBitboard.Tests
         }
 
         #region Making Boards
-        const string initialBoard = FENHelpers.InitialFEN;
-        const string after1e4 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
-        const string after1e4c5 = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2";
-
-
-
+        const string InitialBoard = FENHelpers.FENInitial;
+        const string After1E4 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
+        const string After1E4C5 = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2";
+        private const string InitialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
         [Test]
         public static void Should_Set_Initial_Board()
@@ -451,7 +451,7 @@ namespace MagicBitboard.Tests
             var blackQueen = 0x800000000000000;
             var whiteKing = 0x10;
             var blackKing = 0x1000000000000000;
-            var rv = BoardInfo.BoardInfoFromFen(initialBoard);
+            var rv = BoardInfo.BoardInfoFromFen(InitialBoard);
             Assert.AreEqual(whitePawns, rv.PiecesOnBoard[white][(int)Piece.Pawn]);
             Assert.AreEqual(blackPawns, rv.PiecesOnBoard[black][(int)Piece.Pawn]);
 
@@ -488,7 +488,7 @@ namespace MagicBitboard.Tests
             var blackQueen = 0x800000000000000;
             var whiteKing = 0x10;
             var blackKing = 0x1000000000000000;
-            var rv = BoardInfo.BoardInfoFromFen(after1e4);
+            var rv = BoardInfo.BoardInfoFromFen(After1E4);
 
             Assert.AreEqual(whitePawns, rv.PiecesOnBoard[white][(int)Piece.Pawn]);
             Assert.AreEqual(blackPawns, rv.PiecesOnBoard[black][(int)Piece.Pawn]);
@@ -526,7 +526,7 @@ namespace MagicBitboard.Tests
             var blackQueen = 0x800000000000000;
             var whiteKing = 0x10;
             var blackKing = 0x1000000000000000;
-            var rv = BoardInfo.BoardInfoFromFen(after1e4c5);
+            var rv = BoardInfo.BoardInfoFromFen(After1E4C5);
 
             Assert.AreEqual(whitePawns, rv.PiecesOnBoard[white][(int)Piece.Pawn]);
             Assert.AreEqual(blackPawns, rv.PiecesOnBoard[black][(int)Piece.Pawn]);
@@ -564,7 +564,7 @@ namespace MagicBitboard.Tests
             Assert.AreEqual(expectedPinnedPiece, actual, "Method did not determine that the Bishop on e7 was pinned by the Queen on e2.");
         }
         [Test]
-        public static void GetPinnedPieces_ShouldReturZero_WhenPieceIsNotPinned()
+        public static void GetPinnedPieces_ShouldReturnZero_WhenPieceIsNotPinned()
         {
             var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/pp1pb1pp/2p1p3/8/B7/8/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
             var expectedPinnedPiece = 0x00; //the pawn on d7 is pinned
@@ -573,7 +573,7 @@ namespace MagicBitboard.Tests
         }
 
         [Test]
-        public static void GetPinnedPieces_ShouldReturNotZero_WhenPieceIsPinnedTwice()
+        public static void GetPinnedPieces_ShouldReturnNotZero_WhenPieceIsPinnedTwice()
         {
             var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/pp1pb1pp/5p2/8/B7/2p5/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
             var expectedPinnedPiece = 0x18000000000000; //the pawn on d7 is pinned
@@ -584,7 +584,7 @@ namespace MagicBitboard.Tests
         }
 
         [Test]
-        public static void GetPinnedPieces_ShoudReturnValueOfPinnedPieces_WhenPieceIsPinned2()
+        public static void GetPinnedPieces_ShouldReturnValueOfPinnedPieces_WhenPieceIsPinned2()
         {
             var bi = BoardInfo.BoardInfoFromFen("4k3/8/2p5/1B6/8/8/6K1/8 b - - 0 1");
             var actual = bi.GetPinnedPieces();
@@ -593,7 +593,7 @@ namespace MagicBitboard.Tests
         }
 
         [Test]
-        public static void GetPinnedPieces_ShoudReturnZero_WhenPieceIsNotPinned()
+        public static void GetPinnedPieces_ShouldReturnZero_WhenPieceIsNotPinned2()
         {
             var bi = BoardInfo.BoardInfoFromFen("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1");
             var actual = bi.GetPinnedPieces();
@@ -601,20 +601,20 @@ namespace MagicBitboard.Tests
         }
 
         [Test]
-        public static void IsPiecePinned_ShoudReturnflse_WhenPieceIsNotPinned()
+        public static void IsPiecePinned_ShouldReturnTrue_WhenPieceIsPinned()
         {
             var bi = BoardInfo.BoardInfoFromFen("4k3/8/2p5/1B6/8/8/6K1/8 b - - 0 1");
             Assert.IsTrue(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
         }
 
         [Test]
-        public static void IsPiecePinned_ShoudReturnfalse_WhenPieceIsNotPinned2()
+        public static void IsPiecePinned_ShouldReturnFalse_WhenPieceIsNotPinned2()
         {
             var bi = BoardInfo.BoardInfoFromFen("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1");
             Assert.IsFalse(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
         }
         [Test]
-        public static void IsPiecePinned_ShoudReturntrue_WhenBothPiecesArePinned()
+        public static void IsPiecePinned_ShouldReturnTrue_WhenBothPiecesArePinned()
         {
             var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/pp1pb1pp/5p2/8/B7/2p5/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
             var actual = bi.GetPinnedPieces();
@@ -625,7 +625,7 @@ namespace MagicBitboard.Tests
         }
 
         [Test]
-        public static void IsPiecePinned_ShoudReturntrue_WhenPieceIsPinnedByRook()
+        public static void IsPiecePinned_ShouldReturnTrue_WhenPieceIsPinnedByRook()
         {
             var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/p2pb1pp/2p2p2/8/B7/2p5/PPPPRPPP/RNBQK1N1 b Qkq - 1 2");
             Assert.IsFalse(bi.IsPiecePinned(51), "IsPiecePinned() should have returned false for square index 42.");//Not pinned
@@ -637,7 +637,7 @@ namespace MagicBitboard.Tests
         [Test]
         public static void ValidateMove_ShouldThrowException_IfMoveLeavesKingInCheck()
         {
-            var move = MoveHelpers.GenerateMove(62, 44, MoveType.Normal);
+            var move = MoveHelpers.GenerateMove(62, 44);
             var kingInCheck = BoardInfo.BoardInfoFromFen("5kb1/8/8/8/8/8/6K1/5R2 b - - 1 2");
             Assert.Throws(typeof(MoveException), () =>
             {
@@ -648,7 +648,7 @@ namespace MagicBitboard.Tests
                 catch (MoveException e)
                 {
                     Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, e.ExceptionType, "Exception type should represent that the move leaves the King in check.");
-                    throw e;
+                    throw;
                 }
             }, "ValidateMove should throw and exception if the move leaves the King in check.");
         }
@@ -656,7 +656,7 @@ namespace MagicBitboard.Tests
         [Test]
         public static void ValidateMove_ShouldThrowException_IfMoveLeavesKingInCheck2()
         {
-            var move = MoveHelpers.GenerateMove(53, 62, MoveType.Normal);
+            var move = MoveHelpers.GenerateMove(53, 62);
             var kingInCheck = BoardInfo.BoardInfoFromFen("5k2/5b2/8/8/8/8/6K1/5R2 b - - 1 2");
             Assert.Throws(typeof(MoveException), () =>
             {
@@ -667,7 +667,7 @@ namespace MagicBitboard.Tests
                 catch (MoveException e)
                 {
                     Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, e.ExceptionType, "Exception type should represent that the move leaves the King in check.");
-                    throw e;
+                    throw;
                 }
             }, "ValidateMove should throw and exception if the move leaves the King in check. Move is Bg7.");
         }
@@ -675,7 +675,7 @@ namespace MagicBitboard.Tests
         [Test]
         public static void ValidateMove_ShouldThrowException_IfMoveLeavesKingInCheck3()
         {
-            var move = MoveHelpers.GenerateMove(61, 60, MoveType.Normal);
+            var move = MoveHelpers.GenerateMove(61, 60);
             var kingInCheck = BoardInfo.BoardInfoFromFen("5k2/3B4/8/8/8/1b6/6K1/5R2 b - - 1 2");
             Assert.Throws(typeof(MoveException), () =>
             {
@@ -686,7 +686,7 @@ namespace MagicBitboard.Tests
                 catch (MoveException e)
                 {
                     Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, e.ExceptionType, "Exception type should represent that the move leaves the King in check.");
-                    throw e;
+                    throw;
                 }
             }, "ValidateMove should throw and exception if the move leaves the King in check.");
         }
@@ -694,9 +694,13 @@ namespace MagicBitboard.Tests
         [Test]
         public static void SetEnPassantFlag_ShouldSetFlagToEnPassantCaptureSquare_WhenPawnsMove2SquaresForward()
         {
+
             for (ushort i = 8; i < 16; i++)
             {
-                var move = MoveHelpers.GenerateMove(i, (ushort)(i + 16), MoveType.Normal);
+                var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
+                var move = MoveHelpers.GenerateMove(i, (ushort)(i + 16));
+                bi.ApplyMove(move);
+                Assert.AreEqual(i + 8, bi.EnPassantIndex);
             }
 
         }
@@ -711,62 +715,62 @@ namespace MagicBitboard.Tests
             class AvailabilityUnset
             {
 
-                BoardInfo bi;
-                const string castlingFen = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1";
+                BoardInfo _bi;
+                const string CastlingFen = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1";
                 [SetUp]
                 public void Setup()
                 {
-                    bi = BoardInfo.BoardInfoFromFen(castlingFen);
+                    _bi = BoardInfo.BoardInfoFromFen(CastlingFen);
                 }
                 #region Castling Availabilty
 
                 [Test]
-                public void UnsetCastlingAvailability_ShouldUnsetBlackKingside_Whenh8RookMoves()
+                public void UnsetCastlingAvailability_ShouldUnsetBlackKingside_When_h8RookMoves()
                 {
                     var move = MoveHelpers.GenerateMove(63, 62);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
-                    bi.UnsetCastlingAvailability(move, Piece.Rook);
-                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal qKQ after h8 Rook moves.");
+                    _bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    Assert.AreEqual(expected, _bi.CastlingAvailability, "Expected castling availability to equal qKQ after h8 Rook moves.");
                 }
                 [Test]
-                public void UnsetCastlingAvailability_ShouldUnsetBlackQueenside_Whena8RookMoves()
+                public void UnsetCastlingAvailability_ShouldUnsetBlackQueenside_When_a8RookMoves()
                 {
                     var move = MoveHelpers.GenerateMove(56, 57);
                     var expected = CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
-                    bi.UnsetCastlingAvailability(move, Piece.Rook);
-                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal kKQ after a8 Rook moves.");
+                    _bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    Assert.AreEqual(expected, _bi.CastlingAvailability, "Expected castling availability to equal kKQ after a8 Rook moves.");
                 }
                 [Test]
-                public void UnsetCastlingAvailability_ShouldUnsetWhiteKingside_Whenh1RookMoves()
+                public void UnsetCastlingAvailability_ShouldUnsetWhiteKingside_When_h1RookMoves()
                 {
                     var move = MoveHelpers.GenerateMove(7, 6);
                     var expected = CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteQueenside;
-                    bi.UnsetCastlingAvailability(move, Piece.Rook);
-                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal kqQ after h1 Rook moves.");
+                    _bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    Assert.AreEqual(expected, _bi.CastlingAvailability, "Expected castling availability to equal kqQ after h1 Rook moves.");
                 }
                 [Test]
-                public void UnsetCastlingAvailability_ShouldUnsetWhiteQueenside_Whena1RookMoves()
+                public void UnsetCastlingAvailability_ShouldUnsetWhiteQueenside_When_a1RookMoves()
                 {
                     var move = MoveHelpers.GenerateMove(0, 1);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside;
-                    bi.UnsetCastlingAvailability(move, Piece.Rook);
-                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal kqK after a1 Rook moves.");
+                    _bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    Assert.AreEqual(expected, _bi.CastlingAvailability, "Expected castling availability to equal kqK after a1 Rook moves.");
                 }
                 [Test]
                 public void UnsetCastlingAvailability_ShouldUnsetBoth_WhenBlackKingMoves()
                 {
                     var move = MoveHelpers.GenerateMove(60, 61);
                     var expected = CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
-                    bi.UnsetCastlingAvailability(move, Piece.King);
-                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal KQ after Black King moves.");
+                    _bi.UnsetCastlingAvailability(move, Piece.King);
+                    Assert.AreEqual(expected, _bi.CastlingAvailability, "Expected castling availability to equal KQ after Black King moves.");
                 }
                 [Test]
                 public void UnsetCastlingAvailability_ShouldUnsetBoth_WhenWhiteKingMoves()
                 {
                     var move = MoveHelpers.GenerateMove(4, 5);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.BlackKingside;
-                    bi.UnsetCastlingAvailability(move, Piece.King);
-                    Assert.AreEqual(expected, bi.CastlingAvailability, "Expected castling availability to equal kq after White King moves.");
+                    _bi.UnsetCastlingAvailability(move, Piece.King);
+                    Assert.AreEqual(expected, _bi.CastlingAvailability, "Expected castling availability to equal kq after White King moves.");
 
                 }
                 #endregion
@@ -794,7 +798,7 @@ namespace MagicBitboard.Tests
                     var pos2 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K1R1 b kq - 1 2");
 
                     var pos4 = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/4R3/4K3 b kq - 1 2");
-                    var all = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4KRRR b kq - 1 2");
+
                     Assert.IsTrue(pos1.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on f1 blocks castling privilege.");
                     Assert.IsTrue(pos2.AnySquaresInCheck(move), "AnySquaresInCheck() should return true when Rook on g1 blocks castling privilege.");
 
@@ -818,12 +822,12 @@ namespace MagicBitboard.Tests
             [TestFixture(Description = "Tests for castling through occupied and non-occupied squares between castling King and Rook")]
             class OccupiedSquares
             {
-                BoardInfo biOccupied, biNonOccupied;
+                BoardInfo _biOccupied, _biNonOccupied;
                 [SetUp]
                 public void Setup()
                 {
-                    biOccupied = BoardInfo.BoardInfoFromFen("r1N1k1Nr/8/8/8/8/8/8/R1B1K1BR w KQkq - 0 1");
-                    biNonOccupied = BoardInfo.BoardInfoFromFen("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+                    _biOccupied = BoardInfo.BoardInfoFromFen("r1N1k1Nr/8/8/8/8/8/8/R1B1K1BR w KQkq - 0 1");
+                    _biNonOccupied = BoardInfo.BoardInfoFromFen("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
                 }
 
                 #region Occupancy Between Castle
@@ -894,12 +898,12 @@ namespace MagicBitboard.Tests
                         {
                             try
                             {
-                                biOccupied.ValidateMove_CastleOccupancyBetween(move);
+                                _biOccupied.ValidateMove_CastleOccupancyBetween(move);
                             }
                             catch (MoveException e)
                             {
                                 Assert.AreEqual(MoveExceptionType.Castle_OccupancyBetween, e.ExceptionType, "Expected exception to contain error type Castle_OccupancyBetween.");
-                                throw e;
+                                throw;
                             }
                         });
                 }
@@ -907,7 +911,7 @@ namespace MagicBitboard.Tests
                 private void AssertOccupiedExceptionNotThrown(MoveExt move)
                 {
                     Assert.DoesNotThrow(
-                        () => { biNonOccupied.ValidateMove_CastleOccupancyBetween(move); });
+                        () => { _biNonOccupied.ValidateMove_CastleOccupancyBetween(move); });
                 }
             }
 
@@ -917,11 +921,11 @@ namespace MagicBitboard.Tests
             [TestFixture(Description = "Tests that appropriate castling availability flag is set for castling.")]
             class AvailabilityForCastleSet
             {
-                BoardInfo bi;
+                BoardInfo _bi;
                 [Test(Description = "Test that no exception is thrown when Black castles Queenside with BlackQueenside flag set.")]
                 public void ValidateMove_CastleKeyPiecesMoved_ShouldNotThrowExceptionWhenCastlingFlagIsSet_q()
                 {
-                    bi = MakeCastlingBoard(CastlingAvailability.BlackQueenside);
+                    _bi = MakeCastlingBoard(CastlingAvailability.BlackQueenside);
                     var move = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
                     AssertCastlingAvailabilityExceptionNotThrown(move);
                 }
@@ -929,7 +933,7 @@ namespace MagicBitboard.Tests
                 [Test(Description = "Test that an exception is thrown when Black castles Queenside with BlackQueenside flag not set.")]
                 public void ValidateMove_CastleKeyPiecesMoved_ShouldThrowExceptionWhenCastlingFlagIsNotSet_q()
                 {
-                    bi = MakeCastlingBoard(CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
+                    _bi = MakeCastlingBoard(CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
                     var move = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
                     AssertCastlingAvailabilityExceptionThrown(move);
                 }
@@ -937,7 +941,7 @@ namespace MagicBitboard.Tests
                 [Test(Description = "Test that no exception is thrown when Black castles Kingside with BlackKingside flag set.")]
                 public void ValidateMove_CastleKeyPiecesMoved_ShouldNotThrowExceptionWhenCastlingFlagIsSet_k()
                 {
-                    bi = MakeCastlingBoard(CastlingAvailability.BlackKingside);
+                    _bi = MakeCastlingBoard(CastlingAvailability.BlackKingside);
                     var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
                     AssertCastlingAvailabilityExceptionNotThrown(move);
                 }
@@ -945,7 +949,7 @@ namespace MagicBitboard.Tests
                 [Test(Description = "Test that an exception is thrown when Black castles Kingside with BlackKingside flag not set.")]
                 public void ValidateMove_CastleKeyPiecesMoved_ShouldThrowExceptionWhenCastlingFlagIsNotSet_k()
                 {
-                    bi = MakeCastlingBoard(CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
+                    _bi = MakeCastlingBoard(CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
                     var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
                     AssertCastlingAvailabilityExceptionThrown(move);
                 }
@@ -953,7 +957,7 @@ namespace MagicBitboard.Tests
                 [Test(Description = "Test that no exception is thrown when White castles Queenside with WhiteQueenside flag set.")]
                 public void ValidateMove_CastleKeyPiecesMoved_ShouldNotThrowExceptionWhenCastlingFlagIsSet_Q()
                 {
-                    bi = MakeCastlingBoard(CastlingAvailability.WhiteQueenside);
+                    _bi = MakeCastlingBoard(CastlingAvailability.WhiteQueenside);
                     var move = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
                     AssertCastlingAvailabilityExceptionNotThrown(move);
                 }
@@ -961,7 +965,7 @@ namespace MagicBitboard.Tests
                 [Test(Description = "Test that an exception is thrown when White castles Queenside with WhiteQueenside flag not set.")]
                 public void ValidateMove_CastleKeyPiecesMoved_ShouldThrowExceptionWhenCastlingFlagIsNotSet_Q()
                 {
-                    bi = MakeCastlingBoard(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.BlackQueenside);
+                    _bi = MakeCastlingBoard(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.BlackQueenside);
                     var move = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
                     AssertCastlingAvailabilityExceptionThrown(move);
                 }
@@ -969,7 +973,7 @@ namespace MagicBitboard.Tests
                 [Test(Description = "Test that no exception is thrown when White castles Kingside with WhiteKingside flag set.")]
                 public void ValidateMove_CastleKeyPiecesMoved_ShouldNotThrowExceptionWhenCastlingFlagIsSet_K()
                 {
-                    bi = MakeCastlingBoard(CastlingAvailability.WhiteKingside);
+                    _bi = MakeCastlingBoard(CastlingAvailability.WhiteKingside);
                     var move = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
                     AssertCastlingAvailabilityExceptionNotThrown(move);
                 }
@@ -977,7 +981,7 @@ namespace MagicBitboard.Tests
                 [Test(Description = "Test that an exception is thrown when White castles Kingside with WhiteKingside flag not set.")]
                 public void ValidateMove_CastleKeyPiecesMoved_ShouldThrowExceptionWhenCastlingFlagIsNotSet_K()
                 {
-                    bi = MakeCastlingBoard(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside);
+                    _bi = MakeCastlingBoard(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside);
                     var move = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
                     AssertCastlingAvailabilityExceptionThrown(move);
                 }
@@ -985,7 +989,7 @@ namespace MagicBitboard.Tests
                 [Test(Description = "Test that an exception is thrown when White castles Kingside with WhiteKingside flag not set.")]
                 public void ValidateMove_CastleKeyPiecesMoved_ShouldThrowExceptionWhenNoCastlingFlagIsSet()
                 {
-                    bi = MakeCastlingBoard(CastlingAvailability.NoCastlingAvailable);
+                    _bi = MakeCastlingBoard(CastlingAvailability.NoCastlingAvailable);
                     var move = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
                     AssertCastlingAvailabilityExceptionThrown(move);
                     move = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
@@ -1009,12 +1013,12 @@ namespace MagicBitboard.Tests
                         {
                             try
                             {
-                                bi.ValidateMove_CastleAvailability(move);
+                                _bi.ValidateMove_CastleAvailability(move);
                             }
                             catch (MoveException e)
                             {
                                 Assert.AreEqual(MoveExceptionType.Castle_Unavailable, e.ExceptionType, "Expected exception to contain error type Castle_Unavailable.");
-                                throw e;
+                                throw;
                             }
                         }, "Expected MoveException to be thrown if castling availability disallows castling.");
                 }
@@ -1022,7 +1026,7 @@ namespace MagicBitboard.Tests
                 private void AssertCastlingAvailabilityExceptionNotThrown(MoveExt move)
                 {
                     Assert.DoesNotThrow(
-                        () => { bi.ValidateMove_CastleAvailability(move); });
+                        () => { _bi.ValidateMove_CastleAvailability(move); });
                 }
             }
 
@@ -1031,29 +1035,27 @@ namespace MagicBitboard.Tests
         [TestFixture(Description = "Tests move application on board.")]
         class MoveApplication
         {
-            const string initialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-            BoardInfo bInitial;
+            BoardInfo _bInitial;
             [SetUp]
             public void Setup()
             {
-                bInitial = BoardInfo.BoardInfoFromFen(initialFEN);
+                _bInitial = BoardInfo.BoardInfoFromFen(InitialFEN);
             }
 
             [Test(Description = "1. e4 test")]
-            public void ApplyMove_ShouldReflectCorrectBoardStatusAftere4()
+            public void ApplyMove_ShouldReflectCorrectBoardStatusAfter_e4()
             {
                 var move = MoveHelpers.GenerateMove(12, 28);
                 var expectedFEN = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
-                bInitial.ApplyMove(move);
-                Assert.AreEqual(expectedFEN, bInitial.ToFEN());
+                _bInitial.ApplyMove(move);
+                Assert.AreEqual(expectedFEN, _bInitial.ToFEN());
             }
 
 
             [Test(Description = "Ruy - applying series of moves")]
             public void ApplyMove_ShouldReflectCorrectBoardStatusAfterSeriesOfMoves()
             {
-                var move = MoveHelpers.GenerateMove(12, 28);
-                var expectedFEN = new string[] {
+                var expectedFEN = new[] {
                     "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",      //1. e4
                     "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2",    //1...e5
                     "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",   //2. Nf3
@@ -1064,7 +1066,7 @@ namespace MagicBitboard.Tests
                     "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 5",// 4...Nf6
                     "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5" //O-O
                 };
-                var moves = new MoveExt[] {
+                var moves = new[] {
                     MoveHelpers.GenerateMove(12, 28),
                     MoveHelpers.GenerateMove(52,36),
                     MoveHelpers.GenerateMove(6,21),
@@ -1079,8 +1081,8 @@ namespace MagicBitboard.Tests
                 for (int i = 0; i < moves.Length; i++)
                 {
                     var expected = expectedFEN[i];
-                    bInitial.ApplyMove(moves[i]);
-                    Assert.AreEqual(expected, bInitial.ToFEN());
+                    _bInitial.ApplyMove(moves[i]);
+                    Assert.AreEqual(expected, _bInitial.ToFEN());
                 }
             }
         }

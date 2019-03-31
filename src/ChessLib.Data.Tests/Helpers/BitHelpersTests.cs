@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
+﻿using ChessLib.Data.Helpers;
+using NUnit.Framework;
 
-namespace ChessLib.Data.Helpers.Tests
+namespace ChessLib.Data.Tests.Helpers
 {
     [TestFixture]
     public static class BitHelpersTests
@@ -41,9 +42,9 @@ namespace ChessLib.Data.Helpers.Tests
         public static void GetSetBits_ShouldReturnASquareIndex_GivenOneSquareOfInput()
         {
             var count = 0;
-            foreach (ulong sq in BoardHelpers.IndividualSquares)
+            foreach (ulong sq in BoardHelpers.IndividualSquares.MoveBoard)
             {
-                var idx = BitHelpers.GetSetBits(sq);
+                var idx = sq.GetSetBits();
                 Assert.AreEqual(count, idx[0]);
                 count++;
             }
@@ -55,9 +56,9 @@ namespace ChessLib.Data.Helpers.Tests
             var expectedR2 = new ushort[] { 8, 9, 10, 11, 12, 13, 14, 15 };
             var expectedR7 = new ushort[] { 48, 49, 50, 51, 52, 53, 54, 55 };
             var rank2Value = BoardHelpers.RankMasks[1];
-            var rank2SetBits = BitHelpers.GetSetBits(rank2Value);
+            var rank2SetBits = rank2Value.GetSetBits();
             Assert.AreEqual(expectedR2, rank2SetBits);
-            Assert.AreEqual(expectedR7, BitHelpers.GetSetBits(BoardHelpers.RankMasks[6]));
+            Assert.AreEqual(expectedR7, BoardHelpers.RankMasks[6].GetSetBits());
 
         }
 
@@ -66,7 +67,7 @@ namespace ChessLib.Data.Helpers.Tests
         {
             ulong a = 0b1001;
             var expected = new[] { 0, 3 };
-            var bitIndices = BitHelpers.GetSetBits(a);
+            var bitIndices = a.GetSetBits();
             Assert.AreEqual(expected, bitIndices);
         }
 
@@ -75,7 +76,7 @@ namespace ChessLib.Data.Helpers.Tests
         {
             ulong a = 0b1111;
             var expected = new[] { 0, 1, 2, 3 };
-            var bitIndices = BitHelpers.GetSetBits(a);
+            var bitIndices = a.GetSetBits();
             Assert.AreEqual(expected, bitIndices);
         }
 
@@ -105,7 +106,7 @@ namespace ChessLib.Data.Helpers.Tests
             ulong a = 0;
             ushort bitIndexToSet = 32;
             BitHelpers.SetBit(ref a, bitIndexToSet);
-            Assert.IsTrue(BitHelpers.IsBitSet(a, bitIndexToSet));
+            Assert.IsTrue(a.IsBitSet(bitIndexToSet));
         }
 
         [Test]
@@ -115,7 +116,7 @@ namespace ChessLib.Data.Helpers.Tests
             ushort bitIndexToSet = 32;
             BitHelpers.SetBit(ref a, bitIndexToSet);
             a = ~a;
-            Assert.IsFalse(BitHelpers.IsBitSet(a, bitIndexToSet));
+            Assert.IsFalse(a.IsBitSet(bitIndexToSet));
         }
     }
 }

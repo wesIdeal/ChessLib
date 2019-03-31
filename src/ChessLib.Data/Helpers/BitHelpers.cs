@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace ChessLib.Data.Helpers
 {
-    using PieceIndex = System.UInt16;
     using BoardRepresentation = System.UInt64;
+    using PieceIndex = System.UInt16;
     public static class BitHelpers
     {
-        static readonly ushort[] Index64 = new ushort[64] {
+        static readonly ushort[] Index64 = {
                                     0, 47,  1, 56, 48, 27,  2, 60,
                                    57, 49, 41, 37, 28, 16,  3, 61,
                                    54, 58, 35, 52, 50, 42, 21, 44,
@@ -26,15 +25,15 @@ namespace ChessLib.Data.Helpers
         /// <returns>index of the least-significant set bit in ulong</returns>
         public static ushort BitScanForward(BoardRepresentation boardRep)
         {
-            const ulong debruijn64 = (0x03f79d71b4cb0a89ul);
+            const ulong deBruijn = (0x03f79d71b4cb0a89ul);
             Debug.Assert(boardRep != 0);
-            return Index64[((boardRep ^ (boardRep - 1)) * debruijn64) >> 58];
+            return Index64[((boardRep ^ (boardRep - 1)) * deBruijn) >> 58];
         }
 
         public static bool IsBitSet(this BoardRepresentation u, PieceIndex bitIndex)
         {
-            var comparrisson = ((BoardRepresentation)1 << bitIndex);
-            return (comparrisson & u) == comparrisson;
+            var comparison = ((BoardRepresentation)1 << bitIndex);
+            return (comparison & u) == comparison;
         }
 
         public static PieceIndex[] GetSetBits(this BoardRepresentation u)
