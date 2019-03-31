@@ -9,8 +9,8 @@
     <ProjectGuid>{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ChessLib.Tests</RootNamespace>
-    <AssemblyName>ChessLib.Tests</AssemblyName>
+    <RootNamespace>ChessLib.MagicBitboard.Tests</RootNamespace>
+    <AssemblyName>ChessLib.MagicBitboard.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -61,9 +61,9 @@
       <Project>{B7C1799C-A422-46B1-BE5D-B2579C7006A4}</Project>
       <Name>ChessLib.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MagicBitboard\MagicBitboard.csproj">
+    <ProjectReference Include="..\MagicBitboard\ChessLib.MagicBitboard.csproj">
       <Project>{a06c0b4b-b75c-499b-b0f8-0268dc437b48}</Project>
-      <Name>MagicBitboard</Name>
+      <Name>ChessLib.MagicBitboard</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

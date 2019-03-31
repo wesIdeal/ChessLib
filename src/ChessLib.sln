@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2019
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard", "MagicBitboard\MagicBitboard.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.MagicBitboard", "MagicBitboard\ChessLib.MagicBitboard.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicBitboard.Tests", "MagicBitboard.Tests\MagicBitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.MagicBitboard.Tests", "MagicBitboard.Tests\ChessLib.MagicBitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicBitboard.Tests.Console", "MagicBitboard.Tests.Console\MagicBitboard.Tests.Console.csproj", "{C038CE13-E2B3-4F82-B4DE-ECF32437DADE}"
 EndProject

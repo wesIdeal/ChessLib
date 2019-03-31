@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>MagicBitboards</AssemblyName>
-    <RootNamespace>MagicBitboard</RootNamespace>
+    <AssemblyName>ChessLib.MagicBitboard</AssemblyName>
+    <RootNamespace>ChessLib.MagicBitboard</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

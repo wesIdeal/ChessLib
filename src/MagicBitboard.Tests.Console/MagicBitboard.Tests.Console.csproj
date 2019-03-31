@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MagicBitboard\MagicBitboard.csproj" />
+    <ProjectReference Include="..\MagicBitboard\ChessLib.MagicBitboard.csproj" />
   </ItemGroup>
 
 </Project>
