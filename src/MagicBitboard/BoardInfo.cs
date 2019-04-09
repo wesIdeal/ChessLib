@@ -506,7 +506,7 @@ namespace MagicBitboard
             ushort sourceIndex = 0;
             var adjustedRelevantPieceOccupancy = moveDetail.Color == Color.Black ? pawnOccupancy.FlipVertically() : pawnOccupancy;
             Debug.Assert(rank < 8);
-            ushort supposedRank = (ushort) (rank - 1);
+            ushort supposedRank = (ushort)(rank - 1);
             if (rank == 3) // 2 possible source ranks, 2 & 3 (offsets 1 & 2)
             {
                 //Check 3rd rank first, logically if a pawn is there that is the source
@@ -587,40 +587,39 @@ namespace MagicBitboard
 
         public ulong[][] ValidateAndGetResultingBoardFromMove(MoveExt move)
         {
-            var pieceMoving = GetActivePieceByValue(move.SourceValue);
-            var resultantBoard = BoardPostMove(move, pieceMoving);
-            Validate_PieceIsOfActiveColor(move);
-            ValidateSourceIsNonVacant(move);
-            ValidateDestinationIsNotOccupiedByActiveColor(move);
-            var isKingInCheckAfterMove = IsAttackedBy(OpponentColor, ActivePlayerKingIndex, resultantBoard);
-            if (isKingInCheckAfterMove)
-            {
-                throw new MoveException("Move leaves King in check.", MoveExceptionType.MoveLeavesKingInCheck, move, ActivePlayer);
-            }
-            switch (move.MoveType)
-            {
-                case MoveType.EnPassant:
-                    if (move.DestinationIndex != EnPassantIndex)
-                        throw new MoveException("En Passant not possible.", MoveExceptionType.EnPassantNotAvailalbe, move, ActivePlayer);
-                    break;
-                case MoveType.Promotion:
-                    ValidatePromotion(ActivePlayer, move.SourceIndex, move.DestinationIndex);
-                    break;
-                case MoveType.Castle:
-                    ValidateMove_Castle(move);
-                    var castlingAvailabilityToRemove = ActivePlayer == Color.Black ? CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside
-                        : CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
-                    CastlingAvailability &= ~(castlingAvailabilityToRemove);
-                    break;
-            }
+            var resultantBoard = GetBoardPostMove(move);
+            //Validate_PieceIsOfActiveColor(move);
+            //ValidateSourceIsNonVacant(move);
+            //ValidateDestinationIsNotOccupiedByActiveColor(move);
+            //var isKingInCheckAfterMove = IsAttackedBy(OpponentColor, ActivePlayerKingIndex, resultantBoard);
+            //if (isKingInCheckAfterMove)
+            //{
+            //    throw new MoveException("Move leaves King in check.", MoveExceptionType.MoveLeavesKingInCheck, move, ActivePlayer);
+            //}
+            //switch (move.MoveType)
+            //{
+            //    case MoveType.EnPassant:
+            //        if (move.DestinationIndex != EnPassantIndex)
+            //            throw new MoveException("En Passant not possible.", MoveExceptionType.EnPassantNotAvailalbe, move, ActivePlayer);
+            //        break;
+            //    case MoveType.Promotion:
+            //        ValidatePromotion(ActivePlayer, move.SourceIndex, move.DestinationIndex);
+            //        break;
+            //    case MoveType.Castle:
+            //        ValidateMove_Castle(move);
+            //        var castlingAvailabilityToRemove = ActivePlayer == Color.Black ? CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside
+            //            : CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
+            //        CastlingAvailability &= ~(castlingAvailabilityToRemove);
+            //        break;
+            //}
             return resultantBoard;
         }
 
-        private ulong[][] BoardPostMove(MoveExt move, Piece pieceMoving)
+        public ulong[][] GetBoardPostMove(MoveExt move)
         {
 
             var resultantBoard = new ulong[2][];
-
+            var pieceMoving = GetActivePieceByValue(move.SourceValue);
             for (int i = 0; i < 2; i++)
             {
                 resultantBoard[i] = new ulong[6];
@@ -948,38 +947,9 @@ namespace MagicBitboard
         /// <returns>true if <paramref name="squareIndex"/> is attacked by <paramref name="color"/>. False if not.</returns>
         public bool IsAttackedBy(Color color, ushort squareIndex)
         {
-            return IsAttackedBy(color, squareIndex, PiecesOnBoard);
+            return Bitboard.IsAttackedBy(color, squareIndex, PiecesOnBoard);
         }
 
-        /// <summary>
-        /// Determines if piece on <paramref name="squareIndex"/> is attacked by <paramref name="color"/>
-        /// </summary>
-        /// <param name="color">Color of attacker</param>
-        /// <param name="squareIndex">Index of possible attack target</param>
-        /// <param name="piecesOnBoard">Occupancy arrays for both colors, indexed as [color_enum][piece_enum]</param>
-        /// <returns>true if <paramref name="squareIndex"/> is attacked by any piece of <paramref name="color"/></returns>
-        public static bool IsAttackedBy(Color color, ushort squareIndex, ulong[][] piecesOnBoard)
-        {
-
-            var nColor = (int)color;
-            var notNColor = nColor ^ 1;
-            var r = squareIndex / 8;
-            var f = squareIndex % 8;
-            var totalOcc = 0ul;
-            foreach (var cOcc in piecesOnBoard)
-            {
-                foreach (var pieceOcc in cOcc)
-                    totalOcc |= pieceOcc;
-            }
-            var bishopAttack = Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc);
-            var rookAttack = Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, totalOcc);
-            if ((PieceAttackPatternHelper.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
-            if ((PieceAttackPatternHelper.KnightAttackMask[r, f] & piecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
-            if ((bishopAttack & (piecesOnBoard[nColor][Piece.Bishop.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
-            if ((rookAttack & (piecesOnBoard[nColor][Piece.Rook.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
-            if ((PieceAttackPatternHelper.KingMoveMask[r, f] & piecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
-            return false;
-        }
 
         #region FEN String Retrieval
 

@@ -200,5 +200,7 @@ namespace ChessLib.Data.Helpers
             var rankCompliment = rank.RankCompliment();
             return (ushort)((rankCompliment * 8) + file);
         }
+
+
     }
 }
