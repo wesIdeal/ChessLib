@@ -16,7 +16,7 @@ namespace ChessLib.MagicBitboard.MoveValidation.MoveRules
                 return MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare;
             }
 
-            var moves = Bitboard.GetAttackedSquares(piece.Value, move.SourceIndex, boardInfo.TotalOccupancy,
+            var moves = Bitboard.GetPseudoLegalMoves(piece.Value, move.SourceIndex, boardInfo.ActiveTotalOccupancy, boardInfo.OpponentTotalOccupancy,
                 boardInfo.ActivePlayerColor);
             
             if ((moves & move.DestinationValue) == 0)

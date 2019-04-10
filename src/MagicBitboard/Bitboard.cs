@@ -24,6 +24,40 @@ namespace MagicBitboard
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int File(ushort idx) => idx % 8;
 
+        public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color = Color.White)
+        {
+            var totalOccupancy = activeOcc | oppOcc;
+            ulong totalAttacks;
+            ulong possibleMoves;
+            switch (piece)
+            {
+                case Piece.Pawn:
+                    var pawnMoves = PieceAttackPatternHelper.PawnMoveMask[(int)color][pieceSquare] & ~(totalOccupancy);
+                    var pawnAttacks = PieceAttackPatternHelper.PawnAttackMask[(int)color][pieceSquare] & oppOcc;
+                    possibleMoves = pawnMoves | pawnAttacks;
+                    break;
+                case Piece.Knight:
+                    totalAttacks = PieceAttackPatternHelper.KnightAttackMask[pieceSquare];
+                    possibleMoves = totalAttacks & ~(activeOcc);
+                    break;
+                case Piece.Bishop:
+                    possibleMoves = Bishop.GetLegalMoves(pieceSquare, totalOccupancy) & ~(activeOcc);
+                    break;
+                case Piece.Rook:
+                    possibleMoves = Rook.GetLegalMoves(pieceSquare, totalOccupancy) & ~(activeOcc);
+                    break;
+                case Piece.Queen:
+                    possibleMoves = (Bishop.GetLegalMoves(pieceSquare, totalOccupancy) | Rook.GetLegalMoves(pieceSquare, totalOccupancy)) & ~(activeOcc);
+                    break;
+                case Piece.King:
+                    possibleMoves = PieceAttackPatternHelper.KingMoveMask[pieceSquare] & ~(activeOcc);
+                    break;
+                default:
+                    throw new Exception("Piece argument passed to GetPossibleMoves()");
+            }
+            return possibleMoves;
+        }
+
         public static ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color color = Color.White)
         {
             var r = Rank(pieceIndex);
