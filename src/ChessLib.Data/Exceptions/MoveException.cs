@@ -16,13 +16,16 @@ namespace ChessLib.Data.Exceptions
         Castle_RookNotOnStartingSquare,
         ActivePlayerHasNoPieceOnSourceSquare,
         MoveLeavesKingInCheck,
-        EnPassantNotAvailalbe,
+        Ep_NotAvailalbe,
         Castle_BadDestinationSquare,
         Castle_OccupancyBetween,
         Castle_Unavailable,
         BadDestination,
         Castle_KingInCheck,
-        ActiveColorPieceAtDestination
+        ActiveColorPieceAtDestination,
+        EP_SourceIsNotPawn,
+        EP_WrongSourceRank,
+        EP_NotAttackedBySource
     }
     [Serializable]
     public class MoveException : Exception

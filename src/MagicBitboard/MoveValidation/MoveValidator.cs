@@ -7,6 +7,7 @@ using MagicBitboard;
 using System;
 using System.Collections.Generic;
 using ChessLib.Data.Helpers;
+using ChessLib.MagicBitboard.MoveValidation.EnPassantRules;
 
 namespace ChessLib.MagicBitboard.MoveValidation
 {
@@ -30,8 +31,14 @@ namespace ChessLib.MagicBitboard.MoveValidation
                     _rules.Add(new DestinationNotOccupiedByActiveColor());
                     break;
                 case MoveType.Promotion:
+                    _rules.Add(new SourceIsPawn());
+
                     break;
                 case MoveType.EnPassant:
+                    _rules.Add(new EnPassantIsPossible());
+                    _rules.Add(new SourceIsPawn());
+                    _rules.Add(new SourceIsCorrectRank());
+                    _rules.Add(new EnPassantSquareIsAttackedBySource());
                     break;
                 case MoveType.Castle:
                     _rules.Add(new HasValidDestinationSquare());

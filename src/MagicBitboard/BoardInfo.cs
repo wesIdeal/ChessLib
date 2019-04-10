@@ -590,20 +590,12 @@ namespace MagicBitboard
         {
             var moveValidator = new MoveValidator(this, move);
             moveValidator.Validate();
-            //var resultantBoard = GetBoardPostMove(move);
-            //Validate_PieceIsOfActiveColor(move);
-            //ValidateSourceIsNonVacant(move);
-            //ValidateDestinationIsNotOccupiedByActiveColor(move);
-            //var isKingInCheckAfterMove = IsAttackedBy(OpponentColor, ActivePlayerKingIndex, resultantBoard);
-            //if (isKingInCheckAfterMove)
-            //{
-            //    throw new MoveException("Move leaves King in check.", MoveExceptionType.MoveLeavesKingInCheck, move, ActivePlayerColor);
-            //}
+            
             //switch (move.MoveType)
             //{
             //    case MoveType.EnPassant:
             //        if (move.DestinationIndex != EnPassantIndex)
-            //            throw new MoveException("En Passant not possible.", MoveExceptionType.EnPassantNotAvailalbe, move, ActivePlayerColor);
+            //            throw new MoveException("En Passant not possible.", MoveExceptionType.EP_NotAvailalbe, move, ActivePlayerColor);
             //        break;
             //    case MoveType.Promotion:
             //        ValidatePromotion(ActivePlayerColor, move.SourceIndex, move.DestinationIndex);
@@ -640,20 +632,7 @@ namespace MagicBitboard
             return "";
         }
 
-        public void ValidatePromotion(Color color, ushort moveSourceIdx, ushort moveDestIdx)
-        {
-            var moveSourceVal = 1ul << moveSourceIdx;
-            var moveDestVal = 1ul << moveDestIdx;
-
-            if ((PiecesOnBoard[NActiveColor][PAWN] & moveSourceVal) == 0)
-            {
-                throw new MoveException("Promotion move issue - no pawn at source.");
-            }
-            else if ((TotalOccupancy & moveDestVal) != 0 && (PieceAttackPatternHelper.PawnAttackMask[(int)color][moveDestIdx] == 0))
-            {
-                throw new MoveException("Promotion move issue - A piece is at the destination.");
-            }
-        }
+        
 
         private Check GetChecks(Color activePlayer)
         {

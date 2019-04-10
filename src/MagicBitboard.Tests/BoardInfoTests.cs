@@ -187,39 +187,7 @@ namespace MagicBitboard.Tests
             //    }
             //}
         }
-        [Test]
-        public static void ShouldFailWhenNoPawnIsIncapableOfPromotion()
-        {
-            string fen = "8/PPPP1PPP/8/2k5/8/2K5/pppp1ppp/8 w - - 0 1";
-            BoardInfo bi = BoardInfo.BoardInfoFromFen(fen);
-            Assert.Throws(typeof(MoveException), () =>
-            {
-                bi.ActivePlayerColor = Color.White;
-                bi.ValidateAndGetResultingBoardFromMove(bi.GenerateMoveFromText("e8=Q"));
-            });
-            Assert.Throws(typeof(MoveException), () =>
-            {
-                bi.ActivePlayerColor = Color.Black;
-                bi.ValidateAndGetResultingBoardFromMove(bi.GenerateMoveFromText("e1=Q"));
-            });
-        }
-
-        [Test]
-        public static void ShouldFailWhenAPieceBlocksPromotion()
-        {
-            string fen = "4q3/PPPPPPPP/8/2k5/8/2K5/pppppppp/4Q3 w - - 0 1";
-            BoardInfo bi = BoardInfo.BoardInfoFromFen(fen);
-            Assert.Throws(typeof(MoveException), () =>
-            {
-                bi.ActivePlayerColor = Color.White;
-                bi.ValidateAndGetResultingBoardFromMove(bi.GenerateMoveFromText("e8=Q"));
-            });
-            Assert.Throws(typeof(MoveException), () =>
-            {
-                bi.ActivePlayerColor = Color.Black;
-                bi.ValidateAndGetResultingBoardFromMove(bi.GenerateMoveFromText("e1=Q"));
-            });
-        }
+       
 
         [Test]
         public static void ShouldFindCorrectSource_PawnMove_NoCapture_StartingPosition()
