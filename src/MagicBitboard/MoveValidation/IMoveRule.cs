@@ -11,6 +11,6 @@ namespace ChessLib.MagicBitboard.MoveValidation
 
     interface IMoveRule
     {
-        ValidationResult Validate(in BoardInfo boardInfo, in ulong[][] postMoveBoard, in MoveExt move);
+        MoveExceptionType? Validate(in BoardInfo boardInfo, in ulong[][] postMoveBoard, in MoveExt move);
     }
 }

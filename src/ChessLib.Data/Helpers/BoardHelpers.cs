@@ -1,11 +1,21 @@
 ﻿using ChessLib.Data.Types;
 using System;
 using System.Runtime.CompilerServices;
+using ChessLib.Data.MoveRepresentation;
+
 namespace ChessLib.Data.Helpers
 {
     public static class BoardHelpers
     {
-
+        #region Constant Piece Values for Indexing arrays
+        // ReSharper disable InconsistentNaming
+        public const int PAWN = (int)Piece.Pawn;
+        public const int BISHOP = (int)Piece.Bishop;
+        public const int KNIGHT = (int)Piece.Knight;
+        public const int ROOK = (int)Piece.Rook;
+        public const int QUEEN = (int)Piece.Queen;
+        // ReSharper restore InconsistentNaming
+        #endregion
         public static Color Toggle(this Color c) => c == Color.White ? Color.Black : Color.White;
 
         public static readonly Board IndividualSquares =
@@ -79,8 +89,8 @@ namespace ChessLib.Data.Helpers
 
         public static ulong InBetween(int from, int to)
         {
-            var square1 = Math.Min(from, to);
-            var square2 = Math.Max(from, to);
+            var square1 = Math.Min(@from, to);
+            var square2 = Math.Max(@from, to);
             return ArrInBetween[square1, square2];
         }
 
@@ -138,9 +148,9 @@ namespace ChessLib.Data.Helpers
             {
                 throw new ArgumentException($"Square passed to SquareTextToIndex(), {square} has an invalid length.");
             }
-            var file = char.ToLower(square[0]);
-            var rank = ushort.Parse(square[1].ToString());
-            if (!char.IsLetter(file) || file < 'a' || file > 'h')
+            var file = Char.ToLower(square[0]);
+            var rank = UInt16.Parse(square[1].ToString());
+            if (!Char.IsLetter(file) || file < 'a' || file > 'h')
             {
                 throw new ArgumentException("File portion of square-text should be a letter, between 'a' and 'h'.");
             }
@@ -180,6 +190,26 @@ namespace ChessLib.Data.Helpers
 
         #endregion
 
+        /// <summary>
+        /// Returns type of piece at the given index
+        /// </summary>
+        /// <param name="idx">board index</param>
+        /// <param name="occupancy">occupancy arrays</param>
+        /// <returns>Type of Piece, if found, otherwise null</returns>
+        public static Piece? GetTypeOfPieceAtIndex(ushort idx, in ulong[][] occupancy)
+        {
+            var val = 1ul << idx;
+            foreach (var color in Enum.GetValues(typeof(Color)))
+            {
+                foreach (var piece in (Piece[])Enum.GetValues(typeof(Piece)))
+                {
+                    if ((val & occupancy[(int)color][(int)piece]) != 0)
+                        return piece;
+                }
+            }
+            return null;
+        }
+
         public static ulong FlipVertically(this ulong board)
         {
             var x = board;
@@ -201,6 +231,78 @@ namespace ChessLib.Data.Helpers
             return (ushort)((rankCompliment * 8) + file);
         }
 
+        public static ulong[][] GetBoardPostMove(in ulong[][] currentBoard, in Color activePlayerColor, in MoveExt move)
+        {
+            int nActiveColor = (int) activePlayerColor;
+            Color opponentColor = activePlayerColor.Toggle();
+            var resultantBoard = new ulong[2][];
+            var pieceMoving = GetTypeOfPieceAtIndex(move.SourceIndex, currentBoard);
+            for (int i = 0; i < 2; i++)
+            {
+                resultantBoard[i] = new ulong[6];
+                foreach (var p in Enum.GetValues(typeof(Piece)))
+                {
+                    resultantBoard[i][(int)p] = currentBoard[i][(int)p];
+                    resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.SourceIndex);
+                    resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.DestinationIndex);
+                    if (i == nActiveColor && (Piece)p == pieceMoving)
+                    {
+                        resultantBoard[i][(int)p] = resultantBoard[i][(int)p].SetBit(move.DestinationIndex);
+                    }
+                }
+            }
+            if (move.MoveType == MoveType.Castle)
+            {
+                resultantBoard[nActiveColor][ROOK] = GetRookBoardPostCastle(move, resultantBoard[nActiveColor][ROOK]);
+            }
+            else if (move.MoveType == MoveType.EnPassant)
+            {
+                var capturedPawnValue = 1ul << (opponentColor == Color.Black ? move.DestinationIndex - 8 : move.DestinationIndex + 8);
+                resultantBoard[nActiveColor][PAWN] &= ~(capturedPawnValue);
+            }
+            else if (move.MoveType == MoveType.Promotion)
+            {
+                resultantBoard[nActiveColor][PAWN] &= ~(move.DestinationValue);
+                switch (move.PromotionPiece)
+                {
+                    case PromotionPiece.Knight:
+                        resultantBoard[nActiveColor][KNIGHT] |= move.DestinationValue;
+                        break;
+                    case PromotionPiece.Bishop:
+                        resultantBoard[nActiveColor][BISHOP] |= move.DestinationValue;
+                        break;
+                    case PromotionPiece.Rook:
+                        resultantBoard[nActiveColor][ROOK] |= move.DestinationValue;
+                        break;
+                    case PromotionPiece.Queen:
+                        resultantBoard[nActiveColor][QUEEN] |= move.DestinationValue;
+                        break;
+                }
+            }
+            return resultantBoard;
+        }
 
+        private static ulong GetRookBoardPostCastle(MoveExt move, ulong rookBoard)
+        {
+            var rank = move.DestinationIndex.RankFromIdx();
+            var file = move.DestinationIndex.FileFromIdx();
+            var rookSource = rank == 7      // black castling
+                ? file == 2
+                    ? 0x100000000000000ul           // BLACK O-O-O
+                    : 0x8000000000000000ul      // BLACK O-O
+                : file == 2
+                    ? 0x01ul                        // WHITE O-O-O
+                    : 0x80ul;                   // WHITE O-O
+
+            var rookDest = rank == 7        // black castling
+                ? file == 2
+                    ? 0x800000000000000ul           // BLACK O-O-O
+                    : 0x2000000000000000ul      // BLACK O-O
+                : file == 2
+                    ? 0x08ul                        // WHITE O-O-O
+                    : 0x20ul;                   // WHITE O-O
+
+            return (rookBoard & ~(rookSource)) | rookDest;
+        }
     }
 }

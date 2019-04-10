@@ -7,6 +7,7 @@ using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
+using ChessLib.MagicBitboard.MoveValidation;
 
 namespace MagicBitboard
 {
@@ -23,9 +24,9 @@ namespace MagicBitboard
         public uint MoveCounter { get; set; }
         public CastlingAvailability CastlingAvailability { get; set; }
         #region Color Properties and related fields
-        public Color ActivePlayer { get; set; }
-        public Color OpponentColor => ActivePlayer == Color.Black ? Color.White : Color.Black;
-        private int NActiveColor => (int)ActivePlayer;
+        public Color ActivePlayerColor { get; set; }
+        public Color OpponentColor => ActivePlayerColor == Color.Black ? Color.White : Color.Black;
+        private int NActiveColor => (int)ActivePlayerColor;
         private int NOpponentColor => (int)OpponentColor;
         #endregion
 
@@ -103,7 +104,7 @@ namespace MagicBitboard
         /// <summary>
         /// Index of side-to-move's King
         /// </summary>
-        public ushort ActivePlayerKingIndex => PiecesOnBoard[(int)ActivePlayer][Piece.King.ToInt()].GetSetBits()[0];
+        public ushort ActivePlayerKingIndex => PiecesOnBoard[(int)ActivePlayerColor][Piece.King.ToInt()].GetSetBits()[0];
 
         /// <summary>
         /// Value (occupancy board) of side-to-move's King
@@ -113,7 +114,7 @@ namespace MagicBitboard
         /// <summary>
         /// Opponent's King's square index
         /// </summary>
-        public ushort OpposingPlayerKingIndex => PiecesOnBoard[(int)ActivePlayer.Toggle()][Piece.King.ToInt()].GetSetBits()[0];
+        public ushort OpposingPlayerKingIndex => PiecesOnBoard[(int)ActivePlayerColor.Toggle()][Piece.King.ToInt()].GetSetBits()[0];
 
         #endregion
 
@@ -122,10 +123,10 @@ namespace MagicBitboard
             Chess960 = chess960;
         }
 
-        public BoardInfo(ulong[][] piecesOnBoard, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIndex, uint halfmoveClock, uint moveCounter, bool chess960 = false)
+        public BoardInfo(ulong[][] piecesOnBoard, Color activePlayerColor, CastlingAvailability castlingAvailability, ushort? enPassantIndex, uint halfmoveClock, uint moveCounter, bool chess960 = false)
         {
             PiecesOnBoard = piecesOnBoard;
-            ActivePlayer = activePlayer;
+            ActivePlayerColor = activePlayerColor;
             CastlingAvailability = castlingAvailability;
             EnPassantIndex = enPassantIndex;
             HalfmoveClock = halfmoveClock;
@@ -205,15 +206,15 @@ namespace MagicBitboard
             var isPawnMove = (ActivePawnOccupancy & move.SourceValue) != 0;
             if (isCapture || isPawnMove) HalfmoveClock = 0;
             else HalfmoveClock++;
-            if (!pocSource.HasValue) throw new MoveException("No piece found at source.", MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, move, ActivePlayer);
+            if (!pocSource.HasValue) throw new MoveException("No piece found at source.", MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, move, ActivePlayerColor);
             UnsetCastlingAvailability(move, pocSource.Value.Piece);
             SetEnPassantFlag(move, pocSource);
-            if (ActivePlayer == Color.Black)
+            if (ActivePlayerColor == Color.Black)
             {
                 MoveCounter++;
-                ActivePlayer = Color.White;
+                ActivePlayerColor = Color.White;
             }
-            else { ActivePlayer = Color.Black; }
+            else { ActivePlayerColor = Color.Black; }
             PiecesOnBoard = resultBoard;
             MoveTree.AddLast(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, ToFEN())));
         }
@@ -346,7 +347,7 @@ namespace MagicBitboard
 
         public MoveExt GenerateMoveFromText(string moveText)
         {
-            var md = MoveHelpers.GetAvailableMoveDetails(moveText, ActivePlayer);
+            var md = MoveHelpers.GetAvailableMoveDetails(moveText, ActivePlayerColor);
             if (!md.SourceFile.HasValue || !md.SourceRank.HasValue)
             {
                 var sourceIndex = FindPieceSourceIndex(md);
@@ -587,237 +588,47 @@ namespace MagicBitboard
 
         public ulong[][] ValidateAndGetResultingBoardFromMove(MoveExt move)
         {
-            var resultantBoard = GetBoardPostMove(move);
+            var moveValidator = new MoveValidator(this, move);
+            moveValidator.Validate();
+            //var resultantBoard = GetBoardPostMove(move);
             //Validate_PieceIsOfActiveColor(move);
             //ValidateSourceIsNonVacant(move);
             //ValidateDestinationIsNotOccupiedByActiveColor(move);
             //var isKingInCheckAfterMove = IsAttackedBy(OpponentColor, ActivePlayerKingIndex, resultantBoard);
             //if (isKingInCheckAfterMove)
             //{
-            //    throw new MoveException("Move leaves King in check.", MoveExceptionType.MoveLeavesKingInCheck, move, ActivePlayer);
+            //    throw new MoveException("Move leaves King in check.", MoveExceptionType.MoveLeavesKingInCheck, move, ActivePlayerColor);
             //}
             //switch (move.MoveType)
             //{
             //    case MoveType.EnPassant:
             //        if (move.DestinationIndex != EnPassantIndex)
-            //            throw new MoveException("En Passant not possible.", MoveExceptionType.EnPassantNotAvailalbe, move, ActivePlayer);
+            //            throw new MoveException("En Passant not possible.", MoveExceptionType.EnPassantNotAvailalbe, move, ActivePlayerColor);
             //        break;
             //    case MoveType.Promotion:
-            //        ValidatePromotion(ActivePlayer, move.SourceIndex, move.DestinationIndex);
+            //        ValidatePromotion(ActivePlayerColor, move.SourceIndex, move.DestinationIndex);
             //        break;
             //    case MoveType.Castle:
             //        ValidateMove_Castle(move);
-            //        var castlingAvailabilityToRemove = ActivePlayer == Color.Black ? CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside
+            //        var castlingAvailabilityToRemove = ActivePlayerColor == Color.Black ? CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside
             //            : CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
             //        CastlingAvailability &= ~(castlingAvailabilityToRemove);
             //        break;
             //}
-            return resultantBoard;
+            return moveValidator.PostMoveBoard;
         }
 
-        public ulong[][] GetBoardPostMove(MoveExt move)
-        {
 
-            var resultantBoard = new ulong[2][];
-            var pieceMoving = GetActivePieceByValue(move.SourceValue);
-            for (int i = 0; i < 2; i++)
-            {
-                resultantBoard[i] = new ulong[6];
-                foreach (var p in Enum.GetValues(typeof(Piece)))
-                {
-                    resultantBoard[i][(int)p] = PiecesOnBoard[i][(int)p];
-                    resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.SourceIndex);
-                    resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.DestinationIndex);
-                    if (i == (int)ActivePlayer && (Piece)p == pieceMoving)
-                    {
-                        resultantBoard[i][(int)p] = resultantBoard[i][(int)p].SetBit(move.DestinationIndex);
-                    }
-                }
-            }
-            if (move.MoveType == MoveType.Castle)
-            {
-                resultantBoard[NActiveColor][ROOK] = GetRookBoardPostCastle(move, resultantBoard[NActiveColor][ROOK]);
-            }
-            else if (move.MoveType == MoveType.EnPassant)
-            {
-                var capturedPawnValue = 1ul << (OpponentColor == Color.Black ? move.DestinationIndex - 8 : move.DestinationIndex + 8);
-                resultantBoard[NOpponentColor][PAWN] &= ~(capturedPawnValue);
-            }
-            else if (move.MoveType == MoveType.Promotion)
-            {
-                resultantBoard[NActiveColor][PAWN] &= ~(move.DestinationValue);
-                switch (move.PromotionPiece)
-                {
-                    case PromotionPiece.Knight:
-                        resultantBoard[NActiveColor][KNIGHT] |= move.DestinationValue;
-                        break;
-                    case PromotionPiece.Bishop:
-                        resultantBoard[NActiveColor][BISHOP] |= move.DestinationValue;
-                        break;
-                    case PromotionPiece.Rook:
-                        resultantBoard[NActiveColor][ROOK] |= move.DestinationValue;
-                        break;
-                    case PromotionPiece.Queen:
-                        resultantBoard[NActiveColor][QUEEN] |= move.DestinationValue;
-                        break;
-                }
-            }
-            return resultantBoard;
-        }
 
-        private static ulong GetRookBoardPostCastle(MoveExt move, ulong rookBoard)
-        {
-            var rank = move.DestinationIndex.RankFromIdx();
-            var file = move.DestinationIndex.FileFromIdx();
-            var rookSource = rank == 7      // black castling
-                ? file == 2
-                    ? 0x100000000000000ul           // BLACK O-O-O
-                        : 0x8000000000000000ul      // BLACK O-O
-                    : file == 2
-                    ? 0x01ul                        // WHITE O-O-O
-                        : 0x80ul;                   // WHITE O-O
 
-            var rookDest = rank == 7        // black castling
-                ? file == 2
-                    ? 0x800000000000000ul           // BLACK O-O-O
-                        : 0x2000000000000000ul      // BLACK O-O
-                    : file == 2
-                    ? 0x08ul                        // WHITE O-O-O
-                        : 0x20ul;                   // WHITE O-O
 
-            return (rookBoard & ~(rookSource)) | rookDest;
-        }
 
-        public void Validate_PieceIsOfActiveColor(MoveExt move)
-        {
-            if ((ActiveTotalOccupancy & move.SourceValue) == 0)
-            {
-                throw new MoveException(
-                    $"It is {ActivePlayer.ToString()}'s turn to move and that color has no piece on {move.SourceIndex.IndexToSquareDisplay()}.",
-                    MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare,
-                    move,
-                    ActivePlayer);
-            }
-        }
 
-        public void ValidateMove_Castle(MoveExt move)
-        {
-            if (AnySquaresInCheck(move))
-            {
-                throw new MoveException("Cannot Castle through check.", MoveExceptionType.Castle_ThroughCheck, move, ActivePlayer);
-            }
-            ValidateMove_CastleOccupancyBetween(move);
-            ValidateMove_CastleAvailability(move);
-        }
-
-        /// <summary>
-        /// Validates castling move with availability flags
-        /// </summary>
-        /// <param name="move"></param>
-        public void ValidateMove_CastleAvailability(MoveExt move)
-        {
-            CastlingAvailability? castleChar;
-            switch (move.DestinationIndex)
-            {
-                case 58:
-                    castleChar = CastlingAvailability.BlackQueenside;
-                    break;
-                case 62:
-                    castleChar = CastlingAvailability.BlackKingside;
-                    break;
-                case 2:
-                    castleChar = CastlingAvailability.WhiteQueenside;
-                    break;
-                case 6:
-                    castleChar = CastlingAvailability.WhiteKingside;
-                    break;
-                default:
-                    throw new MoveException("Castling was applied to move when King's destination wasn't correctly set.", MoveExceptionType.Castle_BadDestinationSquare, move, ActivePlayer);
-            }
-            if (!CastlingAvailability.HasFlag(castleChar))
-                throw new MoveException("Castling in the direction specified is not allowed.", MoveExceptionType.Castle_Unavailable, move, ActivePlayer);
-        }
-
-        /// <summary>
-        /// Validates that no pieces are between castling King and Rook.
-        /// </summary>
-        /// <param name="move"></param>
-        public void ValidateMove_CastleOccupancyBetween(MoveExt move)
-        {
-            ulong piecesBetween;
-            switch (move.DestinationIndex)
-            {
-                case 58:
-                    piecesBetween = BoardHelpers.InBetween(56, 60);
-                    break;
-                case 62:
-                    piecesBetween = BoardHelpers.InBetween(60, 63);
-                    break;
-                case 2:
-                    piecesBetween = BoardHelpers.InBetween(0, 4);
-                    break;
-                case 6:
-                    piecesBetween = BoardHelpers.InBetween(4, 7);
-                    break;
-                default:
-                    throw new MoveException("Castle's King destination is out of range.", MoveExceptionType.Castle_BadDestinationSquare, move, ActivePlayer);
-            }
-            if ((TotalOccupancy & piecesBetween) != 0)
-            {
-                throw new MoveException("Cannot castle with pieces between King and Rook.", MoveExceptionType.Castle_OccupancyBetween, move, ActivePlayer);
-            }
-        }
-
-        public bool AnySquaresInCheck(MoveExt move)
-        {
-            var moveToAndFromValues = move.SourceValue | move.DestinationValue;
-            var squaresBetween = BoardHelpers.InBetween(move.SourceIndex, move.DestinationIndex) | moveToAndFromValues;
-            while (squaresBetween != 0)
-            {
-                var square = BitHelpers.BitScanForward(squaresBetween);
-                if (IsAttackedBy(OpponentColor, square)) return true;
-                squaresBetween &= squaresBetween - 1;
-            }
-            return false;
-        }
-
-        private void ValidateDestinationIsNotOccupiedByActiveColor(MoveExt move)
-        {
-            if ((ActiveTotalOccupancy & move.DestinationValue) != 0)
-            {
-                //Could be castling move
-                var pFrom = PieceOnSquare(move.SourceValue);
-                var pTo = PieceOnSquare(move.DestinationValue);
-                if (pFrom != Piece.King && pTo != Piece.Rook)
-                    throw new MoveException("Move destination is occupied by the active player's color.", move, ActivePlayer);
-                else
-                    move.MoveType = MoveType.Castle;
-            }
-
-        }
-
-        private void ValidateSourceIsNonVacant(MoveExt move)
-        {
-            if ((ActiveTotalOccupancy & move.SourceValue) == 0) throw new MoveException("Move source square is vacant.", move, ActivePlayer);
-        }
-
-        public Piece? PieceOnSquare(ulong squareValue)
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                foreach (var p in (Piece[])Enum.GetValues(typeof(Piece)))
-                {
-                    var nP = (int)p;
-                    if ((PiecesOnBoard[i][nP] & squareValue) != 0) return p;
-                }
-            }
-            return null;
-        }
 
 
         public string ValidateChecks()
         {
-            Check c = GetChecks(ActivePlayer);
+            Check c = GetChecks(ActivePlayerColor);
             if (c.HasFlag(Check.Double))
             {
                 return "Both Kings are in check.";
@@ -936,7 +747,7 @@ namespace MagicBitboard
 
 
         private string ValidateNumberOfPiecesOnBoard() => ValidateNumberOfPiecesOnBoard(PiecesOnBoard);
-        private string ValidateEnPassantSquare() => ValidateEnPassantSquare(PiecesOnBoard, EnPassantIndex, ActivePlayer);
+        private string ValidateEnPassantSquare() => ValidateEnPassantSquare(PiecesOnBoard, EnPassantIndex, ActivePlayerColor);
         private string ValidateCastlingRights() => ValidateCastlingRights(PiecesOnBoard, CastlingAvailability, Chess960);
 
         /// <summary>
@@ -999,7 +810,7 @@ namespace MagicBitboard
             }
             return sb.ToString();
         }
-        public string GetSideToMoveStrRepresentation() => ActivePlayer == Color.Black ? "b" : "w";
+        public string GetSideToMoveStrRepresentation() => ActivePlayerColor == Color.Black ? "b" : "w";
 
         public string GetCastlingAvailabilityString() => FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability);
 

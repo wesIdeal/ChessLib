@@ -6,7 +6,7 @@ using System.Text;
 namespace ChessLib.MagicBitboard.MoveValidation
 {
     public enum ValidationSeverity { None, Warning, Error };
-    public class ValidationResult
+     class ValidationResult
     {
         public ValidationResult(MoveExceptionType validationIssue)
         {

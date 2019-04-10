@@ -19,7 +19,10 @@ namespace ChessLib.Data.Exceptions
         EnPassantNotAvailalbe,
         Castle_BadDestinationSquare,
         Castle_OccupancyBetween,
-        Castle_Unavailable
+        Castle_Unavailable,
+        BadDestination,
+        Castle_KingInCheck,
+        ActiveColorPieceAtDestination
     }
     [Serializable]
     public class MoveException : Exception
