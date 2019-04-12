@@ -7,12 +7,33 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using ChessLib.Graphics;
+using ChessLib.Parse.PGN;
 
 namespace Bitboard.Tests.ConsoleApp
 {
     class Program
     {
+        private static string pgn = @"[Event ""Riga""]
+[Site ""Riga""]
+[Date ""1949.??.??""]
+[EventDate ""?""]
+[Round ""?""]
+[Result ""1-0""]
+[White ""Mikhail Tal""]
+[Black ""Josif Israel Zilber""]
+[ECO ""C07""]
+[WhiteElo ""?""]
+[BlackElo ""?""]
+[PlyCount ""65""]
 
+1.e4 e6 2.d4 d5 3.Nd2 c5 4.exd5 Qxd5 5.Ngf3 Nc6 6.Bc4 Qh5
+7.dxc5 Bxc5 8.Ne4 Nge7 9.Bg5 Qg4 10.Qd3 b6 11.O-O-O O-O 12.Bf6
+Qf4+ 13.Kb1 gxf6 14.g3 Qh6 15.g4 Qf4 16.g5 fxg5 17.Nfxg5 Ng6
+18.h4 Nb4 19.Qh3 e5 20.Qg2 Bf5 21.h5 Kg7 22.hxg6 h6 23.Bxf7
+Rxf7 24.gxf7 hxg5 25.Nxg5 Qxf2 26.Ne6+ Kxf7 27.Qg7+ Kxe6
+28.Rh6+ Bg6 29.Qxg6+ Ke7 30.Rh7+ Kf8 31.Qg7+ Ke8 32.Qd7+ Kf8
+33.Rh8# 1-0";
         static void Main(string[] args)
         {
             var dt = DateTime.Now;
@@ -23,10 +44,26 @@ namespace Bitboard.Tests.ConsoleApp
             //WriteKnightAttacks();
             //WriteBishopAttacks();
             //WriteRookAttacks();
-            var gameInfo = BoardInfo.BoardInfoFromFen(FENHelpers.FENInitial);
-            var fen = gameInfo.FEN;
-            Console.WriteLine($"{gameInfo.PiecesOnBoard[0][Piece.Queen.ToInt()].GetDisplayBits()}");
-            Console.WriteLine($"Finished in {DateTime.Now.Subtract(dt).TotalMilliseconds} ms.");
+            var graphics = new FENToImage();
+            //graphics.SaveBoardBaseImage("boardBase.png");
+            //graphics.SaveBoardFromFen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2", "InitialBoard.png");
+            var parsePgn = ParsePGN.MakeParser(pgn);
+            var m = parsePgn.GetGameObjects();
+            var bi = BoardInfo.BoardInfoFromFen(FENHelpers.FENInitial);
+            var counter = 0;
+            foreach (var move in m[0].MoveSection)
+            {
+                counter++;
+                bi.ApplyMove(move.Move.MoveSAN);
+                if (counter >= 20) break;
+            }
+
+            counter = 0;
+            foreach(var move in bi.MoveTree)
+            {
+                graphics.SaveBoardFromFen(move.Move.FEN, $"game1.halfMove{counter++}.png");
+                
+            }
             //Console.ReadKey();
         }
 

@@ -12,6 +12,26 @@ namespace ChessLib.Data.Helpers
         public static readonly char[] ValidCastlingStringChars = new char[] { 'k', 'K', 'q', 'Q', '-' };
         public static readonly char[] ValidFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
 
+        /// <summary>
+        /// Gets a rank from a validated fen string
+        /// </summary>
+        /// <param name="fen">FEN string</param>
+        /// <param name="rank">Board Rank (*not bitboard index rank*)</param>
+        /// <returns></returns>
+        public static string GetRankFromFen(this string fen, int rank)
+        {
+            var r = Math.Abs(rank - 8);
+            var ranks = GetRanksFromFen(fen);
+            return ranks[rank];
+        }
+
+        public static string[] GetRanksFromFen(this string fen)
+        {
+            var pp = GetFENPiece(fen, FENPieces.PiecePlacement);
+            var ranks = pp.Split('/');
+            return ranks;
+        }
+
         public static void ValidateFENStructure(string fen)
         {
             if (string.IsNullOrEmpty(fen)
@@ -128,7 +148,11 @@ namespace ChessLib.Data.Helpers
             }
         }
 
-
+        public static string GetFENPiece(this string fen, FENPieces piece)
+        {
+            var fenPieces = fen.Split(' ');
+            return fenPieces[(int)piece];
+        }
 
         public static CastlingAvailability GetCastlingFromString(string castleAvailability)
         {

@@ -187,7 +187,7 @@ namespace MagicBitboard.Tests
             //    }
             //}
         }
-       
+
 
         [Test]
         public static void ShouldFindCorrectSource_PawnMove_NoCapture_StartingPosition()
@@ -300,7 +300,15 @@ namespace MagicBitboard.Tests
             MoveDetail md = new MoveDetail(null, null, 5, 0, Piece.Knight, Color.White, "Nxd4");
             Assert.Throws(typeof(MoveException), () => { BoardInfo.FindKnightMoveSourceIndex(md, bi.ActiveKnightOccupancy); });
         }
-
+        [Test]
+        public static void ShouldFindIndexWhenTwoKnightsAttackSquare_Ngf3()
+        {
+            BoardInfo bi = new GameInfo("rnb1kbnr/pp3ppp/4p3/2pq4/3P4/8/PPPN1PPP/R1BQKBNR w KQkq - 0 5").BoardInfo;
+            MoveDetail md = new MoveDetail(null, 6, 2, 5, Piece.Knight, Color.White, "Ngf3");
+            var actual = BoardInfo.FindKnightMoveSourceIndex(md, bi.ActiveKnightOccupancy);
+            Assert.AreEqual(6, actual);
+           
+        }
         [Test]
         public static void ShouldFindBishopMoveSource()
         {
@@ -600,7 +608,7 @@ namespace MagicBitboard.Tests
             Assert.IsFalse(bi.IsPiecePinned(51), "IsPiecePinned() should have returned false for square index 42.");//Not pinned
             Assert.IsTrue(bi.IsPiecePinned(52), "IsPiecePinned() should have returned true as the Bishop at index 52 is pinned by the Rook.");//Not pinned
         }
-        
+
         [Test]
         public static void SetEnPassantFlag_ShouldSetFlagToEnPassantCaptureSquare_WhenPawnsMove2SquaresForward()
         {
@@ -686,9 +694,9 @@ namespace MagicBitboard.Tests
                 #endregion
             }
 
-           
 
-           
+
+
 
 
 

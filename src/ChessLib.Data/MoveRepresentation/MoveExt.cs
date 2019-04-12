@@ -42,11 +42,13 @@ namespace ChessLib.Data.MoveRepresentation
 
         public override string ToString()
         {
+
             if (MoveType == MoveType.Promotion)
             {
                 return $"{DestinationIndex.IndexToSquareDisplay()}={PieceHelpers.GetCharFromPromotionPiece(PromotionPiece)}";
             }
-            return "";
+
+            return $"{SourceIndex.IndexToSquareDisplay()} to {DestinationIndex.IndexToSquareDisplay()}";
         }
     }
 }

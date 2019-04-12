@@ -233,7 +233,7 @@ namespace ChessLib.Data.Helpers
 
         public static ulong[][] GetBoardPostMove(in ulong[][] currentBoard, in Color activePlayerColor, in MoveExt move)
         {
-            int nActiveColor = (int) activePlayerColor;
+            int nActiveColor = (int)activePlayerColor;
             Color opponentColor = activePlayerColor.Toggle();
             var resultantBoard = new ulong[2][];
             var pieceMoving = GetTypeOfPieceAtIndex(move.SourceIndex, currentBoard);
@@ -243,11 +243,14 @@ namespace ChessLib.Data.Helpers
                 foreach (var p in Enum.GetValues(typeof(Piece)))
                 {
                     resultantBoard[i][(int)p] = currentBoard[i][(int)p];
-                    resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.SourceIndex);
-                    resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.DestinationIndex);
                     if (i == nActiveColor && (Piece)p == pieceMoving)
                     {
+                        resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.SourceIndex);
                         resultantBoard[i][(int)p] = resultantBoard[i][(int)p].SetBit(move.DestinationIndex);
+                    }
+                    else if (i == (int)opponentColor)
+                    {
+                        resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.DestinationIndex);
                     }
                 }
             }

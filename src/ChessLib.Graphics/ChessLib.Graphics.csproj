@@ -7,12 +7,33 @@
 
   <ItemGroup>
     <None Remove="Images\BlackKing.svg" />
+    <None Remove="Images\ChessPiecesArray.png" />
     <None Remove="Images\WhiteKing.svg" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Images\BlackKing.svg" />
+    <EmbeddedResource Include="Images\ChessPiecesArray.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Images\WhiteKing.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
+    <PackageReference Include="System.Drawing.Common" Version="4.5.1" />
+    <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Images\board.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

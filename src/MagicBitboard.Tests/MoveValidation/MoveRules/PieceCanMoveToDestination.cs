@@ -525,12 +525,12 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
 
         class RookQueenMoves : MagicBitboard.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
-            private SlidingPieceMoveAndBoard _rEnemyOnC7 = new SlidingPieceMoveAndBoard(2, 50, "2r1k3/2r5/8/8/8/8/8/n1R1K3 w - - 0 1");
-            private SlidingPieceMoveAndBoard _rEnemyOnC8 = new SlidingPieceMoveAndBoard(2, 58, "2r1k3/2r5/8/8/8/8/8/n1R1K3 w - - 0 1");
-            private SlidingPieceMoveAndBoard _rEnemyOnA1 = new SlidingPieceMoveAndBoard(2, 00, "2r1k3/2r5/8/8/8/8/8/n1R1K3 w - - 0 1");
-            private SlidingPieceMoveAndBoard _qEnemyOnC7 = new SlidingPieceMoveAndBoard(2, 50, "2r1k3/2r5/8/8/8/8/8/n1Q1K3 w - - 0 1");
-            private SlidingPieceMoveAndBoard _qEnemyOnC8 = new SlidingPieceMoveAndBoard(2, 58, "2r1k3/2r5/8/8/8/8/8/n1Q1K3 w - - 0 1");
-            private SlidingPieceMoveAndBoard _qEnemyOnA1 = new SlidingPieceMoveAndBoard(2, 00, "2r1k3/2r5/8/8/8/8/8/n1Q1K3 w - - 0 1");
+            private readonly SlidingPieceMoveAndBoard _rEnemyOnC7 = new SlidingPieceMoveAndBoard(2, 50, "2r1k3/2r5/8/8/8/8/8/n1R1K3 w - - 0 1");
+            private readonly SlidingPieceMoveAndBoard _rEnemyOnC8 = new SlidingPieceMoveAndBoard(2, 58, "2r1k3/2r5/8/8/8/8/8/n1R1K3 w - - 0 1");
+            private readonly SlidingPieceMoveAndBoard _rEnemyOnA1 = new SlidingPieceMoveAndBoard(2, 00, "2r1k3/2r5/8/8/8/8/8/n1R1K3 w - - 0 1");
+            private readonly SlidingPieceMoveAndBoard _qEnemyOnC7 = new SlidingPieceMoveAndBoard(2, 50, "2r1k3/2r5/8/8/8/8/8/n1Q1K3 w - - 0 1");
+            private readonly SlidingPieceMoveAndBoard _qEnemyOnC8 = new SlidingPieceMoveAndBoard(2, 58, "2r1k3/2r5/8/8/8/8/8/n1Q1K3 w - - 0 1");
+            private readonly SlidingPieceMoveAndBoard _qEnemyOnA1 = new SlidingPieceMoveAndBoard(2, 00, "2r1k3/2r5/8/8/8/8/8/n1Q1K3 w - - 0 1");
 
             [Test]
             public void ShouldReturnNull_WhenMoveCapturesEnemyOnC7()
@@ -588,13 +588,19 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
 
         class KingMoves : MagicBitboard.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
-            BoardInfo _bi = BoardInfo.BoardInfoFromFen("4k3/8/8/8/8/8/1K6/8 w - - 0 1");
+            readonly BoardInfo _bi = BoardInfo.BoardInfoFromFen("4k3/8/8/8/8/8/1K6/8 w - - 0 1");
 
-            private MoveExt[] moves = new MoveExt[]
+            private readonly MoveExt[] moves = new MoveExt[]
             {
                 MoveHelpers.GenerateMove(9, 0), MoveHelpers.GenerateMove(9, 1), MoveHelpers.GenerateMove(9, 2),
                 MoveHelpers.GenerateMove(9, 10), MoveHelpers.GenerateMove(9, 16), MoveHelpers.GenerateMove(9, 17),
                 MoveHelpers.GenerateMove(9, 18), MoveHelpers.GenerateMove(9, 8)
+            };
+            private readonly MoveExt[] badMoves = new MoveExt[]
+            {
+               
+                MoveHelpers.GenerateMove(9, 24), MoveHelpers.GenerateMove(9, 25), MoveHelpers.GenerateMove(9, 26),
+                MoveHelpers.GenerateMove(9, 19), MoveHelpers.GenerateMove(9, 3)
             };
 
             [Test]
@@ -603,6 +609,15 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
                 foreach (var move in moves)
                 {
                     Assert.IsNull(Validate(_bi, _postMoveBoard, move),$"Should be able to move king to {move.DestinationIndex.IndexToSquareDisplay()}");
+                }
+            }
+
+            [Test]
+            public void ShouldReturnError_WhenMoveIsNotLegal()
+            {
+                foreach (var badMove in badMoves)
+                {
+                    Assert.AreEqual(MoveExceptionType.BadDestination, Validate(_bi, _postMoveBoard, badMove), $"Should not be able to move king to {badMove.DestinationIndex.IndexToSquareDisplay()}");
                 }
             }
         }

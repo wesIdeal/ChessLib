@@ -1,5 +1,7 @@
 ﻿using ChessLib.Data.Exceptions;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types;
 using MagicBitboard;
 
 namespace ChessLib.MagicBitboard.MoveValidation.MoveRules
@@ -8,7 +10,8 @@ namespace ChessLib.MagicBitboard.MoveValidation.MoveRules
     {
         public MoveExceptionType? Validate(in BoardInfo boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
         {
-            if (Bitboard.IsAttackedBy(boardInfo.OpponentColor, boardInfo.ActivePlayerKingIndex, postMoveBoard))
+            var activeKingIndex = postMoveBoard[(int) boardInfo.ActivePlayerColor][(int) Piece.King].GetSetBits()[0];
+            if (Bitboard.IsAttackedBy(boardInfo.OpponentColor, activeKingIndex, postMoveBoard))
             {
                 return MoveExceptionType.MoveLeavesKingInCheck;
             }

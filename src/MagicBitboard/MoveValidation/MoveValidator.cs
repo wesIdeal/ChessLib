@@ -24,47 +24,49 @@ namespace ChessLib.MagicBitboard.MoveValidation
             _move = move;
             _rules.Add(new PieceMovingIsActiveColor());
             _rules.Add(new KingNotInCheckAfterMove());
-            switch (move.MoveType)
+            if (move.MoveType == MoveType.Normal)
             {
-                case MoveType.Normal:
-                    _rules.Add(new PieceCanMoveToDestination());
-                    _rules.Add(new DestinationNotOccupiedByActiveColor());
-                    break;
-                case MoveType.Promotion:
-                    _rules.Add(new SourceIsPawn());
-
-                    break;
-                case MoveType.EnPassant:
-                    _rules.Add(new EnPassantIsPossible());
-                    _rules.Add(new SourceIsPawn());
-                    _rules.Add(new SourceIsCorrectRank());
-                    _rules.Add(new EnPassantSquareIsAttackedBySource());
-                    break;
-                case MoveType.Castle:
-                    _rules.Add(new HasValidDestinationSquare());
-                    _rules.Add(new HasCastlingAvailability());
-                    _rules.Add(new KingNotInCheckBeforeMove());
-                    _rules.Add(new CastlingSquaresNotAttacked());
-                    _rules.Add(new CastlingHasNoPiecesBlocking());
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                _rules.Add(new PieceCanMoveToDestination());
+                _rules.Add(new DestinationNotOccupiedByActiveColor());
             }
-
+            else if (move.MoveType == MoveType.Promotion)
+            {
+                _rules.Add(new PieceCanMoveToDestination());
+                _rules.Add(new SourceIsPawn());
+            }
+            else if (move.MoveType == MoveType.EnPassant)
+            {
+                _rules.Add(new EnPassantIsPossible());
+                _rules.Add(new SourceIsPawn());
+                _rules.Add(new SourceIsCorrectRank());
+                _rules.Add(new EnPassantSquareIsAttackedBySource());
+            }
+            else if (move.MoveType == MoveType.Castle)
+            {
+                _rules.Add(new HasValidDestinationSquare());
+                _rules.Add(new HasCastlingAvailability());
+                _rules.Add(new KingNotInCheckBeforeMove());
+                _rules.Add(new CastlingSquaresNotAttacked());
+                _rules.Add(new CastlingHasNoPiecesBlocking());
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException();
+            }
         }
 
-        public IEnumerable<MoveExceptionType> Validate()
+        public MoveExceptionType? Validate()
         {
-            var results = new List<MoveExceptionType>();
             foreach (var rule in _rules)
             {
                 var moveIssue = rule.Validate(_boardInfo, PostMoveBoard, _move);
                 if (moveIssue.HasValue)
                 {
-                    results.Add(moveIssue.Value);
+                    return moveIssue;
                 }
             }
-            return results;
+
+            return null;
         }
     }
 

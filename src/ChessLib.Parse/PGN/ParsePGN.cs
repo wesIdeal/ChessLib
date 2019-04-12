@@ -21,11 +21,21 @@ namespace ChessLib.Parse.PGN
         public string PgnDatabase;
         AntlrInputStream inputStream;
         public const string GameRegEx = @"(?<pgnGame>\s*(?:\[\s*(?<tagName>\w+)\s*""(?<tagValue>[^""]*)""\s*\]\s*)+(?:(?<moveNumber>\d+)(?<moveMarker>\.|\.{3})\s*(?<moveValue>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?)(?:\s*(?<moveValue2>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?))?\s*(?:\s*\(\s*(?<variation>(?:(?<varMoveNumber>\d+)(?<varMoveMarker>\.|\.{3})\s*(?<varMoveValue>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?)(?:\s*(?<varMoveValue2>(?:[PNBRQK]?[a-h]?[1-8]?x?[a-h][1-8](?:\=[PNBRQK])?|O(-?O){1,2})[\+#]?(\s*[\!\?]+)?))?\s*(?:\((?<varVariation>.*)\s*\)\s*)?(?:\{(?<varComment>[^\}]*?)\}\s*)?)*)\s*\)\s*)*(?:\{(?<comment>[^\}]*?)\}\s*)?)*(?<endMarker>1\-?0|0\-?1|1/2\-?1/2|\*)?\s*)";
+
+        public ParsePGN()
+        {
+        }
+
         public ParsePGN(string pgnPath)
         {
             PgnDatabase = File.ReadAllText(pgnPath);
             SanitizePgnFile();
 
+        }
+
+        public static ParsePGN MakeParser(string p)
+        {
+            return new ParsePGN() { PgnDatabase = p };
         }
 
         private void SanitizePgnFile()
@@ -40,15 +50,16 @@ namespace ChessLib.Parse.PGN
             PgnDatabase = PgnDatabase.Replace("##BREAK##", Environment.NewLine);
             PgnDatabase = Regex.Replace(PgnDatabase, @"(\ {2,})", " ");
             PgnDatabase = Regex.Replace(PgnDatabase, @"(?<b>\S)(?<p>\))", @"${b} ${p}");
+
         }
 
 
         public void GetMovesFromPGN()
         {
-            var games = GetGameObjects();
+           var game = GetGameObjects();
         }
 
-        private List<Game<MoveText>> GetGameObjects()
+        public List<Game<MoveText>> GetGameObjects()
         {
             var splitPgn = Regex.Matches(PgnDatabase, GameRegEx);
             var games = new List<Game<MoveText>>();

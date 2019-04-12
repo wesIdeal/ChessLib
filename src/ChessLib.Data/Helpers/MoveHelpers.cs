@@ -72,7 +72,7 @@ namespace ChessLib.Data.Helpers
             if (match.Groups["pawnFile"].Success)
             {
                 md.Piece = Piece.Pawn;
-                md.DestinationFile = match.Groups["pawnFile"].Success ? (ushort)(match.Groups["pawnFile"].Value[0] - 'a') : (ushort?)null;
+               
                 if (md.IsCapture)
                 {
                     md.SourceFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
@@ -86,6 +86,10 @@ namespace ChessLib.Data.Helpers
                         Debug.Assert(md.DestinationRank != null, "md.DestinationRank != null");
                         md.SourceRank = (ushort)(md.DestinationRank.Value - 1);
                     }
+                }
+                else
+                {
+                    md.DestinationFile = match.Groups["pawnFile"].Success ? (ushort)(match.Groups["pawnFile"].Value[0] - 'a') : (ushort?)null;
                 }
                
             }
