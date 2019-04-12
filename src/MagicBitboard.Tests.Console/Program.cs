@@ -79,10 +79,10 @@ Ndf6 29.Qg6+ Kg8 30.h6 Ra7 31.Kh2 Re7 32.Rh3 Nh7 33.Rd3 Qa8
             //WriteKnightAttacks();
             //WriteBishopAttacks();
             //WriteRookAttacks();
-            var graphics = new FENToImage();
+            var graphics = new FENToImage(25);
             //graphics.SaveBoardBaseImage("boardBase.png");
             //graphics.SaveBoardFromFen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2", "InitialBoard.png");
-            var parsePgn = ParsePGN.MakeParser(epPgn);
+            var parsePgn = ParsePGN.MakeParser(_pgn2);
             var m = parsePgn.GetGameObjects();
             var bi = BoardInfo.BoardInfoFromFen(FENHelpers.FENInitial);
             var counter = 0;
@@ -94,11 +94,12 @@ Ndf6 29.Qg6+ Kg8 30.h6 Ra7 31.Kh2 Re7 32.Rh3 Nh7 33.Rd3 Qa8
             }
 
             counter = 0;
-            foreach (var move in bi.MoveTree)
-            {
-                graphics.SaveBoardFromFen(move.Move.FEN, $".\\Game1\\game2.halfMove{counter++}.png");
+            //foreach (var move in bi.MoveTree)
+            //{
+            //    graphics.SaveBoardFromFen(move.Move.FEN, $".\\Game1\\game2.halfMove{counter++}.png");
 
-            }
+            //}
+            graphics.MakeGifFromMoveTree(bi.MoveTree, $".\\Game1\\game.gif", 40, 2, 5);
             //Console.ReadKey();
         }
 

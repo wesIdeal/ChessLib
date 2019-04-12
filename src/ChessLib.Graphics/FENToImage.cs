@@ -1,13 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveRepresentation;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
+
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Gif;
+using SixLabors.ImageSharp.MetaData.Profiles.Exif;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using ChessLib.Data.Types;
+using SixLabors.ImageSharp.Processing.Processors.Quantization;
+using SixLabors.Shapes;
 
 namespace ChessLib.Graphics
 {
@@ -23,9 +33,9 @@ namespace ChessLib.Graphics
         public FENToImage(int squareWidth = 80)
         {
             _squareWidth = squareWidth;
-            _boardWidth = squareWidth * 11;
+            _boardWidth = squareWidth * 9;
             InitPieces();
-            _font = SystemFonts.CreateFont("Arial", 22);
+            _font = SystemFonts.CreateFont("Arial", 16);
             SetBoardBaseImage();
         }
 
@@ -82,37 +92,176 @@ namespace ChessLib.Graphics
             _boardBase.Save(file);
         }
 
+        public void MakeGifFromMoveTree(MoveTree<MoveHashStorage> moves, string fileName, int positionDelay, int numberOfMovementFrames = 10, int totalMovementTime = 50)
+        {
+            using (var board = MakeBoardFromFen(moves.FENStart))
+            {
+                board.Save("INIT.png");
+                var previousFEN = moves.FENStart;
+                foreach (var mv in moves)
+                {
+
+                    var from = mv.Move.Move.SourceIndex();
+                    var to = mv.Move.Move.DestinationIndex();
+                    var pieceMoving =
+                        _pieceMap[PieceHelpers.GetCharRepresentation(mv.Move.ColorMoving, mv.Move.PieceMoving)];
+                    var transImages = MakeMovementFrames(previousFEN, pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames, totalMovementTime);
+                    foreach (var f in transImages)
+                    {
+                        var frameDelay = (int)totalMovementTime / numberOfMovementFrames;
+                        board.Frames.AddFrame(f.Frames[0]);
+                        var gifMetaData = board.Frames.Last().MetaData.GetFormatMetaData(GifFormat.Instance);
+                        gifMetaData.FrameDelay = frameDelay;
+                        gifMetaData.ColorTableLength = 5;
+                        f.Dispose();
+
+                    }
+                    var finalBoard = MakeBoardFromFen(mv.Move.FEN);
+
+
+                    var finalPosition = finalBoard.Frames.RootFrame;
+
+                    finalPosition.MetaData.GetFormatMetaData(GifFormat.Instance).FrameDelay = positionDelay;
+                    finalPosition.MetaData.GetFormatMetaData(GifFormat.Instance).ColorTableLength = 4;
+
+                    board.Frames.AddFrame(finalPosition);
+                    previousFEN = mv.Move.FEN;
+
+                }
+
+                var firstFrame = board.Frames.First().MetaData.GetFormatMetaData(GifFormat.Instance);
+                firstFrame.FrameDelay = positionDelay * 2;
+                var finalFrame = board.Frames.Last().MetaData.GetFormatMetaData(GifFormat.Instance);
+                finalFrame.FrameDelay = (int)Math.Round(positionDelay * 2.5);
+                board.MetaData.GetFormatMetaData(GifFormat.Instance).ColorTableMode = GifColorTableMode.Global;
+
+                board.Save(fileName);
+
+
+                //for (int i = 0; i < board.Frames.Count; i++)
+                //{
+                //    board.Frames.CloneFrame(i).Save(System.IO.Path.Combine(".\\Game1\\", $"frame.{i}.png"));
+                //}
+            }
+        }
+
+        private IEnumerable<Image<Rgba32>> MakeMovementFrames(string fen, Image<Rgba32> pieceMoving,
+            ushort sqFrom, ushort sqTo, int frames, int delay)
+        {
+
+            var rv = new List<Image<Rgba32>>();
+            var pFrom = GetPointFromBoardIndex(sqFrom);
+            var pTo = GetPointFromBoardIndex(sqTo);
+            Path p = new Path(new LinearLineSegment(pFrom, pTo));
+            var sizeOfTransitions = p.Length / (frames + 1);
+            var points = new PointF[frames];
+            int i = 0;
+            for (i = 0; i < frames; i++)
+            {
+                points[i] = p.PointAlongPath(sizeOfTransitions * i).Point;
+            }
+
+            i = 0;
+            var moveNumber = FENHelpers.GetMoveNumberFromString(fen.GetFENPiece(FENPieces.FullMoveCounter));
+            var activeSide = FENHelpers.GetActiveColor(fen.GetFENPiece(FENPieces.ActiveColor));
+
+
+            using (var baseImage = MakeBoardFromFen(fen, sqFrom))
+            {
+
+                foreach (var point in points)
+                {
+                    using (var tImage = baseImage.Clone())
+                    {
+
+                        var drawPoint = new Point((int)point.X, (int)point.Y);
+                        tImage.Mutate(m => m.DrawImage(pieceMoving, drawPoint, 1));
+                        rv.Add(tImage.Clone());
+                    }
+                }
+            }
+            return rv.ToArray();
+        }
+
+        private Point GetPointFromBoardIndex(ushort sq)
+        {
+            var x = ((sq % 8) * _squareWidth) + _squareWidth;
+            var y = Math.Abs((sq / 8) - 7) * _squareWidth;
+            return new Point(x, y);
+
+        }
+        private Rectangle GetRectFromBoardIndex(ushort square)
+        {
+            var p = GetPointFromBoardIndex(square);
+            return new Rectangle(p.X, p.Y, _squareWidth, _squareWidth);
+        }
+
+        public Point CenterOfSquare(ushort square)
+        {
+            var r = GetRectFromBoardIndex(square);
+            var x = r.X + (_squareWidth / 2);
+            var y = r.Y + (_squareWidth / 2);
+            return new Point(x, y);
+        }
+
+        private Image<Rgba32> MakeBoardFromFen(string fen, ushort? leaveEmptyBoardIndex = null)
+        {
+            var board = _boardBase.Clone();
+            var ranks = fen.GetRanksFromFen();
+            Point? emptySquare = null;
+            if (leaveEmptyBoardIndex.HasValue)
+                emptySquare = GetPointFromBoardIndex(leaveEmptyBoardIndex.Value);
+            for (var fenRank = 0; fenRank < ranks.Length; fenRank++)
+            {
+                var rank = ranks[fenRank];
+                var fileCount = 0;
+                for (var file = 0; file < 8; file++)
+                {
+                    var x = (file * _squareWidth) + _squareWidth;
+                    var y = (fenRank * _squareWidth);
+                    var p = rank[fileCount];
+                    if (char.IsDigit(p))
+                    {
+                        var digit = int.Parse(p.ToString());
+                        file += digit - 1;
+                    }
+                    else
+                    {
+                        PieceHelpers.GetPiece(p);
+                        var center = new Point(x, y);
+                        if (ShouldWriteSquare(emptySquare, center))
+                        {
+
+                            board.Mutate(i => i.DrawImage(_pieceMap[p], center, 1));
+                        }
+                    }
+
+                    fileCount++;
+                }
+            }
+
+            return board;
+        }
+
+        private bool ShouldWriteSquare(Point? emptySquare, Point currentSquare)
+        {
+            if (emptySquare.HasValue)
+            {
+                if (emptySquare.Value == currentSquare)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public void SaveBoardFromFen(string fen, string fileName)
         {
             FENHelpers.ValidateFENString(fen);
-            using (var board = _boardBase.Clone())
+            using (var board = MakeBoardFromFen(fen))
             {
-                var ranks = fen.GetRanksFromFen();
-                for (var fenRank = 0; fenRank < ranks.Length; fenRank++)
-                {
-                    var rank = ranks[fenRank];
-                    var fileCount = 0;
-                    for (var file = 0; file < 8; file++)
-                    {
-                        var p = rank[fileCount];
-                        if (char.IsDigit(p))
-                        {
-                            var digit = int.Parse(p.ToString());
-                            file += digit - 1;
-                        }
-                        else
-                        {
-                            PieceHelpers.GetPiece(p);
-                            var x = (file * _squareWidth) + _squareWidth;
-                            var y = (fenRank * _squareWidth);
-                            var center = new Point(x, y);
-                            board.Mutate(i => i.DrawImage(_pieceMap[p], center, 1));
 
-                        }
-
-                        fileCount++;
-                    }
-                }
                 board.Save(fileName);
             }
         }

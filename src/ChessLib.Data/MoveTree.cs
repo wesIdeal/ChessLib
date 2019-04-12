@@ -6,7 +6,7 @@ namespace ChessLib.Data
 {
     public class MoveTree<T> : LinkedList<MoveNode<T>> where T : IEquatable<T>
     {
-
+        public string FENStart { get; set; }
         public MoveNode<T> ParentMove { get; }
         public MoveTree(MoveNode<T> parentMove)
         {

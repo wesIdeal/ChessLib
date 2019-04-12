@@ -1,22 +1,28 @@
-﻿using System.Text;
-using ChessLib.Data.MoveRepresentation;
+﻿using System;
 using System.Security.Cryptography;
-using System;
+using System.Text;
+using ChessLib.Data.Helpers;
+using ChessLib.Data.Types;
 
-namespace MagicBitboard
+namespace ChessLib.Data.MoveRepresentation
 {
     public class MoveHashStorage : IEquatable<MoveHashStorage>
     {
-        public MoveHashStorage(MoveExt move, string fen)
+        public MoveHashStorage(MoveExt move, Piece pieceMoving, Color colorMoving, string fen)
         {
+            FENHelpers.ValidateFENString(fen);
             Move = move.Move;
             FEN = fen;
+            PieceMoving = pieceMoving;
+            ColorMoving = colorMoving;
             BoardStateHash = GetHashString(FEN.Split(' ')[0]);
         }
 
+        public Color ColorMoving { get; set; }
         public ushort Move { get; }
         public string FEN { get; }
         public string BoardStateHash { get; }
+        public Piece PieceMoving { get; set; }
 
         public static byte[] GetHash(string inputString)
         {

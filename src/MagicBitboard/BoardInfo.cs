@@ -74,6 +74,7 @@ namespace ChessLib.MagicBitboard
             MoveCounter = fullMoveCount;
             Chess960 = chess960;
             FEN = fen;
+            MoveTree.FENStart = fen;
             ValidateFields();
         }
 
@@ -121,6 +122,11 @@ namespace ChessLib.MagicBitboard
 
             UnsetCastlingAvailability(move, pocSource.Value.Piece);
             SetEnPassantFlag(move, pocSource);
+
+
+            PiecesOnBoard = moveValidator.PostMoveBoard;
+            MoveTree.AddLast(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, pocSource.Value.Piece, ActivePlayerColor, ToFEN())));
+
             if (ActivePlayerColor == Color.Black)
             {
                 MoveCounter++;
@@ -130,9 +136,6 @@ namespace ChessLib.MagicBitboard
             {
                 ActivePlayerColor = Color.Black;
             }
-
-            PiecesOnBoard = moveValidator.PostMoveBoard;
-            MoveTree.AddLast(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, ToFEN())));
             return null;
         }
 
