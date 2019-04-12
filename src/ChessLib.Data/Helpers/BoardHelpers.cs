@@ -235,6 +235,7 @@ namespace ChessLib.Data.Helpers
         {
             int nActiveColor = (int)activePlayerColor;
             Color opponentColor = activePlayerColor.Toggle();
+            int nOppColor = (int)opponentColor;
             var resultantBoard = new ulong[2][];
             var pieceMoving = GetTypeOfPieceAtIndex(move.SourceIndex, currentBoard);
             for (int i = 0; i < 2; i++)
@@ -261,7 +262,7 @@ namespace ChessLib.Data.Helpers
             else if (move.MoveType == MoveType.EnPassant)
             {
                 var capturedPawnValue = 1ul << (opponentColor == Color.Black ? move.DestinationIndex - 8 : move.DestinationIndex + 8);
-                resultantBoard[nActiveColor][PAWN] &= ~(capturedPawnValue);
+                resultantBoard[nOppColor][PAWN] &= ~(capturedPawnValue);
             }
             else if (move.MoveType == MoveType.Promotion)
             {

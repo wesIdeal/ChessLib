@@ -31,7 +31,7 @@ namespace ChessLib.Data.Helpers
         {
             for (var i = 0; i < 64; i++)
             {
-                var square = (ulong)(1 << i);
+                var square = 1ul << i;
                 KingMoveMask[i] = square.ShiftN() | square.ShiftNE() | square.ShiftE() | square.ShiftSE() |
                                            square.ShiftS() | square.ShiftSW() | square.ShiftW() | square.ShiftNW();
             }
@@ -45,7 +45,7 @@ namespace ChessLib.Data.Helpers
             PawnMoveMask[1] = new Board();
             for (var i = 8; i < 56; i++)
             {
-                var square = (ulong)1 << i;
+                var square = 1ul << i;
                 PawnAttackMask[Color.White.ToInt()][i] = square.ShiftNE() | square.ShiftNW();
                 PawnMoveMask[Color.White.ToInt()][i] =
                     square.ShiftN() | (square.Shift2N() & BoardHelpers.RankMasks[Rank.R4.ToInt()]);

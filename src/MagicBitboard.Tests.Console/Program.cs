@@ -34,6 +34,39 @@ Qf4+ 13.Kb1 gxf6 14.g3 Qh6 15.g4 Qf4 16.g5 fxg5 17.Nfxg5 Ng6
 Rxf7 24.gxf7 hxg5 25.Nxg5 Qxf2 26.Ne6+ Kxf7 27.Qg7+ Kxe6
 28.Rh6+ Bg6 29.Qxg6+ Ke7 30.Rh7+ Kf8 31.Qg7+ Ke8 32.Qd7+ Kf8
 33.Rh8# 1-0";
+
+        private static string pgn2 = @"[Event ""LAT-ch""]
+[Site ""Riga LAT""]
+[Date ""1953.??.??""]
+[EventDate ""?""]
+[Round ""?""]
+[Result ""1-0""]
+[White ""Mikhail Tal""]
+[Black ""Mark Pasman""]
+[ECO ""B93""]
+[WhiteElo ""?""]
+[BlackElo ""?""]
+[PlyCount ""80""]
+
+1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.f4 e5 7.Nf3
+Nbd7 8.Bd3 Be7 9.O-O O-O 10.Kh1 b5 11.a3 Qc7 12.fxe5 dxe5
+13.Nh4 Nc5 14.Bg5 Qd8 15.Nf5 Bxf5 16.Rxf5 Nfd7 17.Bxe7 Qxe7
+18.Nd5 Qd6 19.Qg4 g6 20.Raf1 f6 21.h4 Kh8 22.R5f3 f5 23.exf5
+Qxd5 24.fxg6 Rxf3 25.g7 Kg8 26.Bxh7+ Kxh7 27.Rxf3 Ne4 28.h5
+Ndf6 29.Qg6+ Kg8 30.h6 Ra7 31.Kh2 Re7 32.Rh3 Nh7 33.Rd3 Qa8
+34.Qxe4 Qxe4 35.Rd8+ Kf7 36.g8=Q+ Kf6 37.Rd6+ Kf5 38.Qg6+ Kf4
+39.g3+ Ke3 40.Rd3+ Qxd3 1-0";
+
+        private static string epPgn = @"[Event ""?""]
+[Site ""?""]
+[Date ""????.??.??""]
+[Round ""?""]
+[White ""?""]
+[Black ""?""]
+[Result ""*""]
+
+1.e4 b5 2.f4 b4 3.c4 bxc3 *
+";
         static void Main(string[] args)
         {
             var dt = DateTime.Now;
@@ -47,7 +80,7 @@ Rxf7 24.gxf7 hxg5 25.Nxg5 Qxf2 26.Ne6+ Kxf7 27.Qg7+ Kxe6
             var graphics = new FENToImage();
             //graphics.SaveBoardBaseImage("boardBase.png");
             //graphics.SaveBoardFromFen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2", "InitialBoard.png");
-            var parsePgn = ParsePGN.MakeParser(pgn);
+            var parsePgn = ParsePGN.MakeParser(epPgn);
             var m = parsePgn.GetGameObjects();
             var bi = BoardInfo.BoardInfoFromFen(FENHelpers.FENInitial);
             var counter = 0;
@@ -55,13 +88,13 @@ Rxf7 24.gxf7 hxg5 25.Nxg5 Qxf2 26.Ne6+ Kxf7 27.Qg7+ Kxe6
             {
                 counter++;
                 bi.ApplyMove(move.Move.MoveSAN);
-                if (counter >= 20) break;
+               
             }
 
             counter = 0;
             foreach(var move in bi.MoveTree)
             {
-                graphics.SaveBoardFromFen(move.Move.FEN, $"game1.halfMove{counter++}.png");
+                graphics.SaveBoardFromFen(move.Move.FEN, $".\\Game1\\game2.halfMove{counter++}.png");
                 
             }
             //Console.ReadKey();

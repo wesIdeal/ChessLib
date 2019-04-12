@@ -222,6 +222,14 @@ namespace MagicBitboard.Tests
         }
 
         [Test]
+        public void ShouldFindCorrectSource_PawnMove_FromRank3()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("r1b2rk1/p3np1p/1pn1pp1q/2b5/2B1N3/3Q1NP1/PPP2P1P/1K1R3R w - - 1 15");
+            var moveInfo = new MoveDetail(null, 30, Piece.Pawn, Color.White, "g4");
+            var actual = BoardInfo.FindPawnMoveSourceIndex(moveInfo, bi.ActivePawnOccupancy, bi.TotalOccupancy);
+        }
+
+        [Test]
         public static void ValidatePawnMove_ShouldThrowExc_WhenMoveIsBlocked()
         {
             const ulong occupancyBothRanks = 0x1010000;
@@ -307,7 +315,7 @@ namespace MagicBitboard.Tests
             MoveDetail md = new MoveDetail(null, 6, 2, 5, Piece.Knight, Color.White, "Ngf3");
             var actual = BoardInfo.FindKnightMoveSourceIndex(md, bi.ActiveKnightOccupancy);
             Assert.AreEqual(6, actual);
-           
+
         }
         [Test]
         public static void ShouldFindBishopMoveSource()
@@ -388,7 +396,14 @@ namespace MagicBitboard.Tests
             });
         }
 
-
+        [Test]
+        public static void ShouldFindKingMove_InRandomPosition()
+        {
+            var bi = BoardInfo.BoardInfoFromFen("r4rk1/p4p1p/1p4n1/2b1pbNP/1nB1Nq2/8/PPP2PQ1/1K1R3R b - - 0 21");
+            var md = new MoveDetail(null, 54, Piece.King, Color.Black, "Kg7");
+            var expected = 62;
+            Assert.AreEqual(expected, BoardInfo.FindKingMoveSourceIndex(md, bi.ActivePlayerKingOccupancy,bi.TotalOccupancy));
+        }
         [Test]
         public static void ShouldFindKingMoveSource()
         {

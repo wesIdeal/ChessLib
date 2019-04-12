@@ -48,6 +48,7 @@ namespace ChessLib.Data.Helpers
             md.DestinationFile = match.Groups["destinationFile"].Success ? (ushort)(match.Groups["destinationFile"].Value[0] - 'a') : (ushort?)null;
             md.DestinationRank = match.Groups["destinationRank"].Success ? (ushort)(ushort.Parse((match.Groups["destinationRank"].Value)) - 1) : (ushort?)null;
             md.IsCapture = match.Groups["capture"].Success;
+            
             if ((promotionMatch = Regex.Match(move, RegExPromotion)).Success)
             {
                 md.MoveType = MoveType.Promotion;

@@ -34,11 +34,12 @@ namespace MagicBitboard
 
         #region Constant Piece Values for Indexing arrays
         // ReSharper disable InconsistentNaming
-        const int PAWN = (int)Piece.Pawn;
-        const int BISHOP = (int)Piece.Bishop;
-        const int KNIGHT = (int)Piece.Knight;
-        const int ROOK = (int)Piece.Rook;
-        const int QUEEN = (int)Piece.Queen;
+        private const int PAWN = (int)Piece.Pawn;
+        private const int BISHOP = (int)Piece.Bishop;
+        private const int KNIGHT = (int)Piece.Knight;
+        private const int ROOK = (int)Piece.Rook;
+        private const int QUEEN = (int)Piece.Queen;
+        private const int KING = (int)Piece.King;
         // ReSharper restore InconsistentNaming
         #endregion
 
@@ -109,7 +110,7 @@ namespace MagicBitboard
         /// <summary>
         /// Value (occupancy board) of side-to-move's King
         /// </summary>
-        public ulong ActivePlayerKingOccupancy => (ulong)(0x01 << ActivePlayerKingIndex);
+        public ulong ActivePlayerKingOccupancy => PiecesOnBoard[NActiveColor][KING];
 
         /// <summary>
         /// Opponent's King's square index
@@ -195,6 +196,7 @@ namespace MagicBitboard
         public void ApplyMove(string moveText)
         {
             MoveExt move = GenerateMoveFromText(moveText);
+            
             ApplyMove(move);
         }
 
@@ -204,7 +206,7 @@ namespace MagicBitboard
             MoveValidator moveValidator = new MoveValidator(this, move);
             var validationError = moveValidator.Validate();
             if (validationError.HasValue)
-                throw new MoveException("Error with move.", validationError.Value, move, ActivePlayerColor); 
+                throw new MoveException("Error with move.", validationError.Value, move, ActivePlayerColor);
             var isCapture = (OpponentTotalOccupancy & move.DestinationValue) != 0;
             var isPawnMove = (ActivePawnOccupancy & move.SourceValue) != 0;
             if (isCapture || isPawnMove) HalfmoveClock = 0;
@@ -361,6 +363,10 @@ namespace MagicBitboard
 
             Debug.Assert(md.SourceIndex != null, "md.SourceIndex != null");
             Debug.Assert(md.DestinationIndex != null, "md.DestinationIndex != null");
+            if (md.IsCapture && md.Piece == Piece.Pawn && (OpponentTotalOccupancy & (1ul << md.DestinationIndex)) == 0 && (md.DestinationRank == 2 || md.DestinationRank == 5))
+            {
+                md.MoveType = MoveType.EnPassant;
+            }
             var moveExt = MoveHelpers.GenerateMove(md.SourceIndex.Value, md.DestinationIndex.Value, md.MoveType, md.PromotionPiece ?? 0);
             return moveExt;
         }
@@ -410,12 +416,12 @@ namespace MagicBitboard
             if ((sourceSquares = pieceMoveMask & pieceOccupancy) == 0) return null;
 
             if (md.SourceFile != null)
-                sourceSquares&= BoardHelpers.FileMasks[md.SourceFile.Value];
+                sourceSquares &= BoardHelpers.FileMasks[md.SourceFile.Value];
             if (md.SourceRank != null)
                 sourceSquares &= BoardHelpers.RankMasks[md.SourceRank.Value];
             var indices = sourceSquares.GetSetBits();
-            
-                if (indices.Length != 1) return ushort.MaxValue;
+
+            if (indices.Length != 1) return ushort.MaxValue;
             return indices[0];
         }
 
@@ -512,9 +518,11 @@ namespace MagicBitboard
         /// <returns></returns>
         public static ushort FindPawnMoveSourceIndex(MoveDetail moveDetail, ulong pawnOccupancy, ulong totalOccupancy)
         {
-            var file = moveDetail.DestinationFile;
-            Debug.Assert(moveDetail.DestinationRank != null, "moveDetail.DestinationRank != null");
-            var rank = moveDetail.Color == Color.Black ? moveDetail.DestinationRank.Value.RankCompliment() : moveDetail.DestinationRank;
+            if (moveDetail.DestinationIndex == null) throw new ArgumentException("moveDetail.DestinationIndex cannot be null");
+            if (moveDetail.DestinationRank == null) throw new ArgumentException("moveDetail.DestinationRank cannot be null");
+            if (moveDetail.DestinationFile == null) throw new ArgumentException("moveDetail.DestinationFile cannot be null");
+            var rank = moveDetail.Color == Color.Black ? moveDetail.DestinationRank.Value.RankCompliment() : moveDetail.DestinationRank.Value;
+            var file = moveDetail.DestinationFile.Value;
             ushort sourceIndex = 0;
             var adjustedRelevantPieceOccupancy = moveDetail.Color == Color.Black ? pawnOccupancy.FlipVertically() : pawnOccupancy;
             Debug.Assert(rank < 8);
@@ -522,11 +530,12 @@ namespace MagicBitboard
             if (rank == 3) // 2 possible source ranks, 2 & 3 (offsets 1 & 2)
             {
                 //Check 3rd rank first, logically if a pawn is there that is the source
-                if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[2]) != 0)
-                    sourceIndex = (ushort)((2 * 8) + (file % 8));
-                if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[1]) != 0) sourceIndex = (ushort)((1 * 8) + (file % 8));
+                if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[2] & BoardHelpers.FileMasks[file]) != 0)
+                    sourceIndex = (ushort)((8 * 2) + (file % 8));
+                if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[1] & BoardHelpers.FileMasks[file]) != 0)
+                    sourceIndex = (ushort)((1 * 8) + (file % 8));
             }
-            else //else source square was destination + 8, but we need to make sure a pawn was there
+            else //else source square was destination + 8 (a move one rank ahead), but we need to make sure a pawn was there
             {
                 var supposedIndex = BoardHelpers.RankAndFileToIndex(moveDetail.Color == Color.Black ? supposedRank.RankCompliment() : supposedRank, moveDetail.DestinationFile.Value);
                 if (supposedRank == 0) { throw new MoveException($"{moveDetail.MoveText}: Cannot possibly be a pawn at the source square {supposedIndex.IndexToSquareDisplay()} implied by move."); }
@@ -534,7 +543,6 @@ namespace MagicBitboard
             }
 
             var idx = moveDetail.Color == Color.Black ? sourceIndex.FlipIndexVertically() : sourceIndex;
-            Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
             ValidatePawnMove(moveDetail.Color, idx, moveDetail.DestinationIndex.Value, pawnOccupancy, totalOccupancy, moveDetail.MoveText);
             return idx;
         }

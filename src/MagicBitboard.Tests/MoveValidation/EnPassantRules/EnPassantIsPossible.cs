@@ -6,6 +6,7 @@ using NUnit.Framework.Internal;
 
 namespace ChessLib.MagicBitboard.Tests.MoveValidation.EnPassantRules
 {
+    
     [TestFixture]
     class SourceIsPawn : MagicBitboard.MoveValidation.EnPassantRules.SourceIsPawn
     {
