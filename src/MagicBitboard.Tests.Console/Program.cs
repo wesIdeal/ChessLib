@@ -8,13 +8,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ChessLib.Graphics;
+using ChessLib.MagicBitboard;
 using ChessLib.Parse.PGN;
 
 namespace Bitboard.Tests.ConsoleApp
 {
     class Program
     {
-        private static string pgn = @"[Event ""Riga""]
+        private const string pgn = @"[Event ""Riga""]
 [Site ""Riga""]
 [Date ""1949.??.??""]
 [EventDate ""?""]
@@ -35,7 +36,7 @@ Rxf7 24.gxf7 hxg5 25.Nxg5 Qxf2 26.Ne6+ Kxf7 27.Qg7+ Kxe6
 28.Rh6+ Bg6 29.Qxg6+ Ke7 30.Rh7+ Kf8 31.Qg7+ Ke8 32.Qd7+ Kf8
 33.Rh8# 1-0";
 
-        private static string pgn2 = @"[Event ""LAT-ch""]
+        private const string _pgn2 = @"[Event ""LAT-ch""]
 [Site ""Riga LAT""]
 [Date ""1953.??.??""]
 [EventDate ""?""]
@@ -57,7 +58,7 @@ Ndf6 29.Qg6+ Kg8 30.h6 Ra7 31.Kh2 Re7 32.Rh3 Nh7 33.Rd3 Qa8
 34.Qxe4 Qxe4 35.Rd8+ Kf7 36.g8=Q+ Kf6 37.Rd6+ Kf5 38.Qg6+ Kf4
 39.g3+ Ke3 40.Rd3+ Qxd3 1-0";
 
-        private static string epPgn = @"[Event ""?""]
+        private const string epPgn = @"[Event ""?""]
 [Site ""?""]
 [Date ""????.??.??""]
 [Round ""?""]
@@ -67,6 +68,7 @@ Ndf6 29.Qg6+ Kg8 30.h6 Ra7 31.Kh2 Re7 32.Rh3 Nh7 33.Rd3 Qa8
 
 1.e4 b5 2.f4 b4 3.c4 bxc3 *
 ";
+
         static void Main(string[] args)
         {
             var dt = DateTime.Now;
@@ -88,14 +90,14 @@ Ndf6 29.Qg6+ Kg8 30.h6 Ra7 31.Kh2 Re7 32.Rh3 Nh7 33.Rd3 Qa8
             {
                 counter++;
                 bi.ApplyMove(move.Move.MoveSAN);
-               
+
             }
 
             counter = 0;
-            foreach(var move in bi.MoveTree)
+            foreach (var move in bi.MoveTree)
             {
                 graphics.SaveBoardFromFen(move.Move.FEN, $".\\Game1\\game2.halfMove{counter++}.png");
-                
+
             }
             //Console.ReadKey();
         }

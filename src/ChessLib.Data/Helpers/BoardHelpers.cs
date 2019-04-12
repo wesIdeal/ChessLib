@@ -89,8 +89,8 @@ namespace ChessLib.Data.Helpers
 
         public static ulong InBetween(int from, int to)
         {
-            var square1 = Math.Min(@from, to);
-            var square2 = Math.Max(@from, to);
+            var square1 = Math.Min(from, to);
+            var square2 = Math.Max(from, to);
             return ArrInBetween[square1, square2];
         }
 
@@ -233,12 +233,12 @@ namespace ChessLib.Data.Helpers
 
         public static ulong[][] GetBoardPostMove(in ulong[][] currentBoard, in Color activePlayerColor, in MoveExt move)
         {
-            int nActiveColor = (int)activePlayerColor;
-            Color opponentColor = activePlayerColor.Toggle();
-            int nOppColor = (int)opponentColor;
+            var nActiveColor = (int)activePlayerColor;
+            var opponentColor = activePlayerColor.Toggle();
+            var nOppColor = (int)opponentColor;
             var resultantBoard = new ulong[2][];
             var pieceMoving = GetTypeOfPieceAtIndex(move.SourceIndex, currentBoard);
-            for (int i = 0; i < 2; i++)
+            for (var i = 0; i < 2; i++)
             {
                 resultantBoard[i] = new ulong[6];
                 foreach (var p in Enum.GetValues(typeof(Piece)))

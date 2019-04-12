@@ -1,13 +1,12 @@
 ﻿using ChessLib.Data.Exceptions;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
 using ChessLib.MagicBitboard.MoveValidation.CastlingRules;
+using ChessLib.MagicBitboard.MoveValidation.EnPassantRules;
 using ChessLib.MagicBitboard.MoveValidation.MoveRules;
-using MagicBitboard;
 using System;
 using System.Collections.Generic;
-using ChessLib.Data.Helpers;
-using ChessLib.MagicBitboard.MoveValidation.EnPassantRules;
 
 namespace ChessLib.MagicBitboard.MoveValidation
 {
@@ -24,34 +23,31 @@ namespace ChessLib.MagicBitboard.MoveValidation
             _move = move;
             _rules.Add(new PieceMovingIsActiveColor());
             _rules.Add(new KingNotInCheckAfterMove());
-            if (move.MoveType == MoveType.Normal)
+            switch (move.MoveType)
             {
-                _rules.Add(new PieceCanMoveToDestination());
-                _rules.Add(new DestinationNotOccupiedByActiveColor());
-            }
-            else if (move.MoveType == MoveType.Promotion)
-            {
-                _rules.Add(new PieceCanMoveToDestination());
-                _rules.Add(new SourceIsPawn());
-            }
-            else if (move.MoveType == MoveType.EnPassant)
-            {
-                _rules.Add(new EnPassantIsPossible());
-                _rules.Add(new SourceIsPawn());
-                _rules.Add(new SourceIsCorrectRank());
-                _rules.Add(new EnPassantSquareIsAttackedBySource());
-            }
-            else if (move.MoveType == MoveType.Castle)
-            {
-                _rules.Add(new HasValidDestinationSquare());
-                _rules.Add(new HasCastlingAvailability());
-                _rules.Add(new KingNotInCheckBeforeMove());
-                _rules.Add(new CastlingSquaresNotAttacked());
-                _rules.Add(new CastlingHasNoPiecesBlocking());
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException();
+                case MoveType.Normal:
+                    _rules.Add(new PieceCanMoveToDestination());
+                    _rules.Add(new DestinationNotOccupiedByActiveColor());
+                    break;
+                case MoveType.Promotion:
+                    _rules.Add(new PieceCanMoveToDestination());
+                    _rules.Add(new SourceIsPawn());
+                    break;
+                case MoveType.EnPassant:
+                    _rules.Add(new EnPassantIsPossible());
+                    _rules.Add(new SourceIsPawn());
+                    _rules.Add(new SourceIsCorrectRank());
+                    _rules.Add(new EnPassantSquareIsAttackedBySource());
+                    break;
+                case MoveType.Castle:
+                    _rules.Add(new HasValidDestinationSquare());
+                    _rules.Add(new HasCastlingAvailability());
+                    _rules.Add(new KingNotInCheckBeforeMove());
+                    _rules.Add(new CastlingSquaresNotAttacked());
+                    _rules.Add(new CastlingHasNoPiecesBlocking());
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 

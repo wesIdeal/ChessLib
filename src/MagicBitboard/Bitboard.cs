@@ -1,11 +1,11 @@
-﻿using ChessLib.Data.Helpers;
+﻿using System;
+using System.Runtime.CompilerServices;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.PieceMobility;
 using ChessLib.Data.Types;
 using MagicBitboard.SlidingPieces;
-using System;
-using System.Runtime.CompilerServices;
 
-namespace MagicBitboard
+namespace ChessLib.MagicBitboard
 {
     public static class Bitboard
     {
@@ -27,7 +27,6 @@ namespace MagicBitboard
         public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color = Color.White)
         {
             var totalOccupancy = activeOcc | oppOcc;
-            ulong totalAttacks;
             ulong possibleMoves;
             switch (piece)
             {
@@ -37,7 +36,7 @@ namespace MagicBitboard
                     possibleMoves = pawnMoves | pawnAttacks;
                     break;
                 case Piece.Knight:
-                    totalAttacks = PieceAttackPatternHelper.KnightAttackMask[pieceSquare];
+                    var totalAttacks = PieceAttackPatternHelper.KnightAttackMask[pieceSquare];
                     possibleMoves = totalAttacks & ~(activeOcc);
                     break;
                 case Piece.Bishop:
@@ -101,8 +100,8 @@ namespace MagicBitboard
                 foreach (var pieceOcc in cOcc)
                     totalOcc |= pieceOcc;
             }
-            var bishopAttack = Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc);
-            var rookAttack = Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, totalOcc);
+            var bishopAttack = GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc);
+            var rookAttack = GetAttackedSquares(Piece.Rook, squareIndex, totalOcc);
             if ((PieceAttackPatternHelper.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
             if ((PieceAttackPatternHelper.KnightAttackMask[r, f] & piecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
             if ((bishopAttack & (piecesOnBoard[nColor][Piece.Bishop.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
