@@ -25,10 +25,10 @@ namespace ChessLib.Parse.Console
             var parser = new PGNParser(tokens);
             var parseTree = parser.parse();
             var walker = new ParseTreeWalker();
-           Stopwatch stopwatch = new Stopwatch();
-           stopwatch.Start();
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             walker.Walk(listener, parseTree);
-            games = listener.Games;
+            games = listener.Games.Cast<Game<MoveText>>().ToList();
             stopwatch.Stop();
             System.Console.WriteLine($"Completed in {stopwatch.ElapsedMilliseconds}ms.");
             var g = games[0];

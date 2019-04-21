@@ -6,7 +6,7 @@ using System;
 namespace ChessLib.Data.Tests.Helpers
 {
     [TestFixture]
-    public class MoveTests
+    public static class MoveTests
     {
         [SetUp]
         public static void Setup()

@@ -1,0 +1,11 @@
+﻿using System;
+
+namespace ChessLib.Data.MoveRepresentation
+{
+    public interface IMoveText : IEquatable<IMoveText>
+    {
+        string SAN { get; set; }
+        string Comment { get; set; }
+        string NAG { get; set; }
+    }
+}

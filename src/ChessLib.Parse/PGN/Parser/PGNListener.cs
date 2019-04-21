@@ -2,103 +2,64 @@
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+
 namespace ChessLib.Parse.PGN.Parser
 {
-    public class PGNListener : PGNBaseListener
+    public sealed class PGNListener : PGNBaseListener
     {
-        private string tagName;
-        private List<double> times;
+        private string _tagName;
         public PGNListener()
         {
-            Games = new List<Game<MoveText>>();
-            times = new List<double>();
+            Games = new List<Game<IMoveText>>();
         }
+        private readonly Stack<MoveTree<IMoveText>> _moveTreeStack = new Stack<MoveTree<IMoveText>>();
+        public List<Game<IMoveText>> Games;
 
-        private Stack<MoveTree<MoveText>> _moveTreeStack = new Stack<MoveTree<MoveText>>();
-        private Game<MoveText> _game;
-        public List<Game<MoveText>> Games;
-        public Game<MoveText> Game { get => _game; }
-        private LinkedListNode<MoveNode<MoveText>> _currentMove;
-        public double AvgTimePerGame { get => times.Average(); }
-        private MoveTree<MoveText> _currentList;
-        private DateTime _dtStart;
+        private Game<IMoveText> CurrentGame { get; set; }
+        private LinkedListNode<MoveNode<IMoveText>> _currentMove;
+        private MoveTree<IMoveText> _currentList;
 
-        public override void EnterPgn_database([NotNull] PGNParser.Pgn_databaseContext context)
-        {
-            _game = new Game<MoveText>();
-        }
         public override void EnterPgn_game([NotNull] PGNParser.Pgn_gameContext context)
         {
-            //Debug.WriteLine($"GAME {++gCount}");
-
-            _currentList = _game.MoveSection;
-            _dtStart = DateTime.Now;
-            base.EnterPgn_game(context);
+            CurrentGame = new Game<IMoveText>();
+            _currentList = CurrentGame.MoveSection;
         }
 
         public override void EnterComment(PGNParser.CommentContext context)
         {
-            _currentMove.Value.Comment = context.GetText().Replace("\r\n", "");
+            _currentMove.Value.Move.Comment = context.GetText().Replace("\r\n", "");
         }
 
         public override void EnterNag(PGNParser.NagContext context)
         {
-            _currentMove.Value.NAG = context.GetText();
+            _currentMove.Value.Move.NAG = context.GetText();
         }
 
         public override void ExitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
         {
-            Games.Add(_game);
-            _game = new Game<MoveText>();
-            times.Add(DateTime.Now.Subtract(_dtStart).TotalMilliseconds);
+            Games.Add(CurrentGame);
         }
 
         public override void EnterTag_name([NotNull] PGNParser.Tag_nameContext context)
         {
-            tagName = context.GetText().Replace("\"", "");
+            _tagName = context.GetText().Replace("\"", "");
         }
 
         public override void EnterTag_value([NotNull] PGNParser.Tag_valueContext context)
         {
             var tagVal = context.GetText().Replace("\"", "");
-            if (!string.IsNullOrWhiteSpace(tagName))
+            if (!string.IsNullOrWhiteSpace(_tagName))
             {
-                _game.TagSection.Add(tagName, tagVal);
+                CurrentGame.TagSection.Add(_tagName, tagVal);
             }
-            tagName = "";
+            _tagName = "";
         }
 
-        public override void ExitTag_section([NotNull] PGNParser.Tag_sectionContext context)
-        {
-            //Debug.WriteLine("Finished reading tags.");
-        }
-        public override void EnterMovetext_section([NotNull] PGNParser.Movetext_sectionContext context)
-        {
-            //Debug.WriteLine("Reading moves");
-        }
-
-
-        public override void ExitMovetext_section([NotNull] PGNParser.Movetext_sectionContext context)
-        {
-            //Debug.WriteLine("Finished reading moves.");
-        }
-        public override void EnterElement_sequence([NotNull] PGNParser.Element_sequenceContext context)
-        {
-            Debug.WriteLine($"Reading element sequence {context.ToString()} {context.GetText()}");
-        }
-
-        public override void EnterElement([NotNull] PGNParser.ElementContext context)
-        {
-            var element = context.GetText();
-        }
         public override void EnterSan_move([NotNull] PGNParser.San_moveContext context)
         {
             var moveText = context.GetText();
-            _currentMove = _currentList.Add(new MoveNode<MoveText>(new MoveText(moveText)));
+            _currentMove = _currentList.Add(new MoveNode<IMoveText>(new MoveText(moveText)));
         }
         public override void EnterRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
         {
@@ -108,7 +69,6 @@ namespace ChessLib.Parse.PGN.Parser
 
         public override void ExitRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
         {
-            //Debug.WriteLine($"Finished Writing Variation:\r\n{_currentList.ToString()}");
             _currentList = _moveTreeStack.Pop();
             _currentMove = _currentList.Last;
         }

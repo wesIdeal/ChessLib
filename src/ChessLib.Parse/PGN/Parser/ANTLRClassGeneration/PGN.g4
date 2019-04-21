@@ -62,7 +62,7 @@ tag_section
 
 /// <tag-pair> ::= [ <tag-name> <tag-value> ]
 tag_pair
- : LEFT_BRACKET tag_name tag_value RIGHT_BRACKET
+ : LEFT_BRACKET tag_name QUOTE tag_value QUOTE RIGHT_BRACKET
  ;
 
 /// <tag-name> ::= <identifier>
@@ -125,6 +125,8 @@ game_termination
  | DRAWN_GAME
  | ASTERISK
  ;
+
+QUOTE: '"' -> skip;
 
 WHITE_WINS
  : '1-0'

@@ -30,9 +30,9 @@ namespace ChessLib.Graphics
         private readonly Rgba32 _background = Rgba32.WhiteSmoke;
         private Dictionary<char, Image<Rgba32>> _pieceMap;
         private readonly Font _font;
-        private int _offset;
-        private string _blackPlayerName;
-        private string _whitePlayerName;
+        private readonly int _offset;
+        private readonly string _blackPlayerName;
+        private readonly string _whitePlayerName;
 
         public FENToImage(int squareWidth = 80, string black = "", string white = "")
         {
@@ -234,9 +234,8 @@ namespace ChessLib.Graphics
                     {
                         PieceHelpers.GetPiece(p);
                         var center = new Point(x, y);
-                        if (ShouldWriteSquare(emptySquare, center))
+                        if (ShouldDrawPieceInSquare(emptySquare, center))
                         {
-
                             board.Mutate(i => i.DrawImage(_pieceMap[p], center, 1));
                         }
                     }
@@ -248,7 +247,7 @@ namespace ChessLib.Graphics
             return board;
         }
 
-        private bool ShouldWriteSquare(Point? emptySquare, Point currentSquare)
+        private static bool ShouldDrawPieceInSquare(Point? emptySquare, Point currentSquare)
         {
             if (emptySquare.HasValue)
             {
@@ -257,7 +256,6 @@ namespace ChessLib.Graphics
                     return false;
                 }
             }
-
             return true;
         }
 
@@ -284,7 +282,7 @@ namespace ChessLib.Graphics
             {
                 var centerOfRank = new PointF(_boardWidth / 2, _squareWidth / 2);
                 _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _blackPlayerName, _font, Rgba32.Black, centerOfRank));
-                centerOfRank.Y = _squareWidth * 10 + (_offset/2);
+                centerOfRank.Y = _squareWidth * 10 + (_offset / 2);
                 _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _whitePlayerName, _font, Rgba32.Black, centerOfRank));
             }
             for (var rank = 8; rank > 0; rank--)
@@ -305,7 +303,7 @@ namespace ChessLib.Graphics
 
             for (var rank = 8; rank > 0; rank--)
             {
-                var y = (Math.Abs(rank - 8) ) * _squareWidth + _offset;
+                var y = (Math.Abs(rank - 8)) * _squareWidth + _offset;
                 var x = 0;
                 var cRank = rank.ToString();
                 var rect = new RectangleF(x, y, _squareWidth, _squareWidth);

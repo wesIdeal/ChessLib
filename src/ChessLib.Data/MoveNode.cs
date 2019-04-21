@@ -40,8 +40,7 @@ namespace ChessLib.Data
             }
         }
 
-        public string NAG { get; set; }
-        public string Comment { get; set; }
+      
 
         public override int GetHashCode()
         {

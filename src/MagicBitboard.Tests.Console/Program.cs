@@ -78,15 +78,15 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             //WriteKnightAttacks();
             //WriteBishopAttacks();
             //WriteRookAttacks();
-           
+
             //graphics.SaveBoardBaseImage("boardBase.png");
             //graphics.SaveBoardFromFen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2", "InitialBoard.png");
-            var parsePgn = new ParsePGN(".\\PGN\\TalWC1960.pgn");
+            var parsePgn = ParsePgn.FromFilePath(".\\PGN\\TalWC1960.pgn");
             var games = parsePgn.GetGameObjects();
             var botvinnik = games.Where(x =>
                 (x.TagSection["Black"].Contains("Botvinnik") || x.TagSection["White"].Contains("Botvinnik"))
                 && x.TagSection["Date"].Contains("1960"))
-                .Where(x=>x.TagSection["Round"] == "2");
+                .Where(x => x.TagSection["Round"] == "2");
 
             var counter = 0;
             foreach (var game in botvinnik)
@@ -96,19 +96,19 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
                 var fileName = $"Botvinnik.{round.PadLeft(2, '0')}.gif";
                 var black = game.TagSection["Black"];
                 var white = game.TagSection["White"];
-                var graphics = new FENToImage(20,black,white);
+                var graphics = new FENToImage(20, black, white);
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
                 foreach (var move in game.MoveSection)
                 {
                     counter++;
-                    bi.ApplyMove(move.Move.MoveSAN);
+                    bi.ApplyMove(move.Move.SAN);
                 }
                 sw.Stop();
                 Debug.WriteLine($"Validated {game.MoveSection.Count()} moves in {sw.ElapsedMilliseconds}ms.");
 
                 sw.Start();
-                graphics.MakeGifFromMoveTree(bi.MoveTree,$".\\GameGifs\\{fileName}", 80, 4, 20);
+                graphics.MakeGifFromMoveTree(bi.MoveTree, $".\\GameGifs\\{fileName}", 80, 4, 20);
                 sw.Stop();
                 Debug.WriteLine($"Created and wrote {fileName} in {sw.ElapsedMilliseconds}ms.");
 
