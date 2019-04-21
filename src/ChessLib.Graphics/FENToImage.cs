@@ -30,10 +30,23 @@ namespace ChessLib.Graphics
         private readonly Rgba32 _background = Rgba32.WhiteSmoke;
         private Dictionary<char, Image<Rgba32>> _pieceMap;
         private readonly Font _font;
-        public FENToImage(int squareWidth = 80)
+        private int _offset;
+        private string _blackPlayerName;
+        private string _whitePlayerName;
+
+        public FENToImage(int squareWidth = 80, string black = "", string white = "")
         {
+
             _squareWidth = squareWidth;
             _boardWidth = squareWidth * 9;
+
+            if (!string.IsNullOrWhiteSpace(black))
+            {
+                _offset += _squareWidth;
+                _blackPlayerName = black;
+                _whitePlayerName = white;
+            }
+            else _offset = 0;
             InitPieces();
             _font = SystemFonts.CreateFont("Arial", 16);
             SetBoardBaseImage();
@@ -186,22 +199,14 @@ namespace ChessLib.Graphics
         private Point GetPointFromBoardIndex(ushort sq)
         {
             var x = ((sq % 8) * _squareWidth) + _squareWidth;
-            var y = Math.Abs((sq / 8) - 7) * _squareWidth;
+            var y = (Math.Abs((sq / 8) - 7)) * _squareWidth + _offset;
             return new Point(x, y);
 
         }
         private Rectangle GetRectFromBoardIndex(ushort square)
         {
             var p = GetPointFromBoardIndex(square);
-            return new Rectangle(p.X, p.Y, _squareWidth, _squareWidth);
-        }
-
-        public Point CenterOfSquare(ushort square)
-        {
-            var r = GetRectFromBoardIndex(square);
-            var x = r.X + (_squareWidth / 2);
-            var y = r.Y + (_squareWidth / 2);
-            return new Point(x, y);
+            return new Rectangle(p.X, p.Y + _offset, _squareWidth, _squareWidth);
         }
 
         private Image<Rgba32> MakeBoardFromFen(string fen, ushort? leaveEmptyBoardIndex = null)
@@ -218,7 +223,7 @@ namespace ChessLib.Graphics
                 for (var file = 0; file < 8; file++)
                 {
                     var x = (file * _squareWidth) + _squareWidth;
-                    var y = (fenRank * _squareWidth);
+                    var y = (fenRank * _squareWidth) + _offset;
                     var p = rank[fileCount];
                     if (char.IsDigit(p))
                     {
@@ -268,15 +273,27 @@ namespace ChessLib.Graphics
 
         private void SetBoardBaseImage()
         {
-            _boardBase = new Image<Rgba32>(_boardWidth, _boardWidth);
 
+            _boardBase = new Image<Rgba32>(_boardWidth, _boardWidth + (_offset * 2));
+            var textGraphicsOptions = new TextGraphicsOptions(true)
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            if (_offset != 0)
+            {
+                var centerOfRank = new PointF(_boardWidth / 2, _squareWidth / 2);
+                _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _blackPlayerName, _font, Rgba32.Black, centerOfRank));
+                centerOfRank.Y = _squareWidth * 10 + (_offset/2);
+                _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _whitePlayerName, _font, Rgba32.Black, centerOfRank));
+            }
             for (var rank = 8; rank > 0; rank--)
             {
                 for (var file = 1; file < 9; file++)
                 {
                     var x = file * _squareWidth;
                     var rVal = Math.Abs(rank - 8);
-                    var y = rVal * _squareWidth;
+                    var y = (rVal * _squareWidth) + _offset;
                     var rect = new RectangleF(x, y, _squareWidth, _squareWidth);
                     var brush = SquareColor(rank, file);
                     if (file != 0 || rank != 0)
@@ -285,26 +302,22 @@ namespace ChessLib.Graphics
                     }
                 }
             }
-            var textGraphicsOptions = new TextGraphicsOptions(true)
-            {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+
             for (var rank = 8; rank > 0; rank--)
             {
-                var y = Math.Abs(rank - 8) * _squareWidth;
+                var y = (Math.Abs(rank - 8) ) * _squareWidth + _offset;
                 var x = 0;
                 var cRank = rank.ToString();
                 var rect = new RectangleF(x, y, _squareWidth, _squareWidth);
                 var center = new PointF(x + (_squareWidth / 2), y + (_squareWidth / 2));
                 _boardBase.Mutate(i => i.Fill(GraphicsOptions.Default, _background, rect));
-                _boardBase.Mutate(i => i.DrawText(textGraphicsOptions, cRank, _font, Rgba32.Black, center));
+                _boardBase.Mutate(i => i.DrawText(textGraphicsOptions, center.Y.ToString(), _font, Rgba32.Black, center));
             }
 
             for (var file = 0; file < 9; file++)
             {
 
-                var y = 8 * _squareWidth;
+                var y = (8 * _squareWidth) + _offset;
                 var x = file * _squareWidth;
                 var cRank = ((char)((int)'A' + (file - 1))).ToString();
 

@@ -68,11 +68,5 @@ namespace ChessLib.Parse.Tests
         //    Assert.AreEqual(unCommentedPgn, RemoveComments(commentedPgn));
         //}
 
-        [Test]
-        public static void ShouldRetrieveVariations()
-        {
-            var parser = new ParsePGN(".\\PGN\\withnag.pgn");
-            parser.GetMovesFromPGN();
-        }
     }
 }

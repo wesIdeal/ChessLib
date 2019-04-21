@@ -93,17 +93,23 @@ public interface IPGNVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitElement([NotNull] PGNParser.ElementContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="PGNParser.nag_item"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitNag_item([NotNull] PGNParser.Nag_itemContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="PGNParser.move_number_indication"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitMove_number_indication([NotNull] PGNParser.Move_number_indicationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="PGNParser.nag"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitNag([NotNull] PGNParser.NagContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="PGNParser.comment"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitComment([NotNull] PGNParser.CommentContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="PGNParser.san_move"/>.
 	/// </summary>

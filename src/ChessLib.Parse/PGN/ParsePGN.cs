@@ -6,7 +6,9 @@ using ChessLib.Parse.PGN.Parser;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ChessLib.Parse.PGN
@@ -29,7 +31,6 @@ namespace ChessLib.Parse.PGN
         public ParsePGN(string pgnPath)
         {
             PgnDatabase = File.ReadAllText(pgnPath);
-            SanitizePgnFile();
 
         }
 
@@ -54,28 +55,22 @@ namespace ChessLib.Parse.PGN
         }
 
 
-        public void GetMovesFromPGN()
-        {
-           var game = GetGameObjects();
-        }
 
         public List<Game<MoveText>> GetGameObjects()
         {
-            var splitPgn = Regex.Matches(PgnDatabase, GameRegEx);
-            var games = new List<Game<MoveText>>();
-            foreach (Match game in splitPgn)
-            {
-                var listener = new PGNListener();
-                inputStream = new AntlrInputStream(game.Value);
-                PGNLexer lexer = new PGNLexer(inputStream);
-                var tokens = new CommonTokenStream(lexer);
-                var parser = new PGNParser(tokens);
-                var parseTree = parser.parse();
-                var walker = new ParseTreeWalker();
-                walker.Walk(listener, parseTree);
-                games.Add(listener.Game);
-            }
-            return games;
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            var listener = new PGNListener();
+            inputStream = new AntlrInputStream(PgnDatabase);
+            PGNLexer lexer = new PGNLexer(inputStream);
+            var tokens = new CommonTokenStream(lexer);
+            var parser = new PGNParser(tokens);
+            var parseTree = parser.parse();
+            var walker = new ParseTreeWalker();
+            walker.Walk(listener, parseTree);
+            sw.Stop();
+            Debug.WriteLine($"Completed parsing {listener.Games.Count} games, {listener.Games.Select(x=>x.MoveSection.Count()).Sum()} half-moves total, in {sw.ElapsedMilliseconds}ms.");
+            return listener.Games;
         }
 
 

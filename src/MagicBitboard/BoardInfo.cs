@@ -693,7 +693,7 @@ namespace ChessLib.MagicBitboard
                 //Check 3rd rank first, logically if a pawn is there that is the source
                 if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[2] & BoardHelpers.FileMasks[file]) != 0)
                     sourceIndex = (ushort)(8 * 2 + file % 8);
-                if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[1] & BoardHelpers.FileMasks[file]) != 0)
+                else if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[1] & BoardHelpers.FileMasks[file]) != 0)
                     sourceIndex = (ushort)(1 * 8 + file % 8);
             }
             else //else source square was destination + 8 (a move one rank ahead), but we need to make sure a pawn was there

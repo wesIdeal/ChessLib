@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Data.Tests", "Ches
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Graphics", "ChessLib.Graphics\ChessLib.Graphics.csproj", "{ADF85E09-F7F7-44D3-AE3D-BA2CB4194BA7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Parse.Console", "ChessLib.Parse.Console\ChessLib.Parse.Console.csproj", "{071B4118-D68E-4035-8F77-5601842EF6FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{ADF85E09-F7F7-44D3-AE3D-BA2CB4194BA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADF85E09-F7F7-44D3-AE3D-BA2CB4194BA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADF85E09-F7F7-44D3-AE3D-BA2CB4194BA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{071B4118-D68E-4035-8F77-5601842EF6FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{071B4118-D68E-4035-8F77-5601842EF6FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{071B4118-D68E-4035-8F77-5601842EF6FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{071B4118-D68E-4035-8F77-5601842EF6FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

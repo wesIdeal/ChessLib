@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 namespace ChessLib.Parse.PGN.Parser
 {
-    class PGNListener : PGNBaseListener
+    public class PGNListener : PGNBaseListener
     {
         private string tagName;
         private List<double> times;
@@ -39,23 +39,32 @@ namespace ChessLib.Parse.PGN.Parser
             _dtStart = DateTime.Now;
             base.EnterPgn_game(context);
         }
+
+        public override void EnterComment(PGNParser.CommentContext context)
+        {
+            _currentMove.Value.Comment = context.GetText().Replace("\r\n", "");
+        }
+
+        public override void EnterNag(PGNParser.NagContext context)
+        {
+            _currentMove.Value.NAG = context.GetText();
+        }
+
         public override void ExitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
         {
+            Games.Add(_game);
+            _game = new Game<MoveText>();
             times.Add(DateTime.Now.Subtract(_dtStart).TotalMilliseconds);
-        }
-        public override void EnterTag_section([NotNull] PGNParser.Tag_sectionContext context)
-        {
-            //Debug.WriteLine("Reading Tags");
         }
 
         public override void EnterTag_name([NotNull] PGNParser.Tag_nameContext context)
         {
-            tagName = context.GetText();
+            tagName = context.GetText().Replace("\"", "");
         }
 
         public override void EnterTag_value([NotNull] PGNParser.Tag_valueContext context)
         {
-            var tagVal = context.GetText();
+            var tagVal = context.GetText().Replace("\"", "");
             if (!string.IsNullOrWhiteSpace(tagName))
             {
                 _game.TagSection.Add(tagName, tagVal);
@@ -73,21 +82,15 @@ namespace ChessLib.Parse.PGN.Parser
         }
 
 
-
         public override void ExitMovetext_section([NotNull] PGNParser.Movetext_sectionContext context)
         {
-            Games.Add(_game);
             //Debug.WriteLine("Finished reading moves.");
         }
         public override void EnterElement_sequence([NotNull] PGNParser.Element_sequenceContext context)
         {
             Debug.WriteLine($"Reading element sequence {context.ToString()} {context.GetText()}");
         }
-        public override void EnterNag_item([NotNull] PGNParser.Nag_itemContext context)
-        {
 
-            _currentMove.Value.NAG = context.GetText();
-        }
         public override void EnterElement([NotNull] PGNParser.ElementContext context)
         {
             var element = context.GetText();

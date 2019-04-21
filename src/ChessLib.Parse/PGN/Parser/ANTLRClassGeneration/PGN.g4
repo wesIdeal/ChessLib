@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2013-2014 by Bart Kiers
+ * Copyright (c) 2013 by Bart Kiers
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -27,7 +27,6 @@
  * Project      : A Portable Game Notation (PGN) ANTLR 4 grammar
  *                and parser.
  * Developed by : Bart Kiers, bart@big-o.nl
- * Also see     : https://github.com/bkiers/PGN-parser
  */
 
 //
@@ -48,19 +47,17 @@ parse
 ///                    <empty>
 pgn_database
  : pgn_game*
-   
  ;
 
 /// <PGN-game> ::= <tag-section> <movetext-section>
 pgn_game
- : tag_section 
-
-movetext_section 
+ : tag_section movetext_section 
  ;
+
 /// <tag-section> ::= <tag-pair> <tag-section>
 ///                   <empty>
 tag_section
- : tag_pair*
+ : tag_pair* SECTION_MARKER
  ;
 
 /// <tag-pair> ::= [ <tag-name> <tag-value> ]
@@ -80,7 +77,7 @@ tag_value
  
 /// <movetext-section> ::= <element-sequence> <game-termination>
 movetext_section
- :  element_sequence game_termination
+ : element_sequence game_termination SECTION_MARKER
  ;
 
 /// <element-sequence> ::= <element> <element-sequence>
@@ -95,16 +92,19 @@ element_sequence
 ///               <numeric-annotation-glyph>
 element
  : move_number_indication
- | san_move nag_item?
+ | san_move
+ | nag 
+ | comment
  ;
-
-nag_item
-	: NUMERIC_ANNOTATION_GLYPH
-	  ;
 
 move_number_indication
- : INTEGER PERIOD?
+ : (INTEGER PERIOD?) | (INTEGER TRIP_PERIOD)
  ;
+
+nag
+	: NUMERIC_ANNOTATION_GLYPH;
+
+comment : BRACE_COMMENT;
 
 san_move
  : SYMBOL
@@ -138,7 +138,10 @@ DRAWN_GAME
  : '1/2-1/2'
  ;
 
-BOL : [\r\n\f]+ ;
+SECTION_MARKER
+	: '\r\n\r\n'
+;
+
 /// Comment text may appear in PGN data.  There are two kinds of comments.  The
 /// first kind is the "rest of line" comment; this comment type starts with a
 /// semicolon character and continues to the end of the line.  The second kind
@@ -153,7 +156,7 @@ REST_OF_LINE_COMMENT
 /// brace comment loses its special meaning and is ignored.  Braces appearing
 /// inside of a semicolon comments lose their special meaning and are ignored.
 BRACE_COMMENT
- : '{' ~'}'* '}' -> skip
+ : '{' ~'}'* '}' 
  ;
 
 /// There is a special escape mechanism for PGN data.  This mechanism is triggered
@@ -165,15 +168,8 @@ BRACE_COMMENT
 /// A percent sign appearing in any other place other than the first position in a
 /// line does not trigger the escape mechanism.
 ESCAPE
- : BOL ? '%' ~[\r\n]* -> skip
+ : {Column == 0}? '%' ~[\r\n]* -> skip
  ;
-
-NEW_LINE: '\r'? '\n'
-		  ;
-
-SECTION_SEPARATOR
-	: NEW_LINE NEW_LINE -> skip
-;
 
 SPACES
  : [ \t\r\n]+ -> skip
@@ -204,8 +200,10 @@ INTEGER
 /// A period character (".") is a token by itself.  It is used for move number
 /// indications (see below).  It is self terminating.
 PERIOD
- : ('.' | '...')
+ : '.'
  ;
+
+TRIP_PERIOD : '...';
 
 /// An asterisk character ("*") is a token by itself.  It is used as one of the
 /// possible game termination markers (see below); it indicates an incomplete game

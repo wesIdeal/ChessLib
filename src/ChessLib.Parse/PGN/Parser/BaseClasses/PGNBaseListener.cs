@@ -156,18 +156,6 @@ public partial class PGNBaseListener : IPGNListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitElement([NotNull] PGNParser.ElementContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="PGNParser.nag_item"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterNag_item([NotNull] PGNParser.Nag_itemContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="PGNParser.nag_item"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitNag_item([NotNull] PGNParser.Nag_itemContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="PGNParser.move_number_indication"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -179,6 +167,30 @@ public partial class PGNBaseListener : IPGNListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitMove_number_indication([NotNull] PGNParser.Move_number_indicationContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="PGNParser.nag"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterNag([NotNull] PGNParser.NagContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="PGNParser.nag"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitNag([NotNull] PGNParser.NagContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="PGNParser.comment"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterComment([NotNull] PGNParser.CommentContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="PGNParser.comment"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitComment([NotNull] PGNParser.CommentContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="PGNParser.san_move"/>.
 	/// <para>The default implementation does nothing.</para>
