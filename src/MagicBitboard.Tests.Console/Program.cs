@@ -36,27 +36,26 @@ Rxf7 24.gxf7 hxg5 25.Nxg5 Qxf2 26.Ne6+ Kxf7 27.Qg7+ Kxe6
 28.Rh6+ Bg6 29.Qxg6+ Ke7 30.Rh7+ Kf8 31.Qg7+ Ke8 32.Qd7+ Kf8
 33.Rh8# 1-0";
 
-        private const string _pgn2 = @"[Event ""LAT-ch""]
-[Site ""Riga LAT""]
-[Date ""1953.??.??""]
-[EventDate ""?""]
-[Round ""?""]
+        private const string _pgn2 = @"[Event ""Lakeway Spring Open: Michal_Kucera_(1648)_vs_Steve_Watson_(1409)""]
+[Site ""https://lichess.org/study/HT6kSiru""]
+[Date """"]
+[Round """"]
+[White """"]
+[Black """"]
 [Result ""1-0""]
-[White ""Mikhail Tal""]
-[Black ""Mark Pasman""]
-[ECO ""B93""]
-[WhiteElo ""?""]
-[BlackElo ""?""]
-[PlyCount ""80""]
+[Annotator ""https://lichess.org/@/MKucera""]
+[ECO ""D13""]
+[Opening ""English Opening: Caro-Kann Defensive System""]
+[UTCDate ""2019.04.15""]
+[UTCTime ""18:31:32""]
+[Variant ""Standard""]
 
-1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.f4 e5 7.Nf3
-Nbd7 8.Bd3 Be7 9.O-O O-O 10.Kh1 b5 11.a3 Qc7 12.fxe5 dxe5
-13.Nh4 Nc5 14.Bg5 Qd8 15.Nf5 Bxf5 16.Rxf5 Nfd7 17.Bxe7 Qxe7
-18.Nd5 Qd6 19.Qg4 g6 20.Raf1 f6 21.h4 Kh8 22.R5f3 f5 23.exf5
-Qxd5 24.fxg6 Rxf3 25.g7 Kg8 26.Bxh7+ Kxh7 27.Rxf3 Ne4 28.h5
-Ndf6 29.Qg6+ Kg8 30.h6 Ra7 31.Kh2 Re7 32.Rh3 Nh7 33.Rd3 Qa8
-34.Qxe4 Qxe4 35.Rd8+ Kf7 36.g8=Q+ Kf6 37.Rd6+ Kf5 38.Qg6+ Kf4
-39.g3+ Ke3 40.Rd3+ Qxd3 1-0";
+1. c4 c6 2. Nc3 d5 3. cxd5 cxd5 4. d4 Nf6 5. Nf3 Bf5 6. Qb3 Bc8 7. Bf4 a6 8. Ne5
+Nc6 9. Qa4 Bd7 10. Nxd7 Qxd7 11. e3 Rc8 12. Bd3 e6 13. a3 Be7 14. O-O O-O 15.
+Qd1 Na5 16. Na4 Rc6 17. Nc5 Bxc5 18. dxc5 Rfc8 19. b4 Nc4 20. Qe2 b5 21. Rfd1
+Qb7 22. f3 h6 23. e4 Re8 24. e5 Nh5 25. g3 f6 26. exf6 Nxf6 27. g4 Qf7 28. Bg3
+e5 29. Bxc4 dxc4 30. Bxe5 Rce6 31. f4 Nd7 32. Rd6 Qxf4 33. Bxf4 Rxe2 34. Rxd7
+Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
 
         private const string epPgn = @"[Event ""?""]
 [Site ""?""]
@@ -79,7 +78,7 @@ Ndf6 29.Qg6+ Kg8 30.h6 Ra7 31.Kh2 Re7 32.Rh3 Nh7 33.Rd3 Qa8
             //WriteKnightAttacks();
             //WriteBishopAttacks();
             //WriteRookAttacks();
-            var graphics = new FENToImage(25);
+            var graphics = new FENToImage(34);
             //graphics.SaveBoardBaseImage("boardBase.png");
             //graphics.SaveBoardFromFen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2", "InitialBoard.png");
             var parsePgn = ParsePGN.MakeParser(_pgn2);
