@@ -309,7 +309,7 @@ namespace ChessLib.Graphics
                 var rect = new RectangleF(x, y, _squareWidth, _squareWidth);
                 var center = new PointF(x + (_squareWidth / 2), y + (_squareWidth / 2));
                 _boardBase.Mutate(i => i.Fill(GraphicsOptions.Default, _background, rect));
-                _boardBase.Mutate(i => i.DrawText(textGraphicsOptions, center.Y.ToString(), _font, Rgba32.Black, center));
+                _boardBase.Mutate(i => i.DrawText(textGraphicsOptions, cRank, _font, Rgba32.Black, center));
             }
 
             for (var file = 0; file < 9; file++)

@@ -20,9 +20,6 @@ namespace MagicBitboard.Tests
         [OneTimeSetUp]
         public static void OneTimeSetup()
         {
-            var dtStart = DateTime.Now;
-            var totalMs = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
-            Console.WriteLine($"Bitboard made in {totalMs} ms");
         }
         [SetUp]
         public void Setup()

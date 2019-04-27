@@ -61,16 +61,16 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
 [Site ""?""]
 [Date ""????.??.??""]
 [Round ""?""]
-[White ""?""]
-[Black ""?""]
+[White ""Idell""]
+[Black ""Treadway""]
 [Result ""*""]
 
-1.e4 b5 2.f4 b4 3.c4 bxc3 *
+1. e4 e5 2. Nf3 Nc6 3. Bc4 d6 4. Nc3 Bg4
+5. Nxe5 Bxd1 6. Bxf7+ Ke7 7. Nd5# 1-0
 ";
 
         static void Main(string[] args)
         {
-            var dt = DateTime.Now;
             //Console.WriteLine(PieceAttackPatternHelper.KnightAttackMask[Rank.R1.ToInt(), File.A.ToInt()].PrintBoard("a1 knight Attack", Rank.R1, File.A));
             //Console.WriteLine(PieceAttackPatternHelper.KnightAttackMask[Rank.R4.ToInt(), File.E.ToInt()].PrintBoard("e4 knight Attack", '*'));
             //WritePawnMovesAndAttacks();
@@ -81,38 +81,40 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
 
             //graphics.SaveBoardBaseImage("boardBase.png");
             //graphics.SaveBoardFromFen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2", "InitialBoard.png");
-            var parsePgn = ParsePgn.FromFilePath(".\\PGN\\TalWC1960.pgn");
+            var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
+            
             var games = parsePgn.GetGameObjects();
-            var botvinnik = games.Where(x =>
-                (x.TagSection["Black"].Contains("Botvinnik") || x.TagSection["White"].Contains("Botvinnik"))
-                && x.TagSection["Date"].Contains("1960"))
-                .Where(x => x.TagSection["Round"] == "2");
+            var game = games[0];
+            Console.WriteLine($"Avg time per move:\t{parsePgn.AvgTimePerMove} ms");
+            Console.WriteLine($"Avg time per game:\t{parsePgn.AvgTimePerGame} ms");
+            Console.WriteLine($"Total Time:\t{parsePgn.TotalTime} seconds");
+            //var botvinnik = games.Where(x =>
+            //    (x.TagSection["Black"].Contains("Botvinnik") || x.TagSection["White"].Contains("Botvinnik"))
+            //    && x.TagSection["Date"].Contains("1960"))
+            //    .Where(x => x.TagSection["Round"] == "2");
 
             var counter = 0;
-            foreach (var game in botvinnik)
+            //foreach (var game in botvinnik)
+            //{
+            var bi = BoardInfo.BoardInfoFromFen(FENHelpers.FENInitial);
+            var round = game.TagSection["Round"];
+            var black = game.TagSection["Black"];
+            var white = game.TagSection["White"];
+            var fileName = $"{white}-{black}.gif";
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            foreach (var move in game.MoveSection)
             {
-                var bi = BoardInfo.BoardInfoFromFen(FENHelpers.FENInitial);
-                var round = game.TagSection["Round"];
-                var fileName = $"Botvinnik.{round.PadLeft(2, '0')}.gif";
-                var black = game.TagSection["Black"];
-                var white = game.TagSection["White"];
-                var graphics = new FENToImage(20, black, white);
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
-                foreach (var move in game.MoveSection)
-                {
-                    counter++;
-                    bi.ApplyMove(move.Move.SAN);
-                }
-                sw.Stop();
-                Debug.WriteLine($"Validated {game.MoveSection.Count()} moves in {sw.ElapsedMilliseconds}ms.");
-
-                sw.Start();
-                graphics.MakeGifFromMoveTree(bi.MoveTree, $".\\GameGifs\\{fileName}", 80, 4, 20);
-                sw.Stop();
-                Debug.WriteLine($"Created and wrote {fileName} in {sw.ElapsedMilliseconds}ms.");
-
+                counter++;
+                bi.ApplyMove(move.Move.SAN);
             }
+            Debug.WriteLine($"Validated {game.MoveSection.Count()} moves in {sw.ElapsedMilliseconds}ms.");
+            var graphics = new ChessLib.Graphics.FENToImage(80, black, white);
+            graphics.MakeGifFromMoveTree(bi.MoveTree, $".\\GameGifs\\{fileName}", 80, 4, 20);
+            sw.Stop();
+            Debug.WriteLine($"Created and wrote {fileName} in {sw.ElapsedMilliseconds}ms.");
+
+            //}
 
             counter = 0;
             //foreach (var move in bi.MoveTree)
@@ -129,8 +131,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             const string message = "Bishop Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
             var bishop = new BishopPatterns();
-            var regMs = new List<double>();
-            var arrayMs = new List<double>();
+
             for (ushort i = 0; i < 64; i++)
             {
                 var file = BoardHelpers.GetFile(i);
@@ -142,18 +143,10 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
                 {
                     var occupancy = bishop.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy;
                     var legalMovesForOccupancy = bishop.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard;
-                    var dtReg = DateTime.Now;
                     var ob = bishop.GetLegalMoves((uint)i, bishop.OccupancyAndMoveBoards[i][occupancyIndex].Occupancy);
-                    regMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
-                    dtReg = DateTime.Now;
-                    var obFromQuery = bishop.OccupancyAndMoveBoards[i].FirstOrDefault(x => x.Occupancy == occupancy).MoveBoard;
-                    arrayMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
                     Debug.Assert(bishop.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard == ob);
                 }
             }
-            Debug.WriteLine($"Avg time to get legal moves for bishop from magics: {regMs.Average()}");
-            Debug.WriteLine($"Avg time to get legal moves for bishop from linq query: {arrayMs.Average()}");
-
             var html = DisplayHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("BishopMoves.html", html);
         }
@@ -163,12 +156,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             const string message = "Rook Moves/Attacks";
             StringBuilder sb = new StringBuilder(message + "\r\n");
 
-            var masks = new List<ulong>();
-            var dtStart = DateTime.Now;
             var rook = new RookPatterns();
-            var totalMS = (DateTime.Now - dtStart).TotalMilliseconds;
-            var regMs = new List<double>();
-            var arrayMs = new List<double>();
             for (ushort i = 0; i < 64; i++)
             {
                 ulong attackMask = rook[i];
@@ -178,17 +166,14 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
                     var legalMovesForOccupancy = rook.OccupancyAndMoveBoards[i][occupancyIndex].MoveBoard;
                     var dtReg = DateTime.Now;
                     var ob = rook.GetLegalMoves((uint)i, occupancy);
-                    regMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
                     dtReg = DateTime.Now;
                     var obFromQuery = rook.OccupancyAndMoveBoards[i].FirstOrDefault(x => x.Occupancy == occupancy).MoveBoard;
-                    arrayMs.Add(DateTime.Now.Subtract(dtReg).TotalMilliseconds);
+                    
                     Debug.Assert(legalMovesForOccupancy == ob);
                 }
                 sb.AppendLine(rook[i].MakeBoardTable(i, $"{i.IndexToSquareDisplay()} {message}", DisplayHelpers.HtmlPieceRepresentations[Color.White][Piece.Rook], "&#9670;"));
             }
-            var regAvg = regMs.Average();
-            Debug.WriteLine($"Avg time to get legal moves for rook from magics: {regAvg}");
-            Debug.WriteLine($"Avg time to get legal moves for rook from linq query: {arrayMs.Average()}");
+          
 
             var html = DisplayHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("RookMoves.html", html);

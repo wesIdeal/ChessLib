@@ -34,19 +34,26 @@ namespace ChessLib.Parse.PGN
         {
         }
 
+        public double AvgTimePerMove;
+        public double AvgTimePerGame;
+        public double TotalTime;
+
         public List<Game<IMoveText>> GetGameObjects()
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+
             var listener = new PGNListener();
             PGNLexer lexer = new PGNLexer(_inputStream);
             var tokens = new CommonTokenStream(lexer);
             var parser = new PGNParser(tokens);
             var parseTree = parser.parse();
             var walker = new ParseTreeWalker();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             walker.Walk(listener, parseTree);
             sw.Stop();
-            Debug.WriteLine($"Completed parsing {listener.Games.Count} games, {listener.Games.Select(x => x.MoveSection.Count).Sum()} half-moves total, in {sw.ElapsedMilliseconds}ms.");
+            AvgTimePerMove = listener.AvgTimePerMove;
+            AvgTimePerGame = listener.AvgTimePerGame;
+            TotalTime = sw.Elapsed.TotalSeconds;
             return listener.Games;
         }
 
