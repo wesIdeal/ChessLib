@@ -49,6 +49,18 @@ namespace ChessLib.Data.MoveRepresentation.NAG
             return sb.ToString().Replace("  ", " ").Trim();
         }
 
+        public string ToNAGString()
+        {
+            var sb = new StringBuilder();
+            sb.Append("$" + MoveNAG + " ");
+            foreach (var positionalNAG in PositionalNAGs) sb.Append("$" + positionalNAG + " ");
+
+            sb.Append("$" + TimeTroubleNAG + " ");
+            foreach (var nonStandardNAG in NonStandardNAGs) sb.Append("$" + nonStandardNAG + " ");
+
+            return sb.ToString().Replace("  ", " ").Trim();
+        }
+
         /// <summary>
         ///     Apply a Numeric Annotation Glyph (NAG) from a string representation, either format works- ${nagInt} or {nagInt}
         /// </summary>
