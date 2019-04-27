@@ -1,14 +1,14 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using ChessLib.Data;
+﻿using ChessLib.Data;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
 using ChessLib.MagicBitboard.MoveValidation;
-using MagicBitboard;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
 namespace ChessLib.MagicBitboard
 {
@@ -17,19 +17,6 @@ namespace ChessLib.MagicBitboard
         public readonly bool Chess960;
         public readonly MoveTree<MoveHashStorage> MoveTree = new MoveTree<MoveHashStorage>(null);
 
-
-        //public BoardInfo(ulong[][] piecesOnBoard, Color activePlayerColor, CastlingAvailability castlingAvailability, ushort? enPassantIndex, uint halfmoveClock, uint moveCounter, bool chess960 = false)
-        //{
-        //    PiecesOnBoard = piecesOnBoard;
-        //    ActivePlayerColor = activePlayerColor;
-        //    CastlingAvailability = castlingAvailability;
-        //    EnPassantIndex = enPassantIndex;
-        //    HalfmoveClock = halfmoveClock;
-        //    MoveCounter = moveCounter;
-        //    Chess960 = chess960;
-
-        //    ValidateFields();
-        //}
         public BoardInfo() : this(FENHelpers.FENInitial)
         {
         }
@@ -551,7 +538,7 @@ namespace ChessLib.MagicBitboard
         /// <param name="pieceMoveMask">The move mask for the piece</param>
         /// <param name="pieceOccupancy">The occupancy for the piece in question</param>
         /// <returns></returns>
-        private static ushort? FindPieceMoveSourceIndex(MoveDetail md, ulong pieceMoveMask, ulong pieceOccupancy)
+        private ushort? FindPieceMoveSourceIndex(MoveDetail md, ulong pieceMoveMask, ulong pieceOccupancy)
         {
             ulong sourceSquares;
             if ((sourceSquares = pieceMoveMask & pieceOccupancy) == 0) return null;
@@ -562,7 +549,24 @@ namespace ChessLib.MagicBitboard
                 sourceSquares &= BoardHelpers.RankMasks[md.SourceRank.Value];
             var indices = sourceSquares.GetSetBits();
 
-            if (indices.Length != 1) return ushort.MaxValue;
+            if (indices.Length == 0) return null;
+            if (indices.Length > 1)
+            {
+                var possibleSources = new List<ushort>();
+               
+                foreach (var sourceIndex in indices)
+                {
+                    if(!md.DestinationIndex.HasValue) throw new MoveException("No destination value provided.");
+                    var proposedMove = MoveHelpers.GenerateMove(sourceIndex, md.DestinationIndex.Value, md.MoveType, md.PromotionPiece ?? PromotionPiece.Knight);
+                    var moveValidator = new MoveValidator(this, proposedMove);
+                    var validationResult = moveValidator.Validate();
+                    if(validationResult == null)
+                        possibleSources.Add(sourceIndex);
+                }
+                if(possibleSources.Count > 1) throw new MoveException("More than one piece can reach destination square.");
+                if (possibleSources.Count == 0) return null;
+                return possibleSources[0];
+            }
             return indices[0];
         }
 
@@ -573,7 +577,7 @@ namespace ChessLib.MagicBitboard
         /// <param name="kingOccupancy">The King's occupancy board</param>
         /// <param name="totalOccupancy">The board's occupancy</param>
         /// <returns></returns>
-        public static ushort FindKingMoveSourceIndex(MoveDetail moveDetail, ulong kingOccupancy, ulong totalOccupancy)
+        public ushort FindKingMoveSourceIndex(MoveDetail moveDetail, ulong kingOccupancy, ulong totalOccupancy)
         {
             Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
             var possibleSquares =
@@ -591,7 +595,7 @@ namespace ChessLib.MagicBitboard
         /// <param name="queenOccupancy">The Queen's occupancy board</param>
         /// <param name="totalOccupancy">The board's occupancy</param>
         /// <returns></returns>
-        public static ushort FindQueenMoveSourceIndex(MoveDetail moveDetail, ulong queenOccupancy, ulong totalOccupancy)
+        public ushort FindQueenMoveSourceIndex(MoveDetail moveDetail, ulong queenOccupancy, ulong totalOccupancy)
         {
             Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
             var possibleSquares =
@@ -611,7 +615,7 @@ namespace ChessLib.MagicBitboard
         /// <param name="rookOccupancy">The Rook's occupancy board</param>
         /// <param name="totalOccupancy">The board's occupancy</param>
         /// <returns></returns>
-        public static ushort FindRookMoveSourceIndex(MoveDetail moveDetail, ulong rookOccupancy, ulong totalOccupancy)
+        public ushort FindRookMoveSourceIndex(MoveDetail moveDetail, ulong rookOccupancy, ulong totalOccupancy)
         {
             //var possibleSquares = PieceAttackPatternHelper.BishopMoveMask[md.DestRank.Value, md.DestFile.Value];
             Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
@@ -632,7 +636,7 @@ namespace ChessLib.MagicBitboard
         /// <param name="bishopOccupancy">The Bishop's occupancy board</param>
         /// <param name="totalOccupancy">The board's occupancy</param>
         /// <returns></returns>
-        public static ushort FindBishopMoveSourceIndex(MoveDetail moveDetail, ulong bishopOccupancy,
+        public ushort FindBishopMoveSourceIndex(MoveDetail moveDetail, ulong bishopOccupancy,
             ulong totalOccupancy)
         {
             Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
@@ -652,7 +656,7 @@ namespace ChessLib.MagicBitboard
         /// <param name="moveDetail">Move details, gathered from text input</param>
         /// <param name="relevantPieceOccupancy">The Knight's occupancy board</param>
         /// <returns></returns>
-        public static ushort FindKnightMoveSourceIndex(MoveDetail moveDetail, ulong relevantPieceOccupancy)
+        public ushort FindKnightMoveSourceIndex(MoveDetail moveDetail, ulong relevantPieceOccupancy)
         {
             Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
             var possibleSquares = PieceAttackPatternHelper.KnightAttackMask[moveDetail.DestinationIndex.Value];
@@ -671,7 +675,7 @@ namespace ChessLib.MagicBitboard
         /// <param name="pawnOccupancy">The pawn's occupancy board</param>
         /// <param name="totalOccupancy">The board's occupancy</param>
         /// <returns></returns>
-        public static ushort FindPawnMoveSourceIndex(MoveDetail moveDetail, ulong pawnOccupancy, ulong totalOccupancy)
+        public ushort FindPawnMoveSourceIndex(MoveDetail moveDetail, ulong pawnOccupancy, ulong totalOccupancy)
         {
             if (moveDetail.DestinationIndex == null)
                 throw new ArgumentException("moveDetail.DestinationIndex cannot be null");

@@ -44,6 +44,15 @@ namespace ChessLib.Data.Tests.Helpers
             Assert.AreEqual(mdExpected, actual);
             ValidateHasDestInfo(actual, move);
         }
+
+        [Test]
+        public static void ShouldFindCorrectSource_PawnMove_Capture_Promotion()
+        {
+            var expected = 53;
+            var actual = MoveHelpers.GetAvailableMoveDetails("fxe8=Q+", Color.White);
+            Assert.AreEqual(expected, actual.SourceIndex);
+        }
+
         [Test]
         public static void ShouldReturnCorrectPiece_Pawn()
         {

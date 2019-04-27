@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.MagicBitboard;
 
 namespace ChessLib.Parse.PGN
 {
@@ -36,9 +37,11 @@ namespace ChessLib.Parse.PGN
 
         public double AvgTimePerMove;
         public double AvgTimePerGame;
+        public double AvgValidationTimePerGame;
+        public double TotalValidationTime;
         public double TotalTime;
 
-        public List<Game<IMoveText>> GetGameObjects()
+        public List<Game<IMoveText>> GetGameTexts()
         {
 
             var listener = new PGNListener();
@@ -57,6 +60,35 @@ namespace ChessLib.Parse.PGN
             return listener.Games;
         }
 
+        /// <summary>
+        /// Gets MoveExt objects from PGN. This method validates moves.
+        /// </summary>
+        /// <returns>Validated Moves</returns>
+        public List<Game<MoveHashStorage>> GetGames()
+        {
+            var rv = new List<Game<MoveHashStorage>>();
+            var perGame = new List<long>();
+            var sw = new Stopwatch();
+            var games = GetGameTexts();
+            foreach (var game in games)
+            {
+                sw.Reset();
+                sw.Start();
+                var bi = new BoardInfo();
+
+                foreach (var move in game.MoveSection)
+                {
+                    bi.ApplyMove(move.Move.SAN);
+                }
+                sw.Stop();
+                perGame.Add(sw.ElapsedMilliseconds);
+                rv.Add(new Game<MoveHashStorage>() { TagSection = game.TagSection, MoveSection = bi.MoveTree });
+            }
+
+            AvgValidationTimePerGame = perGame.Average();
+            TotalValidationTime = (double)perGame.Sum() / 1000;
+            return rv;
+        }
 
     }
 }

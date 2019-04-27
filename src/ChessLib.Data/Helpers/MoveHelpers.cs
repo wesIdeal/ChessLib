@@ -48,17 +48,12 @@ namespace ChessLib.Data.Helpers
             md.DestinationFile = match.Groups["destinationFile"].Success ? (ushort)(match.Groups["destinationFile"].Value[0] - 'a') : (ushort?)null;
             md.DestinationRank = match.Groups["destinationRank"].Success ? (ushort)(ushort.Parse((match.Groups["destinationRank"].Value)) - 1) : (ushort?)null;
             md.IsCapture = match.Groups["capture"].Success;
-            
+
             if ((promotionMatch = Regex.Match(move, RegExPromotion)).Success)
             {
                 md.MoveType = MoveType.Promotion;
                 md.Piece = Piece.Pawn;
                 md.PromotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionMatch.Groups["promotionPiece"].Value[0]);
-                if (!md.IsCapture)
-                {
-                    md.DestinationFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
-                }
-                return md;
             }
             if ((castleMatch = Regex.Match(move, RegExCastle)).Success)
             {
@@ -66,14 +61,14 @@ namespace ChessLib.Data.Helpers
                 md.MoveType = MoveType.Castle;
                 md.SourceFile = 4;
                 md.DestinationRank = md.SourceRank = (ushort)(color == Color.Black ? 7 : 0);
-                md.DestinationFile = castleMatch.Groups[RegExCastleLongGroup].Success ? (ushort?) 2 : (ushort?) 6;
+                md.DestinationFile = castleMatch.Groups[RegExCastleLongGroup].Success ? (ushort?)2 : (ushort?)6;
                 return md;
             }
 
             if (match.Groups["pawnFile"].Success)
             {
                 md.Piece = Piece.Pawn;
-               
+
                 if (md.IsCapture)
                 {
                     md.SourceFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
@@ -92,7 +87,7 @@ namespace ChessLib.Data.Helpers
                 {
                     md.DestinationFile = match.Groups["pawnFile"].Success ? (ushort)(match.Groups["pawnFile"].Value[0] - 'a') : (ushort?)null;
                 }
-               
+
             }
             else
             {

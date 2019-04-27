@@ -82,18 +82,20 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             //graphics.SaveBoardBaseImage("boardBase.png");
             //graphics.SaveBoardFromFen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2", "InitialBoard.png");
             var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
-            
-            var games = parsePgn.GetGameObjects();
+
+            //var games = parsePgn.GetGameTexts();
+            var games = parsePgn.GetGames();
             var game = games[0];
             Console.WriteLine($"Avg time per move:\t{parsePgn.AvgTimePerMove} ms");
             Console.WriteLine($"Avg time per game:\t{parsePgn.AvgTimePerGame} ms");
+            Console.WriteLine($"Avg validation time per game:\t{parsePgn.AvgValidationTimePerGame} ms");
+            Console.WriteLine($"Total validation time:\t{parsePgn.TotalValidationTime} ms");
             Console.WriteLine($"Total Time:\t{parsePgn.TotalTime} seconds");
             //var botvinnik = games.Where(x =>
             //    (x.TagSection["Black"].Contains("Botvinnik") || x.TagSection["White"].Contains("Botvinnik"))
             //    && x.TagSection["Date"].Contains("1960"))
             //    .Where(x => x.TagSection["Round"] == "2");
 
-            var counter = 0;
             //foreach (var game in botvinnik)
             //{
             var bi = BoardInfo.BoardInfoFromFen(FENHelpers.FENInitial);
@@ -103,20 +105,14 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             var fileName = $"{white}-{black}.gif";
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            foreach (var move in game.MoveSection)
-            {
-                counter++;
-                bi.ApplyMove(move.Move.SAN);
-            }
-            Debug.WriteLine($"Validated {game.MoveSection.Count()} moves in {sw.ElapsedMilliseconds}ms.");
             var graphics = new ChessLib.Graphics.FENToImage(80, black, white);
-            graphics.MakeGifFromMoveTree(bi.MoveTree, $".\\GameGifs\\{fileName}", 80, 4, 20);
+            graphics.MakeGifFromMoveTree(game.MoveSection, $".\\GameGifs\\{fileName}", 80, 4, 20);
             sw.Stop();
             Debug.WriteLine($"Created and wrote {fileName} in {sw.ElapsedMilliseconds}ms.");
 
             //}
 
-            counter = 0;
+
             //foreach (var move in bi.MoveTree)
             //{
             //    graphics.SaveBoardFromFen(move.Move.FEN, $".\\Game1\\game2.halfMove{counter++}.png");
@@ -168,12 +164,12 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
                     var ob = rook.GetLegalMoves((uint)i, occupancy);
                     dtReg = DateTime.Now;
                     var obFromQuery = rook.OccupancyAndMoveBoards[i].FirstOrDefault(x => x.Occupancy == occupancy).MoveBoard;
-                    
+
                     Debug.Assert(legalMovesForOccupancy == ob);
                 }
                 sb.AppendLine(rook[i].MakeBoardTable(i, $"{i.IndexToSquareDisplay()} {message}", DisplayHelpers.HtmlPieceRepresentations[Color.White][Piece.Rook], "&#9670;"));
             }
-          
+
 
             var html = DisplayHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("RookMoves.html", html);

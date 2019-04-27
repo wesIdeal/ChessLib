@@ -6,17 +6,12 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
-
-using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Gif;
-using SixLabors.ImageSharp.MetaData.Profiles.Exif;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ChessLib.Data.Types;
-using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.Shapes;
 
 namespace ChessLib.Graphics
@@ -100,28 +95,22 @@ namespace ChessLib.Graphics
             }
         }
 
-        public void SaveBoardBaseImage(string file)
-        {
-            _boardBase.Save(file);
-        }
 
         public void MakeGifFromMoveTree(MoveTree<MoveHashStorage> moves, string fileName, int positionDelay, int numberOfMovementFrames = 10, int totalMovementTime = 50)
         {
             using (var board = MakeBoardFromFen(moves.FENStart))
             {
-                board.Save("INIT.png");
                 var previousFEN = moves.FENStart;
                 foreach (var mv in moves)
                 {
 
-                    var from = mv.Move.Move.SourceIndex();
-                    var to = mv.Move.Move.DestinationIndex();
+                 
                     var pieceMoving =
                         _pieceMap[PieceHelpers.GetCharRepresentation(mv.Move.ColorMoving, mv.Move.PieceMoving)];
-                    var transImages = MakeMovementFrames(previousFEN, pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames, totalMovementTime);
+                    var transImages = MakeMovementFrames(previousFEN, pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames);
                     foreach (var f in transImages)
                     {
-                        var frameDelay = (int)totalMovementTime / numberOfMovementFrames;
+                        var frameDelay = totalMovementTime / numberOfMovementFrames;
                         board.Frames.AddFrame(f.Frames[0]);
                         var gifMetaData = board.Frames.Last().MetaData.GetFormatMetaData(GifFormat.Instance);
                         gifMetaData.FrameDelay = frameDelay;
@@ -159,7 +148,7 @@ namespace ChessLib.Graphics
         }
 
         private IEnumerable<Image<Rgba32>> MakeMovementFrames(string fen, Image<Rgba32> pieceMoving,
-            ushort sqFrom, ushort sqTo, int frames, int delay)
+            ushort sqFrom, ushort sqTo, int frames)
         {
 
             var rv = new List<Image<Rgba32>>();
@@ -168,13 +157,12 @@ namespace ChessLib.Graphics
             Path p = new Path(new LinearLineSegment(pFrom, pTo));
             var sizeOfTransitions = p.Length / (frames + 1);
             var points = new PointF[frames];
-            int i = 0;
+            int i;
             for (i = 0; i < frames; i++)
             {
                 points[i] = p.PointAlongPath(sizeOfTransitions * i).Point;
             }
 
-            i = 0;
             var moveNumber = FENHelpers.GetMoveNumberFromString(fen.GetFENPiece(FENPieces.FullMoveCounter));
             var activeSide = FENHelpers.GetActiveColor(fen.GetFENPiece(FENPieces.ActiveColor));
 
@@ -280,7 +268,7 @@ namespace ChessLib.Graphics
             };
             if (_offset != 0)
             {
-                var centerOfRank = new PointF(_boardWidth / 2, _squareWidth / 2);
+                var centerOfRank = new PointF((float)_boardWidth / 2, (float)_squareWidth / 2);
                 _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _blackPlayerName, _font, Rgba32.Black, centerOfRank));
                 centerOfRank.Y = _squareWidth * 10 + (_offset / 2);
                 _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _whitePlayerName, _font, Rgba32.Black, centerOfRank));
@@ -317,7 +305,7 @@ namespace ChessLib.Graphics
 
                 var y = (8 * _squareWidth) + _offset;
                 var x = file * _squareWidth;
-                var cRank = ((char)((int)'A' + (file - 1))).ToString();
+                var cRank = ((char)('A' + (file - 1))).ToString();
 
                 var rect = new RectangleF(x, y, _squareWidth, _squareWidth);
                 var center = new PointF(x + (_squareWidth / 2), y + (_squareWidth / 2));
