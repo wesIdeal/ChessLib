@@ -57,7 +57,7 @@ namespace ChessLib.Data.PieceMobility
         /// <param name="countOfSetBits">The number of set bits in the move mask. Used to determine the array size.</param>
         /// <param name="attackArray">The newly ordered array of attacks, based on the calculated magic number</param>
         /// <returns>The magic key which was found</returns>
-        ulong IMoveInitializer.GenerateMagicKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int countOfSetBits, out ulong[] attackArray)
+        public ulong GenerateMagicKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int countOfSetBits, out ulong[] attackArray)
         {
             var maxMoves = 1 << countOfSetBits;
             ulong[] emptyArray = new ulong[maxMoves];
