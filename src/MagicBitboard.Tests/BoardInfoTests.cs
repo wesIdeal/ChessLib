@@ -47,7 +47,7 @@ namespace MagicBitboard.Tests
                 [SetUp]
                 public void Setup()
                 {
-                    _bi = BoardInfo.BoardInfoFromFen(CastlingFen);
+                    _bi = new BoardInfo(CastlingFen);
                 }
 
                 private BoardInfo _bi;
@@ -125,7 +125,7 @@ namespace MagicBitboard.Tests
             [SetUp]
             public void Setup()
             {
-                _bInitial = BoardInfo.BoardInfoFromFen(InitialFEN);
+                _bInitial = new BoardInfo(InitialFEN);
             }
 
             private BoardInfo _bInitial;
@@ -180,7 +180,7 @@ namespace MagicBitboard.Tests
         [Test(Description = "Test Castling Availability Retrieval")]
         public static void GetCastlingAvailabilityString()
         {
-            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
+            var bi = new BoardInfo(InitialFEN);
 
             var expected = "KQkq";
             var stm = bi.GetCastlingAvailabilityString();
@@ -190,12 +190,12 @@ namespace MagicBitboard.Tests
         [Test(Description = "Test En Passant Retrieval to return a string square representation or '-'")]
         public static void GetEnPassantString_ShouldReturnEPRepresentation()
         {
-            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
+            var bi = new BoardInfo(InitialFEN);
 
             var expected = "-";
             var stm = bi.GetEnPassantString();
             Assert.AreEqual(expected, stm);
-            bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+            bi = new BoardInfo("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
             expected = "e3";
             Assert.AreEqual(expected, bi.GetEnPassantString());
         }
@@ -203,11 +203,11 @@ namespace MagicBitboard.Tests
         [Test(Description = "Tests halfmove clock to string representation")]
         public static void GetHalfMoveClockString_ShouldReturnCorrectValue()
         {
-            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
+            var bi = new BoardInfo(InitialFEN);
             var expected = "0";
             Assert.AreEqual(expected, bi.GetHalfMoveClockString());
 
-            bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 30 1");
+            bi = new BoardInfo("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 30 1");
             expected = "30";
             Assert.AreEqual(expected, bi.GetHalfMoveClockString());
         }
@@ -215,11 +215,11 @@ namespace MagicBitboard.Tests
         [Test(Description = "Tests move counter to string representation")]
         public static void GetMoveCountString_ShouldReturnCorrectValue()
         {
-            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
+            var bi = new BoardInfo(InitialFEN);
             var expected = "1";
             Assert.AreEqual(expected, bi.GetMoveCounterString());
 
-            bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 30 31");
+            bi = new BoardInfo("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 30 31");
             expected = "31";
             Assert.AreEqual(expected, bi.GetMoveCounterString());
         }
@@ -227,7 +227,7 @@ namespace MagicBitboard.Tests
         [Test(Description = "Test piece section retrieval")]
         public static void GetPiecePlacement_ShouldReturnCorrectString()
         {
-            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
+            var bi = new BoardInfo();
             var expected = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
             var piecePlacementActual = bi.GetPiecePlacement();
             Assert.AreEqual(expected, piecePlacementActual);
@@ -236,7 +236,7 @@ namespace MagicBitboard.Tests
         [Test]
         public static void GetPinnedPieces_ShouldReturnNotZero_WhenPieceIsPinnedTwice()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/pp1pb1pp/5p2/8/B7/2p5/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
+            var bi = new BoardInfo("rnbqk1nr/pp1pb1pp/5p2/8/B7/2p5/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
             var expectedPinnedPiece = 0x18000000000000; //the pawn on d7 is pinned
             var actual = bi.GetPinnedPieces();
             Console.WriteLine($"The following are pinned:\r\n{actual.GetDisplayBits()}");
@@ -247,16 +247,16 @@ namespace MagicBitboard.Tests
         [Test]
         public static void GetPinnedPieces_ShouldReturnValueOfPinnedPiece_WhenPieceIsPinned()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pp1ppppp/8/1Bp5/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2");
+            var bi = new BoardInfo("rnbqkbnr/pp1ppppp/8/1Bp5/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2");
             var expectedPinnedPiece = 0x8000000000000ul; //the pawn on d7 is pinned
             var actual = bi.GetPinnedPieces();
             Assert.AreEqual(expectedPinnedPiece, actual,
                 "Method did not determine that the pawn on d7 was pinned by the Bishop.");
-            bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pp1ppppp/8/2p5/B3P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2");
+            bi = new BoardInfo("rnbqkbnr/pp1ppppp/8/2p5/B3P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2");
             actual = bi.GetPinnedPieces();
             Assert.AreEqual(expectedPinnedPiece, actual,
                 "Method did not determine that the pawn on d7 was pinned by the Bishop.");
-            bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/pp1pbppp/2p5/8/B7/8/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
+            bi = new BoardInfo("rnbqk1nr/pp1pbppp/2p5/8/B7/8/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
             expectedPinnedPiece = 0x10000000000000ul;
             actual = bi.GetPinnedPieces();
             Assert.AreEqual(expectedPinnedPiece, actual,
@@ -266,7 +266,7 @@ namespace MagicBitboard.Tests
         [Test]
         public static void GetPinnedPieces_ShouldReturnValueOfPinnedPieces_WhenPieceIsPinned2()
         {
-            var bi = BoardInfo.BoardInfoFromFen("4k3/8/2p5/1B6/8/8/6K1/8 b - - 0 1");
+            var bi = new BoardInfo("4k3/8/2p5/1B6/8/8/6K1/8 b - - 0 1");
             var actual = bi.GetPinnedPieces();
             Assert.AreEqual(0x40000000000, actual, "Did not calculate pawn on c6 as pinned by the Bishop on b5.");
             Assert.IsTrue(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
@@ -275,7 +275,7 @@ namespace MagicBitboard.Tests
         [Test]
         public static void GetPinnedPieces_ShouldReturnZero_WhenPieceIsNotPinned()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/pp1pb1pp/2p1p3/8/B7/8/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
+            var bi = new BoardInfo("rnbqk1nr/pp1pb1pp/2p1p3/8/B7/8/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
             var expectedPinnedPiece = 0x00; //the pawn on d7 is pinned
             var actual = bi.GetPinnedPieces();
             Assert.AreEqual(expectedPinnedPiece, actual,
@@ -285,7 +285,7 @@ namespace MagicBitboard.Tests
         [Test]
         public static void GetPinnedPieces_ShouldReturnZero_WhenPieceIsNotPinned2()
         {
-            var bi = BoardInfo.BoardInfoFromFen("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1");
+            var bi = new BoardInfo("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1");
             var actual = bi.GetPinnedPieces();
             Assert.AreEqual(0x00, actual, "No piece is pinned, with two pawns in front of King.");
         }
@@ -293,7 +293,7 @@ namespace MagicBitboard.Tests
         [Test(Description = "Test side-to-move retrieval")]
         public static void GetSideToMoveChar_ShouldReturnCorrectString()
         {
-            var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
+            var bi = new BoardInfo(InitialFEN);
             var expected = "w";
             var stm = bi.GetSideToMoveStrRepresentation();
             Assert.AreEqual(expected, stm);
@@ -302,14 +302,14 @@ namespace MagicBitboard.Tests
         [Test]
         public static void IsPiecePinned_ShouldReturnFalse_WhenPieceIsNotPinned2()
         {
-            var bi = BoardInfo.BoardInfoFromFen("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1");
+            var bi = new BoardInfo("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1");
             Assert.IsFalse(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
         }
 
         [Test]
         public static void IsPiecePinned_ShouldReturnTrue_WhenBothPiecesArePinned()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/pp1pb1pp/5p2/8/B7/2p5/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
+            var bi = new BoardInfo("rnbqk1nr/pp1pb1pp/5p2/8/B7/2p5/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
             var actual = bi.GetPinnedPieces();
             Console.WriteLine($"The following are pinned:\r\n{actual.GetDisplayBits()}");
             Assert.IsTrue(bi.IsPiecePinned(51),
@@ -321,14 +321,14 @@ namespace MagicBitboard.Tests
         [Test]
         public static void IsPiecePinned_ShouldReturnTrue_WhenPieceIsPinned()
         {
-            var bi = BoardInfo.BoardInfoFromFen("4k3/8/2p5/1B6/8/8/6K1/8 b - - 0 1");
+            var bi = new BoardInfo("4k3/8/2p5/1B6/8/8/6K1/8 b - - 0 1");
             Assert.IsTrue(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
         }
 
         [Test]
         public static void IsPiecePinned_ShouldReturnTrue_WhenPieceIsPinnedByRook()
         {
-            var bi = BoardInfo.BoardInfoFromFen("rnbqk1nr/p2pb1pp/2p2p2/8/B7/2p5/PPPPRPPP/RNBQK1N1 b Qkq - 1 2");
+            var bi = new BoardInfo("rnbqk1nr/p2pb1pp/2p2p2/8/B7/2p5/PPPPRPPP/RNBQK1N1 b Qkq - 1 2");
             Assert.IsFalse(bi.IsPiecePinned(51),
                 "IsPiecePinned() should have returned false for square index 42."); //Not pinned
             Assert.IsTrue(bi.IsPiecePinned(52),
@@ -340,7 +340,7 @@ namespace MagicBitboard.Tests
         {
             for (ushort i = 8; i < 16; i++)
             {
-                var bi = BoardInfo.BoardInfoFromFen(InitialFEN);
+                var bi = new BoardInfo(InitialFEN);
                 var move = MoveHelpers.GenerateMove(i, (ushort)(i + 16));
                 bi.ApplyMove(move);
                 Assert.AreEqual(i + 8, bi.EnPassantIndex);
@@ -412,7 +412,7 @@ namespace MagicBitboard.Tests
             var blackQueen = 0x800000000000000;
             var whiteKing = 0x10;
             var blackKing = 0x1000000000000000;
-            var rv = BoardInfo.BoardInfoFromFen(After1E4);
+            var rv = new BoardInfo(After1E4);
 
             Assert.AreEqual(whitePawns, rv.PiecesOnBoard[white][(int)Piece.Pawn]);
             Assert.AreEqual(blackPawns, rv.PiecesOnBoard[black][(int)Piece.Pawn]);
@@ -450,7 +450,7 @@ namespace MagicBitboard.Tests
             var blackQueen = 0x800000000000000;
             var whiteKing = 0x10;
             var blackKing = 0x1000000000000000;
-            var rv = BoardInfo.BoardInfoFromFen(After1E4C5);
+            var rv = new BoardInfo(After1E4C5);
 
             Assert.AreEqual(whitePawns, rv.PiecesOnBoard[white][(int)Piece.Pawn]);
             Assert.AreEqual(blackPawns, rv.PiecesOnBoard[black][(int)Piece.Pawn]);
@@ -488,7 +488,7 @@ namespace MagicBitboard.Tests
             var blackQueen = 0x800000000000000;
             var whiteKing = 0x10;
             var blackKing = 0x1000000000000000;
-            var rv = BoardInfo.BoardInfoFromFen(InitialBoard);
+            var rv = new BoardInfo(InitialBoard);
             Assert.AreEqual(whitePawns, rv.PiecesOnBoard[white][(int)Piece.Pawn]);
             Assert.AreEqual(blackPawns, rv.PiecesOnBoard[black][(int)Piece.Pawn]);
 
@@ -532,7 +532,7 @@ namespace MagicBitboard.Tests
         [Test]
         public static void ShouldFindCorrectSource_PawnMove_FromRank3()
         {
-            var bi = BoardInfo.BoardInfoFromFen("r1b2rk1/p3np1p/1pn1pp1q/2b5/2B1N3/3Q1NP1/PPP2P1P/1K1R3R w - - 1 15");
+            var bi = new BoardInfo("r1b2rk1/p3np1p/1pn1pp1q/2b5/2B1N3/3Q1NP1/PPP2P1P/1K1R3R w - - 1 15");
             var moveInfo = new MoveDetail(null, 30, Piece.Pawn, Color.White, "g4");
             var actual = bi.FindPawnMoveSourceIndex(moveInfo, bi.ActivePawnOccupancy, bi.TotalOccupancy);
             Assert.AreEqual(22, actual);
@@ -584,7 +584,7 @@ namespace MagicBitboard.Tests
         [Test]
         public static void ShouldFindKingMove_InRandomPosition()
         {
-            var bi = BoardInfo.BoardInfoFromFen("r4rk1/p4p1p/1p4n1/2b1pbNP/1nB1Nq2/8/PPP2PQ1/1K1R3R b - - 0 21");
+            var bi = new BoardInfo("r4rk1/p4p1p/1p4n1/2b1pbNP/1nB1Nq2/8/PPP2PQ1/1K1R3R b - - 0 21");
             var md = new MoveDetail(null, 54, Piece.King, Color.Black, "Kg7");
             var expected = 62;
             Assert.AreEqual(expected, bi.FindKingMoveSourceIndex(md, bi.ActivePlayerKingOccupancy, bi.TotalOccupancy));
@@ -707,12 +707,12 @@ namespace MagicBitboard.Tests
         public static void ToFEN_ShouldReturnCurrentBoardState()
         {
             const string initialFEN = InitialFEN;
-            var bi = BoardInfo.BoardInfoFromFen(initialFEN);
+            var bi = new BoardInfo(initialFEN);
             var actual = bi.ToFEN();
             Assert.AreEqual(initialFEN, actual);
 
             const string closedRuyFEN = "r1bqkbnr/1ppp1ppp/p1n5/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 4";
-            bi = BoardInfo.BoardInfoFromFen(closedRuyFEN);
+            bi = new BoardInfo(closedRuyFEN);
             actual = bi.ToFEN();
             Assert.AreEqual(closedRuyFEN, actual);
         }

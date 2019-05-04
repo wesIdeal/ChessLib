@@ -12,7 +12,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
     {
         private readonly MoveExt _goodMove = MoveHelpers.GenerateMove(4, 5);
         private readonly MoveExt _badColor = MoveHelpers.GenerateMove(60, 61);
-        private readonly BoardInfo _boardInfo = BoardInfo.BoardInfoFromFen("4k3/8/8/8/8/8/8/4K3 w - - 0 1");
+        private readonly BoardInfo _boardInfo = new BoardInfo("4k3/8/8/8/8/8/8/4K3 w - - 0 1");
         private readonly ulong[][] _postMoveBoard = new ulong[2][];
         [Test]
         public void Validate_ShouldReturnNullForGoodMove()

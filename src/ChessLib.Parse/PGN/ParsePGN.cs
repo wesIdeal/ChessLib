@@ -8,14 +8,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Data.Helpers;
+using ChessLib.Data.Interfaces;
 using ChessLib.MagicBitboard;
 
 namespace ChessLib.Parse.PGN
 {
-    public class Game<T> where T : IEquatable<T>
+    public class Game<TMove> where TMove : IMove
     {
         public Tags TagSection = new Tags();
-        public MoveTree<T> MoveSection = new MoveTree<T>(null);
+        public MoveTree<TMove> MoveSection = new MoveTree<TMove>(null);
     }
     public class ParsePgn
     {
@@ -61,12 +63,14 @@ namespace ChessLib.Parse.PGN
         }
 
         /// <summary>
-        /// Gets MoveExt objects from PGN. This method validates moves.
+        /// Gets MoveExt objects from PGN and validates moves while parsing.
         /// </summary>
         /// <returns>Validated Moves</returns>
-        public List<Game<MoveHashStorage>> GetGames()
+        public List<Game<TMoveStorage>> GetGames<TBoardService, TMoveStorage>()
+            where TBoardService : BoardInformationService<TMoveStorage> where TMoveStorage : MoveStorage
         {
-            var rv = new List<Game<MoveHashStorage>>();
+            var rv = new List<Game<TMoveStorage>>();
+
             var perGame = new List<long>();
             var sw = new Stopwatch();
             var games = GetGameTexts();
@@ -74,15 +78,15 @@ namespace ChessLib.Parse.PGN
             {
                 sw.Reset();
                 sw.Start();
-                var bi = new BoardInfo();
-
+                var fen = game.TagSection.FENStart;
+                var boardInfo = (TBoardService)Activator.CreateInstance(typeof(TBoardService), fen, false);
                 foreach (var move in game.MoveSection)
                 {
-                    bi.ApplyMove(move.Move.SAN);
+                    boardInfo.ApplyMove(move.Move.SAN);
                 }
                 sw.Stop();
                 perGame.Add(sw.ElapsedMilliseconds);
-                rv.Add(new Game<MoveHashStorage>() { TagSection = game.TagSection, MoveSection = bi.MoveTree });
+                rv.Add(new Game<TMoveStorage>() { TagSection = game.TagSection, MoveSection = boardInfo.MoveTree });
             }
 
             AvgValidationTimePerGame = perGame.Average();

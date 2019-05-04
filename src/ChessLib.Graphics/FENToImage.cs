@@ -197,7 +197,7 @@ namespace ChessLib.Graphics
             return new Rectangle(p.X, p.Y + _offset, _squareWidth, _squareWidth);
         }
 
-        private Image<Rgba32> MakeBoardFromFen(string fen, ushort? leaveEmptyBoardIndex = null)
+        public Image<Rgba32> MakeBoardFromFen(string fen, ushort? leaveEmptyBoardIndex = null)
         {
             var board = _boardBase.Clone();
             var ranks = fen.GetRanksFromFen();

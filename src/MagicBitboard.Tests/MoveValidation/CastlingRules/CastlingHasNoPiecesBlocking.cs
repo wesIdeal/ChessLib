@@ -17,8 +17,8 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.CastlingRules
         [SetUp]
         public void Setup()
         {
-            _biOccupied = BoardInfo.BoardInfoFromFen("r1N1k1Nr/8/8/8/8/8/8/R1B1K1BR w KQkq - 0 1");
-            _biNonOccupied = BoardInfo.BoardInfoFromFen("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+            _biOccupied = new BoardInfo("r1N1k1Nr/8/8/8/8/8/8/R1B1K1BR w KQkq - 0 1");
+            _biNonOccupied = new BoardInfo("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
         }
 
         #region Occupancy Between Castle

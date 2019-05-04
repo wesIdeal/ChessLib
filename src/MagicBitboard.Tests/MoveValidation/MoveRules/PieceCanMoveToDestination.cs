@@ -17,7 +17,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
         public void ShouldReturnNull_OnValidMove_EmptySquare_Edge()
         {
             var move = MoveHelpers.GenerateMove(0, 56);
-            var boardInfo = BoardInfo.BoardInfoFromFen("4k3/8/8/8/8/8/8/R3K3 w - - 0 1");
+            var boardInfo = new BoardInfo("4k3/8/8/8/8/8/8/R3K3 w - - 0 1");
             Assert.IsNull(Validate(boardInfo, _postMoveBoard, move), "Should return null when moving to empty square on a8.");
         }
 
@@ -25,7 +25,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
         public void ShouldReturnNull_OnValidMove_EmptySquare_Middle()
         {
             var move = MoveHelpers.GenerateMove(2, 26);
-            var boardInfo = BoardInfo.BoardInfoFromFen("4k3/8/8/8/8/8/8/2R1K3 w - - 0 1");
+            var boardInfo = new BoardInfo("4k3/8/8/8/8/8/8/2R1K3 w - - 0 1");
             Assert.IsNull(Validate(boardInfo, _postMoveBoard, move), "Should return null when moving to empty square on c4.");
         }
 
@@ -33,7 +33,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
         public void ShouldReturnNull_OnValidMove_OpponentPieceAttacked_Edge()
         {
             var move = MoveHelpers.GenerateMove(2, 58);
-            var boardInfo = BoardInfo.BoardInfoFromFen("2q1k3/8/8/8/8/8/8/2R1K3 w - - 0 1");
+            var boardInfo = new BoardInfo("2q1k3/8/8/8/8/8/8/2R1K3 w - - 0 1");
             Assert.IsNull(Validate(boardInfo, _postMoveBoard, move), "Should return null when capturing on c8.");
 
         }
@@ -42,7 +42,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
         public void ShouldReturnNull_OnValidMove_OpponentPieceAttacked_Middle()
         {
             var move = MoveHelpers.GenerateMove(2, 26);
-            var boardInfo = BoardInfo.BoardInfoFromFen("4k3/8/8/8/2q5/8/8/2R1K3 w - - 0 1");
+            var boardInfo = new BoardInfo("4k3/8/8/8/2q5/8/8/2R1K3 w - - 0 1");
             Assert.IsNull(Validate(boardInfo, _postMoveBoard, move), "Should return null when capturing on c4.");
         }
 
@@ -50,7 +50,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
         public void ShouldReturnProperError_WhenActivePlayerHasNoPieceAtSource()
         {
             var move = MoveHelpers.GenerateMove(0, 56);
-            var boardInfo = BoardInfo.BoardInfoFromFen("4k3/8/8/8/2q5/8/8/2R1K3 w - - 0 1");
+            var boardInfo = new BoardInfo("4k3/8/8/8/2q5/8/8/2R1K3 w - - 0 1");
             Assert.AreEqual(MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, Validate(boardInfo, _postMoveBoard, move), "Should return error when active color has no piece at source.");
         }
 
@@ -58,7 +58,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
         public void ShouldReturnProperError_WhenSlidingPieceBlocked()
         {
             var move = MoveHelpers.GenerateMove(2, 26);
-            var boardInfo = BoardInfo.BoardInfoFromFen("4k3/8/8/8/2q5/2p5/8/2R1K3 w - - 0 1");
+            var boardInfo = new BoardInfo("4k3/8/8/8/2q5/2p5/8/2R1K3 w - - 0 1");
             Assert.AreEqual(MoveExceptionType.BadDestination, Validate(boardInfo, _postMoveBoard, move), "Should return error when capturing on c4 but is blocked.");
         }
 
@@ -66,7 +66,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
         public void ShouldReturnProperError_WhenDestinationIsInvalidForPiece()
         {
             var move = MoveHelpers.GenerateMove(2, 11);
-            var boardInfo = BoardInfo.BoardInfoFromFen("4k3/8/8/8/2q5/8/8/2R1K3 w - - 0 1");
+            var boardInfo = new BoardInfo("4k3/8/8/8/2q5/8/8/2R1K3 w - - 0 1");
             Assert.AreEqual(MoveExceptionType.BadDestination, Validate(boardInfo, _postMoveBoard, move), "Should return error when the destination is invalid.");
         }
 
@@ -78,13 +78,13 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [SetUp]
             public void Setup()
             {
-                _boardInfo = BoardInfo.BoardInfoFromFen(InitialFEN);
+                _boardInfo = new BoardInfo(InitialFEN);
             }
             #region Validation Errors
             [Test]
             public void ShouldReturnProperError_WhenWhitePawnMovesBackwards()
             {
-                var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
+                var bi = new BoardInfo("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(28, 12);
 
                 var actual = Validate(bi, _postMoveBoard, move);
@@ -94,7 +94,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenBlackPawnMovesBackwards()
             {
-                var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppp1ppp/8/4p3/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
+                var bi = new BoardInfo("rnbqkbnr/pppp1ppp/8/4p3/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(36, 52);
 
                 var actual = Validate(bi, _postMoveBoard, move);
@@ -127,7 +127,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenWhitePawnAttacksSquareOccupiedByWhite()
             {
-                var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pp1ppp1p/3p1p2/8/8/3P1P2/PP1PPP1P/RNBQKBNR w KQkq - 0 1");
+                var bi = new BoardInfo("rnbqkbnr/pp1ppp1p/3p1p2/8/8/3P1P2/PP1PPP1P/RNBQKBNR w KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(12, 21);
                 var actual = Validate(bi, _postMoveBoard, move);
                 Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture a friendly-occupied square to the NE.");
@@ -139,7 +139,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenBlackPawnAttacksSquareOccupiedByWhite()
             {
-                var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pp1ppp1p/3p1p2/8/8/3P1P2/PP1PPP1P/RNBQKBNR b KQkq - 0 1");
+                var bi = new BoardInfo("rnbqkbnr/pp1ppp1p/3p1p2/8/8/3P1P2/PP1PPP1P/RNBQKBNR b KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(52, 43);
                 var actual = Validate(bi, _postMoveBoard, move);
                 Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture a friendly-occupied square to the SE.");
@@ -151,8 +151,8 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenWhitePawnIsBlockedFromInitial()
             {
-                var bi1 = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppp1ppp/8/8/8/4p3/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-                var bi2 = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppp1ppp/8/8/4p3/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+                var bi1 = new BoardInfo("rnbqkbnr/pppp1ppp/8/8/8/4p3/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+                var bi2 = new BoardInfo("rnbqkbnr/pppp1ppp/8/8/4p3/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
                 var move1 = MoveHelpers.GenerateMove(12, 20);
                 var move2 = MoveHelpers.GenerateMove(12, 28);
                 var actual = Validate(bi1, _postMoveBoard, move1);
@@ -164,8 +164,8 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenBlackPawnIsBlockedFromInitial()
             {
-                var bi1 = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/4P3/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
-                var bi2 = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
+                var bi1 = new BoardInfo("rnbqkbnr/pppppppp/4P3/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
+                var bi2 = new BoardInfo("rnbqkbnr/pppppppp/8/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
                 var move1 = MoveHelpers.GenerateMove(52, 44);
                 var move2 = MoveHelpers.GenerateMove(52, 36);
                 var actual = Validate(bi1, _postMoveBoard, move1);
@@ -177,7 +177,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenWhitePawnMoves2From3rdRank()
             {
-                var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
+                var bi = new BoardInfo("rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(20, 36);
                 var actual = Validate(bi, _postMoveBoard, move);
                 Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Pawn cannot move 2 squares if not on the opening rank.");
@@ -186,7 +186,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenBlackPawnMoves2From6thRank()
             {
-                var bi = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
+                var bi = new BoardInfo("rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(44, 28);
                 var actual = Validate(bi, _postMoveBoard, move);
                 Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Pawn cannot move 2 squares if not on the opening rank.");
@@ -195,7 +195,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenWhitePawnIsBlockedInMiddle()
             {
-                var bi1 = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
+                var bi1 = new BoardInfo("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
                 var move1 = MoveHelpers.GenerateMove(28, 36);
 
                 var actual = Validate(bi1, _postMoveBoard, move1);
@@ -205,7 +205,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenBlackPawnIsBlockedInMiddle()
             {
-                var bi1 = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
+                var bi1 = new BoardInfo("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
 
                 var move1 = MoveHelpers.GenerateMove(36, 28);
 
@@ -216,7 +216,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenWhiteTryingToAttackAcrossBoard()
             {
-                var bi1 = BoardInfo.BoardInfoFromFen("rnbqkbnr/ppppppp1/8/8/8/8/PPPPPPPp/RNBQKBNR w KQkq - 0 1");
+                var bi1 = new BoardInfo("rnbqkbnr/ppppppp1/8/8/8/8/PPPPPPPp/RNBQKBNR w KQkq - 0 1");
 
                 var move1 = MoveHelpers.GenerateMove(8, 15);
 
@@ -227,7 +227,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenBlackTryingToAttackAcrossBoard()
             {
-                var bi1 = BoardInfo.BoardInfoFromFen("rnbqkbnr/pppppppp/8/7P/8/8/PPPPPPP1/RNBQKBNR b KQkq - 0 1");
+                var bi1 = new BoardInfo("rnbqkbnr/pppppppp/8/7P/8/8/PPPPPPP1/RNBQKBNR b KQkq - 0 1");
 
                 var move1 = MoveHelpers.GenerateMove(48, 39);
 
@@ -289,7 +289,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnNoError_WhenWhitePawnAttacksEnemyOccupiedSquare()
             {
-                var bi1 = BoardInfo.BoardInfoFromFen("rnbqkbnr/ppp1p1pp/3P1P2/8/8/3p1p2/PP2PPPP/RNBQKBNR w KQkq - 0 1");
+                var bi1 = new BoardInfo("rnbqkbnr/ppp1p1pp/3P1P2/8/8/3p1p2/PP2PPPP/RNBQKBNR w KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(12, 21);
                 var actual = Validate(bi1, _postMoveBoard, move);
                 Assert.IsNull(actual, "Expected no error. Pawns can capture an enemy-occupied square to the NE.");
@@ -301,7 +301,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnNoError_WhenBlackPawnAttacksEnemyOccupiedSquare()
             {
-                var bi1 = BoardInfo.BoardInfoFromFen("rnbqkbnr/ppp1p1pp/3P1P2/8/8/3p1p2/PP2PPPP/RNBQKBNR b KQkq - 0 1");
+                var bi1 = new BoardInfo("rnbqkbnr/ppp1p1pp/3P1P2/8/8/3p1p2/PP2PPPP/RNBQKBNR b KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(52, 43);
                 var actual = Validate(bi1, _postMoveBoard, move);
                 Assert.IsNull(actual, "Expected no error. Pawns can capture an enemy-occupied square to the SE.");
@@ -368,7 +368,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnError_WhenMoveIsToIllegalSquare()
             {
-                var board = BoardInfo.BoardInfoFromFen(_fenBare);
+                var board = new BoardInfo(_fenBare);
                 foreach (var move in _illegalMoves)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
@@ -379,7 +379,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnNoError_WhenKnightMovesFromCorner()
             {
-                var board = BoardInfo.BoardInfoFromFen(_fenKnightInCorners);
+                var board = new BoardInfo(_fenKnightInCorners);
                 foreach (var move in _movesFromCorners)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
@@ -391,7 +391,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnNoError_WhenAllTargetSquaresAreEmpty()
             {
-                var board = BoardInfo.BoardInfoFromFen(_fenAllEmpty);
+                var board = new BoardInfo(_fenAllEmpty);
                 foreach (var move in _movesFromE5)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
@@ -403,7 +403,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnNoError_WhenAllTargetSquaresAreOccupiedByOpponent()
             {
-                var board = BoardInfo.BoardInfoFromFen(_fenAllEnemyOccupied);
+                var board = new BoardInfo(_fenAllEnemyOccupied);
                 foreach (var move in _movesFromE5)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
@@ -415,7 +415,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnError_WhenAllTargetSquaresAreOccupiedByActiveSide()
             {
-                var board = BoardInfo.BoardInfoFromFen(_fenAllFriendlyOccupied);
+                var board = new BoardInfo(_fenAllFriendlyOccupied);
                 foreach (var move in _movesFromE5)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
@@ -588,7 +588,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
 
         class KingMoves : MagicBitboard.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
-            readonly BoardInfo _bi = BoardInfo.BoardInfoFromFen("4k3/8/8/8/8/8/1K6/8 w - - 0 1");
+            readonly BoardInfo _bi = new BoardInfo("4k3/8/8/8/8/8/1K6/8 w - - 0 1");
 
             private readonly MoveExt[] moves = new MoveExt[]
             {
@@ -627,7 +627,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
             public SlidingPieceMoveAndBoard(ushort source, ushort dest, string fen)
             {
                 Move = MoveHelpers.GenerateMove(source, dest);
-                BoardInfo = BoardInfo.BoardInfoFromFen(fen);
+                BoardInfo = new BoardInfo(fen);
             }
             public readonly MoveExt Move;
             public readonly BoardInfo BoardInfo;

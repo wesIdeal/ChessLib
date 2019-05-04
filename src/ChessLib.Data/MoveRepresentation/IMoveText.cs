@@ -2,7 +2,7 @@
 
 namespace ChessLib.Data.MoveRepresentation
 {
-    public interface IMoveText : IEquatable<IMoveText>
+    public interface IMoveText : IEquatable<IMoveText>, IMove
     {
         string SAN { get; set; }
         string Comment { get; set; }

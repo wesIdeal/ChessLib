@@ -14,7 +14,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
         [Test]
         public void ShouldReturnNullIfTargetUnoccupied()
         {
-            var board = BoardInfo.BoardInfoFromFen("4k3/8/8/8/8/5N2/8/4K3 w - - 0 1");
+            var board = new BoardInfo("4k3/8/8/8/8/5N2/8/4K3 w - - 0 1");
             var move = MoveHelpers.GenerateMove(21, 6);
             var postMove = BoardHelpers.GetBoardPostMove(board.PiecesOnBoard, Color.White, move);
             Assert.IsNull(Validate(board,postMove,move));
@@ -22,7 +22,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
         [Test]
         public void ShouldReturnNullIfTargetOccupiedByOpponent()
         {
-            var board = BoardInfo.BoardInfoFromFen("4k3/8/8/8/8/5N2/8/4K1b1 w - - 0 1");
+            var board = new BoardInfo("4k3/8/8/8/8/5N2/8/4K1b1 w - - 0 1");
             var move = MoveHelpers.GenerateMove(21, 6);
             var postMove = BoardHelpers.GetBoardPostMove(board.PiecesOnBoard, Color.White, move);
             Assert.IsNull(Validate(board, postMove, move));
@@ -30,7 +30,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.MoveRules
         [Test]
         public void ShouldReturnErrorIfTargetOccupiedByActivePlayer()
         {
-            var board = BoardInfo.BoardInfoFromFen("4k3/8/8/8/8/5N2/8/4K1B1 w - - 0 1");
+            var board = new BoardInfo("4k3/8/8/8/8/5N2/8/4K1B1 w - - 0 1");
             var move = MoveHelpers.GenerateMove(21, 6);
             var postMove = BoardHelpers.GetBoardPostMove(board.PiecesOnBoard, Color.White, move);
             Assert.AreEqual(MoveExceptionType.ActiveColorPieceAtDestination, Validate(board, postMove, move));

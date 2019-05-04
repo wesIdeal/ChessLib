@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ChessLib.Data
 {
-    public class MoveTree<T> : LinkedList<MoveNode<T>> where T : IEquatable<T>
+    public class MoveTree<T> : LinkedList<MoveNode<T>>
     {
         public string FENStart { get; set; }
         public MoveNode<T> ParentMove { get; }

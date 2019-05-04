@@ -16,7 +16,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.CastlingRules
         {
             var postMoveBoard = new ulong[2][];
             var badDestinations = new ushort[] { 57, 63, 1, 5, 13, 28 };
-            var boardInfo = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
+            var boardInfo = new BoardInfo("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
             foreach (var dest in badDestinations)
             {
                 var move = MoveHelpers.GenerateMove(60, dest, MoveType.Castle);
@@ -31,7 +31,7 @@ namespace ChessLib.MagicBitboard.Tests.MoveValidation.CastlingRules
         {
             var postMoveBoard = new ulong[2][];
             var badDestinations = this.ValidDestinationSquares;
-            var boardInfo = BoardInfo.BoardInfoFromFen("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
+            var boardInfo = new BoardInfo("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
             foreach (var dest in badDestinations)
             {
                 var move = MoveHelpers.GenerateMove(60, dest, MoveType.Castle);

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Graphics;
 using ChessLib.MagicBitboard;
 using ChessLib.Parse.PGN;
@@ -84,7 +85,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
 
             //var games = parsePgn.GetGameTexts();
-            var games = parsePgn.GetGames();
+            var games = parsePgn.GetGames<BoardInfo, MoveHashStorage>();
             var game = games[0];
             Console.WriteLine($"Avg time per move:\t{parsePgn.AvgTimePerMove} ms");
             Console.WriteLine($"Avg time per game:\t{parsePgn.AvgTimePerGame} ms");
@@ -98,7 +99,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
 
             //foreach (var game in botvinnik)
             //{
-            var bi = BoardInfo.BoardInfoFromFen(FENHelpers.FENInitial);
+            var bi = new BoardInfo();
             var round = game.TagSection["Round"];
             var black = game.TagSection["Black"];
             var white = game.TagSection["White"];

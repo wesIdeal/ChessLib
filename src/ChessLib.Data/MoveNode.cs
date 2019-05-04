@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ChessLib.Data
 {
-    public class MoveNode<T> where T : IEquatable<T>
+    public class MoveNode<T>
     {
         private MoveNode()
         {

@@ -6,30 +6,24 @@ using ChessLib.Data.Types;
 
 namespace ChessLib.Data.MoveRepresentation
 {
-    public class MoveHashStorage : IEquatable<MoveHashStorage>
+
+    public class MoveHashStorage : MoveStorage, IEquatable<MoveHashStorage>
     {
         public MoveHashStorage(MoveExt move, Piece pieceMoving, Color colorMoving, string fen)
+        : base(move, pieceMoving, colorMoving)
         {
             FENHelpers.ValidateFENString(fen);
-            Move = move.Move;
             FEN = fen;
-            PieceMoving = pieceMoving;
-            ColorMoving = colorMoving;
             BoardStateHash = GetHashString(FEN.Split(' ')[0]);
         }
 
-        public Color ColorMoving { get; set; }
-        public ushort Move { get; }
         public string FEN { get; }
         public string BoardStateHash { get; }
-        public Piece PieceMoving { get; set; }
-
         public static byte[] GetHash(string inputString)
         {
             HashAlgorithm algorithm = SHA256.Create();
             return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
         }
-
         public static string GetHashString(string inputString)
         {
             StringBuilder sb = new StringBuilder();
@@ -38,10 +32,9 @@ namespace ChessLib.Data.MoveRepresentation
 
             return sb.ToString();
         }
-
         public bool Equals(MoveHashStorage other)
         {
-            return other != null && other.Move == Move && other.FEN == FEN;
+            return base.Equals(other) && other.FEN == FEN;
         }
     }
 }
