@@ -72,16 +72,6 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
 
         static void Main(string[] args)
         {
-            //Console.WriteLine(PieceAttackPatternHelper.KnightAttackMask[Rank.R1.ToInt(), File.A.ToInt()].PrintBoard("a1 knight Attack", Rank.R1, File.A));
-            //Console.WriteLine(PieceAttackPatternHelper.KnightAttackMask[Rank.R4.ToInt(), File.E.ToInt()].PrintBoard("e4 knight Attack", '*'));
-            //WritePawnMovesAndAttacks();
-            //WriteKingAttacks();
-            //WriteKnightAttacks();
-            //WriteBishopAttacks();
-            //WriteRookAttacks();
-
-            //graphics.SaveBoardBaseImage("boardBase.png");
-            //graphics.SaveBoardFromFen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2", "InitialBoard.png");
             var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
 
             //var games = parsePgn.GetGameTexts();
