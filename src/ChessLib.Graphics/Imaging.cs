@@ -1,34 +1,24 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using SixLabors.Fonts;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
-using SixLabors.ImageSharp.Formats.Gif;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using ChessLib.Data.Types;
-using Microsoft.Win32.SafeHandles;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.Processing.Processors.Quantization;
-using SixLabors.Shapes;
+using ImageMagick;
 using File = System.IO.File;
-using Path = SixLabors.Shapes.Path;
+using System.Drawing;
 
 namespace ChessLib.Graphics
 {
     public class Imaging
     {
-        private Image<Rgba32> _boardBase;
+        private MagickImage _boardBase;
         private readonly int _boardWidth, _squareWidth;
-        private Dictionary<char, Image<Rgba32>> _pieceMap;
-        private readonly Font _font;
+        private Dictionary<char, IMagickImage> _pieceMap;
         private readonly int _offset;
         private readonly string _blackPlayerName;
         private readonly string _whitePlayerName;
@@ -51,7 +41,7 @@ namespace ChessLib.Graphics
             }
             else _offset = 0;
             InitPieces();
-            _font = SystemFonts.CreateFont("Arial", 16);
+            // _font = SystemFonts.CreateFont("Arial", 16);
             SetBoardBaseImage();
         }
 
@@ -63,51 +53,32 @@ namespace ChessLib.Graphics
                 p.Value.Dispose();
             }
         }
-        Rgba32 SquareColor(int rank, int file) => ((rank + file) % 2) == 1 ? _imageOptions.LightSquares : _imageOptions.DarkSquares;
-        private List<Rgba32> _palette = new List<Rgba32>();
+        MagickColor SquareColor(int rank, int file) => ((rank + file) % 2) == 1 ? _imageOptions.LightSquareColor : _imageOptions.DarkSquareColor;
+
+        private List<MagickColor> _palette = new List<MagickColor>();
         private void InitPieces()
         {
             var assembly = Assembly.GetExecutingAssembly();
             using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.ChessPiecesArray.png"))
             {
-                var bm = Image.Load(resources);
-                var pieces = new List<Image<Rgba32>>();
-                var colorFrom = Rgba32.Black;
-                var colorTo = _imageOptions.BlackPieces;
-                var alterPieceColor = _imageOptions.BlackPieces != Rgba32.Black || _imageOptions.WhitePieces != Rgba32.White;
+                var bm = new MagickImage(resources);
+                var pieces = new List<IMagickImage>();
+                var colorFrom = new MagickColor(0, 0, 0);
+                var colorTo = _imageOptions.BlackPieceColor;
+                var alterPieceColor = _imageOptions.BlackPieceColor != MagickColor.FromRgb(0, 0, 0) || _imageOptions.WhitePieceColor != MagickColor.FromRgb(255, 255, 255);
 
                 for (var row = 0; row < 2; row++)
                 {
-                    if (row == 1)
-                    {
-                        colorFrom = Rgba32.White;
-                        colorTo = Rgba32.White;
-                    }
                     for (var col = 0; col < 6; col++)
                     {
                         var x = col * 60;
                         var y = row * 60;
-                        var piece = bm.Clone(i => i.Crop(new Rectangle(x, y, 60, 60)).Resize(new Size(_squareWidth, _squareWidth)));
-                        if (alterPieceColor)
-                        {
-                            piece = ChangeColor(piece, colorFrom, colorTo);
-                        }
+                        var piece = bm.Clone(new MagickGeometry(x, y, 60, 60));
                         pieces.Add(piece);
                     }
                 }
-                var textGraphicsOptions = new TextGraphicsOptions(true)
-                {
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-                var tnr = SystemFonts.Find("Times New Roman");
-                var whiteKing = new Image<Rgba32>(new Configuration(), _squareWidth, _squareWidth, Rgba32.Transparent);
-                whiteKing.Mutate(x => x.DrawText(textGraphicsOptions, "♔", new Font(tnr, (float)(_squareWidth * .9), FontStyle.Regular), _imageOptions.BlackPieces, new PointF(_squareWidth / 2, _squareWidth / 2)));
-                using (var fs = File.Open("WhiteKingFont.png", FileMode.Create))
-                {
-                    whiteKing.SaveAsPng(fs, new PngEncoder());
-                }
-                _pieceMap = new Dictionary<char, Image<Rgba32>>
+
+                _pieceMap = new Dictionary<char, IMagickImage>
                 {
                     {'q', pieces[0]},
                     {'k', pieces[1]},
@@ -125,70 +96,42 @@ namespace ChessLib.Graphics
             }
         }
 
-        private Image<Rgba32> ChangeColor(in Image<Rgba32> orig, Rgba32 from, Rgba32 to)
+        private IMagickImage ChangeColor(in IMagickImage orig, MagickColor from, MagickColor to)
         {
-            for (var x = 0; x < orig.Width; x++)
-            {
-                for (var y = 0; y < orig.Height; y++)
-                {
-                    if (orig[x, y] == from)
-                    {
-                        orig[x, y] = to;
-                    }
-                }
-            }
-
+            orig.ColorFuzz = new Percentage(80);
+            orig.Opaque(from, to);
             return orig;
         }
 
-        public void MakeGifFromMoveTree(MoveTree<MoveHashStorage> moves, string fileName, int positionDelay, int numberOfMovementFrames = 10, int totalMovementTime = 50)
+        public void MakeGifFromMoveTree(MoveTree<MoveHashStorage> moves, string fileName, double positionDelayInSeconds, int numberOfMovementFrames = 10, double totalMovementTimeInSeconds = 0.50)
         {
-            using (var board = MakeBoardFromFen(moves.FENStart))
+            using (var board = new MagickImageCollection(new[] { MakeBoardFromFen(moves.FENStart) }))
             {
+                board[0].AnimationDelay = (int)(positionDelayInSeconds * 100 * 2);
                 var previousFEN = moves.FENStart;
+                var movementTimeHudredthsOfSecond = (totalMovementTimeInSeconds * 100);
+                var frameDelay = movementTimeHudredthsOfSecond / numberOfMovementFrames;
                 foreach (var mv in moves)
                 {
-
-
                     var pieceMoving =
                         _pieceMap[PieceHelpers.GetCharRepresentation(mv.Move.ColorMoving, mv.Move.PieceMoving)];
-                    var transImages = MakeMovementFrames(previousFEN, pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames);
+                    var transImages = MakeMovementFrames(previousFEN, (MagickImage)pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames);
                     foreach (var f in transImages)
                     {
-                        var frameDelay = totalMovementTime / numberOfMovementFrames;
-                        board.Frames.AddFrame(f.Frames[0]);
-                        var gifMetaData = board.Frames.Last().MetaData.GetFormatMetaData(GifFormat.Instance);
-                        gifMetaData.FrameDelay = frameDelay;
-                        gifMetaData.ColorTableLength = 5;
+
+                        f.AnimationDelay = (int)frameDelay;
+                        board.Add(f.Clone());
                         f.Dispose();
 
                     }
                     var finalBoard = MakeBoardFromFen(mv.Move.FEN);
-
-
-                    var finalPosition = finalBoard.Frames.RootFrame;
-
-                    finalPosition.MetaData.GetFormatMetaData(GifFormat.Instance).FrameDelay = positionDelay;
-                    finalPosition.MetaData.GetFormatMetaData(GifFormat.Instance).ColorTableLength = 4;
-
-                    board.Frames.AddFrame(finalPosition);
+                    finalBoard.AnimationDelay = (int)(positionDelayInSeconds * 100);
+                    board.Add(finalBoard);
                     previousFEN = mv.Move.FEN;
-
                 }
 
-                var firstFrame = board.Frames.First().MetaData.GetFormatMetaData(GifFormat.Instance);
-                firstFrame.FrameDelay = positionDelay * 2;
-                var finalFrame = board.Frames.Last().MetaData.GetFormatMetaData(GifFormat.Instance);
-                finalFrame.FrameDelay = (int)Math.Round(positionDelay * 2.5);
-
-
-                var metadata = board.MetaData;
-                var tableLength = metadata.GetFormatMetaData(GifFormat.Instance).GlobalColorTableLength;
-                var paletteQuantizer = new PaletteQuantizer<Rgba32>(_imageOptions.GetPalette());
-                var gifEncoder = new GifEncoder() { ColorTableMode = GifColorTableMode.Global, Quantizer = paletteQuantizer };
-
                 // board.Save("regular.gif");
-                board.Save("webencoded.gif", gifEncoder);
+                board.Write("webencoded.gif");
 
 
                 //for (int i = 0; i < board.Frames.Count; i++)
@@ -198,20 +141,24 @@ namespace ChessLib.Graphics
             }
         }
 
-        private IEnumerable<Image<Rgba32>> MakeMovementFrames(string fen, Image<Rgba32> pieceMoving,
+        private IEnumerable<IMagickImage> MakeMovementFrames(string fen, MagickImage pieceMoving,
             ushort sqFrom, ushort sqTo, int frames)
         {
-
-            var rv = new List<Image<Rgba32>>();
+            var points = new PointD[frames];
+            var rv = new List<IMagickImage>();
             var pFrom = GetPointFromBoardIndex(sqFrom);
             var pTo = GetPointFromBoardIndex(sqTo);
-            Path p = new Path(new LinearLineSegment(pFrom, pTo));
-            var sizeOfTransitions = p.Length / (frames + 1);
-            var points = new PointF[frames];
-            int i;
-            for (i = 0; i < frames; i++)
+
+            var rise = pTo.Y - pFrom.Y;
+            var run = pTo.X - pFrom.X;
+
+            var riseSegment = rise / frames;
+            var runSegment = run / frames;
+
+            for (int i = 0; i < frames; i++)
             {
-                points[i] = p.PointAlongPath(sizeOfTransitions * i).Point;
+                var pointInLine = new PointD(pFrom.X + (run * (i + 1)), pFrom.Y + (rise * (i + 1)));
+                points[i] = pointInLine;
             }
 
             var moveNumber = FENHelpers.GetMoveNumberFromString(fen.GetFENPiece(FENPieces.FullMoveCounter));
@@ -226,33 +173,34 @@ namespace ChessLib.Graphics
                     using (var tImage = baseImage.Clone())
                     {
 
-                        var drawPoint = new Point((int)point.X, (int)point.Y);
-                        tImage.Mutate(m => m.DrawImage(pieceMoving, drawPoint, 1));
-                        rv.Add(tImage.Clone());
+                        var drawPoint = new PointD((int)point.X, (int)point.Y);
+                        var newImage = tImage.Clone();
+                        newImage.Composite(pieceMoving, drawPoint);
+                        rv.Add(newImage);
                     }
                 }
             }
             return rv.ToArray();
         }
 
-        private Point GetPointFromBoardIndex(ushort sq)
+        private PointD GetPointFromBoardIndex(ushort sq)
         {
             var x = ((sq % 8) * _squareWidth) + _squareWidth;
             var y = (Math.Abs((sq / 8) - 7)) * _squareWidth + _offset;
-            return new Point(x, y);
+            return new PointD(x, y);
 
         }
-        private Rectangle GetRectFromBoardIndex(ushort square)
+        private RectangleF GetRectFromBoardIndex(ushort square)
         {
             var p = GetPointFromBoardIndex(square);
-            return new Rectangle(p.X, p.Y + _offset, _squareWidth, _squareWidth);
+            return new RectangleF((float)p.X, (float)p.Y + _offset, _squareWidth, _squareWidth);
         }
 
-        public Image<Rgba32> MakeBoardFromFen(string fen, ushort? leaveEmptyBoardIndex = null)
+        public MagickImage MakeBoardFromFen(string fen, ushort? leaveEmptyBoardIndex = null)
         {
             var board = _boardBase.Clone();
             var ranks = fen.GetRanksFromFen();
-            Point? emptySquare = null;
+            PointD? emptySquare = null;
             if (leaveEmptyBoardIndex.HasValue)
                 emptySquare = GetPointFromBoardIndex(leaveEmptyBoardIndex.Value);
             for (var fenRank = 0; fenRank < ranks.Length; fenRank++)
@@ -272,10 +220,11 @@ namespace ChessLib.Graphics
                     else
                     {
                         PieceHelpers.GetPiece(p);
-                        var center = new Point(x, y);
+                        var center = new PointD(x, y);
                         if (ShouldDrawPieceInSquare(emptySquare, center))
                         {
-                            board.Mutate(i => i.DrawImage(_pieceMap[p], center, 1));
+                            var pieceImage = _pieceMap[p];
+                            board.Composite(pieceImage, new PointD(x, y));
                         }
                     }
 
@@ -283,10 +232,10 @@ namespace ChessLib.Graphics
                 }
             }
 
-            return board;
+            return (MagickImage)board;
         }
 
-        private static bool ShouldDrawPieceInSquare(Point? emptySquare, Point currentSquare)
+        private static bool ShouldDrawPieceInSquare(PointD? emptySquare, PointD currentSquare)
         {
             if (emptySquare.HasValue)
             {
@@ -304,70 +253,64 @@ namespace ChessLib.Graphics
             using (var board = MakeBoardFromFen(fen))
             {
 
-                board.Save(fileName);
+                board.Write(fileName);
             }
         }
 
+        private PointD UpperSquareCoordinate(int rank, int file) => new PointD(file * _squareWidth, ((Math.Abs(rank - 8)) * _squareWidth) + _offset);
+        private PointD LowerSquareCoordinate(int rank, int file)
+        {
+            var upper = UpperSquareCoordinate(rank, file);
+            return LowerSquareCoordinate(upper);
+        }
+        private PointD LowerSquareCoordinate(PointD upperSquareCoordinate)
+        {
+            return new PointD(upperSquareCoordinate.X + _squareWidth, upperSquareCoordinate.Y + _squareWidth);
+        }
+        private PointD CenterOfRectangle(double upperX, double upperY, double lowerX, double lowerY)
+        {
+            var centerX = (upperX + lowerX) / 2;
+            var centerY = (upperY + lowerY) / 2;
+            return new PointD(centerX, centerY);
+        }
+
+
         private void SetBoardBaseImage()
         {
-            var config = new Configuration(new GifConfigurationModule());
-            _boardBase = new Image<Rgba32>(config, _boardWidth, _boardWidth + (_offset * 2), _imageOptions.BackgroundColor);
-            _boardBase.MetaData.GetFormatMetaData(GifFormat.Instance).ColorTableMode = GifColorTableMode.Global;
-            var textGraphicsOptions = new TextGraphicsOptions(true)
-            {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+            _boardBase = new MagickImage(_imageOptions.BackgroundColor, _boardWidth, _boardWidth);
+            var textColor = _imageOptions.TextColor;
+
             if (_offset != 0)
             {
-                var centerOfRank = new PointF((float)_boardWidth / 2, (float)_squareWidth / 2);
-                _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _blackPlayerName, _font, _imageOptions.Text, centerOfRank));
-                centerOfRank.Y = _squareWidth * 10 + (_offset / 2);
-                _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _whitePlayerName, _font, _imageOptions.Text, centerOfRank));
+                var blackPlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth / 2, _blackPlayerName);
+                var whitePlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth * 10 + (_offset / 2), _whitePlayerName);
+                _boardBase.Draw(blackPlayerNameDrawable, whitePlayerNameDrawable);
             }
-            for (var rank = 8; rank > 0; rank--)
+            var listOfSquares = new Drawables();
+            for (var rank = 8; rank >= 0; rank--)
             {
-                for (var file = 1; file < 9; file++)
+                for (var file = 0; file < 9; file++)
                 {
-                    var x = file * _squareWidth;
-                    var rVal = Math.Abs(rank - 8);
-                    var y = (rVal * _squareWidth) + _offset;
-                    var rect = new RectangleF(x, y, _squareWidth, _squareWidth);
-                    var brush = SquareColor(rank, file);
+                    var upper = UpperSquareCoordinate(rank, file);
+                    var lower = LowerSquareCoordinate(upper);
+                    var center = CenterOfRectangle(upper.X, upper.Y, lower.X, lower.Y);
                     if (file != 0 || rank != 0)
                     {
-                        _boardBase.Mutate(i => i.Fill(GraphicsOptions.Default, brush, rect));
+                        listOfSquares.Rectangle(upper.X, upper.Y, lower.X, lower.Y).FillColor(SquareColor(rank, file));
+                    }
+                    else if (rank == 0 && file == 9)
+                    {
+                        var strFile = ((char)('A' + (file - 1))).ToString();
+                        listOfSquares.Text(center.X, center.Y, strFile).TextAlignment(TextAlignment.Center).FillColor(textColor);
+                    }
+                    else if (file == 0 && rank != 0)
+                    {
+                        var strRank = rank.ToString();
+                        listOfSquares.Text(center.X, center.Y, strRank).TextAlignment(TextAlignment.Center);
                     }
                 }
             }
-
-            for (var rank = 8; rank > 0; rank--)
-            {
-                var y = (Math.Abs(rank - 8)) * _squareWidth + _offset;
-                var x = 0;
-                var cRank = rank.ToString();
-                var rect = new RectangleF(x, y, _squareWidth, _squareWidth);
-                var center = new PointF(x + (_squareWidth / 2), y + (_squareWidth / 2));
-                _boardBase.Mutate(i => i.Fill(GraphicsOptions.Default, _imageOptions.BackgroundColor, rect));
-                _boardBase.Mutate(i => i.DrawText(textGraphicsOptions, cRank, _font, _imageOptions.Text, center));
-            }
-
-            for (var file = 0; file < 9; file++)
-            {
-
-                var y = (8 * _squareWidth) + _offset;
-                var x = file * _squareWidth;
-                var cRank = ((char)('A' + (file - 1))).ToString();
-
-                var rect = new RectangleF(x, y, _squareWidth, _squareWidth);
-                var center = new PointF(x + (_squareWidth / 2), y + (_squareWidth / 2));
-                _boardBase.Mutate(i => i.Fill(GraphicsOptions.Default, _imageOptions.BackgroundColor, rect));
-                if (file > 0)
-                {
-                    _boardBase.Mutate(i => i.DrawText(textGraphicsOptions, cRank, _font, Rgba32.Black, center));
-                }
-            }
-
+            _boardBase.Draw(listOfSquares);
         }
     }
 }

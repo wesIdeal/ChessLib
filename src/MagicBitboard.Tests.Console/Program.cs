@@ -73,8 +73,8 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
 
         static void Main(string[] args)
         {
-            var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
-            parsePgn = ParsePgn.FromText(pgn);
+            //var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
+            var parsePgn = ParsePgn.FromText(pgn);
             //var games = parsePgn.GetGameTexts();
             var games = parsePgn.GetGames<BoardInfo, MoveHashStorage>(MaxGames: 1);
             var game = games[0];
@@ -97,10 +97,10 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             var fileName = $"{white}-{black}.gif";
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var graphics = new Imaging(40,
-                new ImageOptions() { BlackPieces = Rgba32.DarkGray, WhitePieces = Rgba32.BlanchedAlmond }, black, white);
+            var graphics = new Imaging(80,
+                new ImageOptions(), black, white);
 
-            graphics.MakeGifFromMoveTree(game.MoveSection, $".\\GameGifs\\{fileName}", 80, 4, 20);
+            graphics.MakeGifFromMoveTree(game.MoveSection, $".\\GameGifs\\{fileName}", 1, 4, 0.5);
             sw.Stop();
             Debug.WriteLine($"Created and wrote {fileName} in {sw.ElapsedMilliseconds}ms.");
 
