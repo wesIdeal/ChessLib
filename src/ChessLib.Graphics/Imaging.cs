@@ -74,6 +74,8 @@ namespace ChessLib.Graphics
                         var x = col * 60;
                         var y = row * 60;
                         var piece = bm.Clone(new MagickGeometry(x, y, 60, 60));
+                        piece.Resize(_squareWidth, _squareWidth);
+                        piece.Alpha(AlphaOption.Set);
                         pieces.Add(piece);
                     }
                 }
@@ -175,7 +177,7 @@ namespace ChessLib.Graphics
 
                         var drawPoint = new PointD((int)point.X, (int)point.Y);
                         var newImage = tImage.Clone();
-                        newImage.Composite(pieceMoving, drawPoint);
+                        newImage.Composite(pieceMoving, drawPoint, CompositeOperator.Alpha);
                         rv.Add(newImage);
                     }
                 }
@@ -224,7 +226,7 @@ namespace ChessLib.Graphics
                         if (ShouldDrawPieceInSquare(emptySquare, center))
                         {
                             var pieceImage = _pieceMap[p];
-                            board.Composite(pieceImage, new PointD(x, y));
+                            board.Composite(pieceImage, new PointD(x, y), CompositeOperator.SrcAtop);
                         }
                     }
 
@@ -257,7 +259,7 @@ namespace ChessLib.Graphics
             }
         }
 
-        private PointD UpperSquareCoordinate(int rank, int file) => new PointD(file * _squareWidth, ((Math.Abs(rank - 8)) * _squareWidth) + _offset);
+        private PointD UpperSquareCoordinate(int rank, int file) => new PointD(file * _squareWidth, ((Math.Abs(rank - 9)) * _squareWidth));
         private PointD LowerSquareCoordinate(int rank, int file)
         {
             var upper = UpperSquareCoordinate(rank, file);
@@ -283,34 +285,43 @@ namespace ChessLib.Graphics
             if (_offset != 0)
             {
                 var blackPlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth / 2, _blackPlayerName);
-                var whitePlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth * 10 + (_offset / 2), _whitePlayerName);
+
+                var whitePlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _whitePlayerName);
                 _boardBase.Draw(blackPlayerNameDrawable, whitePlayerNameDrawable);
             }
             var listOfSquares = new Drawables();
-            for (var rank = 8; rank >= 0; rank--)
+            for (var rank = 9; rank >= 0; rank--)
             {
-                for (var file = 0; file < 9; file++)
+                for (var file = 0; file <= 8; file++)
                 {
+                    var strFile = ((char)('A' + (file - 1))).ToString();
+                    var strRank = rank.ToString();
                     var upper = UpperSquareCoordinate(rank, file);
                     var lower = LowerSquareCoordinate(upper);
+                    var squareColor = SquareColor(rank, file);
                     var center = CenterOfRectangle(upper.X, upper.Y, lower.X, lower.Y);
-                    if (file != 0 || rank != 0)
+                    if (file > 0 && rank > 0 && rank < 9)
                     {
-                        listOfSquares.Rectangle(upper.X, upper.Y, lower.X, lower.Y).FillColor(SquareColor(rank, file));
+                        listOfSquares.StrokeColor(squareColor).FillColor(squareColor).Rectangle(upper.X, upper.Y, lower.X, lower.Y);
                     }
-                    else if (rank == 0 && file == 9)
+                    // write file
+                    else if (rank == 0 && file > 0)
                     {
-                        var strFile = ((char)('A' + (file - 1))).ToString();
-                        listOfSquares.Text(center.X, center.Y, strFile).TextAlignment(TextAlignment.Center).FillColor(textColor);
+                        var topOfSquare = (_squareWidth * 0.2);
+
+                        listOfSquares.StrokeColor(textColor).FillColor(textColor).Text(center.X, upper.Y + topOfSquare, strFile).TextAlignment(TextAlignment.Center);
                     }
-                    else if (file == 0 && rank != 0)
+                    // write rank
+                    else if (file == 0 && rank != 0 && rank != 9)
                     {
-                        var strRank = rank.ToString();
-                        listOfSquares.Text(center.X, center.Y, strRank).TextAlignment(TextAlignment.Center);
+                        var rightOfSquare = (_squareWidth * 0.8);
+
+                        listOfSquares.StrokeColor(textColor).FillColor(textColor).Text(upper.X + rightOfSquare, center.Y, strRank).TextAlignment(TextAlignment.Center);
                     }
                 }
             }
             _boardBase.Draw(listOfSquares);
+            _boardBase.Write("boardBase.png");
         }
     }
 }

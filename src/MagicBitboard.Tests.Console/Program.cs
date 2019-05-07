@@ -99,8 +99,9 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             sw.Start();
             var graphics = new Imaging(80,
                 new ImageOptions(), black, white);
-
-            graphics.MakeGifFromMoveTree(game.MoveSection, $".\\GameGifs\\{fileName}", 1, 4, 0.5);
+            var board = graphics.MakeBoardFromFen(FENHelpers.FENInitial);
+            board.Write("initboard.png");
+            //graphics.MakeGifFromMoveTree(game.MoveSection, $".\\GameGifs\\{fileName}", 1, 4, 0.5);
             sw.Stop();
             Debug.WriteLine($"Created and wrote {fileName} in {sw.ElapsedMilliseconds}ms.");
 
