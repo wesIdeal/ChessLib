@@ -9,31 +9,39 @@ using SixLabors.Primitives;
 using SixLabors.ImageSharp.Formats.Gif;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using ChessLib.Data.Types;
+using Microsoft.Win32.SafeHandles;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.Shapes;
+using File = System.IO.File;
+using Path = SixLabors.Shapes.Path;
 
 namespace ChessLib.Graphics
 {
-    public class FENToImage
+    public class Imaging
     {
         private Image<Rgba32> _boardBase;
         private readonly int _boardWidth, _squareWidth;
-        private readonly Rgba32 _darkSquares = Rgba32.DarkOliveGreen;
-        private readonly Rgba32 _lightSquares = Rgba32.LightGray;
-        private readonly Rgba32 _background = Rgba32.WhiteSmoke;
         private Dictionary<char, Image<Rgba32>> _pieceMap;
         private readonly Font _font;
         private readonly int _offset;
         private readonly string _blackPlayerName;
         private readonly string _whitePlayerName;
+        private readonly ImageOptions _imageOptions = new ImageOptions();
 
-        public FENToImage(int squareWidth = 80, string black = "", string white = "")
+        public Imaging(int squareWidth = 80, ImageOptions imageOptions = null, string black = "", string white = "")
         {
-
+            if (imageOptions != null)
+            {
+                _imageOptions = imageOptions;
+            }
             _squareWidth = squareWidth;
-            _boardWidth = squareWidth * 9;
+            _boardWidth = squareWidth * 10;
 
             if (!string.IsNullOrWhiteSpace(black))
             {
@@ -47,7 +55,7 @@ namespace ChessLib.Graphics
             SetBoardBaseImage();
         }
 
-        ~FENToImage()
+        ~Imaging()
         {
             _boardBase.Dispose();
             foreach (var p in _pieceMap)
@@ -55,8 +63,8 @@ namespace ChessLib.Graphics
                 p.Value.Dispose();
             }
         }
-        Rgba32 SquareColor(int rank, int file) => ((rank + file) % 2) == 1 ? _lightSquares : _darkSquares;
-
+        Rgba32 SquareColor(int rank, int file) => ((rank + file) % 2) == 1 ? _imageOptions.LightSquares : _imageOptions.DarkSquares;
+        private List<Rgba32> _palette = new List<Rgba32>();
         private void InitPieces()
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -64,19 +72,41 @@ namespace ChessLib.Graphics
             {
                 var bm = Image.Load(resources);
                 var pieces = new List<Image<Rgba32>>();
+                var colorFrom = Rgba32.Black;
+                var colorTo = _imageOptions.BlackPieces;
+                var alterPieceColor = _imageOptions.BlackPieces != Rgba32.Black || _imageOptions.WhitePieces != Rgba32.White;
+
                 for (var row = 0; row < 2; row++)
                 {
+                    if (row == 1)
+                    {
+                        colorFrom = Rgba32.White;
+                        colorTo = Rgba32.White;
+                    }
                     for (var col = 0; col < 6; col++)
                     {
                         var x = col * 60;
                         var y = row * 60;
-                        var piece = bm.Clone(i =>
-                            i.Crop(new Rectangle(x, y, 60, 60)).Resize(new Size(_squareWidth, _squareWidth)));
+                        var piece = bm.Clone(i => i.Crop(new Rectangle(x, y, 60, 60)).Resize(new Size(_squareWidth, _squareWidth)));
+                        if (alterPieceColor)
+                        {
+                            piece = ChangeColor(piece, colorFrom, colorTo);
+                        }
                         pieces.Add(piece);
-
                     }
                 }
-
+                var textGraphicsOptions = new TextGraphicsOptions(true)
+                {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                var tnr = SystemFonts.Find("Times New Roman");
+                var whiteKing = new Image<Rgba32>(new Configuration(), _squareWidth, _squareWidth, Rgba32.Transparent);
+                whiteKing.Mutate(x => x.DrawText(textGraphicsOptions, "♔", new Font(tnr, (float)(_squareWidth * .9), FontStyle.Regular), _imageOptions.BlackPieces, new PointF(_squareWidth / 2, _squareWidth / 2)));
+                using (var fs = File.Open("WhiteKingFont.png", FileMode.Create))
+                {
+                    whiteKing.SaveAsPng(fs, new PngEncoder());
+                }
                 _pieceMap = new Dictionary<char, Image<Rgba32>>
                 {
                     {'q', pieces[0]},
@@ -95,6 +125,21 @@ namespace ChessLib.Graphics
             }
         }
 
+        private Image<Rgba32> ChangeColor(in Image<Rgba32> orig, Rgba32 from, Rgba32 to)
+        {
+            for (var x = 0; x < orig.Width; x++)
+            {
+                for (var y = 0; y < orig.Height; y++)
+                {
+                    if (orig[x, y] == from)
+                    {
+                        orig[x, y] = to;
+                    }
+                }
+            }
+
+            return orig;
+        }
 
         public void MakeGifFromMoveTree(MoveTree<MoveHashStorage> moves, string fileName, int positionDelay, int numberOfMovementFrames = 10, int totalMovementTime = 50)
         {
@@ -104,7 +149,7 @@ namespace ChessLib.Graphics
                 foreach (var mv in moves)
                 {
 
-                 
+
                     var pieceMoving =
                         _pieceMap[PieceHelpers.GetCharRepresentation(mv.Move.ColorMoving, mv.Move.PieceMoving)];
                     var transImages = MakeMovementFrames(previousFEN, pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames);
@@ -135,9 +180,15 @@ namespace ChessLib.Graphics
                 firstFrame.FrameDelay = positionDelay * 2;
                 var finalFrame = board.Frames.Last().MetaData.GetFormatMetaData(GifFormat.Instance);
                 finalFrame.FrameDelay = (int)Math.Round(positionDelay * 2.5);
-                board.MetaData.GetFormatMetaData(GifFormat.Instance).ColorTableMode = GifColorTableMode.Global;
 
-                board.Save(fileName);
+
+                var metadata = board.MetaData;
+                var tableLength = metadata.GetFormatMetaData(GifFormat.Instance).GlobalColorTableLength;
+                var paletteQuantizer = new PaletteQuantizer<Rgba32>(_imageOptions.GetPalette());
+                var gifEncoder = new GifEncoder() { ColorTableMode = GifColorTableMode.Global, Quantizer = paletteQuantizer };
+
+                // board.Save("regular.gif");
+                board.Save("webencoded.gif", gifEncoder);
 
 
                 //for (int i = 0; i < board.Frames.Count; i++)
@@ -259,8 +310,9 @@ namespace ChessLib.Graphics
 
         private void SetBoardBaseImage()
         {
-
-            _boardBase = new Image<Rgba32>(_boardWidth, _boardWidth + (_offset * 2));
+            var config = new Configuration(new GifConfigurationModule());
+            _boardBase = new Image<Rgba32>(config, _boardWidth, _boardWidth + (_offset * 2), _imageOptions.BackgroundColor);
+            _boardBase.MetaData.GetFormatMetaData(GifFormat.Instance).ColorTableMode = GifColorTableMode.Global;
             var textGraphicsOptions = new TextGraphicsOptions(true)
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -269,9 +321,9 @@ namespace ChessLib.Graphics
             if (_offset != 0)
             {
                 var centerOfRank = new PointF((float)_boardWidth / 2, (float)_squareWidth / 2);
-                _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _blackPlayerName, _font, Rgba32.Black, centerOfRank));
+                _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _blackPlayerName, _font, _imageOptions.Text, centerOfRank));
                 centerOfRank.Y = _squareWidth * 10 + (_offset / 2);
-                _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _whitePlayerName, _font, Rgba32.Black, centerOfRank));
+                _boardBase.Mutate(x => x.DrawText(textGraphicsOptions, _whitePlayerName, _font, _imageOptions.Text, centerOfRank));
             }
             for (var rank = 8; rank > 0; rank--)
             {
@@ -296,8 +348,8 @@ namespace ChessLib.Graphics
                 var cRank = rank.ToString();
                 var rect = new RectangleF(x, y, _squareWidth, _squareWidth);
                 var center = new PointF(x + (_squareWidth / 2), y + (_squareWidth / 2));
-                _boardBase.Mutate(i => i.Fill(GraphicsOptions.Default, _background, rect));
-                _boardBase.Mutate(i => i.DrawText(textGraphicsOptions, cRank, _font, Rgba32.Black, center));
+                _boardBase.Mutate(i => i.Fill(GraphicsOptions.Default, _imageOptions.BackgroundColor, rect));
+                _boardBase.Mutate(i => i.DrawText(textGraphicsOptions, cRank, _font, _imageOptions.Text, center));
             }
 
             for (var file = 0; file < 9; file++)
@@ -309,7 +361,7 @@ namespace ChessLib.Graphics
 
                 var rect = new RectangleF(x, y, _squareWidth, _squareWidth);
                 var center = new PointF(x + (_squareWidth / 2), y + (_squareWidth / 2));
-                _boardBase.Mutate(i => i.Fill(GraphicsOptions.Default, _background, rect));
+                _boardBase.Mutate(i => i.Fill(GraphicsOptions.Default, _imageOptions.BackgroundColor, rect));
                 if (file > 0)
                 {
                     _boardBase.Mutate(i => i.DrawText(textGraphicsOptions, cRank, _font, Rgba32.Black, center));

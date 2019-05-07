@@ -11,6 +11,7 @@ using ChessLib.Data.MoveRepresentation;
 using ChessLib.Graphics;
 using ChessLib.MagicBitboard;
 using ChessLib.Parse.PGN;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Bitboard.Tests.ConsoleApp
 {
@@ -73,9 +74,9 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
         static void Main(string[] args)
         {
             var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
-
+            parsePgn = ParsePgn.FromText(pgn);
             //var games = parsePgn.GetGameTexts();
-            var games = parsePgn.GetGames<BoardInfo, MoveHashStorage>();
+            var games = parsePgn.GetGames<BoardInfo, MoveHashStorage>(MaxGames: 1);
             var game = games[0];
             Console.WriteLine($"Avg time per move:\t{parsePgn.AvgTimePerMove} ms");
             Console.WriteLine($"Avg time per game:\t{parsePgn.AvgTimePerGame} ms");
@@ -96,7 +97,9 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             var fileName = $"{white}-{black}.gif";
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var graphics = new ChessLib.Graphics.FENToImage(80, black, white);
+            var graphics = new Imaging(40,
+                new ImageOptions() { BlackPieces = Rgba32.DarkGray, WhitePieces = Rgba32.BlanchedAlmond }, black, white);
+
             graphics.MakeGifFromMoveTree(game.MoveSection, $".\\GameGifs\\{fileName}", 80, 4, 20);
             sw.Stop();
             Debug.WriteLine($"Created and wrote {fileName} in {sw.ElapsedMilliseconds}ms.");

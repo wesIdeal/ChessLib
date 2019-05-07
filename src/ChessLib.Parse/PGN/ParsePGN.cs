@@ -43,7 +43,7 @@ namespace ChessLib.Parse.PGN
         public double TotalValidationTime;
         public double TotalTime;
 
-        public List<Game<IMoveText>> GetGameTexts()
+        public List<Game<IMoveText>> GetGameTexts(int? maxGames = null)
         {
 
             var listener = new PGNListener();
@@ -66,7 +66,7 @@ namespace ChessLib.Parse.PGN
         /// Gets MoveExt objects from PGN and validates moves while parsing.
         /// </summary>
         /// <returns>Validated Moves</returns>
-        public List<Game<TMoveStorage>> GetGames<TBoardService, TMoveStorage>()
+        public List<Game<TMoveStorage>> GetGames<TBoardService, TMoveStorage>(int? MaxGames = null)
             where TBoardService : BoardInformationService<TMoveStorage> where TMoveStorage : MoveStorage
         {
             var rv = new List<Game<TMoveStorage>>();
@@ -74,7 +74,8 @@ namespace ChessLib.Parse.PGN
             var perGame = new List<long>();
             var sw = new Stopwatch();
             var games = GetGameTexts();
-            foreach (var game in games)
+            var gameCount = MaxGames.HasValue ? MaxGames.Value : games.Count();
+            foreach (var game in games.Take(gameCount))
             {
                 sw.Reset();
                 sw.Start();

@@ -17,6 +17,7 @@ namespace ChessLib.Parse.PGN.Parser
         private uint _moveCount;
         public PGNListener()
         {
+
             Games = new List<Game<IMoveText>>();
             _gamePerformance = new List<Tuple<uint, long>>();
             _stopwatch = new Stopwatch();
@@ -30,6 +31,7 @@ namespace ChessLib.Parse.PGN.Parser
 
 
         private readonly Stack<MoveTree<IMoveText>> _moveTreeStack = new Stack<MoveTree<IMoveText>>();
+        private int? _maxGames;
         public List<Game<IMoveText>> Games;
 
         private Game<IMoveText> CurrentGame { get; set; }
@@ -51,7 +53,7 @@ namespace ChessLib.Parse.PGN.Parser
         public override void ExitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
         {
             _stopwatch.Stop();
-           _gamePerformance.Add(new Tuple<uint, long>(_moveCount, _stopwatch.ElapsedMilliseconds));
+            _gamePerformance.Add(new Tuple<uint, long>(_moveCount, _stopwatch.ElapsedMilliseconds));
             TotalTime += _stopwatch.Elapsed.TotalSeconds;
             _stopwatch.Reset();
             Games.Add(CurrentGame);
