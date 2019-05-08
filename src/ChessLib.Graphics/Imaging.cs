@@ -4,6 +4,7 @@ using ChessLib.Data.MoveRepresentation;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,8 @@ using ChessLib.Data.Types;
 using ImageMagick;
 using File = System.IO.File;
 using System.Drawing;
+using System.Net.Mime;
+using SixLabors.Fonts;
 
 namespace ChessLib.Graphics
 {
@@ -18,7 +21,9 @@ namespace ChessLib.Graphics
     {
         private MagickImage _boardBase;
         private readonly int _boardWidth, _squareWidth;
-        private Dictionary<char, IMagickImage> _pieceMap;
+        private Dictionary<char, IMagickImage> _pieceMap => _svgPieceMap;
+        private Dictionary<char, IMagickImage> _pngPieceMap;
+        private Dictionary<char, IMagickImage> _svgPieceMap;
         private readonly int _offset;
         private readonly string _blackPlayerName;
         private readonly string _whitePlayerName;
@@ -32,6 +37,8 @@ namespace ChessLib.Graphics
             }
             _squareWidth = squareWidth;
             _boardWidth = squareWidth * 10;
+            var assembly = Assembly.GetExecutingAssembly();
+            var names = assembly.GetManifestResourceNames();
 
             if (!string.IsNullOrWhiteSpace(black))
             {
@@ -42,13 +49,86 @@ namespace ChessLib.Graphics
             else _offset = 0;
             InitPieces();
             // _font = SystemFonts.CreateFont("Arial", 16);
-            SetBoardBaseImage();
+            //SetBoardBaseImage();
+            SetBoardBaseImageFromSVG();
+        }
+
+        private void SetBoardBaseImageFromSVG()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.Board.svg"))
+            {
+                MagickReadSettings readSettings = new MagickReadSettings { Format = MagickFormat.Svg };
+                using (var bm = new MagickImage(resources, readSettings))
+                {
+                    bm.Opaque(MagickColor.FromRgb(255, 255, 255), _imageOptions.LightSquareColor);
+                    bm.Opaque(MagickColor.FromRgb(0, 0, 0), _imageOptions.DarkSquareColor);
+                    bm.Resize(_squareWidth * 8, _squareWidth * 8);
+                    bm.Extent(_boardWidth, _boardWidth, Gravity.Center, _imageOptions.BackgroundColor);
+                    var listOfSquares = new Drawables();
+                    var textColor = _imageOptions.TextColor;
+                    var fontSizePixels = _squareWidth * 0.15;
+                    // write file
+                    for (var rank = 9; rank >= 0; rank--)
+                    {
+                        for (var file = 0; file <= 8; file++)
+                        {
+                            var strFile = ((char)('A' + (file - 1))).ToString();
+                            var strRank = rank.ToString();
+                            var upper = UpperSquareCoordinate(rank, file);
+                            var lower = LowerSquareCoordinate(upper);
+                            var squareColor = SquareColor(rank, file);
+                            var center = CenterOfRectangle(upper.X, upper.Y, lower.X, lower.Y);
+
+                            if (rank == 0 && file > 0)
+                            {
+                                var topOfSquare = (_squareWidth * 0.2);
+
+                                listOfSquares.FontPointSize(fontSizePixels).StrokeColor(textColor).FillColor(textColor)
+                                    .Text(center.X, upper.Y + topOfSquare, strFile).TextAlignment(TextAlignment.Center);
+                            }
+                            // write rank
+                            else if (file == 0 && rank != 0 && rank != 9)
+                            {
+                                var rightOfSquare = (_squareWidth * 0.8);
+
+                                listOfSquares.FontPointSize(fontSizePixels).StrokeColor(textColor).FillColor(textColor)
+                                    .Text(upper.X + rightOfSquare, center.Y, strRank)
+                                    .TextAlignment(TextAlignment.Center);
+                            }
+                        }
+
+                    }
+                    bm.Draw(listOfSquares);
+                    var nameFontSize = _squareWidth * 0.2;
+                    if (_offset != 0)
+                    {
+                        var drawables = new Drawables();
+
+                        drawables
+                            .FontPointSize(nameFontSize)
+                            .TextAlignment(TextAlignment.Center)
+                            .StrokeColor(_imageOptions.TextColor)
+                            .FillColor(_imageOptions.TextColor)
+                            .Font("Arial", FontStyleType.Normal, FontWeight.Normal, FontStretch.Normal)
+                            .Text(_boardWidth / 2, _squareWidth / 2, _whitePlayerName)
+                            .Text(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _blackPlayerName);
+                        //var whitePlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _whitePlayerName);
+                        //_boardBase.Draw(blackPlayerNameDrawable, whitePlayerNameDrawable);
+                        bm.Draw(drawables);
+                    }
+
+                    _boardBase = (MagickImage)bm.Clone();
+                    _boardBase.Write("boardBaseFromSvg.png");
+
+                }
+            }
         }
 
         ~Imaging()
         {
             _boardBase.Dispose();
-            foreach (var p in _pieceMap)
+            foreach (var p in _pngPieceMap)
             {
                 p.Value.Dispose();
             }
@@ -59,13 +139,55 @@ namespace ChessLib.Graphics
         private void InitPieces()
         {
             var assembly = Assembly.GetExecutingAssembly();
+            using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.ChessPieces.svg"))
+            {
+                var readSettings = new MagickReadSettings();
+                readSettings.BackgroundColor = MagickColors.Transparent;
+                var bm = new MagickImage(resources, readSettings);
+                var pieces = new List<IMagickImage>();
+                var colorFrom = new MagickColor(0, 0, 0);
+                var colorTo = _imageOptions.BlackPieceColor;
+                var alterPieceColor = _imageOptions.BlackPieceColor != MagickColor.FromRgb(0, 0, 0) || _imageOptions.WhitePieceColor != MagickColor.FromRgb(255, 255, 255);
+
+                for (var row = 0; row < 2; row++)
+                {
+                    for (var col = 0; col < 6; col++)
+                    {
+                        var x = col * 45;
+                        var y = row * 45;
+                        var piece = bm.Clone(new MagickGeometry(x, y, 45, 45));
+                        piece.Resize(_squareWidth, _squareWidth);
+                        piece.Alpha(AlphaOption.Set);
+                        pieces.Add(piece);
+                    }
+                }
+
+                _svgPieceMap = new Dictionary<char, IMagickImage>
+                {
+                    {'q', pieces[7]},
+                    {'k', pieces[6]},
+                    {'r', pieces[10]},
+                    {'n', pieces[9]},
+                    {'b', pieces[8]},
+                    {'p', pieces[11]},
+                    {'Q', pieces[1]},
+                    {'K', pieces[0]},
+                    {'R', pieces[4]},
+                    {'N', pieces[3]},
+                    {'B', pieces[2]},
+                    {'P', pieces[5]}
+                };
+
+            }
+
             using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.ChessPiecesArray.png"))
             {
                 var bm = new MagickImage(resources);
                 var pieces = new List<IMagickImage>();
                 var colorFrom = new MagickColor(0, 0, 0);
                 var colorTo = _imageOptions.BlackPieceColor;
-                var alterPieceColor = _imageOptions.BlackPieceColor != MagickColor.FromRgb(0, 0, 0) || _imageOptions.WhitePieceColor != MagickColor.FromRgb(255, 255, 255);
+                var alterPieceColor = _imageOptions.BlackPieceColor != MagickColor.FromRgb(0, 0, 0) ||
+                                      _imageOptions.WhitePieceColor != MagickColor.FromRgb(255, 255, 255);
 
                 for (var row = 0; row < 2; row++)
                 {
@@ -80,7 +202,7 @@ namespace ChessLib.Graphics
                     }
                 }
 
-                _pieceMap = new Dictionary<char, IMagickImage>
+                _pngPieceMap = new Dictionary<char, IMagickImage>
                 {
                     {'q', pieces[0]},
                     {'k', pieces[1]},
@@ -105,35 +227,47 @@ namespace ChessLib.Graphics
             return orig;
         }
 
+        private int SecondsToHundredths(double seconds) => (int)Math.Round(seconds * 100);
+
         public void MakeGifFromMoveTree(MoveTree<MoveHashStorage> moves, string fileName, double positionDelayInSeconds, int numberOfMovementFrames = 10, double totalMovementTimeInSeconds = 0.50)
         {
             using (var board = new MagickImageCollection(new[] { MakeBoardFromFen(moves.FENStart) }))
             {
-                board[0].AnimationDelay = (int)(positionDelayInSeconds * 100 * 2);
+                board[0].AnimationDelay = SecondsToHundredths(positionDelayInSeconds);
+
                 var previousFEN = moves.FENStart;
-                var movementTimeHudredthsOfSecond = (totalMovementTimeInSeconds * 100);
-                var frameDelay = movementTimeHudredthsOfSecond / numberOfMovementFrames;
+                var movementTimeHudredthsOfSecond = SecondsToHundredths(totalMovementTimeInSeconds);
+
                 foreach (var mv in moves)
                 {
                     var pieceMoving =
                         _pieceMap[PieceHelpers.GetCharRepresentation(mv.Move.ColorMoving, mv.Move.PieceMoving)];
-                    var transImages = MakeMovementFrames(previousFEN, (MagickImage)pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames);
-                    foreach (var f in transImages)
+
+                    if (numberOfMovementFrames > 0)
                     {
+                        var frameDelay = movementTimeHudredthsOfSecond / numberOfMovementFrames;
+                        var transImages = MakeMovementFrames(previousFEN, (MagickImage)pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames);
+                        foreach (var f in transImages)
+                        {
 
-                        f.AnimationDelay = (int)frameDelay;
-                        board.Add(f.Clone());
-                        f.Dispose();
+                            f.AnimationDelay = (int)frameDelay;
+                            board.Add(f.Clone());
+                            f.Dispose();
 
+                        }
                     }
                     var finalBoard = MakeBoardFromFen(mv.Move.FEN);
-                    finalBoard.AnimationDelay = (int)(positionDelayInSeconds * 100);
+                    finalBoard.AnimationDelay = SecondsToHundredths(positionDelayInSeconds);
+
+                    //finalBoard.Quantize(new QuantizeSettings() { Colors = _imageOptions.GetPalette().Length });
                     board.Add(finalBoard);
                     previousFEN = mv.Move.FEN;
                 }
 
+                board.OptimizePlus();
+                //board.Quantize();
                 // board.Save("regular.gif");
-                board.Write("webencoded.gif");
+                board.Write(fileName);
 
 
                 //for (int i = 0; i < board.Frames.Count; i++)
@@ -154,12 +288,13 @@ namespace ChessLib.Graphics
             var rise = pTo.Y - pFrom.Y;
             var run = pTo.X - pFrom.X;
 
-            var riseSegment = rise / frames;
-            var runSegment = run / frames;
+            var riseSegment = rise / (frames + 2);
+            var runSegment = run / (frames + 2);
 
             for (int i = 0; i < frames; i++)
             {
-                var pointInLine = new PointD(pFrom.X + (run * (i + 1)), pFrom.Y + (rise * (i + 1)));
+                var riseToY = pFrom.Y + (riseSegment * (i + 1));
+                var pointInLine = new PointD(pFrom.X + (runSegment * (i + 1)), riseToY);
                 points[i] = pointInLine;
             }
 
@@ -177,7 +312,7 @@ namespace ChessLib.Graphics
 
                         var drawPoint = new PointD((int)point.X, (int)point.Y);
                         var newImage = tImage.Clone();
-                        newImage.Composite(pieceMoving, drawPoint, CompositeOperator.Alpha);
+                        newImage.Composite(pieceMoving, drawPoint, CompositeOperator.SrcAtop);
                         rv.Add(newImage);
                     }
                 }
@@ -205,6 +340,8 @@ namespace ChessLib.Graphics
             PointD? emptySquare = null;
             if (leaveEmptyBoardIndex.HasValue)
                 emptySquare = GetPointFromBoardIndex(leaveEmptyBoardIndex.Value);
+            Drawables drawables = new Drawables();
+
             for (var fenRank = 0; fenRank < ranks.Length; fenRank++)
             {
                 var rank = ranks[fenRank];
@@ -281,13 +418,21 @@ namespace ChessLib.Graphics
         {
             _boardBase = new MagickImage(_imageOptions.BackgroundColor, _boardWidth, _boardWidth);
             var textColor = _imageOptions.TextColor;
-
+            var nameFontSize = _squareWidth * 0.25;
             if (_offset != 0)
             {
-                var blackPlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth / 2, _blackPlayerName);
+                var drawables = new Drawables();
 
-                var whitePlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _whitePlayerName);
-                _boardBase.Draw(blackPlayerNameDrawable, whitePlayerNameDrawable);
+                drawables
+                    .FontPointSize(nameFontSize)
+                    .TextAlignment(TextAlignment.Center)
+                    .StrokeColor(_imageOptions.TextColor)
+                    .FillColor(_imageOptions.TextColor)
+                    .Text(_boardWidth / 2, _squareWidth / 2, _blackPlayerName)
+                    .Text(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _blackPlayerName);
+                //var whitePlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _whitePlayerName);
+                //_boardBase.Draw(blackPlayerNameDrawable, whitePlayerNameDrawable);
+                _boardBase.Draw(drawables);
             }
             var listOfSquares = new Drawables();
             for (var rank = 9; rank >= 0; rank--)
