@@ -5,7 +5,6 @@ using ChessLib.Data.MoveRepresentation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using ChessLib.Data.Types;
@@ -119,8 +118,6 @@ namespace ChessLib.Graphics
                     }
 
                     _boardBase = (MagickImage)bm.Clone();
-                    _boardBase.Write("boardBaseFromSvg.png");
-
                 }
             }
         }
@@ -139,7 +136,7 @@ namespace ChessLib.Graphics
         private void InitPieces()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.ChessPieces.svg"))
+            using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.pieceArray.svg"))
             {
                 var readSettings = new MagickReadSettings();
                 readSettings.BackgroundColor = MagickColors.Transparent;
@@ -148,46 +145,6 @@ namespace ChessLib.Graphics
                 var colorFrom = new MagickColor(0, 0, 0);
                 var colorTo = _imageOptions.BlackPieceColor;
                 var alterPieceColor = _imageOptions.BlackPieceColor != MagickColor.FromRgb(0, 0, 0) || _imageOptions.WhitePieceColor != MagickColor.FromRgb(255, 255, 255);
-
-                for (var row = 0; row < 2; row++)
-                {
-                    for (var col = 0; col < 6; col++)
-                    {
-                        var x = col * 45;
-                        var y = row * 45;
-                        var piece = bm.Clone(new MagickGeometry(x, y, 45, 45));
-                        piece.Resize(_squareWidth, _squareWidth);
-                        piece.Alpha(AlphaOption.Set);
-                        pieces.Add(piece);
-                    }
-                }
-
-                _svgPieceMap = new Dictionary<char, IMagickImage>
-                {
-                    {'q', pieces[7]},
-                    {'k', pieces[6]},
-                    {'r', pieces[10]},
-                    {'n', pieces[9]},
-                    {'b', pieces[8]},
-                    {'p', pieces[11]},
-                    {'Q', pieces[1]},
-                    {'K', pieces[0]},
-                    {'R', pieces[4]},
-                    {'N', pieces[3]},
-                    {'B', pieces[2]},
-                    {'P', pieces[5]}
-                };
-
-            }
-
-            using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.ChessPiecesArray.png"))
-            {
-                var bm = new MagickImage(resources);
-                var pieces = new List<IMagickImage>();
-                var colorFrom = new MagickColor(0, 0, 0);
-                var colorTo = _imageOptions.BlackPieceColor;
-                var alterPieceColor = _imageOptions.BlackPieceColor != MagickColor.FromRgb(0, 0, 0) ||
-                                      _imageOptions.WhitePieceColor != MagickColor.FromRgb(255, 255, 255);
 
                 for (var row = 0; row < 2; row++)
                 {
@@ -202,19 +159,19 @@ namespace ChessLib.Graphics
                     }
                 }
 
-                _pngPieceMap = new Dictionary<char, IMagickImage>
+                _svgPieceMap = new Dictionary<char, IMagickImage>
                 {
-                    {'q', pieces[0]},
-                    {'k', pieces[1]},
+                    {'k', pieces[0]},
+                    {'q', pieces[1]},
                     {'r', pieces[2]},
-                    {'n', pieces[3]},
-                    {'b', pieces[4]},
+                    {'b', pieces[3]},
+                    {'n', pieces[4]},
                     {'p', pieces[5]},
-                    {'Q', pieces[6]},
-                    {'K', pieces[7]},
+                    {'K', pieces[6]},
+                    {'Q', pieces[7]},
                     {'R', pieces[8]},
-                    {'N', pieces[9]},
-                    {'B', pieces[10]},
+                    {'B', pieces[9]},
+                    {'N', pieces[10]},
                     {'P', pieces[11]}
                 };
             }

@@ -6,23 +6,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Fonts\**" />
+    <EmbeddedResource Remove="Fonts\**" />
+    <None Remove="Fonts\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Images\BlackKing.svg" />
     <None Remove="Images\Board.svg" />
     <None Remove="Images\ChessPieces.svg" />
     <None Remove="Images\ChessPiecesArray.png" />
+    <None Remove="Images\pieceArray.svg" />
     <None Remove="Images\WhiteKing.svg" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Images\BlackKing.svg" />
     <EmbeddedResource Include="Images\Board.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Images\ChessPiecesArray.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Images\ChessPieces.svg" />
-    <EmbeddedResource Include="Images\WhiteKing.svg" />
+    <EmbeddedResource Include="Images\pieceArray.svg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,10 +44,6 @@
     <None Update="Images\board.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Fonts\" />
   </ItemGroup>
 
 </Project>

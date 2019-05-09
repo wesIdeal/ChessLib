@@ -97,7 +97,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             var fileName = $"{white}-{black}.gif";
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var graphics = new Imaging(80,
+            var graphics = new Imaging(180,
                 new ImageOptions(), black, white);
             var board = graphics.MakeBoardFromFen(FENHelpers.FENInitial);
             board.Write("svgInitboard.png");
