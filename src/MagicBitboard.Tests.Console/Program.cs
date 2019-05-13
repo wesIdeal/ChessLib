@@ -12,6 +12,7 @@ using ChessLib.Graphics;
 using ChessLib.MagicBitboard;
 using ChessLib.Parse.PGN;
 using SixLabors.ImageSharp.PixelFormats;
+using System.IO;
 
 namespace Bitboard.Tests.ConsoleApp
 {
@@ -73,21 +74,21 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
 
         static void Main(string[] args)
         {
-            //var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
-            var parsePgn = ParsePgn.FromText(pgn);
+            var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
+            // var parsePgn = ParsePgn.FromText(pgn);
             //var games = parsePgn.GetGameTexts();
-            var games = parsePgn.GetGames<BoardInfo, MoveHashStorage>(MaxGames: 1);
+            var games = parsePgn.GetGames<BoardInfo, MoveHashStorage>();
             var game = games[0];
             Console.WriteLine($"Avg time per move:\t{parsePgn.AvgTimePerMove} ms");
             Console.WriteLine($"Avg time per game:\t{parsePgn.AvgTimePerGame} ms");
             Console.WriteLine($"Avg validation time per game:\t{parsePgn.AvgValidationTimePerGame} ms");
             Console.WriteLine($"Total validation time:\t{parsePgn.TotalValidationTime} ms");
             Console.WriteLine($"Total Time:\t{parsePgn.TotalTime} seconds");
-            //var botvinnik = games.Where(x =>
-            //    (x.TagSection["Black"].Contains("Botvinnik") || x.TagSection["White"].Contains("Botvinnik"))
-            //    && x.TagSection["Date"].Contains("1960"))
-            //    .Where(x => x.TagSection["Round"] == "2");
-
+            var botvinnik = games.Where(x =>
+                (x.TagSection["Black"].Contains("Botvinnik") || x.TagSection["White"].Contains("Botvinnik"))
+                && x.TagSection["Date"].Contains("1960"))
+                .Where(x => x.TagSection["Round"] == "2");
+            game = botvinnik.FirstOrDefault() ?? game;
             //foreach (var game in botvinnik)
             //{
             var bi = new BoardInfo();
@@ -97,24 +98,19 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             var fileName = $"{white}-{black}.gif";
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var graphics = new Imaging(180,
+            var graphics = new Imaging(60,
                 new ImageOptions(), black, white);
-            var board = graphics.MakeBoardFromFen(FENHelpers.FENInitial);
-            board.Write("svgInitboard.png");
-            graphics.MakeGifFromMoveTree(game.MoveSection, $".\\GameGifs\\{fileName}", 1, 0, 0.05);
+            //var board = graphics.MakeBoardFromFen(FENHelpers.FENInitial);
+            //board.Write("svgInitboard.png");
+            using (var fs = new FileStream($".\\GameGifs\\{fileName}", FileMode.Create, FileAccess.Write))
+            {
+                var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FENHelpers.FENInitial;
+                graphics.MakeAnimationFromMoveTree(fs, game.MoveSection, initialFen, 1);
+            }
             sw.Stop();
             Debug.WriteLine($"Created and wrote {fileName} in {sw.ElapsedMilliseconds}ms.");
 
-            //}
-
-
-            //foreach (var move in bi.MoveTree)
-            //{
-            //    graphics.SaveBoardFromFen(move.Move.FEN, $".\\Game1\\game2.halfMove{counter++}.png");
-
-            //}
-
-            //Console.ReadKey();
+            Console.ReadKey();
         }
 
         private static void WriteBishopAttacks()

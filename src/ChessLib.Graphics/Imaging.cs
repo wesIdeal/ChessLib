@@ -13,9 +13,18 @@ using File = System.IO.File;
 using System.Drawing;
 using System.Net.Mime;
 using SixLabors.Fonts;
+using System.IO;
 
 namespace ChessLib.Graphics
 {
+    public enum ImageFormat
+    {
+        GIF, PNG, JPG
+    }
+    public enum AnimatedFormat
+    {
+        GIF
+    }
     public class Imaging
     {
         private MagickImage _boardBase;
@@ -186,53 +195,65 @@ namespace ChessLib.Graphics
 
         private int SecondsToHundredths(double seconds) => (int)Math.Round(seconds * 100);
 
-        public void MakeGifFromMoveTree(MoveTree<MoveHashStorage> moves, string fileName, double positionDelayInSeconds, int numberOfMovementFrames = 10, double totalMovementTimeInSeconds = 0.50)
+        public void MakeAnimationFromMoveTree(Stream writeTo, MoveTree<MoveHashStorage> moves, string initialFenPosition, double positionDelayInSeconds, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
         {
-            using (var board = new MagickImageCollection(new[] { MakeBoardFromFen(moves.FENStart) }))
+            MagickFormat format = MagickFormat.Gif;
+            var delay = SecondsToHundredths(positionDelayInSeconds);
+            var imageList = new List<IMagickImage>();
+            imageList.Add(MakeBoardFromFen(initialFenPosition));
+            imageList.Last().AnimationDelay = delay;
+            foreach (var move in moves)
             {
-                board[0].AnimationDelay = SecondsToHundredths(positionDelayInSeconds);
-
-                var previousFEN = moves.FENStart;
-                var movementTimeHudredthsOfSecond = SecondsToHundredths(totalMovementTimeInSeconds);
-
-                foreach (var mv in moves)
-                {
-                    var pieceMoving =
-                        _pieceMap[PieceHelpers.GetCharRepresentation(mv.Move.ColorMoving, mv.Move.PieceMoving)];
-
-                    if (numberOfMovementFrames > 0)
-                    {
-                        var frameDelay = movementTimeHudredthsOfSecond / numberOfMovementFrames;
-                        var transImages = MakeMovementFrames(previousFEN, (MagickImage)pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames);
-                        foreach (var f in transImages)
-                        {
-
-                            f.AnimationDelay = (int)frameDelay;
-                            board.Add(f.Clone());
-                            f.Dispose();
-
-                        }
-                    }
-                    var finalBoard = MakeBoardFromFen(mv.Move.FEN);
-                    finalBoard.AnimationDelay = SecondsToHundredths(positionDelayInSeconds);
-
-                    //finalBoard.Quantize(new QuantizeSettings() { Colors = _imageOptions.GetPalette().Length });
-                    board.Add(finalBoard);
-                    previousFEN = mv.Move.FEN;
-                }
-
-                board.OptimizePlus();
-                //board.Quantize();
-                // board.Save("regular.gif");
-                board.Write(fileName);
-
-
-                //for (int i = 0; i < board.Frames.Count; i++)
-                //{
-                //    board.Frames.CloneFrame(i).Save(System.IO.Path.Combine(".\\Game1\\", $"frame.{i}.png"));
-                //}
+                var positionBoard = MakeBoardFromFen(move.Move.FEN);
+                positionBoard.AnimationDelay = delay;
+                imageList.Add(positionBoard);
             }
+            using (var board = new MagickImageCollection(imageList))
+            {
+                board.Write(writeTo, format);
+            }
+            imageList.ForEach(x => x.Dispose());
         }
+
+        //private void MakeAnimationFromMoveTree(IEnumerable<MoveHashStorage> moves, string initialFenPosition, string fileName, double positionDelayInSeconds, int numberOfMovementFrames = 2, double totalMovementTimeInSeconds = 0.10)
+        //{
+        //    using (var board = new MagickImageCollection(new[] { MakeBoardFromFen(initialFenPosition) }))
+        //    {
+        //        board[0].AnimationDelay = SecondsToHundredths(positionDelayInSeconds);
+
+        //        var previousFEN = moves.FENStart;
+        //        var movementTimeHudredthsOfSecond = SecondsToHundredths(totalMovementTimeInSeconds);
+
+        //        foreach (var mv in moves)
+        //        {
+        //            var pieceMoving =
+        //                _pieceMap[PieceHelpers.GetCharRepresentation(mv.Move.ColorMoving, mv.Move.PieceMoving)];
+
+        //            if (numberOfMovementFrames > 0)
+        //            {
+        //                var frameDelay = movementTimeHudredthsOfSecond / numberOfMovementFrames;
+        //                var transImages = MakeMovementFrames(previousFEN, (MagickImage)pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames);
+        //                foreach (var f in transImages)
+        //                {
+
+        //                    f.AnimationDelay = (int)frameDelay;
+        //                    board.Add(f.Clone());
+        //                    f.Dispose();
+
+        //                }
+        //            }
+        //            var finalBoard = MakeBoardFromFen(mv.Move.FEN);
+        //            finalBoard.AnimationDelay = SecondsToHundredths(positionDelayInSeconds);
+
+        //            //finalBoard.Quantize(new QuantizeSettings() { Colors = _imageOptions.GetPalette().Length });
+        //            board.Add(finalBoard);
+        //            previousFEN = mv.Move.FEN;
+        //        }
+
+        //        board.OptimizePlus();
+        //        board.Write(fileName);
+        //    }
+        //}
 
         private IEnumerable<IMagickImage> MakeMovementFrames(string fen, MagickImage pieceMoving,
             ushort sqFrom, ushort sqTo, int frames)
@@ -284,51 +305,73 @@ namespace ChessLib.Graphics
             return new PointD(x, y);
 
         }
+
         private RectangleF GetRectFromBoardIndex(ushort square)
         {
             var p = GetPointFromBoardIndex(square);
             return new RectangleF((float)p.X, (float)p.Y + _offset, _squareWidth, _squareWidth);
         }
 
-        public MagickImage MakeBoardFromFen(string fen, ushort? leaveEmptyBoardIndex = null)
+        protected MagickFormat GetMagickFormatFromFormat(ImageFormat format)
         {
-            var board = _boardBase.Clone();
-            var ranks = fen.GetRanksFromFen();
-            PointD? emptySquare = null;
-            if (leaveEmptyBoardIndex.HasValue)
-                emptySquare = GetPointFromBoardIndex(leaveEmptyBoardIndex.Value);
-            Drawables drawables = new Drawables();
-
-            for (var fenRank = 0; fenRank < ranks.Length; fenRank++)
+            switch (format)
             {
-                var rank = ranks[fenRank];
-                var fileCount = 0;
-                for (var file = 0; file < 8; file++)
-                {
-                    var x = (file * _squareWidth) + _squareWidth;
-                    var y = (fenRank * _squareWidth) + _offset;
-                    var p = rank[fileCount];
-                    if (char.IsDigit(p))
-                    {
-                        var digit = int.Parse(p.ToString());
-                        file += digit - 1;
-                    }
-                    else
-                    {
-                        PieceHelpers.GetPiece(p);
-                        var center = new PointD(x, y);
-                        if (ShouldDrawPieceInSquare(emptySquare, center))
-                        {
-                            var pieceImage = _pieceMap[p];
-                            board.Composite(pieceImage, new PointD(x, y), CompositeOperator.SrcAtop);
-                        }
-                    }
-
-                    fileCount++;
-                }
+                case ImageFormat.GIF:
+                    return MagickFormat.Gif;
+                case ImageFormat.JPG:
+                    return MagickFormat.Jpg;
+                default:
+                    return MagickFormat.Png;
             }
+        }
 
-            return (MagickImage)board;
+        protected IMagickImage MakeBoardFromFen(string fen, ushort? emptySquareIndex = null)
+        {
+            using (var board = _boardBase.Clone())
+            {
+                var ranks = fen.GetRanksFromFen();
+                PointD? emptySquare = null;
+                if (emptySquareIndex.HasValue)
+                    emptySquare = GetPointFromBoardIndex(emptySquareIndex.Value);
+
+                for (var fenRank = 0; fenRank < ranks.Length; fenRank++)
+                {
+                    var rank = ranks[fenRank];
+                    var fileCount = 0;
+                    for (var file = 0; file < 8; file++)
+                    {
+                        var x = (file * _squareWidth) + _squareWidth;
+                        var y = (fenRank * _squareWidth) + _offset;
+                        var p = rank[fileCount];
+                        if (char.IsDigit(p))
+                        {
+                            var digit = int.Parse(p.ToString());
+                            file += digit - 1;
+                        }
+                        else
+                        {
+                            PieceHelpers.GetPiece(p);
+                            var center = new PointD(x, y);
+                            if (ShouldDrawPieceInSquare(emptySquare, center))
+                            {
+                                var pieceImage = _pieceMap[p];
+                                board.Composite(pieceImage, new PointD(x, y), CompositeOperator.SrcAtop);
+                            }
+                        }
+
+                        fileCount++;
+                    }
+                }
+                return board.Clone();
+            }
+        }
+
+        public void MakeBoardFromFen(Stream writeTo, string fen, ImageFormat imageFormat = ImageFormat.PNG, ushort? leaveEmptyBoardIndex = null)
+        {
+            using (var board = MakeBoardFromFen(fen, leaveEmptyBoardIndex))
+            {
+                board.Write(writeTo, GetMagickFormatFromFormat(imageFormat));
+            }
         }
 
         private static bool ShouldDrawPieceInSquare(PointD? emptySquare, PointD currentSquare)
@@ -343,15 +386,6 @@ namespace ChessLib.Graphics
             return true;
         }
 
-        public void SaveBoardFromFen(string fen, string fileName)
-        {
-            FENHelpers.ValidateFENString(fen);
-            using (var board = MakeBoardFromFen(fen))
-            {
-
-                board.Write(fileName);
-            }
-        }
 
         private PointD UpperSquareCoordinate(int rank, int file) => new PointD(file * _squareWidth, ((Math.Abs(rank - 9)) * _squareWidth));
         private PointD LowerSquareCoordinate(int rank, int file)
@@ -423,7 +457,6 @@ namespace ChessLib.Graphics
                 }
             }
             _boardBase.Draw(listOfSquares);
-            _boardBase.Write("boardBase.png");
         }
     }
 }
