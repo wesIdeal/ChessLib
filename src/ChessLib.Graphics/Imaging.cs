@@ -27,11 +27,11 @@ namespace ChessLib.Graphics
     }
     public class Imaging
     {
+        
         private MagickImage _boardBase;
         private readonly int _boardWidth, _squareWidth;
-        private Dictionary<char, IMagickImage> _pieceMap => _svgPieceMap;
-        private Dictionary<char, IMagickImage> _pngPieceMap;
-        private Dictionary<char, IMagickImage> _svgPieceMap;
+        
+        private Dictionary<char, IMagickImage> _pieceMap;
         private readonly int _offset;
         private readonly string _blackPlayerName;
         private readonly string _whitePlayerName;
@@ -56,12 +56,10 @@ namespace ChessLib.Graphics
             }
             else _offset = 0;
             InitPieces();
-            // _font = SystemFonts.CreateFont("Arial", 16);
-            //SetBoardBaseImage();
-            SetBoardBaseImageFromSVG();
+            SetBoardBaseImage();
         }
 
-        private void SetBoardBaseImageFromSVG()
+        private void SetBoardBaseImage()
         {
             var assembly = Assembly.GetExecutingAssembly();
             using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.Board.svg"))
@@ -69,12 +67,12 @@ namespace ChessLib.Graphics
                 MagickReadSettings readSettings = new MagickReadSettings { Format = MagickFormat.Svg };
                 using (var bm = new MagickImage(resources, readSettings))
                 {
-                    bm.Opaque(MagickColor.FromRgb(255, 255, 255), _imageOptions.LightSquareColor);
-                    bm.Opaque(MagickColor.FromRgb(0, 0, 0), _imageOptions.DarkSquareColor);
+                    bm.Opaque(MagickColor.FromRgb(255, 255, 255), _imageOptions.MagickLightSquareColor);
+                    bm.Opaque(MagickColor.FromRgb(0, 0, 0), _imageOptions.MagickDarkSquareColor);
                     bm.Resize(_squareWidth * 8, _squareWidth * 8);
-                    bm.Extent(_boardWidth, _boardWidth, Gravity.Center, _imageOptions.BackgroundColor);
+                    bm.Extent(_boardWidth, _boardWidth, Gravity.Center, _imageOptions.MagickBackgroundColor);
                     var listOfSquares = new Drawables();
-                    var textColor = _imageOptions.TextColor;
+                    var textColor = _imageOptions.MagickTextColor;
                     var fontSizePixels = _squareWidth * 0.15;
                     // write file
                     for (var rank = 9; rank >= 0; rank--)
@@ -116,8 +114,8 @@ namespace ChessLib.Graphics
                         drawables
                             .FontPointSize(nameFontSize)
                             .TextAlignment(TextAlignment.Center)
-                            .StrokeColor(_imageOptions.TextColor)
-                            .FillColor(_imageOptions.TextColor)
+                            .StrokeColor(_imageOptions.MagickTextColor)
+                            .FillColor(_imageOptions.MagickTextColor)
                             .Font("Arial", FontStyleType.Normal, FontWeight.Normal, FontStretch.Normal)
                             .Text(_boardWidth / 2, _squareWidth / 2, _whitePlayerName)
                             .Text(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _blackPlayerName);
@@ -134,26 +132,27 @@ namespace ChessLib.Graphics
         ~Imaging()
         {
             _boardBase.Dispose();
-            foreach (var p in _pngPieceMap)
+            foreach (var p in _pieceMap)
             {
                 p.Value.Dispose();
             }
         }
-        MagickColor SquareColor(int rank, int file) => ((rank + file) % 2) == 1 ? _imageOptions.LightSquareColor : _imageOptions.DarkSquareColor;
+        MagickColor SquareColor(int rank, int file) => ((rank + file) % 2) == 1 ? _imageOptions.MagickLightSquareColor : _imageOptions.MagickDarkSquareColor;
 
-        private List<MagickColor> _palette = new List<MagickColor>();
         private void InitPieces()
         {
             var assembly = Assembly.GetExecutingAssembly();
             using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.pieceArray.svg"))
             {
-                var readSettings = new MagickReadSettings();
-                readSettings.BackgroundColor = MagickColors.Transparent;
+                var readSettings = new MagickReadSettings
+                {
+                    BackgroundColor = MagickColors.Transparent
+                };
                 var bm = new MagickImage(resources, readSettings);
                 var pieces = new List<IMagickImage>();
                 var colorFrom = new MagickColor(0, 0, 0);
                 var colorTo = _imageOptions.BlackPieceColor;
-                var alterPieceColor = _imageOptions.BlackPieceColor != MagickColor.FromRgb(0, 0, 0) || _imageOptions.WhitePieceColor != MagickColor.FromRgb(255, 255, 255);
+                var alterPieceColor = _imageOptions.MagickBlackPieceColor != MagickColor.FromRgb(0, 0, 0) || _imageOptions.MagickWhitePieceColor != MagickColor.FromRgb(255, 255, 255);
 
                 for (var row = 0; row < 2; row++)
                 {
@@ -168,7 +167,7 @@ namespace ChessLib.Graphics
                     }
                 }
 
-                _svgPieceMap = new Dictionary<char, IMagickImage>
+                _pieceMap = new Dictionary<char, IMagickImage>
                 {
                     {'k', pieces[0]},
                     {'q', pieces[1]},
@@ -199,8 +198,10 @@ namespace ChessLib.Graphics
         {
             MagickFormat format = MagickFormat.Gif;
             var delay = SecondsToHundredths(positionDelayInSeconds);
-            var imageList = new List<IMagickImage>();
-            imageList.Add(MakeBoardFromFen(initialFenPosition));
+            var imageList = new List<IMagickImage>
+            {
+                MakeBoardFromFen(initialFenPosition)
+            };
             imageList.Last().AnimationDelay = delay;
             foreach (var move in moves)
             {
@@ -405,58 +406,58 @@ namespace ChessLib.Graphics
         }
 
 
-        private void SetBoardBaseImage()
-        {
-            _boardBase = new MagickImage(_imageOptions.BackgroundColor, _boardWidth, _boardWidth);
-            var textColor = _imageOptions.TextColor;
-            var nameFontSize = _squareWidth * 0.25;
-            if (_offset != 0)
-            {
-                var drawables = new Drawables();
+        //private void SetBoardBaseImage()
+        //{
+        //    _boardBase = new MagickImage(_imageOptions.MagickBackgroundColor, _boardWidth, _boardWidth);
+        //    var textColor = _imageOptions.MagickTextColor;
+        //    var nameFontSize = _squareWidth * 0.25;
+        //    if (_offset != 0)
+        //    {
+        //        var drawables = new Drawables();
 
-                drawables
-                    .FontPointSize(nameFontSize)
-                    .TextAlignment(TextAlignment.Center)
-                    .StrokeColor(_imageOptions.TextColor)
-                    .FillColor(_imageOptions.TextColor)
-                    .Text(_boardWidth / 2, _squareWidth / 2, _blackPlayerName)
-                    .Text(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _blackPlayerName);
-                //var whitePlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _whitePlayerName);
-                //_boardBase.Draw(blackPlayerNameDrawable, whitePlayerNameDrawable);
-                _boardBase.Draw(drawables);
-            }
-            var listOfSquares = new Drawables();
-            for (var rank = 9; rank >= 0; rank--)
-            {
-                for (var file = 0; file <= 8; file++)
-                {
-                    var strFile = ((char)('A' + (file - 1))).ToString();
-                    var strRank = rank.ToString();
-                    var upper = UpperSquareCoordinate(rank, file);
-                    var lower = LowerSquareCoordinate(upper);
-                    var squareColor = SquareColor(rank, file);
-                    var center = CenterOfRectangle(upper.X, upper.Y, lower.X, lower.Y);
-                    if (file > 0 && rank > 0 && rank < 9)
-                    {
-                        listOfSquares.StrokeColor(squareColor).FillColor(squareColor).Rectangle(upper.X, upper.Y, lower.X, lower.Y);
-                    }
-                    // write file
-                    else if (rank == 0 && file > 0)
-                    {
-                        var topOfSquare = (_squareWidth * 0.2);
+        //        drawables
+        //            .FontPointSize(nameFontSize)
+        //            .TextAlignment(TextAlignment.Center)
+        //            .StrokeColor(textColor)
+        //            .FillColor(textColor)
+        //            .Text(_boardWidth / 2, _squareWidth / 2, _blackPlayerName)
+        //            .Text(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _blackPlayerName);
+        //        //var whitePlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _whitePlayerName);
+        //        //_boardBase.Draw(blackPlayerNameDrawable, whitePlayerNameDrawable);
+        //        _boardBase.Draw(drawables);
+        //    }
+        //    var listOfSquares = new Drawables();
+        //    for (var rank = 9; rank >= 0; rank--)
+        //    {
+        //        for (var file = 0; file <= 8; file++)
+        //        {
+        //            var strFile = ((char)('A' + (file - 1))).ToString();
+        //            var strRank = rank.ToString();
+        //            var upper = UpperSquareCoordinate(rank, file);
+        //            var lower = LowerSquareCoordinate(upper);
+        //            var squareColor = SquareColor(rank, file);
+        //            var center = CenterOfRectangle(upper.X, upper.Y, lower.X, lower.Y);
+        //            if (file > 0 && rank > 0 && rank < 9)
+        //            {
+        //                listOfSquares.StrokeColor(squareColor).FillColor(squareColor).Rectangle(upper.X, upper.Y, lower.X, lower.Y);
+        //            }
+        //            // write file
+        //            else if (rank == 0 && file > 0)
+        //            {
+        //                var topOfSquare = (_squareWidth * 0.2);
 
-                        listOfSquares.StrokeColor(textColor).FillColor(textColor).Text(center.X, upper.Y + topOfSquare, strFile).TextAlignment(TextAlignment.Center);
-                    }
-                    // write rank
-                    else if (file == 0 && rank != 0 && rank != 9)
-                    {
-                        var rightOfSquare = (_squareWidth * 0.8);
+        //                listOfSquares.StrokeColor(textColor).FillColor(textColor).Text(center.X, upper.Y + topOfSquare, strFile).TextAlignment(TextAlignment.Center);
+        //            }
+        //            // write rank
+        //            else if (file == 0 && rank != 0 && rank != 9)
+        //            {
+        //                var rightOfSquare = (_squareWidth * 0.8);
 
-                        listOfSquares.StrokeColor(textColor).FillColor(textColor).Text(upper.X + rightOfSquare, center.Y, strRank).TextAlignment(TextAlignment.Center);
-                    }
-                }
-            }
-            _boardBase.Draw(listOfSquares);
-        }
+        //                listOfSquares.StrokeColor(textColor).FillColor(textColor).Text(upper.X + rightOfSquare, center.Y, strRank).TextAlignment(TextAlignment.Center);
+        //            }
+        //        }
+        //    }
+        //    _boardBase.Draw(listOfSquares);
+        //}
     }
 }
