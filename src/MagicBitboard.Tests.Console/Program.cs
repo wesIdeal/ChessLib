@@ -98,10 +98,16 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             var fileName = $"{white}-{black}.gif";
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var graphics = new Imaging(60,
-                new ImageOptions(), black, white);
-            //var board = graphics.MakeBoardFromFen(FENHelpers.FENInitial);
-            //board.Write("svgInitboard.png");
+            var graphics = new Imaging();
+            using (var fs = new FileStream($".\\GameGifs\\initialBoardLg.png", FileMode.Create, FileAccess.Write))
+            {
+                graphics.MakeBoardFromFen(fs, FENHelpers.FENInitial, new ImageOptions() {SquareSize = 100 });
+            }
+            using (var fs = new FileStream($".\\GameGifs\\initialBoardSm.png", FileMode.Create, FileAccess.Write))
+            {
+                graphics.MakeBoardFromFen(fs, FENHelpers.FENInitial, new ImageOptions() { SquareSize = 20 });
+            }
+
             using (var fs = new FileStream($".\\GameGifs\\{fileName}", FileMode.Create, FileAccess.Write))
             {
                 var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FENHelpers.FENInitial;
