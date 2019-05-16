@@ -9,6 +9,7 @@ using ChessLib.Parse.PGN.Parser.BaseClasses;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Data;
 
 namespace ChessLib.Parse.Console
 {

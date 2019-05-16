@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using ChessLib.Data;
 using ChessLib.Parse.PGN;
 using NUnit.Framework;
 

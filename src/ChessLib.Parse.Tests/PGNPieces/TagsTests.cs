@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using ChessLib.Data;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Text;
 namespace ChessLib.Parse.Tests.PGNPieces
 {
     [TestFixture]
-    public class TagsTests : PGN.Tags
+    public class TagsTests : Tags
     {
 
         //#region Result Tests

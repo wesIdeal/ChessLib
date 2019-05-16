@@ -169,14 +169,14 @@ namespace ChessLib.Graphics
                 var firstImage = MakeBoardFromFen(initialFen, boardImage, game.TagSection, null);
                 firstImage.AnimationDelay = delay * 2;
                 imageList.Add(firstImage);
-                var images = new List<dynamic>();
+                var images = new List<MoveImages>();
                 var results = Parallel.ForEach(moves.Select((x, i) => new { mv = x, idx = i }), move =>
                    {
                        var positionBoard = MakeBoardFromFen(move.mv.Move.FEN, boardImage, game.TagSection, null);
                        positionBoard.AnimationDelay = delay;
-                       images.Add(new { image = positionBoard, idx = move.idx });
+                       images.Add(new MoveImages { image = positionBoard, idx = move.idx });
                    });
-                imageList.AddRange(images.OrderBy(x => x.idx).Select(x => (IMagickImage)x.image));
+                imageList.AddRange(images.OrderBy(i => i.idx).Select(x => (IMagickImage)x.image));
                 imageList.OptimizePlus();
                 imageList.Write(writeTo, format);
             }
