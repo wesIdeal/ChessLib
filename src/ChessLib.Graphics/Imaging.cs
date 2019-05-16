@@ -14,6 +14,7 @@ using System.Drawing;
 using System.Net.Mime;
 using SixLabors.Fonts;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ChessLib.Graphics
 {
@@ -30,8 +31,9 @@ namespace ChessLib.Graphics
 
         private MagickImage _boardBase;
         private Dictionary<char, IMagickImage> _pieceMap;
-        private readonly int _offset;
-        private readonly ImageOptions _imageOptions = new ImageOptions();
+        private int _squareSize;
+        private int _offset;
+        private ImageOptions _imageOptions = new ImageOptions();
 
         public Imaging()
         {
@@ -120,31 +122,63 @@ namespace ChessLib.Graphics
 
         private int SecondsToHundredths(double seconds) => (int)Math.Round(seconds * 100);
 
-        public void MakeAnimationFromMoveTree(Stream writeTo, MoveTree<MoveHashStorage> moves, string initialFenPosition, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
+        public void MakeAnimationFromMoveTree(Stream writeTo, Game<MoveHashStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
         {
             MagickFormat format = MagickFormat.Gif;
-            imageOpts = imageOpts ?? _imageOptions;
+            var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FENHelpers.FENInitial;
+            var moves = game.MoveSection;
+            _imageOptions = imageOpts = imageOpts ?? new ImageOptions();
+            _squareSize = imageOpts.SquareSize;
+            _offset = _squareSize;
             InitPieces(imageOpts.SquareSize);
             var delay = SecondsToHundredths(positionDelayInSeconds);
-            using (var boardImage = MakeBoardInstance(imageOpts))
+            using (var boardImage = MakeBoardInstance(imageOpts, game.TagSection))
             {
-                var imageList = new List<IMagickImage>
-                    {
-                        MakeBoardFromFen(initialFenPosition, boardImage, imageOpts)
-                    };
-
-                imageList.Last().AnimationDelay = delay;
+                var imageList = new MagickImageCollection();
+                var firstImage = MakeBoardFromFen(initialFen, boardImage, game.TagSection, null);
+                firstImage.AnimationDelay = delay * 2;
+                imageList.Add(firstImage);
                 foreach (var move in moves)
                 {
-                    var positionBoard = MakeBoardFromFen(move.Move.FEN, boardImage, imageOpts);
+                    var positionBoard = MakeBoardFromFen(move.Move.FEN, boardImage, game.TagSection, null);
                     positionBoard.AnimationDelay = delay;
                     imageList.Add(positionBoard);
                 }
-                using (var board = new MagickImageCollection(imageList))
-                {
-                    board.Write(writeTo, format);
-                }
-                imageList.ForEach(x => x.Dispose());
+                imageList.OptimizePlus();
+                imageList.Write(writeTo, format);
+            }
+        }
+        struct MoveImages
+        {
+            public int idx { get; set; }
+            public IMagickImage image { get; set; }
+        }
+        public void MakeAnimationFromMoveTreeParallel(Stream writeTo, Game<MoveHashStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
+        {
+            MagickFormat format = MagickFormat.Gif;
+            var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FENHelpers.FENInitial;
+            var moves = game.MoveSection;
+            _imageOptions = imageOpts = imageOpts ?? new ImageOptions();
+            _squareSize = imageOpts.SquareSize;
+            _offset = _squareSize;
+            InitPieces(imageOpts.SquareSize);
+            var delay = SecondsToHundredths(positionDelayInSeconds);
+            using (var boardImage = MakeBoardInstance(imageOpts, game.TagSection))
+            {
+                var imageList = new MagickImageCollection();
+                var firstImage = MakeBoardFromFen(initialFen, boardImage, game.TagSection, null);
+                firstImage.AnimationDelay = delay * 2;
+                imageList.Add(firstImage);
+                var images = new List<dynamic>();
+                var results = Parallel.ForEach(moves.Select((x, i) => new { mv = x, idx = i }), move =>
+                   {
+                       var positionBoard = MakeBoardFromFen(move.mv.Move.FEN, boardImage, game.TagSection, null);
+                       positionBoard.AnimationDelay = delay;
+                       images.Add(new { image = positionBoard, idx = move.idx });
+                   });
+                imageList.AddRange(images.OrderBy(x => x.idx).Select(x => (IMagickImage)x.image));
+                imageList.OptimizePlus();
+                imageList.Write(writeTo, format);
             }
         }
 
@@ -248,7 +282,7 @@ namespace ChessLib.Graphics
             }
         }
 
-        private IMagickImage MakeBoardInstance(ImageOptions imageOptions)
+        private IMagickImage MakeBoardInstance(ImageOptions imageOptions, Tags tags)
         {
             var bm = _boardBase.Clone();
             var boardWidth = imageOptions.SquareSize * 10;
@@ -258,52 +292,70 @@ namespace ChessLib.Graphics
             bm.Resize(imageOptions.SquareSize * 8, imageOptions.SquareSize * 8);
             bm.Extent(boardWidth, boardWidth, Gravity.Center, imageOptions.MagickBackgroundColor);
             WriteRankAndFileLabels(ref bm, imageOptions);
+            if (tags != null)
+            {
+                WriteGameInformation(ref bm, tags);
+            }
             return bm;
+        }
+
+        public PointD UpperSquareCoordinate(int rank, int file) => UpperSquareCoordinateFromFENRank(Math.Abs(8 - rank), file);
+
+        public PointD UpperSquareCoordinateFromFENRank(int rank, int file) => new PointD((file * _squareSize) + _offset, (rank * _squareSize) + _offset);
+
+        public PointD LowerSquareCoordinate(int rank, int file)
+        {
+            var upper = UpperSquareCoordinate(rank, file);
+            return LowerSquareCoordinate(upper);
+        }
+        public PointD LowerSquareCoordinate(PointD upperSquareCoordinate)
+        {
+            return new PointD(upperSquareCoordinate.X + _squareSize, upperSquareCoordinate.Y + _squareSize);
         }
 
         private void WriteRankAndFileLabels(ref IMagickImage image, ImageOptions imageOptions)
         {
-            var width = imageOptions.SquareSize;
-            var textColor = imageOptions.MagickTextColor;
+            WriteFileLabels(ref image);
+            WriteRankLabels(ref image);
+        }
+
+        private void WriteRankLabels(ref IMagickImage image)
+        {
+            var x = (_squareSize * 0.8);
             var rankAndFileDrawables = new Drawables();
-            var fontSizePixels = width * 0.15;
-            for (var rank = 9; rank >= 0; rank--)
+            var fontSizePixels = _squareSize * 0.15;
+            for (var rank = 0; rank < 8; rank++)
             {
-                for (var file = 0; file <= 8; file++)
-                {
-                    var strFile = ((char)('A' + (file - 1))).ToString();
-                    var strRank = rank.ToString();
-                    var upper = imageOptions.UpperSquareCoordinate(rank, file);
-                    var lower = imageOptions.LowerSquareCoordinate(upper);
-                    var center = CenterOfRectangle(upper.X, upper.Y, lower.X, lower.Y);
-
-                    if (rank == 0 && file > 0)
-                    {
-                        var topOfSquare = (width * 0.2);
-
-                        rankAndFileDrawables.FontPointSize(fontSizePixels).StrokeColor(textColor).FillColor(textColor)
-                            .Text(center.X, upper.Y + topOfSquare, strFile).TextAlignment(TextAlignment.Center);
-                    }
-                    // write rank
-                    else if (file == 0 && rank != 0 && rank != 9)
-                    {
-                        var rightOfSquare = (width * 0.8);
-
-                        rankAndFileDrawables.FontPointSize(fontSizePixels).StrokeColor(textColor).FillColor(textColor)
-                            .Text(upper.X + rightOfSquare, center.Y, strRank)
-                            .TextAlignment(TextAlignment.Center);
-                    }
-                }
-
+                var strRank = Math.Abs(rank - 8).ToString();
+                var y = (rank * _squareSize) + _offset + (_offset / 2);
+                rankAndFileDrawables.FontPointSize(fontSizePixels).StrokeColor(_imageOptions.MagickTextColor).FillColor(_imageOptions.MagickTextColor)
+                           .Text(x, y, strRank)
+                           .TextAlignment(TextAlignment.Center);
             }
             image.Draw(rankAndFileDrawables);
         }
 
-        private void WriteGameInformation(ref IMagickImage image, ImageOptions imageOptions, Tags tags)
+        private void WriteFileLabels(ref IMagickImage image)
         {
-            var width = imageOptions.SquareSize;
-            var boardWidth = width * 10;
-            var nameFontSize = width * 0.2;
+            var y = (_squareSize * 8) + _offset + (_offset * 0.2);
+            var rankAndFileDrawables = new Drawables();
+            var fontSizePixels = _squareSize * 0.15;
+            for (var file = 0; file < 8; file++)
+            {
+                var strFile = ((char)('A' + file)).ToString();
+                var x = (file * _squareSize) + _offset + (_squareSize / 2);
+                rankAndFileDrawables.FontPointSize(fontSizePixels).StrokeColor(_imageOptions.MagickTextColor).FillColor(_imageOptions.MagickTextColor)
+                           .Text(x, y, strFile)
+                           .TextAlignment(TextAlignment.Center);
+            }
+            image.Draw(rankAndFileDrawables);
+        }
+
+        private void WriteGameInformation(ref IMagickImage image, Tags tags)
+        {
+
+            var boardWidth = _squareSize * 10;
+            var nameFontSize = _squareSize * 0.2;
             if (_offset != 0)
             {
                 var drawables = new Drawables();
@@ -314,24 +366,23 @@ namespace ChessLib.Graphics
                     .StrokeColor(_imageOptions.MagickTextColor)
                     .FillColor(_imageOptions.MagickTextColor)
                     .Font("Arial", FontStyleType.Normal, FontWeight.Normal, FontStretch.Normal)
-                    .Text(boardWidth / 2, width / 2, tags.White)
-                    .Text(boardWidth / 2, width * 10 - (width / 2), tags.Black);
+                    .Text(boardWidth / 2, (_offset * 0.8), tags.Black)
+                    .Text(boardWidth / 2, _squareSize * 10 - (_offset * 0.5), tags.White);
                 //var whitePlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _whitePlayerName);
                 //_boardBase.Draw(blackPlayerNameDrawable, whitePlayerNameDrawable);
                 image.Draw(drawables);
             }
         }
 
-        protected IMagickImage MakeBoardFromFen(string fen, IMagickImage image, ImageOptions imageOptions, Tags tags = null, ushort? emptySquareIndex = null)
+        protected IMagickImage MakeBoardFromFen(string fen, IMagickImage image, Tags tags, ushort? emptySquareIndex)
         {
             tags = tags ?? new Tags();
             using (var board = image.Clone())
             {
-                var width = imageOptions.SquareSize;
                 var ranks = fen.GetRanksFromFen();
                 PointD? emptySquare = null;
                 if (emptySquareIndex.HasValue)
-                    emptySquare = imageOptions.GetPointFromBoardIndex(emptySquareIndex.Value);
+                    emptySquare = GetPointFromBoardIndex(emptySquareIndex.Value);
 
                 for (var fenRank = 0; fenRank < ranks.Length; fenRank++)
                 {
@@ -339,8 +390,6 @@ namespace ChessLib.Graphics
                     var fileCount = 0;
                     for (var file = 0; file < 8; file++)
                     {
-                        var x = (file * width) + width;
-                        var y = (fenRank * width) + _offset;
                         var p = rank[fileCount];
                         if (char.IsDigit(p))
                         {
@@ -349,12 +398,12 @@ namespace ChessLib.Graphics
                         }
                         else
                         {
-                            PieceHelpers.GetPiece(p);
-                            var center = new PointD(x, y);
+                            var center = UpperSquareCoordinateFromFENRank(fenRank, file);
                             if (ShouldDrawPieceInSquare(emptySquare, center))
                             {
+                                PieceHelpers.GetPiece(p);
                                 var pieceImage = _pieceMap[p];
-                                board.Composite(pieceImage, new PointD(x, y), CompositeOperator.SrcAtop);
+                                board.Composite(pieceImage, center, CompositeOperator.SrcAtop);
                             }
                         }
 
@@ -365,12 +414,16 @@ namespace ChessLib.Graphics
             }
         }
 
-        public void MakeBoardFromFen(Stream writeTo, string fen, ImageOptions imageOptions = null, ImageFormat imageFormat = ImageFormat.PNG)
+        public void MakeBoardFromFen(Stream writeTo, string fen, ImageOptions imageOptions = null, Tags tags = null, ImageFormat imageFormat = ImageFormat.PNG)
         {
-            imageOptions = imageOptions ?? _imageOptions;
-            using (var boardImage = MakeBoardInstance(imageOptions))
+            imageOptions = imageOptions ?? new ImageOptions();
+            _imageOptions = imageOptions;
+            _squareSize = imageOptions.SquareSize;
+            _offset = _squareSize;
+
+            using (var boardImage = MakeBoardInstance(imageOptions, tags))
             {
-                using (var board = MakeBoardFromFen(fen, boardImage, imageOptions, null))
+                using (var board = MakeBoardFromFen(fen, boardImage, tags, null))
                 {
                     board.Write(writeTo, GetMagickFormatFromFormat(imageFormat));
                 }
@@ -398,7 +451,18 @@ namespace ChessLib.Graphics
             return new PointD(centerX, centerY);
         }
 
+        public PointD GetPointFromBoardIndex(ushort sq)
+        {
+            var x = ((sq % 8) * _squareSize) + _squareSize;
+            var y = (Math.Abs((sq / 8) - 7)) * _squareSize + _squareSize;
+            return new PointD(x, y);
+        }
 
+        public RectangleF GetRectFromBoardIndex(ushort squareIndex)
+        {
+            var p = GetPointFromBoardIndex(squareIndex);
+            return new RectangleF((float)p.X, (float)p.Y + _squareSize, _squareSize, _squareSize);
+        }
 
         //private void SetBoardBaseImage()
         //{

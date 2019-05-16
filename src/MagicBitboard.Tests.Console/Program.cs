@@ -13,6 +13,7 @@ using ChessLib.MagicBitboard;
 using ChessLib.Parse.PGN;
 using SixLabors.ImageSharp.PixelFormats;
 using System.IO;
+using ChessLib.Data;
 
 namespace Bitboard.Tests.ConsoleApp
 {
@@ -74,8 +75,9 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
 
         static void Main(string[] args)
         {
-            var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
-            // var parsePgn = ParsePgn.FromText(pgn);
+            var graphics = new Imaging();
+            //var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
+            var parsePgn = ParsePgn.FromText(pgn);
             //var games = parsePgn.GetGameTexts();
             var games = parsePgn.GetGames<BoardInfo, MoveHashStorage>();
             var game = games[0];
@@ -96,26 +98,27 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             var black = game.TagSection["Black"];
             var white = game.TagSection["White"];
             var fileName = $"{white}-{black}.gif";
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            var graphics = new Imaging();
-            using (var fs = new FileStream($".\\GameGifs\\initialBoardLg.png", FileMode.Create, FileAccess.Write))
-            {
-                graphics.MakeBoardFromFen(fs, FENHelpers.FENInitial, new ImageOptions() {SquareSize = 100 });
-            }
-            using (var fs = new FileStream($".\\GameGifs\\initialBoardSm.png", FileMode.Create, FileAccess.Write))
-            {
-                graphics.MakeBoardFromFen(fs, FENHelpers.FENInitial, new ImageOptions() { SquareSize = 20 });
-            }
+            var fnP = $"{white}-{black}par.gif";
 
-            using (var fs = new FileStream($".\\GameGifs\\{fileName}", FileMode.Create, FileAccess.Write))
-            {
-                var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FENHelpers.FENInitial;
-                graphics.MakeAnimationFromMoveTree(fs, game.MoveSection, initialFen, 1);
-            }
-            sw.Stop();
-            Debug.WriteLine($"Created and wrote {fileName} in {sw.ElapsedMilliseconds}ms.");
 
+            var nonPTime = 0l;
+            var pTime = 0l;
+            using (var fsNonParallel = new FileStream($".\\GameGifs\\{fileName}", FileMode.Create, FileAccess.Write))
+            using (var fsParallel = new FileStream($".\\GameGifs\\{fnP}", FileMode.Create, FileAccess.Write))
+            {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                graphics.MakeAnimationFromMoveTree(fsNonParallel, game, 1, new ImageOptions() { SquareSize = 45 });
+                sw.Stop();
+                nonPTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+                sw.Start();
+                graphics.MakeAnimationFromMoveTreeParallel(fsParallel, game, 1, new ImageOptions() { SquareSize = 45 });
+                sw.Stop();
+                pTime = sw.ElapsedMilliseconds;
+                Console.WriteLine($"Created and wrote {fileName} in {nonPTime}ms.");
+                Console.WriteLine($"Created and wrote {fnP} in {pTime}ms.");
+            }
             Console.ReadKey();
         }
 

@@ -1,6 +1,5 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN.Parser;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
@@ -11,14 +10,10 @@ using System.Linq;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Interfaces;
 using ChessLib.MagicBitboard;
+using ChessLib.Data;
 
 namespace ChessLib.Parse.PGN
 {
-    public class Game<TMove> where TMove : IMove
-    {
-        public Tags TagSection = new Tags();
-        public MoveTree<TMove> MoveSection = new MoveTree<TMove>(null);
-    }
     public class ParsePgn
     {
         AntlrInputStream _inputStream;

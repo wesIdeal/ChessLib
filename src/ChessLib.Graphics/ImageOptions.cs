@@ -58,29 +58,9 @@ namespace ChessLib.Graphics
             return MagickColor.FromRgba(c.R, c.G, c.B, c.A);
         }
 
-        public PointD GetPointFromBoardIndex(ushort sq)
-        {
-            var x = ((sq % 8) * SquareSize) + SquareSize;
-            var y = (Math.Abs((sq / 8) - 7)) * SquareSize + SquareSize;
-            return new PointD(x, y);
-        }
+        
 
-        public RectangleF GetRectFromBoardIndex(ushort squareIndex)
-        {
-            var p = GetPointFromBoardIndex(squareIndex);
-            return new RectangleF((float)p.X, (float)p.Y + SquareSize, SquareSize, SquareSize);
-        }
-
-        public PointD UpperSquareCoordinate(int rank, int file) => new PointD(file * SquareSize, ((Math.Abs(rank - 9)) * SquareSize));
-        public PointD LowerSquareCoordinate(int rank, int file)
-        {
-            var upper = UpperSquareCoordinate(rank, file);
-            return LowerSquareCoordinate(upper);
-        }
-        public PointD LowerSquareCoordinate(PointD upperSquareCoordinate)
-        {
-            return new PointD(upperSquareCoordinate.X + SquareSize, upperSquareCoordinate.Y + SquareSize);
-        }
+        
 
         public static MagickColor ShadeColor(Color c, int degree)
         {
