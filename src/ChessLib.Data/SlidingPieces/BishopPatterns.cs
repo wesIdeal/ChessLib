@@ -1,7 +1,7 @@
 ﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.PieceMobility;
 
-namespace MagicBitboard.SlidingPieces
+namespace ChessLib.Data
 {
     public class BishopPatterns : MovePatternStorage
     {

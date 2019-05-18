@@ -1,6 +1,5 @@
 ﻿using ChessLib.Data.Exceptions;
 using ChessLib.Data.MoveRepresentation;
-using MagicBitboard;
 
 namespace ChessLib.MagicBitboard.MoveValidation.EnPassantRules
 {

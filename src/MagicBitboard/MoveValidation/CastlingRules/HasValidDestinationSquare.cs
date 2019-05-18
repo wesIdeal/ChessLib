@@ -1,7 +1,6 @@
-﻿using System.Linq;
-using ChessLib.Data.Exceptions;
+﻿using ChessLib.Data.Exceptions;
 using ChessLib.Data.MoveRepresentation;
-using MagicBitboard;
+using System.Linq;
 
 namespace ChessLib.MagicBitboard.MoveValidation.CastlingRules
 {

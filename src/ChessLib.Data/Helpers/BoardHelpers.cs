@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using ChessLib.Data.MoveRepresentation;
+using System.Text;
+using System.Collections.Generic;
 
 namespace ChessLib.Data.Helpers
 {
@@ -19,7 +21,9 @@ namespace ChessLib.Data.Helpers
         // ReSharper restore InconsistentNaming
         #endregion
         public static Color Toggle(this Color c) => c == Color.White ? Color.Black : Color.White;
-
+        public const int KING = (int)Piece.King;
+        public const int WHITE = (int)Color.White;
+        public const int BLACK = (int)Color.Black;
         public static readonly Board IndividualSquares =
         new Board()
         {
@@ -65,7 +69,7 @@ namespace ChessLib.Data.Helpers
             InitializeInBetween();
         }
 
-      
+
 
         private static void InitializeInBetween()
         {
@@ -352,6 +356,132 @@ namespace ChessLib.Data.Helpers
                     : 0x20ul;                   // WHITE O-O
 
             return (rookBoard & ~(rookSource)) | rookDest;
+        }
+
+
+        public static bool CanEvadeThroughBlockOrCapture(Color kingColor, ulong[][] pieceOnBoard)
+        {
+            return GetEvasions(kingColor, pieceOnBoard).Any();
+        }
+
+        public static MoveExt[] GetEvasions(Color kingColor, ulong[][] piecesOnBoard)
+        {
+            var rv = new List<MoveExt>();
+            var nColor = (int)kingColor;
+
+            var nOppColor = (int)kingColor.Toggle();
+            var kingIndex = piecesOnBoard[nColor][KING].GetSetBits()[0];
+            var totalOcc = piecesOnBoard.Occupancy();
+            var activeOccupancy = piecesOnBoard.Occupancy(kingColor);
+            var oppOccupancy = piecesOnBoard.Occupancy((Color)nOppColor);
+            var piecesAttacking = AttackersOn(kingIndex, piecesOnBoard) & piecesOnBoard.Occupancy(kingColor.Toggle());
+            var attackerIndexes = piecesAttacking.GetSetBits();
+            var pseudoLegalKingMoves = Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, activeOccupancy, oppOccupancy, kingColor);
+
+            //double check - king must move
+            foreach (var mv in pseudoLegalKingMoves.GetSetBits())
+            {
+                var move = MoveHelpers.GenerateMove(kingIndex, mv);
+                var board = BoardHelpers.GetBoardPostMove(piecesOnBoard, kingColor, move);
+                if (!Bitboard.IsAttackedBy((Color)nOppColor, mv, board))
+                {
+                    rv.Add(move);
+                }
+            }
+
+            if (attackerIndexes.Length == 1)
+            {
+                foreach (var attackerIdx in attackerIndexes)
+                {
+                    var activeOccupancyNotKing = activeOccupancy & ~(kingIndex.GetBoardValueOfIndex());
+                    foreach (var occupiedSquare in activeOccupancyNotKing.GetSetBits())
+                    {
+                        ulong destination;
+                        var piece = BoardHelpers.GetPieceOfColorAtIndex(occupiedSquare, piecesOnBoard);
+                        var attackedSquares =
+                            Bitboard.GetPseudoLegalMoves(piece.Value.Piece, occupiedSquare, activeOccupancy, oppOccupancy, kingColor);
+                        var squaresBetween = BoardHelpers.InBetween(kingIndex, attackerIdx);
+                        if ((destination = (attackedSquares & squaresBetween)) != 0)
+                        {
+                            var destIdx = destination.GetSetBits();
+                            Debug.Assert(destIdx.Length == 1);
+                            var move = MoveHelpers.GenerateMove(occupiedSquare, destIdx[0]);
+                            rv.Add(move);
+                        }
+                    }
+                }
+            }
+
+            return rv.ToArray();
+        }
+
+        private static ulong AttackersOn(in ushort i, in ulong[][] piecesOnBoard)
+        {
+
+            var total = piecesOnBoard
+                .Select(color => color.Aggregate((current, x) => current |= x))
+                .Aggregate((current, x) => current |= x);
+            var pawnWhite = piecesOnBoard[WHITE][PAWN];
+            var pawnBlack = piecesOnBoard[BLACK][PAWN];
+            var knight = piecesOnBoard[BLACK][KNIGHT] | piecesOnBoard[WHITE][KNIGHT];
+            var bishop = piecesOnBoard[BLACK][BISHOP] | piecesOnBoard[WHITE][BISHOP];
+            var rook = piecesOnBoard[BLACK][ROOK] | piecesOnBoard[WHITE][ROOK];
+            var queen = piecesOnBoard[BLACK][QUEEN] | piecesOnBoard[WHITE][QUEEN];
+            var king = piecesOnBoard[BLACK][KING] | piecesOnBoard[WHITE][KING];
+            return (Bitboard.GetAttackedSquares(Piece.Pawn, i, total, Color.Black) & pawnWhite)
+                   | (Bitboard.GetAttackedSquares(Piece.Pawn, i, total, Color.White) & pawnBlack)
+                   | (Bitboard.GetAttackedSquares(Piece.Knight, i, total) & knight)
+                   | (Bitboard.GetAttackedSquares(Piece.Bishop, i, total) & bishop)
+                   | (Bitboard.GetAttackedSquares(Piece.Rook, i, total) & rook)
+                   | (Bitboard.GetAttackedSquares(Piece.Queen, i, total) & (queen))
+                   | (Bitboard.GetAttackedSquares(Piece.King, i, total) & king);
+
+        }
+
+
+        public static string GetPiecePlacement(this ulong[][] piecesOnBoard)
+        {
+            var pieceSection = new char[64];
+            for (var iColor = 0; iColor < 2; iColor++)
+                for (var iPiece = 0; iPiece < 6; iPiece++)
+                {
+                    var pieceArray = piecesOnBoard[iColor][iPiece];
+                    var charRepForPieceOfColor = PieceHelpers.GetCharRepresentation((Color)iColor, (Piece)iPiece);
+                    while (pieceArray != 0)
+                    {
+                        var squareIndex = BitHelpers.BitScanForward(pieceArray);
+                        var fenIndex = FENHelpers.BoardIndexToFENIndex(squareIndex);
+                        pieceSection[fenIndex] = charRepForPieceOfColor;
+                        pieceArray &= pieceArray - 1;
+                    }
+                }
+
+            var sb = new StringBuilder();
+            for (var rank = 0; rank < 8; rank++) //start at FEN Rank of zero -> 7
+            {
+                var emptyCount = 0;
+                for (var file = 0; file < 8; file++)
+                {
+                    var paChar = pieceSection[(rank * 8) + file];
+                    if (paChar == 0)
+                    {
+                        emptyCount++;
+                    }
+                    else
+                    {
+                        if (emptyCount != 0)
+                        {
+                            sb.Append(emptyCount.ToString());
+                            emptyCount = 0;
+                        }
+
+                        sb.Append(paChar);
+                    }
+                }
+                if (emptyCount != 0) sb.Append(emptyCount);
+                if (rank != 7) sb.Append('/');
+            }
+            return sb.ToString();
         }
     }
 }

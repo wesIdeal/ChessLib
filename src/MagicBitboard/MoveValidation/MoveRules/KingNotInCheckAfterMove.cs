@@ -1,8 +1,8 @@
-﻿using ChessLib.Data.Exceptions;
+﻿using ChessLib.Data;
+using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
-using MagicBitboard;
 
 namespace ChessLib.MagicBitboard.MoveValidation.MoveRules
 {

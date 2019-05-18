@@ -1,19 +1,15 @@
-﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Types;
-using MagicBitboard;
-using MagicBitboard.SlidingPieces;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using ChessLib.Data;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types;
 using ChessLib.Graphics;
 using ChessLib.MagicBitboard;
 using ChessLib.Parse.PGN;
-using SixLabors.ImageSharp.PixelFormats;
+using System;
+using System.Diagnostics;
 using System.IO;
-using ChessLib.Data;
+using System.Linq;
+using System.Text;
 
 namespace Bitboard.Tests.ConsoleApp
 {

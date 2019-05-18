@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ChessLib.Data.Exceptions;
+﻿using ChessLib.Data.Exceptions;
 using ChessLib.Data.MoveRepresentation;
-using MagicBitboard;
 
 namespace ChessLib.MagicBitboard.MoveValidation.EnPassantRules
 {

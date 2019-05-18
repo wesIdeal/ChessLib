@@ -150,8 +150,8 @@ namespace ChessLib.Graphics
         }
         struct MoveImages
         {
-            public int idx { get; set; }
-            public IMagickImage image { get; set; }
+            public int Index { get; set; }
+            public IMagickImage Image { get; set; }
         }
         public void MakeAnimationFromMoveTreeParallel(Stream writeTo, Game<MoveHashStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
         {
@@ -174,9 +174,9 @@ namespace ChessLib.Graphics
                    {
                        var positionBoard = MakeBoardFromFen(move.mv.Move.FEN, boardImage, game.TagSection, null);
                        positionBoard.AnimationDelay = delay;
-                       images.Add(new MoveImages { image = positionBoard, idx = move.idx });
+                       images.Add(new MoveImages { Image = positionBoard, Index = move.idx });
                    });
-                imageList.AddRange(images.OrderBy(i => i.idx).Select(x => (IMagickImage)x.image));
+                imageList.AddRange(images.OrderBy(i => i.Index).Select(x => (IMagickImage)x.Image));
                 imageList.OptimizePlus();
                 imageList.Write(writeTo, format);
             }

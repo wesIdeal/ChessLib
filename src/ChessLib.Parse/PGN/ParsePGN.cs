@@ -67,7 +67,7 @@ namespace ChessLib.Parse.PGN
             var perGame = new List<long>();
             var sw = new Stopwatch();
             var games = GetGameTexts();
-            var gameCount = MaxGames.HasValue ? MaxGames.Value : games.Count();
+            var gameCount = MaxGames ?? games.Count();
             foreach (var game in games.Take(gameCount))
             {
                 sw.Reset();

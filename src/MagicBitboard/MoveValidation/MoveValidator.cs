@@ -16,6 +16,17 @@ namespace ChessLib.MagicBitboard.MoveValidation
         public readonly ulong[][] PostMoveBoard;
         private readonly BoardInfo _boardInfo;
         private readonly MoveExt _move;
+        public static MoveValidator FromBitboards(in ulong[][] board, Color sideMoving, ushort? enPassantIndex, CastlingAvailability ca, MoveExt move, bool checkForStalemate = true)
+        {
+            var boardInfo = new BoardInfo()
+            {
+                PiecesOnBoard = board,
+                ActivePlayerColor = sideMoving,
+                CastlingAvailability = ca,
+                EnPassantIndex = enPassantIndex
+            };
+            return new MoveValidator(boardInfo, move);
+        }
         public MoveValidator(in BoardInfo board, in MoveExt move)
         {
             PostMoveBoard = BoardHelpers.GetBoardPostMove(board.PiecesOnBoard, board.ActivePlayerColor, move);
@@ -49,7 +60,6 @@ namespace ChessLib.MagicBitboard.MoveValidation
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            _rules.Add(new PositionIsNotStalemateAfterMove());
         }
 
         public MoveExceptionType? Validate()

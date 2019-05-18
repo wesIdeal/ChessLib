@@ -26,13 +26,8 @@ namespace ChessLib.Data.Boards
         /// <returns>A BoardInfo object representing the board state after parsing the FEN</returns>
         public BoardInformationService(string fen, bool chess960 = false)
         {
-
             MoveTree = new MoveTree<T>(null);
-            Color activePlayer;
-            ushort? enPassantSquareIndex;
-            uint halfmoveClock, fullMoveCount;
-            CastlingAvailability castlingAvailability;
-            PiecesOnBoard = fen.BoardFromFen(out activePlayer, out castlingAvailability, out enPassantSquareIndex, out halfmoveClock, out fullMoveCount);
+            PiecesOnBoard = fen.BoardFromFen(out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out uint halfmoveClock, out uint fullMoveCount);
             ActivePlayerColor = activePlayer;
             CastlingAvailability = castlingAvailability;
             EnPassantIndex = enPassantSquareIndex;
@@ -57,21 +52,65 @@ namespace ChessLib.Data.Boards
         public uint HalfmoveClock { get; set; }
         public uint MoveCounter { get; set; }
         public CastlingAvailability CastlingAvailability { get; set; }
-        public ushort? EnPassantIndex { get; protected set; }
+        public ushort? EnPassantIndex { get; set; }
 
         public readonly bool Chess960;
 
         #region Player Color Properties and conversions
         public Color ActivePlayerColor { get; set; }
         public Color OpponentColor => ActivePlayerColor.Toggle();
-        protected int nActiveColor => (int)ActivePlayerColor;
-        protected int nOpponentColor => (int)OpponentColor;
+        protected int NActiveColor => (int)ActivePlayerColor;
+        protected int NOpponentColor => (int)OpponentColor;
 
 
         #endregion
 
         #endregion
 
+        #region Occupancy / Index Properties for shorthand access to occupancy board arrays
+
+        /// <summary>
+        ///     Occupancy of side-to-move's pawns
+        /// </summary>
+        public ulong ActivePawnOccupancy => PiecesOnBoard[NActiveColor][PAWN];
+
+        /// <summary>
+        ///     Occupancy of side-to-move's Knights
+        /// </summary>
+        public ulong ActiveKnightOccupancy => PiecesOnBoard[NActiveColor][KNIGHT];
+
+        /// <summary>
+        ///     Occupancy of side-to-move's Bishops
+        /// </summary>
+        public ulong ActiveBishopOccupancy => PiecesOnBoard[NActiveColor][BISHOP];
+
+        /// <summary>
+        ///     Occupancy of side-to-move's Rooks
+        /// </summary>
+        public ulong ActiveRookOccupancy => PiecesOnBoard[NActiveColor][ROOK];
+
+        /// <summary>
+        ///     Occupancy of side-to-move's Queen(s)
+        /// </summary>
+        public ulong ActiveQueenOccupancy => PiecesOnBoard[NActiveColor][QUEEN];
+
+        /// <summary>
+        ///     Index of side-to-move's King
+        /// </summary>
+        public ushort ActivePlayerKingIndex => KingIndex(ActivePlayerColor);
+
+        /// <summary>
+        ///     Value (occupancy board) of side-to-move's King
+        /// </summary>
+        public ulong ActivePlayerKingOccupancy => PiecesOnBoard[NActiveColor][KING];
+
+        /// <summary>
+        ///     Opponent's King's square index
+        /// </summary>
+        public ushort OpposingPlayerKingIndex => KingIndex(OpponentColor);
+
+
+        #endregion
 
 
         public ulong Occupancy(Color? c = null)
@@ -86,6 +125,8 @@ namespace ChessLib.Data.Boards
                 .Select(color => color.Aggregate((current, x) => current |= x))
                 .Aggregate((current, x) => current |= x);
         }
+
+        
 
         /// <summary>
         ///     Occupancy of side-to-move's pieces
@@ -144,6 +185,10 @@ namespace ChessLib.Data.Boards
             return PiecesOnBoard[WHITE][KING] | PiecesOnBoard[BLACK][KING];
         }
 
+        public ushort KingIndex(Color c)
+        {
+            return PiecesOnBoard[(int)c][KING].GetSetBits()[0];
+        }
 
 
         private void ValidateFields()

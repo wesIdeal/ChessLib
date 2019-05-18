@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MagicBitboard.SlidingPieces
+namespace ChessLib.Data
 {
     public class MovePatternStorage : IEnumerable<ulong>
     {

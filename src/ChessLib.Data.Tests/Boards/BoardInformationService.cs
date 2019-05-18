@@ -32,107 +32,74 @@ namespace ChessLib.Data.Tests.Boards
             Assert.AreEqual(expected, bi.GetSANSourceString(MoveHelpers.GenerateMove(12, 28), poc));
         }
 
-        [Test]
-        public void GetSANSourceString_PieceWithNoDisambiguityRequired()
+        [TestCase("5r2/6Pk/1R6/7P/6K1/8/8/8 w - - 0 62", 54, 61, "gxf8=Q 1/2-1/2", PromotionPiece.Queen, MoveType.Promotion)]
+        [TestCase("6K1/4k1P1/8/7q/8/8/8/8 b - - 9 56", 52, 60, "Ke8 1/2-1/2")]
+        [TestCase("6K1/4k1P1/8/6q1/8/8/8/8 b - - 9 56", 38, 39, "Qh5 1/2-1/2")]
+        public void MoveToSAN_Stalemate(string fen, int f, int t, string expected, PromotionPiece p = PromotionPiece.Knight, MoveType type = MoveType.Normal)
         {
-            var boardInfo = new BoardInfo("7k/8/8/3bR3/8/8/7K/8 w - - 0 1");
-            var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Rook };
-            var expected = "R";
-            Assert.AreEqual(expected, boardInfo.GetSANSourceString(MoveHelpers.GenerateMove(36, 35), poc));
+            var board = new BoardInfo(fen);
+            var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
+            Assert.AreEqual(expected, board.MoveToSAN(move));
+
         }
 
-        [Test]
-        public void GetSANSourceString_PieceWithFileDisambiguityRequired()
+        [TestCase("rnbqkbnr/1pp1pppp/p7/3p4/2P1P3/8/PP1P1PPP/RNBQKBNR w KQkq - 0 1", 28, 35, "exd5")]
+        [TestCase("rnbqkbnr/1pp1pppp/p7/3p4/2P1P3/8/PP1P1PPP/RNBQKBNR w KQkq - 0 1", 26, 35, "cxd5")]
+        [TestCase("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1", 28, 35, "exd5")]
+        [TestCase(FENHelpers.FENInitial, 12, 28, "e4")]
+        [TestCase(FENHelpers.FENInitial, 12, 20, "e3")]
+        [TestCase(FENHelpers.FENInitial, 10, 26, "c4")]
+        [TestCase("rnbqkbnr/1pp1pppp/p7/2Pp4/8/8/PP1PPPPP/RNBQKBNR w KQkq d6 0 3", 34, 43, "cxd6", MoveType.EnPassant)]
+        [TestCase("rnbqkbnr/1pp1pppp/p7/2Pp4/2P5/8/P2PPPPP/RNBQKBNR w KQkq d6 0 3", 26, 35, "cxd5")]
+        public void MoveToSAN_Pawn(string fen, int from, int to, string expected, MoveType mt = MoveType.Normal)
         {
-            var boardInfo = new BoardInfo("7k/8/8/3bR3/8/3R4/7K/8 w - - 0 1");
-            var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Rook };
-            var expected = "Re";
-            Assert.AreEqual(expected, boardInfo.GetSANSourceString(MoveHelpers.GenerateMove(36, 35), poc));
+            var boardInfo = new BoardInfo(fen);
+            var move = MoveFromInt(from, to, PromotionPiece.Knight, mt);
+            Assert.AreEqual(expected, boardInfo.MoveToSAN(move));
         }
 
-        [Test]
-        public void GetSANSourceString_PieceWithRankAndFileDisambiguityRequired()
-        {
-            var boardInfo = new BoardInfo("2k5/8/8/1b6/4Q2Q/8/7K/7Q w - - 0 1");
-            var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Queen };
-            var expected = "Qh4";
-            Assert.AreEqual(expected, boardInfo.GetSANSourceString(MoveHelpers.GenerateMove(31, 4), poc));
-        }
+
 
         [Test]
-        public void GetSANSourceString_PieceWithRankDisambiguityRequired()
+        [TestCase("7k/8/8/3bR3/8/8/7K/8 w - - 0 1", 36, 35, "Rxd5")]
+        [TestCase("7k/8/8/4R3/8/8/7K/8 w - - 0 1", 36, 35, "Rd5")]
+        [TestCase("7k/8/3R4/3b4/8/3R4/7K/8 w - - 0 1", 43, 35, "R6xd5")]
+        [TestCase("7k/8/3R4/8/8/3R4/7K/8 w - - 0 1", 43, 35, "R6d5")]
+        [TestCase("2k5/8/8/1b6/4Q2Q/8/7K/7Q w - - 0 1", 31, 4, "Qh4e1")]
+        [TestCase("7k/8/8/3bR3/8/3R4/7K/8 w - - 0 1", 36, 35, "Rexd5")]
+        [TestCase("7k/8/8/4R3/8/3R4/7K/8 w - - 0 1", 36, 35, "Red5")]
+        public void MoveToSAN_Piece(string fen, int from, int to, string expected)
         {
-            var boardInfo = new BoardInfo("7k/8/3R4/3b4/8/3R4/7K/8 w - - 0 1");
-            var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Rook };
-            var expected = "R6";
-            Assert.AreEqual(expected, boardInfo.GetSANSourceString(MoveHelpers.GenerateMove(43, 35), poc));
+            var boardInfo = new BoardInfo(fen);
+            var move = MoveFromInt(from, to);
+            Assert.AreEqual(expected, boardInfo.MoveToSAN(move));
+
         }
 
-        [Test]
-        public void MoveToSAN_PawnMove1()
+        [TestCase("8/4P3/8/8/8/8/6k1/4K3 w - - 0 1", 52, 60, "e8=Q")]
+        [TestCase("3q4/4P3/8/8/8/8/6k1/4K3 w - - 0 1", 52, 59, "exd8=Q")]
+        public void MoveToSAN_PawnPromotion(string fen, int from, int to, string expected)
         {
-            var boardInfo = new BoardInfo();
+            var boardInfo = new BoardInfo(fen);
             var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
-            var expected = "e3";
-            Assert.AreEqual(expected, boardInfo.MoveToSAN(MoveHelpers.GenerateMove(12, 20), poc, null));
+            var move = MoveFromInt(from, to, PromotionPiece.Queen, MoveType.Promotion);
+            Assert.AreEqual(expected, boardInfo.MoveToSAN(move));
+
         }
 
-        [Test]
-        public void MoveToSAN_PawnMove2()
+
+
+
+        [TestCase("8/8/8/8/5Q2/8/6k1/4K3 w - - 0 1", 29, 28, "Qe4+")]
+        [TestCase("rnbqkbnr/ppp2ppp/3p4/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR w KQkq - 0 3", 26, 53, "Bxf7+")]
+        [TestCase("rnbqkbnr/ppp2ppp/3p4/4N2Q/2B1P3/8/PPPP1PPP/RNB1K2R w KQkq - 0 3", 39, 53, "Qxf7# 1-0")]
+        public void MoveToSAN_Checks(string fen, int from, int to, string expected)
         {
-            var boardInfo = new BoardInfo();
-            var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
-            var expected = "e4";
-            Assert.AreEqual(expected, boardInfo.MoveToSAN(MoveHelpers.GenerateMove(12, 28), poc, null));
+            var boardInfo = new BoardInfo(fen);
+            Assert.AreEqual(expected, boardInfo.MoveToSAN(MoveHelpers.GenerateMove((ushort)from, (ushort)to)));
         }
 
-        [Test]
-        public void MoveToSAN_PawnCapture1Attacker()
-        {
-            var boardInfo = new BoardInfo("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
-            var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
-            var expected = "exd5";
-            Assert.AreEqual(expected, boardInfo.MoveToSAN(MoveHelpers.GenerateMove(28, 35)));
-        }
-
-        [Test]
-        public void MoveToSAN_PawnCapture2Attackers()
-        {
-            var boardInfo = new BoardInfo("rnbqkbnr/1pp1pppp/p7/3p4/2P1P3/8/PP1P1PPP/RNBQKBNR w KQkq - 0 1");
-            var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
-            var expected = "exd5";
-            Assert.AreEqual(expected, boardInfo.MoveToSAN(MoveHelpers.GenerateMove(28, 35)));
-            expected = "cxd5";
-            Assert.AreEqual(expected, boardInfo.MoveToSAN(MoveHelpers.GenerateMove(26, 35)));
-        }
-
-        [Test]
-        public void MoveToSAN_PawnPromotion()
-        {
-            var boardInfo = new BoardInfo("8/4P3/8/8/8/8/6k1/4K3 w - - 0 1");
-            var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
-            var expected = "e8=Q";
-            Assert.AreEqual(expected, boardInfo.MoveToSAN(MoveHelpers.GenerateMove(52, 60, MoveType.Promotion, PromotionPiece.Queen)));
-
-        }
-
-        [Test]
-        public void MoveToSAN_PawnPromotionAfterCapture()
-        {
-            var boardInfo = new BoardInfo("3q4/4P3/8/8/8/8/6k1/4K3 w - - 0 1");
-            var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
-            var expected = "exd8=Q";
-            Assert.AreEqual(expected, boardInfo.MoveToSAN(MoveHelpers.GenerateMove(52, 59, MoveType.Promotion, PromotionPiece.Queen)));
-
-        }
-
-        [Test]
-        public void MoveToSAN_SimpleCheck()
-        {
-            var boardInfo = new BoardInfo("8/8/8/8/5Q2/8/6k1/4K3 w - - 0 1");
-            var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
-            var expected = "Qe4+";
-            Assert.AreEqual(expected, boardInfo.MoveToSAN(MoveHelpers.GenerateMove(29, 28)));
-        }
+        public MoveExt MoveFromInt(int f, int t, PromotionPiece p = PromotionPiece.Knight, MoveType mt = MoveType.Normal) =>
+             MoveHelpers.GenerateMove((ushort)f, (ushort)t, mt, p);
     }
 }

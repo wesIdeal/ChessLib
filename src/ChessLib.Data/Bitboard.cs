@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.PieceMobility;
 using ChessLib.Data.Types;
-using MagicBitboard.SlidingPieces;
 
-namespace ChessLib.MagicBitboard
+
+namespace ChessLib.Data
 {
     public static class Bitboard
     {
@@ -25,15 +26,25 @@ namespace ChessLib.MagicBitboard
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int File(ushort idx) => idx % 8;
 
-        public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color = Color.White)
+        /// <summary>
+        /// Gets both moves and attacks/captures for a piece
+        /// </summary>
+        /// <param name="piece"></param>
+        /// <param name="pieceSquare"></param>
+        /// <param name="activeOcc"></param>
+        /// <param name="oppOcc"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex = null, CastlingAvailability ca = CastlingAvailability.NoCastlingAvailable)
         {
             var totalOccupancy = activeOcc | oppOcc;
             ulong possibleMoves;
             switch (piece)
             {
                 case Piece.Pawn:
+                    var opponentOccupancy = oppOcc | (enPassantIndex ?? 0);
                     var pawnMoves = PieceAttackPatternHelper.PawnMoveMask[(int)color][pieceSquare] & ~(totalOccupancy);
-                    var pawnAttacks = PieceAttackPatternHelper.PawnAttackMask[(int)color][pieceSquare] & oppOcc;
+                    var pawnAttacks = PieceAttackPatternHelper.PawnAttackMask[(int)color][pieceSquare] & opponentOccupancy;
                     possibleMoves = pawnMoves | pawnAttacks;
                     break;
                 case Piece.Knight:
@@ -50,7 +61,33 @@ namespace ChessLib.MagicBitboard
                     possibleMoves = (Bishop.GetLegalMoves(pieceSquare, totalOccupancy) | Rook.GetLegalMoves(pieceSquare, totalOccupancy)) & ~(activeOcc);
                     break;
                 case Piece.King:
+
                     possibleMoves = PieceAttackPatternHelper.KingMoveMask[pieceSquare] & ~(activeOcc);
+                    if (ca != CastlingAvailability.NoCastlingAvailable)
+                    {
+                        if (color == Color.Black)
+                        {
+                            if (ca.HasFlag(CastlingAvailability.BlackKingside))
+                            {
+                                possibleMoves |= (1ul << 62);
+                            }
+                            if (ca.HasFlag(CastlingAvailability.BlackQueenside))
+                            {
+                                possibleMoves |= (1ul << 58);
+                            }
+                        }
+                        if (color == Color.White)
+                        {
+                            if (ca.HasFlag(CastlingAvailability.WhiteKingside))
+                            {
+                                possibleMoves |= (1ul << 6);
+                            }
+                            if (ca.HasFlag(CastlingAvailability.WhiteQueenside))
+                            {
+                                possibleMoves |= (1ul << 2);
+                            }
+                        }
+                    }
                     break;
                 default:
                     throw new Exception("Piece argument passed to GetPossibleMoves()");
