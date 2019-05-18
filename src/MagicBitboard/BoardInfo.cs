@@ -534,18 +534,14 @@ namespace ChessLib.MagicBitboard
         public string MoveToSAN(MoveExt move, PieceOfColor srcPiece, PieceOfColor? dstPiece, bool recordResult = true)
         {
             var postMoveBoard = BoardHelpers.GetBoardPostMove(PiecePlacement, ActivePlayer, move);
-            string strSrcPiece = GetSANSourceString(move, srcPiece);
-            string strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
-            string checkInfo = "";
-            string result = "";
+            var strSrcPiece = GetSANSourceString(move, srcPiece, dstPiece);
+            var strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
+            string checkInfo = "", result = "";
             if (srcPiece.Piece == Piece.Pawn)
             {
-                if (move.MoveType != MoveType.EnPassant && !dstPiece.HasValue)
-                {
-                    strSrcPiece = "";
-                }
+               
             }
-            string capture = dstPiece.HasValue || move.MoveType == MoveType.EnPassant ? "x" : "";
+            var capture = dstPiece.HasValue || move.MoveType == MoveType.EnPassant ? "x" : "";
             var promotionInfo = "";
             if (move.MoveType == MoveType.Promotion)
             {
@@ -554,7 +550,7 @@ namespace ChessLib.MagicBitboard
             var board = (BoardFENInfo)this.Clone();
             board.PiecePlacement = postMoveBoard;
             board.ActivePlayer = OpponentColor;
-            
+
             if (postMoveBoard.IsPlayerOfColorInCheck(OpponentColor))
             {
                 var activeColor = srcPiece.Color;
@@ -575,34 +571,34 @@ namespace ChessLib.MagicBitboard
                 if (isStalemate && recordResult)
                 {
                     result = "1/2-1/2";
-                } 
+                }
             }
             //Get piece representation
             return $"{strSrcPiece}{capture}{move.DestinationIndex.IndexToSquareDisplay()}{promotionInfo}{checkInfo} {result}".Trim();
         }
 
-        public string GetSANSourceString(MoveExt mv, PieceOfColor p)
+        public string GetSANSourceString(MoveExt mv, PieceOfColor src, PieceOfColor? dst)
         {
-            if (p.Piece == Piece.King)
+            if (src.Piece == Piece.King)
             {
                 return "K";
             }
-            if (p.Piece == Piece.Pawn)
+            if (src.Piece == Piece.Pawn)
             {
-                if (mv.MoveType == MoveType.EnPassant)
+                if (mv.MoveType != MoveType.EnPassant && !dst.HasValue)
                 {
-                    return mv.SourceIndex.IndexToFileDisplay().ToString();
+                    return "";
                 }
                 return mv.SourceIndex.IndexToFileDisplay().ToString();
             }
 
-            var strSrcPiece = p.Piece.GetCharRepresentation().ToString().ToUpper();
-            var otherLikePieces = PiecePlacement[(int)p.Color][(int)p.Piece];
+            var strSrcPiece = src.Piece.GetCharRepresentation().ToString().ToUpper();
+            var otherLikePieces = PiecePlacement[(int)src.Color][(int)src.Piece];
             var duplicateAttackerIndexes = new List<ushort>();
 
             foreach (var attackerIndex in otherLikePieces.GetSetBits())
             {
-                if (DoesPieceAtSquareAttackSquare(mv.DestinationIndex, attackerIndex, p.Piece))
+                if (DoesPieceAtSquareAttackSquare(mv.DestinationIndex, attackerIndex, src.Piece))
                 {
                     duplicateAttackerIndexes.Add(attackerIndex);
                 }

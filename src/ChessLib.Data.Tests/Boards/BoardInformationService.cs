@@ -15,15 +15,15 @@ namespace ChessLib.Data.Tests.Boards
         {
             var poc = new PieceOfColor() { Color = Color.Black, Piece = Piece.King };
             var expected = "K";
-            Assert.AreEqual(expected, bi.GetSANSourceString(new MoveExt(0), poc));
+            Assert.AreEqual(expected, bi.GetSANSourceString(new MoveExt(0), poc, null));
         }
 
         [Test]
         public void GetSANSourceString_Pawn()
         {
             var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
-            var expected = "e";
-            Assert.AreEqual(expected, bi.GetSANSourceString(MoveHelpers.GenerateMove(12, 28), poc));
+            var expected = "";
+            Assert.AreEqual(expected, bi.GetSANSourceString(MoveHelpers.GenerateMove(12, 28), poc, null));
         }
 
         [TestCase("5r2/6Pk/1R6/7P/6K1/8/8/8 w - - 0 62", 54, 61, "gxf8=Q 1/2-1/2", PromotionPiece.Queen, MoveType.Promotion)]
