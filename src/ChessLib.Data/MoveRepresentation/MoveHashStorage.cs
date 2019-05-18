@@ -9,7 +9,7 @@ namespace ChessLib.Data.MoveRepresentation
 
     public class MoveHashStorage : MoveStorage, IEquatable<MoveHashStorage>
     {
-        public MoveHashStorage(MoveExt move, Piece pieceMoving, Color colorMoving, string fen)
+        public MoveHashStorage(MoveExt move, Piece pieceMoving, Color colorMoving, string fen, string textRepresentation)
         : base(move, pieceMoving, colorMoving)
         {
             FENHelpers.ValidateFENString(fen);

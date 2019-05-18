@@ -9,7 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using ChessLib.Data.Interfaces;
+using ChessLib.Data.Boards;
+using ChessLib.MagicBitboard.MoveValidation.MoveRules;
 
 namespace ChessLib.MagicBitboard
 {
@@ -32,7 +33,7 @@ namespace ChessLib.MagicBitboard
 
         public MoveExceptionType? ApplyMove(MoveExt move)
         {
-            GetPiecesAtSourceAndDestination(move, out var pocSource, out _);
+            GetPiecesAtSourceAndDestination(move, out var pocSource, out var pocDestination);
             if (pocSource == null) throw new ArgumentException("No piece at source.");
             var moveValidator = new MoveValidator(this, move);
             var validationError = moveValidator.Validate();
@@ -46,9 +47,9 @@ namespace ChessLib.MagicBitboard
             UnsetCastlingAvailability(move, pocSource.Value.Piece);
             SetEnPassantFlag(move, pocSource);
 
-
+            var san = MoveToSAN(move, pocSource.Value, pocDestination);
             PiecesOnBoard = moveValidator.PostMoveBoard;
-            MoveTree.AddLast(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, pocSource.Value.Piece, ActivePlayerColor, ToFEN())));
+            MoveTree.AddLast(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, pocSource.Value.Piece, ActivePlayerColor, ToFEN(), san)));
 
             if (ActivePlayerColor == Color.Black)
             {
@@ -62,24 +63,25 @@ namespace ChessLib.MagicBitboard
             return null;
         }
 
-
+        private bool IsPlayerOfColorInCheck(Color c, ulong[][] board) =>
+            Bitboard.IsAttackedBy(c.Toggle(), board[(int)c][KING].GetSetBits()[0], board);
+        protected bool OpposingPlayerInCheck => IsAttackedBy(ActivePlayerColor, OpposingPlayerKingIndex);
+        protected bool ActivePlayerInCheck => IsAttackedBy(OpponentColor, ActivePlayerKingIndex);
         protected override Check GetChecks(Color activePlayer)
         {
             var rv = Check.None;
 
-            var currentPlayerInCheck = IsAttackedBy(activePlayer.Toggle(), ActivePlayerKingIndex);
-            var opposingPlayerInCheck = IsAttackedBy(activePlayer, OpposingPlayerKingIndex);
-            if (currentPlayerInCheck && opposingPlayerInCheck)
+            if (ActivePlayerInCheck && OpposingPlayerInCheck)
             {
                 rv &= ~Check.None;
                 rv |= Check.Double;
             }
-            else if (opposingPlayerInCheck)
+            else if (OpposingPlayerInCheck)
             {
                 rv &= ~Check.None;
                 rv |= Check.Opposite;
             }
-            else if (currentPlayerInCheck)
+            else if (ActivePlayerInCheck)
             {
                 rv &= ~Check.None;
                 rv |= Check.Normal;
@@ -114,6 +116,8 @@ namespace ChessLib.MagicBitboard
                 }
             }
         }
+
+
 
         public static ulong XRayRookAttacks(ulong occupancy, ulong blockers, ushort squareIndex)
         {
@@ -181,7 +185,10 @@ namespace ChessLib.MagicBitboard
         }
 
 
-
+        public override ulong GetAttackedSquares(Piece p, ushort index, ulong occupancy)
+        {
+            return Bitboard.GetAttackedSquares(p, index, occupancy);
+        }
 
 
 
@@ -201,6 +208,13 @@ namespace ChessLib.MagicBitboard
             return Bitboard.IsAttackedBy(color, squareIndex, PiecesOnBoard);
         }
 
+        public override bool DoesPieceAtSquareAttackSquare(ushort attackerSquare, ushort attackedSquare,
+            Piece attackerPiece)
+        {
+            var attackedSquares = GetAttackedSquares(attackerPiece, attackerSquare, TotalOccupancy);
+            var attackedValue = attackedSquare.GetBoardValueOfIndex();
+            return (attackedSquares & attackedValue) != 0;
+        }
 
 
 
@@ -232,41 +246,12 @@ namespace ChessLib.MagicBitboard
         /// </summary>
         public ulong ActiveQueenOccupancy => PiecesOnBoard[nActiveColor][QUEEN];
 
-        /// <summary>
-        ///     Occupancy of side-to-move's pieces
-        /// </summary>
-        public ulong ActiveTotalOccupancy
-        {
-            get
-            {
-                var activeOcc = PiecesOnBoard[nActiveColor];
-                return activeOcc.Aggregate<ulong, ulong>(0, (current, t) => current | t);
-            }
-        }
 
-        /// <summary>
-        ///     Occupancy of opponent's pieces
-        /// </summary>
-        public ulong OpponentTotalOccupancy
-        {
-            get
-            {
-                ulong rv = 0;
-                for (var i = 0; i < PiecesOnBoard[nOpponentColor].Length; i++) rv |= PiecesOnBoard[nOpponentColor][i];
-                return rv;
-            }
-        }
-
-        /// <summary>
-        ///     Total board occupancy
-        /// </summary>
-        public ulong TotalOccupancy => ActiveTotalOccupancy | OpponentTotalOccupancy;
 
         /// <summary>
         ///     Index of side-to-move's King
         /// </summary>
-        public ushort ActivePlayerKingIndex =>
-            PiecesOnBoard[(int)ActivePlayerColor][Piece.King.ToInt()].GetSetBits()[0];
+        public ushort ActivePlayerKingIndex => KingIndex(ActivePlayerColor);
 
         /// <summary>
         ///     Value (occupancy board) of side-to-move's King
@@ -277,8 +262,9 @@ namespace ChessLib.MagicBitboard
         ///     Opponent's King's square index
         /// </summary>
         public ushort OpposingPlayerKingIndex =>
-            PiecesOnBoard[(int)ActivePlayerColor.Toggle()][Piece.King.ToInt()].GetSetBits()[0];
+            KingIndex(OpponentColor);
 
+        public ushort KingIndex(Color c) => PiecesOnBoard[(int)c][KING].GetSetBits()[0];
         #endregion
 
         #region MoveDetail- Finding the Source Square From SAN
@@ -480,9 +466,9 @@ namespace ChessLib.MagicBitboard
             {
                 //Check 3rd rank first, logically if a pawn is there that is the source
                 if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[2] & BoardHelpers.FileMasks[file]) != 0)
-                    sourceIndex = (ushort)(8 * 2 + file % 8);
+                    sourceIndex = (ushort)((8 * 2) + (file % 8));
                 else if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[1] & BoardHelpers.FileMasks[file]) != 0)
-                    sourceIndex = (ushort)(1 * 8 + file % 8);
+                    sourceIndex = (ushort)((1 * 8) + (file % 8));
             }
             else //else source square was destination + 8 (a move one rank ahead), but we need to make sure a pawn was there
             {
@@ -492,7 +478,7 @@ namespace ChessLib.MagicBitboard
                 if (supposedRank == 0)
                     throw new MoveException(
                         $"{moveDetail.MoveText}: Cannot possibly be a pawn at the source square {supposedIndex.IndexToSquareDisplay()} implied by move.");
-                sourceIndex = (ushort)(supposedRank * 8 + moveDetail.DestinationFile.Value);
+                sourceIndex = (ushort)((supposedRank * 8) + moveDetail.DestinationFile.Value);
             }
 
             var idx = moveDetail.Color == Color.Black ? sourceIndex.FlipIndexVertically() : sourceIndex;
@@ -578,7 +564,7 @@ namespace ChessLib.MagicBitboard
                 var emptyCount = 0;
                 for (var file = 0; file < 8; file++)
                 {
-                    var paChar = pieceSection[rank * 8 + file];
+                    var paChar = pieceSection[(rank * 8) + file];
                     if (paChar == 0)
                     {
                         emptyCount++;
@@ -634,5 +620,191 @@ namespace ChessLib.MagicBitboard
         }
 
         #endregion
+
+        public string MoveToSAN(MoveExt move)
+        {
+            var src = BoardHelpers.GetPieceOfColorAtIndex(move.SourceIndex, PiecesOnBoard);
+            if (src == null) throw new MoveException("Source index is empty.", MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, move, ActivePlayerColor);
+            var dst = BoardHelpers.GetPieceOfColorAtIndex(move.DestinationIndex, PiecesOnBoard);
+            return MoveToSAN(move, src.Value, dst);
+        }
+
+        public string MoveToSAN(MoveExt move, PieceOfColor srcPiece, PieceOfColor? dstPiece)
+        {
+            var postMoveBoard = BoardHelpers.GetBoardPostMove(PiecesOnBoard, ActivePlayerColor, move);
+            string strSrcPiece = GetSANSourceString(move, srcPiece);
+            string strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
+            string checkInfo = "";
+            if (srcPiece.Piece == Piece.Pawn && !dstPiece.HasValue)
+            {
+                strSrcPiece = "";
+            }
+            string capture = dstPiece.HasValue ? "x" : "";
+            var promotionInfo = "";
+            if (move.MoveType == MoveType.Promotion)
+            {
+                promotionInfo = $"={PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)}";
+            }
+
+            if (IsPlayerOfColorInCheck(srcPiece.Color.Toggle(), postMoveBoard))
+            {
+                var activeColor = srcPiece.Color;
+                checkInfo = "+";
+                if (IsPlayerOfColorMated(activeColor.Toggle(), postMoveBoard))
+                {
+                    checkInfo = $"# {(activeColor == Color.White ? "1-0" : "0-1")}";
+                }
+            }
+            //Get piece representation
+            return $"{strSrcPiece}{capture}{move.DestinationIndex.IndexToSquareDisplay()}{promotionInfo}{checkInfo}";
+        }
+
+        private bool IsPlayerOfColorMated(Color color, ulong[][] postMoveBoard)
+        {
+            var mate = false;
+            mate = CanKingMoveToAnotherSquare(color, postMoveBoard);
+            return mate;
+        }
+
+        public bool CanKingMoveToAnotherSquare(Color kingColor, ulong[][] piecesOnBoard)
+        {
+            var kingIndex = piecesOnBoard[(int)kingColor][KING].GetSetBits()[0];
+            var kingMoves = Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, Occupancy(kingColor),
+                Occupancy(kingColor.Toggle()));
+            var inCheck = true;
+            foreach (var mv in kingMoves.GetSetBits())
+            {
+                var postMoveBoard =
+                    BoardHelpers.GetBoardPostMove(piecesOnBoard, kingColor, MoveHelpers.GenerateMove(kingIndex, mv));
+                inCheck &= Bitboard.IsAttackedBy(kingColor.Toggle(), mv, postMoveBoard);
+            }
+
+            return !inCheck; //if in check with all moves, then return false- king cannot move out of check
+        }
+
+        public static bool CanEvadeThroughBlockOrCapture(Color kingColor, ulong[][] pieceOnBoard)
+        {
+            return GetEvasions(kingColor, pieceOnBoard).Any();
+        }
+
+        public static MoveExt[] GetEvasions(Color kingColor, ulong[][] piecesOnBoard)
+        {
+            var rv = new List<MoveExt>();
+            var attacks = 0ul;
+            var evasionPossible = true;
+            var nColor = (int)kingColor;
+
+            var nOppColor = (int)kingColor.Toggle();
+            var kingIndex = piecesOnBoard[nColor][KING].GetSetBits()[0];
+            var totalOcc = piecesOnBoard.Occupancy();
+            var activeOccupancy = piecesOnBoard.Occupancy(kingColor);
+            var oppOccupancy = piecesOnBoard.Occupancy((Color)nOppColor);
+            var piecesAttacking = AttackersOn(kingIndex, piecesOnBoard) & piecesOnBoard.Occupancy(kingColor.Toggle());
+            var attackerIndexes = piecesAttacking.GetSetBits();
+            var pseudoLegalKingMoves = Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, activeOccupancy, oppOccupancy);
+
+            //double check - king must move
+            foreach (var mv in pseudoLegalKingMoves.GetSetBits())
+            {
+                var move = MoveHelpers.GenerateMove(kingIndex, mv);
+                var board = BoardHelpers.GetBoardPostMove(piecesOnBoard, kingColor, move);
+                if (!Bitboard.IsAttackedBy((Color)nOppColor, mv, board))
+                {
+                    rv.Add(move);
+                }
+            }
+
+            if (attackerIndexes.Length == 1)
+            {
+                foreach (var attackerIdx in attackerIndexes)
+                {
+                    var activeOccupancyNotKing = activeOccupancy & ~(kingIndex.GetBoardValueOfIndex());
+                    foreach (var occupiedSquare in activeOccupancyNotKing.GetSetBits())
+                    {
+                        ulong destination;
+                        var piece = BoardHelpers.GetPieceOfColorAtIndex(occupiedSquare, piecesOnBoard);
+                        var attackedSquares =
+                            Bitboard.GetPseudoLegalMoves(piece.Value.Piece, occupiedSquare, activeOccupancy, oppOccupancy, kingColor);
+                        var squaresBetween = BoardHelpers.InBetween(kingIndex, attackerIdx);
+                        if ((destination = (attackedSquares & squaresBetween)) != 0)
+                        {
+                            var destIdx = destination.GetSetBits();
+                            Debug.Assert(destIdx.Length == 1);
+                            var move = MoveHelpers.GenerateMove(occupiedSquare, destIdx[0]);
+                            rv.Add(move);
+                        }
+                    }
+                }
+            }
+
+            return rv.ToArray();
+        }
+
+        private static ulong AttackersOn(in ushort i, in ulong[][] piecesOnBoard)
+        {
+
+            var total = piecesOnBoard
+                .Select(color => color.Aggregate((current, x) => current |= x))
+                .Aggregate((current, x) => current |= x);
+            var pawnWhite = piecesOnBoard[WHITE][PAWN];
+            var pawnBlack = piecesOnBoard[BLACK][PAWN];
+            var knight = piecesOnBoard[BLACK][KNIGHT] | piecesOnBoard[WHITE][KNIGHT];
+            var bishop = piecesOnBoard[BLACK][BISHOP] | piecesOnBoard[WHITE][BISHOP];
+            var rook = piecesOnBoard[BLACK][ROOK] | piecesOnBoard[WHITE][ROOK];
+            var queen = piecesOnBoard[BLACK][QUEEN] | piecesOnBoard[WHITE][QUEEN];
+            var king = piecesOnBoard[BLACK][KING] | piecesOnBoard[WHITE][KING];
+            return (Bitboard.GetAttackedSquares(Piece.Pawn, i, total, Color.Black) & pawnWhite)
+                   | (Bitboard.GetAttackedSquares(Piece.Pawn, i, total, Color.White) & pawnBlack)
+                   | (Bitboard.GetAttackedSquares(Piece.Knight, i, total) & knight)
+                   | (Bitboard.GetAttackedSquares(Piece.Bishop, i, total) & bishop)
+                   | (Bitboard.GetAttackedSquares(Piece.Rook, i, total) & rook)
+                   | (Bitboard.GetAttackedSquares(Piece.Queen, i, total) & (queen))
+                   | (Bitboard.GetAttackedSquares(Piece.King, i, total) & king);
+
+        }
+
+
+        public string GetSANSourceString(MoveExt mv, PieceOfColor p)
+        {
+            if (p.Piece == Piece.King)
+            {
+                return "K";
+            }
+            if (p.Piece == Piece.Pawn)
+            {
+                return mv.SourceIndex.IndexToFileDisplay().ToString();
+            }
+
+            var strSrcPiece = p.Piece.GetCharRepresentation().ToString().ToUpper();
+            var otherLikePieces = PiecesOnBoard[(int)p.Color][(int)p.Piece];
+            var duplicateAttackerIndexes = new List<ushort>();
+
+            foreach (var attackerIndex in otherLikePieces.GetSetBits())
+            {
+                if (DoesPieceAtSquareAttackSquare(mv.DestinationIndex, attackerIndex, p.Piece))
+                {
+                    duplicateAttackerIndexes.Add(attackerIndex);
+                }
+            }
+
+            if (duplicateAttackerIndexes.Count() == 1) return strSrcPiece;
+            var duplicateFiles = duplicateAttackerIndexes.Select(x => x.GetFile()).GroupBy(x => x)
+                .Any(x => x.Count() > 1);
+            var duplicateRanks = duplicateAttackerIndexes.Select(x => x.GetRank()).GroupBy(x => x)
+                .Any(x => x.Count() > 1);
+
+            if (!duplicateFiles)
+            {
+                return strSrcPiece += mv.SourceIndex.IndexToFileDisplay();
+            }
+            else if (!duplicateRanks)
+            {
+                return strSrcPiece += mv.SourceIndex.IndexToRankDisplay();
+            }
+            else
+            {
+                return strSrcPiece += mv.SourceIndex.IndexToSquareDisplay();
+            }
+        }
     }
 }

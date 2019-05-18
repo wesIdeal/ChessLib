@@ -73,7 +73,7 @@ namespace ChessLib.Data.Helpers
 
         }
 
-        public static char GetCharRepresentation(Piece p)
+        public static char GetCharRepresentation(this Piece p)
         {
             switch (p)
             {

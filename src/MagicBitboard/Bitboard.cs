@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.PieceMobility;
@@ -95,11 +96,9 @@ namespace ChessLib.MagicBitboard
             var r = squareIndex / 8;
             var f = squareIndex % 8;
             var totalOcc = 0ul;
-            foreach (var cOcc in piecesOnBoard)
-            {
-                foreach (var pieceOcc in cOcc)
-                    totalOcc |= pieceOcc;
-            }
+            var oppositeOccupancy = piecesOnBoard[(int)color.Toggle()].Aggregate((x, y) => x |= y);
+            var activeOccupancy = piecesOnBoard[(int)color].Aggregate((x, y) => x |= y);
+            totalOcc = oppositeOccupancy | activeOccupancy;
             var bishopAttack = GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc);
             var rookAttack = GetAttackedSquares(Piece.Rook, squareIndex, totalOcc);
             if ((PieceAttackPatternHelper.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;

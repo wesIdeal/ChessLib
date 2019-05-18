@@ -216,5 +216,38 @@ namespace ChessLib.Data.Helpers
             var rankOffset = ((ushort)(idx / 8)).RankCompliment();
             return (rankOffset * 8) + (idx % 8);
         }
+
+        public static ulong[][] BoardFromFen(this string fen, out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out uint halfmoveClock, out uint fullmoveClock)
+        {
+            uint pieceIndex = 0;
+            var pieces = new ulong[2][];
+            pieces[(int)Color.White] = new ulong[6];
+            pieces[(int)Color.Black] = new ulong[6];
+            var fenPieces = fen.Split(' ');
+            ValidateFENStructure(fen);
+            ValidateFENString(fen);
+            activePlayer = GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
+            castlingAvailability = GetCastlingFromString(fen.GetFENPiece(FENPieces.CastlingAvailability));
+            enPassantSquareIndex = fenPieces[(int)FENPieces.EnPassantSquare].SquareTextToIndex();
+            halfmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
+            fullmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveCounter]);
+            var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
+            var ranks = piecePlacement.Split('/').Reverse();
+            foreach (var rank in ranks)
+                foreach (var f in rank)
+                    switch (char.IsDigit(f))
+                    {
+                        case true:
+                            var emptySquares = uint.Parse(f.ToString());
+                            pieceIndex += emptySquares;
+                            break;
+                        case false:
+                            var pieceOfColor = PieceHelpers.GetPieceOfColor(f);
+                            pieces[(int)pieceOfColor.Color][(int)pieceOfColor.Piece] |= 1ul << (int)pieceIndex;
+                            pieceIndex++;
+                            break;
+                    }
+            return pieces;
+        }
     }
 }

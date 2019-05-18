@@ -49,6 +49,7 @@ namespace ChessLib.MagicBitboard.MoveValidation
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            _rules.Add(new PositionIsNotStalemateAfterMove());
         }
 
         public MoveExceptionType? Validate()

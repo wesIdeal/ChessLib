@@ -58,6 +58,7 @@
     <Compile Include="MoveValidation\MoveRules\KingNotInCheckAfterMove.cs" />
     <Compile Include="MoveValidation\MoveRules\PieceCanMoveToDestination.cs" />
     <Compile Include="MoveValidation\MoveRules\PieceMovingIsActiveColor.cs" />
+    <Compile Include="MoveValidation\MoveRules\PositionIsNotStalemateAfterMove.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

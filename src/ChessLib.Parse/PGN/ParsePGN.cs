@@ -1,5 +1,7 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using ChessLib.Data;
+using ChessLib.Data.Boards;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN.Parser;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
@@ -7,10 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ChessLib.Data.Helpers;
-using ChessLib.Data.Interfaces;
-using ChessLib.MagicBitboard;
-using ChessLib.Data;
 
 namespace ChessLib.Parse.PGN
 {

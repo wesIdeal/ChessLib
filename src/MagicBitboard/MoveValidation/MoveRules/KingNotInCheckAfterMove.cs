@@ -10,7 +10,7 @@ namespace ChessLib.MagicBitboard.MoveValidation.MoveRules
     {
         public MoveExceptionType? Validate(in BoardInfo boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
         {
-            var activeKingIndex = postMoveBoard[(int) boardInfo.ActivePlayerColor][(int) Piece.King].GetSetBits()[0];
+            var activeKingIndex = postMoveBoard[(int)boardInfo.ActivePlayerColor][(int)Piece.King].GetSetBits()[0];
             if (Bitboard.IsAttackedBy(boardInfo.OpponentColor, activeKingIndex, postMoveBoard))
             {
                 return MoveExceptionType.MoveLeavesKingInCheck;

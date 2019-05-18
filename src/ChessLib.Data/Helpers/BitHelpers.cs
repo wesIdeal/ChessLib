@@ -30,9 +30,18 @@ namespace ChessLib.Data.Helpers
             return Index64[((boardRep ^ (boardRep - 1)) * deBruijn) >> 58];
         }
 
+        /// <summary>
+        /// Gets the board value of the index in order to compare boards with bitwise math.
+        /// </summary>
+        /// <param name="idx">The board index, 0(A1)->63(H8)</param>
+        /// <returns>ulong representing a square's value on the board</returns>
+        public static BoardRepresentation GetBoardValueOfIndex(this PieceIndex idx) => ((BoardRepresentation)1) << idx;
+
+       
+
         public static bool IsBitSet(this BoardRepresentation u, PieceIndex bitIndex)
         {
-            var comparison = ((BoardRepresentation)1 << bitIndex);
+            var comparison = bitIndex.GetBoardValueOfIndex();
             return (comparison & u) == comparison;
         }
 

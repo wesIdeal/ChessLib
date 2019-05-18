@@ -25,7 +25,8 @@ namespace ChessLib.Data.Exceptions
         ActiveColorPieceAtDestination,
         EP_SourceIsNotPawn,
         EP_WrongSourceRank,
-        EP_NotAttackedBySource
+        EP_NotAttackedBySource,
+        Stalemate
     }
     [Serializable]
     public class MoveException : Exception

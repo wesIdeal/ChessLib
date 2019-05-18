@@ -1,5 +1,7 @@
 ﻿using ChessLib.Data.Types;
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using ChessLib.Data.MoveRepresentation;
 
@@ -63,6 +65,8 @@ namespace ChessLib.Data.Helpers
             InitializeInBetween();
         }
 
+      
+
         private static void InitializeInBetween()
         {
             for (var f = 0; f < 64; f++)
@@ -94,6 +98,20 @@ namespace ChessLib.Data.Helpers
             return ArrInBetween[square1, square2];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ulong Occupancy(this ulong[][] board, Color? c = null, Piece? p = null)
+        {
+            if (c == null && p == null)
+                return board.Select(x => x.Aggregate((acc, val) => acc |= val)).Aggregate((acc, val) => acc |= val);
+            if (c == null)
+                return board[(int)Color.White][(int)p] | board[(int)Color.Black][(int)p];
+            if (p == null)
+            {
+                return board[(int)c].Aggregate((curr, val) => curr |= val);
+            }
+
+            return board[(int)c][(int)p];
+        }
 
         #region Initialization
 
@@ -174,9 +192,22 @@ namespace ChessLib.Data.Helpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort GetFile(this ushort square)
+        {
+            return (ushort)(square % 8);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Rank GetRank(this int square)
         {
-            return (Rank)(square / 8);
+            Debug.Assert(square >= 0 && square < 64);
+            return (Rank)((ushort)square).GetRank();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort GetRank(this ushort square)
+        {
+            return (ushort)(square / 8);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -205,6 +236,20 @@ namespace ChessLib.Data.Helpers
                 {
                     if ((val & occupancy[(int)color][(int)piece]) != 0)
                         return piece;
+                }
+            }
+            return null;
+        }
+
+        public static PieceOfColor? GetPieceOfColorAtIndex(ushort idx, in ulong[][] occupancy)
+        {
+            var val = 1ul << idx;
+            foreach (var color in Enum.GetValues(typeof(Color)))
+            {
+                foreach (var piece in (Piece[])Enum.GetValues(typeof(Piece)))
+                {
+                    if ((val & occupancy[(int)color][(int)piece]) != 0)
+                        return new PieceOfColor() { Color = (Color)color, Piece = piece };
                 }
             }
             return null;

@@ -788,5 +788,71 @@ namespace MagicBitboard.Tests
                     });
             }
         }
+
+        [Test]
+        public static void CanKingMoveToAnotherSquare_CanMove()
+        {
+            var bi = new BoardInfo("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1");
+            Assert.IsTrue(bi.CanKingMoveToAnotherSquare(Color.Black, bi.PiecesOnBoard));
+
+        }
+        [Test]
+        public static void CanKingMoveToAnotherSquare_CannotMove()
+        {
+            var bi = FENHelpers.BoardFromFen("8/8/8/8/8/8/5QkQ/4K3 b - - 0 1", out _, out _, out _, out _, out _);
+            Assert.IsFalse(BoardInfo.CanEvadeThroughBlockOrCapture(Color.Black, bi));
+
+        }
+
+        [Test]
+        public static void CanEvadeThroughBlockOrCapture_Yes()
+        {
+            var bi = FENHelpers.BoardFromFen("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1", out _, out _, out _, out _, out _);
+            Assert.IsTrue(BoardInfo.CanEvadeThroughBlockOrCapture(Color.Black, bi));
+
+        }
+        [Test]
+        public static void GetEvasions_3WaysOut()
+        {
+            var bi = FENHelpers.BoardFromFen("8/8/8/8/3bB2n/8/3Q2k1/4K3 b - - 0 1", out _, out _, out _, out _, out _);
+            var expected = 3;
+            var actual = BoardInfo.GetEvasions(Color.Black, bi);
+            Assert.AreEqual(expected, actual.Length);
+
+        }
+
+
+        [TestCase("8/8/8/8/3bB2n/6Q1/6k1/4K3 b - - 0 1", 1)]
+        [TestCase("8/8/8/8/3b1B1n/6Q1/6k1/4K3 b - - 0 1", 1)]
+        [TestCase("8/8/8/8/3b4/5N1Q/6k1/4K3 b - - 0 1", 1)]
+        public static void CanEvadeThroughBlockOrCapture_CaptureChecker(string fen, int expectedMoveCount)
+        {
+            var bi = FENHelpers.BoardFromFen(fen, out _, out _, out _, out _, out _);
+            var actual = BoardInfo.GetEvasions(Color.Black, bi);
+            Assert.AreEqual(1, expectedMoveCount);
+        }
+
+        [TestCase("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1")]
+        [TestCase("3qk3/5Q1p/8/p1p1N3/Pp2bP1P/1P1r4/8/4RnK1 b - - 6 38")]
+        [TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55")]
+        [TestCase("4R3/2p3pk/pp3p2/5n1p/2P2P1P/P5r1/1P4q1/3QR2K w - - 6 41")]
+        public static void GetEvasions_ReturnsNoMovesWhenMate(string fen)
+        {
+            var bi = FENHelpers.BoardFromFen(fen, out var activePlayer, out _, out _, out _, out _);
+            Assert.AreEqual(0, BoardInfo.GetEvasions(activePlayer, bi).Length);
+        }
+
+
+
+        [Test]
+        public static void GetEvasions_Checkmate()
+        {
+            var bi = new BoardInfo("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1");
+            var expectedCount = 0;
+
+            var actual = BoardInfo.GetEvasions(Color.Black, bi.PiecesOnBoard);
+            Assert.AreEqual(expectedCount, actual.Length);
+
+        }
     }
 }

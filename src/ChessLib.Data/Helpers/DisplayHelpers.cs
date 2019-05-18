@@ -213,9 +213,20 @@ namespace ChessLib.Data.Helpers
         public static char IndexToFileDisplay(this ushort i) => (char)('a' + (i % 8));
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static char IndexToRankDisplay(this ushort i) => (char)('1' + (i / 8));
+
+        /// <summary>
+        /// Gets a human-readable square display based on the board index.
+        /// </summary>
+        /// <param name="i">Index of square, from 0(A1) to 63(H8)</param>
+        /// <returns>A square display; ex. a2, c4, f6</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string IndexToSquareDisplay(this ushort i) => $"{i.IndexToFileDisplay()}{i.IndexToRankDisplay()}";
 
+        /// <summary>
+        /// Gets a human-readable square display based on the board index.
+        /// </summary>
+        /// <param name="i">Index of square, from 0(A1) to 63(H8)</param>
+        /// <returns>A square display; ex. a2, c4, f6</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string IndexToSquareDisplay(this int i) => $"{((ushort)i).IndexToFileDisplay()}{((ushort)i).IndexToRankDisplay()}";
 

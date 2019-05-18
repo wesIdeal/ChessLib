@@ -101,8 +101,8 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             var fnP = $"{white}-{black}par.gif";
 
 
-            var nonPTime = 0l;
-            var pTime = 0l;
+            var nonPTime = 0L;
+            var pTime = 0L;
             using (var fsNonParallel = new FileStream($".\\GameGifs\\{fileName}", FileMode.Create, FileAccess.Write))
             using (var fsParallel = new FileStream($".\\GameGifs\\{fnP}", FileMode.Create, FileAccess.Write))
             {
@@ -132,7 +132,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
-                var attack = PieceAttackPatternHelper.BishopAttackMask[rank.ToInt(), file.ToInt()];
+                var attack = PieceAttackPatternHelper.BishopAttackMask[rank, file];
 
                 sb.AppendLine(attack.MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", DisplayHelpers.HtmlPieceRepresentations[Color.White][Piece.Bishop], "&#9670;"));
                 for (int occupancyIndex = 0; occupancyIndex < bishop.OccupancyAndMoveBoards[i].Length; occupancyIndex++)
@@ -186,7 +186,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
-                sb.AppendLine(PieceAttackPatternHelper.KnightAttackMask[rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", DisplayHelpers.HtmlPieceRepresentations[Color.White][Piece.Knight], "&#9670;"));
+                sb.AppendLine(PieceAttackPatternHelper.KnightAttackMask[rank, file].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", DisplayHelpers.HtmlPieceRepresentations[Color.White][Piece.Knight], "&#9670;"));
             }
             var html = DisplayHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("KnightMoves.html", html);
@@ -201,7 +201,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
-                sb.AppendLine(PieceAttackPatternHelper.KingMoveMask[rank.ToInt(), file.ToInt()].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", DisplayHelpers.HtmlPieceRepresentations[Color.White][Piece.King], "&#9670;"));
+                sb.AppendLine(PieceAttackPatternHelper.KingMoveMask[rank, file].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} {message}", DisplayHelpers.HtmlPieceRepresentations[Color.White][Piece.King], "&#9670;"));
             }
             var html = DisplayHelpers.PrintBoardHtml(sb.ToString());
             System.IO.File.WriteAllText("KingMoves.html", html);
@@ -214,7 +214,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
-                if (rank == Rank.R1 || rank == Rank.R8) continue;
+                if (rank == 0 || rank == 7) continue;
                 sb.AppendLine(PieceAttackPatternHelper.PawnAttackMask[Color.White.ToInt()][i].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} White Pawn Attack", DisplayHelpers.HtmlPieceRepresentations[Color.White][Piece.Pawn], "&#9670;"));
             }
             var html = DisplayHelpers.PrintBoardHtml(sb.ToString());
@@ -225,7 +225,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
-                if (rank == Rank.R1 || rank == Rank.R8) continue;
+                if (rank == 0 || rank == 7) continue;
                 sb.AppendLine(PieceAttackPatternHelper.PawnAttackMask[Color.Black.ToInt()][i].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} Black Pawn Attack", DisplayHelpers.HtmlPieceRepresentations[Color.Black][Piece.Pawn], "&#9670;"));
             }
             html = DisplayHelpers.PrintBoardHtml(sb.ToString());
@@ -235,7 +235,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
-                if (rank == Rank.R1 || rank == Rank.R8) continue;
+                if (rank == 0 || rank == 7) continue;
                 sb.AppendLine(PieceAttackPatternHelper.PawnMoveMask[Color.White.ToInt()][i].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} White Pawn Move", DisplayHelpers.HtmlPieceRepresentations[Color.White][Piece.Pawn], "&#9678;"));
             }
             html = DisplayHelpers.PrintBoardHtml(sb.ToString());
@@ -245,7 +245,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             {
                 var file = BoardHelpers.GetFile(i);
                 var rank = BoardHelpers.GetRank(i);
-                if (rank == Rank.R1 || rank == Rank.R8) continue;
+                if (rank == 0 || rank == 7) continue;
                 sb.AppendLine(PieceAttackPatternHelper.PawnMoveMask[Color.Black.ToInt()][i].MakeBoardTable(i, $"{file.ToString().ToLower()}{rank.ToString()[1]} Black Pawn Move", DisplayHelpers.HtmlPieceRepresentations[Color.Black][Piece.Pawn], "&#9678;"));
             }
             html = DisplayHelpers.PrintBoardHtml(sb.ToString());
