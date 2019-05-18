@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Text;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
@@ -343,7 +345,7 @@ namespace MagicBitboard.Tests
                 var bi = new BoardInfo(InitialFEN);
                 var move = MoveHelpers.GenerateMove(i, (ushort)(i + 16));
                 bi.ApplyMove(move);
-                Assert.AreEqual(i + 8, bi.EnPassantIndex);
+                Assert.AreEqual(i + 8, bi.EnPassantSquare);
             }
         }
 
@@ -412,23 +414,23 @@ namespace MagicBitboard.Tests
             var blackKing = 0x1000000000000000;
             var rv = new BoardInfo(After1E4);
 
-            Assert.AreEqual(whitePawns, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Pawn]);
-            Assert.AreEqual(blackPawns, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Pawn]);
+            Assert.AreEqual(whitePawns, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Pawn]);
+            Assert.AreEqual(blackPawns, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Pawn]);
 
-            Assert.AreEqual(whiteRooks, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Rook]);
-            Assert.AreEqual(blackRooks, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Rook]);
+            Assert.AreEqual(whiteRooks, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Rook]);
+            Assert.AreEqual(blackRooks, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Rook]);
 
-            Assert.AreEqual(whiteKnights, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Knight]);
-            Assert.AreEqual(blackKnights, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Knight]);
+            Assert.AreEqual(whiteKnights, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Knight]);
+            Assert.AreEqual(blackKnights, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Knight]);
 
-            Assert.AreEqual(whiteBishops, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Bishop]);
-            Assert.AreEqual(blackBishops, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Bishop]);
+            Assert.AreEqual(whiteBishops, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Bishop]);
+            Assert.AreEqual(blackBishops, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Bishop]);
 
-            Assert.AreEqual(whiteQueen, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Queen]);
-            Assert.AreEqual(blackQueen, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Queen]);
+            Assert.AreEqual(whiteQueen, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Queen]);
+            Assert.AreEqual(blackQueen, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Queen]);
 
-            Assert.AreEqual(whiteKing, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.King]);
-            Assert.AreEqual(blackKing, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.King]);
+            Assert.AreEqual(whiteKing, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.King]);
+            Assert.AreEqual(blackKing, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.King]);
         }
 
         [Test]
@@ -448,23 +450,23 @@ namespace MagicBitboard.Tests
             var blackKing = 0x1000000000000000;
             var rv = new BoardInfo(After1E4C5);
 
-            Assert.AreEqual(whitePawns, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Pawn]);
-            Assert.AreEqual(blackPawns, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Pawn]);
+            Assert.AreEqual(whitePawns, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Pawn]);
+            Assert.AreEqual(blackPawns, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Pawn]);
 
-            Assert.AreEqual(whiteRooks, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Rook]);
-            Assert.AreEqual(blackRooks, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Rook]);
+            Assert.AreEqual(whiteRooks, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Rook]);
+            Assert.AreEqual(blackRooks, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Rook]);
 
-            Assert.AreEqual(whiteKnights, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Knight]);
-            Assert.AreEqual(blackKnights, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Knight]);
+            Assert.AreEqual(whiteKnights, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Knight]);
+            Assert.AreEqual(blackKnights, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Knight]);
 
-            Assert.AreEqual(whiteBishops, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Bishop]);
-            Assert.AreEqual(blackBishops, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Bishop]);
+            Assert.AreEqual(whiteBishops, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Bishop]);
+            Assert.AreEqual(blackBishops, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Bishop]);
 
-            Assert.AreEqual(whiteQueen, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Queen]);
-            Assert.AreEqual(blackQueen, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Queen]);
+            Assert.AreEqual(whiteQueen, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Queen]);
+            Assert.AreEqual(blackQueen, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Queen]);
 
-            Assert.AreEqual(whiteKing, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.King]);
-            Assert.AreEqual(blackKing, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.King]);
+            Assert.AreEqual(whiteKing, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.King]);
+            Assert.AreEqual(blackKing, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.King]);
         }
 
         [Test]
@@ -483,23 +485,23 @@ namespace MagicBitboard.Tests
             var whiteKing = 0x10;
             var blackKing = 0x1000000000000000;
             var rv = new BoardInfo(InitialBoard);
-            Assert.AreEqual(whitePawns, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Pawn]);
-            Assert.AreEqual(blackPawns, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Pawn]);
+            Assert.AreEqual(whitePawns, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Pawn]);
+            Assert.AreEqual(blackPawns, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Pawn]);
 
-            Assert.AreEqual(whiteRooks, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Rook]);
-            Assert.AreEqual(blackRooks, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Rook]);
+            Assert.AreEqual(whiteRooks, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Rook]);
+            Assert.AreEqual(blackRooks, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Rook]);
 
-            Assert.AreEqual(whiteKnights, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Knight]);
-            Assert.AreEqual(blackKnights, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Knight]);
+            Assert.AreEqual(whiteKnights, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Knight]);
+            Assert.AreEqual(blackKnights, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Knight]);
 
-            Assert.AreEqual(whiteBishops, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Bishop]);
-            Assert.AreEqual(blackBishops, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Bishop]);
+            Assert.AreEqual(whiteBishops, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Bishop]);
+            Assert.AreEqual(blackBishops, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Bishop]);
 
-            Assert.AreEqual(whiteQueen, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.Queen]);
-            Assert.AreEqual(blackQueen, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.Queen]);
+            Assert.AreEqual(whiteQueen, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Queen]);
+            Assert.AreEqual(blackQueen, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Queen]);
 
-            Assert.AreEqual(whiteKing, rv.PiecesOnBoard[BoardHelpers.WHITE][(int)Piece.King]);
-            Assert.AreEqual(blackKing, rv.PiecesOnBoard[BoardHelpers.BLACK][(int)Piece.King]);
+            Assert.AreEqual(whiteKing, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.King]);
+            Assert.AreEqual(blackKing, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.King]);
         }
 
         [Test]
@@ -782,7 +784,7 @@ namespace MagicBitboard.Tests
                     });
             }
         }
-
+        StringBuilder sb = new StringBuilder();
         [TestCase("5r2/6Pk/1R6/7P/6K1/8/8/8 w - - 0 62", 54, 61, PromotionPiece.Queen, MoveType.Promotion)]
         [TestCase("6K1/4k1P1/8/7q/8/8/8/8 b - - 9 56", 52, 60)]
         [TestCase("6K1/4k1P1/8/6q1/8/8/8/8 b - - 9 56", 38, 39)]
@@ -791,59 +793,46 @@ namespace MagicBitboard.Tests
             var board = new BoardInfo(fen);
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
             var result = board.ApplyMove(move);
+            Assert.AreEqual(true, board.IsPositionStalemate(board.ToFEN()));
             Assert.AreEqual(MoveExceptionType.Stalemate, result);
         }
 
-        [TestCase(FENHelpers.FENInitial, 12, 28)]
-        public void IsNotStalemate(string fen, int f, int t)
+        [TestCase("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62", true)]
+        [TestCase("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57", true)]
+        [TestCase("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57", true)]
+        [TestCase("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", false)]
+        [TestCase("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1", false)]
+        [TestCase("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1", false)]
+        [TestCase("8/8/8/8/8/8/5QkQ/4K3 b - - 0 1", false)]
+        [TestCase("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1", false)]
+        public void IsStalemate(string fen, bool isStalematedPosition)
         {
             var board = new BoardInfo(fen);
-            var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t);
-            var result = board.ApplyMove(move);
-            Assert.AreEqual(null, result);
+            Assert.AreEqual(isStalematedPosition, board.IsPositionStalemate(board.ToFEN()));
+            Console.WriteLine(sb.ToString());
         }
 
-        [Test]
-        public static void CanKingMoveToAnotherSquare_CanMove()
+        [TestCase("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1", Color.Black, true)]
+        [TestCase("8/8/8/8/8/8/5QkQ/4K3 b - - 0 1", Color.Black, false)]
+        [TestCase("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1", Color.Black, true)]
+        public static void CanKingMoveToAnotherSquare(string fen, Color c, bool expectedResult)
         {
-            var bi = new BoardInfo("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1");
-            Assert.IsTrue(bi.CanKingMoveToAnotherSquare(Color.Black, bi.PiecesOnBoard));
+            var pieces = FENHelpers.BoardFromFen(fen, out _, out _, out _, out _, out _);
+            var result = pieces.CanEvadeThroughBlockOrCapture(c);
+            Assert.AreEqual(expectedResult, result);
 
         }
-        [Test]
-        public static void CanKingMoveToAnotherSquare_CannotMove()
-        {
-            var bi = FENHelpers.BoardFromFen("8/8/8/8/8/8/5QkQ/4K3 b - - 0 1", out _, out _, out _, out _, out _);
-            Assert.IsFalse(BoardHelpers.CanEvadeThroughBlockOrCapture(Color.Black, bi));
-
-        }
-
-        [Test]
-        public static void CanEvadeThroughBlockOrCapture_Yes()
-        {
-            var bi = FENHelpers.BoardFromFen("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1", out _, out _, out _, out _, out _);
-            Assert.IsTrue(BoardHelpers.CanEvadeThroughBlockOrCapture(Color.Black, bi));
-
-        }
-        [Test]
-        public static void GetEvasions_3WaysOut()
-        {
-            var bi = FENHelpers.BoardFromFen("8/8/8/8/3bB2n/8/3Q2k1/4K3 b - - 0 1", out _, out _, out _, out _, out _);
-            var expected = 3;
-            var actual = BoardHelpers.GetEvasions(Color.Black, bi);
-            Assert.AreEqual(expected, actual.Length);
-
-        }
-
 
         [TestCase("8/8/8/8/3bB2n/6Q1/6k1/4K3 b - - 0 1", 1)]
         [TestCase("8/8/8/8/3b1B1n/6Q1/6k1/4K3 b - - 0 1", 1)]
         [TestCase("8/8/8/8/3b4/5N1Q/6k1/4K3 b - - 0 1", 1)]
+        [TestCase("8/8/8/8/3bB2n/8/3Q2k1/4K3 b - - 0 1", 3)]
+        [TestCase("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1", 0)]
         public static void CanEvadeThroughBlockOrCapture_CaptureChecker(string fen, int expectedMoveCount)
         {
             var bi = FENHelpers.BoardFromFen(fen, out _, out _, out _, out _, out _);
-            var actual = BoardHelpers.GetEvasions(Color.Black, bi);
-            Assert.AreEqual(1, expectedMoveCount);
+            var actual = BoardHelpers.GetEvasions(bi, Color.Black);
+            Assert.AreEqual(expectedMoveCount, actual.Length);
         }
 
         [TestCase("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1")]
@@ -853,19 +842,7 @@ namespace MagicBitboard.Tests
         public static void GetEvasions_ReturnsNoMovesWhenMate(string fen)
         {
             var bi = FENHelpers.BoardFromFen(fen, out var activePlayer, out _, out _, out _, out _);
-            Assert.AreEqual(0, BoardHelpers.GetEvasions(activePlayer, bi).Length);
-        }
-
-
-
-        [Test]
-        public static void GetEvasions_Checkmate()
-        {
-            var bi = new BoardInfo("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1");
-            var expectedCount = 0;
-            var actual = BoardHelpers.GetEvasions(Color.Black, bi.PiecesOnBoard);
-            Assert.AreEqual(expectedCount, actual.Length);
-
+            Assert.AreEqual(0, BoardHelpers.GetEvasions(bi, activePlayer).Length);
         }
     }
 }

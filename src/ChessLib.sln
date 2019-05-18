@@ -19,7 +19,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Data.Tests", "Ches
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Graphics", "ChessLib.Graphics\ChessLib.Graphics.csproj", "{ADF85E09-F7F7-44D3-AE3D-BA2CB4194BA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Parse.Console", "ChessLib.Parse.Console\ChessLib.Parse.Console.csproj", "{071B4118-D68E-4035-8F77-5601842EF6FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Parse.Console", "ChessLib.Parse.Console\ChessLib.Parse.Console.csproj", "{071B4118-D68E-4035-8F77-5601842EF6FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Validators", "ChessLib.Validator\ChessLib.Validators.csproj", "{50F19285-89C3-48A9-AF26-CCC4492C1882}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Validators.Tests", "ChessLib.Validators.Tests\ChessLib.Validators.Tests.csproj", "{7414E521-D198-4191-AF27-9F47A6E69B5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +67,14 @@ Global
 		{071B4118-D68E-4035-8F77-5601842EF6FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{071B4118-D68E-4035-8F77-5601842EF6FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{071B4118-D68E-4035-8F77-5601842EF6FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50F19285-89C3-48A9-AF26-CCC4492C1882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50F19285-89C3-48A9-AF26-CCC4492C1882}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50F19285-89C3-48A9-AF26-CCC4492C1882}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50F19285-89C3-48A9-AF26-CCC4492C1882}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7414E521-D198-4191-AF27-9F47A6E69B5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7414E521-D198-4191-AF27-9F47A6E69B5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7414E521-D198-4191-AF27-9F47A6E69B5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7414E521-D198-4191-AF27-9F47A6E69B5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

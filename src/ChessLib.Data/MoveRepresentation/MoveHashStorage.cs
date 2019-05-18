@@ -15,10 +15,13 @@ namespace ChessLib.Data.MoveRepresentation
             FENHelpers.ValidateFENString(fen);
             FEN = fen;
             BoardStateHash = GetHashString(FEN.Split(' ')[0]);
+            SAN = textRepresentation;
         }
 
         public string FEN { get; }
         public string BoardStateHash { get; }
+        public string SAN { get; }
+
         public static byte[] GetHash(string inputString)
         {
             HashAlgorithm algorithm = SHA256.Create();

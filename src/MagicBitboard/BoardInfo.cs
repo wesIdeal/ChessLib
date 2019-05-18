@@ -4,7 +4,7 @@ using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
-using ChessLib.MagicBitboard.MoveValidation;
+using ChessLib.Validators.MoveValidation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,14 +14,13 @@ namespace ChessLib.MagicBitboard
 {
     public class BoardInfo : BoardInformationService<MoveHashStorage>
     {
-
         //public readonly MoveTree<MoveHashStorage> MoveTree = new MoveTree<MoveHashStorage>(null);
         public override MoveTree<MoveHashStorage> MoveTree { get; set; }
         public BoardInfo() : base(FENHelpers.FENInitial, false) { }
-
-        public BoardInfo(string fen, bool is960 = false) : base(fen, is960) { }
-
-
+        public BoardInfo(string fen, bool is960 = false) : base(fen, is960)
+        {
+            MoveTree = new MoveTree<MoveHashStorage>(null);
+        }
 
         public override void ApplyMove(string moveText)
         {
@@ -33,11 +32,11 @@ namespace ChessLib.MagicBitboard
         {
             GetPiecesAtSourceAndDestination(move, out var pocSource, out var pocDestination);
             if (pocSource == null) throw new ArgumentException("No piece at source.");
-            var moveValidator = new MoveValidator(this, move);
+            var moveValidator = new MoveValidator((BoardFENInfo)this, move);
             var validationError = moveValidator.Validate();
             if (validationError.HasValue)
-                throw new MoveException("Error with move.", validationError.Value, move, ActivePlayerColor);
-            var isCapture = (OpponentTotalOccupancy & move.DestinationValue) != 0;
+                throw new MoveException("Error with move.", validationError.Value, move, ActivePlayer);
+            var isCapture = (OpponentOccupancy & move.DestinationValue) != 0;
             var isPawnMove = (ActivePawnOccupancy & move.SourceValue) != 0;
             if (isCapture || isPawnMove) HalfmoveClock = 0;
             else HalfmoveClock++;
@@ -45,29 +44,29 @@ namespace ChessLib.MagicBitboard
             UnsetCastlingAvailability(move, pocSource.Value.Piece);
             SetEnPassantFlag(move, pocSource);
 
-            var san = MoveToSAN(move, pocSource.Value, pocDestination);
-            PiecesOnBoard = moveValidator.PostMoveBoard;
-            MoveTree.AddLast(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, pocSource.Value.Piece, ActivePlayerColor, ToFEN(), san)));
 
-            if (ActivePlayerColor == Color.Black)
+            var san = MoveToSAN(move, pocSource.Value, pocDestination);
+            PiecePlacement = moveValidator.PostMoveBoard;
+            MoveTree.AddLast(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, pocSource.Value.Piece, ActivePlayer, ToFEN(), san)));
+
+            if (ActivePlayer == Color.Black)
             {
-                MoveCounter++;
-                ActivePlayerColor = Color.White;
+                FullmoveCounter++;
+                ActivePlayer = Color.White;
             }
             else
             {
-                ActivePlayerColor = Color.Black;
+                ActivePlayer = Color.Black;
             }
-            if (IsPositionStalemate())
+            if (IsPositionStalemate(ToFEN()))
             {
                 return MoveExceptionType.Stalemate;
             }
             return null;
         }
 
-        private bool IsPlayerOfColorInCheck(Color c, ulong[][] board) =>
-            Bitboard.IsAttackedBy(c.Toggle(), board[(int)c][KING].GetSetBits()[0], board);
-        protected bool OpposingPlayerInCheck => IsAttackedBy(ActivePlayerColor, OpposingPlayerKingIndex);
+
+        protected bool OpposingPlayerInCheck => IsAttackedBy(ActivePlayer, OpposingPlayerKingIndex);
         protected bool ActivePlayerInCheck => IsAttackedBy(OpponentColor, ActivePlayerKingIndex);
         protected override Check GetChecks(Color activePlayer)
         {
@@ -96,6 +95,7 @@ namespace ChessLib.MagicBitboard
             out PieceOfColor? pocDestination)
         {
             var sVal = move.SourceValue;
+            var dVal = move.DestinationValue;
             pocSource = null;
             pocDestination = null;
             foreach (Piece piece in Enum.GetValues(typeof(Piece)))
@@ -103,17 +103,16 @@ namespace ChessLib.MagicBitboard
                 var p = (int)piece;
                 if (pocSource == null)
                 {
-                    if ((PiecesOnBoard[(int)Color.White][p] & sVal) != 0)
+                    if ((PiecePlacement[WHITE][p] & sVal) != 0)
                         pocSource = new PieceOfColor { Color = Color.White, Piece = piece };
-                    if ((PiecesOnBoard[(int)Color.Black][p] & sVal) != 0)
+                    if ((PiecePlacement[BLACK][p] & sVal) != 0)
                         pocSource = new PieceOfColor { Color = Color.Black, Piece = piece };
                 }
-
                 if (pocDestination == null)
                 {
-                    if ((PiecesOnBoard[(int)Color.White][p] & sVal) != 0)
+                    if ((PiecePlacement[WHITE][p] & dVal) != 0)
                         pocDestination = new PieceOfColor { Color = Color.White, Piece = piece };
-                    if ((PiecesOnBoard[(int)Color.Black][p] & sVal) != 0)
+                    if ((PiecePlacement[BLACK][p] & dVal) != 0)
                         pocDestination = new PieceOfColor { Color = Color.Black, Piece = piece };
                 }
             }
@@ -150,9 +149,9 @@ namespace ChessLib.MagicBitboard
             ulong pinned = 0;
             var xRayBishopAttacks = XRayBishopAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
             var xRayRookAttacks = XRayRookAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
-            var bishopPinnedPieces = (PiecesOnBoard[NOpponentColor][BISHOP] | PiecesOnBoard[NOpponentColor][QUEEN]) &
+            var bishopPinnedPieces = (PiecePlacement[NOpponentColor][BISHOP] | PiecePlacement[NOpponentColor][QUEEN]) &
                                      xRayBishopAttacks;
-            var rookPinnedPieces = (PiecesOnBoard[NOpponentColor][ROOK] | PiecesOnBoard[NOpponentColor][QUEEN]) &
+            var rookPinnedPieces = (PiecePlacement[NOpponentColor][ROOK] | PiecePlacement[NOpponentColor][QUEEN]) &
                                    xRayRookAttacks;
             var allPins = rookPinnedPieces | bishopPinnedPieces;
             while (allPins != 0)
@@ -169,7 +168,7 @@ namespace ChessLib.MagicBitboard
 
         public MoveExt GenerateMoveFromText(string moveText)
         {
-            var md = MoveHelpers.GetAvailableMoveDetails(moveText, ActivePlayerColor);
+            var md = MoveHelpers.GetAvailableMoveDetails(moveText, ActivePlayer);
             if (!md.SourceFile.HasValue || !md.SourceRank.HasValue)
             {
                 var sourceIndex = FindPieceSourceIndex(md);
@@ -179,7 +178,7 @@ namespace ChessLib.MagicBitboard
             Debug.Assert(md.SourceIndex != null, "md.SourceIndex != null");
             Debug.Assert(md.DestinationIndex != null, "md.DestinationIndex != null");
             if (md.IsCapture && md.Piece == Piece.Pawn &&
-                (OpponentTotalOccupancy & (1ul << md.DestinationIndex)) == 0 &&
+                (OpponentOccupancy & (1ul << md.DestinationIndex)) == 0 &&
                 (md.DestinationRank == 2 || md.DestinationRank == 5)) md.MoveType = MoveType.EnPassant;
             var moveExt = MoveHelpers.GenerateMove(md.SourceIndex.Value, md.DestinationIndex.Value, md.MoveType,
                 md.PromotionPiece ?? 0);
@@ -192,46 +191,21 @@ namespace ChessLib.MagicBitboard
             return Bitboard.GetAttackedSquares(p, index, occupancy);
         }
 
-        public bool IsPositionStalemate()
+        public bool IsPositionStalemate(string fen)
         {
-            var possibleMoves = GenerateAllPseudoLegalMoves(ActivePlayerColor);
+            var board = new BoardFENInfo(fen);
+            var possibleMoves = GenerateAllPseudoLegalMoves(board.ActivePlayer);
+            if (IsAttackedBy(board.OpponentColor, board.ActivePlayerKingIndex))
+            {
+                return false;
+            }
             foreach (var move in possibleMoves)
             {
-                var validator = new MoveValidator(this, move);
+                var validator = new MoveValidator(board, move);
                 if (validator.Validate() == null)
                     return false;
             }
             return true;
-        }
-
-        public static bool IsPositionStalemate(ulong[][] board, Color activePlayerColor, ushort? enPassentSq, CastlingAvailability ca)
-        {
-            var possibleMoves = GenerateAllPseudoLegalMoves(board, activePlayerColor, enPassentSq, ca);
-            foreach (var move in possibleMoves)
-            {
-                var validator = MoveValidator.FromBitboards(board, activePlayerColor, enPassentSq, ca, move);
-                if (validator.Validate() == null)
-                    return false;
-            }
-            return true;
-        }
-
-        public static MoveExt[] GenerateAllPseudoLegalMoves(ulong[][] board, Color c, ushort? enPassentSq, CastlingAvailability ca)
-        {
-            var rv = new List<MoveExt>();
-            var nColor = (int)c;
-
-            for (int i = 0; i < 6; i++)
-            {
-                var p = (Piece)i;
-                var pieceLocations = board[nColor][i].GetSetBits();
-                foreach (var sq in pieceLocations)
-                {
-                    var pseudoLegalMoves = Bitboard.GetPseudoLegalMoves(p, sq, BoardHelpers.Occupancy(board, c), BoardHelpers.Occupancy(board, c.Toggle()), c, enPassentSq, ca);
-                    rv.AddRange(pseudoLegalMoves.GetSetBits().Select(x => MoveHelpers.GenerateMove(sq, x)));
-                }
-            }
-            return rv.ToArray();
         }
 
         public MoveExt[] GenerateAllPseudoLegalMoves(Color c)
@@ -242,10 +216,10 @@ namespace ChessLib.MagicBitboard
             for (int i = 0; i < 6; i++)
             {
                 var p = (Piece)i;
-                var pieceLocations = PiecesOnBoard[nColor][i].GetSetBits();
+                var pieceLocations = PiecePlacement[nColor][i].GetSetBits();
                 foreach (var sq in pieceLocations)
                 {
-                    var pseudoLegalMoves = Bitboard.GetPseudoLegalMoves(p, sq, Occupancy(c), Occupancy(c.Toggle()), c, EnPassantIndex, CastlingAvailability);
+                    var pseudoLegalMoves = Bitboard.GetPseudoLegalMoves(p, sq, Occupancy(c), Occupancy(c.Toggle()), c, EnPassantSquare, CastlingAvailability);
                     rv.AddRange(pseudoLegalMoves.GetSetBits().Select(x => MoveHelpers.GenerateMove(sq, x)));
                 }
             }
@@ -264,7 +238,7 @@ namespace ChessLib.MagicBitboard
         /// <returns>true if <paramref name="squareIndex" /> is attacked by <paramref name="color" />. False if not.</returns>
         public override bool IsAttackedBy(Color color, ushort squareIndex)
         {
-            return Bitboard.IsAttackedBy(color, squareIndex, PiecesOnBoard);
+            return Bitboard.IsAttackedBy(squareIndex, color, PiecePlacement);
         }
 
         public override bool DoesPieceAtSquareAttackSquare(ushort attackerSquare, ushort attackedSquare,
@@ -293,7 +267,7 @@ namespace ChessLib.MagicBitboard
                 case Piece.Pawn:
                     if (moveDetail.IsCapture)
                         throw new MoveException("Could not determine source square for pawn capture.");
-                    return FindPawnMoveSourceIndex(moveDetail, PiecesOnBoard[NActiveColor][PAWN], TotalOccupancy);
+                    return FindPawnMoveSourceIndex(moveDetail, PiecePlacement[NActiveColor][PAWN], TotalOccupancy);
 
                 case Piece.Knight:
                     return FindKnightMoveSourceIndex(moveDetail, ActiveKnightOccupancy);
@@ -547,57 +521,19 @@ namespace ChessLib.MagicBitboard
         #endregion
 
 
-        #region FEN String Retrieval
 
-        public string GetPiecePlacement()
-        {
-            return PiecesOnBoard.GetPiecePlacement();
-        }
-
-        public string GetSideToMoveStrRepresentation()
-        {
-            return ActivePlayerColor == Color.Black ? "b" : "w";
-        }
-
-        public string GetCastlingAvailabilityString()
-        {
-            return FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability);
-        }
-
-        public string GetEnPassantString()
-        {
-            return EnPassantIndex == null ? "-" : EnPassantIndex.Value.IndexToSquareDisplay();
-        }
-
-        public string GetHalfMoveClockString()
-        {
-            return HalfmoveClock.ToString();
-        }
-
-        public string GetMoveCounterString()
-        {
-            return MoveCounter.ToString();
-        }
-
-        public string ToFEN()
-        {
-            return
-                $"{GetPiecePlacement()} {GetSideToMoveStrRepresentation()} {GetCastlingAvailabilityString()} {GetEnPassantString()} {GetHalfMoveClockString()} {GetMoveCounterString()}";
-        }
-
-        #endregion
 
         public string MoveToSAN(MoveExt move)
         {
-            var src = BoardHelpers.GetPieceOfColorAtIndex(move.SourceIndex, PiecesOnBoard);
-            if (src == null) throw new MoveException("Source index is empty.", MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, move, ActivePlayerColor);
-            var dst = BoardHelpers.GetPieceOfColorAtIndex(move.DestinationIndex, PiecesOnBoard);
+            var src = BoardHelpers.GetPieceOfColorAtIndex(move.SourceIndex, PiecePlacement);
+            if (src == null) throw new MoveException("Source index is empty.", MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, move, ActivePlayer);
+            var dst = BoardHelpers.GetPieceOfColorAtIndex(move.DestinationIndex, PiecePlacement);
             return MoveToSAN(move, src.Value, dst);
         }
 
         public string MoveToSAN(MoveExt move, PieceOfColor srcPiece, PieceOfColor? dstPiece, bool recordResult = true)
         {
-            var postMoveBoard = BoardHelpers.GetBoardPostMove(PiecesOnBoard, ActivePlayerColor, move);
+            var postMoveBoard = BoardHelpers.GetBoardPostMove(PiecePlacement, ActivePlayer, move);
             string strSrcPiece = GetSANSourceString(move, srcPiece);
             string strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
             string checkInfo = "";
@@ -615,12 +551,15 @@ namespace ChessLib.MagicBitboard
             {
                 promotionInfo = $"={PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)}";
             }
-
-            if (IsPlayerOfColorInCheck(srcPiece.Color.Toggle(), postMoveBoard))
+            var board = (BoardFENInfo)this.Clone();
+            board.PiecePlacement = postMoveBoard;
+            board.ActivePlayer = OpponentColor;
+            
+            if (postMoveBoard.IsPlayerOfColorInCheck(OpponentColor))
             {
                 var activeColor = srcPiece.Color;
                 checkInfo = "+";
-                if (IsPlayerOfColorMated(activeColor.Toggle(), postMoveBoard))
+                if (postMoveBoard.IsPlayerOfColorMated(activeColor.Toggle()))
                 {
                     checkInfo = $"#";
                     if (recordResult)
@@ -630,39 +569,18 @@ namespace ChessLib.MagicBitboard
                 }
 
             }
-            else if (recordResult && IsPositionStalemate(postMoveBoard, ActivePlayerColor.Toggle(),EnPassantIndex, CastlingAvailability ) )
+            else
             {
-                result = "1/2-1/2";
+                var isStalemate = IsPositionStalemate(board.ToFEN());
+                if (isStalemate && recordResult)
+                {
+                    result = "1/2-1/2";
+                } 
             }
             //Get piece representation
             return $"{strSrcPiece}{capture}{move.DestinationIndex.IndexToSquareDisplay()}{promotionInfo}{checkInfo} {result}".Trim();
         }
 
-        private bool IsPlayerOfColorMated(Color color, ulong[][] postMoveBoard)
-        {
-            var mate = false;
-            mate = !CanKingMoveToAnotherSquare(color, postMoveBoard);
-            mate |= !BoardHelpers.CanEvadeThroughBlockOrCapture(color, postMoveBoard);
-            return mate;
-        }
-
-        public bool CanKingMoveToAnotherSquare(Color kingColor, ulong[][] piecesOnBoard)
-        {
-            var kingIndex = piecesOnBoard[(int)kingColor][KING].GetSetBits()[0];
-            var kingMoves = Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, Occupancy(kingColor),
-                Occupancy(kingColor.Toggle()), kingColor, null, CastlingAvailability);
-            var inCheck = true;
-            foreach (var mv in kingMoves.GetSetBits())
-            {
-                var postMoveBoard =
-                    BoardHelpers.GetBoardPostMove(piecesOnBoard, kingColor, MoveHelpers.GenerateMove(kingIndex, mv));
-                inCheck &= Bitboard.IsAttackedBy(kingColor.Toggle(), mv, postMoveBoard);
-            }
-
-            return !inCheck; //if in check with all moves, then return false- king cannot move out of check
-        }
-
-   
         public string GetSANSourceString(MoveExt mv, PieceOfColor p)
         {
             if (p.Piece == Piece.King)
@@ -679,7 +597,7 @@ namespace ChessLib.MagicBitboard
             }
 
             var strSrcPiece = p.Piece.GetCharRepresentation().ToString().ToUpper();
-            var otherLikePieces = PiecesOnBoard[(int)p.Color][(int)p.Piece];
+            var otherLikePieces = PiecePlacement[(int)p.Color][(int)p.Piece];
             var duplicateAttackerIndexes = new List<ushort>();
 
             foreach (var attackerIndex in otherLikePieces.GetSetBits())

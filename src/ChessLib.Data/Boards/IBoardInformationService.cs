@@ -16,14 +16,6 @@ namespace ChessLib.Data.Boards
         /// Where moves are stored
         /// </summary>
         MoveTree<T> MoveTree { get; }
-
-        Color ActivePlayerColor { get; set; }
-        CastlingAvailability CastlingAvailability { get; set; }
-        ushort? EnPassantIndex { get; }
-        string FEN { get; }
-        uint HalfmoveClock { get; set; }
-        uint MoveCounter { get; set; }
         MoveTree<T> Moves { get; }
-        bool IsAttackedBy(Color color, ushort squareIndex);
     }
 }

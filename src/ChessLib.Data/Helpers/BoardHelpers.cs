@@ -280,7 +280,27 @@ namespace ChessLib.Data.Helpers
             return (ushort)((rankCompliment * 8) + file);
         }
 
-        public static ulong[][] GetBoardPostMove(in ulong[][] currentBoard, in Color activePlayerColor, in MoveExt move)
+
+
+        public static MoveExt[] GenerateAllPseudoLegalMoves(ulong[][] board, Color c, ushort? enPassentSq, CastlingAvailability ca)
+        {
+            var rv = new List<MoveExt>();
+            var nColor = (int)c;
+
+            for (int i = 0; i < 6; i++)
+            {
+                var p = (Piece)i;
+                var pieceLocations = board[nColor][i].GetSetBits();
+                foreach (var sq in pieceLocations)
+                {
+                    var pseudoLegalMoves = Bitboard.GetPseudoLegalMoves(p, sq, BoardHelpers.Occupancy(board, c), BoardHelpers.Occupancy(board, c.Toggle()), c, enPassentSq, ca);
+                    rv.AddRange(pseudoLegalMoves.GetSetBits().Select(x => MoveHelpers.GenerateMove(sq, x)));
+                }
+            }
+            return rv.ToArray();
+        }
+
+        public static ulong[][] GetBoardPostMove(this ulong[][] currentBoard, in Color activePlayerColor, in MoveExt move)
         {
             var nActiveColor = (int)activePlayerColor;
             var opponentColor = activePlayerColor.Toggle();
@@ -358,13 +378,20 @@ namespace ChessLib.Data.Helpers
             return (rookBoard & ~(rookSource)) | rookDest;
         }
 
+        public static bool IsPlayerOfColorInCheck(this ulong[][] board, Color c) =>
+            Bitboard.IsAttackedBy(board[(int)c][KING].GetSetBits()[0], c.Toggle(), board);
 
-        public static bool CanEvadeThroughBlockOrCapture(Color kingColor, ulong[][] pieceOnBoard)
+        public static bool IsPlayerOfColorMated(this ulong[][] postMoveBoard, Color color)
         {
-            return GetEvasions(kingColor, pieceOnBoard).Any();
+            return !CanEvadeThroughBlockOrCapture(postMoveBoard, color);
         }
 
-        public static MoveExt[] GetEvasions(Color kingColor, ulong[][] piecesOnBoard)
+        public static bool CanEvadeThroughBlockOrCapture(this ulong[][] pieceOnBoard, Color kingColor)
+        {
+            return GetEvasions(pieceOnBoard, kingColor).Any();
+        }
+
+        public static MoveExt[] GetEvasions(this ulong[][] piecesOnBoard, Color kingColor)
         {
             var rv = new List<MoveExt>();
             var nColor = (int)kingColor;
@@ -379,15 +406,6 @@ namespace ChessLib.Data.Helpers
             var pseudoLegalKingMoves = Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, activeOccupancy, oppOccupancy, kingColor);
 
             //double check - king must move
-            foreach (var mv in pseudoLegalKingMoves.GetSetBits())
-            {
-                var move = MoveHelpers.GenerateMove(kingIndex, mv);
-                var board = BoardHelpers.GetBoardPostMove(piecesOnBoard, kingColor, move);
-                if (!Bitboard.IsAttackedBy((Color)nOppColor, mv, board))
-                {
-                    rv.Add(move);
-                }
-            }
 
             if (attackerIndexes.Length == 1)
             {
@@ -397,10 +415,10 @@ namespace ChessLib.Data.Helpers
                     foreach (var occupiedSquare in activeOccupancyNotKing.GetSetBits())
                     {
                         ulong destination;
-                        var piece = BoardHelpers.GetPieceOfColorAtIndex(occupiedSquare, piecesOnBoard);
+                        var piece = GetPieceOfColorAtIndex(occupiedSquare, piecesOnBoard);
                         var attackedSquares =
                             Bitboard.GetPseudoLegalMoves(piece.Value.Piece, occupiedSquare, activeOccupancy, oppOccupancy, kingColor);
-                        var squaresBetween = BoardHelpers.InBetween(kingIndex, attackerIdx);
+                        var squaresBetween = InBetween(kingIndex, attackerIdx);
                         if ((destination = (attackedSquares & squaresBetween)) != 0)
                         {
                             var destIdx = destination.GetSetBits();
@@ -409,6 +427,15 @@ namespace ChessLib.Data.Helpers
                             rv.Add(move);
                         }
                     }
+                }
+            }
+            foreach (var mv in pseudoLegalKingMoves.GetSetBits())
+            {
+                var move = MoveHelpers.GenerateMove(kingIndex, mv);
+                var board = GetBoardPostMove(piecesOnBoard, kingColor, move);
+                if (!Bitboard.IsAttackedBy(mv, (Color)nOppColor, board))
+                {
+                    rv.Add(move);
                 }
             }
 

@@ -9,7 +9,7 @@ using ChessLib.Data.Types;
 
 namespace ChessLib.Data.Boards
 {
-    public abstract class BoardInformationService<T> : IBoardInformationService<T> where T : MoveStorage
+    public abstract class BoardInformationService<T> : BoardFENInfo, IBoardInformationService<T> where T : MoveStorage
     {
         public abstract MoveTree<T> MoveTree { get; set; }
 
@@ -24,45 +24,22 @@ namespace ChessLib.Data.Boards
         /// <param name="fen">string of FEN notation.</param>
         /// <param name="chess960">[unused right now] Is this a chess960 position (possible non-standard starting position)</param>
         /// <returns>A BoardInfo object representing the board state after parsing the FEN</returns>
-        public BoardInformationService(string fen, bool chess960 = false)
+        public BoardInformationService(string fen, bool chess960 = false) :base(fen, chess960)
         {
-            MoveTree = new MoveTree<T>(null);
-            PiecesOnBoard = fen.BoardFromFen(out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out uint halfmoveClock, out uint fullMoveCount);
-            ActivePlayerColor = activePlayer;
-            CastlingAvailability = castlingAvailability;
-            EnPassantIndex = enPassantSquareIndex;
-            HalfmoveClock = halfmoveClock;
-            MoveCounter = fullMoveCount;
-            Chess960 = chess960;
-            FEN = fen;
-            MoveTree.FENStart = fen;
             ValidateFields();
         }
-
-
-
-
-
         public abstract void ApplyMove(string moveText);
         public abstract ulong GetAttackedSquares(Piece p, ushort index, ulong occupancy);
+
         #region General Board Information
 
-        public ulong[][] PiecesOnBoard;
-        public string FEN { get; }
-        public uint HalfmoveClock { get; set; }
-        public uint MoveCounter { get; set; }
-        public CastlingAvailability CastlingAvailability { get; set; }
-        public ushort? EnPassantIndex { get; set; }
 
-        public readonly bool Chess960;
+
+
 
         #region Player Color Properties and conversions
-        public Color ActivePlayerColor { get; set; }
-        public Color OpponentColor => ActivePlayerColor.Toggle();
-        protected int NActiveColor => (int)ActivePlayerColor;
+        protected int NActiveColor => (int)ActivePlayer;
         protected int NOpponentColor => (int)OpponentColor;
-
-
         #endregion
 
         #endregion
@@ -72,37 +49,33 @@ namespace ChessLib.Data.Boards
         /// <summary>
         ///     Occupancy of side-to-move's pawns
         /// </summary>
-        public ulong ActivePawnOccupancy => PiecesOnBoard[NActiveColor][PAWN];
+        public ulong ActivePawnOccupancy => PiecePlacement[NActiveColor][PAWN];
 
         /// <summary>
         ///     Occupancy of side-to-move's Knights
         /// </summary>
-        public ulong ActiveKnightOccupancy => PiecesOnBoard[NActiveColor][KNIGHT];
+        public ulong ActiveKnightOccupancy => PiecePlacement[NActiveColor][KNIGHT];
 
         /// <summary>
         ///     Occupancy of side-to-move's Bishops
         /// </summary>
-        public ulong ActiveBishopOccupancy => PiecesOnBoard[NActiveColor][BISHOP];
+        public ulong ActiveBishopOccupancy => PiecePlacement[NActiveColor][BISHOP];
 
         /// <summary>
         ///     Occupancy of side-to-move's Rooks
         /// </summary>
-        public ulong ActiveRookOccupancy => PiecesOnBoard[NActiveColor][ROOK];
+        public ulong ActiveRookOccupancy => PiecePlacement[NActiveColor][ROOK];
 
         /// <summary>
         ///     Occupancy of side-to-move's Queen(s)
         /// </summary>
-        public ulong ActiveQueenOccupancy => PiecesOnBoard[NActiveColor][QUEEN];
+        public ulong ActiveQueenOccupancy => PiecePlacement[NActiveColor][QUEEN];
 
-        /// <summary>
-        ///     Index of side-to-move's King
-        /// </summary>
-        public ushort ActivePlayerKingIndex => KingIndex(ActivePlayerColor);
 
         /// <summary>
         ///     Value (occupancy board) of side-to-move's King
         /// </summary>
-        public ulong ActivePlayerKingOccupancy => PiecesOnBoard[NActiveColor][KING];
+        public ulong ActivePlayerKingOccupancy => PiecePlacement[NActiveColor][KING];
 
         /// <summary>
         ///     Opponent's King's square index
@@ -117,77 +90,58 @@ namespace ChessLib.Data.Boards
         {
             if (c.HasValue)
             {
-                var occ = PiecesOnBoard[(int)c];
+                var occ = PiecePlacement[(int)c];
                 return occ.Aggregate<ulong, ulong>(0, (current, t) => current | t);
             }
 
-            return PiecesOnBoard
+            return PiecePlacement
                 .Select(color => color.Aggregate((current, x) => current |= x))
                 .Aggregate((current, x) => current |= x);
         }
 
-        
 
-        /// <summary>
-        ///     Occupancy of side-to-move's pieces
-        /// </summary>
-        public ulong ActiveTotalOccupancy
-        {
-            get { return Occupancy(ActivePlayerColor); }
-        }
 
-        /// <summary>
-        ///     Occupancy of opponent's pieces
-        /// </summary>
-        public ulong OpponentTotalOccupancy
-        {
-            get { return Occupancy(OpponentColor); }
-        }
 
-        /// <summary>
-        ///     Total board occupancy
-        /// </summary>
-        public ulong TotalOccupancy => Occupancy();
 
         public ulong PawnOccupancy(Color? c = null)
         {
-            if (c.HasValue) return PiecesOnBoard[(int)c][PAWN];
-            return PiecesOnBoard[BLACK][PAWN] | PiecesOnBoard[WHITE][PAWN];
+            if (c.HasValue) return PiecePlacement[(int)c][PAWN];
+            return PiecePlacement[BLACK][PAWN] | PiecePlacement[WHITE][PAWN];
         }
 
         public ulong KnightOccupancy(Color? c = null)
         {
-            if (c.HasValue) return PiecesOnBoard[(int)c][KNIGHT];
-            return PiecesOnBoard[WHITE][KNIGHT] | PiecesOnBoard[BLACK][KNIGHT];
+            if (c.HasValue) return PiecePlacement[(int)c][KNIGHT];
+            return PiecePlacement[WHITE][KNIGHT] | PiecePlacement[BLACK][KNIGHT];
         }
 
         public ulong BishopOccupancy(Color? c = null)
         {
-            if (c.HasValue) return PiecesOnBoard[(int)c][BISHOP];
-            return PiecesOnBoard[WHITE][BISHOP] | PiecesOnBoard[BLACK][BISHOP];
+            if (c.HasValue) return PiecePlacement[(int)c][BISHOP];
+            return PiecePlacement[WHITE][BISHOP] | PiecePlacement[BLACK][BISHOP];
         }
 
         public ulong RookOccupancy(Color? c = null)
         {
-            if (c.HasValue) return PiecesOnBoard[(int)c][ROOK];
-            return PiecesOnBoard[WHITE][ROOK] | PiecesOnBoard[BLACK][ROOK];
+            if (c.HasValue) return PiecePlacement[(int)c][ROOK];
+            return PiecePlacement[WHITE][ROOK] | PiecePlacement[BLACK][ROOK];
         }
 
         public ulong QueenOccupancy(Color? c = null)
         {
-            if (c.HasValue) return PiecesOnBoard[(int)c][QUEEN];
-            return PiecesOnBoard[WHITE][QUEEN] | PiecesOnBoard[BLACK][QUEEN];
+            if (c.HasValue) return PiecePlacement[(int)c][QUEEN];
+            return PiecePlacement[WHITE][QUEEN] | PiecePlacement[BLACK][QUEEN];
         }
 
         public ulong KingOccupancy(Color? c = null)
         {
-            if (c.HasValue) return PiecesOnBoard[(int)c][KING];
-            return PiecesOnBoard[WHITE][KING] | PiecesOnBoard[BLACK][KING];
+            if (c.HasValue) return PiecePlacement[(int)c][KING];
+            return PiecePlacement[WHITE][KING] | PiecePlacement[BLACK][KING];
         }
 
         public ushort KingIndex(Color c)
         {
-            return PiecesOnBoard[(int)c][KING].GetSetBits()[0];
+            return PiecePlacement[(int)c][KING].GetSetBits()[0];
         }
 
 
@@ -209,6 +163,7 @@ namespace ChessLib.Data.Boards
                 message.AppendLine("Black has too many pieces on the board.");
             return message.ToString();
         }
+
         public static string ValidateEnPassantSquare(ulong[][] piecesOnBoard, ushort? enPassantSquare,
             Color activePlayer)
         {
@@ -219,7 +174,6 @@ namespace ChessLib.Data.Boards
                 return "Bad En Passant Square detected.";
             return "";
         }
-
 
         public static string ValidateCastlingRights(ulong[][] piecesOnBoard, CastlingAvailability castlingAvailability,
             bool chess960 = false)
@@ -259,22 +213,22 @@ namespace ChessLib.Data.Boards
 
         private string ValidateNumberOfPiecesOnBoard()
         {
-            return ValidateNumberOfPiecesOnBoard(PiecesOnBoard);
+            return ValidateNumberOfPiecesOnBoard(PiecePlacement);
         }
 
         private string ValidateEnPassantSquare()
         {
-            return ValidateEnPassantSquare(PiecesOnBoard, EnPassantIndex, ActivePlayerColor);
+            return ValidateEnPassantSquare(PiecePlacement, EnPassantSquare, ActivePlayer);
         }
 
         private string ValidateCastlingRights()
         {
-            return ValidateCastlingRights(PiecesOnBoard, CastlingAvailability, Chess960);
+            return ValidateCastlingRights(PiecePlacement, CastlingAvailability, Chess960);
         }
 
         public string ValidateChecks()
         {
-            var c = GetChecks(ActivePlayerColor);
+            var c = GetChecks(ActivePlayer);
             if (c.HasFlag(Check.Double))
             {
                 return "Both Kings are in check.";
@@ -358,12 +312,12 @@ namespace ChessLib.Data.Boards
                     if ((move.SourceValue & BoardHelpers.RankMasks[startRank]) != 0
                         && (move.DestinationValue & BoardHelpers.RankMasks[endRank]) != 0)
                     {
-                        EnPassantIndex = (ushort)(move.SourceIndex + enPassantIndexOffset);
+                        EnPassantSquare = (ushort)(move.SourceIndex + enPassantIndexOffset);
                         return;
                     }
             }
 
-            EnPassantIndex = null;
+            EnPassantSquare = null;
         }
 
     }

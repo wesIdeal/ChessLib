@@ -121,11 +121,11 @@ namespace ChessLib.Data
         /// <summary>
         /// Determines if piece on <paramref name="squareIndex"/> is attacked by <paramref name="color"/>
         /// </summary>
-        /// <param name="color">Color of attacker</param>
         /// <param name="squareIndex">Index of possible attack target</param>
+        /// <param name="color">Color of attacker</param>
         /// <param name="piecesOnBoard">Occupancy arrays for both colors, indexed as [color_enum][piece_enum]</param>
         /// <returns>true if <paramref name="squareIndex"/> is attacked by any piece of <paramref name="color"/></returns>
-        public static bool IsAttackedBy(Color color, ushort squareIndex, ulong[][] piecesOnBoard)
+        public static bool IsAttackedBy(this ushort squareIndex, Color color, ulong[][] piecesOnBoard)
         {
 
             var nColor = (int)color;

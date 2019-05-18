@@ -48,17 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BoardInfoTests.cs" />
-    <Compile Include="MoveValidation\CastlingRules\HasCastlingAvailability.cs" />
-    <Compile Include="MoveValidation\CastlingRules\CastlingHasNoPiecesBlocking.cs" />
-    <Compile Include="MoveValidation\CastlingRules\CastlingSquaresNotAttackedTests.cs" />
-    <Compile Include="MoveValidation\CastlingRules\HasValidDestinationSquare.cs" />
-    <Compile Include="MoveValidation\CastlingRules\KingNotInCheckBeforeMore.cs" />
-    <Compile Include="MoveValidation\EnPassantRules\EnPassantIsPossible.cs" />
-    <Compile Include="MoveValidation\MoveRules\DestinationNotOccupiedByActiveColor.cs" />
-    <Compile Include="MoveValidation\MoveRules\KingNotInCheckAfterMove.cs" />
-    <Compile Include="MoveValidation\MoveRules\PieceCanMoveToDestination.cs" />
-    <Compile Include="MoveValidation\MoveRules\PieceMovingIsActiveColor.cs" />
-    <Compile Include="MoveValidation\MoveRules\PositionIsNotStalemateAfterMove.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

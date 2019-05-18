@@ -1,14 +1,8 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types;
 using ChessLib.MagicBitboard;
+using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Boards
 {
@@ -40,7 +34,6 @@ namespace ChessLib.Data.Tests.Boards
             var board = new BoardInfo(fen);
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
             Assert.AreEqual(expected, board.MoveToSAN(move));
-
         }
 
         [TestCase("rnbqkbnr/1pp1pppp/p7/3p4/2P1P3/8/PP1P1PPP/RNBQKBNR w KQkq - 0 1", 28, 35, "exd5")]
