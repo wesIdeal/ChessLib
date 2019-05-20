@@ -174,7 +174,7 @@ namespace ChessLib.Data
             var legalMoves = GetPseudoLegalMoves(piece.Value, src, boardInfo.Occupancy(activeColor),
                 boardInfo.Occupancy(activeColor.Toggle()), activeColor, enPassantIndex, ca,
                 out List<MoveExt> pseudoMoves);
-            if ((legalMoves & dstValue) == 0) return false;
+            return ((legalMoves & dstValue) != 0);
             foreach (var mv in pseudoMoves)
             {
                 var postMove = boardInfo.GetBoardPostMove(activeColor, mv);

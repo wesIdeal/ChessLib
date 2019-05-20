@@ -469,9 +469,13 @@ namespace ChessLib.Data.Helpers
         {
             return Bitboard.IsSquareAttackedByColor(board[(int)c][KING].GetSetBits()[0], c.Toggle(), board);
         }
-
+        
         public static bool IsStalemate(this IBoard board)
         {
+            if(board.PiecePlacement.IsPlayerOfColorInCheck(board.ActivePlayer))
+            {
+                return false;
+            }
             var canAnyPieceMove = false;
             var myPieceLocations = board.PiecePlacement.Occupancy(board.ActivePlayer).GetSetBits();
             foreach (var square in myPieceLocations)

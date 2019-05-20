@@ -789,7 +789,7 @@ namespace MagicBitboard.Tests
         [TestCase("5r2/6Pk/1R6/7P/6K1/8/8/8 w - - 0 62", 54, 61, PromotionPiece.Queen, MoveType.Promotion)]
         [TestCase("6K1/4k1P1/8/7q/8/8/8/8 b - - 9 56", 52, 60)]
         [TestCase("6K1/4k1P1/8/6q1/8/8/8/8 b - - 9 56", 38, 39)]
-        public void IsStalemate(string fen, int f, int t, PromotionPiece p = PromotionPiece.Knight, MoveType type = MoveType.Normal)
+        public void IsStalemateAfterMove(string fen, int f, int t, PromotionPiece p = PromotionPiece.Knight, MoveType type = MoveType.Normal)
         {
             var board = new BoardInfo(fen);
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);

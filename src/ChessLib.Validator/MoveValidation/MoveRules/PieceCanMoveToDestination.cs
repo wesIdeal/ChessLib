@@ -12,23 +12,14 @@ namespace ChessLib.Validators.MoveValidation.MoveRules
         public MoveExceptionType? Validate(in BoardFENInfo boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
         {
 
-            //var piece = BoardHelpers.GetTypeOfPieceAtIndex(move.SourceIndex, boardInfo.PiecePlacement);
-            //if (piece == null)
-            //{
-            //    return MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare;
-            //}
-
-            //var moves = Bitboard.GetPseudoLegalMoves(piece.Value, move.SourceIndex, boardInfo.ActiveOccupancy, boardInfo.OpponentOccupancy,
-            //    boardInfo.ActivePlayer);
-
-            //if ((moves & move.DestinationValue) == 0)
-            //{
-            //    return MoveExceptionType.BadDestination;
-            //}
+            var piece = BoardHelpers.GetTypeOfPieceAtIndex(move.SourceIndex, boardInfo.PiecePlacement);
+            if (piece == null)
+            {
+                return MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare;
+            }
             return boardInfo.CanPieceMoveToDestination(move.SourceIndex, move.DestinationIndex)
                 ? (MoveExceptionType?)null
                 : MoveExceptionType.BadDestination;
-            return null;
         }
 
 
