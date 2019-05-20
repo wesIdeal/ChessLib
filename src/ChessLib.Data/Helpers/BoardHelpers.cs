@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using ChessLib.Data.MoveRepresentation;
 using System.Text;
 using System.Collections.Generic;
+using ChessLib.Data.Exceptions;
 
 namespace ChessLib.Data.Helpers
 {
@@ -245,7 +246,7 @@ namespace ChessLib.Data.Helpers
             return null;
         }
 
-        public static PieceOfColor? GetPieceOfColorAtIndex(ushort idx, in ulong[][] occupancy)
+        public static PieceOfColor? GetPieceOfColorAtIndex(this ulong[][] occupancy, ushort idx)
         {
             var val = 1ul << idx;
             foreach (var color in Enum.GetValues(typeof(Color)))
@@ -280,9 +281,20 @@ namespace ChessLib.Data.Helpers
             return (ushort)((rankCompliment * 8) + file);
         }
 
+        public static bool IsPlayerInCheck(this ulong[][] board, int playerInCheckColor)
+        {
+            var kingIndex = board[playerInCheckColor][BoardHelpers.KING].GetSetBits()[0];
+            return Bitboard.IsSquareAttackedByColor(kingIndex, (Color)(1 - playerInCheckColor), board);
+        }
 
 
-        public static MoveExt[] GenerateAllPseudoLegalMoves(ulong[][] board, Color c, ushort? enPassentSq, CastlingAvailability ca)
+        public static MoveExt[] GenerateAllPseudoLegalMoves(this BoardFENInfo boardInfo) => GenerateAllPseudoLegalMoves(
+            boardInfo.PiecePlacement, boardInfo.ActivePlayer, boardInfo.EnPassantSquare,
+            boardInfo.CastlingAvailability);
+
+        
+
+        public static MoveExt[] GenerateAllPseudoLegalMoves(this ulong[][] board, Color c, ushort? enPassentSq, CastlingAvailability ca)
         {
             var rv = new List<MoveExt>();
             var nColor = (int)c;
@@ -293,12 +305,86 @@ namespace ChessLib.Data.Helpers
                 var pieceLocations = board[nColor][i].GetSetBits();
                 foreach (var sq in pieceLocations)
                 {
-                    var pseudoLegalMoves = Bitboard.GetPseudoLegalMoves(p, sq, BoardHelpers.Occupancy(board, c), BoardHelpers.Occupancy(board, c.Toggle()), c, enPassentSq, ca);
-                    rv.AddRange(pseudoLegalMoves.GetSetBits().Select(x => MoveHelpers.GenerateMove(sq, x)));
+                    var pseudoLegalMoves = Bitboard.GetPseudoLegalMoves(p, sq, BoardHelpers.Occupancy(board, c), BoardHelpers.Occupancy(board, c.Toggle()), c, enPassentSq, ca, out List<MoveExt> plm);
+                    rv.AddRange(plm);
                 }
             }
             return rv.ToArray();
         }
+
+        /// <summary>
+        ///     Clears appropriate castling availability flag when <paramref name="movingPiece">piece moving</paramref> is a
+        ///     <see cref="Piece.Rook">Rook</see> or <see cref="Piece.King">King</see>
+        /// </summary>
+        /// <param name="move">Move object</param>
+        /// <param name="movingPiece">Piece that is moving</param>
+        public static CastlingAvailability GetCastlingAvailabilityPostMove(IBoard board, MoveExt move, Piece movingPiece)
+        {
+            var ca = board.CastlingAvailability;
+            switch (movingPiece)
+            {
+                case Piece.Rook:
+                    if (move.SourceIndex == 56) ca &= ~CastlingAvailability.BlackQueenside;
+                    if (move.SourceIndex == 63) ca &= ~CastlingAvailability.BlackKingside;
+                    if (move.SourceIndex == 0) ca &= ~CastlingAvailability.WhiteQueenside;
+                    if (move.SourceIndex == 7) ca &= ~CastlingAvailability.WhiteKingside;
+                    break;
+                case Piece.King:
+                    if (move.SourceIndex == 60)
+                        ca &=
+                            ~(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside);
+                    if (move.SourceIndex == 4)
+                        ca &=
+                            ~(CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
+                    break;
+            }
+
+            return ca;
+        }
+
+        /// <summary>
+        ///     Sets EnPassant flag appropriately, clearing it if no En Passant is available
+        /// </summary>
+        /// <param name="move"></param>
+        /// <param name="pocSource"></param>
+        public static ushort? GetEnPassentIndex(MoveExt move, PieceOfColor? pocSource)
+        {
+            ushort? rv = null;
+            if (pocSource.HasValue)
+            {
+                var startRank = pocSource.Value.Color == Color.White ? 1 : 6;
+                var endRank = pocSource.Value.Color == Color.White ? 3 : 4;
+                var enPassantIndexOffset = pocSource.Value.Color == Color.White ? 8 : -8;
+                if (pocSource.Value.Piece == Piece.Pawn)
+                    if ((move.SourceValue & BoardHelpers.RankMasks[startRank]) != 0
+                        && (move.DestinationValue & BoardHelpers.RankMasks[endRank]) != 0)
+                    {
+                        rv = (ushort)(move.SourceIndex + enPassantIndexOffset);
+                    }
+            }
+
+            return rv;
+        }
+
+        public static IBoard ApplyMoveToBoard(this IBoard board, in MoveExt move)
+        {
+            var rv = (IBoard)board.Clone();
+            var pieceMoving = GetPieceOfColorAtIndex(board.PiecePlacement, move.SourceIndex);
+            var isCapture = (board.PiecePlacement.Occupancy(board.ActivePlayer.Toggle()) & move.DestinationValue) != 0;
+            var isPawnMove = GetTypeOfPieceAtIndex(move.SourceIndex, board.PiecePlacement).Equals(Piece.Pawn);
+            if (isCapture || isPawnMove) rv.HalfmoveClock = 0;
+            else rv.HalfmoveClock++;
+            if (board.ActivePlayer == Color.Black)
+            {
+                rv.FullmoveCounter++;
+            }
+            rv.CastlingAvailability = GetCastlingAvailabilityPostMove(rv, move, pieceMoving.Value.Piece);
+            rv.EnPassantSquare = GetEnPassentIndex(move, pieceMoving.Value);
+            rv.ActivePlayer = board.ActivePlayer.Toggle();
+            return rv;
+        }
+
+
 
         public static ulong[][] GetBoardPostMove(this ulong[][] currentBoard, in Color activePlayerColor, in MoveExt move)
         {
@@ -378,32 +464,69 @@ namespace ChessLib.Data.Helpers
             return (rookBoard & ~(rookSource)) | rookDest;
         }
 
-        public static bool IsPlayerOfColorInCheck(this ulong[][] board, Color c) =>
-            Bitboard.IsAttackedBy(board[(int)c][KING].GetSetBits()[0], c.Toggle(), board);
-
-        public static bool IsPlayerOfColorMated(this ulong[][] postMoveBoard, Color color)
+        public static bool IsPlayerOfColorInCheck(this ulong[][] board, Color c)
         {
-            return !CanEvadeThroughBlockOrCapture(postMoveBoard, color);
+            return Bitboard.IsSquareAttackedByColor(board[(int)c][KING].GetSetBits()[0], c.Toggle(), board);
         }
 
-        public static bool CanEvadeThroughBlockOrCapture(this ulong[][] pieceOnBoard, Color kingColor)
+        public static bool IsStalemate(this IBoard board)
         {
-            return GetEvasions(pieceOnBoard, kingColor).Any();
+            var canPieceMove = false;
+            var myPieceLocations = board.PiecePlacement.Occupancy(board.ActivePlayer).GetSetBits();
+            foreach (var square in myPieceLocations)
+            {
+                if (canPieceMove == false)
+                {
+                    var pieceType = BoardHelpers.GetTypeOfPieceAtIndex(square, board.PiecePlacement);
+                    Debug.Assert(pieceType.HasValue);
+                    if (board.CanPieceMove(square))
+                    {
+                        canPieceMove = true;
+                        break;
+                    }
+
+                }
+            }
+
+            return canPieceMove;
         }
 
-        public static MoveExt[] GetEvasions(this ulong[][] piecesOnBoard, Color kingColor)
+
+        public static bool IsCheckmateForSideToMove(this IBoard board)
+        {
+            return board.PiecePlacement.IsPlayerOfColorInCheck(board.ActivePlayer) && !CanEvadeThroughBlockOrCapture(board, board.ActivePlayer);
+        }
+
+        public static bool IsCheckmateForOpponent(this IBoard board)
+        {
+            return board.PiecePlacement.IsPlayerOfColorInCheck(board.ActivePlayer.Toggle()) && !CanEvadeThroughBlockOrCapture(board, board.ActivePlayer.Toggle());
+        }
+
+        public static bool IsCheckmateForColor(this IBoard board, Color c)
+        {
+            return board.PiecePlacement.IsPlayerOfColorInCheck(c) && !CanEvadeThroughBlockOrCapture(board, c);
+        }
+
+        public static bool CanEvadeThroughBlockOrCapture(in IBoard board, Color? c = null)
+        {
+            if (c.HasValue)
+                board.ActivePlayer = c.Value;
+            return GetEvasions(board).Any();
+        }
+
+        public static MoveExt[] GetEvasions(this IBoard board)
         {
             var rv = new List<MoveExt>();
-            var nColor = (int)kingColor;
+            var nColor = (int)board.ActivePlayer;
 
-            var nOppColor = (int)kingColor.Toggle();
-            var kingIndex = piecesOnBoard[nColor][KING].GetSetBits()[0];
-            var totalOcc = piecesOnBoard.Occupancy();
-            var activeOccupancy = piecesOnBoard.Occupancy(kingColor);
-            var oppOccupancy = piecesOnBoard.Occupancy((Color)nOppColor);
-            var piecesAttacking = AttackersOn(kingIndex, piecesOnBoard) & piecesOnBoard.Occupancy(kingColor.Toggle());
+            var nOppColor = (int)board.ActivePlayer.Toggle();
+            var kingIndex = board.PiecePlacement[nColor][KING].GetSetBits()[0];
+            var totalOcc = board.PiecePlacement.Occupancy();
+            var activeOccupancy = board.PiecePlacement.Occupancy(board.ActivePlayer);
+            var oppOccupancy = board.PiecePlacement.Occupancy((Color)nOppColor);
+            var piecesAttacking = PiecesAttackingSquare(kingIndex, board.PiecePlacement) & board.PiecePlacement.Occupancy(board.ActivePlayer.Toggle());
             var attackerIndexes = piecesAttacking.GetSetBits();
-            var pseudoLegalKingMoves = Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, activeOccupancy, oppOccupancy, kingColor);
+            var pseudoLegalKingMoves = Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, activeOccupancy, oppOccupancy, board.ActivePlayer, board.EnPassantSquare, CastlingAvailability.NoCastlingAvailable, out List<MoveExt> plMoves);
 
             //double check - king must move
 
@@ -415,9 +538,9 @@ namespace ChessLib.Data.Helpers
                     foreach (var occupiedSquare in activeOccupancyNotKing.GetSetBits())
                     {
                         ulong destination;
-                        var piece = GetPieceOfColorAtIndex(occupiedSquare, piecesOnBoard);
+                        var piece = GetPieceOfColorAtIndex(board.PiecePlacement, occupiedSquare);
                         var attackedSquares =
-                            Bitboard.GetPseudoLegalMoves(piece.Value.Piece, occupiedSquare, activeOccupancy, oppOccupancy, kingColor);
+                            Bitboard.GetPseudoLegalMoves(piece.Value.Piece, occupiedSquare, activeOccupancy, oppOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
                         var squaresBetween = InBetween(kingIndex, attackerIdx);
                         if ((destination = (attackedSquares & squaresBetween)) != 0)
                         {
@@ -432,8 +555,8 @@ namespace ChessLib.Data.Helpers
             foreach (var mv in pseudoLegalKingMoves.GetSetBits())
             {
                 var move = MoveHelpers.GenerateMove(kingIndex, mv);
-                var board = GetBoardPostMove(piecesOnBoard, kingColor, move);
-                if (!Bitboard.IsAttackedBy(mv, (Color)nOppColor, board))
+                var boardPostMove = GetBoardPostMove(board.PiecePlacement, board.ActivePlayer, move);
+                if (!Bitboard.IsSquareAttackedByColor(mv, (Color)nOppColor, board.PiecePlacement))
                 {
                     rv.Add(move);
                 }
@@ -442,7 +565,7 @@ namespace ChessLib.Data.Helpers
             return rv.ToArray();
         }
 
-        private static ulong AttackersOn(in ushort i, in ulong[][] piecesOnBoard)
+        public static ulong PiecesAttackingSquare(in ushort i, in ulong[][] piecesOnBoard)
         {
 
             var total = piecesOnBoard

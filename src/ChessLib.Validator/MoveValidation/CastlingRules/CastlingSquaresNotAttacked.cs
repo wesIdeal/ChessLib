@@ -32,7 +32,7 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
             while (squaresBetween != 0)
             {
                 var square = BitHelpers.BitScanForward(squaresBetween);
-                if (Bitboard.IsAttackedBy(square, opponentColor, occupancy)) return true;
+                if (Bitboard.IsSquareAttackedByColor(square, opponentColor, occupancy)) return true;
                 squaresBetween &= squaresBetween - 1;
             }
             return false;

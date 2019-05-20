@@ -8,7 +8,7 @@ namespace ChessLib.Validators.MoveValidation.MoveRules
     {
         public MoveExceptionType? Validate(in BoardFENInfo boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
         {
-            var activePieces = boardInfo.ActiveTotalOccupancy;
+            var activePieces = boardInfo.ActiveOccupancy;
             if ((activePieces & move.SourceValue) == 0)
             {
                 return MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare;

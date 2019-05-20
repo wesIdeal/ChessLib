@@ -81,9 +81,9 @@ namespace ChessLib.Data.Types
     }
 
     [Flags]
-    public enum BoardErrors
+    public enum BoardException
     {
-        None = 1,
+        None = 0,
         [Description("White has too many pawns.")]
         WhiteTooManyPawns = 2,
         [Description("Black has too many pawns.")]
@@ -113,7 +113,9 @@ namespace ChessLib.Data.Types
         [Description("White should have one and only one King.")]
         WhiteKingCount = 8192,
         [Description("Black should have one and only one King.")]
-        BlackKingCount = 16384
+        BlackKingCount = 16384,
+        Stalemate = 32768,
+        Checkmate = 65536
     }
 
     [Flags]

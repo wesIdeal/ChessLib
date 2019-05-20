@@ -12,6 +12,32 @@ namespace ChessLib.Data.Helpers
         public static readonly char[] ValidCastlingStringChars = new char[] { 'k', 'K', 'q', 'Q', '-' };
         public static readonly char[] ValidFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
 
+        public static ulong[][] BoardFromFen(string fen)
+        {
+            uint pieceIndex = 0;
+            var pieces = new ulong[2][];
+            pieces[(int)Color.White] = new ulong[6];
+            pieces[(int)Color.Black] = new ulong[6];
+            var fenPieces = fen.Split(' ');
+            var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
+            var ranks = piecePlacement.Split('/').Reverse();
+            foreach (var rank in ranks)
+            foreach (var f in rank)
+                switch (char.IsDigit(f))
+                {
+                    case true:
+                        var emptySquares = uint.Parse(f.ToString());
+                        pieceIndex += emptySquares;
+                        break;
+                    case false:
+                        var pieceOfColor = PieceHelpers.GetPieceOfColor(f);
+                        pieces[(int)pieceOfColor.Color][(int)pieceOfColor.Piece] |= 1ul << (int)pieceIndex;
+                        pieceIndex++;
+                        break;
+                }
+            return pieces;
+        }
+
         /// <summary>
         /// Gets a rank from a validated fen string
         /// </summary>
@@ -217,36 +243,21 @@ namespace ChessLib.Data.Helpers
             return (rankOffset * 8) + (idx % 8);
         }
 
-        public static ulong[][] BoardFromFen(this string fen, out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out uint halfmoveClock, out uint fullmoveClock)
+        public static ulong[][] BoardFromFen(this string fen, out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out uint halfmoveClock, out uint fullmoveClock, bool validate = true)
         {
-            uint pieceIndex = 0;
-            var pieces = new ulong[2][];
-            pieces[(int)Color.White] = new ulong[6];
-            pieces[(int)Color.Black] = new ulong[6];
-            var fenPieces = fen.Split(' ');
-            ValidateFENStructure(fen);
-            ValidateFENString(fen);
+           var fenPieces = fen.Split(' ');
+            if (validate)
+            {
+                ValidateFENStructure(fen);
+                ValidateFENString(fen); 
+            }
+
+            var pieces = BoardFromFen(fen);
             activePlayer = GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
             castlingAvailability = GetCastlingFromString(fen.GetFENPiece(FENPieces.CastlingAvailability));
             enPassantSquareIndex = fenPieces[(int)FENPieces.EnPassantSquare].SquareTextToIndex();
             halfmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
             fullmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveCounter]);
-            var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
-            var ranks = piecePlacement.Split('/').Reverse();
-            foreach (var rank in ranks)
-                foreach (var f in rank)
-                    switch (char.IsDigit(f))
-                    {
-                        case true:
-                            var emptySquares = uint.Parse(f.ToString());
-                            pieceIndex += emptySquares;
-                            break;
-                        case false:
-                            var pieceOfColor = PieceHelpers.GetPieceOfColor(f);
-                            pieces[(int)pieceOfColor.Color][(int)pieceOfColor.Piece] |= 1ul << (int)pieceIndex;
-                            pieceIndex++;
-                            break;
-                    }
             return pieces;
         }
     }

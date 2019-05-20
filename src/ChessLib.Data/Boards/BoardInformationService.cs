@@ -269,56 +269,9 @@ namespace ChessLib.Data.Boards
 
         #endregion
 
-        /// <summary>
-        ///     Clears appropriate castling availability flag when <paramref name="movingPiece">piece moving</paramref> is a
-        ///     <see cref="Piece.Rook">Rook</see> or <see cref="Piece.King">King</see>
-        /// </summary>
-        /// <param name="move">Move object</param>
-        /// <param name="movingPiece">Piece that is moving</param>
-        public void UnsetCastlingAvailability(MoveExt move, Piece movingPiece)
-        {
-            switch (movingPiece)
-            {
-                case Piece.Rook:
-                    if (move.SourceIndex == 56) CastlingAvailability &= ~CastlingAvailability.BlackQueenside;
-                    if (move.SourceIndex == 63) CastlingAvailability &= ~CastlingAvailability.BlackKingside;
-                    if (move.SourceIndex == 0) CastlingAvailability &= ~CastlingAvailability.WhiteQueenside;
-                    if (move.SourceIndex == 7) CastlingAvailability &= ~CastlingAvailability.WhiteKingside;
-                    break;
-                case Piece.King:
-                    if (move.SourceIndex == 60)
-                        CastlingAvailability &=
-                            ~(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside);
-                    if (move.SourceIndex == 4)
-                        CastlingAvailability &=
-                            ~(CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
-                    break;
-            }
-        }
+        
 
-        /// <summary>
-        ///     Sets EnPassant flag appropriately, clearing it if no En Passant is available
-        /// </summary>
-        /// <param name="move"></param>
-        /// <param name="pocSource"></param>
-        public void SetEnPassantFlag(MoveExt move, PieceOfColor? pocSource)
-        {
-            if (pocSource.HasValue)
-            {
-                var startRank = pocSource.Value.Color == Color.White ? 1 : 6;
-                var endRank = pocSource.Value.Color == Color.White ? 3 : 4;
-                var enPassantIndexOffset = pocSource.Value.Color == Color.White ? 8 : -8;
-                if (pocSource.Value.Piece == Piece.Pawn)
-                    if ((move.SourceValue & BoardHelpers.RankMasks[startRank]) != 0
-                        && (move.DestinationValue & BoardHelpers.RankMasks[endRank]) != 0)
-                    {
-                        EnPassantSquare = (ushort)(move.SourceIndex + enPassantIndexOffset);
-                        return;
-                    }
-            }
-
-            EnPassantSquare = null;
-        }
+       
 
     }
 }

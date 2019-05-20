@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Validators.BoardValidators;
 
 namespace ChessLib.MagicBitboard
 {
@@ -36,35 +37,23 @@ namespace ChessLib.MagicBitboard
             var validationError = moveValidator.Validate();
             if (validationError.HasValue)
                 throw new MoveException("Error with move.", validationError.Value, move, ActivePlayer);
-            var isCapture = (OpponentOccupancy & move.DestinationValue) != 0;
-            var isPawnMove = (ActivePawnOccupancy & move.SourceValue) != 0;
-            if (isCapture || isPawnMove) HalfmoveClock = 0;
-            else HalfmoveClock++;
 
-            UnsetCastlingAvailability(move, pocSource.Value.Piece);
-            SetEnPassantFlag(move, pocSource);
-
-
-            var san = MoveToSAN(move, pocSource.Value, pocDestination);
-            PiecePlacement = moveValidator.PostMoveBoard;
+            var san = move.MoveToSAN(this, MoveTree.ParentMove == null);
             MoveTree.AddLast(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, pocSource.Value.Piece, ActivePlayer, ToFEN(), san)));
-
-            if (ActivePlayer == Color.Black)
-            {
-                FullmoveCounter++;
-                ActivePlayer = Color.White;
-            }
-            else
-            {
-                ActivePlayer = Color.Black;
-            }
-            if (IsPositionStalemate(ToFEN()))
-            {
-                return MoveExceptionType.Stalemate;
-            }
+            ApplyValidatedMove(move);
             return null;
         }
 
+        private void ApplyValidatedMove(MoveExt move)
+        {
+            var newBoard = this.ApplyMoveToBoard(move);
+            this.PiecePlacement = newBoard.PiecePlacement;
+            this.ActivePlayer = newBoard.ActivePlayer;
+            this.CastlingAvailability = newBoard.CastlingAvailability;
+            this.EnPassantSquare = newBoard.EnPassantSquare;
+            this.HalfmoveClock = newBoard.HalfmoveClock;
+            this.FullmoveCounter = newBoard.FullmoveCounter;
+        }
 
         protected bool OpposingPlayerInCheck => IsAttackedBy(ActivePlayer, OpposingPlayerKingIndex);
         protected bool ActivePlayerInCheck => IsAttackedBy(OpponentColor, ActivePlayerKingIndex);
@@ -147,8 +136,8 @@ namespace ChessLib.MagicBitboard
         public ulong GetPinnedPieces()
         {
             ulong pinned = 0;
-            var xRayBishopAttacks = XRayBishopAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
-            var xRayRookAttacks = XRayRookAttacks(TotalOccupancy, ActiveTotalOccupancy, ActivePlayerKingIndex);
+            var xRayBishopAttacks = XRayBishopAttacks(TotalOccupancy, PiecePlacement.Occupancy(ActivePlayer), ActivePlayerKingIndex);
+            var xRayRookAttacks = XRayRookAttacks(TotalOccupancy, PiecePlacement.Occupancy(ActivePlayer), ActivePlayerKingIndex);
             var bishopPinnedPieces = (PiecePlacement[NOpponentColor][BISHOP] | PiecePlacement[NOpponentColor][QUEEN]) &
                                      xRayBishopAttacks;
             var rookPinnedPieces = (PiecePlacement[NOpponentColor][ROOK] | PiecePlacement[NOpponentColor][QUEEN]) &
@@ -158,7 +147,7 @@ namespace ChessLib.MagicBitboard
             {
                 var square = BitHelpers.BitScanForward(allPins);
                 var squaresBetween = BoardHelpers.InBetween(square, ActivePlayerKingIndex);
-                var piecesBetween = squaresBetween & ActiveTotalOccupancy;
+                var piecesBetween = squaresBetween & PiecePlacement.Occupancy(ActivePlayer);
                 if (piecesBetween.CountSetBits() == 1) pinned |= piecesBetween;
                 allPins &= allPins - 1;
             }
@@ -191,46 +180,9 @@ namespace ChessLib.MagicBitboard
             return Bitboard.GetAttackedSquares(p, index, occupancy);
         }
 
-        public bool IsPositionStalemate(string fen)
-        {
-            var board = new BoardFENInfo(fen);
-            var possibleMoves = GenerateAllPseudoLegalMoves(board.ActivePlayer);
-            if (IsAttackedBy(board.OpponentColor, board.ActivePlayerKingIndex))
-            {
-                return false;
-            }
-            foreach (var move in possibleMoves)
-            {
-                var validator = new MoveValidator(board, move);
-                if (validator.Validate() == null)
-                    return false;
-            }
-            return true;
-        }
+       
 
-        public MoveExt[] GenerateAllPseudoLegalMoves(Color c)
-        {
-            var rv = new List<MoveExt>();
-            var nColor = (int)c;
-
-            for (int i = 0; i < 6; i++)
-            {
-                var p = (Piece)i;
-                var pieceLocations = PiecePlacement[nColor][i].GetSetBits();
-                foreach (var sq in pieceLocations)
-                {
-                    var pseudoLegalMoves = Bitboard.GetPseudoLegalMoves(p, sq, Occupancy(c), Occupancy(c.Toggle()), c, EnPassantSquare, CastlingAvailability);
-                    rv.AddRange(pseudoLegalMoves.GetSetBits().Select(x => MoveHelpers.GenerateMove(sq, x)));
-                }
-            }
-            return rv.ToArray();
-        }
-
-
-
-
-
-        /// <summary>
+       /// <summary>
         ///     Instance method to find if <paramref name="squareIndex" /> is attacked by a piece of <paramref name="color" />
         /// </summary>
         /// <param name="color">Color of possible attacker</param>
@@ -238,7 +190,7 @@ namespace ChessLib.MagicBitboard
         /// <returns>true if <paramref name="squareIndex" /> is attacked by <paramref name="color" />. False if not.</returns>
         public override bool IsAttackedBy(Color color, ushort squareIndex)
         {
-            return Bitboard.IsAttackedBy(squareIndex, color, PiecePlacement);
+            return Bitboard.IsSquareAttackedByColor(squareIndex, color, PiecePlacement);
         }
 
         public override bool DoesPieceAtSquareAttackSquare(ushort attackerSquare, ushort attackedSquare,
@@ -520,108 +472,9 @@ namespace ChessLib.MagicBitboard
 
         #endregion
 
+        #region SAN Moves
+        
+        #endregion
 
-
-
-        public string MoveToSAN(MoveExt move)
-        {
-            var src = BoardHelpers.GetPieceOfColorAtIndex(move.SourceIndex, PiecePlacement);
-            if (src == null) throw new MoveException("Source index is empty.", MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, move, ActivePlayer);
-            var dst = BoardHelpers.GetPieceOfColorAtIndex(move.DestinationIndex, PiecePlacement);
-            return MoveToSAN(move, src.Value, dst);
-        }
-
-        public string MoveToSAN(MoveExt move, PieceOfColor srcPiece, PieceOfColor? dstPiece, bool recordResult = true)
-        {
-            var postMoveBoard = BoardHelpers.GetBoardPostMove(PiecePlacement, ActivePlayer, move);
-            var strSrcPiece = GetSANSourceString(move, srcPiece, dstPiece);
-            var strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
-            string checkInfo = "", result = "";
-            if (srcPiece.Piece == Piece.Pawn)
-            {
-               
-            }
-            var capture = dstPiece.HasValue || move.MoveType == MoveType.EnPassant ? "x" : "";
-            var promotionInfo = "";
-            if (move.MoveType == MoveType.Promotion)
-            {
-                promotionInfo = $"={PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)}";
-            }
-            var board = (BoardFENInfo)this.Clone();
-            board.PiecePlacement = postMoveBoard;
-            board.ActivePlayer = OpponentColor;
-
-            if (postMoveBoard.IsPlayerOfColorInCheck(OpponentColor))
-            {
-                var activeColor = srcPiece.Color;
-                checkInfo = "+";
-                if (postMoveBoard.IsPlayerOfColorMated(activeColor.Toggle()))
-                {
-                    checkInfo = $"#";
-                    if (recordResult)
-                    {
-                        result = (activeColor == Color.White ? "1-0" : "0-1");
-                    }
-                }
-
-            }
-            else
-            {
-                var isStalemate = IsPositionStalemate(board.ToFEN());
-                if (isStalemate && recordResult)
-                {
-                    result = "1/2-1/2";
-                }
-            }
-            //Get piece representation
-            return $"{strSrcPiece}{capture}{move.DestinationIndex.IndexToSquareDisplay()}{promotionInfo}{checkInfo} {result}".Trim();
-        }
-
-        public string GetSANSourceString(MoveExt mv, PieceOfColor src, PieceOfColor? dst)
-        {
-            if (src.Piece == Piece.King)
-            {
-                return "K";
-            }
-            if (src.Piece == Piece.Pawn)
-            {
-                if (mv.MoveType != MoveType.EnPassant && !dst.HasValue)
-                {
-                    return "";
-                }
-                return mv.SourceIndex.IndexToFileDisplay().ToString();
-            }
-
-            var strSrcPiece = src.Piece.GetCharRepresentation().ToString().ToUpper();
-            var otherLikePieces = PiecePlacement[(int)src.Color][(int)src.Piece];
-            var duplicateAttackerIndexes = new List<ushort>();
-
-            foreach (var attackerIndex in otherLikePieces.GetSetBits())
-            {
-                if (DoesPieceAtSquareAttackSquare(mv.DestinationIndex, attackerIndex, src.Piece))
-                {
-                    duplicateAttackerIndexes.Add(attackerIndex);
-                }
-            }
-
-            if (duplicateAttackerIndexes.Count() == 1) return strSrcPiece;
-            var duplicateFiles = duplicateAttackerIndexes.Select(x => x.GetFile()).GroupBy(x => x)
-                .Any(x => x.Count() > 1);
-            var duplicateRanks = duplicateAttackerIndexes.Select(x => x.GetRank()).GroupBy(x => x)
-                .Any(x => x.Count() > 1);
-
-            if (!duplicateFiles)
-            {
-                return strSrcPiece += mv.SourceIndex.IndexToFileDisplay();
-            }
-            else if (!duplicateRanks)
-            {
-                return strSrcPiece += mv.SourceIndex.IndexToRankDisplay();
-            }
-            else
-            {
-                return strSrcPiece += mv.SourceIndex.IndexToSquareDisplay();
-            }
-        }
     }
 }

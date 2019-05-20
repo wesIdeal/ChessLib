@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.PieceMobility;
 using ChessLib.Data.Types;
 
@@ -26,6 +28,30 @@ namespace ChessLib.Data
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int File(ushort idx) => idx % 8;
 
+        private static bool IsCastlingMove(Piece p, ushort source, ushort destination) => (p == Piece.King && ((source == 50 && (destination == 62 || destination == 58)) ||
+                                        (source == 4 && (destination == 6 || destination == 2))));
+
+        private static bool IsEnPassantCapture(Piece p, ushort source, ushort destination, ushort? enPassantSq) => (enPassantSq == null) || (destination != enPassantSq.Value) || p != Piece.Pawn ? false : true;
+
+        private static bool IsPromotion(Piece p, ushort source, ushort destination)
+        {
+            var sRank = source.RankFromIdx();
+            var dRank = destination.RankFromIdx();
+            return p == Piece.Pawn && ((sRank == 1 && dRank == 0) || (sRank == 6 && dRank == 7));
+        }
+        public static IEnumerable<MoveExt> BoardValueToMoves(Piece p, ushort source, ulong destinations, ushort? enPassantSq, CastlingAvailability ca)
+        {
+            var rv = new List<MoveExt>();
+            foreach (var destination in destinations.GetSetBits())
+            {
+                var moveType = IsCastlingMove(p, source, destination) ? MoveType.Castle :
+                    IsEnPassantCapture(p, source, destination, enPassantSq) ? MoveType.EnPassant :
+                    IsPromotion(p, source, destination) ? MoveType.Promotion : MoveType.Normal;
+                yield return MoveHelpers.GenerateMove(source, destination, moveType);
+
+            }
+        }
+
         /// <summary>
         /// Gets both moves and attacks/captures for a piece
         /// </summary>
@@ -35,8 +61,9 @@ namespace ChessLib.Data
         /// <param name="oppOcc"></param>
         /// <param name="color"></param>
         /// <returns></returns>
-        public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex = null, CastlingAvailability ca = CastlingAvailability.NoCastlingAvailable)
+        public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex, CastlingAvailability ca, out List<MoveExt> moves)
         {
+            var lMoves = new List<MoveExt>();
             var totalOccupancy = activeOcc | oppOcc;
             ulong possibleMoves;
             switch (piece)
@@ -92,6 +119,8 @@ namespace ChessLib.Data
                 default:
                     throw new Exception("Piece argument passed to GetPossibleMoves()");
             }
+
+            moves = BoardValueToMoves(piece, pieceSquare, possibleMoves, enPassantIndex, ca).ToList();
             return possibleMoves;
         }
 
@@ -118,6 +147,37 @@ namespace ChessLib.Data
             }
         }
 
+        public static bool CanPieceMove(this IBoard board, ushort square)
+        {
+            var p = BoardHelpers.GetPieceOfColorAtIndex(board.PiecePlacement, square);
+            var pseudoLegalMoves = GetPseudoLegalMoves(p.Value.Piece, square, board.PiecePlacement.Occupancy(p.Value.Color),
+                board.PiecePlacement.Occupancy(p.Value.Color.Toggle()), p.Value.Color, board.EnPassantSquare,
+                board.CastlingAvailability, out List<MoveExt> moves);
+            return moves.Any(x => board.CanPieceMoveToDestination(x.SourceIndex, x.DestinationIndex));
+        }
+
+        public static bool CanPieceMoveToDestination(this IBoard boardInfo, ushort src, ushort dst) =>
+            CanPieceMoveToDestination(boardInfo.PiecePlacement, boardInfo.ActivePlayer, src, dst,
+                boardInfo.EnPassantSquare, boardInfo.CastlingAvailability);
+
+        public static bool CanPieceMoveToDestination(this ulong[][] boardInfo, Color activeColor, ushort src, ushort dst, ushort? enPassantIndex, CastlingAvailability ca)
+        {
+            var piece = BoardHelpers.GetTypeOfPieceAtIndex(src, boardInfo);
+            var dstValue = dst.GetBoardValueOfIndex();
+            var legalMoves = GetPseudoLegalMoves(piece.Value, src, boardInfo.Occupancy(activeColor),
+                boardInfo.Occupancy(activeColor.Toggle()), activeColor, enPassantIndex, ca,
+                out List<MoveExt> pseudoMoves);
+            if ((legalMoves & dstValue) == 0) return false;
+            foreach (var mv in pseudoMoves)
+            {
+                var postMove = boardInfo.GetBoardPostMove(activeColor, mv);
+                if (BoardHelpers.IsPlayerInCheck(postMove, (int)activeColor))
+                    return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Determines if piece on <paramref name="squareIndex"/> is attacked by <paramref name="color"/>
         /// </summary>
@@ -125,7 +185,7 @@ namespace ChessLib.Data
         /// <param name="color">Color of attacker</param>
         /// <param name="piecesOnBoard">Occupancy arrays for both colors, indexed as [color_enum][piece_enum]</param>
         /// <returns>true if <paramref name="squareIndex"/> is attacked by any piece of <paramref name="color"/></returns>
-        public static bool IsAttackedBy(this ushort squareIndex, Color color, ulong[][] piecesOnBoard)
+        public static bool IsSquareAttackedByColor(this ushort squareIndex, Color color, ulong[][] piecesOnBoard)
         {
 
             var nColor = (int)color;

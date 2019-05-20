@@ -2,11 +2,12 @@
 using ChessLib.Data.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace ChessLib.Data
 {
-    public class BoardFENInfo : ICloneable
+    public class BoardFENInfo : IBoard
     {
         public BoardFENInfo() : this(FENHelpers.FENInitial, false) { }
         public BoardFENInfo(string fen, bool chess960 = false)
@@ -42,7 +43,7 @@ namespace ChessLib.Data
         public readonly string InitialFEN;
 
         public Color OpponentColor => ActivePlayer.Toggle();
-        public ulong ActiveTotalOccupancy => PiecePlacement.Occupancy(ActivePlayer);
+        public ulong ActiveOccupancy => PiecePlacement.Occupancy(ActivePlayer);
         public ulong OpponentOccupancy => PiecePlacement.Occupancy(OpponentColor);
         public ulong TotalOccupancy => PiecePlacement.Occupancy();
 
@@ -94,5 +95,6 @@ namespace ChessLib.Data
 
 
         #endregion
+
     }
 }

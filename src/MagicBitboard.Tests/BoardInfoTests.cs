@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text;
+using ChessLib.Data;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
@@ -61,7 +62,7 @@ namespace MagicBitboard.Tests
                     var move = MoveHelpers.GenerateMove(63, 62);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside |
                                    CastlingAvailability.WhiteQueenside;
-                    _bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    _bi.CastlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
                     Assert.AreEqual(expected, _bi.CastlingAvailability,
                         "Expected castling availability to equal qKQ after h8 Rook moves.");
                 }
@@ -72,7 +73,7 @@ namespace MagicBitboard.Tests
                     var move = MoveHelpers.GenerateMove(56, 57);
                     var expected = CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside |
                                    CastlingAvailability.WhiteQueenside;
-                    _bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    _bi.CastlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
                     Assert.AreEqual(expected, _bi.CastlingAvailability,
                         "Expected castling availability to equal kKQ after a8 Rook moves.");
                 }
@@ -82,7 +83,7 @@ namespace MagicBitboard.Tests
                 {
                     var move = MoveHelpers.GenerateMove(60, 61);
                     var expected = CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
-                    _bi.UnsetCastlingAvailability(move, Piece.King);
+                    _bi.CastlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.King);
                     Assert.AreEqual(expected, _bi.CastlingAvailability,
                         "Expected castling availability to equal KQ after Black King moves.");
                 }
@@ -92,7 +93,7 @@ namespace MagicBitboard.Tests
                 {
                     var move = MoveHelpers.GenerateMove(4, 5);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.BlackKingside;
-                    _bi.UnsetCastlingAvailability(move, Piece.King);
+                    _bi.CastlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.King);
                     Assert.AreEqual(expected, _bi.CastlingAvailability,
                         "Expected castling availability to equal kq after White King moves.");
                 }
@@ -103,7 +104,7 @@ namespace MagicBitboard.Tests
                     var move = MoveHelpers.GenerateMove(7, 6);
                     var expected = CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside |
                                    CastlingAvailability.WhiteQueenside;
-                    _bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    _bi.CastlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
                     Assert.AreEqual(expected, _bi.CastlingAvailability,
                         "Expected castling availability to equal kqQ after h1 Rook moves.");
                 }
@@ -114,7 +115,7 @@ namespace MagicBitboard.Tests
                     var move = MoveHelpers.GenerateMove(0, 1);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.BlackKingside |
                                    CastlingAvailability.WhiteKingside;
-                    _bi.UnsetCastlingAvailability(move, Piece.Rook);
+                    _bi.CastlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
                     Assert.AreEqual(expected, _bi.CastlingAvailability,
                         "Expected castling availability to equal kqK after a1 Rook moves.");
                 }
@@ -793,7 +794,7 @@ namespace MagicBitboard.Tests
             var board = new BoardInfo(fen);
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
             var result = board.ApplyMove(move);
-            Assert.AreEqual(true, board.IsPositionStalemate(board.ToFEN()));
+            Assert.AreEqual(true, board.IsStalemate());
             Assert.AreEqual(MoveExceptionType.Stalemate, result);
         }
 
@@ -808,7 +809,7 @@ namespace MagicBitboard.Tests
         public void IsStalemate(string fen, bool isStalematedPosition)
         {
             var board = new BoardInfo(fen);
-            Assert.AreEqual(isStalematedPosition, board.IsPositionStalemate(board.ToFEN()));
+            Assert.AreEqual(isStalematedPosition, board.IsStalemate());
             Console.WriteLine(sb.ToString());
         }
 
@@ -817,8 +818,8 @@ namespace MagicBitboard.Tests
         [TestCase("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1", Color.Black, true)]
         public static void CanKingMoveToAnotherSquare(string fen, Color c, bool expectedResult)
         {
-            var pieces = FENHelpers.BoardFromFen(fen, out _, out _, out _, out _, out _);
-            var result = pieces.CanEvadeThroughBlockOrCapture(c);
+            var pieces = new BoardInfo(fen);
+            var result = pieces.CanPieceMove(60);
             Assert.AreEqual(expectedResult, result);
 
         }
@@ -830,8 +831,8 @@ namespace MagicBitboard.Tests
         [TestCase("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1", 0)]
         public static void CanEvadeThroughBlockOrCapture_CaptureChecker(string fen, int expectedMoveCount)
         {
-            var bi = FENHelpers.BoardFromFen(fen, out _, out _, out _, out _, out _);
-            var actual = BoardHelpers.GetEvasions(bi, Color.Black);
+            var bi = new BoardInfo(fen);
+            var actual = bi.GetEvasions();
             Assert.AreEqual(expectedMoveCount, actual.Length);
         }
 
@@ -841,8 +842,8 @@ namespace MagicBitboard.Tests
         [TestCase("4R3/2p3pk/pp3p2/5n1p/2P2P1P/P5r1/1P4q1/3QR2K w - - 6 41")]
         public static void GetEvasions_ReturnsNoMovesWhenMate(string fen)
         {
-            var bi = FENHelpers.BoardFromFen(fen, out var activePlayer, out _, out _, out _, out _);
-            Assert.AreEqual(0, BoardHelpers.GetEvasions(bi, activePlayer).Length);
+            var bi = new BoardInfo(fen);
+            Assert.AreEqual(0, bi.GetEvasions().Length);
         }
     }
 }
