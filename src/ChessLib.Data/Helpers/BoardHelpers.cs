@@ -385,7 +385,10 @@ namespace ChessLib.Data.Helpers
             return rv;
         }
 
-
+        public static ulong[][] GetBoardPostMove(this IBoard board, in MoveExt move)
+        {
+            return GetBoardPostMove(board.PiecePlacement, board.ActivePlayer, move);
+        }
 
         public static ulong[][] GetBoardPostMove(this ulong[][] currentBoard, in Color activePlayerColor, in MoveExt move)
         {
@@ -464,15 +467,30 @@ namespace ChessLib.Data.Helpers
 
             return (rookBoard & ~(rookSource)) | rookDest;
         }
-
-        public static bool IsPlayerOfColorInCheck(this ulong[][] board, Color c)
+        public static int OpponentColorAsInt(this IBoard board) => (int)board.ActivePlayer.Toggle();
+        public static Color OpponentColor(this IBoard board) => board.ActivePlayer.Toggle();
+        public static ushort ActiveKingIndex(this IBoard board)
         {
-            return Bitboard.IsSquareAttackedByColor(board[(int)c][KING].GetSetBits()[0], c.Toggle(), board);
+            return board.PiecePlacement[board.ActivePlayer.ToInt()][KING].GetSetBits()[0];
         }
-        
+        public static ushort OpponentKingIndex(this IBoard board) => board.PiecePlacement[board.OpponentColorAsInt()][KING].GetSetBits()[0];
+
+
+        public static bool IsActivePlayerInCheck(this IBoard board)
+        {
+            var activePlayer = (int)board.ActivePlayer;
+            var opponent = (Color)(1 - activePlayer);
+            return Bitboard.IsSquareAttackedByColor(board.ActiveKingIndex(), opponent, board.PiecePlacement);
+        }
+
+        public static bool IsOpponentInCheck(this IBoard board)
+        {
+            return Bitboard.IsSquareAttackedByColor(board.OpponentKingIndex(), board.OpponentColor(), board.PiecePlacement);
+        }
+
         public static bool IsStalemate(this IBoard board)
         {
-            if(board.PiecePlacement.IsPlayerOfColorInCheck(board.ActivePlayer))
+            if (board.IsActivePlayerInCheck())
             {
                 return false;
             }
@@ -499,19 +517,14 @@ namespace ChessLib.Data.Helpers
 
         public static bool IsCheckmateForSideToMove(this IBoard board)
         {
-            return board.PiecePlacement.IsPlayerOfColorInCheck(board.ActivePlayer) && !CanEvadeThroughBlockOrCapture(board, board.ActivePlayer);
+            return board.IsActivePlayerInCheck() && !CanEvadeThroughBlockOrCapture(board, board.ActivePlayer);
         }
 
         public static bool IsCheckmateForOpponent(this IBoard board)
         {
-            return board.PiecePlacement.IsPlayerOfColorInCheck(board.ActivePlayer.Toggle()) && !CanEvadeThroughBlockOrCapture(board, board.ActivePlayer.Toggle());
+            return board.IsOpponentInCheck() && !CanEvadeThroughBlockOrCapture(board, board.ActivePlayer.Toggle());
         }
-
-        public static bool IsCheckmateForColor(this IBoard board, Color c)
-        {
-            return board.PiecePlacement.IsPlayerOfColorInCheck(c) && !CanEvadeThroughBlockOrCapture(board, c);
-        }
-
+        
         public static bool CanEvadeThroughBlockOrCapture(in IBoard board, Color? c = null)
         {
             if (c.HasValue)

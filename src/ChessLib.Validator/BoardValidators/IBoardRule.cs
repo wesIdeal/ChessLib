@@ -50,7 +50,7 @@ namespace ChessLib.Validators.BoardValidators
         {
             var rv = BoardException.None;
 
-            if (boardInfo.IsCheckmateForColor(boardInfo.ActivePlayer))
+            if (boardInfo.IsCheckmateForSideToMove())
             {
                 return BoardException.Checkmate;
             }

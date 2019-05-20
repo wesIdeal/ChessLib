@@ -126,7 +126,7 @@ namespace ChessLib.Data.Helpers
             board.PiecePlacement = postMoveBoard;
             board.ActivePlayer = sideMoving.Toggle();
 
-            if (postMoveBoard.IsPlayerOfColorInCheck(sideMoving.Toggle()))
+            if (postMoveBoard.IsPlayerInCheck(sideMoving.ToInt()))
             {
                 checkInfo = "+";
                 if (board.IsCheckmateForSideToMove())
