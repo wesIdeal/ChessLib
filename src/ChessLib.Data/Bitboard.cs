@@ -149,16 +149,23 @@ namespace ChessLib.Data
 
         public static bool CanPieceMove(this IBoard board, ushort square)
         {
+            var canMove = false;
             var p = BoardHelpers.GetPieceOfColorAtIndex(board.PiecePlacement, square);
             var pseudoLegalMoves = GetPseudoLegalMoves(p.Value.Piece, square, board.PiecePlacement.Occupancy(p.Value.Color),
                 board.PiecePlacement.Occupancy(p.Value.Color.Toggle()), p.Value.Color, board.EnPassantSquare,
                 board.CastlingAvailability, out List<MoveExt> moves);
-            return moves.Any(x => board.CanPieceMoveToDestination(x.SourceIndex, x.DestinationIndex));
+            foreach (var mv in moves)
+            {
+                var postMove = board.PiecePlacement.GetBoardPostMove(board.ActivePlayer, mv);
+                if (!BoardHelpers.IsPlayerInCheck(postMove, (int)board.ActivePlayer))
+                    canMove |= true;
+            }
+            return canMove;
         }
 
         public static bool CanPieceMoveToDestination(this IBoard boardInfo, ushort src, ushort dst) =>
-            CanPieceMoveToDestination(boardInfo.PiecePlacement, boardInfo.ActivePlayer, src, dst,
-                boardInfo.EnPassantSquare, boardInfo.CastlingAvailability);
+        CanPieceMoveToDestination(boardInfo.PiecePlacement, boardInfo.ActivePlayer, src, dst,
+            boardInfo.EnPassantSquare, boardInfo.CastlingAvailability);
 
         public static bool CanPieceMoveToDestination(this ulong[][] boardInfo, Color activeColor, ushort src, ushort dst, ushort? enPassantIndex, CastlingAvailability ca)
         {

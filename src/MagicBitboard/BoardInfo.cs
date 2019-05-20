@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ChessLib.Validators.BoardValidators;
 
 namespace ChessLib.MagicBitboard
 {

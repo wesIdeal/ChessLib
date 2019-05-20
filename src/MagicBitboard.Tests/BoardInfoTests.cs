@@ -795,7 +795,7 @@ namespace MagicBitboard.Tests
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
             var result = board.ApplyMove(move);
             Assert.AreEqual(true, board.IsStalemate());
-            Assert.AreEqual(MoveExceptionType.Stalemate, result);
+            
         }
 
         [TestCase("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62", true)]
@@ -819,7 +819,8 @@ namespace MagicBitboard.Tests
         public static void CanKingMoveToAnotherSquare(string fen, Color c, bool expectedResult)
         {
             var pieces = new BoardInfo(fen);
-            var result = pieces.CanPieceMove(60);
+            var kingIndex = pieces.ActivePlayerKingIndex;
+            var result = pieces.CanPieceMove(kingIndex);
             Assert.AreEqual(expectedResult, result);
 
         }

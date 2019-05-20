@@ -292,7 +292,7 @@ namespace ChessLib.Data.Helpers
             boardInfo.PiecePlacement, boardInfo.ActivePlayer, boardInfo.EnPassantSquare,
             boardInfo.CastlingAvailability);
 
-        
+
 
         public static MoveExt[] GenerateAllPseudoLegalMoves(this ulong[][] board, Color c, ushort? enPassentSq, CastlingAvailability ca)
         {
@@ -378,6 +378,7 @@ namespace ChessLib.Data.Helpers
             {
                 rv.FullmoveCounter++;
             }
+            rv.PiecePlacement = board.PiecePlacement.GetBoardPostMove(board.ActivePlayer, move);
             rv.CastlingAvailability = GetCastlingAvailabilityPostMove(rv, move, pieceMoving.Value.Piece);
             rv.EnPassantSquare = GetEnPassentIndex(move, pieceMoving.Value);
             rv.ActivePlayer = board.ActivePlayer.Toggle();
@@ -471,24 +472,24 @@ namespace ChessLib.Data.Helpers
 
         public static bool IsStalemate(this IBoard board)
         {
-            var canPieceMove = false;
+            var canAnyPieceMove = false;
             var myPieceLocations = board.PiecePlacement.Occupancy(board.ActivePlayer).GetSetBits();
             foreach (var square in myPieceLocations)
             {
-                if (canPieceMove == false)
+                if (canAnyPieceMove == false)
                 {
                     var pieceType = BoardHelpers.GetTypeOfPieceAtIndex(square, board.PiecePlacement);
                     Debug.Assert(pieceType.HasValue);
                     if (board.CanPieceMove(square))
                     {
-                        canPieceMove = true;
+                        canAnyPieceMove = true;
                         break;
                     }
 
                 }
             }
 
-            return canPieceMove;
+            return !canAnyPieceMove;
         }
 
 
@@ -552,13 +553,12 @@ namespace ChessLib.Data.Helpers
                     }
                 }
             }
-            foreach (var mv in pseudoLegalKingMoves.GetSetBits())
+            foreach (var mv in plMoves)
             {
-                var move = MoveHelpers.GenerateMove(kingIndex, mv);
-                var boardPostMove = GetBoardPostMove(board.PiecePlacement, board.ActivePlayer, move);
-                if (!Bitboard.IsSquareAttackedByColor(mv, (Color)nOppColor, board.PiecePlacement))
+                var boardPostMove = GetBoardPostMove(board.PiecePlacement, board.ActivePlayer, mv);
+                if (!Bitboard.IsSquareAttackedByColor(mv.DestinationIndex, (Color)nOppColor, boardPostMove))
                 {
-                    rv.Add(move);
+                    rv.Add(mv);
                 }
             }
 

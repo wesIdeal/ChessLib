@@ -141,7 +141,7 @@ namespace ChessLib.Data.Helpers
             else if (recordResult)
             {
 
-                result = board.IsStalemate() ? "" : "1/2-1/2";
+                result = board.IsStalemate() ?  "1/2-1/2" : "";
             }
 
             //Get piece representation
@@ -164,10 +164,10 @@ namespace ChessLib.Data.Helpers
             var strSrcPiece = src.GetCharRepresentation().ToString().ToUpper();
             var otherLikePieces = board.PiecePlacement.Occupancy(board.ActivePlayer, src);
             var duplicateAttackerIndexes = new List<ushort>();
-
+            
             foreach (var attackerIndex in otherLikePieces.GetSetBits())
             {
-                if (board.CanPieceMoveToDestination(move.SourceIndex, move.DestinationIndex))
+                if (board.CanPieceMoveToDestination(attackerIndex, move.DestinationIndex))
                 {
                     duplicateAttackerIndexes.Add(attackerIndex);
                 }
