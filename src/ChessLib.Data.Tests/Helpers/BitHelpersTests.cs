@@ -1,4 +1,7 @@
 ﻿using ChessLib.Data.Helpers;
+using ChessLib.Game;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Helpers
@@ -6,6 +9,10 @@ namespace ChessLib.Data.Tests.Helpers
     [TestFixture]
     public static class BitHelpersTests
     {
+        private const string FENScandi = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2";
+        private const string FENQueenAttacksd4 = "8/1k6/8/3q4/3P4/8/6K1/8 w - - 0 2";
+        private const string FENQueenIsBlockedFromAttackingSquared4 = "8/1k6/3q4/3P4/3P4/8/6K1/8 w - - 0 2";
+
         [Test]
         public static void BitScanForward_ShouldReturnIndexOfBit_WhereBitIs1()
         {
@@ -117,6 +124,18 @@ namespace ChessLib.Data.Tests.Helpers
             BitHelpers.SetBit(ref a, bitIndexToSet);
             a = ~a;
             Assert.IsFalse(a.IsBitSet(bitIndexToSet));
+        }
+
+        [TestCase(FENScandi, 27, Color.White, false)]
+        [TestCase(FENQueenIsBlockedFromAttackingSquared4, 27, Color.Black, false)]
+        [TestCase(FENQueenAttacksd4, 27, Color.Black, true)]
+        [TestCase(FENScandi, 35, Color.White, true)]
+        [TestCase(FENQueenIsBlockedFromAttackingSquared4, 35, Color.Black, true)]
+        public static void IsSquareAttackedByColor(string fen, int square, Color attackingColor, bool expected)
+        {
+            IBoard boardInfo = new BoardInfo(fen);
+            var isAttacked = boardInfo.IsSquareAttackedByColor((ushort)square, attackingColor);
+            Assert.AreEqual(expected, isAttacked);
         }
     }
 }

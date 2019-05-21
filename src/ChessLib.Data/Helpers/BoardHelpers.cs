@@ -281,6 +281,7 @@ namespace ChessLib.Data.Helpers
             }
             return null;
         }
+        public static PieceOfColor? GetPieceOfColorAtIndex(this IBoard board, ushort index) => GetPieceOfColorAtIndex(board.PiecePlacement, index);
 
         public static ulong FlipVertically(this ulong board)
         {

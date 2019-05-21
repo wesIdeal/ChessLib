@@ -12,7 +12,7 @@ namespace ChessLib.Data
     {
         const ushort MaxArraySize = 64;
         public readonly ulong[] AttackPatterns = new ulong[MaxArraySize];
-        public readonly IBlockerAndMoveBoards[][] OccupancyAndMoveBoards = new BlockerAndMoveBoards[64][];
+        public readonly BlockerAndMoveBoards[][] OccupancyAndMoveBoards = new BlockerAndMoveBoards[64][];
         public readonly ulong[] MagicKey = new ulong[64];
         public ulong[][] AttackArray = new ulong[64][];
 

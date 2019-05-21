@@ -1,6 +1,4 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
+﻿
 using ChessLib.Types;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
@@ -14,7 +12,7 @@ namespace ChessLib.Validators.MoveValidation
 {
     public class MoveValidator
     {
-        readonly BoardFENInfo _boardInfo;
+        readonly IBoard _boardInfo;
         readonly List<IMoveRule> _rules = new List<IMoveRule>();
         public readonly ulong[][] PostMoveBoard;
         private readonly MoveExt _move;
@@ -29,7 +27,7 @@ namespace ChessLib.Validators.MoveValidation
             };
             return new MoveValidator(boardInfo, move);
         }
-        public MoveValidator(in BoardFENInfo board, in MoveExt move)
+        public MoveValidator(in IBoard board, in MoveExt move)
         {
             PostMoveBoard = BoardHelpers.GetBoardPostMove(board.PiecePlacement, board.ActivePlayer, move);
             _boardInfo = board;

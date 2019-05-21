@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
-    <ProjectReference Include="..\MagicBitboard\ChessLib.MagicBitboard.csproj" />
+    <ProjectReference Include="..\MagicBitboard\ChessLib.Game.csproj" />
   </ItemGroup>
 
 </Project>

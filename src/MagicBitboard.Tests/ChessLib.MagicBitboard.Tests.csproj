@@ -67,9 +67,9 @@
       <Project>{ff2da474-065c-4c55-8dfe-8e2dc5706702}</Project>
       <Name>ChessLib.Types</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MagicBitboard\ChessLib.MagicBitboard.csproj">
+    <ProjectReference Include="..\MagicBitboard\ChessLib.Game.csproj">
       <Project>{a06c0b4b-b75c-499b-b0f8-0268dc437b48}</Project>
-      <Name>ChessLib.MagicBitboard</Name>
+      <Name>ChessLib.Game</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -2,8 +2,9 @@
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.MagicBitboard;
+using ChessLib.Game;
 using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using NUnit.Framework;
 using System;
 using System.Text;
@@ -235,61 +236,19 @@ namespace MagicBitboard.Tests
             Assert.AreEqual(expected, piecePlacementActual);
         }
 
-        [Test]
-        public static void GetPinnedPieces_ShouldReturnNotZero_WhenPieceIsPinnedTwice()
-        {
-            var bi = new BoardInfo("rnbqk1nr/pp1pb1pp/5p2/8/B7/2p5/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
-            var expectedPinnedPiece = 0x18000000000000; //the pawn on d7 is pinned
-            var actual = bi.GetPinnedPieces();
-            Console.WriteLine($"The following are pinned:\r\n{actual.GetDisplayBits()}");
-            Assert.AreEqual(expectedPinnedPiece, actual,
-                "Method did not determine that the pawn on d7 was pinned by the Bishop.");
-        }
 
-        [Test]
-        public static void GetPinnedPieces_ShouldReturnValueOfPinnedPiece_WhenPieceIsPinned()
+        [TestCase("rnbqkbnr/pp1ppppp/8/1Bp5/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2", 0x8000000000000ul)]
+        [TestCase("rnbqkbnr/pp1ppppp/8/2p5/B3P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2", 0x8000000000000ul)]
+        [TestCase("rnbqk1nr/pp1pbppp/2p5/8/B7/8/PPPPQPPP/RNB1K1NR b KQkq - 1 2", 0x10000000000000ul)]
+        [TestCase("rnbqk1nr/pp1pb1pp/2p1p3/8/B7/8/PPPPQPPP/RNB1K1NR b KQkq - 1 2", 0ul)]
+        [TestCase("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1", 0ul)]
+        [TestCase("rnbqk1nr/pp1pb1pp/5p2/8/B7/2p5/PPPPQPPP/RNB1K1NR b KQkq - 1 2", 0x18000000000000ul)]
+        public static void GetPinnedPieces_ShouldReturnValueOfPinnedPiece(string fen, ulong expected)
         {
-            var bi = new BoardInfo("rnbqkbnr/pp1ppppp/8/1Bp5/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2");
-            var expectedPinnedPiece = 0x8000000000000ul; //the pawn on d7 is pinned
-            var actual = bi.GetPinnedPieces();
-            Assert.AreEqual(expectedPinnedPiece, actual,
-                "Method did not determine that the pawn on d7 was pinned by the Bishop.");
-            bi = new BoardInfo("rnbqkbnr/pp1ppppp/8/2p5/B3P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2");
-            actual = bi.GetPinnedPieces();
-            Assert.AreEqual(expectedPinnedPiece, actual,
-                "Method did not determine that the pawn on d7 was pinned by the Bishop.");
-            bi = new BoardInfo("rnbqk1nr/pp1pbppp/2p5/8/B7/8/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
-            expectedPinnedPiece = 0x10000000000000ul;
-            actual = bi.GetPinnedPieces();
-            Assert.AreEqual(expectedPinnedPiece, actual,
-                "Method did not determine that the Bishop on e7 was pinned by the Queen on e2.");
-        }
-
-        [Test]
-        public static void GetPinnedPieces_ShouldReturnValueOfPinnedPieces_WhenPieceIsPinned2()
-        {
-            var bi = new BoardInfo("4k3/8/2p5/1B6/8/8/6K1/8 b - - 0 1");
-            var actual = bi.GetPinnedPieces();
-            Assert.AreEqual(0x40000000000, actual, "Did not calculate pawn on c6 as pinned by the Bishop on b5.");
-            Assert.IsTrue(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
-        }
-
-        [Test]
-        public static void GetPinnedPieces_ShouldReturnZero_WhenPieceIsNotPinned()
-        {
-            var bi = new BoardInfo("rnbqk1nr/pp1pb1pp/2p1p3/8/B7/8/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
-            var expectedPinnedPiece = 0x00; //the pawn on d7 is pinned
-            var actual = bi.GetPinnedPieces();
-            Assert.AreEqual(expectedPinnedPiece, actual,
-                "Method did not determine that the pawn on d7 was pinned by the Bishop.");
-        }
-
-        [Test]
-        public static void GetPinnedPieces_ShouldReturnZero_WhenPieceIsNotPinned2()
-        {
-            var bi = new BoardInfo("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1");
-            var actual = bi.GetPinnedPieces();
-            Assert.AreEqual(0x00, actual, "No piece is pinned, with two pawns in front of King.");
+            var bi = new BoardInfo(fen);
+            var actual = bi.GetAbsolutePins();
+            Assert.AreEqual(expected, actual,
+                "Method did not determine piece was pinned.");
         }
 
         [Test(Description = "Test side-to-move retrieval")]
@@ -301,41 +260,6 @@ namespace MagicBitboard.Tests
             Assert.AreEqual(expected, stm);
         }
 
-        [Test]
-        public static void IsPiecePinned_ShouldReturnFalse_WhenPieceIsNotPinned2()
-        {
-            var bi = new BoardInfo("4k3/3p4/2p5/1B6/8/8/6K1/8 b - - 0 1");
-            Assert.IsFalse(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
-        }
-
-        [Test]
-        public static void IsPiecePinned_ShouldReturnTrue_WhenBothPiecesArePinned()
-        {
-            var bi = new BoardInfo("rnbqk1nr/pp1pb1pp/5p2/8/B7/2p5/PPPPQPPP/RNB1K1NR b KQkq - 1 2");
-            var actual = bi.GetPinnedPieces();
-            Console.WriteLine($"The following are pinned:\r\n{actual.GetDisplayBits()}");
-            Assert.IsTrue(bi.IsPiecePinned(51),
-                "IsPiecePinned() did not determine that the pawn at index 51 is pinned by the Bishop.");
-            Assert.IsTrue(bi.IsPiecePinned(52),
-                "IsPiecePinned() did not determine that the Bishop at index 52 is pinned by the Queen.");
-        }
-
-        [Test]
-        public static void IsPiecePinned_ShouldReturnTrue_WhenPieceIsPinned()
-        {
-            var bi = new BoardInfo("4k3/8/2p5/1B6/8/8/6K1/8 b - - 0 1");
-            Assert.IsTrue(bi.IsPiecePinned(42), "IsPiecePinned() should have returned true for square index 42.");
-        }
-
-        [Test]
-        public static void IsPiecePinned_ShouldReturnTrue_WhenPieceIsPinnedByRook()
-        {
-            var bi = new BoardInfo("rnbqk1nr/p2pb1pp/2p2p2/8/B7/2p5/PPPPRPPP/RNBQK1N1 b Qkq - 1 2");
-            Assert.IsFalse(bi.IsPiecePinned(51),
-                "IsPiecePinned() should have returned false for square index 42."); //Not pinned
-            Assert.IsTrue(bi.IsPiecePinned(52),
-                "IsPiecePinned() should have returned true as the Bishop at index 52 is pinned by the Rook."); //Not pinned
-        }
 
         [Test]
         public static void SetEnPassantFlag_ShouldSetFlagToEnPassantCaptureSquare_WhenPawnsMove2SquaresForward()
@@ -349,53 +273,7 @@ namespace MagicBitboard.Tests
             }
         }
 
-        [Test]
-        public void Should_Return_False_When_d4_Is_Not_Attacked()
-        {
-            var d4 = "d4".SquareTextToIndex();
-            Assert.IsNotNull(d4);
-            var isAttacked = _biScandi.IsAttackedBy(Color.White, d4.Value);
-            Assert.IsFalse(isAttacked);
-        }
 
-        [Test]
-        public static void Should_Return_False_When_d4_Is_Not_Attacked_2()
-        {
-            var bi = new BoardInfo(FENQueenIsBlockedFromAttackingSquared4);
-            var d4 = "d4".SquareTextToIndex();
-            Assert.IsNotNull(d4);
-            var isAttacked = bi.IsAttackedBy(Color.Black, d4.Value);
-            Assert.IsFalse(isAttacked);
-        }
-
-        [Test]
-        public static void Should_Return_True_When_d4_Is_Attacked()
-        {
-            var bi = new BoardInfo(FENQueenAttacksd4);
-            var d4 = "d4".SquareTextToIndex();
-            Assert.IsNotNull(d4);
-            var isAttacked = bi.IsAttackedBy(Color.Black, d4.Value);
-            Assert.IsTrue(isAttacked);
-        }
-
-        [Test]
-        public void Should_Return_True_When_d5_Is_Attacked()
-        {
-            var d5 = "d5".SquareTextToIndex();
-            Assert.IsNotNull(d5);
-            var isAttacked = _biScandi.IsAttackedBy(Color.White, d5.Value);
-            Assert.IsTrue(isAttacked);
-        }
-
-        [Test]
-        public static void Should_Return_True_When_d5_Is_Attacked_2()
-        {
-            var bi = new BoardInfo(FENQueenIsBlockedFromAttackingSquared4);
-            var d5 = "d5".SquareTextToIndex();
-            Assert.IsNotNull(d5);
-            var isAttacked = bi.IsAttackedBy(Color.Black, d5.Value);
-            Assert.IsTrue(isAttacked);
-        }
 
         [Test]
         public static void Should_Set_Board_After_1e4()

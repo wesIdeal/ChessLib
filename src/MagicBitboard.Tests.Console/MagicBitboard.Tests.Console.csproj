@@ -9,7 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Graphics\ChessLib.Graphics.csproj" />
     <ProjectReference Include="..\ChessLib.Parse\ChessLib.Parse.csproj" />
-    <ProjectReference Include="..\MagicBitboard\ChessLib.MagicBitboard.csproj" />
+    <ProjectReference Include="..\MagicBitboard\ChessLib.Game.csproj" />
   </ItemGroup>
 
   <ItemGroup>

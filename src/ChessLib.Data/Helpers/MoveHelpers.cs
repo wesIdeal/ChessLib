@@ -32,11 +32,6 @@ namespace ChessLib.Data.Helpers
             return new MoveExt((ushort)(mt | pp | origin | dest));
         }
 
-
-
-        public static PromotionPiece GetPiecePromoted(this ushort move) => (PromotionPiece)((move >> 12) & 3);
-
-
         public static MoveDetail GetAvailableMoveDetails(string move, Color color)
         {
             MoveDetail md = new MoveDetail() { MoveText = move, Color = color };

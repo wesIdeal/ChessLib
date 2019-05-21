@@ -38,94 +38,14 @@ namespace ChessLib.Data.Boards
 
         #endregion
 
-        #region Occupancy / Index Properties for shorthand access to occupancy board arrays
+       
 
-        /// <summary>
-        ///     Occupancy of side-to-move's pawns
-        /// </summary>
-        public ulong ActivePawnOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Pawn);
-
-        /// <summary>
-        ///     Occupancy of side-to-move's Knights
-        /// </summary>
-        public ulong ActiveKnightOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Knight);
-
-        /// <summary>
-        ///     Occupancy of side-to-move's Bishops
-        /// </summary>
-        public ulong ActiveBishopOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Bishop);
-
-        /// <summary>
-        ///     Occupancy of side-to-move's Rooks
-        /// </summary>
-        public ulong ActiveRookOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Rook);
-
-        /// <summary>
-        ///     Occupancy of side-to-move's Queen(s)
-        /// </summary>
-        public ulong ActiveQueenOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Queen);
-
-        #endregion
-
-
-        public ulong Occupancy(Color? c = null)
-        {
-            if (c.HasValue)
-            {
-                var occ = PiecePlacement[(int)c];
-                return occ.Aggregate<ulong, ulong>(0, (current, t) => current | t);
-            }
-
-            return PiecePlacement
-                .Select(color => color.Aggregate((current, x) => current |= x))
-                .Aggregate((current, x) => current |= x);
-        }
+        
 
 
 
 
-
-        public ulong PawnOccupancy(Color? c = null)
-        {
-            if (c.HasValue) return PiecePlacement[(int)c][PAWN];
-            return PiecePlacement[BLACK][PAWN] | PiecePlacement[WHITE][PAWN];
-        }
-
-        public ulong KnightOccupancy(Color? c = null)
-        {
-            if (c.HasValue) return PiecePlacement[(int)c][KNIGHT];
-            return PiecePlacement[WHITE][KNIGHT] | PiecePlacement[BLACK][KNIGHT];
-        }
-
-        public ulong BishopOccupancy(Color? c = null)
-        {
-            if (c.HasValue) return PiecePlacement[(int)c][BISHOP];
-            return PiecePlacement[WHITE][BISHOP] | PiecePlacement[BLACK][BISHOP];
-        }
-
-        public ulong RookOccupancy(Color? c = null)
-        {
-            if (c.HasValue) return PiecePlacement[(int)c][ROOK];
-            return PiecePlacement[WHITE][ROOK] | PiecePlacement[BLACK][ROOK];
-        }
-
-        public ulong QueenOccupancy(Color? c = null)
-        {
-            if (c.HasValue) return PiecePlacement[(int)c][QUEEN];
-            return PiecePlacement[WHITE][QUEEN] | PiecePlacement[BLACK][QUEEN];
-        }
-
-        public ulong KingOccupancy(Color? c = null)
-        {
-            if (c.HasValue) return PiecePlacement[(int)c][KING];
-            return PiecePlacement[WHITE][KING] | PiecePlacement[BLACK][KING];
-        }
-
-        public ushort KingIndex(Color c)
-        {
-            return PiecePlacement[(int)c][KING].GetSetBits()[0];
-        }
-
+       
 
         private void ValidateFields()
         {
@@ -219,13 +139,7 @@ namespace ChessLib.Data.Boards
         }
 
 
-        /// <summary>
-        ///     Instance method to find if <paramref name="squareIndex" /> is attacked by a piece of <paramref name="color" />
-        /// </summary>
-        /// <param name="color">Color of possible attacker</param>
-        /// <param name="squareIndex">Square which is possibly under attack</param>
-        /// <returns>true if <paramref name="squareIndex" /> is attacked by <paramref name="color" />. False if not.</returns>
-        public abstract bool IsAttackedBy(Color color, ushort squareIndex);
+
 
         public abstract bool DoesPieceAtSquareAttackSquare(ushort attackerSquare, ushort attackedSquare,
             Piece attackerPiece);

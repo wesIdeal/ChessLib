@@ -1,5 +1,5 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.MagicBitboard;
+using ChessLib.Game;
 using ChessLib.Types;
 using ChessLib.Types.Enums;
 using NUnit.Framework;

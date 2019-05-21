@@ -211,5 +211,52 @@ namespace ChessLib.Data
             if ((PieceAttackPatternHelper.KingMoveMask[r, f] & piecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
             return false;
         }
+
+        /// <summary>
+        /// Determines if piece on <paramref name="squareIndex"/> is attacked by <paramref name="attackingColor"/>
+        /// </summary>
+        /// <param name="board">A board representation</param>
+        /// <param name="squareIndex">Index of square to test for being under attack</param>
+        /// <param name="attackingColor">color of attacker</param>
+        /// <returns></returns>
+        public static bool IsSquareAttackedByColor(this IBoard board, ushort squareIndex, Color attackingColor) => IsSquareAttackedByColor(squareIndex, attackingColor, board.PiecePlacement);
+
+
+        public static ulong XRayRookAttacks(this IBoard board, ushort squareIndex)
+        {
+            var rookMovesFromSquare = PieceAttackPatternHelper.RookMoveMask[squareIndex];
+            //blockers &= rookMovesFromSquare;
+            return rookMovesFromSquare ^ Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, board.PiecePlacement.Occupancy());
+        }
+
+        public static ulong XRayBishopAttacks(this IBoard board, ushort squareIndex)
+        {
+            var bishopMovesFromSquare = PieceAttackPatternHelper.BishopMoveMask[squareIndex];
+            //blockers &= bishopMovesFromSquare;
+            return bishopMovesFromSquare ^ Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, board.PiecePlacement.Occupancy());
+        }
+
+        public static ulong GetAbsolutePins(this IBoard board)
+        {
+            ulong pinned = 0;
+            var kingIndex = board.ActiveKingIndex();
+            var xRayBishopAttacks = board.XRayBishopAttacks(kingIndex);
+            var xRayRookAttacks = board.XRayRookAttacks(kingIndex);
+            var bishopPinnedPieces = (board.PiecePlacement.Occupancy(board.OpponentColor(), Piece.Bishop) | board.PiecePlacement.Occupancy(board.OpponentColor(), Piece.Queen)) & xRayBishopAttacks;
+            var rookPinnedPieces = (board.PiecePlacement.Occupancy(board.OpponentColor(), Piece.Rook) | board.PiecePlacement.Occupancy(board.OpponentColor(), Piece.Queen)) &
+                                   xRayRookAttacks;
+            var allPins = rookPinnedPieces | bishopPinnedPieces;
+            while (allPins != 0)
+            {
+                var square = BitHelpers.BitScanForward(allPins);
+                var squaresBetween = BoardHelpers.InBetween(square, kingIndex);
+                var piecesBetween = squaresBetween & board.PiecePlacement.Occupancy(board.ActivePlayer);
+                if (piecesBetween.CountSetBits() == 1) pinned |= piecesBetween;
+                allPins &= allPins - 1;
+            }
+            return pinned;
+        }
+
+        
     }
 }

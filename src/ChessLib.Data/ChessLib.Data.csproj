@@ -6,12 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Enums.NET" Version="2.3.2" />
+    <Compile Remove="Exceptions\**" />
+    <Compile Remove="Types\**" />
+    <EmbeddedResource Remove="Exceptions\**" />
+    <EmbeddedResource Remove="Types\**" />
+    <None Remove="Exceptions\**" />
+    <None Remove="Types\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Exceptions\" />
-    <Folder Include="Types\" />
+    <PackageReference Include="Enums.NET" Version="2.3.2" />
   </ItemGroup>
 
   <ItemGroup>

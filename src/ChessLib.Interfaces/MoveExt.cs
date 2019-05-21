@@ -30,7 +30,7 @@ namespace ChessLib.Types
             }
         }
 
-        public PromotionPiece PromotionPiece => throw new System.NotImplementedException();
+        public PromotionPiece PromotionPiece => (PromotionPiece)((_move >> 12) & 3);
 
         public bool Equals(ushort other)
         {

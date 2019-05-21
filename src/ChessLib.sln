@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2019
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.MagicBitboard", "MagicBitboard\ChessLib.MagicBitboard.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Game", "MagicBitboard\ChessLib.Game.csproj", "{A06C0B4B-B75C-499B-B0F8-0268DC437B48}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.MagicBitboard.Tests", "MagicBitboard.Tests\ChessLib.MagicBitboard.Tests.csproj", "{CCB621F2-D010-479A-BAF3-9A2FD4A14BE6}"
 EndProject
@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Validators", "Ches
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Validators.Tests", "ChessLib.Validators.Tests\ChessLib.Validators.Tests.csproj", "{7414E521-D198-4191-AF27-9F47A6E69B5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Types", "ChessLib.Interfaces\ChessLib.Types.csproj", "{FF2DA474-065C-4C55-8DFE-8E2DC5706702}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Types", "ChessLib.Interfaces\ChessLib.Types.csproj", "{FF2DA474-065C-4C55-8DFE-8E2DC5706702}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
