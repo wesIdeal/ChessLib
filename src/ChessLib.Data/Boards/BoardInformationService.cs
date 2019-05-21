@@ -24,10 +24,10 @@ namespace ChessLib.Data.Boards
         /// <param name="fen">string of FEN notation.</param>
         /// <param name="chess960">[unused right now] Is this a chess960 position (possible non-standard starting position)</param>
         /// <returns>A BoardInfo object representing the board state after parsing the FEN</returns>
-        public BoardInformationService(string fen, bool chess960 = false) :base(fen, chess960)
-        {
-            ValidateFields();
-        }
+        //public BoardInformationService(string fen, bool chess960 = false) : base(fen, chess960)
+        //{
+        //    ValidateFields();
+        //}
         public abstract void ApplyMove(string moveText);
         public abstract ulong GetAttackedSquares(Piece p, ushort index, ulong occupancy);
 
@@ -37,10 +37,7 @@ namespace ChessLib.Data.Boards
 
 
 
-        #region Player Color Properties and conversions
-        protected int NActiveColor => (int)ActivePlayer;
-        protected int NOpponentColor => (int)OpponentColor;
-        #endregion
+
 
         #endregion
 
@@ -49,39 +46,27 @@ namespace ChessLib.Data.Boards
         /// <summary>
         ///     Occupancy of side-to-move's pawns
         /// </summary>
-        public ulong ActivePawnOccupancy => PiecePlacement[NActiveColor][PAWN];
+        public ulong ActivePawnOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Pawn);
 
         /// <summary>
         ///     Occupancy of side-to-move's Knights
         /// </summary>
-        public ulong ActiveKnightOccupancy => PiecePlacement[NActiveColor][KNIGHT];
+        public ulong ActiveKnightOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Knight);
 
         /// <summary>
         ///     Occupancy of side-to-move's Bishops
         /// </summary>
-        public ulong ActiveBishopOccupancy => PiecePlacement[NActiveColor][BISHOP];
+        public ulong ActiveBishopOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Bishop);
 
         /// <summary>
         ///     Occupancy of side-to-move's Rooks
         /// </summary>
-        public ulong ActiveRookOccupancy => PiecePlacement[NActiveColor][ROOK];
+        public ulong ActiveRookOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Rook);
 
         /// <summary>
         ///     Occupancy of side-to-move's Queen(s)
         /// </summary>
-        public ulong ActiveQueenOccupancy => PiecePlacement[NActiveColor][QUEEN];
-
-
-        /// <summary>
-        ///     Value (occupancy board) of side-to-move's King
-        /// </summary>
-        public ulong ActivePlayerKingOccupancy => PiecePlacement[NActiveColor][KING];
-
-        /// <summary>
-        ///     Opponent's King's square index
-        /// </summary>
-        public ushort OpposingPlayerKingIndex => KingIndex(OpponentColor);
-
+        public ulong ActiveQueenOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Queen);
 
         #endregion
 
@@ -223,23 +208,18 @@ namespace ChessLib.Data.Boards
 
         private string ValidateCastlingRights()
         {
-            return ValidateCastlingRights(PiecePlacement, CastlingAvailability, Chess960);
+            return ValidateCastlingRights(PiecePlacement, CastlingAvailability);
         }
 
         public string ValidateChecks()
         {
-            var c = GetChecks(ActivePlayer);
-            if (c.HasFlag(Check.Double))
+            if (this.IsOpponentInCheck())
             {
-                return "Both Kings are in check.";
+                return "Illegal position- opponent is in check.";
             }
 
-            if (c.HasFlag(Check.Opposite)) return "Active side is in check.";
             return "";
         }
-
-        protected abstract Check GetChecks(Color activePlayerColor);
-
 
 
         /// <summary>
@@ -269,9 +249,9 @@ namespace ChessLib.Data.Boards
 
         #endregion
 
-        
 
-       
+
+
 
     }
 }

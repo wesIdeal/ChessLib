@@ -103,6 +103,28 @@ namespace ChessLib.Data.Helpers
             return ArrInBetween[square1, square2];
         }
 
+        private static ulong OrArray(in ulong[] arr)
+        {
+            var accumulator = 0ul;
+            foreach (var val in arr) accumulator |= val;
+            return accumulator;
+        }
+
+        public static ulong TotalOccupancy(this IBoard board)
+        {
+            return board.PiecePlacement.Occupancy();
+        }
+
+        public static ulong ActiveOccupancy(this IBoard board)
+        {
+            return board.PiecePlacement.Occupancy(board.ActivePlayer);
+        }
+
+        public static ulong OpponentOccupancy(this IBoard board)
+        {
+            return board.PiecePlacement.Occupancy(board.OpponentColor());
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong Occupancy(this ulong[][] board, Color? c = null, Piece? p = null)
         {
@@ -122,9 +144,9 @@ namespace ChessLib.Data.Helpers
 
         //private static void InitializeIndividualSquares()
         //{
-        //    for (int i = 0; i < 64; i++)
+        //    for (int squareIndex = 0; squareIndex < 64; squareIndex++)
         //    {
-        //        IndividualSquares[i / 8, i % 8] = (ulong)1 << i;
+        //        IndividualSquares[squareIndex / 8, squareIndex % 8] = (ulong)1 << squareIndex;
         //    }
         //}
 
@@ -467,6 +489,8 @@ namespace ChessLib.Data.Helpers
 
             return (rookBoard & ~(rookSource)) | rookDest;
         }
+
+        public static int ActivePlayerAsInt(this IBoard board) => (int)board.ActivePlayer;
         public static int OpponentColorAsInt(this IBoard board) => (int)board.ActivePlayer.Toggle();
         public static Color OpponentColor(this IBoard board) => board.ActivePlayer.Toggle();
         public static ushort ActiveKingIndex(this IBoard board)
@@ -476,16 +500,17 @@ namespace ChessLib.Data.Helpers
         public static ushort OpponentKingIndex(this IBoard board) => board.PiecePlacement[board.OpponentColorAsInt()][KING].GetSetBits()[0];
 
 
-        public static bool IsActivePlayerInCheck(this IBoard board)
-        {
-            var activePlayer = (int)board.ActivePlayer;
-            var opponent = (Color)(1 - activePlayer);
-            return Bitboard.IsSquareAttackedByColor(board.ActiveKingIndex(), opponent, board.PiecePlacement);
-        }
+        public static bool IsActivePlayerInCheck(this IBoard board) =>
+            IsColorInCheck(board.PiecePlacement, board.ActivePlayer, board.ActiveKingIndex());
 
-        public static bool IsOpponentInCheck(this IBoard board)
+        public static bool IsOpponentInCheck(this IBoard board) =>
+            IsColorInCheck(board.PiecePlacement, board.OpponentColor(), board.OpponentKingIndex());
+
+        private static bool IsColorInCheck(ulong[][] board, Color checkedColor, ushort? checkedColorKingIdx)
         {
-            return Bitboard.IsSquareAttackedByColor(board.OpponentKingIndex(), board.OpponentColor(), board.PiecePlacement);
+            checkedColorKingIdx = checkedColorKingIdx ?? board[checkedColor.ToInt()][KING].GetSetBits()[0];
+            Debug.Assert(checkedColorKingIdx.HasValue);
+            return Bitboard.IsSquareAttackedByColor(checkedColorKingIdx.Value, checkedColor.Toggle(), board);
         }
 
         public static bool IsStalemate(this IBoard board)
@@ -510,21 +535,14 @@ namespace ChessLib.Data.Helpers
 
                 }
             }
-
             return !canAnyPieceMove;
         }
 
-
-        public static bool IsCheckmateForSideToMove(this IBoard board)
+        public static bool IsCheckmate(this IBoard board)
         {
             return board.IsActivePlayerInCheck() && !CanEvadeThroughBlockOrCapture(board, board.ActivePlayer);
         }
 
-        public static bool IsCheckmateForOpponent(this IBoard board)
-        {
-            return board.IsOpponentInCheck() && !CanEvadeThroughBlockOrCapture(board, board.ActivePlayer.Toggle());
-        }
-        
         public static bool CanEvadeThroughBlockOrCapture(in IBoard board, Color? c = null)
         {
             if (c.HasValue)
@@ -535,41 +553,39 @@ namespace ChessLib.Data.Helpers
         public static MoveExt[] GetEvasions(this IBoard board)
         {
             var rv = new List<MoveExt>();
-            var nColor = (int)board.ActivePlayer;
-
-            var nOppColor = (int)board.ActivePlayer.Toggle();
-            var kingIndex = board.PiecePlacement[nColor][KING].GetSetBits()[0];
-            var totalOcc = board.PiecePlacement.Occupancy();
+            var nColor = board.ActivePlayerAsInt();
+            var nOppColor = board.OpponentColorAsInt();
+            var kingIndex = board.ActiveKingIndex();
             var activeOccupancy = board.PiecePlacement.Occupancy(board.ActivePlayer);
-            var oppOccupancy = board.PiecePlacement.Occupancy((Color)nOppColor);
-            var piecesAttacking = PiecesAttackingSquare(kingIndex, board.PiecePlacement) & board.PiecePlacement.Occupancy(board.ActivePlayer.Toggle());
+            var oppOccupancy = board.PiecePlacement.Occupancy(board.OpponentColor());
+            var piecesAttacking = board.PiecesAttackingSquare(kingIndex) & board.PiecePlacement.Occupancy(board.ActivePlayer.Toggle());
             var attackerIndexes = piecesAttacking.GetSetBits();
-            var pseudoLegalKingMoves = Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, activeOccupancy, oppOccupancy, board.ActivePlayer, board.EnPassantSquare, CastlingAvailability.NoCastlingAvailable, out List<MoveExt> plMoves);
 
-            //double check - king must move
 
+            //find if attacker can be blocked. If double check (more than one attacker), the king must move
             if (attackerIndexes.Length == 1)
             {
-                foreach (var attackerIdx in attackerIndexes)
+                var attackerIdx = attackerIndexes[0];
+                var activeOccupancyNotKing = activeOccupancy & ~(kingIndex.GetBoardValueOfIndex());
+                foreach (var occupiedSquare in activeOccupancyNotKing.GetSetBits())
                 {
-                    var activeOccupancyNotKing = activeOccupancy & ~(kingIndex.GetBoardValueOfIndex());
-                    foreach (var occupiedSquare in activeOccupancyNotKing.GetSetBits())
+                    var piece = GetTypeOfPieceAtIndex(occupiedSquare, board.PiecePlacement);
+                    var attackedSquares =
+                        Bitboard.GetPseudoLegalMoves(piece.Value, occupiedSquare, activeOccupancy, oppOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
+                    var squaresBetween = InBetween(kingIndex, attackerIdx);
+                    ulong destination;
+                    if ((destination = (attackedSquares & squaresBetween)) != 0)
                     {
-                        ulong destination;
-                        var piece = GetPieceOfColorAtIndex(board.PiecePlacement, occupiedSquare);
-                        var attackedSquares =
-                            Bitboard.GetPseudoLegalMoves(piece.Value.Piece, occupiedSquare, activeOccupancy, oppOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
-                        var squaresBetween = InBetween(kingIndex, attackerIdx);
-                        if ((destination = (attackedSquares & squaresBetween)) != 0)
-                        {
-                            var destIdx = destination.GetSetBits();
-                            Debug.Assert(destIdx.Length == 1);
-                            var move = MoveHelpers.GenerateMove(occupiedSquare, destIdx[0]);
-                            rv.Add(move);
-                        }
+                        var destIdx = destination.GetSetBits();
+                        Debug.Assert(destIdx.Length == 1);
+                        var move = MoveHelpers.GenerateMove(occupiedSquare, destIdx[0]);
+                        rv.Add(move);
                     }
                 }
+
             }
+            Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, activeOccupancy, oppOccupancy, board.ActivePlayer,
+                board.EnPassantSquare, CastlingAvailability.NoCastlingAvailable, out List<MoveExt> plMoves);
             foreach (var mv in plMoves)
             {
                 var boardPostMove = GetBoardPostMove(board.PiecePlacement, board.ActivePlayer, mv);
@@ -582,9 +598,15 @@ namespace ChessLib.Data.Helpers
             return rv.ToArray();
         }
 
-        public static ulong PiecesAttackingSquare(in ushort i, in ulong[][] piecesOnBoard)
+        /// <summary>
+        /// Gets piece value of pieces that attack the square index.
+        /// </summary>
+        /// <param name="board">The IBoard from which to derive board information.</param>
+        /// <param name="squareIndex">index of square being attacked.</param>
+        /// <returns></returns>
+        public static ulong PiecesAttackingSquare(this IBoard board, in ushort squareIndex)
         {
-
+            var piecesOnBoard = board.PiecePlacement;
             var total = piecesOnBoard
                 .Select(color => color.Aggregate((current, x) => current |= x))
                 .Aggregate((current, x) => current |= x);
@@ -595,16 +617,15 @@ namespace ChessLib.Data.Helpers
             var rook = piecesOnBoard[BLACK][ROOK] | piecesOnBoard[WHITE][ROOK];
             var queen = piecesOnBoard[BLACK][QUEEN] | piecesOnBoard[WHITE][QUEEN];
             var king = piecesOnBoard[BLACK][KING] | piecesOnBoard[WHITE][KING];
-            return (Bitboard.GetAttackedSquares(Piece.Pawn, i, total, Color.Black) & pawnWhite)
-                   | (Bitboard.GetAttackedSquares(Piece.Pawn, i, total, Color.White) & pawnBlack)
-                   | (Bitboard.GetAttackedSquares(Piece.Knight, i, total) & knight)
-                   | (Bitboard.GetAttackedSquares(Piece.Bishop, i, total) & bishop)
-                   | (Bitboard.GetAttackedSquares(Piece.Rook, i, total) & rook)
-                   | (Bitboard.GetAttackedSquares(Piece.Queen, i, total) & (queen))
-                   | (Bitboard.GetAttackedSquares(Piece.King, i, total) & king);
+            return (Bitboard.GetAttackedSquares(Piece.Pawn, squareIndex, total, Color.Black) & pawnWhite)
+                   | (Bitboard.GetAttackedSquares(Piece.Pawn, squareIndex, total, Color.White) & pawnBlack)
+                   | (Bitboard.GetAttackedSquares(Piece.Knight, squareIndex, total) & knight)
+                   | (Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, total) & bishop)
+                   | (Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, total) & rook)
+                   | (Bitboard.GetAttackedSquares(Piece.Queen, squareIndex, total) & (queen))
+                   | (Bitboard.GetAttackedSquares(Piece.King, squareIndex, total) & king);
 
         }
-
 
         public static string GetPiecePlacement(this ulong[][] piecesOnBoard)
         {
@@ -650,5 +671,45 @@ namespace ChessLib.Data.Helpers
             }
             return sb.ToString();
         }
+
+        #region FEN String Retrieval
+
+        public static string GetPiecePlacement(this IBoard board)
+        {
+            return board.PiecePlacement.GetPiecePlacement();
+        }
+
+        public static string GetSideToMoveStrRepresentation(this IBoard board)
+        {
+            return board.ActivePlayer == Color.Black ? "b" : "w";
+        }
+
+        public static string GetCastlingAvailabilityString(this IBoard board)
+        {
+            return FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(board.CastlingAvailability);
+        }
+
+        public static string GetEnPassantString(this IBoard board)
+        {
+            return board.EnPassantSquare == null ? "-" : board.EnPassantSquare.Value.IndexToSquareDisplay();
+        }
+
+        public static string GetHalfMoveClockString(this IBoard board)
+        {
+            return board.HalfmoveClock.ToString();
+        }
+
+        public static string GetMoveCounterString(this IBoard board)
+        {
+            return board.FullmoveCounter.ToString();
+        }
+
+        public static string ToFEN(this IBoard b)
+        {
+            return
+                $"{b.GetPiecePlacement()} {b.GetSideToMoveStrRepresentation()} {b.GetCastlingAvailabilityString()} {b.GetEnPassantString()} {b.GetHalfMoveClockString()} {b.GetMoveCounterString()}";
+        }
+
+        #endregion
     }
 }

@@ -11,7 +11,7 @@ namespace ChessLib.Data
         uint FullmoveCounter { get; set; }
         uint? HalfmoveClock { get; set; }
         ulong[][] PiecePlacement { get; set; }
-
-        string ToFEN();
+        bool Chess960 { get; }
+        string InitialFEN { get; }
     }
 }

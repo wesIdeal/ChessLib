@@ -7,7 +7,7 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
 {
     public class CastlingHasNoPiecesBlocking : IMoveRule
     {
-        public MoveExceptionType? Validate(in BoardFENInfo boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
+        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
         {
             ulong piecesBetween;
             switch (move.DestinationIndex)
@@ -28,7 +28,7 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
                     throw new MoveException("Bad destination square for castling move.", MoveExceptionType.Castle_BadDestinationSquare, move, boardInfo.ActivePlayer);
 
             }
-            if ((boardInfo.TotalOccupancy & piecesBetween) != 0)
+            if ((boardInfo.PiecePlacement.Occupancy() & piecesBetween) != 0)
             {
                 return MoveExceptionType.Castle_OccupancyBetween;
             }

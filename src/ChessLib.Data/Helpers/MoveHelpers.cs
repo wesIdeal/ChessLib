@@ -126,10 +126,10 @@ namespace ChessLib.Data.Helpers
             board.PiecePlacement = postMoveBoard;
             board.ActivePlayer = sideMoving.Toggle();
 
-            if (postMoveBoard.IsPlayerInCheck(sideMoving.ToInt()))
+            if (board.IsActivePlayerInCheck())
             {
                 checkInfo = "+";
-                if (board.IsCheckmateForSideToMove())
+                if (board.IsCheckmate())
                 {
                     checkInfo = $"#";
                     if (recordResult)

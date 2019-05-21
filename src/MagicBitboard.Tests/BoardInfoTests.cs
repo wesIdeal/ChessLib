@@ -584,7 +584,7 @@ namespace MagicBitboard.Tests
             var bi = new BoardInfo("r4rk1/p4p1p/1p4n1/2b1pbNP/1nB1Nq2/8/PPP2PQ1/1K1R3R b - - 0 21");
             var md = new MoveDetail(null, 54, Piece.King, Color.Black, "Kg7");
             var expected = 62;
-            Assert.AreEqual(expected, bi.FindKingMoveSourceIndex(md, bi.ActivePlayerKingOccupancy, bi.TotalOccupancy));
+            Assert.AreEqual(expected, bi.FindKingMoveSourceIndex(md, bi.ActivePlayerKingIndex.IndexToValue(), bi.TotalOccupancy));
         }
 
         [Test]
@@ -592,7 +592,7 @@ namespace MagicBitboard.Tests
         {
             var bi = new BoardInfo("4k3/8/8/8/8/8/8/4K3 w - - 0 1");
             var md = new MoveDetail(null, null, 0, 3, Piece.King, Color.White, "Kd1");
-            Assert.AreEqual(4, bi.FindKingMoveSourceIndex(md, bi.ActivePlayerKingOccupancy, bi.TotalOccupancy));
+            Assert.AreEqual(4, bi.FindKingMoveSourceIndex(md, bi.ActiveKingIndex().IndexToValue(), bi.TotalOccupancy));
         }
 
         [Test]
@@ -635,7 +635,7 @@ namespace MagicBitboard.Tests
             var bi = new BoardInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1");
             var md = new MoveDetail(null, null, 0, 2, Piece.King, Color.White, "Kc1");
             Assert.Throws(typeof(MoveException),
-                () => { bi.FindKingMoveSourceIndex(md, bi.ActivePlayerKingOccupancy, bi.TotalOccupancy); });
+                () => { bi.FindKingMoveSourceIndex(md, bi.ActivePlayerKingIndex, bi.TotalOccupancy); });
         }
 
         [Test]
@@ -795,7 +795,7 @@ namespace MagicBitboard.Tests
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
             var result = board.ApplyMove(move);
             Assert.AreEqual(true, board.IsStalemate());
-            
+
         }
 
         [TestCase("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62", true)]

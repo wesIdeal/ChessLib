@@ -9,7 +9,7 @@ namespace ChessLib.Validators.MoveValidation.MoveRules
 {
     public class PieceCanMoveToDestination : IMoveRule
     {
-        public MoveExceptionType? Validate(in BoardFENInfo boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
+        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
         {
 
             var piece = BoardHelpers.GetTypeOfPieceAtIndex(move.SourceIndex, boardInfo.PiecePlacement);
