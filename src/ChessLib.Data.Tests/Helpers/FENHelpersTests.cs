@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ChessLib.Data.Exceptions;
+﻿using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.Types;
+using ChessLib.Types.Enums;
 using EnumsNET;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ChessLib.Data.Tests.Helpers
 {

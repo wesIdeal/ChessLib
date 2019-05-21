@@ -1,5 +1,6 @@
-﻿using System;
-using ChessLib.Data.Types;
+﻿using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
+using System;
 
 namespace ChessLib.Data.MoveRepresentation
 {
@@ -12,7 +13,7 @@ namespace ChessLib.Data.MoveRepresentation
             ColorMoving = colorMoving;
         }
 
-        public MoveStorage(MoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move, pieceMoving, colorMoving) { }
+        public MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move, pieceMoving, colorMoving) { }
 
         public virtual Color ColorMoving { get; private set; }
         public virtual ushort Move { get; }

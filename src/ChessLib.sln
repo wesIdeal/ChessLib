@@ -21,9 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Graphics", "ChessL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Parse.Console", "ChessLib.Parse.Console\ChessLib.Parse.Console.csproj", "{071B4118-D68E-4035-8F77-5601842EF6FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Validators", "ChessLib.Validator\ChessLib.Validators.csproj", "{50F19285-89C3-48A9-AF26-CCC4492C1882}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Validators", "ChessLib.Validator\ChessLib.Validators.csproj", "{50F19285-89C3-48A9-AF26-CCC4492C1882}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Validators.Tests", "ChessLib.Validators.Tests\ChessLib.Validators.Tests.csproj", "{7414E521-D198-4191-AF27-9F47A6E69B5C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Validators.Tests", "ChessLib.Validators.Tests\ChessLib.Validators.Tests.csproj", "{7414E521-D198-4191-AF27-9F47A6E69B5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.Types", "ChessLib.Interfaces\ChessLib.Types.csproj", "{FF2DA474-065C-4C55-8DFE-8E2DC5706702}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,10 @@ Global
 		{7414E521-D198-4191-AF27-9F47A6E69B5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7414E521-D198-4191-AF27-9F47A6E69B5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7414E521-D198-4191-AF27-9F47A6E69B5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF2DA474-065C-4C55-8DFE-8E2DC5706702}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF2DA474-065C-4C55-8DFE-8E2DC5706702}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF2DA474-065C-4C55-8DFE-8E2DC5706702}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF2DA474-065C-4C55-8DFE-8E2DC5706702}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

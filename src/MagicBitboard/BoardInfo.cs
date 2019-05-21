@@ -3,19 +3,22 @@ using ChessLib.Data.Boards;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
+using ChessLib.Types;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using ChessLib.Validators.MoveValidation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace ChessLib.MagicBitboard
 {
     public class BoardInfo : BoardInformationService<MoveHashStorage>, ICloneable
     {
         //public readonly MoveTree<MoveHashStorage> MoveTree = new MoveTree<MoveHashStorage>(null);
-        public override MoveTree<MoveHashStorage> MoveTree { get; set; }
+
+        public override IMoveTree<MoveHashStorage> MoveTree { get; set; }
+
         public BoardInfo() : this(FENHelpers.FENInitial, false) { }
 
         public BoardInfo(string fen, bool is960 = false)
@@ -50,7 +53,7 @@ namespace ChessLib.MagicBitboard
                 throw new MoveException("Error with move.", validationError.Value, move, ActivePlayer);
 
             var san = move.MoveToSAN(this, MoveTree.ParentMove == null);
-            MoveTree.AddLast(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, pocSource.Value.Piece, ActivePlayer, this.ToFEN(), san)));
+            MoveTree.Add(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, pocSource.Value.Piece, ActivePlayer, this.ToFEN(), san)));
             ApplyValidatedMove(move);
             return null;
         }

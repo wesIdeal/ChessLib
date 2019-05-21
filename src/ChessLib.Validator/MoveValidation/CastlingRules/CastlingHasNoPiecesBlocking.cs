@@ -2,12 +2,13 @@
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Validators.MoveValidation.CastlingRules
 {
     public class CastlingHasNoPiecesBlocking : IMoveRule
     {
-        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
+        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             ulong piecesBetween;
             switch (move.DestinationIndex)

@@ -1,6 +1,6 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.PieceMobility;
-using ChessLib.Data.Types;
+﻿using ChessLib.Data.PieceMobility;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace ChessLib.Data
     {
         const ushort MaxArraySize = 64;
         public readonly ulong[] AttackPatterns = new ulong[MaxArraySize];
-        public readonly BlockerAndMoveBoards[][] OccupancyAndMoveBoards = new BlockerAndMoveBoards[64][];
+        public readonly IBlockerAndMoveBoards[][] OccupancyAndMoveBoards = new BlockerAndMoveBoards[64][];
         public readonly ulong[] MagicKey = new ulong[64];
         public ulong[][] AttackArray = new ulong[64][];
 

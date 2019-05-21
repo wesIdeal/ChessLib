@@ -1,9 +1,6 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Types;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Data
 {

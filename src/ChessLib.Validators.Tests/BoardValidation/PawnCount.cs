@@ -1,14 +1,8 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChessLib.Data;
+﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.Types;
+using ChessLib.Types.Enums;
 using ChessLib.Validators.BoardValidators;
+using NUnit.Framework;
 
 namespace ChessLib.Validators.Tests.BoardValidation
 {

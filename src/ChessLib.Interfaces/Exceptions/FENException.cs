@@ -1,4 +1,4 @@
-﻿using ChessLib.Data.Types;
+﻿using ChessLib.Types.Enums;
 using EnumsNET;
 using System;
 using System.Linq;
@@ -7,7 +7,6 @@ using System.Text;
 
 namespace ChessLib.Data.Exceptions
 {
-
     [Serializable]
     public class FENException : Exception
     {

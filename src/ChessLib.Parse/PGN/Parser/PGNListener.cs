@@ -6,6 +6,7 @@ using ChessLib.Parse.PGN.Parser.BaseClasses;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Parse.PGN.Parser
 {
@@ -35,7 +36,7 @@ namespace ChessLib.Parse.PGN.Parser
         public List<Game<IMoveText>> Games;
 
         private Game<IMoveText> CurrentGame { get; set; }
-        private LinkedListNode<MoveNode<IMoveText>> _currentMove;
+        private LinkedListNode<IMoveNode<IMoveText>> _currentMove;
         private MoveTree<IMoveText> _currentList;
 
         public override void EnterPgn_database(PGNParser.Pgn_databaseContext context)
@@ -47,7 +48,7 @@ namespace ChessLib.Parse.PGN.Parser
         {
             CurrentGame = new Game<IMoveText>();
             _moveCount = 0;
-            _currentList = CurrentGame.MoveSection;
+            _currentList = (MoveTree<IMoveText>)CurrentGame.MoveSection;
             _stopwatch.Start();
         }
         public override void ExitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
@@ -93,7 +94,7 @@ namespace ChessLib.Parse.PGN.Parser
         public override void EnterRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
         {
             _moveTreeStack.Push(_currentList);
-            _currentList = _currentMove.Value.AddVariation();
+            _currentList = (MoveTree<IMoveText>)_currentMove.Value.AddVariation();
         }
 
         public override void ExitRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)

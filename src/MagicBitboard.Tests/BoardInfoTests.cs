@@ -1,13 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-using System.Text;
-using ChessLib.Data;
+﻿using ChessLib.Data;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
 using ChessLib.MagicBitboard;
+using ChessLib.Types.Enums;
 using NUnit.Framework;
+using System;
+using System.Text;
 
 // ReSharper disable once CheckNamespace
 namespace MagicBitboard.Tests

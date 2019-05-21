@@ -9,4 +9,13 @@
     <PackageReference Include="Enums.NET" Version="2.3.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Exceptions\" />
+    <Folder Include="Types\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChessLib.Interfaces\ChessLib.Types.csproj" />
+  </ItemGroup>
+
 </Project>

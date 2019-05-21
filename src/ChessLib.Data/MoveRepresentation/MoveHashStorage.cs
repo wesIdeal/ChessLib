@@ -1,15 +1,16 @@
-﻿using System;
+﻿using ChessLib.Data.Helpers;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
+using System;
 using System.Security.Cryptography;
 using System.Text;
-using ChessLib.Data.Helpers;
-using ChessLib.Data.Types;
 
 namespace ChessLib.Data.MoveRepresentation
 {
 
     public class MoveHashStorage : MoveStorage, IEquatable<MoveHashStorage>
     {
-        public MoveHashStorage(MoveExt move, Piece pieceMoving, Color colorMoving, string fen, string textRepresentation)
+        public MoveHashStorage(IMoveExt move, Piece pieceMoving, Color colorMoving, string fen, string textRepresentation)
         : base(move, pieceMoving, colorMoving)
         {
             FENHelpers.ValidateFENString(fen);

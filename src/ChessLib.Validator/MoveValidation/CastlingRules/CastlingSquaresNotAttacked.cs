@@ -1,16 +1,14 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
-using ChessLib.Validators;
-using ChessLib.Validators.MoveValidation;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Validators.MoveValidation.CastlingRules
 {
     public class CastlingSquaresNotAttacked : IMoveRule
     {
-        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
+        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             if (IsKingsPathInCheck(boardInfo.OpponentColor(), boardInfo.PiecePlacement, move))
             {
@@ -25,7 +23,7 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
         /// <param name="occupancy"></param>
         /// <param name="move"></param>
         /// <returns></returns>
-        protected static bool IsKingsPathInCheck(in Color opponentColor, in ulong[][] occupancy, in MoveExt move)
+        protected static bool IsKingsPathInCheck(in Color opponentColor, in ulong[][] occupancy, in IMoveExt move)
         {
             var moveToAndFromValues = move.SourceValue | move.DestinationValue;
             var squaresBetween = BoardHelpers.InBetween(move.SourceIndex, move.DestinationIndex) | moveToAndFromValues;

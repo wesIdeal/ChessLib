@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChessLib.Types.Interfaces;
+using System;
 
 namespace ChessLib.Data.MoveRepresentation
 {

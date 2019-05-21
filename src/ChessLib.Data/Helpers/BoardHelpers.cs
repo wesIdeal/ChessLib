@@ -1,12 +1,12 @@
-﻿using ChessLib.Data.Types;
+﻿using ChessLib.Types;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using ChessLib.Data.MoveRepresentation;
 using System.Text;
-using System.Collections.Generic;
-using ChessLib.Data.Exceptions;
 
 namespace ChessLib.Data.Helpers
 {
@@ -310,13 +310,13 @@ namespace ChessLib.Data.Helpers
         }
 
 
-        public static MoveExt[] GenerateAllPseudoLegalMoves(this BoardFENInfo boardInfo) => GenerateAllPseudoLegalMoves(
+        public static IMoveExt[] GenerateAllPseudoLegalMoves(this BoardFENInfo boardInfo) => GenerateAllPseudoLegalMoves(
             boardInfo.PiecePlacement, boardInfo.ActivePlayer, boardInfo.EnPassantSquare,
             boardInfo.CastlingAvailability);
 
 
 
-        public static MoveExt[] GenerateAllPseudoLegalMoves(this ulong[][] board, Color c, ushort? enPassentSq, CastlingAvailability ca)
+        public static IMoveExt[] GenerateAllPseudoLegalMoves(this ulong[][] board, Color c, ushort? enPassentSq, CastlingAvailability ca)
         {
             var rv = new List<MoveExt>();
             var nColor = (int)c;

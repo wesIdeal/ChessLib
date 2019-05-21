@@ -1,11 +1,12 @@
 ﻿using ChessLib.Data.Helpers;
+using ChessLib.Types.Interfaces;
 using System;
 using System.Linq;
 using System.Text;
 
 namespace ChessLib.Data
 {
-    public class BlockerAndMoveBoards
+    public class BlockerAndMoveBoards : IBlockerAndMoveBoards
     {
         public ulong Occupancy { get; }
         public ulong MoveBoard { get; }

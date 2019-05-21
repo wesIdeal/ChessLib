@@ -63,6 +63,10 @@
       <Project>{B7C1799C-A422-46B1-BE5D-B2579C7006A4}</Project>
       <Name>ChessLib.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ChessLib.Interfaces\ChessLib.Types.csproj">
+      <Project>{ff2da474-065c-4c55-8dfe-8e2dc5706702}</Project>
+      <Name>ChessLib.Types</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MagicBitboard\ChessLib.MagicBitboard.csproj">
       <Project>{a06c0b4b-b75c-499b-b0f8-0268dc437b48}</Project>
       <Name>ChessLib.MagicBitboard</Name>

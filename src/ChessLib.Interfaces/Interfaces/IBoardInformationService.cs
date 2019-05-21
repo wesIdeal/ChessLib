@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
-
-namespace ChessLib.Data.Boards
+﻿namespace ChessLib.Types.Interfaces
 {
-    public interface IBoardInformationService<T> where T : MoveStorage
+    public interface IBoardInformationService<T> where T : IMoveStorage
     {
         /// <summary>
         /// Applies a move from SAN text to a board information service object
@@ -15,7 +11,7 @@ namespace ChessLib.Data.Boards
         /// <summary>
         /// Where moves are stored
         /// </summary>
-        MoveTree<T> MoveTree { get; }
-        MoveTree<T> Moves { get; }
+        IMoveTree<T> MoveTree { get; set; }
+        IMoveTree<T> Moves { get; }
     }
 }

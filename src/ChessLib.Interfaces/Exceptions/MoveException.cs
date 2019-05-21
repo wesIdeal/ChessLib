@@ -1,6 +1,5 @@
-﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
+﻿using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using System;
 
 using System.Runtime.Serialization;
@@ -32,7 +31,7 @@ namespace ChessLib.Data.Exceptions
     public class MoveException : Exception
     {
         [NonSerialized]
-        private readonly MoveExt move;
+        private readonly IMoveExt move;
         private readonly Color activePlayer;
         public MoveExceptionType ExceptionType { get; set; }
         public MoveException()
@@ -50,16 +49,16 @@ namespace ChessLib.Data.Exceptions
             ExceptionType = MoveExceptionType.NoneSet;
         }
 
-        public MoveException(string message, MoveExceptionType type, MoveExt move, Color activePlayer)
-           : this(message + $"\r\n{activePlayer.ToString()}'s move from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}")
+        public MoveException(string message, MoveExceptionType type, IMoveExt move, Color activePlayer)
+           : this(message + $"\r\n{activePlayer.ToString()}'s move: {move.ToString()}")
         {
             ExceptionType = type;
             this.move = move;
             this.activePlayer = activePlayer;
         }
 
-        public MoveException(string message, MoveExt move, Color activePlayer)
-            : this(message + $"\r\n{activePlayer.ToString()}'s move from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}")
+        public MoveException(string message, IMoveExt move, Color activePlayer)
+            : this(message + $"\r\n{activePlayer.ToString()}'s move: {move.ToString()}")
         {
             ExceptionType = MoveExceptionType.NoneSet;
             this.move = move;

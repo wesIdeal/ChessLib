@@ -1,13 +1,12 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
+﻿using ChessLib.Data.Exceptions;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Validators.MoveValidation.EnPassantRules
 {
     public class SourceIsCorrectRank : IMoveRule
     {
-        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
+        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             var rank = move.SourceIndex / 8;
             var error = MoveExceptionType.EP_WrongSourceRank;

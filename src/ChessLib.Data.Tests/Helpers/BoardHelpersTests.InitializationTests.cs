@@ -1,8 +1,8 @@
-﻿using System;
-using System.Text;
-using ChessLib.Data.Helpers;
-using ChessLib.Data.Types;
+﻿using ChessLib.Data.Helpers;
+using ChessLib.Types.Enums;
 using NUnit.Framework;
+using System;
+using System.Text;
 namespace ChessLib.Data.Tests.Helpers
 {
     [TestFixture]

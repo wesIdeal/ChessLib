@@ -1,4 +1,4 @@
-﻿using ChessLib.Data.Types;
+﻿using ChessLib.Types.Enums;
 using System;
 
 namespace ChessLib.Data.Helpers

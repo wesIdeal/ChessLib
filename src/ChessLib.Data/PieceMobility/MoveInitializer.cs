@@ -1,5 +1,6 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Types;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace ChessLib.Data.PieceMobility
         /// <param name="attackMask">The piece's associated attack mask from the position index</param>
         /// <param name="occupancyBoards">The associated occupancy boards</param>
         /// <returns>An array of blocker boards and corresponding moves based on blocker placement.</returns>
-        public IEnumerable<BlockerAndMoveBoards> GetAllPermutationsForAttackMask(int pieceLocationIndex, ulong attackMask, IEnumerable<ulong> occupancyBoards)
+        public IEnumerable<IBlockerAndMoveBoards> GetAllPermutationsForAttackMask(int pieceLocationIndex, ulong attackMask, IEnumerable<ulong> occupancyBoards)
         {
             var boardCombos = new List<BlockerAndMoveBoards>();
             foreach (var board in occupancyBoards)
@@ -57,7 +58,7 @@ namespace ChessLib.Data.PieceMobility
         /// <param name="countOfSetBits">The number of set bits in the move mask. Used to determine the array size.</param>
         /// <param name="attackArray">The newly ordered array of attacks, based on the calculated magic number</param>
         /// <returns>The magic key which was found</returns>
-        public ulong GenerateMagicKey(BlockerAndMoveBoards[] blockerAndMoveBoards, int countOfSetBits, out ulong[] attackArray)
+        public ulong GenerateMagicKey(IBlockerAndMoveBoards[] blockerAndMoveBoards, int countOfSetBits, out ulong[] attackArray)
         {
             var maxMoves = 1 << countOfSetBits;
             ulong[] emptyArray = new ulong[maxMoves];

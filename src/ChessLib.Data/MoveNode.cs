@@ -1,13 +1,14 @@
-﻿using System;
+﻿using ChessLib.Types.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace ChessLib.Data
 {
-    public class MoveNode<T>
+    public class MoveNode<T> : IMoveNode<T>
     {
         private MoveNode()
         {
-            Variations = new LinkedList<MoveTree<T>>();
+            Variations = new LinkedList<IMoveTree<T>>();
         }
         public MoveNode(T move) : this(move, null) { }
 
@@ -17,20 +18,20 @@ namespace ChessLib.Data
             Parent = parent;
         }
 
-        public MoveNode<T> Parent { get; set; }
+        public IMoveNode<T> Parent { get; set; }
 
-        public MoveTree<T> AddVariation()
+        public IMoveTree<T> AddVariation()
         {
             return Variations.AddLast(new MoveTree<T>(this)).Value;
         }
-        public LinkedList<MoveTree<T>> Variations { get; }
+        public LinkedList<IMoveTree<T>> Variations { get; }
         public T Move { get; }
         public uint Depth
         {
             get
             {
                 uint depth = 0;
-                var node = this;
+                IMoveNode<T> node = this;
                 while (node.Parent != null)
                 {
                     node = node.Parent;
@@ -40,7 +41,7 @@ namespace ChessLib.Data
             }
         }
 
-      
+
 
         public override int GetHashCode()
         {

@@ -1,10 +1,12 @@
-﻿using System.Diagnostics;
+﻿using ChessLib.Data.Exceptions;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
-using System.Text.RegularExpressions;
-using ChessLib.Data.Exceptions;
+using ChessLib.Types;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace ChessLib.Data.Helpers
 {
@@ -30,15 +32,10 @@ namespace ChessLib.Data.Helpers
             return new MoveExt((ushort)(mt | pp | origin | dest));
         }
 
-        public static ushort DestinationIndex(this ushort move) => (ushort)(move & 63);
-        public static ushort SourceIndex(this ushort move) => (ushort)((move >> 6) & 63);
 
-        public static ulong DestinationValue(this ushort move) => 1ul << (move & 63);
-        public static ulong SourceValue(this ushort move) => 1ul << ((move >> 6) & 63);
 
         public static PromotionPiece GetPiecePromoted(this ushort move) => (PromotionPiece)((move >> 12) & 3);
 
-        public static MoveType GetMoveType(this ushort move) => (MoveType)((move >> 14) & 3);
 
         public static MoveDetail GetAvailableMoveDetails(string move, Color color)
         {
@@ -141,7 +138,7 @@ namespace ChessLib.Data.Helpers
             else if (recordResult)
             {
 
-                result = board.IsStalemate() ?  "1/2-1/2" : "";
+                result = board.IsStalemate() ? "1/2-1/2" : "";
             }
 
             //Get piece representation
@@ -164,7 +161,7 @@ namespace ChessLib.Data.Helpers
             var strSrcPiece = src.GetCharRepresentation().ToString().ToUpper();
             var otherLikePieces = board.PiecePlacement.Occupancy(board.ActivePlayer, src);
             var duplicateAttackerIndexes = new List<ushort>();
-            
+
             foreach (var attackerIndex in otherLikePieces.GetSetBits())
             {
                 if (board.CanPieceMoveToDestination(attackerIndex, move.DestinationIndex))

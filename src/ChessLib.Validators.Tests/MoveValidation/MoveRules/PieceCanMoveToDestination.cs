@@ -1,9 +1,11 @@
-﻿using ChessLib.Data.Exceptions;
+﻿using ChessLib.Data;
+using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
+using ChessLib.Types;
+using ChessLib.Types.Enums;
 using NUnit.Framework;
 using System.Linq;
-using ChessLib.Data;
+
 namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
 {
     [TestFixture]
@@ -113,7 +115,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenBlackPawnAttacksEmptySquare()
             {
-                _BoardFENInfo.ActivePlayer = Data.Types.Color.Black;
+                _BoardFENInfo.ActivePlayer = Color.Black;
                 var move = MoveHelpers.GenerateMove(52, 43);
                 var actual = Validate(_BoardFENInfo, _postMoveBoard, move);
                 Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture an empty square to the SE.");
@@ -244,7 +246,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnProperError_WhenBlackPawnMoves3()
             {
-                _BoardFENInfo.ActivePlayer = Data.Types.Color.Black;
+                _BoardFENInfo.ActivePlayer = Color.Black;
                 var move = MoveHelpers.GenerateMove(52, 28);
                 var actual = Validate(_BoardFENInfo, _postMoveBoard, move);
                 Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't move 3 squares.");
@@ -263,7 +265,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnNoError_WhenBlackPawnMovesForward1()
             {
-                _BoardFENInfo.ActivePlayer = Data.Types.Color.Black;
+                _BoardFENInfo.ActivePlayer = Color.Black;
                 var move = MoveHelpers.GenerateMove(52, 44);
                 var actual = Validate(_BoardFENInfo, _postMoveBoard, move);
                 Assert.IsNull(actual, "Expected no error. Pawns can move 1 forward.");
@@ -279,7 +281,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             [Test]
             public void ShouldReturnNoError_WhenBlackPawnMoves2From7thRank()
             {
-                _BoardFENInfo.ActivePlayer = Data.Types.Color.Black;
+                _BoardFENInfo.ActivePlayer = Color.Black;
                 var move = MoveHelpers.GenerateMove(52, 36);
                 var actual = Validate(_BoardFENInfo, _postMoveBoard, move);
                 Assert.IsNull(actual, "Pawn can move 2 squares from the opening rank.");

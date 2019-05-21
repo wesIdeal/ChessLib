@@ -1,8 +1,4 @@
-﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Types;
-using System.Collections.Generic;
-
-namespace ChessLib.Data.MoveRepresentation
+﻿namespace ChessLib.Data.MoveRepresentation
 {
     /// <summary>
     /// This is for move storage, long term.
@@ -14,41 +10,18 @@ namespace ChessLib.Data.MoveRepresentation
     /// bits 12-14: Promotion Piece Type (Knight, Bishop, Rook, Queen)
     /// bits 14-16: MoveType
     /// </remarks>
-    public class MoveExt : System.IEquatable<MoveExt>
-    {
-        public ushort Move { get => _move; private set { _move = value; } }
-        public ushort _move;
-        public MoveExt(ushort move) { Move = move; }
-        public ushort DestinationIndex => MoveHelpers.DestinationIndex(Move);
-        public ushort SourceIndex => MoveHelpers.SourceIndex(Move);
-        public ulong DestinationValue => MoveHelpers.DestinationValue(Move);
-        public ulong SourceValue => MoveHelpers.SourceValue(Move);
-        public MoveType MoveType
-        {
-            get { return MoveHelpers.GetMoveType(Move); }
-            set
-            {
-                ushort mt = (ushort)((ushort)value << 14);
-                Move &= 0x1fff;
-                Move |= mt;
-            }
-        }
+    //public class MoveExt : System.IEquatable<MoveExt>, MoveExtBase
+    //{
 
-        public PromotionPiece PromotionPiece => MoveHelpers.GetPiecePromoted(Move);
-        public List<MoveExt> Variations;
+    //    public MoveExt(ushort move) { Move = move; }
 
-        public bool Equals(MoveExt other) => Move == other.Move;
-        public bool Equals(ushort other) => Move == other;
 
-        public override string ToString()
-        {
 
-            if (MoveType == MoveType.Promotion)
-            {
-                return $"{DestinationIndex.IndexToSquareDisplay()}={PieceHelpers.GetCharFromPromotionPiece(PromotionPiece)}";
-            }
+    //    public List<MoveExt> Variations;
 
-            return $"{SourceIndex.IndexToSquareDisplay()} to {DestinationIndex.IndexToSquareDisplay()}";
-        }
-    }
+    //    public bool Equals(MoveExt other) => Move == other.Move;
+    //    public bool Equals(ushort other) => Move == other;
+
+
+    //}
 }

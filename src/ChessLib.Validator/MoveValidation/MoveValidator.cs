@@ -1,8 +1,9 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
+using ChessLib.Types;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using ChessLib.Validators.MoveValidation.CastlingRules;
 using ChessLib.Validators.MoveValidation.EnPassantRules;
 using ChessLib.Validators.MoveValidation.MoveRules;

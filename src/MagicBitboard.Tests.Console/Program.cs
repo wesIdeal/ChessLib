@@ -1,10 +1,10 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
 using ChessLib.Graphics;
 using ChessLib.MagicBitboard;
 using ChessLib.Parse.PGN;
+using ChessLib.Types.Enums;
 using System;
 using System.Diagnostics;
 using System.IO;

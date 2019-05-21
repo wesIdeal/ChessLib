@@ -1,14 +1,14 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Validators.MoveValidation.EnPassantRules
 {
     public class EnPassantSquareIsAttackedBySource : IMoveRule
     {
-        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in MoveExt move)
+        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             var pawnAttacksFromSquare = Bitboard.GetAttackedSquares(Piece.Pawn, move.SourceIndex,
                 boardInfo.TotalOccupancy(), boardInfo.ActivePlayer);

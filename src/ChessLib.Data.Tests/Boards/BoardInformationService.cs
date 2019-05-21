@@ -1,7 +1,7 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
 using ChessLib.MagicBitboard;
+using ChessLib.Types;
+using ChessLib.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Boards

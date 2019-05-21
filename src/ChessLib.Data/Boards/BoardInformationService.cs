@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ChessLib.Data.Helpers;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using System.Linq;
 using System.Text;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types;
 
 namespace ChessLib.Data.Boards
 {
-    public abstract class BoardInformationService<T> : BoardFENInfo, IBoardInformationService<T> where T : MoveStorage
+    public abstract class BoardInformationService<T> : BoardFENInfo, IBoardInformationService<T> where T : IMoveStorage
     {
-        public abstract MoveTree<T> MoveTree { get; set; }
+        public abstract IMoveTree<T> MoveTree { get; set; }
 
-        public MoveTree<T> Moves
+        public IMoveTree<T> Moves
         {
             get { return MoveTree; }
         }
@@ -213,7 +210,7 @@ namespace ChessLib.Data.Boards
 
         public string ValidateChecks()
         {
-            if (this.IsOpponentInCheck())
+            if (((IBoard)this).IsOpponentInCheck())
             {
                 return "Illegal position- opponent is in check.";
             }

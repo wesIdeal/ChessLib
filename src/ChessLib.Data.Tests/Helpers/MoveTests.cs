@@ -1,5 +1,5 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Types;
+using ChessLib.Types.Enums;
 using NUnit.Framework;
 using System;
 

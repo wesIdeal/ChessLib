@@ -1,5 +1,5 @@
 ﻿using ChessLib.Data.Exceptions;
-using ChessLib.Data.Types;
+using ChessLib.Types.Enums;
 using EnumsNET;
 using System;
 using System.Linq;

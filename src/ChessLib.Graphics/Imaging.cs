@@ -1,19 +1,13 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-
+using ImageMagick;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using ChessLib.Data.Types;
-using ImageMagick;
-using File = System.IO.File;
-using System.Drawing;
-using System.Net.Mime;
-using SixLabors.Fonts;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace ChessLib.Graphics
