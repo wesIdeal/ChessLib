@@ -1,4 +1,7 @@
 ﻿
+using ChessLib.Data;
+using ChessLib.Data.Exceptions;
+using ChessLib.Data.Helpers;
 using ChessLib.Types;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
@@ -10,28 +13,15 @@ using System.Collections.Generic;
 
 namespace ChessLib.Validators.MoveValidation
 {
-    public class MoveValidator
+    public class MoveValidator : MoveValidatorBase
     {
-        readonly IBoard _boardInfo;
+
         readonly List<IMoveRule> _rules = new List<IMoveRule>();
         public readonly ulong[][] PostMoveBoard;
-        private readonly MoveExt _move;
-        public static MoveValidator FromBitboards(in ulong[][] board, Color sideMoving, ushort? enPassantIndex, CastlingAvailability ca, MoveExt move, bool checkForStalemate = true)
-        {
-            var boardInfo = new BoardFENInfo()
-            {
-                PiecePlacement = board,
-                ActivePlayer = sideMoving,
-                CastlingAvailability = ca,
-                EnPassantSquare = enPassantIndex
-            };
-            return new MoveValidator(boardInfo, move);
-        }
-        public MoveValidator(in IBoard board, in MoveExt move)
+
+        public MoveValidator(in IBoard board, in MoveExt move) : base(board, move)
         {
             PostMoveBoard = BoardHelpers.GetBoardPostMove(board.PiecePlacement, board.ActivePlayer, move);
-            _boardInfo = board;
-            _move = move;
             _rules.Add(new PieceMovingIsActiveColor());
             _rules.Add(new KingNotInCheckAfterMove());
             switch (move.MoveType)
@@ -62,11 +52,11 @@ namespace ChessLib.Validators.MoveValidation
             }
         }
 
-        public MoveExceptionType? Validate()
+        public override MoveExceptionType? Validate()
         {
             foreach (var rule in _rules)
             {
-                var moveIssue = rule.Validate(_boardInfo, PostMoveBoard, _move);
+                var moveIssue = rule.Validate(this._boardInfo, PostMoveBoard, _move);
                 if (moveIssue.HasValue)
                 {
                     return moveIssue;

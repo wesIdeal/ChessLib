@@ -1,4 +1,5 @@
-﻿using ChessLib.Data.Exceptions;
+﻿using System;
+using ChessLib.Data.Exceptions;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Types;
 using ChessLib.Types.Enums;
@@ -30,6 +31,85 @@ namespace ChessLib.Data.Helpers
             var origin = fromIdx << 6;
             var dest = toIdx << 0;
             return new MoveExt((ushort)(mt | pp | origin | dest));
+        }
+
+
+
+        public static MoveExt GenerateMoveFromText<T>(this IBoard board, string moveText) where T : MoveValidatorBase
+        {
+            var md = MoveHelpers.GetAvailableMoveDetails(moveText, board.ActivePlayer);
+            if (!md.SourceFile.HasValue || !md.SourceRank.HasValue)
+            {
+                var sourceIndex = FindPieceSourceIndex<T>(board, md);
+                md.SourceIndex = sourceIndex ?? throw new MoveException("Move detail error: no piece found at source.");
+            }
+
+            Debug.Assert(md.SourceIndex != null, "md.SourceIndex != null");
+            Debug.Assert(md.DestinationIndex != null, "md.DestinationIndex != null");
+            if (md.IsCapture && md.Piece == Piece.Pawn &&
+                (board.OpponentOccupancy() & (1ul << md.DestinationIndex)) == 0 &&
+                (md.DestinationRank == 2 || md.DestinationRank == 5)) md.MoveType = MoveType.EnPassant;
+            var moveExt = MoveHelpers.GenerateMove(md.SourceIndex.Value, md.DestinationIndex.Value, md.MoveType,
+                md.PromotionPiece ?? 0);
+            return moveExt;
+        }
+
+        /// <summary>
+        ///     Find's a piece's source index, given some textual clues, such as piece type, color, and destination
+        /// </summary>
+        /// <param name="moveDetail">Details of move, gathered from text description (SAN)</param>
+        /// <returns>The index from which the move was made.</returns>
+        /// <exception cref="MoveException">
+        ///     Thrown when the source can't be determined, piece on square cannot be determined, more
+        ///     than one piece of type could reach destination, or piece cannot reach destination.
+        /// </exception>
+        private static ushort? FindPieceSourceIndex<T>(IBoard board, MoveDetail moveDetail) where T : MoveValidatorBase
+        {
+            return moveDetail.Piece == Piece.Pawn ?
+                // FindPawnMoveSourceIndex(board, moveDetail):
+                FindPieceMoveSourceIndex<T>(board, moveDetail,
+                    board.PiecePlacement.Occupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy()) :
+                FindPieceMoveSourceIndex<T>(board, moveDetail,
+                 board.PiecePlacement.Occupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy());
+        }
+
+        /// <summary>
+        ///     Used by the Find[piece]MoveSourceIndex to find the source of a piece moving parsed from SAN text.
+        /// </summary>
+        /// <param name="md">Available Move details</param>
+        /// <param name="pieceMoveMask">The move mask for the piece</param>
+        /// <param name="pieceOccupancy">The occupancy for the piece in question</param>
+        /// <returns></returns>
+        private static ushort? FindPieceMoveSourceIndex<T>(IBoard board, MoveDetail md, ulong pieceMoveMask, ulong pieceOccupancy) where T : MoveValidatorBase
+        {
+            ulong sourceSquares;
+            if ((sourceSquares = pieceMoveMask & pieceOccupancy) == 0) return null;
+
+            if (md.SourceFile != null)
+                sourceSquares &= BoardHelpers.FileMasks[md.SourceFile.Value];
+            if (md.SourceRank != null)
+                sourceSquares &= BoardHelpers.RankMasks[md.SourceRank.Value];
+            var indices = sourceSquares.GetSetBits();
+
+            if (indices.Length == 0) return null;
+            if (indices.Length > 1)
+            {
+                var possibleSources = new List<ushort>();
+
+                foreach (var sourceIndex in indices)
+                {
+                    if (!md.DestinationIndex.HasValue) throw new MoveException("No destination value provided.");
+                    var proposedMove = MoveHelpers.GenerateMove(sourceIndex, md.DestinationIndex.Value, md.MoveType, md.PromotionPiece ?? PromotionPiece.Knight);
+                    var moveValidator = (T)Activator.CreateInstance(typeof(T), board, proposedMove);
+                    var validationResult = moveValidator.Validate();
+                    if (validationResult == null)
+                        possibleSources.Add(sourceIndex);
+                }
+                if (possibleSources.Count > 1) throw new MoveException("More than one piece can reach destination square.");
+                if (possibleSources.Count == 0) return null;
+                return possibleSources[0];
+            }
+            return indices[0];
         }
 
         public static MoveDetail GetAvailableMoveDetails(string move, Color color)

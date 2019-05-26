@@ -45,7 +45,7 @@ namespace ChessLib.Game
 
         public override void ApplyMove(string moveText)
         {
-            var move = GenerateMoveFromText(moveText);
+            var move = this.GenerateMoveFromText<MoveValidator>(moveText);
             ApplyMove(move);
         }
 
@@ -98,24 +98,7 @@ namespace ChessLib.Game
             return pinned;
         }
 
-        public MoveExt GenerateMoveFromText(string moveText)
-        {
-            var md = MoveHelpers.GetAvailableMoveDetails(moveText, ActivePlayer);
-            if (!md.SourceFile.HasValue || !md.SourceRank.HasValue)
-            {
-                var sourceIndex = FindPieceSourceIndex(md);
-                md.SourceIndex = sourceIndex;
-            }
 
-            Debug.Assert(md.SourceIndex != null, "md.SourceIndex != null");
-            Debug.Assert(md.DestinationIndex != null, "md.DestinationIndex != null");
-            if (md.IsCapture && md.Piece == Piece.Pawn &&
-                (OpponentOccupancy & (1ul << md.DestinationIndex)) == 0 &&
-                (md.DestinationRank == 2 || md.DestinationRank == 5)) md.MoveType = MoveType.EnPassant;
-            var moveExt = MoveHelpers.GenerateMove(md.SourceIndex.Value, md.DestinationIndex.Value, md.MoveType,
-                md.PromotionPiece ?? 0);
-            return moveExt;
-        }
 
 
         public override ulong GetAttackedSquares(Piece p, ushort index, ulong occupancy)
@@ -139,175 +122,108 @@ namespace ChessLib.Game
 
         #region MoveDetail- Finding the Source Square From SAN
 
-        /// <summary>
-        ///     Find's a piece's source index, given some textual clues, such as piece type, color, and destination
-        /// </summary>
-        /// <param name="moveDetail">Details of move, gathered from text description (SAN)</param>
-        /// <returns>The index from which the move was made.</returns>
-        /// <exception cref="MoveException">
-        ///     Thrown when the source can't be determined, piece on square cannot be determined, more
-        ///     than one piece of type could reach destination, or piece cannot reach destination.
-        /// </exception>
-        private ushort FindPieceSourceIndex(MoveDetail moveDetail)
-        {
-            switch (moveDetail.Piece)
-            {
-                case Piece.Pawn:
-                    if (moveDetail.IsCapture)
-                        throw new MoveException("Could not determine source square for pawn capture.");
-                    return FindPawnMoveSourceIndex(moveDetail, PiecePlacement[this.ActivePlayerAsInt()][PAWN], TotalOccupancy);
 
-                case Piece.Knight:
-                    return FindKnightMoveSourceIndex(moveDetail, ActiveKnightOccupancy);
-                case Piece.Bishop:
-                    return FindBishopMoveSourceIndex(moveDetail, ActiveBishopOccupancy, TotalOccupancy);
-                case Piece.Rook:
-                    return FindRookMoveSourceIndex(moveDetail, ActiveRookOccupancy, TotalOccupancy);
-                case Piece.Queen:
-                    return FindQueenMoveSourceIndex(moveDetail, ActiveQueenOccupancy, TotalOccupancy);
-                case Piece.King:
-                    return FindKingMoveSourceIndex(moveDetail, ActivePlayerKingIndex, TotalOccupancy);
-                default: throw new MoveException("Invalid piece specified for move.");
-            }
-        }
 
-        /// <summary>
-        ///     Used by the Find[piece]MoveSourceIndex to find the source of a piece moving parsed from SAN text.
-        /// </summary>
-        /// <param name="md">Available Move details</param>
-        /// <param name="pieceMoveMask">The move mask for the piece</param>
-        /// <param name="pieceOccupancy">The occupancy for the piece in question</param>
-        /// <returns></returns>
-        private static ushort? FindPieceMoveSourceIndex(MoveDetail md, ulong pieceMoveMask, ulong pieceOccupancy)
-        {
-            ulong sourceSquares;
-            if ((sourceSquares = pieceMoveMask & pieceOccupancy) == 0) return null;
 
-            if (md.SourceFile != null)
-                sourceSquares &= BoardHelpers.FileMasks[md.SourceFile.Value];
-            if (md.SourceRank != null)
-                sourceSquares &= BoardHelpers.RankMasks[md.SourceRank.Value];
-            var indices = sourceSquares.GetSetBits();
 
-            if (indices.Length == 0) return null;
-            if (indices.Length > 1)
-            {
-                var possibleSources = new List<ushort>();
+        ///// <summary>
+        /////     Finds the source square index for a King's move
+        ///// </summary>
+        ///// <param name="moveDetail">Move details, gathered from text input</param>
+        ///// <param name="kingOccupancy">The King's occupancy board</param>
+        ///// <param name="totalOccupancy">The board's occupancy</param>
+        ///// <returns></returns>
+        //public ushort FindKingMoveSourceIndex(MoveDetail moveDetail, ulong kingOccupancy, ulong totalOccupancy)
+        //{
+        //    Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex cannot equal null");
+        //    var possibleSquares =
+        //        Bitboard.GetAttackedSquares(Piece.King, moveDetail.DestinationIndex.Value, totalOccupancy);
+        //    var sourceSquare = FindPieceMoveSourceIndex(moveDetail, possibleSquares, kingOccupancy);
+        //    if (!sourceSquare.HasValue)
+        //        throw new MoveException("The King can possibly get to the specified destination.");
+        //    return sourceSquare.Value;
+        //}
 
-                foreach (var sourceIndex in indices)
-                {
-                    if (!md.DestinationIndex.HasValue) throw new MoveException("No destination value provided.");
-                    var proposedMove = MoveHelpers.GenerateMove(sourceIndex, md.DestinationIndex.Value, md.MoveType, md.PromotionPiece ?? PromotionPiece.Knight);
-                    var moveValidator = new MoveValidator(this, proposedMove);
-                    var validationResult = moveValidator.Validate();
-                    if (validationResult == null)
-                        possibleSources.Add(sourceIndex);
-                }
-                if (possibleSources.Count > 1) throw new MoveException("More than one piece can reach destination square.");
-                if (possibleSources.Count == 0) return null;
-                return possibleSources[0];
-            }
-            return indices[0];
-        }
+        ///// <summary>
+        /////     Finds the source square index for a Queen's move
+        ///// </summary>
+        ///// <param name="moveDetail">Move details, gathered from text input</param>
+        ///// <param name="queenOccupancy">The Queen's occupancy board</param>
+        ///// <param name="totalOccupancy">The board's occupancy</param>
+        ///// <returns></returns>
+        //public ushort FindQueenMoveSourceIndex(MoveDetail moveDetail, ulong queenOccupancy, ulong totalOccupancy)
+        //{
+        //    Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
+        //    var possibleSquares =
+        //        Bitboard.GetAttackedSquares(Piece.Queen, moveDetail.DestinationIndex.Value, totalOccupancy);
+        //    var sourceSquare = FindPieceMoveSourceIndex(moveDetail, possibleSquares, queenOccupancy);
+        //    if (!sourceSquare.HasValue)
+        //        throw new MoveException("No Queen can possibly get to the specified destination.");
+        //    if (sourceSquare == ushort.MaxValue)
+        //        throw new MoveException("More than one Queen can get to the specified square.");
+        //    return sourceSquare.Value;
+        //}
 
-        /// <summary>
-        ///     Finds the source square index for a King's move
-        /// </summary>
-        /// <param name="moveDetail">Move details, gathered from text input</param>
-        /// <param name="kingOccupancy">The King's occupancy board</param>
-        /// <param name="totalOccupancy">The board's occupancy</param>
-        /// <returns></returns>
-        public ushort FindKingMoveSourceIndex(MoveDetail moveDetail, ulong kingOccupancy, ulong totalOccupancy)
-        {
-            Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex cannot equal null");
-            var possibleSquares =
-                Bitboard.GetAttackedSquares(Piece.King, moveDetail.DestinationIndex.Value, totalOccupancy);
-            var sourceSquare = FindPieceMoveSourceIndex(moveDetail, possibleSquares, kingOccupancy);
-            if (!sourceSquare.HasValue)
-                throw new MoveException("The King can possibly get to the specified destination.");
-            return sourceSquare.Value;
-        }
+        ///// <summary>
+        /////     Finds the source square index for a Rook's move
+        ///// </summary>
+        ///// <param name="moveDetail">Move details, gathered from text input</param>
+        ///// <param name="rookOccupancy">The Rook's occupancy board</param>
+        ///// <param name="totalOccupancy">The board's occupancy</param>
+        ///// <returns></returns>
+        //public ushort FindRookMoveSourceIndex(MoveDetail moveDetail, ulong rookOccupancy, ulong totalOccupancy)
+        //{
+        //    //var possibleSquares = PieceAttackPatternHelper.BishopMoveMask[md.DestRank.Value, md.DestFile.Value];
+        //    Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
+        //    var possibleSquares =
+        //        Bitboard.GetAttackedSquares(Piece.Rook, moveDetail.DestinationIndex.Value, totalOccupancy);
+        //    var sourceSquare = FindPieceMoveSourceIndex(moveDetail, possibleSquares, rookOccupancy);
+        //    if (!sourceSquare.HasValue)
+        //        throw new MoveException("No Rook can possibly get to the specified destination.");
+        //    if (sourceSquare == ushort.MaxValue)
+        //        throw new MoveException("More than one Rook can get to the specified square.");
+        //    return sourceSquare.Value;
+        //}
 
-        /// <summary>
-        ///     Finds the source square index for a Queen's move
-        /// </summary>
-        /// <param name="moveDetail">Move details, gathered from text input</param>
-        /// <param name="queenOccupancy">The Queen's occupancy board</param>
-        /// <param name="totalOccupancy">The board's occupancy</param>
-        /// <returns></returns>
-        public ushort FindQueenMoveSourceIndex(MoveDetail moveDetail, ulong queenOccupancy, ulong totalOccupancy)
-        {
-            Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
-            var possibleSquares =
-                Bitboard.GetAttackedSquares(Piece.Queen, moveDetail.DestinationIndex.Value, totalOccupancy);
-            var sourceSquare = FindPieceMoveSourceIndex(moveDetail, possibleSquares, queenOccupancy);
-            if (!sourceSquare.HasValue)
-                throw new MoveException("No Queen can possibly get to the specified destination.");
-            if (sourceSquare == ushort.MaxValue)
-                throw new MoveException("More than one Queen can get to the specified square.");
-            return sourceSquare.Value;
-        }
+        ///// <summary>
+        /////     Finds the source square index for a Bishop's move
+        ///// </summary>
+        ///// <param name="moveDetail">Move details, gathered from text input</param>
+        ///// <param name="bishopOccupancy">The Bishop's occupancy board</param>
+        ///// <param name="totalOccupancy">The board's occupancy</param>
+        ///// <returns></returns>
+        //public ushort FindBishopMoveSourceIndex(MoveDetail moveDetail, ulong bishopOccupancy,
+        //    ulong totalOccupancy)
+        //{
+        //    Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
+        //    var possibleSquares =
+        //        Bitboard.GetAttackedSquares(Piece.Bishop, moveDetail.DestinationIndex.Value, totalOccupancy);
+        //    var sourceSquare = FindPieceMoveSourceIndex(moveDetail, possibleSquares, bishopOccupancy);
+        //    if (!sourceSquare.HasValue)
+        //        throw new MoveException("No Bishop can possibly get to the specified destination.");
+        //    if (sourceSquare == ushort.MaxValue)
+        //        throw new MoveException("More than one Bishop can get to the specified square.");
+        //    return sourceSquare.Value;
+        //}
 
-        /// <summary>
-        ///     Finds the source square index for a Rook's move
-        /// </summary>
-        /// <param name="moveDetail">Move details, gathered from text input</param>
-        /// <param name="rookOccupancy">The Rook's occupancy board</param>
-        /// <param name="totalOccupancy">The board's occupancy</param>
-        /// <returns></returns>
-        public ushort FindRookMoveSourceIndex(MoveDetail moveDetail, ulong rookOccupancy, ulong totalOccupancy)
-        {
-            //var possibleSquares = PieceAttackPatternHelper.BishopMoveMask[md.DestRank.Value, md.DestFile.Value];
-            Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
-            var possibleSquares =
-                Bitboard.GetAttackedSquares(Piece.Rook, moveDetail.DestinationIndex.Value, totalOccupancy);
-            var sourceSquare = FindPieceMoveSourceIndex(moveDetail, possibleSquares, rookOccupancy);
-            if (!sourceSquare.HasValue)
-                throw new MoveException("No Rook can possibly get to the specified destination.");
-            if (sourceSquare == ushort.MaxValue)
-                throw new MoveException("More than one Rook can get to the specified square.");
-            return sourceSquare.Value;
-        }
-
-        /// <summary>
-        ///     Finds the source square index for a Bishop's move
-        /// </summary>
-        /// <param name="moveDetail">Move details, gathered from text input</param>
-        /// <param name="bishopOccupancy">The Bishop's occupancy board</param>
-        /// <param name="totalOccupancy">The board's occupancy</param>
-        /// <returns></returns>
-        public ushort FindBishopMoveSourceIndex(MoveDetail moveDetail, ulong bishopOccupancy,
-            ulong totalOccupancy)
-        {
-            Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
-            var possibleSquares =
-                Bitboard.GetAttackedSquares(Piece.Bishop, moveDetail.DestinationIndex.Value, totalOccupancy);
-            var sourceSquare = FindPieceMoveSourceIndex(moveDetail, possibleSquares, bishopOccupancy);
-            if (!sourceSquare.HasValue)
-                throw new MoveException("No Bishop can possibly get to the specified destination.");
-            if (sourceSquare == ushort.MaxValue)
-                throw new MoveException("More than one Bishop can get to the specified square.");
-            return sourceSquare.Value;
-        }
-
-        /// <summary>
-        ///     Finds the source square index for a Knight's move
-        /// </summary>
-        /// <param name="moveDetail">Move details, gathered from text input</param>
-        /// <param name="knightOccupancy">The Knight's occupancy board</param>
-        /// <returns></returns>
-        public static ushort FindKnightMoveSourceIndex(IBoard board, MoveDetail moveDetail)
-        {
-            ulong knightOccupancy = board.PiecePlacement.Occupancy(board.ActivePlayer, Piece.Knight);
-            Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
-            var possibleSquares = PieceAttackPatternHelper.KnightAttackMask[moveDetail.DestinationIndex.Value];
-            var sourceSquare = FindPieceMoveSourceIndex(moveDetail, possibleSquares, knightOccupancy);
-            if (!sourceSquare.HasValue)
-                throw new MoveException("No Knight can possibly get to the specified destination.");
-            if (sourceSquare == short.MaxValue)
-                throw new MoveException("More than one Knight can get to the specified square.");
-            return sourceSquare.Value;
-        }
+        ///// <summary>
+        /////     Finds the source square index for a Knight's move
+        ///// </summary>
+        ///// <param name="moveDetail">Move details, gathered from text input</param>
+        ///// <param name="knightOccupancy">The Knight's occupancy board</param>
+        ///// <returns></returns>
+        //public static ushort FindKnightMoveSourceIndex(IBoard board, MoveDetail moveDetail)
+        //{
+        //    ulong knightOccupancy = board.PiecePlacement.Occupancy(board.ActivePlayer, Piece.Knight);
+        //    Debug.Assert(moveDetail.DestinationIndex != null, "moveDetail.DestinationIndex != null");
+        //    var possibleSquares = PieceAttackPatternHelper.KnightAttackMask[moveDetail.DestinationIndex.Value];
+        //    var sourceSquare = FindPieceMoveSourceIndex(moveDetail, possibleSquares, knightOccupancy);
+        //    if (!sourceSquare.HasValue)
+        //        throw new MoveException("No Knight can possibly get to the specified destination.");
+        //    if (sourceSquare == short.MaxValue)
+        //        throw new MoveException("More than one Knight can get to the specified square.");
+        //    return sourceSquare.Value;
+        //}
 
         /// <summary>
         ///     Finds the source square index for a Pawn's move
