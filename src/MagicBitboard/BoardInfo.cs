@@ -59,7 +59,7 @@ namespace ChessLib.Game
             if (validationError.HasValue)
                 throw new MoveException("Error with move.", validationError.Value, move, ActivePlayer);
 
-            var san = move.MoveToSAN(this, MoveTree.ParentMove == null);
+            var san = move.MoveToSAN<MoveValidator>(this, MoveTree.ParentMove == null);
             MoveTree.Add(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, pocSource.Value.Piece, ActivePlayer, this.ToFEN(), san)));
             ApplyValidatedMove(move);
             return null;

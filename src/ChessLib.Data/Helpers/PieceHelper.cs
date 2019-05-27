@@ -17,6 +17,10 @@ namespace ChessLib.Data.Helpers
             if (strPiece.Length > 1) throw new Exception("Piece should be a single char.");
             return GetPiece(strPiece[0]);
         }
+        public static Piece GetPieceFromPromotion(this PromotionPiece piece) =>
+            piece == PromotionPiece.Knight ? Piece.Knight :
+            piece == PromotionPiece.Bishop ? Piece.Bishop :
+            piece == PromotionPiece.Rook ? Piece.Rook : Piece.Queen;
 
         public static Piece GetPiece(char p)
         {
@@ -96,7 +100,7 @@ namespace ChessLib.Data.Helpers
             return poc;
         }
 
-       
+
     }
     public struct PieceOfColor
     {

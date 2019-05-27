@@ -15,7 +15,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var board = new BoardFENInfo("4k3/8/8/8/8/5N2/8/4K3 w - - 0 1");
             var move = MoveHelpers.GenerateMove(21, 6);
-            var postMove = BoardHelpers.GetBoardPostMove(board.PiecePlacement, Color.White, move);
+            var postMove = BoardHelpers.GetBoardPostMove(board, move);
             Assert.IsNull(Validate(board,postMove,move));
         }
         [Test]
@@ -23,7 +23,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var board = new BoardFENInfo("4k3/8/8/8/8/5N2/8/4K1b1 w - - 0 1");
             var move = MoveHelpers.GenerateMove(21, 6);
-            var postMove = BoardHelpers.GetBoardPostMove(board.PiecePlacement, Color.White, move);
+            var postMove = BoardHelpers.GetBoardPostMove(board, move);
             Assert.IsNull(Validate(board, postMove, move));
         }
         [Test]
@@ -31,7 +31,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var board = new BoardFENInfo("4k3/8/8/8/8/5N2/8/4K1B1 w - - 0 1");
             var move = MoveHelpers.GenerateMove(21, 6);
-            var postMove = BoardHelpers.GetBoardPostMove(board.PiecePlacement, Color.White, move);
+            var postMove = BoardHelpers.GetBoardPostMove(board, move);
             Assert.AreEqual(MoveExceptionType.ActiveColorPieceAtDestination, Validate(board, postMove, move));
         }
     }

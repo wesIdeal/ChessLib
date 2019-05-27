@@ -1,7 +1,10 @@
 ﻿
+using System.Collections.Generic;
+using System.Linq;
 using ChessLib.Data;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
+using ChessLib.Types;
 using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Validators.MoveValidation.MoveRules
@@ -16,9 +19,13 @@ namespace ChessLib.Validators.MoveValidation.MoveRules
             {
                 return MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare;
             }
-            return boardInfo.CanPieceMoveToDestination(move.SourceIndex, move.DestinationIndex)
-                ? (MoveExceptionType?)null
-                : MoveExceptionType.BadDestination;
+
+            var moves = new List<MoveExt>();
+            var attackedSquares = Bitboard.GetPseudoLegalMoves(piece.Value, move.SourceIndex,
+                boardInfo.ActiveOccupancy(),
+                boardInfo.OpponentOccupancy(),
+                boardInfo.ActivePlayer, boardInfo.EnPassantSquare, boardInfo.CastlingAvailability, out moves);
+            return moves.Contains(move) ? (MoveExceptionType?)null : MoveExceptionType.BadDestination;
         }
 
 

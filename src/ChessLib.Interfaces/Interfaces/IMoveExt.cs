@@ -1,8 +1,9 @@
-﻿using ChessLib.Types.Enums;
+﻿using System;
+using ChessLib.Types.Enums;
 
 namespace ChessLib.Types.Interfaces
 {
-    public interface IMoveExt
+    public interface IMoveExt : IEquatable<IMoveExt>
     {
         ushort DestinationIndex { get; }
         ulong DestinationValue { get; }

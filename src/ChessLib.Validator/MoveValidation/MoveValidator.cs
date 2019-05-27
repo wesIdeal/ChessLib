@@ -21,7 +21,7 @@ namespace ChessLib.Validators.MoveValidation
 
         public MoveValidator(in IBoard board, in MoveExt move) : base(board, move)
         {
-            PostMoveBoard = BoardHelpers.GetBoardPostMove(board.PiecePlacement, board.ActivePlayer, move);
+            PostMoveBoard = BoardHelpers.GetBoardPostMove(board, move);
             _rules.Add(new PieceMovingIsActiveColor());
             _rules.Add(new KingNotInCheckAfterMove());
             switch (move.MoveType)

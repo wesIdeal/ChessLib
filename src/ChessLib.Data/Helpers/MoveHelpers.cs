@@ -173,14 +173,14 @@ namespace ChessLib.Data.Helpers
             return md;
         }
 
-        public static string MoveToSAN(this MoveExt move, IBoard boardInfo, bool recordResult = true)
+        public static string MoveToSAN<T>(this MoveExt move, IBoard boardInfo, bool recordResult = true) where T : MoveValidatorBase
         {
             var sideMoving = boardInfo.ActivePlayer;
             var preMoveBoard = boardInfo.PiecePlacement;
-            var postMoveBoard = boardInfo.PiecePlacement.GetBoardPostMove(sideMoving, move);
+            var postMoveBoard = boardInfo.GetBoardPostMove(move);
             var srcPiece = boardInfo.PiecePlacement.GetPieceOfColorAtIndex(move.SourceIndex)?.Piece;
             if (srcPiece == null) throw new MoveException("No piece at source index.", MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, move, sideMoving);
-            var strSrcPiece = GetSANSourceString(boardInfo, move, srcPiece.Value);
+            var strSrcPiece = GetSANSourceString<T>(boardInfo, move, srcPiece.Value);
             var strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
             string checkInfo = "", result = "", promotionInfo = "", capture = "";
 
@@ -213,14 +213,14 @@ namespace ChessLib.Data.Helpers
             else if (recordResult)
             {
 
-                result = board.IsStalemate() ? "1/2-1/2" : "";
+                result = board.IsStalemate<T>() ? "1/2-1/2" : "";
             }
 
             //Get piece representation
             return $"{strSrcPiece}{capture}{move.DestinationIndex.IndexToSquareDisplay()}{promotionInfo}{checkInfo} {result}".Trim();
         }
 
-        public static string GetSANSourceString(IBoard board, MoveExt move, Piece src)
+        public static string GetSANSourceString<T>(IBoard board, MoveExt move, Piece src) where T : MoveValidatorBase
         {
             if (src == Piece.King)
             {
@@ -236,10 +236,12 @@ namespace ChessLib.Data.Helpers
             var strSrcPiece = src.GetCharRepresentation().ToString().ToUpper();
             var otherLikePieces = board.PiecePlacement.Occupancy(board.ActivePlayer, src);
             var duplicateAttackerIndexes = new List<ushort>();
-
-            foreach (var attackerIndex in otherLikePieces.GetSetBits())
+            var attackerIndices = otherLikePieces.GetSetBits();
+            foreach (var attackerIndex in attackerIndices)
             {
-                if (board.CanPieceMoveToDestination(attackerIndex, move.DestinationIndex))
+                var legalMoves = board.GetLegalMoves<T>(attackerIndex);
+
+                if (legalMoves.Select(x => x.DestinationIndex).Contains(move.DestinationIndex))
                 {
                     duplicateAttackerIndexes.Add(attackerIndex);
                 }

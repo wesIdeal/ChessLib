@@ -47,5 +47,10 @@ namespace ChessLib.Types
             var to = $"{dstFile}{dstRank}";
             return $"{from}->{to}";
         }
+
+        public bool Equals(IMoveExt other)
+        {
+            return this._move == other.Move;
+        }
     }
 }

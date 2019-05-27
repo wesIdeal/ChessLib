@@ -400,7 +400,7 @@ namespace MagicBitboard.Tests
                 md.MoveText = destIndex.IndexToSquareDisplay();
                 md.DestinationFile = (ushort)(destIndex % 8);
                 md.DestinationRank = (ushort)(destIndex / 8);
-                var expectedSource = MoveHelpers.GenerateMove((ushort)(48 + (destIndex %8)), destIndex);
+                var expectedSource = MoveHelpers.GenerateMove((ushort)(48 + (destIndex % 8)), destIndex);
                 var actual = boardInfo.GenerateMoveFromText<MoveValidator>(destIndex.IndexToSquareDisplay());
                 Assert.AreEqual(expectedSource.Move, actual.Move);
             }
@@ -620,7 +620,7 @@ namespace MagicBitboard.Tests
             var board = new BoardInfo(fen);
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
             var result = board.ApplyMove(move);
-            Assert.AreEqual(true, board.IsStalemate());
+            Assert.AreEqual(true, board.IsStalemate<MoveValidator>());
 
         }
 
@@ -635,7 +635,7 @@ namespace MagicBitboard.Tests
         public void IsStalemate(string fen, bool isStalematedPosition)
         {
             var board = new BoardInfo(fen);
-            Assert.AreEqual(isStalematedPosition, board.IsStalemate());
+            Assert.AreEqual(isStalematedPosition, board.IsStalemate<MoveValidator>());
             Console.WriteLine(sb.ToString());
         }
 
@@ -646,7 +646,7 @@ namespace MagicBitboard.Tests
         {
             var pieces = new BoardInfo(fen);
             var kingIndex = pieces.ActivePlayerKingIndex;
-            var result = pieces.CanPieceMove(kingIndex);
+            var result = pieces.CanPieceMove<MoveValidator>(kingIndex);
             Assert.AreEqual(expectedResult, result);
 
         }

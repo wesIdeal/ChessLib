@@ -20,8 +20,8 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             var moveDiscovery = MoveHelpers.GenerateMove(12, 3);
             var moveInCheck = MoveHelpers.GenerateMove(3, 10);
 
-            var discoveredPostMove = BoardHelpers.GetBoardPostMove(biDiscovered.PiecePlacement, Color.White, moveDiscovery);
-            var inCheckPostMove = BoardHelpers.GetBoardPostMove(biInCheck.PiecePlacement, Color.White, moveInCheck);
+            var discoveredPostMove = BoardHelpers.GetBoardPostMove(biDiscovered, moveDiscovery);
+            var inCheckPostMove = BoardHelpers.GetBoardPostMove(biInCheck, moveInCheck);
 
             Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, Validate(biDiscovered, discoveredPostMove, moveDiscovery));
             Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, Validate(biInCheck, inCheckPostMove, moveInCheck));
@@ -33,7 +33,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var bi = new BoardFENInfo("4k3/4r3/8/8/8/8/8/3BK3 w - - 0 1");
             var move = MoveHelpers.GenerateMove(3, 12);
-            var postMoveBoard = BoardHelpers.GetBoardPostMove(bi.PiecePlacement, Color.White, move);
+            var postMoveBoard = BoardHelpers.GetBoardPostMove(bi, move);
             Assert.IsNull(Validate(bi, postMoveBoard, move));
         }
 
@@ -42,7 +42,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var bi = new BoardFENInfo("3k4/4b3/8/8/8/8/4B3/5K2 w - - 0 1");
             var move = MoveHelpers.GenerateMove(12, 3);
-            var postMoveBoard = BoardHelpers.GetBoardPostMove(bi.PiecePlacement, Color.White, move);
+            var postMoveBoard = BoardHelpers.GetBoardPostMove(bi, move);
             Assert.IsNull(Validate(bi, postMoveBoard, move));
         }
 
@@ -51,7 +51,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var move = MoveHelpers.GenerateMove(62, 44);
             var kingInCheck = new BoardFENInfo("5kb1/8/8/8/8/8/6K1/5R2 b - - 1 2");
-            var postMoveBoard = BoardHelpers.GetBoardPostMove(kingInCheck.PiecePlacement, Color.Black, move);
+            var postMoveBoard = BoardHelpers.GetBoardPostMove(kingInCheck, move);
             Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move));
         }
 
@@ -60,7 +60,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var move = MoveHelpers.GenerateMove(53, 62);
             var kingInCheck = new BoardFENInfo("5k2/5b2/8/8/8/8/6K1/5R2 b - - 1 2");
-            var postMoveBoard = BoardHelpers.GetBoardPostMove(kingInCheck.PiecePlacement, Color.Black, move);
+            var postMoveBoard = BoardHelpers.GetBoardPostMove(kingInCheck, move);
             Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move), "ValidateMove should throw and exception if the move leaves the King in check. Move is Bg7.");
         }
 
@@ -69,7 +69,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var move = MoveHelpers.GenerateMove(61, 60);
             var kingInCheck = new BoardFENInfo("5k2/3B4/8/8/8/1b6/6K1/5R2 b - - 1 2");
-            var postMoveBoard = BoardHelpers.GetBoardPostMove(kingInCheck.PiecePlacement, Color.Black, move);
+            var postMoveBoard = BoardHelpers.GetBoardPostMove(kingInCheck, move);
             Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move), "ValidateMove should throw and exception if the move leaves the King in check.");
         }
     }
