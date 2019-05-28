@@ -10,7 +10,7 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
     {
         public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
-            if (Bitboard.IsSquareAttackedByColor(boardInfo.ActiveKingIndex(), boardInfo.OpponentColor(), boardInfo.PiecePlacement))
+            if (Bitboard.IsSquareAttackedByColor(boardInfo.ActiveKingIndex(), boardInfo.OpponentColor(), boardInfo.PiecePlacement.GetPiecePlacementArray()  ))
             {
                 return MoveExceptionType.Castle_KingInCheck;
             }

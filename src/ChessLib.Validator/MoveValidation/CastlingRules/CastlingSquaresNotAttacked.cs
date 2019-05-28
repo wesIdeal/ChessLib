@@ -10,7 +10,7 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
     {
         public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
-            if (IsKingsPathInCheck(boardInfo.OpponentColor(), boardInfo.PiecePlacement, move))
+            if (IsKingsPathInCheck(boardInfo.OpponentColor(), boardInfo.PiecePlacement.GetPiecePlacementArray(), move))
             {
                 return MoveExceptionType.Castle_ThroughCheck;
             }

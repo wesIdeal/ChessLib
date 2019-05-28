@@ -29,7 +29,7 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
                     throw new MoveException("Bad destination square for castling move.", MoveExceptionType.Castle_BadDestinationSquare, move, boardInfo.ActivePlayer);
 
             }
-            if ((boardInfo.PiecePlacement.Occupancy() & piecesBetween) != 0)
+            if ((boardInfo.TotalOccupancy & piecesBetween) != 0)
             {
                 return MoveExceptionType.Castle_OccupancyBetween;
             }

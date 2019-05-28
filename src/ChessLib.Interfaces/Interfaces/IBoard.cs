@@ -7,10 +7,11 @@ namespace ChessLib.Types.Interfaces
     {
         Color ActivePlayer { get; set; }
         CastlingAvailability CastlingAvailability { get; set; }
+        ulong TotalOccupancy { get; }
         ushort? EnPassantSquare { get; set; }
         uint FullmoveCounter { get; set; }
         uint? HalfmoveClock { get; set; }
-        ulong[][] PiecePlacement { get; set; }
+        IPiecePlacement PiecePlacement { get; set; }
         bool Chess960 { get; }
         string InitialFEN { get; }
     }

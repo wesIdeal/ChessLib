@@ -1,8 +1,10 @@
 ﻿using ChessLib.Data.Exceptions;
 using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 using EnumsNET;
 using System;
 using System.Linq;
+using ChessLib.Data.Boards;
 
 namespace ChessLib.Data.Helpers
 {
@@ -22,19 +24,19 @@ namespace ChessLib.Data.Helpers
             var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
             var ranks = piecePlacement.Split('/').Reverse();
             foreach (var rank in ranks)
-            foreach (var f in rank)
-                switch (char.IsDigit(f))
-                {
-                    case true:
-                        var emptySquares = uint.Parse(f.ToString());
-                        pieceIndex += emptySquares;
-                        break;
-                    case false:
-                        var pieceOfColor = PieceHelpers.GetPieceOfColor(f);
-                        pieces[(int)pieceOfColor.Color][(int)pieceOfColor.Piece] |= 1ul << (int)pieceIndex;
-                        pieceIndex++;
-                        break;
-                }
+                foreach (var f in rank)
+                    switch (char.IsDigit(f))
+                    {
+                        case true:
+                            var emptySquares = uint.Parse(f.ToString());
+                            pieceIndex += emptySquares;
+                            break;
+                        case false:
+                            var pieceOfColor = PieceHelpers.GetPieceOfColor(f);
+                            pieces[(int)pieceOfColor.Color][(int)pieceOfColor.Piece] |= 1ul << (int)pieceIndex;
+                            pieceIndex++;
+                            break;
+                    }
             return pieces;
         }
 
@@ -243,13 +245,15 @@ namespace ChessLib.Data.Helpers
             return (rankOffset * 8) + (idx % 8);
         }
 
+
+
         public static ulong[][] BoardFromFen(this string fen, out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out uint halfmoveClock, out uint fullmoveClock, bool validate = true)
         {
-           var fenPieces = fen.Split(' ');
+            var fenPieces = fen.Split(' ');
             if (validate)
             {
                 ValidateFENStructure(fen);
-                ValidateFENString(fen); 
+                ValidateFENString(fen);
             }
 
             var pieces = BoardFromFen(fen);

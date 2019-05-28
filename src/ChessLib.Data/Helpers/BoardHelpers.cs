@@ -111,20 +111,6 @@ namespace ChessLib.Data.Helpers
             return accumulator;
         }
 
-        public static ulong TotalOccupancy(this IBoard board)
-        {
-            return board.PiecePlacement.Occupancy();
-        }
-
-        public static ulong ActiveOccupancy(this IBoard board)
-        {
-            return board.PiecePlacement.Occupancy(board.ActivePlayer);
-        }
-
-        public static ulong OpponentOccupancy(this IBoard board)
-        {
-            return board.PiecePlacement.Occupancy(board.OpponentColor());
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong Occupancy(this ulong[][] board, Color? c = null, Piece? p = null)
@@ -208,6 +194,7 @@ namespace ChessLib.Data.Helpers
             return (ushort)((rankMultiplier * 8) + file - 'a');
         }
 
+
         public static ushort RankAndFileToIndex(ushort rank, ushort file)
         {
             return (ushort)((rank * 8) + file);
@@ -255,7 +242,7 @@ namespace ChessLib.Data.Helpers
         /// <param name="idx">board index</param>
         /// <param name="occupancy">occupancy arrays</param>
         /// <returns>Type of Piece, if found, otherwise null</returns>
-        public static Piece? GetTypeOfPieceAtIndex(this ushort idx, in PiecePlacement occupancy)
+        public static Piece? GetTypeOfPieceAtIndex(this IPiecePlacement occupancy, ushort idx)
         {
             var val = 1ul << idx;
             foreach (var color in (Color[])Enum.GetValues(typeof(Color)))
@@ -269,25 +256,7 @@ namespace ChessLib.Data.Helpers
             return null;
         }
 
-        /// <summary>
-        /// Returns type of piece at the given index
-        /// </summary>
-        /// <param name="idx">board index</param>
-        /// <param name="occupancy">occupancy arrays</param>
-        /// <returns>Type of Piece, if found, otherwise null</returns>
-        public static Piece? GetTypeOfPieceAtIndex(this ushort idx, in ulong[][] occupancy)
-        {
-            var val = 1ul << idx;
-            foreach (var color in (Color[])Enum.GetValues(typeof(Color)))
-            {
-                foreach (var piece in (Piece[])Enum.GetValues(typeof(Piece)))
-                {
-                    if ((val & occupancy.Occupancy(color, piece)) != 0)
-                        return piece;
-                }
-            }
-            return null;
-        }
+
 
         /// <summary>
         /// Gets a piece and color of piece at an index
@@ -315,7 +284,7 @@ namespace ChessLib.Data.Helpers
         /// <param name="board">Board representation</param>
         /// <param name="idx">Board index (0(A1)->63(H8))</param>
         /// <returns></returns>
-        public static PieceOfColor? GetPieceOfColorAtIndex(this IBoard board, ushort index) => GetPieceOfColorAtIndex(board.PiecePlacement, index);
+        public static PieceOfColor? GetPieceOfColorAtIndex(this IBoard board, ushort index) => board.PiecePlacement.GetPiecePlacementArray().GetPieceOfColorAtIndex(index);
 
 
 
@@ -335,7 +304,7 @@ namespace ChessLib.Data.Helpers
         /// Generates pseudo-legal moves for each piece of a color
         /// </summary>
         public static IMoveExt[] GenerateAllPseudoLegalMoves(this BoardFENInfo boardInfo) => GenerateAllPseudoLegalMoves(
-            boardInfo.PiecePlacement, boardInfo.ActivePlayer, boardInfo.EnPassantSquare,
+            boardInfo.PiecePlacement.GetPiecePlacementArray(), boardInfo.ActivePlayer, boardInfo.EnPassantSquare,
             boardInfo.CastlingAvailability);
 
 
@@ -427,16 +396,17 @@ namespace ChessLib.Data.Helpers
         public static IBoard ApplyMoveToBoard(this IBoard board, in MoveExt move)
         {
             var rv = (IBoard)board.Clone();
-            var pieceMoving = GetPieceOfColorAtIndex(board.PiecePlacement, move.SourceIndex);
-            var isCapture = (board.PiecePlacement.Occupancy(board.ActivePlayer.Toggle()) & move.DestinationValue) != 0;
-            var isPawnMove = GetTypeOfPieceAtIndex(move.SourceIndex, board.PiecePlacement).Equals(Piece.Pawn);
+            var pieceMoving = GetPieceOfColorAtIndex(board.PiecePlacement.GetPiecePlacementArray(), move.SourceIndex);
+            var isCapture = (board.PiecePlacement.ColorOccupancy(board.ActivePlayer.Toggle()) & move.DestinationValue) != 0;
+            var isPawnMove = board.PiecePlacement.Equals(Piece.Pawn);
             if (isCapture || isPawnMove) rv.HalfmoveClock = 0;
             else rv.HalfmoveClock++;
             if (board.ActivePlayer == Color.Black)
             {
                 rv.FullmoveCounter++;
             }
-            rv.PiecePlacement = board.GetBoardPostMove(move);
+
+            rv.PiecePlacement = new PiecePlacement(board.GetBoardPostMove(move));
             rv.CastlingAvailability = GetCastlingAvailabilityPostMove(rv, move, pieceMoving.Value.Piece);
             rv.EnPassantSquare = GetEnPassentIndex(move, pieceMoving.Value);
             rv.ActivePlayer = board.ActivePlayer.Toggle();
@@ -451,7 +421,7 @@ namespace ChessLib.Data.Helpers
         /// <returns>a piece placement set of bitboards, arranged by [color][piece]</returns>
         public static ulong[][] GetBoardPostMove(this IBoard board, in MoveExt move)
         {
-            return GetBoardPostMove(board.PiecePlacement, move);
+            return board.PiecePlacement.GetBoardPostMove(move);
         }
 
         public static ulong[][] GetBoardPostMove(in ulong[][] pieces, IMoveExt move)
@@ -531,7 +501,7 @@ namespace ChessLib.Data.Helpers
             var opponentColor = activePlayerColor.Toggle();
             var nOppColor = (int)opponentColor;
             var resultantBoard = new ulong[2][];
-            var pieceMoving = GetTypeOfPieceAtIndex(move.SourceIndex, pp);
+            var pieceMoving = pp.GetTypeOfPieceAtIndex(move.SourceIndex);
             for (var i = 0; i < 2; i++)
             {
                 resultantBoard[i] = new ulong[6];
@@ -608,16 +578,16 @@ namespace ChessLib.Data.Helpers
         public static Color OpponentColor(this IBoard board) => board.ActivePlayer.Toggle();
         public static ushort ActiveKingIndex(this IBoard board)
         {
-            return board.PiecePlacement[board.ActivePlayer.ToInt()][KING].GetSetBits()[0];
+            return board.PiecePlacement.PieceOfColorOccupancy(board.ActivePlayer, Piece.King).GetSetBits()[0];
         }
-        public static ushort OpponentKingIndex(this IBoard board) => board.PiecePlacement[board.OpponentColorAsInt()][KING].GetSetBits()[0];
+        public static ushort OpponentKingIndex(this IBoard board) => board.PiecePlacement.PieceOfColorOccupancy(board.OpponentColor(), Piece.King).GetSetBits()[0];
 
 
         public static bool IsActivePlayerInCheck(this IBoard board) =>
-            IsColorInCheck(board.PiecePlacement, board.ActivePlayer, board.ActiveKingIndex());
+            IsColorInCheck(board.PiecePlacement.GetPiecePlacementArray(), board.ActivePlayer, board.ActiveKingIndex());
 
         public static bool IsOpponentInCheck(this IBoard board) =>
-            IsColorInCheck(board.PiecePlacement, board.OpponentColor(), board.OpponentKingIndex());
+            IsColorInCheck(board.PiecePlacement.GetPiecePlacementArray(), board.OpponentColor(), board.OpponentKingIndex());
 
         private static bool IsColorInCheck(ulong[][] board, Color checkedColor, ushort? checkedColorKingIdx)
         {
@@ -633,12 +603,12 @@ namespace ChessLib.Data.Helpers
                 return false;
             }
             var canAnyPieceMove = false;
-            var myPieceLocations = board.PiecePlacement.Occupancy(board.ActivePlayer).GetSetBits();
+            var myPieceLocations = board.PiecePlacement.ColorOccupancy(board.ActivePlayer).GetSetBits();
             foreach (var square in myPieceLocations)
             {
                 if (canAnyPieceMove == false)
                 {
-                    var pieceType = BoardHelpers.GetTypeOfPieceAtIndex(square, board.PiecePlacement);
+                    var pieceType = GetTypeOfPieceAtIndex(board.PiecePlacement, square);
                     Debug.Assert(pieceType.HasValue);
                     if (board.CanPieceMove<T>(square))
                     {
@@ -669,9 +639,9 @@ namespace ChessLib.Data.Helpers
             var nColor = board.ActivePlayerAsInt();
             var nOppColor = board.OpponentColorAsInt();
             var kingIndex = board.ActiveKingIndex();
-            var activeOccupancy = board.PiecePlacement.Occupancy(board.ActivePlayer);
-            var oppOccupancy = board.PiecePlacement.Occupancy(board.OpponentColor());
-            var piecesAttacking = board.PiecesAttackingSquare(kingIndex) & board.PiecePlacement.Occupancy(board.ActivePlayer.Toggle());
+            var activeOccupancy = board.PiecePlacement.ColorOccupancy(board.ActivePlayer);
+            var oppOccupancy = board.PiecePlacement.ColorOccupancy(board.OpponentColor());
+            var piecesAttacking = board.PiecesAttackingSquare(kingIndex) & oppOccupancy;
             var attackerIndexes = piecesAttacking.GetSetBits();
 
 
@@ -682,7 +652,7 @@ namespace ChessLib.Data.Helpers
                 var activeOccupancyNotKing = activeOccupancy & ~(kingIndex.GetBoardValueOfIndex());
                 foreach (var occupiedSquare in activeOccupancyNotKing.GetSetBits())
                 {
-                    var piece = GetTypeOfPieceAtIndex(occupiedSquare, board.PiecePlacement);
+                    var piece = GetTypeOfPieceAtIndex(board.PiecePlacement, occupiedSquare);
                     var attackedSquares =
                         Bitboard.GetPseudoLegalMoves(piece.Value, occupiedSquare, activeOccupancy, oppOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
                     var squaresBetween = InBetween(kingIndex, attackerIdx);
@@ -717,7 +687,7 @@ namespace ChessLib.Data.Helpers
         /// <returns></returns>
         public static ulong PiecesAttackingSquare(this IBoard board, in ushort squareIndex)
         {
-            var piecesOnBoard = board.PiecePlacement;
+            var piecesOnBoard = board.PiecePlacement.GetPiecePlacementArray();
             var total = piecesOnBoard
                 .Select(color => color.Aggregate((current, x) => current |= x))
                 .Aggregate((current, x) => current |= x);
@@ -787,7 +757,7 @@ namespace ChessLib.Data.Helpers
 
         public static string GetPiecePlacement(this IBoard board)
         {
-            return board.PiecePlacement.GetPiecePlacement();
+            return GetPiecePlacement(board.PiecePlacement.GetPiecePlacementArray());
         }
 
         public static string GetSideToMoveStrRepresentation(this IBoard board)

@@ -12,7 +12,7 @@ namespace ChessLib.Validators.MoveValidation.MoveRules
     {
         public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
-            if ((boardInfo.PiecePlacement.Occupancy(boardInfo.ActivePlayer) & move.DestinationValue) != 0)
+            if ((boardInfo.PiecePlacement.ColorOccupancy(boardInfo.ActivePlayer) & move.DestinationValue) != 0)
             {
                 return MoveExceptionType.ActiveColorPieceAtDestination;
             }

@@ -38,14 +38,14 @@ namespace ChessLib.Data.Boards
 
         #endregion
 
-       
-
-        
 
 
 
 
-       
+
+
+
+
 
         private void ValidateFields()
         {
@@ -115,17 +115,17 @@ namespace ChessLib.Data.Boards
 
         private string ValidateNumberOfPiecesOnBoard()
         {
-            return ValidateNumberOfPiecesOnBoard(PiecePlacement);
+            return ValidateNumberOfPiecesOnBoard(PiecePlacement.GetPiecePlacementArray());
         }
 
         private string ValidateEnPassantSquare()
         {
-            return ValidateEnPassantSquare(PiecePlacement, EnPassantSquare, ActivePlayer);
+            return ValidateEnPassantSquare(PiecePlacement.GetPiecePlacementArray(), EnPassantSquare, ActivePlayer);
         }
 
         private string ValidateCastlingRights()
         {
-            return ValidateCastlingRights(PiecePlacement, CastlingAvailability);
+            return ValidateCastlingRights(PiecePlacement.GetPiecePlacementArray(), CastlingAvailability);
         }
 
         public string ValidateChecks()

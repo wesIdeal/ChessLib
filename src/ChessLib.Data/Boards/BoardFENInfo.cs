@@ -1,4 +1,5 @@
-﻿using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Boards;
+using ChessLib.Data.Helpers;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 
@@ -9,7 +10,8 @@ namespace ChessLib.Data
         public BoardFENInfo() : this(FENHelpers.FENInitial, false) { }
         public BoardFENInfo(string fen, bool chess960 = false)
         {
-            PiecePlacement = FENHelpers.BoardFromFen(fen, out Color active, out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
+            PiecePlacement = new PiecePlacement(FENHelpers.BoardFromFen(fen, out Color active,
+                out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock));
             ActivePlayer = active;
             CastlingAvailability = ca;
             EnPassantSquare = enPassant;
@@ -20,7 +22,7 @@ namespace ChessLib.Data
         }
         public BoardFENInfo(ulong[][] piecePlacement, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantSquare, uint? halfmoveClock, uint fullmoveClock, bool chess960 = false)
         {
-            PiecePlacement = piecePlacement;
+            PiecePlacement = new PiecePlacement(piecePlacement);
             ActivePlayer = activePlayer;
             CastlingAvailability = castlingAvailability;
             EnPassantSquare = enPassantSquare;
@@ -29,7 +31,7 @@ namespace ChessLib.Data
             InitialFEN = this.ToFEN();
         }
 
-        public ulong[][] PiecePlacement { get; set; }
+        public PiecePlacement PiecePlacement { get; set; }
         public Color ActivePlayer { get; set; }
         public CastlingAvailability CastlingAvailability { get; set; }
         public ushort? EnPassantSquare { get; set; }
@@ -38,16 +40,19 @@ namespace ChessLib.Data
         public bool Chess960 { get; }
         public string InitialFEN { get; }
 
-        public ulong ActiveOccupancy => PiecePlacement.Occupancy(ActivePlayer);
-        public ulong OpponentOccupancy => PiecePlacement.Occupancy(this.OpponentColor());
-        public ulong TotalOccupancy => PiecePlacement.Occupancy();
+        public ulong ActiveOccupancy => PiecePlacement.ColorOccupancy(this.ActivePlayer);
+        public ulong OpponentOccupancy => PiecePlacement.ColorOccupancy(this.OpponentColor());
+        public ulong TotalOccupancy => PiecePlacement.BlackOccupancy | PiecePlacement.WhiteOccupancy;
 
-        public ushort ActivePlayerKingIndex => PiecePlacement.Occupancy(ActivePlayer, Piece.King).GetSetBits()[0];
-        public ulong ActivePlayerOccupancy(Piece p) => PiecePlacement.Occupancy(ActivePlayer, p);
+        public ushort ActivePlayerKingIndex => PiecePlacement.PieceOfColorOccupancy(ActivePlayer, Piece.King).GetSetBits()[0];
+
+        IPiecePlacement IBoard.PiecePlacement { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+
+        public ulong ActivePlayerOccupancy(Piece p) => PiecePlacement.ColorOccupancy(this.ActivePlayer);
 
         public object Clone()
         {
-            return new BoardFENInfo(PiecePlacement, ActivePlayer, CastlingAvailability, EnPassantSquare, HalfmoveClock, FullmoveCounter, Chess960);
+            return new BoardFENInfo(PiecePlacement.GetPiecePlacementArray(), ActivePlayer, CastlingAvailability, EnPassantSquare, HalfmoveClock, FullmoveCounter, Chess960);
         }
     }
 }

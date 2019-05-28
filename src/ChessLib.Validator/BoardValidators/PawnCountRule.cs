@@ -13,8 +13,8 @@ namespace ChessLib.Validators.BoardValidators
             var white = BoardHelpers.WHITE;
             var black = BoardHelpers.BLACK;
             var rv = BoardException.None;
-            rv |= boardInfo.PiecePlacement[white][pawn].CountSetBits() > 8 ? BoardException.WhiteTooManyPawns : BoardException.None;
-            rv |= boardInfo.PiecePlacement[black][pawn].CountSetBits() > 8 ? BoardException.BlackTooManyPawns : BoardException.None;
+            rv |= boardInfo.PiecePlacement.PieceOfColorOccupancy((Color)white, (Piece)pawn).CountSetBits() > 8 ? BoardException.WhiteTooManyPawns : BoardException.None;
+            rv |= boardInfo.PiecePlacement.PieceOfColorOccupancy((Color)black, (Piece)pawn).CountSetBits() > 8 ? BoardException.BlackTooManyPawns : BoardException.None;
             return rv;
         }
 

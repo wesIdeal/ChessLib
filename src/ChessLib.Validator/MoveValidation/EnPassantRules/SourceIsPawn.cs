@@ -9,7 +9,7 @@ namespace ChessLib.Validators.MoveValidation.EnPassantRules
     {
         public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
-            var isPawn = (boardInfo.PiecePlacement.Occupancy(boardInfo.ActivePlayer, Piece.Pawn) & move.SourceValue) != 0;
+            var isPawn = (boardInfo.PiecePlacement.PieceOfColorOccupancy(boardInfo.ActivePlayer, Piece.Pawn) & move.SourceValue) != 0;
             if (isPawn) return null;
             return MoveExceptionType.EP_SourceIsNotPawn;
         }
