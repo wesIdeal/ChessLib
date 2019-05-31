@@ -189,6 +189,8 @@ namespace ChessLib.Data
             return rv.ToArray();
         }
 
+
+
         /// <summary>
         /// Determines if piece on <paramref name="squareIndex"/> is attacked by <paramref name="color"/>
         /// </summary>

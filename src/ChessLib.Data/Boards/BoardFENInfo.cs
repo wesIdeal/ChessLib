@@ -10,8 +10,10 @@ namespace ChessLib.Data
         public BoardFENInfo() : this(FENHelpers.FENInitial, false) { }
         public BoardFENInfo(string fen, bool chess960 = false)
         {
-            PiecePlacement = new PiecePlacement(FENHelpers.BoardFromFen(fen, out Color active,
-                out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock));
+            PiecePlacement piecePlacement = null;
+            FENHelpers.BoardFromFen(fen, out piecePlacement, out Color active,
+                out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
+            PiecePlacement = piecePlacement;
             ActivePlayer = active;
             CastlingAvailability = ca;
             EnPassantSquare = enPassant;

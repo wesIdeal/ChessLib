@@ -293,23 +293,23 @@ namespace MagicBitboard.Tests
             var blackKing = 0x1000000000000000;
             var rv = new BoardInfo(After1E4);
 
-            Assert.AreEqual(whitePawns, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Pawn]);
-            Assert.AreEqual(blackPawns, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Pawn]);
+            Assert.AreEqual(whitePawns, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Pawn));
+            Assert.AreEqual(blackPawns, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Pawn));
 
-            Assert.AreEqual(whiteRooks, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Rook]);
-            Assert.AreEqual(blackRooks, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Rook]);
+            Assert.AreEqual(whiteRooks, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Rook));
+            Assert.AreEqual(blackRooks, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Rook));
 
-            Assert.AreEqual(whiteKnights, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Knight]);
-            Assert.AreEqual(blackKnights, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Knight]);
+            Assert.AreEqual(whiteKnights, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Knight));
+            Assert.AreEqual(blackKnights, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Knight));
 
-            Assert.AreEqual(whiteBishops, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Bishop]);
-            Assert.AreEqual(blackBishops, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Bishop]);
+            Assert.AreEqual(whiteBishops, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Bishop));
+            Assert.AreEqual(blackBishops, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Bishop));
 
-            Assert.AreEqual(whiteQueen, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Queen]);
-            Assert.AreEqual(blackQueen, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Queen]);
+            Assert.AreEqual(whiteQueen, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Queen));
+            Assert.AreEqual(blackQueen, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Queen));
 
-            Assert.AreEqual(whiteKing, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.King]);
-            Assert.AreEqual(blackKing, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.King]);
+            Assert.AreEqual(whiteKing, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.King));
+            Assert.AreEqual(blackKing, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.King));
         }
 
         [Test]
@@ -329,23 +329,23 @@ namespace MagicBitboard.Tests
             var blackKing = 0x1000000000000000;
             var rv = new BoardInfo(After1E4C5);
 
-            Assert.AreEqual(whitePawns, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Pawn]);
-            Assert.AreEqual(blackPawns, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Pawn]);
+            Assert.AreEqual(whitePawns, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Pawn));
+            Assert.AreEqual(blackPawns, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Pawn));
 
-            Assert.AreEqual(whiteRooks, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Rook]);
-            Assert.AreEqual(blackRooks, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Rook]);
+            Assert.AreEqual(whiteRooks, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Rook));
+            Assert.AreEqual(blackRooks, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Rook));
 
-            Assert.AreEqual(whiteKnights, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Knight]);
-            Assert.AreEqual(blackKnights, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Knight]);
+            Assert.AreEqual(whiteKnights, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Knight));
+            Assert.AreEqual(blackKnights, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Knight));
 
-            Assert.AreEqual(whiteBishops, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Bishop]);
-            Assert.AreEqual(blackBishops, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Bishop]);
+            Assert.AreEqual(whiteBishops, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Bishop));
+            Assert.AreEqual(blackBishops, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Bishop));
 
-            Assert.AreEqual(whiteQueen, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Queen]);
-            Assert.AreEqual(blackQueen, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Queen]);
+            Assert.AreEqual(whiteQueen, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Queen));
+            Assert.AreEqual(blackQueen, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Queen));
 
-            Assert.AreEqual(whiteKing, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.King]);
-            Assert.AreEqual(blackKing, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.King]);
+            Assert.AreEqual(whiteKing, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.King));
+            Assert.AreEqual(blackKing, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.King));
         }
 
         [Test]
@@ -364,23 +364,20 @@ namespace MagicBitboard.Tests
             var whiteKing = 0x10;
             var blackKing = 0x1000000000000000;
             var rv = new BoardInfo(InitialBoard);
-            Assert.AreEqual(whitePawns, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Pawn]);
-            Assert.AreEqual(blackPawns, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Pawn]);
+            Assert.AreEqual(whitePawns, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Pawn));
+            Assert.AreEqual(blackPawns, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Pawn));
+            Assert.AreEqual(whiteRooks, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Rook));
+            Assert.AreEqual(blackRooks, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Rook));
 
-            Assert.AreEqual(whiteRooks, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Rook]);
-            Assert.AreEqual(blackRooks, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Rook]);
+            Assert.AreEqual(whiteKnights, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Knight));
+            Assert.AreEqual(blackKnights, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Knight));
+            Assert.AreEqual(whiteBishops, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Bishop));
+            Assert.AreEqual(blackBishops, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Bishop));
+            Assert.AreEqual(whiteQueen, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.Queen));
+            Assert.AreEqual(blackQueen, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.Queen));
 
-            Assert.AreEqual(whiteKnights, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Knight]);
-            Assert.AreEqual(blackKnights, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Knight]);
-
-            Assert.AreEqual(whiteBishops, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Bishop]);
-            Assert.AreEqual(blackBishops, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Bishop]);
-
-            Assert.AreEqual(whiteQueen, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.Queen]);
-            Assert.AreEqual(blackQueen, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.Queen]);
-
-            Assert.AreEqual(whiteKing, rv.PiecePlacement[BoardHelpers.WHITE][(int)Piece.King]);
-            Assert.AreEqual(blackKing, rv.PiecePlacement[BoardHelpers.BLACK][(int)Piece.King]);
+            Assert.AreEqual(whiteKing, rv.PiecePlacement.PieceOfColorOccupancy(Color.White, Piece.King));
+            Assert.AreEqual(blackKing, rv.PiecePlacement.PieceOfColorOccupancy(Color.Black, Piece.King));
         }
 
 

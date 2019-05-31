@@ -247,7 +247,7 @@ namespace ChessLib.Data.Helpers
 
 
 
-        public static ulong[][] BoardFromFen(this string fen, out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out uint halfmoveClock, out uint fullmoveClock, bool validate = true)
+        public static void BoardFromFen(this string fen, out PiecePlacement pieces, out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out uint halfmoveClock, out uint fullmoveClock, bool validate = true)
         {
             var fenPieces = fen.Split(' ');
             if (validate)
@@ -256,13 +256,12 @@ namespace ChessLib.Data.Helpers
                 ValidateFENString(fen);
             }
 
-            var pieces = BoardFromFen(fen);
+            pieces = new PiecePlacement(BoardFromFen(fen));
             activePlayer = GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
             castlingAvailability = GetCastlingFromString(fen.GetFENPiece(FENPieces.CastlingAvailability));
             enPassantSquareIndex = fenPieces[(int)FENPieces.EnPassantSquare].SquareTextToIndex();
             halfmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
             fullmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveCounter]);
-            return pieces;
         }
     }
 }

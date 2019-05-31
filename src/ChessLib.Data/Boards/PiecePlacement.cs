@@ -13,6 +13,8 @@ namespace ChessLib.Data.Boards
             _pieces = pieces;
         }
 
+        public ulong this[Color c, Piece p] => _pieces[(int)c][(int)p];
+
         public ulong BlackOccupancy => ColorOccupancy(Color.Black);
         public ulong WhiteOccupancy => ColorOccupancy(Color.Black);
         public ulong ColorOccupancy(Color c) => _pieces.Occupancy(c);

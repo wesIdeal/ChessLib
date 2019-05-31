@@ -14,7 +14,7 @@ namespace ChessLib.Validators.MoveValidation.MoveRules
         public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
 
-            var piece = BoardHelpers.GetTypeOfPieceAtIndex(move.SourceIndex, boardInfo.PiecePlacement);
+            var piece = boardInfo.PiecePlacement.GetTypeOfPieceAtIndex(move.SourceIndex);
             if (piece == null)
             {
                 return MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare;
@@ -22,8 +22,8 @@ namespace ChessLib.Validators.MoveValidation.MoveRules
 
             var moves = new List<MoveExt>();
             var attackedSquares = Bitboard.GetPseudoLegalMoves(piece.Value, move.SourceIndex,
-                boardInfo.ActiveOccupancy(),
-                boardInfo.OpponentOccupancy(),
+                boardInfo.PiecePlacement.ColorOccupancy(boardInfo.ActivePlayer),
+                boardInfo.PiecePlacement.ColorOccupancy(boardInfo.OpponentColor()),
                 boardInfo.ActivePlayer, boardInfo.EnPassantSquare, boardInfo.CastlingAvailability, out moves);
             return moves.Contains(move) ? (MoveExceptionType?)null : MoveExceptionType.BadDestination;
         }

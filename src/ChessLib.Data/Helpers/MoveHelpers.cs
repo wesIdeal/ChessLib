@@ -66,11 +66,7 @@ namespace ChessLib.Data.Helpers
         /// </exception>
         private static ushort? FindPieceSourceIndex<T>(IBoard board, MoveDetail moveDetail) where T : MoveValidatorBase
         {
-            return moveDetail.Piece == Piece.Pawn ?
-                // FindPawnMoveSourceIndex(board, moveDetail):
-                FindPieceMoveSourceIndex<T>(board, moveDetail,
-                    board.PiecePlacement.PieceOfColorOccupancy(board.ActivePlayer, moveDetail.Piece), ) :
-                FindPieceMoveSourceIndex<T>(board, moveDetail,
+            return FindPieceMoveSourceIndex<T>(board, moveDetail,
                  board.PiecePlacement.PieceOfColorOccupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy);
         }
 

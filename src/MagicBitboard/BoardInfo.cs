@@ -23,8 +23,10 @@ namespace ChessLib.Game
 
         public BoardInfo(string fen, bool is960 = false)
         {
+            PiecePlacement piecePlacement;
             MoveTree = new MoveTree<MoveHashStorage>(null);
-            PiecePlacement = FENHelpers.BoardFromFen(fen, out Color active, out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
+            FENHelpers.BoardFromFen(fen, out piecePlacement, out Color active, out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
+            PiecePlacement = piecePlacement;
             ActivePlayer = active;
             CastlingAvailability = ca;
             EnPassantSquare = enPassant;
@@ -37,11 +39,11 @@ namespace ChessLib.Game
         public readonly bool Chess960;
         public readonly string InitialFEN;
 
-        public ulong ActiveRookOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Rook);
-        public ulong ActiveKnightOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Knight);
-        public ulong ActivePawnOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Pawn);
-        public ulong ActiveQueenOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Queen);
-        public ulong ActiveBishopOccupancy => PiecePlacement.Occupancy(ActivePlayer, Piece.Bishop);
+        public ulong ActiveRookOccupancy => PiecePlacement.PieceOfColorOccupancy(ActivePlayer, Piece.Rook);
+        public ulong ActiveKnightOccupancy => PiecePlacement.PieceOfColorOccupancy(ActivePlayer, Piece.Knight);
+        public ulong ActivePawnOccupancy => PiecePlacement.PieceOfColorOccupancy(ActivePlayer, Piece.Pawn);
+        public ulong ActiveQueenOccupancy => PiecePlacement.PieceOfColorOccupancy(ActivePlayer, Piece.Queen);
+        public ulong ActiveBishopOccupancy => PiecePlacement.PieceOfColorOccupancy(ActivePlayer, Piece.Bishop);
 
         public override void ApplyMove(string moveText)
         {
@@ -68,7 +70,7 @@ namespace ChessLib.Game
         private void ApplyValidatedMove(MoveExt move)
         {
             var newBoard = this.ApplyMoveToBoard(move);
-            this.PiecePlacement = newBoard.PiecePlacement;
+            this.PiecePlacement = (PiecePlacement)newBoard.PiecePlacement;
             this.ActivePlayer = newBoard.ActivePlayer;
             this.CastlingAvailability = newBoard.CastlingAvailability;
             this.EnPassantSquare = newBoard.EnPassantSquare;
@@ -81,16 +83,17 @@ namespace ChessLib.Game
             ulong pinned = 0;
             var xRayBishopAttacks = this.XRayBishopAttacks(ActivePlayerKingIndex);
             var xRayRookAttacks = this.XRayRookAttacks(ActivePlayerKingIndex);
-            var bishopPinnedPieces = (PiecePlacement[this.OpponentColorAsInt()][BISHOP] | PiecePlacement[this.OpponentColorAsInt()][QUEEN]) &
+            var oppQueenPosition = PiecePlacement.PieceOfColorOccupancy(this.OpponentColor(), Piece.Queen);
+            var bishopPinnedPieces = (PiecePlacement.PieceOfColorOccupancy(this.OpponentColor(), Piece.Bishop) | oppQueenPosition) &
                                      xRayBishopAttacks;
-            var rookPinnedPieces = (PiecePlacement[this.OpponentColorAsInt()][ROOK] | PiecePlacement[this.OpponentColorAsInt()][QUEEN]) &
+            var rookPinnedPieces = (PiecePlacement.PieceOfColorOccupancy(this.OpponentColor(), Piece.Rook) | oppQueenPosition) &
                                    xRayRookAttacks;
             var allPins = rookPinnedPieces | bishopPinnedPieces;
             while (allPins != 0)
             {
                 var square = BitHelpers.BitScanForward(allPins);
                 var squaresBetween = BoardHelpers.InBetween(square, ActivePlayerKingIndex);
-                var piecesBetween = squaresBetween & PiecePlacement.Occupancy(ActivePlayer);
+                var piecesBetween = squaresBetween & PiecePlacement.ColorOccupancy(ActivePlayer);
                 if (piecesBetween.CountSetBits() == 1) pinned |= piecesBetween;
                 allPins &= allPins - 1;
             }
@@ -234,8 +237,8 @@ namespace ChessLib.Game
         /// <returns></returns>
         public static ushort FindPawnMoveSourceIndex(IBoard board, MoveDetail moveDetail)
         {
-            ulong pawnOccupancy = board.PiecePlacement.Occupancy(board.ActivePlayer, Piece.Pawn);
-            ulong totalOccupancy = board.TotalOccupancy();
+            ulong pawnOccupancy = board.PiecePlacement.PieceOfColorOccupancy(board.ActivePlayer, Piece.Pawn);
+            ulong totalOccupancy = board.TotalOccupancy;
             if (moveDetail.DestinationIndex == null)
                 throw new ArgumentException("moveDetail.DestinationIndex cannot be null");
             if (moveDetail.DestinationRank == null)
