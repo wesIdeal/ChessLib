@@ -15,7 +15,7 @@ namespace ChessLib.Data.Tests.Boards
         {
             var poc = new PieceOfColor() { Color = Color.Black, Piece = Piece.King };
             var expected = "K";
-            Assert.AreEqual(expected, MoveHelpers.GetSANSourceString<MoveValidator>(bi, new MoveExt(0), poc.Piece));
+            Assert.AreEqual(expected, MoveHelpers.GetSANSourceString(bi, new MoveExt(0), poc.Piece));
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace ChessLib.Data.Tests.Boards
         {
             var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
             var expected = "";
-            Assert.AreEqual(expected, MoveHelpers.GetSANSourceString<MoveValidator>(bi, MoveHelpers.GenerateMove(12, 28), poc.Piece));
+            Assert.AreEqual(expected, MoveHelpers.GetSANSourceString(bi, MoveHelpers.GenerateMove(12, 28), poc.Piece));
         }
 
         [TestCase("5r2/6Pk/1R6/7P/6K1/8/8/8 w - - 0 62", 54, 61, "gxf8=Q 1/2-1/2", PromotionPiece.Queen, MoveType.Promotion)]
@@ -33,7 +33,7 @@ namespace ChessLib.Data.Tests.Boards
         {
             var board = new BoardInfo(fen);
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
-            Assert.AreEqual(expected, move.MoveToSAN<MoveValidator>(board));
+            Assert.AreEqual(expected, move.MoveToSAN(board));
         }
 
         [TestCase("rnbqkbnr/1pp1pppp/p7/3p4/2P1P3/8/PP1P1PPP/RNBQKBNR w KQkq - 0 1", 28, 35, "exd5")]
@@ -48,7 +48,7 @@ namespace ChessLib.Data.Tests.Boards
         {
             var boardInfo = new BoardInfo(fen);
             var move = MoveFromInt(from, to, PromotionPiece.Knight, mt);
-            Assert.AreEqual(expected, move.MoveToSAN<MoveValidator>(boardInfo));
+            Assert.AreEqual(expected, move.MoveToSAN(boardInfo));
         }
 
 
@@ -65,7 +65,7 @@ namespace ChessLib.Data.Tests.Boards
         {
             var boardInfo = new BoardInfo(fen);
             var move = MoveFromInt(from, to);
-            Assert.AreEqual(expected, move.MoveToSAN<MoveValidator>(boardInfo));
+            Assert.AreEqual(expected, move.MoveToSAN(boardInfo));
 
         }
 
@@ -76,7 +76,7 @@ namespace ChessLib.Data.Tests.Boards
             var boardInfo = new BoardInfo(fen);
             var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
             var move = MoveFromInt(from, to, PromotionPiece.Queen, MoveType.Promotion);
-            Assert.AreEqual(expected, move.MoveToSAN<MoveValidator>(boardInfo));
+            Assert.AreEqual(expected, move.MoveToSAN(boardInfo));
 
         }
 
@@ -89,7 +89,7 @@ namespace ChessLib.Data.Tests.Boards
         public static void MoveToSAN_Checks(string fen, int from, int to, string expected)
         {
             var boardInfo = new BoardInfo(fen);
-            Assert.AreEqual(expected, MoveHelpers.GenerateMove((ushort)from, (ushort)to).MoveToSAN<MoveValidator>(boardInfo));
+            Assert.AreEqual(expected, MoveHelpers.GenerateMove((ushort)from, (ushort)to).MoveToSAN(boardInfo));
         }
 
         public static MoveExt MoveFromInt(int f, int t, PromotionPiece p = PromotionPiece.Knight, MoveType mt = MoveType.Normal) =>
