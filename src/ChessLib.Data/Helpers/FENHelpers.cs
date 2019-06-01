@@ -245,8 +245,22 @@ namespace ChessLib.Data.Helpers
             return (rankOffset * 8) + (idx % 8);
         }
 
+        public static ulong[][] BoardFromFen(this string fen, out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out uint halfmoveClock, out uint fullmoveClock, bool validate = true)
+        {
+            var fenPieces = fen.Split(' ');
+            if (validate)
+            {
+                ValidateFENStructure(fen);
+                ValidateFENString(fen);
+            }
 
-
-      
+            var pieces = BoardFromFen(fen);
+            activePlayer = GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
+            castlingAvailability = GetCastlingFromString(fen.GetFENPiece(FENPieces.CastlingAvailability));
+            enPassantSquareIndex = fenPieces[(int)FENPieces.EnPassantSquare].SquareTextToIndex();
+            halfmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
+            fullmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveCounter]);
+            return pieces;
+        }
     }
 }

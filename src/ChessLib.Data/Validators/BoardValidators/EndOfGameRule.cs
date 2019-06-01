@@ -14,7 +14,7 @@ namespace ChessLib.Validators.BoardValidators
                 return BoardException.Checkmate;
             }
 
-            if (boardInfo.IsStalemate<MoveValidator>())
+            if (boardInfo.IsStalemate())
             {
                 return BoardException.Stalemate;
             }

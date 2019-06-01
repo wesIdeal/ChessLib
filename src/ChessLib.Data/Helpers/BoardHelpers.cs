@@ -283,26 +283,9 @@ namespace ChessLib.Data.Helpers
         }
         public static PieceOfColor? GetPieceOfColorAtIndex(this IBoard board, ushort index) => GetPieceOfColorAtIndex(board.GetPiecePlacement(), index);
 
-        public static ulong FlipVertically(this ulong board)
-        {
-            var x = board;
-            return (x << 56) |
-                    ((x << 40) & 0x00ff000000000000) |
-                    ((x << 24) & 0x0000ff0000000000) |
-                    ((x << 8) & 0x000000ff00000000) |
-                    ((x >> 8) & 0x00000000ff000000) |
-                    ((x >> 24) & 0x0000000000ff0000) |
-                    ((x >> 40) & 0x000000000000ff00) |
-                    (x >> 56);
-        }
 
-        public static ushort FlipIndexVertically(this ushort idx)
-        {
-            var rank = idx.RankFromIdx();
-            var file = idx.FileFromIdx();
-            var rankCompliment = rank.RankCompliment();
-            return (ushort)((rankCompliment * 8) + file);
-        }
+
+
 
         public static bool IsPlayerInCheck(this ulong[][] board, int playerInCheckColor)
         {
