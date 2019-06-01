@@ -1,5 +1,4 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Game;
 using ChessLib.Types;
 using ChessLib.Types.Enums;
 using ChessLib.Validators.MoveValidation;
@@ -10,7 +9,7 @@ namespace ChessLib.Data.Tests.Boards
     [TestFixture]
     public class BoardInformationService
     {
-        BoardFENInfo bi = new BoardFENInfo();
+        readonly BoardInfo bi = new BoardInfo();
         [Test]
         public void GetSANSourceString_King()
         {
@@ -30,7 +29,7 @@ namespace ChessLib.Data.Tests.Boards
         [TestCase("5r2/6Pk/1R6/7P/6K1/8/8/8 w - - 0 62", 54, 61, "gxf8=Q 1/2-1/2", PromotionPiece.Queen, MoveType.Promotion)]
         [TestCase("6K1/4k1P1/8/7q/8/8/8/8 b - - 9 56", 52, 60, "Ke8 1/2-1/2")]
         [TestCase("6K1/4k1P1/8/6q1/8/8/8/8 b - - 9 56", 38, 39, "Qh5 1/2-1/2")]
-        public void MoveToSAN_Stalemate(string fen, int f, int t, string expected, PromotionPiece p = PromotionPiece.Knight, MoveType type = MoveType.Normal)
+        public static void MoveToSAN_Stalemate(string fen, int f, int t, string expected, PromotionPiece p = PromotionPiece.Knight, MoveType type = MoveType.Normal)
         {
             var board = new BoardInfo(fen);
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
@@ -45,7 +44,7 @@ namespace ChessLib.Data.Tests.Boards
         [TestCase(FENHelpers.FENInitial, 10, 26, "c4")]
         [TestCase("rnbqkbnr/1pp1pppp/p7/2Pp4/8/8/PP1PPPPP/RNBQKBNR w KQkq d6 0 3", 34, 43, "cxd6", MoveType.EnPassant)]
         [TestCase("rnbqkbnr/1pp1pppp/p7/2Pp4/2P5/8/P2PPPPP/RNBQKBNR w KQkq d6 0 3", 26, 35, "cxd5")]
-        public void MoveToSAN_Pawn(string fen, int from, int to, string expected, MoveType mt = MoveType.Normal)
+        public static void MoveToSAN_Pawn(string fen, int from, int to, string expected, MoveType mt = MoveType.Normal)
         {
             var boardInfo = new BoardInfo(fen);
             var move = MoveFromInt(from, to, PromotionPiece.Knight, mt);
@@ -62,7 +61,7 @@ namespace ChessLib.Data.Tests.Boards
         [TestCase("2k5/8/8/1b6/4Q2Q/8/7K/7Q w - - 0 1", 31, 4, "Qh4e1")]
         [TestCase("7k/8/8/3bR3/8/3R4/7K/8 w - - 0 1", 36, 35, "Rexd5")]
         [TestCase("7k/8/8/4R3/8/3R4/7K/8 w - - 0 1", 36, 35, "Red5")]
-        public void MoveToSAN_Piece(string fen, int from, int to, string expected)
+        public static void MoveToSAN_Piece(string fen, int from, int to, string expected)
         {
             var boardInfo = new BoardInfo(fen);
             var move = MoveFromInt(from, to);
@@ -87,13 +86,13 @@ namespace ChessLib.Data.Tests.Boards
         [TestCase("8/8/8/8/5Q2/8/6k1/4K3 w - - 0 1", 29, 28, "Qe4+")]
         [TestCase("rnbqkbnr/ppp2ppp/3p4/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR w KQkq - 0 3", 26, 53, "Bxf7+")]
         [TestCase("rnbqkbnr/ppp2ppp/3p4/4N2Q/2B1P3/8/PPPP1PPP/RNB1K2R w KQkq - 0 3", 39, 53, "Qxf7# 1-0")]
-        public void MoveToSAN_Checks(string fen, int from, int to, string expected)
+        public static void MoveToSAN_Checks(string fen, int from, int to, string expected)
         {
             var boardInfo = new BoardInfo(fen);
             Assert.AreEqual(expected, MoveHelpers.GenerateMove((ushort)from, (ushort)to).MoveToSAN<MoveValidator>(boardInfo));
         }
 
-        public MoveExt MoveFromInt(int f, int t, PromotionPiece p = PromotionPiece.Knight, MoveType mt = MoveType.Normal) =>
+        public static MoveExt MoveFromInt(int f, int t, PromotionPiece p = PromotionPiece.Knight, MoveType mt = MoveType.Normal) =>
              MoveHelpers.GenerateMove((ushort)f, (ushort)t, mt, p);
     }
 }

@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
-    <ProjectReference Include="..\ChessLib.Interfaces\ChessLib.Types.csproj" />
   </ItemGroup>
 
 </Project>

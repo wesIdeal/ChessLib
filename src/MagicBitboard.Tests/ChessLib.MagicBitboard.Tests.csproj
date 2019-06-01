@@ -47,7 +47,6 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BoardInfoTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -62,18 +61,6 @@
     <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj">
       <Project>{B7C1799C-A422-46B1-BE5D-B2579C7006A4}</Project>
       <Name>ChessLib.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ChessLib.Interfaces\ChessLib.Types.csproj">
-      <Project>{ff2da474-065c-4c55-8dfe-8e2dc5706702}</Project>
-      <Name>ChessLib.Types</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ChessLib.Validator\ChessLib.Validators.csproj">
-      <Project>{50F19285-89C3-48A9-AF26-CCC4492C1882}</Project>
-      <Name>ChessLib.Validators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MagicBitboard\ChessLib.Game.csproj">
-      <Project>{a06c0b4b-b75c-499b-b0f8-0268dc437b48}</Project>
-      <Name>ChessLib.Game</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

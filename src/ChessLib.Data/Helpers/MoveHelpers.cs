@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
-using ChessLib.Data.Boards;
 
 namespace ChessLib.Data.Helpers
 {
@@ -48,7 +47,7 @@ namespace ChessLib.Data.Helpers
             Debug.Assert(md.SourceIndex != null, "md.SourceIndex != null");
             Debug.Assert(md.DestinationIndex != null, "md.DestinationIndex != null");
             if (md.IsCapture && md.Piece == Piece.Pawn &&
-                (board.PiecePlacement.ColorOccupancy(board.ActivePlayer.Toggle()) & (1ul << md.DestinationIndex)) == 0 &&
+                (board.OpponentOccupancy() & (1ul << md.DestinationIndex)) == 0 &&
                 (md.DestinationRank == 2 || md.DestinationRank == 5)) md.MoveType = MoveType.EnPassant;
             var moveExt = MoveHelpers.GenerateMove(md.SourceIndex.Value, md.DestinationIndex.Value, md.MoveType,
                 md.PromotionPiece ?? 0);
@@ -66,8 +65,12 @@ namespace ChessLib.Data.Helpers
         /// </exception>
         private static ushort? FindPieceSourceIndex<T>(IBoard board, MoveDetail moveDetail) where T : MoveValidatorBase
         {
-            return FindPieceMoveSourceIndex<T>(board, moveDetail,
-                 board.PiecePlacement.PieceOfColorOccupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy);
+            return moveDetail.Piece == Piece.Pawn ?
+                // FindPawnMoveSourceIndex(board, moveDetail):
+                FindPieceMoveSourceIndex<T>(board, moveDetail,
+                    board.GetPiecePlacement().Occupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy()) :
+                FindPieceMoveSourceIndex<T>(board, moveDetail,
+                 board.GetPiecePlacement().Occupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy());
         }
 
         /// <summary>
@@ -170,14 +173,14 @@ namespace ChessLib.Data.Helpers
             return md;
         }
 
-        public static string MoveToSAN<T>(this MoveExt move, IBoard boardInfo, bool recordResult = true) where T : MoveValidatorBase
+        public static string MoveToSAN(this MoveExt move, IBoard boardInfo, bool recordResult = true)
         {
             var sideMoving = boardInfo.ActivePlayer;
-            var preMoveBoard = boardInfo.PiecePlacement.GetPiecePlacementArray();
-            var postMoveBoard = new PiecePlacement(boardInfo.GetBoardPostMove(move));
-            var srcPiece = BoardHelpers.GetPieceOfColorAtIndex(boardInfo, move.SourceIndex)?.Piece;
+            var preMoveBoard = boardInfo.GetPiecePlacement();
+            var postMoveBoard = boardInfo.GetPiecePlacement().GetBoardPostMove(sideMoving, move);
+            var srcPiece = boardInfo.GetPiecePlacement().GetPieceOfColorAtIndex(move.SourceIndex)?.Piece;
             if (srcPiece == null) throw new MoveException("No piece at source index.", MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, move, sideMoving);
-            var strSrcPiece = GetSANSourceString<T>(boardInfo, move, srcPiece.Value);
+            var strSrcPiece = GetSANSourceString(boardInfo, move, srcPiece.Value);
             var strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
             string checkInfo = "", result = "", promotionInfo = "", capture = "";
 
@@ -191,10 +194,8 @@ namespace ChessLib.Data.Helpers
             {
                 promotionInfo = $"={PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)}";
             }
-            var board = (BoardFENInfo)boardInfo.Clone();
-            board.PiecePlacement = postMoveBoard;
-            board.ActivePlayer = sideMoving.Toggle();
 
+            var board = boardInfo.ApplyMoveToBoard(move);
             if (board.IsActivePlayerInCheck())
             {
                 checkInfo = "+";
@@ -210,35 +211,33 @@ namespace ChessLib.Data.Helpers
             else if (recordResult)
             {
 
-                result = board.IsStalemate<T>() ? "1/2-1/2" : "";
+                result = board.IsStalemate() ? "1/2-1/2" : "";
             }
 
             //Get piece representation
             return $"{strSrcPiece}{capture}{move.DestinationIndex.IndexToSquareDisplay()}{promotionInfo}{checkInfo} {result}".Trim();
         }
 
-        public static string GetSANSourceString<T>(IBoard board, MoveExt move, Piece srcPiece) where T : MoveValidatorBase
+        public static string GetSANSourceString(IBoard board, MoveExt move, Piece src)
         {
-            if (srcPiece == Piece.King)
+            if (src == Piece.King)
             {
                 return "K";
             }
-            if (srcPiece == Piece.Pawn)
+            if (src == Piece.Pawn)
             {
                 //if the move was an En Passant or a capture, return the file letter
                 return move.MoveType == MoveType.EnPassant || (move.SourceIndex.GetFile() != move.DestinationIndex.GetFile())
                     ? move.SourceIndex.IndexToFileDisplay().ToString() : "";
             }
 
-            var strSrcPiece = srcPiece.GetCharRepresentation().ToString().ToUpper();
-            var otherLikePieces = board.PiecePlacement.PieceOfColorOccupancy(board.ActivePlayer, srcPiece);
+            var strSrcPiece = src.GetCharRepresentation().ToString().ToUpper();
+            var otherLikePieces = board.GetPiecePlacement().Occupancy(board.ActivePlayer, src);
             var duplicateAttackerIndexes = new List<ushort>();
-            var attackerIndices = otherLikePieces.GetSetBits();
-            foreach (var attackerIndex in attackerIndices)
-            {
-                var legalMoves = board.GetLegalMoves<T>(attackerIndex);
 
-                if (legalMoves.Select(x => x.DestinationIndex).Contains(move.DestinationIndex))
+            foreach (var attackerIndex in otherLikePieces.GetSetBits())
+            {
+                if (board.CanPieceMoveToDestination(attackerIndex, move.DestinationIndex))
                 {
                     duplicateAttackerIndexes.Add(attackerIndex);
                 }

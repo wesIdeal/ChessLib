@@ -35,12 +35,12 @@ namespace ChessLib.Data.Tests.Helpers
             var dict = new Dictionary<char, CastlingAvailability>();
             var castlingInfos = new List<CastleInfo>();
             foreach (var ca in Enum.GetValues(typeof(CastlingAvailability)))
-                dict.Add(((CastlingAvailability) ca).AsString(EnumFormat.Description)[0], (CastlingAvailability) ca);
+                dict.Add(((CastlingAvailability)ca).AsString(EnumFormat.Description)[0], (CastlingAvailability)ca);
             foreach (var perm in permutationsOfCastlingChars)
             {
                 CastlingAvailability ca = 0;
                 foreach (var c in perm) ca |= dict[c];
-                castlingInfos.Add(new CastleInfo {CastlingAvailability = ca, CastlingAvailabilityString = perm});
+                castlingInfos.Add(new CastleInfo { CastlingAvailability = ca, CastlingAvailabilityString = perm });
             }
 
             _castleInfos = castlingInfos.ToArray();
@@ -74,11 +74,11 @@ namespace ChessLib.Data.Tests.Helpers
 
         private static IEnumerable<IEnumerable<T>> GetKCombs<T>(IEnumerable<T> list, int length) where T : IComparable
         {
-            if (length == 1) return list.Select(t => new[] {t});
+            if (length == 1) return list.Select(t => new[] { t });
             var enumerable = list as T[] ?? list.ToArray();
             return GetKCombs(enumerable, length - 1)
                 .SelectMany(t => enumerable.Where(o => o.CompareTo(t.Last()) > 0),
-                    (t1, t2) => t1.Concat(new[] {t2}));
+                    (t1, t2) => t1.Concat(new[] { t2 }));
         }
 
         private const string FENFormat = "{0} {1} {2} {3} {4} {5}";
@@ -139,7 +139,7 @@ namespace ChessLib.Data.Tests.Helpers
         [Test]
         public static void GetMoveNumberFromString_ShouldReturnAppropriateUINT_GivenValidInput()
         {
-            Assert.AreEqual((uint?) 24, FENHelpers.GetMoveNumberFromString("24"));
+            Assert.AreEqual((uint?)24, FENHelpers.GetMoveNumberFromString("24"));
         }
 
         [Test(Description = "Should make appropriate FEN Castling Availability string (-) when empty.")]
@@ -243,21 +243,21 @@ namespace ChessLib.Data.Tests.Helpers
         }
 
         [Test]
-        public void ValidateCastlingAvailabilityString_ShouldReturnError_WhenCastlingHasDashAndOtherCharacters()
+        public static void ValidateCastlingAvailabilityString_ShouldReturnError_WhenCastlingHasDashAndOtherCharacters()
         {
             var expected = FENError.CastlingStringBadSequence;
             Assert.AreEqual(expected, FENHelpers.ValidateCastlingAvailabilityString("KQ-"));
         }
 
         [Test]
-        public void ValidateCastlingAvailabilityString_ShouldReturnError_WhenCastlingHasRepeatedCharacters()
+        public static void ValidateCastlingAvailabilityString_ShouldReturnError_WhenCastlingHasRepeatedCharacters()
         {
             var expected = FENError.CastlingStringRepetition;
             Assert.AreEqual(expected, FENHelpers.ValidateCastlingAvailabilityString("KQK"));
         }
 
         [Test]
-        public void ValidateCastlingAvailabilityString_ShouldReturnError_WhenCastlingStringIsEmpty()
+        public static void ValidateCastlingAvailabilityString_ShouldReturnError_WhenCastlingStringIsEmpty()
         {
             var expected = FENError.CastlingNoStringPresent;
             Assert.AreEqual(expected, FENHelpers.ValidateCastlingAvailabilityString(""));
@@ -265,7 +265,7 @@ namespace ChessLib.Data.Tests.Helpers
         }
 
         [Test]
-        public void ValidateCastlingAvailabilityString_ShouldReturnNoError_WhenCastlingNotAvailable()
+        public static void ValidateCastlingAvailabilityString_ShouldReturnNoError_WhenCastlingNotAvailable()
         {
             var expected = FENError.Null;
             Assert.AreEqual(expected, FENHelpers.ValidateCastlingAvailabilityString("-"));
@@ -310,7 +310,7 @@ namespace ChessLib.Data.Tests.Helpers
         }
 
         [Test]
-        public void ValidateFENStructure_ShouldThrowExc_WhenFENIsNullOrEmpty()
+        public static void ValidateFENStructure_ShouldThrowExc_WhenFENIsNullOrEmpty()
         {
             Assert.Throws(typeof(FENException),
                 () =>
@@ -341,7 +341,7 @@ namespace ChessLib.Data.Tests.Helpers
         }
 
         [Test]
-        public void ValidateFENStructure_ShouldThrowExc_WhenFENLacksPieces()
+        public static void ValidateFENStructure_ShouldThrowExc_WhenFENLacksPieces()
         {
             Assert.Throws(typeof(FENException),
                 () =>

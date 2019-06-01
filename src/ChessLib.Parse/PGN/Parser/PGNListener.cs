@@ -32,7 +32,6 @@ namespace ChessLib.Parse.PGN.Parser
 
 
         private readonly Stack<MoveTree<IMoveText>> _moveTreeStack = new Stack<MoveTree<IMoveText>>();
-        private readonly int? _maxGames;
         public List<Game<IMoveText>> Games;
 
         private Game<IMoveText> CurrentGame { get; set; }
