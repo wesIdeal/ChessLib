@@ -59,11 +59,9 @@ namespace ChessLib.Parse.PGN
         /// Gets MoveExt objects from PGN and validates moves while parsing.
         /// </summary>
         /// <returns>Validated Moves</returns>
-        public List<Game<TMoveStorage>> GetGames<TBoardService, TMoveStorage>(int? MaxGames = null)
-            where TBoardService : BoardInformationService<TMoveStorage> where TMoveStorage : MoveStorage
+        public List<Game<MoveHashStorage>> GetGames(int? MaxGames = null)
         {
-            var rv = new List<Game<TMoveStorage>>();
-
+            var rv = new List<Game<MoveHashStorage>>();
             var perGame = new List<long>();
             var sw = new Stopwatch();
             var games = GetGameTexts();
@@ -73,14 +71,14 @@ namespace ChessLib.Parse.PGN
                 sw.Reset();
                 sw.Start();
                 var fen = game.TagSection.FENStart;
-                var boardInfo = (TBoardService)Activator.CreateInstance(typeof(TBoardService), fen, false);
+                var boardInfo = new BoardInfo();
                 foreach (var move in game.MoveSection)
                 {
                     boardInfo.ApplyMove(move.Move.SAN);
                 }
                 sw.Stop();
                 perGame.Add(sw.ElapsedMilliseconds);
-                rv.Add(new Game<TMoveStorage>() { TagSection = game.TagSection, MoveSection = boardInfo.MoveTree });
+                rv.Add(new Game<MoveHashStorage>() { TagSection = game.TagSection, MoveSection = boardInfo.MoveTree });
             }
 
             AvgValidationTimePerGame = perGame.Average();

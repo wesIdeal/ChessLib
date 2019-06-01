@@ -107,14 +107,14 @@ namespace ChessLib.Graphics
             }
         }
 
-        private IMagickImage ChangeColor(in IMagickImage orig, MagickColor from, MagickColor to)
+        private static IMagickImage ChangeColor(in IMagickImage orig, MagickColor from, MagickColor to)
         {
             orig.ColorFuzz = new Percentage(80);
             orig.Opaque(from, to);
             return orig;
         }
 
-        private int SecondsToHundredths(double seconds) => (int)Math.Round(seconds * 100);
+        private static int SecondsToHundredths(double seconds) => (int)Math.Round(seconds * 100);
 
         public void MakeAnimationFromMoveTree(Stream writeTo, Game<MoveHashStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
         {
@@ -263,7 +263,7 @@ namespace ChessLib.Graphics
 
 
 
-        protected MagickFormat GetMagickFormatFromFormat(ImageFormat format)
+        protected static MagickFormat GetMagickFormatFromFormat(ImageFormat format)
         {
             switch (format)
             {
@@ -438,7 +438,7 @@ namespace ChessLib.Graphics
 
 
 
-        private PointD CenterOfRectangle(double upperX, double upperY, double lowerX, double lowerY)
+        private static PointD CenterOfRectangle(double upperX, double upperY, double lowerX, double lowerY)
         {
             var centerX = (upperX + lowerX) / 2;
             var centerY = (upperY + lowerY) / 2;

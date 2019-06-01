@@ -7,19 +7,12 @@
 
   <ItemGroup>
     <Compile Remove="Exceptions\**" />
-    <Compile Remove="Types\**" />
     <EmbeddedResource Remove="Exceptions\**" />
-    <EmbeddedResource Remove="Types\**" />
     <None Remove="Exceptions\**" />
-    <None Remove="Types\**" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Enums.NET" Version="2.3.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ChessLib.Interfaces\ChessLib.Types.csproj" />
   </ItemGroup>
 
 </Project>

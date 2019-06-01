@@ -6,14 +6,14 @@ namespace ChessLib.Data.MoveRepresentation
 {
     public abstract class MoveStorage : IMove, IMoveStorage, IEquatable<MoveStorage>
     {
-        public MoveStorage(ushort move, Piece pieceMoving, Color colorMoving)
+        protected MoveStorage(ushort move, Piece pieceMoving, Color colorMoving)
         {
             Move = move;
             PieceMoving = pieceMoving;
             ColorMoving = colorMoving;
         }
 
-        public MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move, pieceMoving, colorMoving) { }
+        protected MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move, pieceMoving, colorMoving) { }
 
         public virtual Color ColorMoving { get; private set; }
         public virtual ushort Move { get; }

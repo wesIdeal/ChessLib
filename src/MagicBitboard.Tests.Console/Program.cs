@@ -1,7 +1,6 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Game;
 using ChessLib.Graphics;
 using ChessLib.Parse.PGN;
 using ChessLib.Types.Enums;
@@ -75,7 +74,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             //var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
             var parsePgn = ParsePgn.FromText(pgn);
             //var games = parsePgn.GetGameTexts();
-            var games = parsePgn.GetGames<BoardInfo, MoveHashStorage>();
+            var games = parsePgn.GetGames();
             var game = games[0];
             Console.WriteLine($"Avg time per move:\t{parsePgn.AvgTimePerMove} ms");
             Console.WriteLine($"Avg time per game:\t{parsePgn.AvgTimePerGame} ms");

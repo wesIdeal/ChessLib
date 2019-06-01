@@ -68,9 +68,9 @@ namespace ChessLib.Data.Helpers
             return moveDetail.Piece == Piece.Pawn ?
                 // FindPawnMoveSourceIndex(board, moveDetail):
                 FindPieceMoveSourceIndex<T>(board, moveDetail,
-                    board.PiecePlacement.Occupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy()) :
+                    board.GetPiecePlacement().Occupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy()) :
                 FindPieceMoveSourceIndex<T>(board, moveDetail,
-                 board.PiecePlacement.Occupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy());
+                 board.GetPiecePlacement().Occupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy());
         }
 
         /// <summary>
@@ -176,9 +176,9 @@ namespace ChessLib.Data.Helpers
         public static string MoveToSAN(this MoveExt move, IBoard boardInfo, bool recordResult = true)
         {
             var sideMoving = boardInfo.ActivePlayer;
-            var preMoveBoard = boardInfo.PiecePlacement;
-            var postMoveBoard = boardInfo.PiecePlacement.GetBoardPostMove(sideMoving, move);
-            var srcPiece = boardInfo.PiecePlacement.GetPieceOfColorAtIndex(move.SourceIndex)?.Piece;
+            var preMoveBoard = boardInfo.GetPiecePlacement();
+            var postMoveBoard = boardInfo.GetPiecePlacement().GetBoardPostMove(sideMoving, move);
+            var srcPiece = boardInfo.GetPiecePlacement().GetPieceOfColorAtIndex(move.SourceIndex)?.Piece;
             if (srcPiece == null) throw new MoveException("No piece at source index.", MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, move, sideMoving);
             var strSrcPiece = GetSANSourceString(boardInfo, move, srcPiece.Value);
             var strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
@@ -194,10 +194,8 @@ namespace ChessLib.Data.Helpers
             {
                 promotionInfo = $"={PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)}";
             }
-            var board = (BoardFENInfo)boardInfo.Clone();
-            board.PiecePlacement = postMoveBoard;
-            board.ActivePlayer = sideMoving.Toggle();
 
+            var board = boardInfo.ApplyMoveToBoard(move);
             if (board.IsActivePlayerInCheck())
             {
                 checkInfo = "+";
@@ -234,7 +232,7 @@ namespace ChessLib.Data.Helpers
             }
 
             var strSrcPiece = src.GetCharRepresentation().ToString().ToUpper();
-            var otherLikePieces = board.PiecePlacement.Occupancy(board.ActivePlayer, src);
+            var otherLikePieces = board.GetPiecePlacement().Occupancy(board.ActivePlayer, src);
             var duplicateAttackerIndexes = new List<ushort>();
 
             foreach (var attackerIndex in otherLikePieces.GetSetBits())
