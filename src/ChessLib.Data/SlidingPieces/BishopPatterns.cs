@@ -3,7 +3,7 @@ using ChessLib.Data.PieceMobility;
 
 namespace ChessLib.Data
 {
-    public class BishopPatterns : MovePatternStorage
+    internal class BishopPatterns : MovePatternStorage
     {
         public BishopPatterns()
         {

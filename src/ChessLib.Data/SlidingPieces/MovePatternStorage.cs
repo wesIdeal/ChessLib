@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace ChessLib.Data
 {
-    public class MovePatternStorage : IEnumerable<ulong>
+    internal class MovePatternStorage : IEnumerable<ulong>
     {
         const ushort MaxArraySize = 64;
         public readonly ulong[] AttackPatterns = new ulong[MaxArraySize];

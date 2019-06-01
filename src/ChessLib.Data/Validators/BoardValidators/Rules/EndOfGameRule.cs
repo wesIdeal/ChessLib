@@ -3,7 +3,7 @@ using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 using ChessLib.Validators.MoveValidation;
 
-namespace ChessLib.Validators.BoardValidators
+namespace ChessLib.Validators.BoardValidators.Rules
 {
     public class EndOfGameRule : IBoardRule
     {
@@ -21,11 +21,6 @@ namespace ChessLib.Validators.BoardValidators
 
             return BoardException.None;
         }
-
-
-
-
-
     }
 }
 

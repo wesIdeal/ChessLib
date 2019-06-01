@@ -2,7 +2,7 @@
 
 namespace ChessLib.Data.PieceMobility
 {
-    public class RookMovesInitializer : MoveInitializer
+    internal class RookMovesInitializer : MoveInitializer
     {
         public RookMovesInitializer() : base(SlidingPieceDirectionConstants.RookDirections) { }
     }

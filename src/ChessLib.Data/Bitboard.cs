@@ -13,8 +13,8 @@ namespace ChessLib.Data
     public static class Bitboard
     {
 
-        public static readonly MovePatternStorage Bishop = new MovePatternStorage();
-        public static readonly MovePatternStorage Rook = new MovePatternStorage();
+        private static readonly MovePatternStorage Bishop = new MovePatternStorage();
+        private static readonly MovePatternStorage Rook = new MovePatternStorage();
 
         static Bitboard()
         {

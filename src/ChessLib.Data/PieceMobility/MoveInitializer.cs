@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace ChessLib.Data.PieceMobility
 {
-    public abstract class MoveInitializer
+    internal abstract class MoveInitializer
     {
 
         private readonly MoveDirection _moveDirectionFlags;

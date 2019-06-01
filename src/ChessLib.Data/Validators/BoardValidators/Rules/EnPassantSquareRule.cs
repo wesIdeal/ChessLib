@@ -1,0 +1,70 @@
+﻿using ChessLib.Data.Helpers;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
+
+namespace ChessLib.Validators.BoardValidators.Rules
+{
+    public class CastlingAvailabilityRule : IBoardRule
+    {
+        //public static string ValidateCastlingRights(ulong[][] piecesOnBoard, CastlingAvailability castlingAvailability,
+        //    bool chess960 = false)
+        //{
+
+        //}
+        public BoardException Validate(in IBoard boardInfo)
+        {
+            var rv = BoardException.None;
+            var castlingAvailability = boardInfo.CastlingAvailability;
+            if (castlingAvailability == CastlingAvailability.NoCastlingAvailable) return BoardException.None;
+
+            var whiteRooks = boardInfo.GetPiecePlacement().Occupancy(Color.White, Piece.Rook);
+            var blackRooks = boardInfo.GetPiecePlacement().Occupancy(Color.Black, Piece.Rook);
+            var whiteKing = boardInfo.GetPiecePlacement().Occupancy(Color.White, Piece.King);
+            var blackKing = boardInfo.GetPiecePlacement().Occupancy(Color.Black, Piece.King);
+            //Check for Rook placement
+            if (castlingAvailability.HasFlag(CastlingAvailability.WhiteQueenside) &&
+                !whiteRooks.IsBitSet(0))
+                rv |= BoardException.WhiteCastleLong;
+            if (castlingAvailability.HasFlag(CastlingAvailability.BlackQueenside) &&
+                !blackRooks.IsBitSet(56))
+                rv |= BoardException.BlackCastleLong;
+            if (castlingAvailability.HasFlag(CastlingAvailability.WhiteKingside) &&
+                !whiteRooks.IsBitSet(7))
+                rv |= BoardException.WhiteCastleShort;
+            if (castlingAvailability.HasFlag(CastlingAvailability.BlackKingside) &&
+                !blackRooks.IsBitSet(63))
+                rv |= BoardException.BlackCastleShort;
+
+            ////Check for King placement
+            if ((castlingAvailability.HasFlag(CastlingAvailability.WhiteQueenside) ||
+                castlingAvailability.HasFlag(CastlingAvailability.WhiteKingside))
+                && !whiteKing.IsBitSet(4))
+                rv |= BoardException.WhiteCastleMisplacedKing;
+            if ((castlingAvailability.HasFlag(CastlingAvailability.BlackQueenside) ||
+                castlingAvailability.HasFlag(CastlingAvailability.BlackKingside))
+                && !blackKing.IsBitSet(60))
+                rv |= BoardException.BlackCastleMisplacedKing;
+            return rv;
+        }
+    }
+    public class EnPassantSquareRule : IBoardRule
+    {
+        public BoardException Validate(in IBoard boardInfo)
+        {
+            if (boardInfo.EnPassantSquare == null) return BoardException.None;
+            if (boardInfo.ActivePlayer == Color.White &&
+                (boardInfo.EnPassantSquare < 40 || boardInfo.EnPassantSquare > 47)
+                ||
+                boardInfo.ActivePlayer == Color.Black &&
+                (boardInfo.EnPassantSquare < 16 || boardInfo.EnPassantSquare > 23))
+                return BoardException.BadEnPassant;
+            var possiblePawnLocation =
+                boardInfo.ActivePlayer == Color.White ? boardInfo.EnPassantSquare - 8 : boardInfo.EnPassantSquare + 8;
+            var possiblePawnLocationValue = 1ul << possiblePawnLocation;
+            var pawnsOnBoard = boardInfo.GetPiecePlacement().Occupancy(boardInfo.ActivePlayer.Toggle(), Piece.Pawn);
+
+            return (pawnsOnBoard & possiblePawnLocationValue) == 0 ? BoardException.BadEnPassant : BoardException.None;
+        }
+    }
+}
+

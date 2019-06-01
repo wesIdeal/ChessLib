@@ -94,7 +94,7 @@ namespace ChessLib.Types.Enums
         BlackTooManyPieces = 8,
         [Description("Both sides are in check.")]
         DoubleCheck = 16,
-        [Description("Active side (side to move) is in check.")]
+        [Description("Opponent side is in check.")]
         OppositeCheck = 32,
         [Description("Bad En Passant square in board setup.")]
         BadEnPassant = 64,

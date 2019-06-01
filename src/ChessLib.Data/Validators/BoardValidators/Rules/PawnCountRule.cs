@@ -2,7 +2,7 @@
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 
-namespace ChessLib.Validators.BoardValidators.Rules 
+namespace ChessLib.Validators.BoardValidators.Rules
 {
     public class PawnCountRule : IBoardRule
     {
