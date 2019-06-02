@@ -379,7 +379,7 @@ namespace ChessLib.Data.Helpers
             var castlingAvailability = GetCastlingAvailabilityPostMove(board, move, pieceMoving.Value.Piece);
             var enPassantSquare = GetEnPassentIndex(move, pieceMoving.Value);
             var activePlayer = board.ActivePlayer.Toggle();
-            return new BoardInfo(piecePlacement, activePlayer, castlingAvailability, enPassantSquare, halfMoveClock, fullMoveCounter);
+            return new BoardInfo(piecePlacement, activePlayer, castlingAvailability, enPassantSquare, halfMoveClock, fullMoveCounter, false);
         }
 
         public static ulong[][] GetBoardPostMove(this IBoard board, in MoveExt move)

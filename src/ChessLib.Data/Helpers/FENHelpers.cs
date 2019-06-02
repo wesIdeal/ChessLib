@@ -5,16 +5,125 @@ using EnumsNET;
 using System;
 using System.Linq;
 using ChessLib.Data.Boards;
+using ChessLib.Validators.BoardValidators.Rules;
+using ChessLib.Validators.FENValidation;
 
 namespace ChessLib.Data.Helpers
 {
     public static class FENHelpers
     {
+        /// <summary>
+        /// Initial FEN - starting position of a chess game
+        /// </summary>
         public const string FENInitial = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         public static readonly char[] ValidCastlingStringChars = new char[] { 'k', 'K', 'q', 'Q', '-' };
         public static readonly char[] ValidFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
 
-        public static ulong[][] BoardFromFen(string fen)
+        /// <summary>
+        /// Gets a rank from a validated fen string
+        /// </summary>
+        /// <param name="fen">FEN string</param>
+        /// <param name="rank">Board Rank (*not bitboard index rank*)</param>
+        /// <returns></returns>
+        public static string GetRankFromFen(this string fen, int rank)
+        {
+            var r = Math.Abs(rank - 8);
+            var ranks = GetRanksFromFen(fen);
+            return ranks[rank];
+        }
+
+        /// <summary>
+        /// Gets all ranks from fen, in FEN-rank order
+        /// </summary>
+        /// <param name="fen">FEN String</param>
+        /// <returns>An array of ranks, where [0] corresponds with rank 8</returns>
+        public static string[] GetRanksFromFen(this string fen)
+        {
+            var pp = GetFENPiece(fen, FENPieces.PiecePlacement);
+            var ranks = pp.Split('/');
+            return ranks;
+        }
+
+        /// <summary>
+        /// Gets one of the six pieces from a FEN string
+        /// </summary>
+        /// <param name="fen">FEN string</param>
+        /// <param name="piece">the FEN piece to return</param>
+        /// <returns>The string of the specified piece</returns>
+        public static string GetFENPiece(this string fen, FENPieces piece)
+        {
+            var fenPieces = fen.Split(' ');
+            return fenPieces[(int)piece];
+        }
+
+        /// <summary>
+        /// Gets CastingAvailability flags from the provided FEN castle availability piece
+        /// </summary>
+        /// <param name="castleAvailability">the Castling Availability piece of the FEN</param>
+        /// <returns>Flags representing who can castle where</returns>
+        private static CastlingAvailability GetCastlingFromString(string castleAvailability)
+        {
+            var rv = 0;
+            if (castleAvailability == "-") return CastlingAvailability.NoCastlingAvailable;
+            if (castleAvailability.Contains('k')) { rv |= (int)CastlingAvailability.BlackKingside; }
+            if (castleAvailability.Contains('K')) { rv |= (int)CastlingAvailability.WhiteKingside; }
+            if (castleAvailability.Contains('q')) { rv |= (int)CastlingAvailability.BlackQueenside; }
+            if (castleAvailability.Contains('Q')) { rv |= (int)CastlingAvailability.WhiteQueenside; }
+            return (CastlingAvailability)rv;
+        }
+
+        /// <summary>
+        /// Gets the Active Color type from the corresponding FEN section
+        /// </summary>
+        /// <param name="v">The Active Color piece of the FEN</param>
+        /// <returns>A Color object representing the actice Color</returns>
+        public static Color GetActiveColor(string v)
+        {
+            switch (v)
+            {
+                case "w": return Color.White;
+                case "b": return Color.Black;
+                default: throw new FENException(v, FENError.InvalidActiveColor);
+            }
+        }
+
+
+        /// <summary>
+        /// Creates a castling availability string given a set of CastlingAvailability flags
+        /// </summary>
+        /// <param name="caBitFlags">flags for castling availability</param>
+        /// <returns>a FEN string for the castling availability piece</returns>
+        public static string MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability caBitFlags)
+        {
+            var s = "";
+            if (caBitFlags == 0) s = CastlingAvailability.NoCastlingAvailable.AsString(EnumFormat.Description);
+            else
+            {
+                foreach (var caFlag in caBitFlags.GetFlags().OrderBy(x => x))
+                {
+                    s += caFlag.AsString(EnumFormat.Description);
+                }
+            }
+            return s;
+        }
+
+        /// <summary>
+        /// Converts a board Index (0 = 1st Rank) to the FEN Index (7 = 1st Rank)
+        /// </summary>
+        /// <param name="idx">The square index</param>
+        /// <returns>the corresponding board index</returns>
+        public static int BoardIndexToFENIndex(ushort idx)
+        {
+            var rankOffset = ((ushort)(idx / 8)).RankCompliment();
+            return (rankOffset * 8) + (idx % 8);
+        }
+
+        /// <summary>
+        /// Gets a piece representation from FEN, indexed by [color][piece]
+        /// </summary>
+        /// <param name="fen">validated FEN</param>
+        /// <returns>Board representation corresponding to FEN</returns>
+        public static ulong[][] BoardFromFen(in string fen)
         {
             uint pieceIndex = 0;
             var pieces = new ulong[2][];
@@ -41,225 +150,35 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets a rank from a validated fen string
+        /// Gets a board-state representation from a FEN
         /// </summary>
-        /// <param name="fen">FEN string</param>
-        /// <param name="rank">Board Rank (*not bitboard index rank*)</param>
+        /// <param name="fen"></param>
+        /// <param name="activePlayer"></param>
+        /// <param name="castlingAvailability"></param>
+        /// <param name="enPassantSquareIndex"></param>
+        /// <param name="halfmoveClock"></param>
+        /// <param name="fullmoveClock"></param>
+        /// <param name="validate"></param>
         /// <returns></returns>
-        public static string GetRankFromFen(this string fen, int rank)
-        {
-            var r = Math.Abs(rank - 8);
-            var ranks = GetRanksFromFen(fen);
-            return ranks[rank];
-        }
-
-        public static string[] GetRanksFromFen(this string fen)
-        {
-            var pp = GetFENPiece(fen, FENPieces.PiecePlacement);
-            var ranks = pp.Split('/');
-            return ranks;
-        }
-
-        public static void ValidateFENStructure(string fen)
-        {
-            if (string.IsNullOrEmpty(fen)
-                || fen.Split(' ').Length != 6)
-            {
-                throw new FENException(fen, FENError.InvalidFENString);
-            }
-        }
-
-        public static FENError ValidatePiecePlacement(string piecePlacement)
-        {
-            FENError fenError = FENError.Null;
-            fenError |= ValidatePiecePlacementRanks(piecePlacement);
-            fenError |= ValidatePiecePlacementCharacters(piecePlacement);
-            return fenError;
-        }
-        private static FENError ValidatePiecePlacementRanks(string piecePlacement)
-        {
-            FENError fenError = FENError.Null;
-            var ranks = piecePlacement.Split('/').Reverse().ToArray();
-            if (ranks.Length != 8)
-            {
-                fenError |= FENError.PiecePlacementRankCount;
-            }
-            var ranksValidation = ranks.Select((r, idx) => new { Rank = idx + 1, Count = GetStringRepForRank(r) });
-            var badRanks = ranksValidation.Where(x => x.Count != 8);
-
-            if (badRanks.Any())
-            {
-                fenError |= FENError.PiecePlacementPieceCountInRank;
-            }
-            return fenError;
-        }
-        private static FENError ValidatePiecePlacementCharacters(string piecePlacement)
-        {
-            if ((piecePlacement.Select(x => x).Where(x => !ValidFENChars.Contains(x)).Select(x => x.ToString()).ToArray()).Any())
-            {
-                return FENError.PiecePlacementInvalidChars;
-            }
-            return FENError.Null;
-        }
-
-        public static FENError ValidateActiveColor(string activeColor) => (new[] { "w", "b" }).Contains(activeColor) ? FENError.Null : FENError.InvalidActiveColor;
-
-        public static FENError ValidateCastlingAvailabilityString(string castleAvailability)
-        {
-            FENError fenError = FENError.Null;
-            if (string.IsNullOrWhiteSpace(castleAvailability))
-            {
-                return FENError.CastlingNoStringPresent;
-            }
-
-            if (castleAvailability == "-") return fenError;
-
-            var castlingChars = castleAvailability.ToCharArray();
-            var notAllowed = castlingChars.Where(c => !ValidCastlingStringChars.Contains(c));
-
-            if (notAllowed.Any()) { fenError |= FENError.CastlingUnrecognizedChar; }
-            else
-            {
-                if (castleAvailability.Contains('-'))
-                {
-                    fenError |= FENError.CastlingStringBadSequence;
-                }
-                else
-                {
-                    var castleAvailabilityArray = castleAvailability.ToArray();
-                    if (castleAvailabilityArray.Length != castleAvailabilityArray.Distinct().Count())
-                    {
-                        fenError |= FENError.CastlingStringRepetition;
-                    }
-                }
-            }
-            return fenError;
-        }
-
-        public static FENError ValidateEnPassantSquare(string v)
-        {
-            if (v == "-") return FENError.Null;
-            const FENError error = FENError.InvalidEnPassantSquare;
-            bool valid = true;
-            if (v.Length != 2) return error;
-            valid &= (char.IsLetter(v[0]) && char.IsLower(v[0]) && (v[0] >= 'a' && v[0] <= 'h'));
-            valid &= ushort.TryParse(v[1].ToString(), out ushort rank);
-            if (valid)
-            {
-                valid &= (rank >= 1 && rank <= 8);
-            }
-            return valid ? FENError.Null : error;
-        }
-
-        public static FENError ValidateHalfmoveClock(string n) => ValidateNumberFromString(n) ? FENError.Null : FENError.HalfmoveClock;
-        public static FENError ValidateFullMoveCounter(string n) => ValidateNumberFromString(n) ? FENError.Null : FENError.FullMoveCounter;
-        private static bool ValidateNumberFromString(string moveCounter)
-        {
-            return uint.TryParse(moveCounter, out _);
-        }
-
-        public static void ValidateFENString(string fen)
-        {
-            ValidateFENStructure(fen);
-            FENError fenError = FENError.Null;
-            var fenPieces = fen.Split(' ');
-
-            fenError |= ValidatePiecePlacement(fenPieces[(int)FENPieces.PiecePlacement]);
-            fenError |= ValidateActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
-            fenError |= ValidateCastlingAvailabilityString(fenPieces[(int)FENPieces.CastlingAvailability]);
-            fenError |= ValidateEnPassantSquare(fenPieces[(int)FENPieces.EnPassantSquare]);
-            fenError |= ValidateHalfmoveClock(fenPieces[(int)FENPieces.HalfmoveClock]);
-            fenError |= ValidateFullMoveCounter(fenPieces[(int)FENPieces.FullMoveCounter]);
-            if (fenError != FENError.Null)
-            {
-                throw new FENException(fen, fenError);
-            }
-        }
-
-        public static string GetFENPiece(this string fen, FENPieces piece)
-        {
-            var fenPieces = fen.Split(' ');
-            return fenPieces[(int)piece];
-        }
-
-        public static CastlingAvailability GetCastlingFromString(string castleAvailability)
-        {
-            ValidateCastlingAvailabilityString(castleAvailability);
-            var rv = 0;
-            if (castleAvailability == "-") return CastlingAvailability.NoCastlingAvailable;
-            if (castleAvailability.Contains('k')) { rv |= (int)CastlingAvailability.BlackKingside; }
-            if (castleAvailability.Contains('K')) { rv |= (int)CastlingAvailability.WhiteKingside; }
-            if (castleAvailability.Contains('q')) { rv |= (int)CastlingAvailability.BlackQueenside; }
-            if (castleAvailability.Contains('Q')) { rv |= (int)CastlingAvailability.WhiteQueenside; }
-            return (CastlingAvailability)rv;
-        }
-
-        public static Color GetActiveColor(string v)
-        {
-            switch (v)
-            {
-                case "w": return Color.White;
-                case "b": return Color.Black;
-                default: throw new FENException(v, FENError.InvalidActiveColor);
-            }
-        }
-
-        public static uint GetMoveNumberFromString(string v)
-        {
-            return uint.Parse(v);
-        }
-
-
-
-        private static int GetStringRepForRank(string rank)
-        {
-            var rv = 0;
-            foreach (var c in rank)
-            {
-                if (char.IsDigit(c))
-                {
-                    rv += UInt16.Parse(c.ToString());
-                }
-                else rv++;
-            }
-            return rv;
-        }
-
-        public static string MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability caBitFlags)
-        {
-            var s = "";
-            if (caBitFlags == 0) s = CastlingAvailability.NoCastlingAvailable.AsString(EnumFormat.Description);
-            else
-            {
-                foreach (var caFlag in caBitFlags.GetFlags().OrderBy(x => x))
-                {
-                    s += caFlag.AsString(EnumFormat.Description);
-                }
-            }
-            return s;
-        }
-
-        public static int BoardIndexToFENIndex(ushort idx)
-        {
-            var rankOffset = ((ushort)(idx / 8)).RankCompliment();
-            return (rankOffset * 8) + (idx % 8);
-        }
-
         public static ulong[][] BoardFromFen(this string fen, out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out uint halfmoveClock, out uint fullmoveClock, bool validate = true)
         {
             var fenPieces = fen.Split(' ');
             if (validate)
             {
-                ValidateFENStructure(fen);
-                ValidateFENString(fen);
+                var validator = new FENValidator(fen);
+                var results = validator.Validate();
+                if (results != FENError.None)
+                {
+                    throw new FENException(fen, results);
+                }
             }
 
             var pieces = BoardFromFen(fen);
             activePlayer = GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
             castlingAvailability = GetCastlingFromString(fen.GetFENPiece(FENPieces.CastlingAvailability));
             enPassantSquareIndex = fenPieces[(int)FENPieces.EnPassantSquare].SquareTextToIndex();
-            halfmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.HalfmoveClock]);
-            fullmoveClock = GetMoveNumberFromString(fenPieces[(int)FENPieces.FullMoveCounter]);
+            halfmoveClock = uint.Parse(fenPieces[(int)FENPieces.HalfmoveClock]);
+            fullmoveClock = uint.Parse(fenPieces[(int)FENPieces.FullMoveCounter]);
             return pieces;
         }
     }

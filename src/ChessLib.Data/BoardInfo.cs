@@ -10,19 +10,25 @@ using ChessLib.Validators.MoveValidation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
+using ChessLib.Validators.BoardValidators;
+using EnumsNET;
 
 namespace ChessLib.Data
 {
     public class BoardInfo : BoardBase
     {
-        //public readonly MoveTree<MoveHashStorage> MoveTree = new MoveTree<MoveHashStorage>(null);
-
         public IMoveTree<MoveHashStorage> MoveTree { get; set; }
 
         public BoardInfo() : this(FENHelpers.FENInitial, false) { }
 
-        public BoardInfo(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIdx, uint? halfMoveClock, uint fullMoveCount): base(occupancy,activePlayer,castlingAvailability,enPassantIdx,halfMoveClock,fullMoveCount)
-        { }
+        public BoardInfo(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability,
+            ushort? enPassantIdx, uint? halfMoveClock, uint fullMoveCount, bool validationException = true) : base(occupancy, activePlayer,
+            castlingAvailability, enPassantIdx, halfMoveClock, fullMoveCount)
+        {
+            BoardValidator validator = new BoardValidator(this);
+            validator.Validate(validationException);
+        }
 
         public BoardInfo(string fen, bool is960 = false)
         {
@@ -58,9 +64,8 @@ namespace ChessLib.Data
             var validationError = moveValidator.Validate();
             if (validationError.HasValue)
                 throw new MoveException("Error with move.", validationError.Value, move, ActivePlayer);
-
             var san = move.MoveToSAN(this, MoveTree.ParentMove == null);
-            MoveTree.Add(new MoveNode<MoveHashStorage>(new MoveHashStorage(move, pocSource.Value.Piece, ActivePlayer, this.ToFEN(), san)));
+            MoveTree.Add(new MoveNode<MoveHashStorage>(new MoveHashStorage(this.ToFEN(), move, pocSource.Value.Piece, ActivePlayer, san)));
             ApplyValidatedMove(move);
             return null;
         }

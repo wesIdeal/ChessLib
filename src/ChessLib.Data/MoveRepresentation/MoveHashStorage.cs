@@ -10,10 +10,10 @@ namespace ChessLib.Data.MoveRepresentation
 
     public class MoveHashStorage : MoveStorage, IEquatable<MoveHashStorage>
     {
-        public MoveHashStorage(IMoveExt move, Piece pieceMoving, Color colorMoving, string fen, string textRepresentation)
+        public MoveHashStorage(string fen, IMoveExt move, Piece pieceMoving, Color colorMoving, string textRepresentation)
         : base(move, pieceMoving, colorMoving)
         {
-            FENHelpers.ValidateFENString(fen);
+            
             FEN = fen;
             BoardStateHash = GetHashString(FEN.Split(' ')[0]);
             SAN = textRepresentation;

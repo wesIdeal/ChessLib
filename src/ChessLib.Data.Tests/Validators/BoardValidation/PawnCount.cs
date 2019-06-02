@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace ChessLib.Validators.Tests.BoardValidation
 {
     [TestFixture]
-    public sealed class PawnCountRule
+    public sealed class PawnCountRule 
     {
         [OneTimeSetUp]
         public static void Setup()
