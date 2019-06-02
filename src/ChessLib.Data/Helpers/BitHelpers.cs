@@ -7,7 +7,7 @@ namespace ChessLib.Data.Helpers
     using PieceIndex = System.UInt16;
     public static class BitHelpers
     {
-        static readonly ushort[] Index64 = {
+        private static readonly ushort[] Index64 = {
                                     0, 47,  1, 56, 48, 27,  2, 60,
                                    57, 49, 41, 37, 28, 16,  3, 61,
                                    54, 58, 35, 52, 50, 42, 21, 44,
@@ -37,7 +37,12 @@ namespace ChessLib.Data.Helpers
         /// <returns>ulong representing a square's value on the board</returns>
         public static BoardRepresentation GetBoardValueOfIndex(this PieceIndex idx) => ((BoardRepresentation)1) << idx;
 
-        public static ulong FlipVertically(this ulong board)
+        /// <summary>
+        /// Flips a board about the 4th and 5th ranks
+        /// </summary>
+        /// <param name="board">bitboard representation</param>
+        /// <returns>A flipped board</returns>
+        public static ulong FlipVertically(in ulong board)
         {
             var x = board;
             return (x << 56) |
@@ -50,6 +55,11 @@ namespace ChessLib.Data.Helpers
                    (x >> 56);
         }
 
+        /// <summary>
+        /// Gets the flipped index value, ie. A1 -> H1
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
         public static ushort FlipIndexVertically(this ushort idx)
         {
             var rank = idx.RankFromIdx();
@@ -58,12 +68,23 @@ namespace ChessLib.Data.Helpers
             return (ushort)((rankCompliment * 8) + file);
         }
 
+        /// <summary>
+        /// Determines if a bit index is set in a ulong
+        /// </summary>
+        /// <param name="u"></param>
+        /// <param name="bitIndex"></param>
+        /// <returns></returns>
         public static bool IsBitSet(this BoardRepresentation u, PieceIndex bitIndex)
         {
             var comparison = bitIndex.GetBoardValueOfIndex();
             return (comparison & u) == comparison;
         }
 
+        /// <summary>
+        /// Gets an array of bit indexes set to '1'
+        /// </summary>
+        /// <param name="u"></param>
+        /// <returns></returns>
         public static PieceIndex[] GetSetBits(this BoardRepresentation u)
         {
             var rv = new List<PieceIndex>(64); //Set max capacity to 64, since our 'array of bits' will be no larger.
@@ -107,6 +128,12 @@ namespace ChessLib.Data.Helpers
         /// <returns>ulong, <paramref name="boardRep">boardRep</paramref>, with the index of <paramref name="bitIndex">bitIndex</paramref> cleared.</returns>
         public static BoardRepresentation ClearBit(BoardRepresentation boardRep, int bitIndex) => boardRep & ~(1ul << bitIndex);
 
+
+        /// <summary>
+        /// Gets a count of bits set in a ulong
+        /// </summary>
+        /// <param name="u"></param>
+        /// <returns></returns>
         public static PieceIndex CountSetBits(this BoardRepresentation u)
         {
             PieceIndex counter = 0;

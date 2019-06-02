@@ -51,7 +51,7 @@ namespace ChessLib.Data
 
         public void ApplyMove(string moveText)
         {
-            var move = this.GenerateMoveFromText<MoveValidator>(moveText);
+            var move = this.GenerateMoveFromText(moveText);
             ApplyMove(move);
         }
 
@@ -244,7 +244,7 @@ namespace ChessLib.Data
             var file = moveDetail.DestinationFile.Value;
             ushort sourceIndex = 0;
             var adjustedRelevantPieceOccupancy =
-                moveDetail.Color == Color.Black ? pawnOccupancy.FlipVertically() : pawnOccupancy;
+                moveDetail.Color == Color.Black ? BitHelpers.FlipVertically(pawnOccupancy) : pawnOccupancy;
             Debug.Assert(rank < 8);
             var supposedRank = (ushort)(rank - 1);
             if (rank == 3) // 2 possible source ranks, 2 & 3 (offsets 1 & 2)

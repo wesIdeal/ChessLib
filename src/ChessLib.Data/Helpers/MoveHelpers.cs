@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using ChessLib.Validators.MoveValidation;
 
 namespace ChessLib.Data.Helpers
 {
@@ -34,18 +35,24 @@ namespace ChessLib.Data.Helpers
         }
 
 
-
-        public static MoveExt GenerateMoveFromText<T>(this IBoard board, string moveText) where T : MoveValidatorBase
+        /// <summary>
+        /// Given a board and a SAN, generate a move object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="board"></param>
+        /// <param name="moveText"></param>
+        /// <returns></returns>
+        public static MoveExt GenerateMoveFromText(this IBoard board, string moveText)
         {
             var md = MoveHelpers.GetAvailableMoveDetails(moveText, board.ActivePlayer);
             if (!md.SourceFile.HasValue || !md.SourceRank.HasValue)
             {
-                var sourceIndex = FindPieceSourceIndex<T>(board, md);
+                var sourceIndex = FindPieceSourceIndex(board, md);
                 md.SourceIndex = sourceIndex ?? throw new MoveException("Move detail error: no piece found at source.");
             }
 
-            Debug.Assert(md.SourceIndex != null, "md.SourceIndex != null");
-            Debug.Assert(md.DestinationIndex != null, "md.DestinationIndex != null");
+            Debug.Assert(md.SourceIndex != null, "md.SourceIndex cannot equal null");
+            Debug.Assert(md.DestinationIndex != null, "md.DestinationIndex cannot equal null");
             if (md.IsCapture && md.Piece == Piece.Pawn &&
                 (board.OpponentOccupancy() & (1ul << md.DestinationIndex)) == 0 &&
                 (md.DestinationRank == 2 || md.DestinationRank == 5)) md.MoveType = MoveType.EnPassant;
@@ -63,13 +70,13 @@ namespace ChessLib.Data.Helpers
         ///     Thrown when the source can't be determined, piece on square cannot be determined, more
         ///     than one piece of type could reach destination, or piece cannot reach destination.
         /// </exception>
-        private static ushort? FindPieceSourceIndex<T>(IBoard board, MoveDetail moveDetail) where T : MoveValidatorBase
+        private static ushort? FindPieceSourceIndex(IBoard board, MoveDetail moveDetail)
         {
             return moveDetail.Piece == Piece.Pawn ?
                 // FindPawnMoveSourceIndex(board, moveDetail):
-                FindPieceMoveSourceIndex<T>(board, moveDetail,
+                FindPieceMoveSourceIndex(board, moveDetail,
                     board.GetPiecePlacement().Occupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy()) :
-                FindPieceMoveSourceIndex<T>(board, moveDetail,
+                FindPieceMoveSourceIndex(board, moveDetail,
                  board.GetPiecePlacement().Occupancy(board.ActivePlayer, moveDetail.Piece), board.TotalOccupancy());
         }
 
@@ -80,7 +87,7 @@ namespace ChessLib.Data.Helpers
         /// <param name="pieceMoveMask">The move mask for the piece</param>
         /// <param name="pieceOccupancy">The occupancy for the piece in question</param>
         /// <returns></returns>
-        private static ushort? FindPieceMoveSourceIndex<T>(IBoard board, MoveDetail md, ulong pieceMoveMask, ulong pieceOccupancy) where T : MoveValidatorBase
+        private static ushort? FindPieceMoveSourceIndex(IBoard board, MoveDetail md, ulong pieceMoveMask, ulong pieceOccupancy)
         {
             ulong sourceSquares;
             if ((sourceSquares = pieceMoveMask & pieceOccupancy) == 0) return null;
@@ -100,7 +107,7 @@ namespace ChessLib.Data.Helpers
                 {
                     if (!md.DestinationIndex.HasValue) throw new MoveException("No destination value provided.");
                     var proposedMove = MoveHelpers.GenerateMove(sourceIndex, md.DestinationIndex.Value, md.MoveType, md.PromotionPiece ?? PromotionPiece.Knight);
-                    var moveValidator = (T)Activator.CreateInstance(typeof(T), board, proposedMove);
+                    var moveValidator = new MoveValidator(board, proposedMove);
                     var validationResult = moveValidator.Validate();
                     if (validationResult == null)
                         possibleSources.Add(sourceIndex);

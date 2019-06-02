@@ -7,6 +7,7 @@ using System.Linq;
 using ChessLib.Data.Boards;
 using ChessLib.Validators.BoardValidators.Rules;
 using ChessLib.Validators.FENValidation;
+using System.Text;
 
 namespace ChessLib.Data.Helpers
 {
@@ -18,6 +19,51 @@ namespace ChessLib.Data.Helpers
         public const string FENInitial = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         public static readonly char[] ValidCastlingStringChars = new char[] { 'k', 'K', 'q', 'Q', '-' };
         public static readonly char[] ValidFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
+
+        public static string GetPiecePlacement(this ulong[][] piecesOnBoard)
+        {
+            var pieceSection = new char[64];
+            for (var iColor = 0; iColor < 2; iColor++)
+            for (var iPiece = 0; iPiece < 6; iPiece++)
+            {
+                var pieceArray = piecesOnBoard[iColor][iPiece];
+                var charRepForPieceOfColor = PieceHelpers.GetCharRepresentation((Color)iColor, (Piece)iPiece);
+                while (pieceArray != 0)
+                {
+                    var squareIndex = BitHelpers.BitScanForward(pieceArray);
+                    var fenIndex = FENHelpers.BoardIndexToFENIndex(squareIndex);
+                    pieceSection[fenIndex] = charRepForPieceOfColor;
+                    pieceArray &= pieceArray - 1;
+                }
+            }
+
+            var sb = new StringBuilder();
+            for (var rank = 0; rank < 8; rank++) //start at FEN Rank of zero -> 7
+            {
+                var emptyCount = 0;
+                for (var file = 0; file < 8; file++)
+                {
+                    var paChar = pieceSection[(rank * 8) + file];
+                    if (paChar == 0)
+                    {
+                        emptyCount++;
+                    }
+                    else
+                    {
+                        if (emptyCount != 0)
+                        {
+                            sb.Append(emptyCount.ToString());
+                            emptyCount = 0;
+                        }
+
+                        sb.Append(paChar);
+                    }
+                }
+                if (emptyCount != 0) sb.Append(emptyCount);
+                if (rank != 7) sb.Append('/');
+            }
+            return sb.ToString();
+        }
 
         /// <summary>
         /// Gets a rank from a validated fen string

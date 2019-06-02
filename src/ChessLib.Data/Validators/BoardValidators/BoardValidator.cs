@@ -1,11 +1,10 @@
-﻿using System;
-using ChessLib.Data;
-using ChessLib.Types.Enums;
+﻿using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
-using System.Collections.Generic;
-using System.Text;
 using ChessLib.Validators.BoardValidators.Rules;
 using EnumsNET;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace ChessLib.Validators.BoardValidators
 {
@@ -14,8 +13,7 @@ namespace ChessLib.Validators.BoardValidators
         private readonly IBoard _board;
 
         readonly List<IBoardRule> _rules = new List<IBoardRule>();
-        private readonly bool _throwExc;
-
+        
         /// <summary>
         /// BoardValidator constructor
         /// </summary>

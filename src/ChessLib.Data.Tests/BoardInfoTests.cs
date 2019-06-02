@@ -396,7 +396,7 @@ namespace ChessLib.Data.Tests
                 md.DestinationFile = (ushort)(destIndex % 8);
                 md.DestinationRank = (ushort)(destIndex / 8);
                 var expectedSource = MoveHelpers.GenerateMove((ushort)(48 + (destIndex % 8)), destIndex);
-                var actual = boardInfo.GenerateMoveFromText<MoveValidator>(destIndex.IndexToSquareDisplay());
+                var actual = boardInfo.GenerateMoveFromText(destIndex.IndexToSquareDisplay());
                 Assert.AreEqual(expectedSource.Move, actual.Move);
             }
 
@@ -408,7 +408,7 @@ namespace ChessLib.Data.Tests
                 md.DestinationFile = (ushort)(destIndex % 8);
                 md.DestinationRank = (ushort)(destIndex / 8);
                 var expectedSource = MoveHelpers.GenerateMove((ushort)(8 + (destIndex % 8)), destIndex);
-                var actual = boardInfo.GenerateMoveFromText<MoveValidator>(destIndex.IndexToSquareDisplay());
+                var actual = boardInfo.GenerateMoveFromText(destIndex.IndexToSquareDisplay());
                 Assert.AreEqual(expectedSource.Move, actual.Move);
             }
         }
@@ -427,7 +427,7 @@ namespace ChessLib.Data.Tests
         {
             var bi = new BoardInfo(fen) { ActivePlayer = c };
             //var md = new MoveDetail((ushort?)sourceIdx, (ushort)destIdx, p, c, moveText).GetAvailableMoveDetails();
-            var actualMove = bi.GenerateMoveFromText<MoveValidator>(moveText);
+            var actualMove = bi.GenerateMoveFromText(moveText);
             Assert.AreEqual(expected, actualMove.SourceIndex);
         }
 
@@ -436,7 +436,7 @@ namespace ChessLib.Data.Tests
         {
             var bi = new BoardInfo(fen);
             Assert.Throws(typeof(MoveException),
-                () => { bi.GenerateMoveFromText<MoveValidator>(moveText); });
+                () => { bi.GenerateMoveFromText(moveText); });
         }
 
 

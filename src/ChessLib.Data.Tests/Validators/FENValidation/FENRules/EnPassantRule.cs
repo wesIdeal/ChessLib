@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
 {
     [TestFixture]
-    public class EnPassantRule
+    public static class EnPassantRule
     {
         [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 0 1", FENError.None)]
         [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq a3 0 1", FENError.None)]

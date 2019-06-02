@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
 {
     [TestFixture]
-    public class CastlingAvailabilityRule
+    public static class CastlingAvailabilityRule
     {
         [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", FENError.None)]
         [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w K - 0 1", FENError.None)]
