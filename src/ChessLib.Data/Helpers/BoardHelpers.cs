@@ -1,4 +1,4 @@
-﻿using ChessLib.Types;
+﻿using ChessLib.Data.MoveRepresentation;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 using System;

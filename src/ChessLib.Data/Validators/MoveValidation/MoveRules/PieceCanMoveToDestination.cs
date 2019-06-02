@@ -2,6 +2,7 @@
 using ChessLib.Data;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Validators.MoveValidation.MoveRules

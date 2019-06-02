@@ -1,6 +1,6 @@
 ﻿using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.PieceMobility;
-using ChessLib.Types;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 using System;

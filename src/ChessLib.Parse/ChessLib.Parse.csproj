@@ -4,9 +4,16 @@
     <TargetFramework>netstandard2.0</TargetFramework>
 	<Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
 	<LangVersion>7.2</LangVersion>
+	<Configurations>Debug;Release;Releasex64</Configurations>
+	<Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningsAsErrors>NU1605</WarningsAsErrors>
+    <NoWarn>1701;1702;CS3021</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <WarningsAsErrors>NU1605</WarningsAsErrors>
     <NoWarn>1701;1702;CS3021</NoWarn>
   </PropertyGroup>

@@ -1,5 +1,6 @@
 ﻿using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 

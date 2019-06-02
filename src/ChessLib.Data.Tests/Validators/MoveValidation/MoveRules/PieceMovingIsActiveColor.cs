@@ -1,7 +1,7 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Types;
+using ChessLib.Data.MoveRepresentation;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 

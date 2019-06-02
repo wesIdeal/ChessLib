@@ -1,7 +1,6 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Types;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Types.Enums;
-using ChessLib.Validators.MoveValidation;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Boards

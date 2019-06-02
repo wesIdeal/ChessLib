@@ -3,6 +3,9 @@ using ChessLib.Types.Enums;
 
 namespace ChessLib.Data.Helpers
 {
+    /// <summary>
+    /// Holds Move and Attack masks for pieces and pawns
+    /// </summary>
     public static class PieceAttackPatternHelper
     {
         public static readonly Board BishopMoveMask = new Board();

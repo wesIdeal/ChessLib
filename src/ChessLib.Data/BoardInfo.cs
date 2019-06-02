@@ -1,18 +1,13 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Boards;
+﻿using ChessLib.Data.Boards;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
+using ChessLib.Validators.BoardValidators;
 using ChessLib.Validators.MoveValidation;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
-using ChessLib.Validators.BoardValidators;
-using EnumsNET;
 
 namespace ChessLib.Data
 {

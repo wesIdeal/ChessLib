@@ -6,6 +6,10 @@
     <IsPackable>false</IsPackable>
 
     <LangVersion>7.2</LangVersion>
+
+    <Configurations>Debug;Release;Releasex64</Configurations>
+
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

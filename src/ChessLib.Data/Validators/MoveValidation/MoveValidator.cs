@@ -1,8 +1,6 @@
-﻿
-using ChessLib.Data;
-using ChessLib.Data.Exceptions;
+﻿using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Types;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 using ChessLib.Validators.MoveValidation.CastlingRules;
@@ -13,14 +11,18 @@ using System.Collections.Generic;
 
 namespace ChessLib.Validators.MoveValidation
 {
-    public class MoveValidator : MoveValidatorBase
+    public class MoveValidator
     {
 
         readonly List<IMoveRule> _rules = new List<IMoveRule>();
         public readonly ulong[][] PostMoveBoard;
+        private readonly IBoard _board;
+        private readonly MoveExt _move;
 
-        public MoveValidator(in IBoard board, in MoveExt move) : base(board, move)
+        public MoveValidator(in IBoard board, in MoveExt move)
         {
+            _board = board;
+            _move = move;
             PostMoveBoard = BoardHelpers.GetBoardPostMove(board.GetPiecePlacement(), board.ActivePlayer, move);
             _rules.Add(new PieceMovingIsActiveColor());
             _rules.Add(new KingNotInCheckAfterMove());
@@ -52,11 +54,11 @@ namespace ChessLib.Validators.MoveValidation
             }
         }
 
-        public override MoveExceptionType? Validate()
+        public MoveExceptionType? Validate()
         {
             foreach (var rule in _rules)
             {
-                var moveIssue = rule.Validate(this._boardInfo, PostMoveBoard, _move);
+                var moveIssue = rule.Validate(this._board, PostMoveBoard, _move);
                 if (moveIssue.HasValue)
                 {
                     return moveIssue;

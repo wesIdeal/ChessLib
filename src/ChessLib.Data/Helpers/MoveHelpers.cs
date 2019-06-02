@@ -1,14 +1,12 @@
-﻿using System;
-using ChessLib.Data.Exceptions;
+﻿using ChessLib.Data.Exceptions;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
+using ChessLib.Validators.MoveValidation;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
-using ChessLib.Validators.MoveValidation;
 
 namespace ChessLib.Data.Helpers
 {

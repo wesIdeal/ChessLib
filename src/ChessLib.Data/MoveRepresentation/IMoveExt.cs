@@ -1,7 +1,7 @@
 ﻿using System;
 using ChessLib.Types.Enums;
 
-namespace ChessLib.Types.Interfaces
+namespace ChessLib.Data.MoveRepresentation
 {
     public interface IMoveExt : IEquatable<IMoveExt>
     {

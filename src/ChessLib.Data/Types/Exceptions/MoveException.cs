@@ -1,5 +1,5 @@
-﻿using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+﻿using ChessLib.Data.MoveRepresentation;
+using ChessLib.Types.Enums;
 using System;
 
 using System.Runtime.Serialization;
