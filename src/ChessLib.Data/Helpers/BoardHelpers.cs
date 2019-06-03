@@ -465,8 +465,12 @@ namespace ChessLib.Data.Helpers
             return (rookBoard & ~(rookSource)) | rookDest;
         }
 
+<<<<<<< Updated upstream
         public static int ActivePlayerAsInt(this IBoard board) => (int)board.ActivePlayer;
         public static int OpponentColorAsInt(this IBoard board) => (int)board.ActivePlayer.Toggle();
+=======
+
+>>>>>>> Stashed changes
         public static Color OpponentColor(this IBoard board) => board.ActivePlayer.Toggle();
         public static ushort ActiveKingIndex(this IBoard board)
         {
@@ -552,9 +556,11 @@ namespace ChessLib.Data.Helpers
                     if ((destination = (attackedSquares & squaresBetween)) != 0)
                     {
                         var destIdx = destination.GetSetBits();
-                        Debug.Assert(destIdx.Length == 1);
-                        var move = MoveHelpers.GenerateMove(occupiedSquare, destIdx[0]);
-                        rv.Add(move);
+                        foreach (var potentialBlockingPiece in destIdx)
+                        {
+                            var move = MoveHelpers.GenerateMove(occupiedSquare, potentialBlockingPiece);
+                            rv.Add(move);
+                        }
                     }
                 }
 
@@ -602,6 +608,7 @@ namespace ChessLib.Data.Helpers
 
         }
 
+<<<<<<< Updated upstream
         public static string GetPiecePlacement(this ulong[][] piecesOnBoard)
         {
             var pieceSection = new char[64];
@@ -646,6 +653,9 @@ namespace ChessLib.Data.Helpers
             }
             return sb.ToString();
         }
+=======
+
+>>>>>>> Stashed changes
 
         #region FEN String Retrieval
 

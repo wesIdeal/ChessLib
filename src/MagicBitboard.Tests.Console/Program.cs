@@ -71,8 +71,8 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
         static void Main(string[] args)
         {
             var graphics = new Imaging();
-            //var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
-            var parsePgn = ParsePgn.FromText(pgn);
+            var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
+           // var parsePgn = ParsePgn.FromText(pgn);
             //var games = parsePgn.GetGameTexts();
             var games = parsePgn.GetGames();
             var game = games[0];

@@ -5,6 +5,7 @@ using ChessLib.Types;
 using ChessLib.Types.Enums;
 using NUnit.Framework;
 using System.Linq;
+using ChessLib.Validators.MoveValidation;
 
 namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
 {
@@ -12,6 +13,15 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
     internal class PieceCanMoveToDestination : ChessLib.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
     {
         protected static readonly ulong[][] _postMoveBoard = new ulong[2][];
+
+        [TestCase("r1b1k2r/1pq2ppp/p1p1p3/3nP3/5P2/2P2Q2/P1PB2PP/R3KB1R w KQkq - 0 12", 10, 26, "Pawn can't jump over doubled pawn on c3 to get to c4. :(")]
+        public void ShouldReturnErrorWhenPawnBlocked(string fen, int from, int to, string errorMsg = "")
+        {
+            var bi = new BoardInfo(fen);
+            var moveValidator = new MoveValidator(bi, MoveHelpers.GenerateMove((ushort)from, (ushort)to));
+            var actual = moveValidator.Validate();
+            Assert.AreEqual(MoveExceptionType.BadDestination, actual, errorMsg);
+        }
 
         [Test]
         public void ShouldReturnNull_OnValidMove_EmptySquare_Edge()
@@ -551,6 +561,8 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 actual = Validate(_qEnemyOnA1.BoardInfo, _postMoveBoard, _qEnemyOnA1.Move);
                 Assert.IsNull(actual, $"Should be able to capture. {_qEnemyOnA1.ToString()}");
             }
+
+            
 
             [Test]
             public void ShouldReturnNull_WhenMovingToNonBlockedSquares()

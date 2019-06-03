@@ -15,7 +15,8 @@ namespace ChessLib.Data
 
         private static readonly MovePatternStorage Bishop = new MovePatternStorage();
         private static readonly MovePatternStorage Rook = new MovePatternStorage();
-
+        private static readonly MovePatternStorage BlackPawns = new MovePatternStorage();
+        private static readonly MovePatternStorage WhitePawns = new MovePatternStorage();
         static Bitboard()
         {
             Bishop.Initialize(PieceAttackPatternHelper.BishopAttackMask, new BishopMovesInitializer());
@@ -176,6 +177,7 @@ namespace ChessLib.Data
             return ((legalMoves & dstValue) != 0);
         }
 
+       
         /// <summary>
         /// Determines if piece on <paramref name="squareIndex"/> is attacked by <paramref name="color"/>
         /// </summary>

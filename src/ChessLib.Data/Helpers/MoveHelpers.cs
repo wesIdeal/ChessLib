@@ -89,14 +89,14 @@ namespace ChessLib.Data.Helpers
                 sourceSquares &= BoardHelpers.FileMasks[md.SourceFile.Value];
             if (md.SourceRank != null)
                 sourceSquares &= BoardHelpers.RankMasks[md.SourceRank.Value];
-            var indices = sourceSquares.GetSetBits();
+            var sourceIndices = sourceSquares.GetSetBits();
 
-            if (indices.Length == 0) return null;
-            if (indices.Length > 1)
+            if (sourceIndices.Length == 0) return null;
+            if (sourceIndices.Length > 1)
             {
                 var possibleSources = new List<ushort>();
 
-                foreach (var sourceIndex in indices)
+                foreach (var sourceIndex in sourceIndices)
                 {
                     if (!md.DestinationIndex.HasValue) throw new MoveException("No destination value provided.");
                     var proposedMove = MoveHelpers.GenerateMove(sourceIndex, md.DestinationIndex.Value, md.MoveType, md.PromotionPiece ?? PromotionPiece.Knight);
@@ -109,7 +109,7 @@ namespace ChessLib.Data.Helpers
                 if (possibleSources.Count == 0) return null;
                 return possibleSources[0];
             }
-            return indices[0];
+            return sourceIndices[0];
         }
 
         public static MoveDetail GetAvailableMoveDetails(string move, Color color)
