@@ -85,9 +85,9 @@ namespace ChessLib.Types.Enums
     {
         None = 0,
         [Description("White has too many pawns.")]
-        WhiteTooManyPawns = 2,
+        WhiteTooManyPawns = 1,
         [Description("Black has too many pawns.")]
-        BlackTooManyPawns,
+        BlackTooManyPawns = 2,
         [Description("White has too many pieces. Piece count should be greater than or equal to 16.")]
         WhiteTooManyPieces = 4,
         [Description("Black has too many pieces. Piece count should be greater than or equal to 16.")]
