@@ -700,9 +700,11 @@ namespace ChessLib.Data.Helpers
                     if ((destination = (attackedSquares & squaresBetween)) != 0)
                     {
                         var destIdx = destination.GetSetBits();
-                        Debug.Assert(destIdx.Length == 1);
-                        var move = MoveHelpers.GenerateMove(occupiedSquare, destIdx[0]);
-                        rv.Add(move);
+                        foreach (var potentialBlockingPiece in destIdx)
+                        {
+                            var move = MoveHelpers.GenerateMove(occupiedSquare, potentialBlockingPiece);
+                            rv.Add(move);
+                        }
                     }
                 }
 

@@ -27,7 +27,7 @@ namespace ChessLib.Data
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int File(ushort idx) => idx % 8;
 
-        private static bool IsCastlingMove(Piece p, ushort source, ushort destination) => (p == Piece.King && ((source == 50 && (destination == 62 || destination == 58)) ||
+        private static bool IsCastlingMove(Piece p, ushort source, ushort destination) => (p == Piece.King && ((source == 60 && (destination == 62 || destination == 58)) ||
                                         (source == 4 && (destination == 6 || destination == 2))));
 
         private static bool IsEnPassantCapture(Piece p, ushort source, ushort destination, ushort? enPassantSq) => (enPassantSq == null) || (destination != enPassantSq.Value) || p != Piece.Pawn ? false : true;
@@ -65,13 +65,11 @@ namespace ChessLib.Data
             var lMoves = new List<MoveExt>();
             var totalOccupancy = activeOcc | oppOcc;
             ulong possibleMoves;
+
             switch (piece)
             {
                 case Piece.Pawn:
-                    var opponentOccupancy = oppOcc | (enPassantIndex ?? 0);
-                    var pawnMoves = PieceAttackPatternHelper.PawnMoveMask[(int)color][pieceSquare] & ~(totalOccupancy);
-                    var pawnAttacks = PieceAttackPatternHelper.PawnAttackMask[(int)color][pieceSquare] & opponentOccupancy;
-                    possibleMoves = pawnMoves | pawnAttacks;
+                    possibleMoves = GetPawnPseudoLegalMoves(pieceSquare, activeOcc, oppOcc, color, enPassantIndex);
                     break;
                 case Piece.Knight:
                     var totalAttacks = PieceAttackPatternHelper.KnightAttackMask[pieceSquare];
@@ -121,6 +119,30 @@ namespace ChessLib.Data
 
             moves = BoardValueToMoves(piece, pieceSquare, possibleMoves, enPassantIndex, ca).ToList();
             return possibleMoves;
+        }
+
+        public static ulong GetPawnPseudoLegalMoves(ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex)
+        {
+            var pieceValue = 1ul << pieceSquare;
+            var enPassantValue = (1ul << enPassantIndex) ?? 0;
+            var opponentOccupancyWithEnPassant = oppOcc | enPassantValue;
+            var pMoves = PieceAttackPatternHelper.PawnMoveMask[(int)color][pieceSquare];
+            var attacks = PieceAttackPatternHelper.PawnAttackMask[(int)color][pieceSquare] & opponentOccupancyWithEnPassant;
+            var pawnMoves = pMoves & ~((activeOcc | oppOcc));
+            var pawnAttacks = attacks & opponentOccupancyWithEnPassant;
+            var isInitialPawnMove = ((pieceValue & BoardHelpers.RankMasks[1]) != 0 && color == Color.White) ||
+                                    ((pieceValue & BoardHelpers.RankMasks[6]) != 0 && color == Color.Black);
+            if (isInitialPawnMove)
+            {
+                var singleMoveSquare = (color == Color.White ? pieceValue << 8 : pieceValue >> 8);
+                var doubleMoveSquare = (color == Color.White ? pieceValue << 16 : pieceValue >> 16);
+                if ((pawnMoves & singleMoveSquare) == 0)
+                {
+                    // if the pawn can't move to the single-move square, it cannot go double
+                    pawnMoves &= ~(doubleMoveSquare);
+                }
+            }
+            return pawnMoves | pawnAttacks;
         }
 
         public static ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color color = Color.White)
@@ -175,6 +197,7 @@ namespace ChessLib.Data
                 out List<MoveExt> pseudoMoves);
             return ((legalMoves & dstValue) != 0);
         }
+
 
         /// <summary>
         /// Determines if piece on <paramref name="squareIndex"/> is attacked by <paramref name="color"/>

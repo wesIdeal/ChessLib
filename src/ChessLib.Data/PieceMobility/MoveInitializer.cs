@@ -17,6 +17,10 @@ namespace ChessLib.Data.PieceMobility
             _moveDirectionFlags = moveDirectionFlags;
         }
 
+        protected MoveInitializer()
+        {
+        }
+
         #region Random Number Helpers
         private readonly Random _random = new Random();
 

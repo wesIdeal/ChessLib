@@ -1,10 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
 	<Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
 	<LangVersion>7.2</LangVersion>
-	<Configurations>Debug;Release;Releasex64</Configurations>
+	<Product>ChessLib</Product>
+	<Authors>Wes Idell</Authors>
+	<Version>0.2.0</Version>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 

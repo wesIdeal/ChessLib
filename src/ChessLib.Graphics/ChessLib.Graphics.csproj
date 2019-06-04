@@ -1,9 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <LangVersion>7.2</LangVersion>
-    <Configurations>Debug;Release;Releasex64</Configurations>
+    <Version>0.2.0</Version>
+    <Authors>Wes Idell</Authors>
+    <Product>ChessLib</Product>
+    <Copyright>2019</Copyright>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
@@ -34,8 +38,6 @@
 
   <ItemGroup>
     <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="7.13.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
   </ItemGroup>
 
   <ItemGroup>

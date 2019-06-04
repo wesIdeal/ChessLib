@@ -1,4 +1,5 @@
-﻿using ChessLib.Data.Helpers;
+﻿using System.Linq;
+using ChessLib.Data.Helpers;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Helpers
@@ -6,6 +7,25 @@ namespace ChessLib.Data.Tests.Helpers
 
     public partial class BoardHelpersTests
     {
+        [TestCase("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1", 42, 35)]
+        [TestCase("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1", 43, new int[] { })]
+        public static void TestPiecesAttackingSquare(string fen, int attackedSquare, params int[] attackingPieces)
+        {
+            var board = new BoardInfo(fen);
+            var actual = board.PiecesAttackingSquare((ushort)attackedSquare);
+            if (attackingPieces.Any())
+            {
+                foreach (var attackingPiece in attackingPieces)
+                {
+                    Assert.IsTrue(actual.IsBitSet((ushort)attackingPiece), $"{attackingPiece.IndexToSquareDisplay()} should attack {attackedSquare.IndexToSquareDisplay()}");
+                }
+            }
+            else
+            {
+                //no pieces attack square
+                Assert.AreEqual(0, actual);
+            }
+        }
 
         [TestFixture]
         public static class CardinalDirectionShifts
