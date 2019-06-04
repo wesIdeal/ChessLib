@@ -103,12 +103,11 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                graphics.MakeAnimationFromMoveTree(fsNonParallel, game, 1, new ImageOptions() { SquareSize = 45 });
                 sw.Stop();
                 nonPTime = sw.ElapsedMilliseconds;
                 sw.Reset();
                 sw.Start();
-                graphics.MakeAnimationFromMoveTreeParallel(fsParallel, game, 1, new ImageOptions() { SquareSize = 45 });
+                graphics.MakeAnimationFromMoveTree(fsParallel, game, 1, new ImageOptions() { SquareSize = 80 });
                 sw.Stop();
                 pTime = sw.ElapsedMilliseconds;
                 Console.WriteLine($"Created and wrote {fileName} in {nonPTime}ms.");

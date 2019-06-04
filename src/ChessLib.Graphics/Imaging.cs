@@ -116,38 +116,12 @@ namespace ChessLib.Graphics
 
         private static int SecondsToHundredths(double seconds) => (int)Math.Round(seconds * 100);
 
-        public void MakeAnimationFromMoveTree(Stream writeTo, Game<MoveHashStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
-        {
-            MagickFormat format = MagickFormat.Gif;
-            var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FENHelpers.FENInitial;
-            var moves = game.MoveSection;
-            _imageOptions = imageOpts = imageOpts ?? new ImageOptions();
-            _squareSize = imageOpts.SquareSize;
-            _offset = _squareSize;
-            InitPieces(imageOpts.SquareSize);
-            var delay = SecondsToHundredths(positionDelayInSeconds);
-            using (var boardImage = MakeBoardInstance(imageOpts, game.TagSection))
-            {
-                var imageList = new MagickImageCollection();
-                var firstImage = MakeBoardFromFen(initialFen, boardImage, game.TagSection, null);
-                firstImage.AnimationDelay = delay * 2;
-                imageList.Add(firstImage);
-                foreach (var move in moves)
-                {
-                    var positionBoard = MakeBoardFromFen(move.Move.FEN, boardImage, game.TagSection, null);
-                    positionBoard.AnimationDelay = delay;
-                    imageList.Add(positionBoard);
-                }
-                imageList.OptimizePlus();
-                imageList.Write(writeTo, format);
-            }
-        }
         struct MoveImages
         {
             public int Index { get; set; }
             public IMagickImage Image { get; set; }
         }
-        public void MakeAnimationFromMoveTreeParallel(Stream writeTo, Game<MoveHashStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
+        public void MakeAnimationFromMoveTree(Stream writeTo, Game<MoveHashStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
         {
             MagickFormat format = MagickFormat.Gif;
             var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FENHelpers.FENInitial;
@@ -176,93 +150,7 @@ namespace ChessLib.Graphics
             }
         }
 
-        //private void MakeAnimationFromMoveTree(IEnumerable<MoveHashStorage> moves, string initialFenPosition, string fileName, double positionDelayInSeconds, int numberOfMovementFrames = 2, double totalMovementTimeInSeconds = 0.10)
-        //{
-        //    using (var board = new MagickImageCollection(new[] { MakeBoardFromFen(initialFenPosition) }))
-        //    {
-        //        board[0].AnimationDelay = SecondsToHundredths(positionDelayInSeconds);
-
-        //        var previousFEN = moves.FENStart;
-        //        var movementTimeHudredthsOfSecond = SecondsToHundredths(totalMovementTimeInSeconds);
-
-        //        foreach (var mv in moves)
-        //        {
-        //            var pieceMoving =
-        //                _pieceMap[PieceHelpers.GetCharRepresentation(mv.Move.ColorMoving, mv.Move.PieceMoving)];
-
-        //            if (numberOfMovementFrames > 0)
-        //            {
-        //                var frameDelay = movementTimeHudredthsOfSecond / numberOfMovementFrames;
-        //                var transImages = MakeMovementFrames(previousFEN, (MagickImage)pieceMoving, mv.Move.Move.SourceIndex(), mv.Move.Move.DestinationIndex(), numberOfMovementFrames);
-        //                foreach (var f in transImages)
-        //                {
-
-        //                    f.AnimationDelay = (int)frameDelay;
-        //                    board.Add(f.Clone());
-        //                    f.Dispose();
-
-        //                }
-        //            }
-        //            var finalBoard = MakeBoardFromFen(mv.Move.FEN);
-        //            finalBoard.AnimationDelay = SecondsToHundredths(positionDelayInSeconds);
-
-        //            //finalBoard.Quantize(new QuantizeSettings() { Colors = _imageOptions.GetPalette().Length });
-        //            board.Add(finalBoard);
-        //            previousFEN = mv.Move.FEN;
-        //        }
-
-        //        board.OptimizePlus();
-        //        board.Write(fileName);
-        //    }
-        //}
-
-        //private IEnumerable<IMagickImage> MakeMovementFrames(string fen, MagickImage pieceMoving,
-        //    ushort sqFrom, ushort sqTo, int frames)
-        //{
-        //    var points = new PointD[frames];
-        //    var rv = new List<IMagickImage>();
-        //    var pFrom = GetPointFromBoardIndex(sqFrom);
-        //    var pTo = GetPointFromBoardIndex(sqTo);
-
-        //    var rise = pTo.Y - pFrom.Y;
-        //    var run = pTo.X - pFrom.X;
-
-        //    var riseSegment = rise / (frames + 2);
-        //    var runSegment = run / (frames + 2);
-
-        //    for (int i = 0; i < frames; i++)
-        //    {
-        //        var riseToY = pFrom.Y + (riseSegment * (i + 1));
-        //        var pointInLine = new PointD(pFrom.X + (runSegment * (i + 1)), riseToY);
-        //        points[i] = pointInLine;
-        //    }
-
-        //    var moveNumber = FENHelpers.GetMoveNumberFromString(fen.GetFENPiece(FENPieces.FullMoveCounter));
-        //    var activeSide = FENHelpers.GetActiveColor(fen.GetFENPiece(FENPieces.ActiveColor));
-
-
-        //    using (var baseImage = MakeBoardFromFen(fen, sqFrom))
-        //    {
-
-        //        foreach (var point in points)
-        //        {
-        //            using (var tImage = baseImage.Clone())
-        //            {
-
-        //                var drawPoint = new PointD((int)point.X, (int)point.Y);
-        //                var newImage = tImage.Clone();
-        //                newImage.Composite(pieceMoving, drawPoint, CompositeOperator.SrcAtop);
-        //                rv.Add(newImage);
-        //            }
-        //        }
-        //    }
-        //    return rv.ToArray();
-        //}
-
-
-
-
-
+   
         protected static MagickFormat GetMagickFormatFromFormat(ImageFormat format)
         {
             switch (format)
