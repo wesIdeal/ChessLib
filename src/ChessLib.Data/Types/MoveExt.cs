@@ -1,4 +1,5 @@
-﻿using ChessLib.Types.Enums;
+﻿using System;
+using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Types

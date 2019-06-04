@@ -15,6 +15,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         protected static readonly ulong[][] _postMoveBoard = new ulong[2][];
 
         [TestCase("r1b1k2r/1pq2ppp/p1p1p3/3nP3/5P2/2P2Q2/P1PB2PP/R3KB1R w KQkq - 0 12", 10, 26, "Pawn can't jump over doubled pawn on c3 to get to c4. :(")]
+        [TestCase("rnbqkbnr/pp1ppppp/8/8/2p5/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 10, 26, "Pawn can't move to c4, as it is occuplied.")]
         public void ShouldReturnErrorWhenPawnBlocked(string fen, int from, int to, string errorMsg = "")
         {
             var bi = new BoardInfo(fen);
