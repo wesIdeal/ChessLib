@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 <PropertyGroup>
     <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
+    <Platforms>AnyCPU;x64</Platforms>
 </PropertyGroup>
   <PropertyGroup>
     <OutputType>Exe</OutputType>

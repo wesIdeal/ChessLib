@@ -6,6 +6,8 @@
     <IsPackable>false</IsPackable>
 
     <LangVersion>7.2</LangVersion>
+
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

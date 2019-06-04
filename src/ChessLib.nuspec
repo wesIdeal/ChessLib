@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ChessLib</id>
+    <version>0.2.0</version>
+    <authors>Wes Idell</authors>
+    <owners>Wes Idell</owners>
+    
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ChessLib</description>
+    <!-- <releaseNotes>Summary of changes made in this release of the package.</releaseNotes> -->
+    <copyright>Copyright 2019</copyright>
+    <tags></tags>
+<dependencies>
+      <group targetFramework=".NETFramework4.7.2">
+        <dependency id="Enums.NET" version="2.3.2" exclude="Build,Analyzers" />
+		 <dependency id="ChessLib.Data" version="0.2.0" exclude="Build,Analyzers" />
+        <dependency id="Antlr4.Runtime.Standard" version="4.7.2" exclude="Build,Analyzers" />
+        <dependency id="Magick.NET-Q8-AnyCPU" version="7.13.0" exclude="Build,Analyzers" />
+        <dependency id="SixLabors.ImageSharp" version="1.0.0-beta0006" exclude="Build,Analyzers" />
+        <dependency id="SixLabors.ImageSharp.Drawing" version="1.0.0-beta0006" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Enums.NET" version="2.3.2" exclude="Build,Analyzers" />
+		<dependency id="ChessLib.Data" version="0.2.0" exclude="Build,Analyzers" />
+        <dependency id="Antlr4.Runtime.Standard" version="4.7.2" exclude="Build,Analyzers" />
+        <dependency id="Magick.NET-Q8-AnyCPU" version="7.13.0" exclude="Build,Analyzers" />
+        <dependency id="SixLabors.ImageSharp" version="1.0.0-beta0006" exclude="Build,Analyzers" />
+        <dependency id="SixLabors.ImageSharp.Drawing" version="1.0.0-beta0006" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+	<file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Data\bin\x64\Release\net472\ChessLib.Data.dll" target="lib\net472\ChessLib.Data.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Data\bin\x64\Release\netstandard2.0\ChessLib.Data.dll" target="lib\netstandard2.0\ChessLib.Data.dll" />
+	
+	<file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Graphics\bin\x64\Release\net472\ChessLib.Graphics.dll" target="lib\net472\ChessLib.Graphics.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Graphics\bin\x64\Release\netstandard2.0\ChessLib.Graphics.dll" target="lib\netstandard2.0\ChessLib.Graphics.dll" />
+	
+	<file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Parse\bin\x64\Release\net472\ChessLib.Parse.dll" target="lib\net472\ChessLib.Parse.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Parse\bin\x64\Release\netstandard2.0\ChessLib.Parse.dll" target="lib\netstandard2.0\ChessLib.Parse.dll" />
+  </files>
+</package>
