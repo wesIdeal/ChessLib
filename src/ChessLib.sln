@@ -19,6 +19,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Graphics", "ChessL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Parse.Console", "ChessLib.Parse.Console\ChessLib.Parse.Console.csproj", "{071B4118-D68E-4035-8F77-5601842EF6FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.UCI", "ChessLib.Calculate\ChessLib.UCI.csproj", "{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.UCI.Tests", "ChessLib.UCI.Tests\ChessLib.UCI.Tests.csproj", "{3CE428CB-39DF-4B72-B00B-7C976AFF450A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +95,22 @@ Global
 		{071B4118-D68E-4035-8F77-5601842EF6FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{071B4118-D68E-4035-8F77-5601842EF6FA}.Release|x64.ActiveCfg = Release|x64
 		{071B4118-D68E-4035-8F77-5601842EF6FA}.Release|x64.Build.0 = Release|x64
+		{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}.Debug|x64.Build.0 = Debug|Any CPU
+		{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}.Release|x64.ActiveCfg = Release|Any CPU
+		{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}.Release|x64.Build.0 = Release|Any CPU
+		{3CE428CB-39DF-4B72-B00B-7C976AFF450A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CE428CB-39DF-4B72-B00B-7C976AFF450A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CE428CB-39DF-4B72-B00B-7C976AFF450A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3CE428CB-39DF-4B72-B00B-7C976AFF450A}.Debug|x64.Build.0 = Debug|Any CPU
+		{3CE428CB-39DF-4B72-B00B-7C976AFF450A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CE428CB-39DF-4B72-B00B-7C976AFF450A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CE428CB-39DF-4B72-B00B-7C976AFF450A}.Release|x64.ActiveCfg = Release|Any CPU
+		{3CE428CB-39DF-4B72-B00B-7C976AFF450A}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

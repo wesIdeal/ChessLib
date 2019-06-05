@@ -4,7 +4,9 @@ using ChessLib.Data.MoveRepresentation;
 using ChessLib.Graphics;
 using ChessLib.Parse.PGN;
 using ChessLib.Types.Enums;
+using ChessLib.UCI;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -70,20 +72,34 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
 
         static void Main(string[] args)
         {
-            var graphics = new Imaging();
-            var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
-           // var parsePgn = ParsePgn.FromText(pgn);
+
+            // var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
+            var parsePgn = ParsePgn.FromText(pgn);
             //var games = parsePgn.GetGameTexts();
             var games = parsePgn.GetGames();
-            var game = games[0];
+
             Console.WriteLine($"Avg time per move:\t{parsePgn.AvgTimePerMove} ms");
             Console.WriteLine($"Avg time per game:\t{parsePgn.AvgTimePerGame} ms");
             Console.WriteLine($"Avg validation time per game:\t{parsePgn.AvgValidationTimePerGame} ms");
             Console.WriteLine($"Total validation time:\t{parsePgn.TotalValidationTime} ms");
             Console.WriteLine($"Total Time:\t{parsePgn.TotalTime} seconds");
+            //MakeGifs(games);
+            EvalPosition(games[0]);
+            Console.ReadKey();
+        }
+
+        private static void EvalPosition(Game<MoveHashStorage> game)
+        {
+            var engineRunner = new EngineRunner();
+        }
+
+        private static void MakeGifs(List<Game<MoveHashStorage>> games)
+        {
+            var graphics = new Imaging();
+            var game = games[0];
             var botvinnik = games.Where(x =>
-                (x.TagSection["Black"].Contains("Botvinnik") || x.TagSection["White"].Contains("Botvinnik"))
-                && x.TagSection["Date"].Contains("1960"))
+                    (x.TagSection["Black"].Contains("Botvinnik") || x.TagSection["White"].Contains("Botvinnik"))
+                    && x.TagSection["Date"].Contains("1960"))
                 .Where(x => x.TagSection["Round"] == "2");
             game = botvinnik.FirstOrDefault() ?? game;
             //foreach (var game in botvinnik)
@@ -92,13 +108,11 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
             var round = game.TagSection["Round"];
             var black = game.TagSection["Black"];
             var white = game.TagSection["White"];
-            var fileName = $"{white}-{black}.gif";
-            var fnP = $"{white}-{black}par.gif";
 
+            var fnP = $"{white}-{black}par.gif";
 
             var nonPTime = 0L;
             var pTime = 0L;
-            using (var fsNonParallel = new FileStream($".\\GameGifs\\{fileName}", FileMode.Create, FileAccess.Write))
             using (var fsParallel = new FileStream($".\\GameGifs\\{fnP}", FileMode.Create, FileAccess.Write))
             {
                 Stopwatch sw = new Stopwatch();
@@ -110,12 +124,8 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
                 graphics.MakeAnimationFromMoveTree(fsParallel, game, 1, new ImageOptions() { SquareSize = 80 });
                 sw.Stop();
                 pTime = sw.ElapsedMilliseconds;
-                Console.WriteLine($"Created and wrote {fileName} in {nonPTime}ms.");
                 Console.WriteLine($"Created and wrote {fnP} in {pTime}ms.");
             }
-            Console.ReadKey();
         }
-
-
     }
 }
