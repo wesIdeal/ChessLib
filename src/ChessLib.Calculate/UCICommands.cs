@@ -18,7 +18,7 @@ namespace ChessLib.UCI
         public int ExpectedArgCount { get; }
         public string Command { get; set; }
 
-        
+
 
         public UCICommand(string command, int expectedArgCount = 0)
         {
@@ -52,5 +52,11 @@ namespace ChessLib.UCI
         Position
 
     }
-    
+
+    public enum UCIResponse
+    {
+        [Description("readyok")]
+        Ready
+    }
+
 }

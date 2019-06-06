@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ChessLib.Data.Helpers;
+using System.Collections;
 
 namespace ChessLib.UCI
 {
@@ -37,7 +38,7 @@ namespace ChessLib.UCI
         {
             if (IsProcessRunning)
             {
-                SendCommand(CommandToUCI.Stop);
+                this.SendCommand(CommandToUCI.Stop);
             }
         }
 
@@ -74,10 +75,11 @@ namespace ChessLib.UCI
             _process.PriorityClass = _priority;
             _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
-            SendCommand(CommandToUCI.IsReady);
+            this.SendCommand(CommandToUCI.IsReady, UCIResponse.Ready);
         }
 
-        private void OnReceiveOutput(object sender, DataReceivedEventArgs e)
+
+        public void OnReceiveOutput(object sender, DataReceivedEventArgs e)
         {
             var receivedOutput = e.Data;
             if (receivedOutput == "readyok")
@@ -90,24 +92,7 @@ namespace ChessLib.UCI
 
         public bool IsProcessRunning => _process != null && !_process.HasExited;
 
-        public void SendCommand(CommandToUCI command, params string[] args)
-        {
-            while (!IsReady) { }
-            var expectedArgCount = UCICommand.GetExpectedArgCount(command);
-            var commandStr = UCICommand.GetCommandString(command);
-            commandStr += string.Join(" ", args);
-            SendCommand(commandStr);
-        }
 
-        public void SendCommand(string command)
-        {
-            if (!IsProcessRunning)
-            {
-                throw new NullReferenceException("Process must be started before sending command.");
-            }
-            _process.StandardInput.Write(command.Trim('\n', '\r').Append('\n'));
-            _process.StandardInput.Flush();
-        }
     }
 
     public static class EngineHelpers
@@ -128,6 +113,36 @@ namespace ChessLib.UCI
             return "";
         }
 
+
+        public static Engine SendCommand(this Engine eng, CommandToUCI command, UCIResponse response, params string[] args)
+        {
+            var expectedArgCount = UCICommand.GetExpectedArgCount(command);
+            var commandStr = UCICommand.GetCommandString(command);
+            commandStr += string.Join(" ", args);
+            eng.SendCommand(commandStr);
+            return eng;
+        }
+
+
+        public static Engine SendCommand(this Engine eng, CommandToUCI command, params string[] args)
+        {
+            var expectedArgCount = UCICommand.GetExpectedArgCount(command);
+            var commandStr = UCICommand.GetCommandString(command);
+            commandStr += string.Join(" ", args);
+            eng.SendCommand(commandStr);
+            return eng;
+        }
+
+        public static Engine SendCommand(this Engine eng, string command)
+        {
+            if (!eng.IsProcessRunning)
+            {
+                throw new NullReferenceException("Process must be started before sending command.");
+            }
+            eng._process.StandardInput.Write(command.Trim('\n', '\r').Append('\n'));
+            eng._process.StandardInput.Flush();
+            return eng;
+        }
 
 
         /// <summary>
