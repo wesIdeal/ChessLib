@@ -18,7 +18,7 @@ namespace ChessLib.UCI.Tests
             var er = new EngineRunner();
             var idx = er.AddEngine("StockFish10", sfDirectory, null, receiveOutput, Guid.NewGuid());
             er.Engines[idx].Start();
-            er.Engines[idx].SendCommand(CommandToUCI.Position, "rnbqkbnr/ppp1pppp/8/3p4/2P5/8/PP1PPPPP/RNBQKBNR w KQkq - 0 2");
+            er.Engines[idx].SendCommand(UCICommandToEngine.Position, "rnbqkbnr/ppp1pppp/8/3p4/2P5/8/PP1PPPPP/RNBQKBNR w KQkq - 0 2");
             er.Engines[idx].SendGo(3, TimeSpan.FromSeconds(3));
             while (!isFinished)
             {

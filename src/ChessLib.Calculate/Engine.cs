@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using ChessLib.Data.Helpers;
 using System.Collections;
+using System.Threading;
 
 namespace ChessLib.UCI
 {
@@ -38,7 +39,7 @@ namespace ChessLib.UCI
         {
             if (IsProcessRunning)
             {
-                this.SendCommand(CommandToUCI.Stop);
+
             }
         }
 
@@ -70,24 +71,17 @@ namespace ChessLib.UCI
             _process = new Process();
             _process.StartInfo = startInfo;
             _process.StartInfo.FileName = Command;
-            _process.OutputDataReceived += OnReceiveOutput;
             _process.Start();
             _process.PriorityClass = _priority;
             _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
-            this.SendCommand(CommandToUCI.IsReady, UCIResponse.Ready);
+            ThreadPool.QueueUserWorkItem(ExecuteEngine);
+            this.SendUCI();
         }
 
-
-        public void OnReceiveOutput(object sender, DataReceivedEventArgs e)
+        private void ExecuteEngine(object state)
         {
-            var receivedOutput = e.Data;
-            if (receivedOutput == "readyok")
-            {
-                IsReady = true;
-                return;
-            }
-            _recieveOutput?.Invoke(Id, Description, receivedOutput);
+
         }
 
         public bool IsProcessRunning => _process != null && !_process.HasExited;
@@ -113,27 +107,35 @@ namespace ChessLib.UCI
             return "";
         }
 
-
-        public static Engine SendCommand(this Engine eng, CommandToUCI command, UCIResponse response, params string[] args)
+        public static void SendIsReady(this Engine engine)
         {
-            var expectedArgCount = UCICommand.GetExpectedArgCount(command);
-            var commandStr = UCICommand.GetCommandString(command);
-            commandStr += string.Join(" ", args);
-            eng.SendCommand(commandStr);
-            return eng;
+            var commandInfo = new UCICommandInfo(UCICommandToEngine.IsReady);
+            engine.SendCommand(commandInfo);
+        }
+
+        public static string[] SendUCI(this Engine engine)
+        {
+            var commandInfo = new UCICommandInfo(UCICommandToEngine.UCI);
+            engine.SendCommand(commandInfo);
+        }
+
+        private static void SendStop(this Engine eng)
+        {
+            var commandInfo = new UCICommandInfo(UCICommandToEngine.Stop);
+            engine.SendCommand(commandInfo);
         }
 
 
-        public static Engine SendCommand(this Engine eng, CommandToUCI command, params string[] args)
+        private static Engine SendCommand(this Engine eng, UCICommandInfo commandInfo, params string[] args)
         {
-            var expectedArgCount = UCICommand.GetExpectedArgCount(command);
-            var commandStr = UCICommand.GetCommandString(command);
-            commandStr += string.Join(" ", args);
-            eng.SendCommand(commandStr);
+            var expectedArgCount = commandInfo.ArgumentCount;
+            var commandToSend = commandInfo.Command;
+            commandToSend += string.Join(" ", args);
+            eng.SendCommand(commandToSend);
             return eng;
         }
 
-        public static Engine SendCommand(this Engine eng, string command)
+        private static Engine SendCommand(this Engine eng, string command)
         {
             if (!eng.IsProcessRunning)
             {

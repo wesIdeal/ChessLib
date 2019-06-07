@@ -55,18 +55,18 @@ namespace ChessLib.UCI
             Debug.WriteLine($"</{engineName}({engineId}) Output>");
         }
 
-        public void SendCommand(Guid id, CommandToUCI command, params string[] args)
+        public void SendCommand(Guid id, UCICommandToEngine command, params string[] args)
         {
             var engine = Engines.Single(eng => eng.Id == id);
-            engine.SendCommand(command, args);
+            engine.SendCommand();
         }
 
-        public void SendCommand(int nPosition, CommandToUCI command, params string[] args)
+        public void SendCommand(int nPosition, UCICommandToEngine command, params string[] args)
         {
             var engine = Engines[nPosition];
             engine.SendCommand(command, args);
         }
-        public void SendCommand(CommandToUCI command, params string[] args)
+        public void SendCommand(UCICommandToEngine command, params string[] args)
         {
             Engines.ForEach(engine =>
             {
@@ -74,7 +74,7 @@ namespace ChessLib.UCI
             });
         }
 
-        private void SendCommand(in Engine engine, CommandToUCI command, params string[] args)
+        private void SendCommand(in Engine engine, UCICommandToEngine command, params string[] args)
         {
             engine.SendCommand(command, args);
         }
