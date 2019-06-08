@@ -76,11 +76,11 @@ namespace ChessLib.UCI
             }
         }
 
-        public int AddEngine(string description, string command, string[] uciArguments, ReceiveOutput recieveOutputEventHandler = null, OnUCIInfoReceived engineInfoReceived = null, Guid? id = null, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        public int AddEngine(string description, string command, string[] uciArguments, ReceiveOutput recieveOutputEventHandler = null, Guid? id = null, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
             ReceiveOutput outputEventHandler = _receiveOutput;
             outputEventHandler += recieveOutputEventHandler;
-            var engine = new Engine(description, command, uciArguments, outputEventHandler, engineInfoReceived, id, priority);
+            var engine = new Engine(description, command, uciArguments, outputEventHandler, id, priority);
             Engines.Add(engine);
             return Engines.Count - 1;
         }

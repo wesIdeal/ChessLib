@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using ChessLib.Data.Helpers;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ChessLib.UCI
 {
     public delegate void ReceiveOutput(Guid engineId, string engineName, string strOutput);
-    public delegate void OnUCIInfoReceived(Guid id, UCIEngineInformation engineInfo);
 
     public static class EngineHelpers
     {
@@ -33,26 +33,35 @@ namespace ChessLib.UCI
 
         public static void SendIsReady(this Engine engine)
         {
-            var commandInfo = new UCICommandInfo(UCICommandToEngine.IsReady);
+            var commandInfo = new UCICommandInfo(AppToUCICommand.IsReady);
             engine.IsReady = false;
-            engine.SendCommand(commandInfo);
+            engine.QueueCommand(commandInfo);
         }
 
-        public static void SendUCI(this Engine engine)
+        public static void SendUCI(this Engine engine, OnCommandFinishedCallback onUciFinished = null)
         {
-            var commandInfo = new UCICommandInfo(UCICommandToEngine.UCI);
-            engine.SendCommand(commandInfo);
+            var commandInfo = new UCICommandInfo(AppToUCICommand.UCI, onUciFinished);
+            engine.QueueCommand(commandInfo);
         }
 
         private static void SendStop(this Engine engine)
         {
-            var commandInfo = new UCICommandInfo(UCICommandToEngine.Stop);
-            engine.SendCommand(commandInfo);
+            var commandInfo = new UCICommandInfo(AppToUCICommand.Stop);
+            engine.QueueCommand(commandInfo);
         }
 
         public static bool IsResponseTheExpectedResponse(this UCICommandInfo command, string engineResponse)
         {
             return command.ExpectedResponse == engineResponse || (command.ExactMatch == false && engineResponse.StartsWith(command.ExpectedResponse));
+        }
+
+        public static bool IsInterruptCommand(this AppToUCICommand command) =>
+            (new AppToUCICommand[] { AppToUCICommand.Stop, AppToUCICommand.Quit }).Contains(command);
+
+        public static void WriteToEngine(this StreamWriter writer, UCICommandInfo command)
+        {
+            writer.WriteLine(command.ToString());
+            writer.Flush();
         }
 
         public static bool GetDefaultForCheckbox(this string option)
@@ -92,7 +101,7 @@ namespace ChessLib.UCI
             return value.Trim();
         }
 
-        public static string GetValueForOptionKey(this string option, string key)
+        public static string GetValueForUCIKeyValuePair(this string option, string key)
         {
             Debug.Assert(string.IsNullOrEmpty(option) == false);
             var splitOptions = option.Split(' ').Select(x => x.Trim()).ToArray();
@@ -139,7 +148,7 @@ namespace ChessLib.UCI
         public static double? GetNumericDefault(this string option)
         {
             if (string.IsNullOrWhiteSpace(option)) { return null; }
-            var val = option.GetValueForOptionKey("default");
+            var val = option.GetValueForUCIKeyValuePair("default");
             if (double.TryParse(val, out double parsedVal))
             {
                 return parsedVal;
@@ -150,7 +159,7 @@ namespace ChessLib.UCI
         public static string GetStringDefault(this string option)
         {
             if (string.IsNullOrWhiteSpace(option)) { return null; }
-            var val = option.GetValueForOptionKey("default");
+            var val = option.GetValueForUCIKeyValuePair("default");
             return val;
         }
 
@@ -158,7 +167,7 @@ namespace ChessLib.UCI
         {
             double rv = 0;
             if (string.IsNullOrWhiteSpace(option)) return null;
-            var val = option.GetValueForOptionKey(key);
+            var val = option.GetValueForUCIKeyValuePair(key);
             if (string.IsNullOrWhiteSpace(val)) return null;
             if (double.TryParse(val, out rv))
             {
@@ -174,7 +183,7 @@ namespace ChessLib.UCI
             {
                 return UCIOptionType.Null;
             }
-            var value = option.GetValueForOptionKey(key);
+            var value = option.GetValueForUCIKeyValuePair(key);
             foreach (var uciOptionType in Enum.GetValues(typeof(UCIOptionType)).Cast<UCIOptionType>())
             {
                 if (value == uciOptionType.GetEnumDesc())
@@ -277,10 +286,10 @@ namespace ChessLib.UCI
             sb.Append($" depth {depth}");
         }
 
-        public static void SendQuit (this Engine engine)
+        public static void SendQuit(this Engine engine)
         {
-            var commandInfo = new UCICommandInfo(UCICommandToEngine.Quit);
-            engine.SendCommand(commandInfo);
+            var commandInfo = new UCICommandInfo(AppToUCICommand.Quit);
+            engine.QueueCommand(commandInfo);
         }
 
         /// <summary>

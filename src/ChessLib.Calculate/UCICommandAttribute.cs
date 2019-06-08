@@ -20,8 +20,8 @@ namespace ChessLib.UCI
 
         private string v1;
         private int v2;
-        private UCIResponseFromEngine uCIOk;
-        private UCIResponseFromEngine ready;
+        private UCIToAppCommand uCIOk;
+        private UCIToAppCommand ready;
         private bool v3;
 
         public int ExpectedArgCount { get; }
@@ -36,32 +36,32 @@ namespace ChessLib.UCI
             ExactMatch = true;
         }
 
-        public UCICommandAttribute(string command, int expectedArgCount, UCIResponseFromEngine expectedResponse) : this(command, expectedArgCount)
+        public UCICommandAttribute(string command, int expectedArgCount, UCIToAppCommand expectedResponse) : this(command, expectedArgCount)
         {
             ExpectedResponse = expectedResponse.AsString(EnumFormat.Description);
         }
 
-        public UCICommandAttribute(string command, int expectedArgCount, UCIResponseFromEngine expectedResponse, bool exactMatch) : this(command, expectedArgCount, expectedResponse)
+        public UCICommandAttribute(string command, int expectedArgCount, UCIToAppCommand expectedResponse, bool exactMatch) : this(command, expectedArgCount, expectedResponse)
         {
             this.ExactMatch = exactMatch;
         }
 
-        public static string GetCommandString(UCICommandToEngine command)
+        public static string GetCommandString(AppToUCICommand command)
         {
             return command.AsString(uciCommandFormat);
         }
 
-        public static string GetExpectedResponse(UCICommandToEngine command)
+        public static string GetExpectedResponse(AppToUCICommand command)
         {
             return command.AsString(uciResponseFormat);
         }
 
-        public static bool GetExactMatch(UCICommandToEngine command)
+        public static bool GetExactMatch(AppToUCICommand command)
         {
             return bool.Parse(command.AsString(uciExactMatchFormat));
         }
 
-        public static int GetExpectedArgCount(UCICommandToEngine command)
+        public static int GetExpectedArgCount(AppToUCICommand command)
         {
             var countStr = command.AsString(argumentCountFormat);
             return int.Parse(countStr);

@@ -10,13 +10,15 @@ using NUnit.Framework;
 namespace ChessLib.UCI.Tests
 {
     [TestFixture]
-    public class EngineRunnerTests
+    public class EngineTests
     {
         public bool isFinished = false;
         public const string sfDirectory = @".\stockfish_10_x64.exe";
         private Task _task;
         private Engine _eng;
         private UCIEngineInformation _engInfo;
+
+      
         [Test]
         public async Task TestUCICommand()
         {
@@ -33,6 +35,18 @@ namespace ChessLib.UCI.Tests
                 Assert.AreEqual(true, _engInfo.UCIOk);
             }
         }
+
+        [Test]
+        public async Task TestQuitCommand()
+        {
+            using (var er = new EngineRunner())
+            {
+                var idx = er.AddEngine("StockFish10", sfDirectory, null);
+                _eng = er.Engines[idx];
+                await _eng.StartAsync();
+                
+            }
+        }
         [Test]
         public async Task TestIsReadyCommand()
         {
@@ -44,7 +58,6 @@ namespace ChessLib.UCI.Tests
                 task = eng.StartAsync();
                 eng.SendIsReady();
                 eng.SendQuit();
-                task.Wait();
                 var i = 0;
 
                 Assert.AreEqual("Stockfish 10 64", _engInfo.Name);
