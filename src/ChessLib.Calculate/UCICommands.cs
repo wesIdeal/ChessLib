@@ -5,8 +5,7 @@ using System.Runtime.Serialization;
 
 namespace ChessLib.UCI
 {
-    public delegate void ReceiveOutput(Guid engineId, string engineName, string strOutput);
-
+ 
     public struct UCICommandInfo
     {
         public readonly string Command;
@@ -41,7 +40,7 @@ namespace ChessLib.UCI
 
     public enum UCICommandToEngine
     {
-        [UCICommand(command: "uci", expectedArgCount: 0, expectedResponse: UCIResponseFromEngine.UCIOk)]
+        [UCICommand(command: "uci", expectedArgCount: 0, expectedResponse: UCIResponseFromEngine.UCIOk, exactMatch:false)]
         UCI,
         [UCICommand("isready", expectedArgCount:0, expectedResponse: UCIResponseFromEngine.Ready, exactMatch: true)]
         IsReady,

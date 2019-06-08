@@ -3,12 +3,49 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ChessLib.UCI
 {
-    public class EngineRunner
+    public interface IUCIOption
+    {
+        string Name { get; set; }
+    }
+
+    public class UCIComboOption : IUCIOption
+    {
+        public string Name { get; set; }
+        public string Default { get; set; }
+        public string[] Options { get; set; }
+
+    }
+
+    public class UCISpinOption : IUCIOption
+    {
+        public string Name { get; set; }
+        public double? Min { get; internal set; }
+        public double? Default { get; internal set; }
+        public double? Max { get; internal set; }
+    }
+
+    public class UCIButtonOption : IUCIOption
+    {
+        public string Name { get; set; }
+    }
+
+    public class UCICheckOption : IUCIOption
+    {
+        public string Name { get; set; }
+        public bool Default { get; set; }
+    }
+
+    public class UCIStringOption : IUCIOption
+    {
+        public string Name { get; set; }
+        public string Default { get; set; }
+    }
+
+    public class EngineRunner : IDisposable
     {
         public EngineRunner()
         {
@@ -39,11 +76,11 @@ namespace ChessLib.UCI
             }
         }
 
-        public int AddEngine(string description, string command, string[] uciArguments, ReceiveOutput recieveOutputEventHandler = null, Guid? id = null, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        public int AddEngine(string description, string command, string[] uciArguments, ReceiveOutput recieveOutputEventHandler = null, OnUCIInfoReceived engineInfoReceived = null, Guid? id = null, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
             ReceiveOutput outputEventHandler = _receiveOutput;
             outputEventHandler += recieveOutputEventHandler;
-            var engine = new Engine(description, command, uciArguments, outputEventHandler, id, priority);
+            var engine = new Engine(description, command, uciArguments, outputEventHandler, engineInfoReceived, id, priority);
             Engines.Add(engine);
             return Engines.Count - 1;
         }
@@ -55,30 +92,12 @@ namespace ChessLib.UCI
             Debug.WriteLine($"</{engineName}({engineId}) Output>");
         }
 
-        public void SendCommand(Guid id, UCICommandToEngine command, params string[] args)
+        public void Dispose()
         {
-            var engine = Engines.Single(eng => eng.Id == id);
-            engine.SendCommand();
-        }
-
-        public void SendCommand(int nPosition, UCICommandToEngine command, params string[] args)
-        {
-            var engine = Engines[nPosition];
-            engine.SendCommand(command, args);
-        }
-        public void SendCommand(UCICommandToEngine command, params string[] args)
-        {
-            Engines.ForEach(engine =>
+            foreach (var eng in Engines)
             {
-                engine.SendCommand(command, args);
-            });
+                eng.Dispose();
+            }
         }
-
-        private void SendCommand(in Engine engine, UCICommandToEngine command, params string[] args)
-        {
-            engine.SendCommand(command, args);
-        }
-
-
     }
 }

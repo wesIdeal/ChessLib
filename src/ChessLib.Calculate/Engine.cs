@@ -1,36 +1,42 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using EnumsNET;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using ChessLib.Data.Helpers;
 using System.Collections;
 using System.Threading;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Threading.Tasks;
+using System.Text;
 
 namespace ChessLib.UCI
 {
     [Serializable]
-    public class Engine
+    public class Engine : IDisposable
     {
         public Guid Id => _uid;
         private Guid _uid;
-        protected bool IsReady = false;
+        public bool IsReady { get; set; }
+
         public string Description { get; set; }
         public string Command { get; private set; }
         public string[] UciArguments { get; private set; }
         private AutoResetEvent UCICommandIssued = new AutoResetEvent(false);
         private AutoResetEvent UCIShutdownIssued = new AutoResetEvent(false);
         private AutoResetEvent UCIResponseRecieved = new AutoResetEvent(false);
-
+        private StringBuilder sbUciResponse = new StringBuilder();
+        [NonSerialized]
+        public UCIEngineInformation EngineInformation;
         [NonSerialized]
         private ConcurrentQueue<UCICommandInfo> _uciCommandQueue = new ConcurrentQueue<UCICommandInfo>();
+        private UCICommandInfo? _currentCommand;
         public ProcessPriorityClass Priority
         {
             get => _priority;
             private set => _priority = value;
+        }
+        ~Engine()
+        {
+            Dispose();
         }
 
         public void SetPriority(ProcessPriorityClass priority)
@@ -44,23 +50,23 @@ namespace ChessLib.UCI
 
         public void SendCommand(UCICommandInfo commandInfo, params string[] args)
         {
-            if (!IsProcessRunning)
+            if (!GetIsProcessRunning())
             {
                 throw new NullReferenceException("Process must be started before sending command.");
             }
+            Debug.WriteLine($"SENDING\t{commandInfo.Command}");
             commandInfo.SetCommandArguments(args);
             _uciCommandQueue.Enqueue(commandInfo);
         }
 
-        public ReceiveOutput _recieveOutput;
-
-        public void Stop()
+        private bool GetIsProcessRunning()
         {
-            if (IsProcessRunning)
-            {
-
-            }
+            return _process != null;
         }
+
+        public ReceiveOutput _recieveOutput;
+        private OnUCIInfoReceived _engineInfoReceived;
+
 
         [NonSerialized] public Process _process;
         [NonSerialized]
@@ -74,7 +80,7 @@ namespace ChessLib.UCI
         };
         private ProcessPriorityClass _priority;
 
-        public Engine(string description, string command, string[] uciArguments, ReceiveOutput recieveOutput, Guid? id = null, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        public Engine(string description, string command, string[] uciArguments, ReceiveOutput recieveOutput = null, OnUCIInfoReceived engineInfoReceived = null, Guid? id = null, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
             _uid = id ?? Guid.NewGuid();
             Description = description;
@@ -82,70 +88,107 @@ namespace ChessLib.UCI
             UciArguments = uciArguments;
             Priority = priority;
             _recieveOutput = recieveOutput;
-
+            _engineInfoReceived = engineInfoReceived;
         }
 
-        public void Start()
+        public async Task StartAsync()
         {
-            _process = new Process();
-            _process.StartInfo = startInfo;
-            _process.StartInfo.FileName = Command;
-            _process.Start();
-            _process.PriorityClass = _priority;
-            _process.BeginErrorReadLine();
-            _process.BeginOutputReadLine();
-            _process.OutputDataReceived += OnUCIResponseRecieved;
-            ThreadPool.QueueUserWorkItem(ExecuteEngine);
-
+            EngineInformation = new UCIEngineInformation();
+            using (_process = new Process())
+            {
+                _process.StartInfo = startInfo;
+                _process.StartInfo.FileName = Command;
+                _process.Start();
+                _process.PriorityClass = _priority;
+                _process.BeginErrorReadLine();
+                _process.BeginOutputReadLine();
+                _process.OutputDataReceived += OnUCIResponseRecieved;
+                this.SendUCI();
+                await Task.Run(() => { ExecuteEngine(null); });
+            }
         }
 
         private void OnUCIResponseRecieved(object sender, DataReceivedEventArgs e)
         {
+
             string engineResponse = e.Data;
+            if (!_currentCommand.HasValue)
+            {
+                _recieveOutput?.Invoke(Id, Description, engineResponse);
+                return;
+            }
+            var command = _currentCommand.Value;
+
+
             if (string.IsNullOrEmpty(engineResponse))
             {
                 return;
             }
-            if (_uciCommandQueue.TryPeek(out UCICommandInfo command))
+
+            if (_currentCommand.HasValue && _currentCommand.Value.AwaitResponse)
             {
-                if (command.AwaitResponse)
+                if (command.Command == "uci")
                 {
-                    //TODO StartHere
+                    sbUciResponse.AppendLine(engineResponse);
+                    if (command.IsResponseTheExpectedResponse(engineResponse))
+                    {
+                        EngineInformation = new UCIEngineInformation(sbUciResponse.ToString());
+                        _engineInfoReceived?.Invoke(Id, EngineInformation);
+                        _currentCommand = null;
+                        UCIResponseRecieved.Set();
+                        return;
+                    }
                 }
+                else if (command.Command == "isready")
+                {
+                    if (command.IsResponseTheExpectedResponse(engineResponse))
+                    {
+                        _currentCommand = null;
+                        IsReady = true;
+                    }
+                }
+
             }
+            else
+            {
+                UCIResponseRecieved.Set();
+            }
+            _recieveOutput?.Invoke(Id, Description, engineResponse);
 
         }
 
         private void ExecuteEngine(object state)
         {
             var exit = false;
-            var remainingQueueItems = 0;
             int waitResult = WaitHandle.WaitTimeout;
             var commandEvents = new[] { UCICommandIssued, UCIShutdownIssued };
             var finishedEvents = new[] { UCIResponseRecieved, UCIShutdownIssued };
             const int ShutdownHandle = 1;
             StreamWriter engineInputStream = _process.StandardInput;
-            this.SendUCI();
             while (!exit)
             {
-                remainingQueueItems = _uciCommandQueue.Count();
+                //Wait for new commands to come in if none are on the queue
                 if (!_uciCommandQueue.Any())
                 {
                     waitResult = WaitHandle.WaitAny(commandEvents);
                 }
+                //Exit if we get a shutdown handle
                 if (waitResult == ShutdownHandle)
                 {
                     exit = true;
+                    continue;
                 }
                 else
                 {
-                    if (_uciCommandQueue.TryPeek(out UCICommandInfo commandToIssue))
+                    if (_uciCommandQueue.TryDequeue(out UCICommandInfo commandToIssue))
                     {
-                        engineInputStream.WriteLine(commandToIssue.GetFullCommand());
-                        if (commandToIssue.AwaitResponse)
+                        _currentCommand = commandToIssue;
+                        if (_currentCommand?.Command == "quit")
                         {
-                            this.SendIsReady();
+                            exit = true;
+                            UCIShutdownIssued.Set();
                         }
+                        engineInputStream.WriteLine(commandToIssue.GetFullCommand());
                     }
                     waitResult = WaitHandle.WaitAny(finishedEvents);
                     if (waitResult == ShutdownHandle)
@@ -157,101 +200,14 @@ namespace ChessLib.UCI
 
         }
 
-        public bool IsProcessRunning => _process != null && !_process.HasExited;
-
-
-    }
-
-    public static class EngineHelpers
-    {
-        private static string GetMoves(MoveExt[] moves)
+        public void Dispose()
         {
-            if (moves != null && moves.Any())
-            {
-                StringBuilder sb = new StringBuilder("searchmoves");
-                foreach (var move in moves)
-                {
-                    sb.Append($" {move.SourceIndex.IndexToSquareDisplay()}{move.DestinationIndex.IndexToSquareDisplay()}");
-                }
-
-                return sb.ToString().Trim();
-            }
-
-            return "";
-        }
-
-        public static void SendIsReady(this Engine engine)
-        {
-            var commandInfo = new UCICommandInfo(UCICommandToEngine.IsReady);
-            engine.SendCommand(commandInfo);
-        }
-
-        public static void SendUCI(this Engine engine)
-        {
-            var commandInfo = new UCICommandInfo(UCICommandToEngine.UCI);
-            engine.SendCommand(commandInfo);
-        }
-
-        private static void SendStop(this Engine engine)
-        {
-            var commandInfo = new UCICommandInfo(UCICommandToEngine.Stop);
-            engine.SendCommand(commandInfo);
+            _process.OutputDataReceived -= OnUCIResponseRecieved;
+            // Dispose of the process
+            _process.Dispose();
+            GC.SuppressFinalize(this);
         }
 
 
-
-
-
-
-
-        /// <summary>
-        /// Starts a search for set depth
-        /// </summary>
-        /// <param name="eng"></param>
-        /// <param name="nodesToSearch">search x nodes only</param>
-        ///  /// <param name="depth">search x plies only</param>
-        /// <param name="searchMoves">only consider these moves</param>
-        public static void SendGo(this Engine eng, int? nodesToSearch, int depth,
-            MoveExt[] searchMoves = null)
-        {
-            StringBuilder sb = new StringBuilder("go");
-            sb.Append(GetMoves(searchMoves));
-            if (nodesToSearch.HasValue) sb.Append($" nodes {nodesToSearch.Value}");
-            sb.Append($" depth {depth}");
-        }
-
-        /// <summary>
-        /// Starts a search for set amount of time
-        /// </summary>
-        /// <param name="eng"></param>
-        /// <param name="searchDepth">search x plies only</param>
-        /// <param name="nodesToSearch">search x nodes only</param>
-        /// <param name="searchTime">Time to spend searching</param>
-        /// <param name="searchMoves">only consider these moves</param>
-        public static void SendGo(this Engine eng, int? nodesToSearch, TimeSpan searchTime,
-            MoveExt[] searchMoves = null)
-        {
-            //StringBuilder sb = new StringBuilder("go");
-            //sb.Append(GetMoves(searchMoves));
-            //if (nodesToSearch.HasValue) sb.Append($" nodes {nodesToSearch.Value}");
-            //var timeInMsToSearch = searchTime.TotalMilliseconds.ToString();
-            //sb.Append($" movetime {timeInMsToSearch}");
-            //eng.SendCommand(sb.ToString().Trim());
-
-        }
-
-        ///// <summary>
-        ///// Starts a search for infinite amount of time. Must send "stop" command end search.
-        ///// </summary>
-        ///// <param name="eng"></param>
-        ///// <param name="nodesToSearch">search x nodes only</param>
-        ///// <param name="searchMoves">estrict search to these moves only</param>
-        //public static void SendGo(this Engine eng, int? nodesToSearch, MoveExt[] searchMoves = null)
-        //{
-        //    StringBuilder sb = new StringBuilder("go");
-        //    sb.Append(GetMoves(searchMoves));
-        //    if (nodesToSearch.HasValue) sb.Append($" nodes {nodesToSearch.Value}");
-        //    eng.SendCommand(sb.ToString().Trim());
-        //}
     }
 }

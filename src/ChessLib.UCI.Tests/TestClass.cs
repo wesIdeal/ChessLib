@@ -3,6 +3,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace ChessLib.UCI.Tests
@@ -12,31 +14,48 @@ namespace ChessLib.UCI.Tests
     {
         public bool isFinished = false;
         public const string sfDirectory = @".\stockfish_10_x64.exe";
+        private Task _task;
+        private Engine _eng;
+        private UCIEngineInformation _engInfo;
         [Test]
-        public void TestMethod()
+        public async Task TestUCICommand()
         {
-            var er = new EngineRunner();
-            var idx = er.AddEngine("StockFish10", sfDirectory, null, receiveOutput, Guid.NewGuid());
-            er.Engines[idx].Start();
-            er.Engines[idx].SendCommand(UCICommandToEngine.Position, "rnbqkbnr/ppp1pppp/8/3p4/2P5/8/PP1PPPPP/RNBQKBNR w KQkq - 0 2");
-            er.Engines[idx].SendGo(3, TimeSpan.FromSeconds(3));
-            while (!isFinished)
+            using (var er = new EngineRunner())
             {
+                var idx = er.AddEngine("StockFish10", sfDirectory, null);
+                _eng = er.Engines[idx];
+                await _eng.StartAsync();
+                var i = 0;
 
-            }
-
-            er.Engines[idx].Stop();
-        }
-
-        
-
-        private void receiveOutput(Guid engineId, string engineName, string strOutput)
-        {
-            Console.WriteLine($"{DateTime.Now.TimeOfDay}\t{strOutput}");
-            if (strOutput.StartsWith("bestmove"))
-            {
-                isFinished = true;
+                Assert.AreEqual("Stockfish 10 64", _engInfo.Name);
+                Assert.AreEqual("T. Romstad, M. Costalba, J. Kiiski, G. Linscott", _engInfo.Author);
+                Assert.AreEqual(19, _engInfo.Options.Length);
+                Assert.AreEqual(true, _engInfo.UCIOk);
             }
         }
+        [Test]
+        public async Task TestIsReadyCommand()
+        {
+            Task task;
+            using (var eng = new Engine("SF", sfDirectory, null))
+            {
+
+
+                task = eng.StartAsync();
+                eng.SendIsReady();
+                eng.SendQuit();
+                task.Wait();
+                var i = 0;
+
+                Assert.AreEqual("Stockfish 10 64", _engInfo.Name);
+                Assert.AreEqual("T. Romstad, M. Costalba, J. Kiiski, G. Linscott", _engInfo.Author);
+                Assert.AreEqual(19, _engInfo.Options.Length);
+                Assert.AreEqual(true, _engInfo.UCIOk);
+            }
+        }
+
+
+
+
     }
 }
