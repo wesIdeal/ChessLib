@@ -59,14 +59,15 @@ namespace ChessLib.Data
             var validationError = moveValidator.Validate();
             if (validationError.HasValue)
                 throw new MoveException("Error with move.", validationError.Value, move, ActivePlayer);
-            var san = move.MoveToSAN(this, MoveTree.ParentMove == null);
-            MoveTree.Add(new MoveNode<MoveHashStorage>(new MoveHashStorage(this.ToFEN(), move, pocSource.Value.Piece, ActivePlayer, san)));
             ApplyValidatedMove(move);
             return null;
         }
 
         public void ApplyValidatedMove(MoveExt move)
         {
+            var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
+            var san = move.MoveToSAN(this, MoveTree.ParentMove == null);
+            MoveTree.Add(new MoveNode<MoveHashStorage>(new MoveHashStorage(this.ToFEN(), move, pocSource.Value.Piece, ActivePlayer, san)));
             var newBoard = this.ApplyMoveToBoard(move);
             this._piecePlacement = newBoard.GetPiecePlacement();
             this.ActivePlayer = newBoard.ActivePlayer;
@@ -74,6 +75,7 @@ namespace ChessLib.Data
             this.EnPassantSquare = newBoard.EnPassantSquare;
             this.HalfmoveClock = newBoard.HalfmoveClock;
             this.FullmoveCounter = newBoard.FullmoveCounter;
+
         }
 
         public ulong GetPinnedPieces()

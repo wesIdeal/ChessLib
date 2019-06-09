@@ -29,6 +29,7 @@ namespace ChessLib.UCI.Tests
         {
             var infoObj = new UCIInfoString(fen, info);
             Assert.AreEqual(14765893, infoObj.Nodes);
+            Console.Write($"({infoObj.ScoreDisplay})\t" + infoObj.VariationDisplay);
         }
 
     }
