@@ -27,12 +27,12 @@ namespace ChessLib.Data
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int File(ushort idx) => idx % 8;
 
-        private static bool IsCastlingMove(Piece p, ushort source, ushort destination) => (p == Piece.King && ((source == 60 && (destination == 62 || destination == 58)) ||
+        public static bool IsCastlingMove(Piece p, ushort source, ushort destination) => (p == Piece.King && ((source == 60 && (destination == 62 || destination == 58)) ||
                                         (source == 4 && (destination == 6 || destination == 2))));
 
-        private static bool IsEnPassantCapture(Piece p, ushort source, ushort destination, ushort? enPassantSq) => (enPassantSq == null) || (destination != enPassantSq.Value) || p != Piece.Pawn ? false : true;
+        public static bool IsEnPassantCapture(Piece p, ushort source, ushort destination, ushort? enPassantSq) => (enPassantSq == null) || (destination != enPassantSq.Value) || p != Piece.Pawn ? false : true;
 
-        private static bool IsPromotion(Piece p, ushort source, ushort destination)
+        public static bool IsPromotion(Piece p, ushort source, ushort destination)
         {
             var sRank = source.RankFromIdx();
             var dRank = destination.RankFromIdx();

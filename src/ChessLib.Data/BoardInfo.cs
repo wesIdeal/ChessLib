@@ -65,7 +65,7 @@ namespace ChessLib.Data
             return null;
         }
 
-        private void ApplyValidatedMove(MoveExt move)
+        public void ApplyValidatedMove(MoveExt move)
         {
             var newBoard = this.ApplyMoveToBoard(move);
             this._piecePlacement = newBoard.GetPiecePlacement();

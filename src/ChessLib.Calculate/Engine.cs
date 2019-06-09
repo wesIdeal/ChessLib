@@ -141,7 +141,7 @@ namespace ChessLib.UCI
                             if (command.IsResponseTheExpectedResponse(engineResponse))
                             {
                                 var moves = MakeBestMoveArrayFromUCI(engineResponse);
-                                Console.WriteLine($"Best: {moves[0].()}");
+                                //Console.WriteLine($"Best: {moves[0].()}");
                             }
                             break;
                         default: break;
@@ -195,7 +195,7 @@ namespace ChessLib.UCI
             return new[] { MakeMoveFromUCIMove(strBestMove), MakeMoveFromUCIMove(strPonder) };
         }
 
-        private static MoveExt MakeMoveFromUCIMove(this string uciMove)
+        private static MoveExt MakeMoveFromUCIMove(string uciMove)
         {
             if (string.IsNullOrWhiteSpace(uciMove))
             {
