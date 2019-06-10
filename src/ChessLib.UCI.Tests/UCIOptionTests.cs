@@ -3,21 +3,23 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using ChessLib.UCI;
+using ChessLib.UCI.Commands.FromEngine;
+
 namespace ChessLib.UCI.Tests
 {
     [TestFixture]
     public class UCIOptionTests
     {
-        [TestCase("", UCIOptionType.Null)]
-        [TestCase(null, UCIOptionType.Null)]
-        [TestCase("hi", UCIOptionType.Null)]
-        [TestCase("type string", UCIOptionType.String)]
-        [TestCase("type spin", UCIOptionType.Spin)]
-        [TestCase("type check", UCIOptionType.Check)]
-        [TestCase("type combo", UCIOptionType.Combo)]
-        [TestCase("type button", UCIOptionType.Button)]
-        [TestCase("option name Debug Log File type string default", UCIOptionType.String)]
-        public void GetType(string options, UCIOptionType expectedType)
+        [TestCase("", OptionType.Null)]
+        [TestCase(null, OptionType.Null)]
+        [TestCase("hi", OptionType.Null)]
+        [TestCase("type string", OptionType.String)]
+        [TestCase("type spin", OptionType.Spin)]
+        [TestCase("type check", OptionType.Check)]
+        [TestCase("type combo", OptionType.Combo)]
+        [TestCase("type button", OptionType.Button)]
+        [TestCase("option name Debug Log File type string default", OptionType.String)]
+        public void GetType(string options, OptionType expectedType)
         {
             var actualType = EngineHelpers.GetOptionType(options);
             Assert.AreEqual(expectedType, actualType);
@@ -98,7 +100,9 @@ namespace ChessLib.UCI.Tests
         [Test]
         public void TestOptionsClass()
         {
-            var engineInfo = new UCIEngineInformation(uciResponse);
+            var id = Guid.NewGuid();
+            var engineInfo = new UCIEngineInformation(id, uciResponse);
+            Assert.AreEqual(id, engineInfo.Id);
             Assert.AreEqual("Stockfish 10 64", engineInfo.Name);
             Assert.AreEqual("T. Romstad, M. Costalba, J. Kiiski, G. Linscott", engineInfo.Author);
             Assert.AreEqual(19, engineInfo.Options.Length);

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 
-namespace ChessLib.UCI
+namespace ChessLib.UCI.Commands.FromEngine
 {
-    public enum UCIOptionType
+    public enum OptionType
     {
         Null,
         [Description("spin")]

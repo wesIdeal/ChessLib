@@ -7,67 +7,63 @@ using System.Text;
 using ChessLib.Data.Helpers;
 using System.Collections.Generic;
 using System.IO;
+using ChessLib.UCI.Commands.ToEngine;
+using ChessLib.UCI.Commands;
+using ChessLib.UCI.Commands.FromEngine;
+using ChessLib.UCI.Commands.FromEngine.Options;
 
 namespace ChessLib.UCI
 {
-    public delegate void ReceiveOutput(Guid engineId, string engineName, string strOutput);
 
     public static class EngineHelpers
     {
         public static readonly string[] OptionKeywords = new[] { "name", "default", "min", "max", "var", "type" };
-        private static string GetMoves(MoveExt[] moves)
-        {
-            if (moves != null && moves.Any())
-            {
-                StringBuilder sb = new StringBuilder("searchmoves");
-                foreach (var move in moves)
-                {
-                    sb.Append($" {move.SourceIndex.IndexToSquareDisplay()}{move.DestinationIndex.IndexToSquareDisplay()}");
-                }
 
-                return sb.ToString().Trim();
-            }
-
-            return "";
-        }
 
         public static void SendIsReady(this Engine engine)
         {
-            var commandInfo = new UCICommandInfo(AppToUCICommand.IsReady);
+            var commandInfo = new CommandInfo(AppToUCICommand.IsReady);
             engine.IsReady = false;
             engine.QueueCommand(commandInfo);
         }
 
-        public static void SendUCI(this Engine engine, OnCommandFinishedCallback onUciFinished = null)
+        public static void SendUCI(this Engine engine)
         {
-            var commandInfo = new UCICommandInfo(AppToUCICommand.UCI, onUciFinished);
+            var commandInfo = new CommandInfo(AppToUCICommand.UCI);
             engine.QueueCommand(commandInfo);
         }
 
         private static void SendStop(this Engine engine)
         {
-            var commandInfo = new UCICommandInfo(AppToUCICommand.Stop);
+            var commandInfo = new CommandInfo(AppToUCICommand.Stop);
             engine.QueueCommand(commandInfo);
         }
+        delegate bool CompareString(string response, string expected);
+        static CompareString CompareExact = (engineResponse, expectedResponse) => engineResponse.Equals(expectedResponse);
+        static CompareString CompareStart = (engineResponsetr, expectedResponse) => engineResponsetr.StartsWith(expectedResponse);
 
-        public static bool IsResponseTheExpectedResponse(this UCICommandInfo command, string engineResponse)
+        public static bool IsResponseTheExpectedResponse(this CommandInfo command, string engineResponse, out EngineToAppCommand matchingFlag)
         {
-            return command.ExpectedResponse == engineResponse || (command.ExactMatch == false && engineResponse.StartsWith(command.ExpectedResponse));
+            CompareString compare = command.ExactMatch ? CompareExact : CompareStart;
+            string match;
+            matchingFlag = EngineToAppCommand.None;
+            if ((match = command.ExpectedResponses.FirstOrDefault(x => compare(engineResponse, x))) != null)
+            {
+                matchingFlag = Enums.Parse<EngineToAppCommand>(match, CommandAttribute.UciCommandFormat);
+                return true;
+            }
+            return false;
         }
 
         public static bool IsInterruptCommand(this AppToUCICommand command) =>
             (new AppToUCICommand[] { AppToUCICommand.Stop, AppToUCICommand.Quit }).Contains(command);
 
-        public static void WriteToEngine(this StreamWriter writer, UCICommandInfo command)
-        {
-            writer.WriteLine(command.ToString());
-            writer.Flush();
-        }
+
 
         public static bool GetDefaultForCheckbox(this string option)
         {
             if (string.IsNullOrWhiteSpace(option)) { return false; }
-            Debug.Assert(option.GetOptionType() == UCIOptionType.Check);
+            Debug.Assert(option.GetOptionType() == OptionType.Check);
             var val = option.GetStringDefault();
             bool rv = false;
             if (bool.TryParse(val, out rv))
@@ -176,22 +172,22 @@ namespace ChessLib.UCI
             return null;
         }
 
-        public static UCIOptionType GetOptionType(this string option)
+        public static OptionType GetOptionType(this string option)
         {
             const string key = "type";
             if (string.IsNullOrWhiteSpace(option))
             {
-                return UCIOptionType.Null;
+                return OptionType.Null;
             }
             var value = option.GetValueForUCIKeyValuePair(key);
-            foreach (var uciOptionType in Enum.GetValues(typeof(UCIOptionType)).Cast<UCIOptionType>())
+            foreach (var uciOptionType in Enum.GetValues(typeof(OptionType)).Cast<OptionType>())
             {
                 if (value == uciOptionType.GetEnumDesc())
                 {
                     return uciOptionType;
                 }
             }
-            return UCIOptionType.Null;
+            return OptionType.Null;
         }
 
         public static string GetEnumDesc<T>(this T tEnum) where T : struct, Enum
@@ -206,19 +202,19 @@ namespace ChessLib.UCI
             {
                 switch (opt.GetOptionType())
                 {
-                    case UCIOptionType.Spin:
+                    case OptionType.Spin:
                         rv.Add(opt.ProcessSpinOption());
                         break;
-                    case UCIOptionType.Check:
+                    case OptionType.Check:
                         rv.Add(opt.ProcessCheckOption());
                         break;
-                    case UCIOptionType.Combo:
+                    case OptionType.Combo:
                         rv.Add(opt.ProcessComboOption());
                         break;
-                    case UCIOptionType.Button:
+                    case OptionType.Button:
                         rv.Add(opt.ProcessButtonOption());
                         break;
-                    case UCIOptionType.String:
+                    case OptionType.String:
                         rv.Add(opt.ProcessStringOption());
                         break;
                     default:
@@ -270,26 +266,31 @@ namespace ChessLib.UCI
             };
         }
 
-        /// <summary>
-        /// Starts a search for set depth
-        /// </summary>
-        /// <param name="eng"></param>
-        /// <param name="nodesToSearch">search x nodes only</param>
-        ///  /// <param name="depth">search x plies only</param>
-        /// <param name="searchMoves">only consider these moves</param>
-        public static void SendGo(this Engine eng, int? nodesToSearch, int depth,
-            MoveExt[] searchMoves = null)
+
+
+        public static void SendLinesToSearch(this Engine eng, int lines)
         {
-            StringBuilder sb = new StringBuilder("go");
-            sb.Append(GetMoves(searchMoves));
-            if (nodesToSearch.HasValue) sb.Append($" nodes {nodesToSearch.Value}");
-            sb.Append($" depth {depth}");
+            eng.QueueCommand(new SetOption("MultiPV", lines.ToString()));
         }
 
         public static void SendQuit(this Engine engine)
         {
-            var commandInfo = new UCICommandInfo(AppToUCICommand.Quit);
+            var commandInfo = new CommandInfo(AppToUCICommand.Quit);
             engine.QueueCommand(commandInfo);
+        }
+
+        public static string UCIMovesFromMoveObjects(this MoveExt[] moves)
+        {
+            if (moves == null || !moves.Any())
+            {
+                return "";
+            }
+            return string.Join(" ", moves.Select(m =>
+            {
+                var pString = m.MoveType == Types.Enums.MoveType.Promotion ?
+                    char.ToLower(PieceHelpers.GetCharFromPromotionPiece(m.PromotionPiece)).ToString() : "";
+                return $"{m.SourceIndex.IndexToSquareDisplay()}{m.DestinationIndex.IndexToSquareDisplay()}{pString}";
+            }));
         }
 
         /// <summary>

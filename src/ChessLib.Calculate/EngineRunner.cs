@@ -7,43 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ChessLib.UCI
 {
-    public interface IUCIOption
-    {
-        string Name { get; set; }
-    }
-
-    public class UCIComboOption : IUCIOption
-    {
-        public string Name { get; set; }
-        public string Default { get; set; }
-        public string[] Options { get; set; }
-
-    }
-
-    public class UCISpinOption : IUCIOption
-    {
-        public string Name { get; set; }
-        public double? Min { get; internal set; }
-        public double? Default { get; internal set; }
-        public double? Max { get; internal set; }
-    }
-
-    public class UCIButtonOption : IUCIOption
-    {
-        public string Name { get; set; }
-    }
-
-    public class UCICheckOption : IUCIOption
-    {
-        public string Name { get; set; }
-        public bool Default { get; set; }
-    }
-
-    public class UCIStringOption : IUCIOption
-    {
-        public string Name { get; set; }
-        public string Default { get; set; }
-    }
 
     public class EngineRunner : IDisposable
     {
@@ -76,11 +39,9 @@ namespace ChessLib.UCI
             }
         }
 
-        public int AddEngine(string description, string command, string[] uciArguments, ReceiveOutput recieveOutputEventHandler = null, Guid? id = null, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        public int AddEngine(string description, string command, string[] uciArguments, Guid? id = null, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
-            ReceiveOutput outputEventHandler = _receiveOutput;
-            outputEventHandler += recieveOutputEventHandler;
-            var engine = new Engine(description, command, uciArguments, outputEventHandler, id, priority);
+            var engine = new Engine(description, command, uciArguments, id, priority);
             Engines.Add(engine);
             return Engines.Count - 1;
         }

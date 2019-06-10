@@ -1,12 +1,14 @@
 ﻿using System.Threading;
 using System.Collections.Concurrent;
 
-namespace ChessLib.UCI
+namespace ChessLib.UCI.Commands
 {
-    public class UCICommandQueue : ConcurrentQueue<UCICommandInfo>
+    public class CommandQueue : ConcurrentQueue<CommandInfo>
     {
         public static AutoResetEvent InterruptIssued = new AutoResetEvent(false);
-        public new void Enqueue(UCICommandInfo item)
+        public static AutoResetEvent CommandIssued = new AutoResetEvent(false);
+        public static readonly AutoResetEvent[] CommandIssuedEvents = new[] { CommandQueue.CommandIssued, CommandQueue.InterruptIssued };
+        public new void Enqueue(CommandInfo item)
         {
             if (item.CommandSent.IsInterruptCommand())
             {
@@ -16,7 +18,7 @@ namespace ChessLib.UCI
             base.Enqueue(item);
         }
 
-        private void EnqueueInterruptEvent(UCICommandInfo item)
+        private void EnqueueInterruptEvent(CommandInfo item)
         {
             Clear();
             base.Enqueue(item);

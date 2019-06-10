@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using ChessLib.UCI.Commands;
+using ChessLib.UCI.Commands.ToEngine;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,9 +12,9 @@ using System.Threading.Tasks;
 namespace ChessLib.UCI.Tests
 {
     [TestFixture]
-    public class UCICommandQueueTests
+    public class CommandQueueTests
     {
-        private UCICommandQueue q = new UCICommandQueue();
+        private CommandQueue q = new CommandQueue();
         [SetUp]
         public void Setup()
         {
@@ -24,7 +26,7 @@ namespace ChessLib.UCI.Tests
             var expectedSize = 5;
             for (int i = 0; i < expectedSize; i++)
             {
-                q.Enqueue(new UCICommandInfo(AppToUCICommand.IsReady));
+                q.Enqueue(new CommandInfo(AppToUCICommand.IsReady));
             }
             Assert.AreEqual(expectedSize, q.Count());
         }
@@ -36,10 +38,10 @@ namespace ChessLib.UCI.Tests
             var expectedSize = 5;
             for (int i = 0; i < expectedSize; i++)
             {
-                q.Enqueue(new UCICommandInfo(AppToUCICommand.IsReady));
+                q.Enqueue(new CommandInfo(AppToUCICommand.IsReady));
             }
             Assert.AreEqual(expectedSize, q.Count());
-            q.Enqueue(new UCICommandInfo(interruptCommand));
+            q.Enqueue(new CommandInfo(interruptCommand));
             Assert.AreEqual(1, q.Count());
         }
 
@@ -53,20 +55,20 @@ namespace ChessLib.UCI.Tests
             var expectedWaitHandle = shouldReceiveInterruptEvent ? 0 : WaitHandle.WaitTimeout;
             for (int i = 0; i < expectedSize; i++)
             {
-                q.Enqueue(new UCICommandInfo(AppToUCICommand.IsReady));
+                q.Enqueue(new CommandInfo(AppToUCICommand.IsReady));
             }
             Assert.AreEqual(expectedSize, q.Count());
-            q.Enqueue(new UCICommandInfo(interruptCommand));
-            var waitHandle = WaitHandle.WaitAny(new[] { UCICommandQueue.InterruptIssued },timeout);
+            q.Enqueue(new CommandInfo(interruptCommand));
+            var waitHandle = WaitHandle.WaitAny(new[] { CommandQueue.InterruptIssued },timeout);
             Assert.AreEqual(expectedWaitHandle, waitHandle);
         }
 
         [Test]
         public void TestClear()
         {
-            q.Enqueue(new UCICommandInfo(AppToUCICommand.IsReady));
-            q.Enqueue(new UCICommandInfo(AppToUCICommand.IsReady));
-            q.Enqueue(new UCICommandInfo(AppToUCICommand.IsReady));
+            q.Enqueue(new CommandInfo(AppToUCICommand.IsReady));
+            q.Enqueue(new CommandInfo(AppToUCICommand.IsReady));
+            q.Enqueue(new CommandInfo(AppToUCICommand.IsReady));
             q.Clear();
             Assert.IsEmpty(q);
         }

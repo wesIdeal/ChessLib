@@ -9,10 +9,32 @@ using ChessLib.Data.Helpers;
 using System.Diagnostics;
 using ChessLib.Types.Enums;
 
-namespace ChessLib.UCI
+namespace ChessLib.UCI.Commands.FromEngine
 {
-    public class UCIInfoString
+    public interface IEngineResponse { }
+    public class ReadyOk : IEngineResponse
     {
+        public ReadyOk(string response)
+        {
+            EngineResponse = response;
+        }
+        public string EngineResponse { get; set; }
+    }
+
+    public class InfoResponse : IEngineResponse
+    {
+        public enum InfoTypes
+        {
+            /// <summary>
+            /// Used to signify the info line coming back contains an analysis of a variation
+            /// </summary>
+            AnalysisInfo,
+            /// <summary>
+            /// Used to signify the info line coming back tells which move is being calculated
+            /// </summary>
+            CalculationInfo
+        };
+        public InfoTypes InfoType { get; private set; }
         private static readonly KeyValuePair<string, int>[] _initializers =
             new KeyValuePair<string, int>[] {
                 new KeyValuePair<string,int>("depth", 1),
@@ -24,8 +46,11 @@ namespace ChessLib.UCI
                 new KeyValuePair<string,int>("hashfull", 1),
                 new KeyValuePair<string,int>("tbhits", 1),
                 new KeyValuePair<string,int>("time", 1),
-                new KeyValuePair<string,int>("pv", 1)//special case - string of moves
+                new KeyValuePair<string,int>("pv", 1),//special case - string of moves after this until newline
+                new KeyValuePair<string,int>("currmove",1),
+                new KeyValuePair<string, int>("currmovenumber",1)
             };
+
         public static readonly Dictionary<string, int> InfoFieldDepth = _initializers.ToDictionary(k => k.Key, v => v.Value);
 
         protected Dictionary<string, string> InfoDictionary { get; set; }
@@ -40,6 +65,8 @@ namespace ChessLib.UCI
         public long NodesPerSecond { get; private set; }
         public long HashFull { get; private set; }
         public long TableBaseMatches { get; private set; }
+        public MoveExt CurrentMove { get; private set; }
+        public uint CurrentMoveNumber { get; set; }
         public TimeSpan SearchTime { get; private set; }
 
 
@@ -58,10 +85,19 @@ namespace ChessLib.UCI
         private string _variationDisplay = null;
         public string VariationDisplay => _variationDisplay;
 
-
-
-        public UCIInfoString(string fenPosition, string infoStr)
+        static readonly string[] _calcKeywords = new string[] { "currmove", "currmovenumber" };
+        public static InfoTypes GetTypeOfInfo(string engineResponse)
         {
+            foreach (var kw in _calcKeywords)
+            {
+                if (engineResponse.Contains(kw)) return InfoTypes.CalculationInfo;
+            }
+            return InfoTypes.AnalysisInfo;
+        }
+
+        public InfoResponse(string fenPosition, string infoStr)
+        {
+            InfoType = InfoTypes.AnalysisInfo;
             Fen = fenPosition;
             InfoDictionary = new Dictionary<string, string>();
             var trimmed = infoStr.Replace("info", "");
@@ -78,8 +114,6 @@ namespace ChessLib.UCI
 
                 if (key == "pv")
                 {
-                    var moveArray = infoFields.Skip(i + 1).ToArray();
-                    InfoMoves = FillMoves(fenPosition, moveArray).ToArray();
                     break;
                 }
                 i += keyLength;
@@ -94,6 +128,15 @@ namespace ChessLib.UCI
             {
                 switch (field.Key)
                 {
+                    case "currmove":
+                        var currMove = FillMoves(Fen, new[] { field.Value }, out _);
+                        if (currMove != null) { CurrentMove = currMove.First(); }
+                        InfoType = InfoTypes.CalculationInfo;
+                        break;
+                    case "currmovenumber":
+                        CurrentMoveNumber = uint.Parse(field.Value);
+                        InfoType = InfoTypes.CalculationInfo;
+                        break;
                     case "depth":
                         Depth = uint.Parse(field.Value);
                         break;
@@ -105,9 +148,11 @@ namespace ChessLib.UCI
                         break;
                     case "score cp":
                         CentipawnScore = short.Parse(field.Value);
+                        MateInXMoves = null;
                         break;
                     case "score mate":
                         MateInXMoves = short.Parse(field.Value);
+                        CentipawnScore = null;
                         break;
                     case "nodes":
                         Nodes = long.Parse(field.Value);
@@ -125,7 +170,8 @@ namespace ChessLib.UCI
                         SearchTime = TimeSpan.FromMilliseconds(long.Parse(field.Value));
                         break;
                     case "pv":
-                        FillMoves(Fen, field.Value.Split(' '));
+                        InfoMoves = FillMoves(Fen, field.Value.Split(' '), out List<string> sanMoveArray).ToArray();
+                        _variationDisplay = string.Join(" ", sanMoveArray);
                         break;
 
                 }
@@ -134,10 +180,11 @@ namespace ChessLib.UCI
             }
         }
 
-        private IEnumerable<MoveExt> FillMoves(string fen, string[] moveArray)
+        public static IEnumerable<MoveExt> FillMoves(string fen, string[] moveArray, out List<string> sanMoveArray)
         {
             var board = new BoardInfo(fen);
-            var sanMoves = new List<string>();
+            sanMoveArray = new List<string>();
+            var moveReturnValue = new List<MoveExt>();
             var count = 0;
             foreach (var move in moveArray)
             {
@@ -164,11 +211,11 @@ namespace ChessLib.UCI
                 }
                 board.ApplyValidatedMove(generatedMove);
 
-                sanMoves.Add($"{moveNumber}{board.MoveTree.Last().Move.SAN}");
+                sanMoveArray.Add($"{moveNumber}{board.MoveTree.Last().Move.SAN}");
                 count++;
-                yield return generatedMove;
+                moveReturnValue.Add(generatedMove);
             }
-            _variationDisplay = string.Join(" ", sanMoves);
+            return moveReturnValue;
         }
 
         private static MoveType GetMoveTypeFromInformation(bool isPromotion, bool isEnPassant, bool isCastlingMove)
@@ -178,7 +225,7 @@ namespace ChessLib.UCI
                 isEnPassant ? ChessLib.Types.Enums.MoveType.EnPassant : Types.Enums.MoveType.Normal;
         }
 
-        private bool IsPromotion(string move, Piece piece, ushort source, ushort dest, out PromotionPiece promotionPiece)
+        private static bool IsPromotion(string move, Piece piece, ushort source, ushort dest, out PromotionPiece promotionPiece)
         {
             var rv = move.Length > 4 && Bitboard.IsPromotion(piece, source, dest);
             var promotionPieceChar = rv ? move[4] : 'n';
@@ -186,7 +233,7 @@ namespace ChessLib.UCI
             return rv;
         }
 
-        private void GetSourceAndDestination(string move, out ushort source, out ushort dest)
+        private static void GetSourceAndDestination(string move, out ushort source, out ushort dest)
         {
             var src = move.Substring(0, 2).SquareTextToIndex();
             var dst = move.Substring(2, 2).SquareTextToIndex();

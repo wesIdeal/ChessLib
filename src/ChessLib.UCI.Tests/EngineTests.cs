@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ChessLib.UCI.Commands.FromEngine;
 using NUnit.Framework;
 
 namespace ChessLib.UCI.Tests
@@ -18,7 +19,17 @@ namespace ChessLib.UCI.Tests
         private Engine _eng;
         private UCIEngineInformation _engInfo;
 
-      
+        [SetUp]
+        public void Setup()
+        {
+            _eng = new Engine("StockFish", sfDirectory, null);
+            _task = _eng.StartAsync();
+            _eng.DebugEventExecuted += (sender, dbg) =>
+            {
+                Console.WriteLine(dbg.ToString());
+            };
+        }
+
         [Test]
         public async Task TestUCICommand()
         {
@@ -44,27 +55,23 @@ namespace ChessLib.UCI.Tests
                 var idx = er.AddEngine("StockFish10", sfDirectory, null);
                 _eng = er.Engines[idx];
                 await _eng.StartAsync();
-                
+
             }
         }
         [Test]
-        public async Task TestIsReadyCommand()
+        public void TestIsReadyCommand()
         {
-            Task task;
-            using (var eng = new Engine("SF", sfDirectory, null))
+            _eng.ResponseReceived += (sender, obj) =>
             {
+                if (obj.IssuedCommand != Commands.ToEngine.AppToUCICommand.IsReady) return;
+                var readyResponse = obj.ResponseObject as ReadyOk;
+                Assert.IsNotNull(readyResponse);
+                Assert.AreEqual("readyok", readyResponse.EngineResponse);
+            };
 
-
-                task = eng.StartAsync();
-                eng.SendIsReady();
-                eng.SendQuit();
-                var i = 0;
-
-                Assert.AreEqual("Stockfish 10 64", _engInfo.Name);
-                Assert.AreEqual("T. Romstad, M. Costalba, J. Kiiski, G. Linscott", _engInfo.Author);
-                Assert.AreEqual(19, _engInfo.Options.Length);
-                Assert.AreEqual(true, _engInfo.UCIOk);
-            }
+            _eng.SendIsReady();
+            _eng.SendQuit();
+            _task.Wait();
         }
 
 

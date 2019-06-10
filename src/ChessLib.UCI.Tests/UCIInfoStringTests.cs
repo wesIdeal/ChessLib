@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using ChessLib.UCI.Commands.FromEngine;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace ChessLib.UCI.Tests
         [TestCaseSource("InfoStrings")]
         public void TestInfoStringParsing(string info)
         {
-            var infoObj = new UCIInfoString(fen, info);
+            var infoObj = new InfoResponse(fen, info);
             Assert.AreEqual(14765893, infoObj.Nodes);
             Console.Write($"({infoObj.ScoreDisplay})\t" + infoObj.VariationDisplay);
         }
