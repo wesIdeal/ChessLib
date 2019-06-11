@@ -8,9 +8,7 @@ using System.Text;
 
 namespace ChessLib.UCI.Commands
 {
-    public delegate void PrincipalVariationReceivedHandler(Guid engineId, InfoResponse analysisInfo, string rawOutput);
-    public delegate void BestMoveReceivedHandler(Guid engineId, MoveExt bestMove, MoveExt ponderMove, string sanDisplay, string rawOutput);
-
+ 
     public class CommandInfo
     {
         public readonly AppToUCICommand CommandSent;

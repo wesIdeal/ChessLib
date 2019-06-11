@@ -1,27 +1,29 @@
 ﻿using ChessLib.Data.MoveRepresentation;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ChessLib.UCI.Commands.ToEngine
 {
     public class Go : CommandInfo
     {
-        public readonly PrincipalVariationReceivedHandler AnalysisEventHandler;
-        public readonly BestMoveReceivedHandler BestMoveEventHandler;
+
         public bool IgnoreCalculationInformationLines { get; }
 
-        private MoveExt[] _searchMoves;
+        private IEnumerable<MoveExt> _searchMoves;
         private int? _depth;
         private int? _nodes;
         private TimeSpan? _moveTime;
         private string _commandText;
 
-        public Go(PrincipalVariationReceivedHandler onVariationAnalysis, BestMoveReceivedHandler onBestMove,
-            bool ignoreMoveCalculationLines = true, MoveExt[] searchMoves = null,
-            int? depth = null, int? nodes = null, TimeSpan? moveTime = null) : base(AppToUCICommand.Go)
+        public Go(TimeSpan timeSpan, IEnumerable<MoveExt> searchMoves = null) : this(timeSpan, null, searchMoves, null, true)
         {
-            AnalysisEventHandler = onVariationAnalysis;
-            BestMoveEventHandler = onBestMove;
+
+        }
+
+        public Go(TimeSpan? moveTime = null, int? depth = null, IEnumerable<MoveExt> searchMoves = null,
+            int? nodes = null, bool ignoreMoveCalculationLines = true) : base(AppToUCICommand.Go)
+        {
             IgnoreCalculationInformationLines = ignoreMoveCalculationLines;
             _searchMoves = searchMoves;
             _depth = depth;

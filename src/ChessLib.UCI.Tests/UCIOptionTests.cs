@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using ChessLib.UCI;
 using ChessLib.UCI.Commands.FromEngine;
-
+using ChessLib.UCI.Commands.FromEngine.Options;
 namespace ChessLib.UCI.Tests
 {
     [TestFixture]
@@ -97,6 +97,21 @@ namespace ChessLib.UCI.Tests
             Assert.AreEqual(expected, actualVal);
         }
 
+        [TestCase("option name MultiPV type spin default 1 min 1 max 500", 1, true)]
+        [TestCase("option name MultiPV type spin default 1 min 1 max 500", 250, true)]
+        [TestCase("option name MultiPV type spin default 1 min 1 max 500", 500, true)]
+        [TestCase("option name MultiPV type spin default 1 min 1 max 500", 501, false)]
+        [TestCase("option name MultiPV type spin default 1 min 1 max 500", 0, false)]
+        [TestCase("option name MultiPV type spin default 1 min 1", 501, true)]
+        [TestCase("option name MultiPV type spin default 1 max 500", 0, true)]
+        [TestCase("option name MultiPV type spin default 1 min 1", 0, false)]
+        [TestCase("option name MultiPV type spin default 1 max 500", 501, false)]
+        public void TestSpinOptionIsValid(string option, double value, bool expected)
+        {
+            var engInfo = new UCIEngineInformation(Guid.Empty, option);
+            Assert.AreEqual(expected, engInfo.IsOptionValid("MultiPV", value.ToString()));
+        }
+
         [Test]
         public void TestOptionsClass()
         {
@@ -107,6 +122,15 @@ namespace ChessLib.UCI.Tests
             Assert.AreEqual("T. Romstad, M. Costalba, J. Kiiski, G. Linscott", engineInfo.Author);
             Assert.AreEqual(19, engineInfo.Options.Length);
             Assert.AreEqual(true, engineInfo.UCIOk);
+        }
+
+        [TestCase("MultiPV", true)]
+        [TestCase("multipv", false)]
+        [TestCase("Ponder",true)]
+        public void TestSupportsOption(string optionName, bool expected)
+        {
+            var engineInfo = new UCIEngineInformation(Guid.Empty, uciResponse);
+            Assert.AreEqual(expected, engineInfo.SupportsOption(optionName));
         }
 
         private const string uciResponse =

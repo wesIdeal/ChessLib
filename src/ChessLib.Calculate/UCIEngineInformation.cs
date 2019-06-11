@@ -19,8 +19,15 @@ namespace ChessLib.UCI
             Name = optsUnfiltered.FirstOrDefault(x => x.StartsWith("id name"))?.Replace("id name", "").Trim();
             Author = optsUnfiltered.FirstOrDefault(x => x.StartsWith("id author"))?.Replace("id author", "").Trim();
             Options = optsUnfiltered.Where(x => x.StartsWith("option")).GetOptions();
-            UCIOk = optsUnfiltered.Last().Equals("uciok");
+            UCIOk = optsUnfiltered.Any(x => x.Equals("uciok"));
         }
+
+        public bool SupportsOption(string optionName)
+        {
+            var options = Options.Where(x => x.Name == optionName);
+            return options.Any();
+        }
+                
 
         public UCIEngineInformation()
         {

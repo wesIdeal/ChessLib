@@ -8,9 +8,9 @@ namespace ChessLib.UCI.Commands
     [Flags]
     public enum EngineToAppCommand
     {
-
+        [Command("NONE")]
         None = 0,
-        [Command("readyok")]
+        [Command(command: "readyok", 0)]
         Ready = 1 << 1,
         [Command("uciok")]
         Ok = 1 << 2,

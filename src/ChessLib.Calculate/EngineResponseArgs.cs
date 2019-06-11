@@ -5,22 +5,23 @@ using System;
 
 namespace ChessLib.UCI
 {
-    public class DebugArgs : EventArgs
+    public class DebugEventArgs : EventArgs
     {
         public string DebugText { get; set; }
-        public DebugArgs(string txt)
+        public readonly DateTime Received = DateTime.Now;
+        public DebugEventArgs(string txt)
         {
             DebugText = txt;
         }
         public new string ToString()
         {
-            return DebugText;
+            return $"{Received.TimeOfDay}\t{DebugText.Replace("\r\n", "\r\n\t")}";
         }
     }
-    public class CommandStringArgs : EventArgs
+    public class EngineCommunicationArgs : EventArgs
     {
         public enum TextSource { Engine, UI }
-        public CommandStringArgs(TextSource source, string commandText)
+        public EngineCommunicationArgs(TextSource source, string commandText)
         {
             CommandSource = source;
             CommandText = commandText;
@@ -39,9 +40,9 @@ namespace ChessLib.UCI
             return $"{sourceStr}{sourceDelimiter}{CommandText}";
         }
     }
-    public class EngineResponseArgs : EventArgs
+    public class EngineInfoArgs : EventArgs
     {
-        public EngineResponseArgs(string engineOutput, AppToUCICommand issuedCommand, EngineToAppCommand responseTypeReceived, IEngineResponse responseObject)
+        public EngineInfoArgs(string engineOutput, AppToUCICommand issuedCommand, EngineToAppCommand responseTypeReceived, IEngineResponse responseObject)
         {
             EngineOutput = engineOutput;
             IssuedCommand = issuedCommand;

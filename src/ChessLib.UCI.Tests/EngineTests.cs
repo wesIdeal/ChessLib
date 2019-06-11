@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.UCI.Commands.FromEngine;
@@ -23,55 +24,81 @@ namespace ChessLib.UCI.Tests
         public void Setup()
         {
             _eng = new Engine("StockFish", sfDirectory, null);
-            _task = _eng.StartAsync();
+
             _eng.DebugEventExecuted += (sender, dbg) =>
             {
                 Console.WriteLine(dbg.ToString());
+                Debug.WriteLine(dbg.ToString());
             };
         }
 
         [Test]
         public async Task TestUCICommand()
         {
-            using (var er = new EngineRunner())
+            _eng.ResponseReceived += (sender, obj) =>
             {
-                var idx = er.AddEngine("StockFish10", sfDirectory, null);
-                _eng = er.Engines[idx];
-                await _eng.StartAsync();
-                var i = 0;
-
-                Assert.AreEqual("Stockfish 10 64", _engInfo.Name);
-                Assert.AreEqual("T. Romstad, M. Costalba, J. Kiiski, G. Linscott", _engInfo.Author);
-                Assert.AreEqual(19, _engInfo.Options.Length);
-                Assert.AreEqual(true, _engInfo.UCIOk);
-            }
+                if (!(obj.ResponseObject is UCIEngineInformation)) { return; }
+                var responseObj = (UCIEngineInformation)obj.ResponseObject;
+                Assert.IsNotNull(obj.ResponseObject);
+                Assert.IsTrue(responseObj.UCIOk);
+            };
+            _eng.StateChanged += (sender, obj) =>
+            {
+                if (obj.StateChangeField != StateChangeField.UCIOk) return;
+                Assert.IsNotNull(obj.StateChangeField);
+                Assert.IsTrue(_eng.UCIOk);
+                _eng.SendQuit();
+            };
+            _eng.SendUCI();
+            _eng.SendIsReady();
+            _task.Wait();
         }
 
-        [Test]
-        public async Task TestQuitCommand()
-        {
-            using (var er = new EngineRunner())
-            {
-                var idx = er.AddEngine("StockFish10", sfDirectory, null);
-                _eng = er.Engines[idx];
-                await _eng.StartAsync();
 
-            }
-        }
         [Test]
         public void TestIsReadyCommand()
         {
-            _eng.ResponseReceived += (sender, obj) =>
+            var toggle = false;
+            var t =_eng.StartAsync();
+            _eng.StateChanged += (sender, obj) =>
             {
-                if (obj.IssuedCommand != Commands.ToEngine.AppToUCICommand.IsReady) return;
-                var readyResponse = obj.ResponseObject as ReadyOk;
-                Assert.IsNotNull(readyResponse);
-                Assert.AreEqual("readyok", readyResponse.EngineResponse);
+                if (obj.StateChangeField != StateChangeField.IsReady) return;
+                Assert.AreEqual(toggle, obj.Value);
+                toggle = true;
+                _eng.SendQuit();
             };
-
             _eng.SendIsReady();
-            _eng.SendQuit();
-            _task.Wait();
+            t.Wait();
+        }
+
+        [Test]
+        public void TestIsAnalyzingIsFalseCommand()
+        {
+
+            //_eng.ResponseReceived += (sender, obj) =>
+            //{
+            //    if (obj.IssuedCommand != Commands.ToEngine.AppToUCICommand.Go) { return; }
+            //    var ro = obj.ResponseObject as InfoResponse;
+            //    if (ro == null)
+            //    {
+            //        var bestMove = obj.ResponseObject as BestMoveResponse;
+            //        Assert.IsNotNull(bestMove);
+            //    }
+            //    Assert.IsTrue(_eng.IsAnalyizing);
+            //    _eng.SendStop();
+            //};
+            //_eng.EngineCommunication += (sender, obj) =>
+            //{
+            //    if (obj.CommandText == "stop")
+            //    {
+            //        Thread.Sleep(2000);
+            //        Assert.IsFalse(_eng.IsAnalyizing);
+            //    }
+            //};
+            //_eng.SendUCI();
+            //_eng.SendIsReady();
+            //_eng.SendGo(TimeSpan.FromSeconds(2));
+            //_task.Wait();
         }
 
 

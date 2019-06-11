@@ -19,11 +19,9 @@ namespace ChessLib.UCI
     {
         public static readonly string[] OptionKeywords = new[] { "name", "default", "min", "max", "var", "type" };
 
-
         public static void SendIsReady(this Engine engine)
         {
             var commandInfo = new CommandInfo(AppToUCICommand.IsReady);
-            engine.IsReady = false;
             engine.QueueCommand(commandInfo);
         }
 
@@ -33,7 +31,7 @@ namespace ChessLib.UCI
             engine.QueueCommand(commandInfo);
         }
 
-        private static void SendStop(this Engine engine)
+        public static void SendStop(this Engine engine)
         {
             var commandInfo = new CommandInfo(AppToUCICommand.Stop);
             engine.QueueCommand(commandInfo);
@@ -53,6 +51,13 @@ namespace ChessLib.UCI
                 return true;
             }
             return false;
+        }
+
+        public static EngineToAppCommand GetResponseType(string engineResponse)
+        {
+            var matchingFlag = EngineToAppCommand.None;
+            var success = Enums.TryParse<EngineToAppCommand>(engineResponse, out matchingFlag, CommandAttribute.UciCommandFormat);
+            return success ? matchingFlag : EngineToAppCommand.None;
         }
 
         public static bool IsInterruptCommand(this AppToUCICommand command) =>
@@ -279,7 +284,7 @@ namespace ChessLib.UCI
             engine.QueueCommand(commandInfo);
         }
 
-        public static string UCIMovesFromMoveObjects(this MoveExt[] moves)
+        public static string UCIMovesFromMoveObjects(this IEnumerable<MoveExt> moves)
         {
             if (moves == null || !moves.Any())
             {
@@ -297,34 +302,22 @@ namespace ChessLib.UCI
         /// Starts a search for set amount of time
         /// </summary>
         /// <param name="eng"></param>
-        /// <param name="searchDepth">search x plies only</param>
-        /// <param name="nodesToSearch">search x nodes only</param>
         /// <param name="searchTime">Time to spend searching</param>
         /// <param name="searchMoves">only consider these moves</param>
-        public static void SendGo(this Engine eng, int? nodesToSearch, TimeSpan searchTime,
-            MoveExt[] searchMoves = null)
+        public static void SendGo(this Engine eng, TimeSpan searchTime, MoveExt[] searchMoves = null)
         {
-            //StringBuilder sb = new StringBuilder("go");
-            //sb.Append(GetMoves(searchMoves));
-            //if (nodesToSearch.HasValue) sb.Append($" nodes {nodesToSearch.Value}");
-            //var timeInMsToSearch = searchTime.TotalMilliseconds.ToString();
-            //sb.Append($" movetime {timeInMsToSearch}");
-            //eng.SendCommand(sb.ToString().Trim());
-
+            eng.QueueCommand(new Go(searchTime, searchMoves));
         }
 
-        ///// <summary>
-        ///// Starts a search for infinite amount of time. Must send "stop" command end search.
-        ///// </summary>
-        ///// <param name="eng"></param>
-        ///// <param name="nodesToSearch">search x nodes only</param>
-        ///// <param name="searchMoves">estrict search to these moves only</param>
-        //public static void SendGo(this Engine eng, int? nodesToSearch, MoveExt[] searchMoves = null)
-        //{
-        //    StringBuilder sb = new StringBuilder("go");
-        //    sb.Append(GetMoves(searchMoves));
-        //    if (nodesToSearch.HasValue) sb.Append($" nodes {nodesToSearch.Value}");
-        //    eng.SendCommand(sb.ToString().Trim());
-        //}
+        public static void SetNumberOfLinesToCalculate(this Engine eng, double numberOfLines)
+        {
+            eng.SetOption("MultiPV", numberOfLines.ToString());
+        }
+
+        public static void SetOption(this Engine eng, string optionName, string value)
+        {
+            var option = new SetOption(optionName, value);
+            eng.QueueCommand(option);
+        }
     }
 }

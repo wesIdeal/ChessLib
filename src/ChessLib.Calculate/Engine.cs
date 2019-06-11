@@ -18,30 +18,68 @@ using ChessLib.UCI.Commands.FromEngine;
 namespace ChessLib.UCI
 {
 
+
     [Serializable]
-    public class Engine : IDisposable
+    public partial class Engine : IDisposable
     {
         public Guid Id => _uid;
         private Guid _uid;
-        public bool IsReady { get; set; }
-        public bool UCIOkFinished = true;
+        private bool _isReady;
+        private bool _uciFinished;
+        private bool _isAnalyizing;
+        public bool IgnoreMoveCalculationLines { get; set; }
+
+        public bool IsReady
+        {
+            get { return _isReady; }
+            protected set
+            {
+                _isReady = value;
+                if (value)
+                {
+                    OnEngineStateChanged(new StateChangeEventArgs(StateChangeField.IsReady, value));
+                }
+            }
+        }
+        public bool UCIOk
+        {
+            get { return _uciFinished; }
+            protected set
+            {
+                _uciFinished = value;
+                if (value)
+                {
+                    OnEngineStateChanged(new StateChangeEventArgs(StateChangeField.UCIOk, value));
+                }
+            }
+        }
+
         public string Description { get; set; }
         public string Command { get; private set; }
         public string[] UciArguments { get; private set; }
-
-        public Engine(string description, string command, string[] uciArguments, Guid? id = null, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        protected Engine() { }
+        public Engine(string description, string command, string[] uciArguments, Guid? id = null, bool ignoreMoveCalculationLines = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
             _uid = id ?? Guid.NewGuid();
             Description = description;
             Command = command;
             UciArguments = uciArguments;
             Priority = priority;
+            IgnoreMoveCalculationLines = ignoreMoveCalculationLines;
         }
 
         [NonSerialized]
         public string _fen;
 
-        public bool IsAnalyizing { get; private set; }
+        public bool IsAnalyizing
+        {
+            get => _isAnalyizing;
+            private set
+            {
+                _isAnalyizing = value;
+                OnEngineStateChanged(new StateChangeEventArgs(StateChangeField.IsCalculating, value));
+            }
+        }
 
 
         private AutoResetEvent UCIResponseRecieved = new AutoResetEvent(false);
@@ -49,7 +87,7 @@ namespace ChessLib.UCI
         [NonSerialized]
         public UCIEngineInformation EngineInformation;
         [NonSerialized]
-        private ConcurrentQueue<CommandInfo> _uciCommandQueue = new ConcurrentQueue<CommandInfo>();
+        private CommandQueue _uciCommandQueue = new CommandQueue();
         private CommandInfo _currentCommand;
         public ProcessPriorityClass Priority
         {
@@ -76,11 +114,9 @@ namespace ChessLib.UCI
             {
                 throw new NullReferenceException("Process must be started before sending command.");
             }
-            Debug.WriteLine($"SENDING\t{commandInfo.CommandText}");
+            OnDebugEventExecuted(new DebugEventArgs($"Adding {commandInfo.CommandText} to queue."));
             commandInfo.SetCommandArguments(args);
             _uciCommandQueue.Enqueue(commandInfo);
-            CommandQueue.CommandIssued.Set();
-
         }
 
         private bool GetIsProcessRunning()
@@ -88,51 +124,11 @@ namespace ChessLib.UCI
             return _process != null;
         }
 
-        private event EventHandler<EngineResponseArgs> _responseReceived;
-        /// <summary>
-        /// Receives the important information from the engine with relevant object
-        /// </summary>
-        public event EventHandler<EngineResponseArgs> ResponseReceived
-        {
-            add
-            {
-                _responseReceived -= value;
-                _responseReceived += value;
-            }
-            remove { _responseReceived -= value; }
-        }
+        private event EventHandler<EngineInfoArgs> _responseReceived;
 
-
-        private event EventHandler<CommandStringArgs> _commandTransferred;
-        /// <summary>
-        /// Fired each time the app communicates with the engine or a response is received.
-        /// Contains raw text responses and commands.
-        /// </summary>
-        public event EventHandler<CommandStringArgs> CommandTransferred
+        public void SendStop()
         {
-            add
-            {
-                _commandTransferred -= value;
-                _commandTransferred += value;
-            }
-            remove
-            {
-                _commandTransferred -= value;
-            }
-        }
 
-        private event EventHandler<DebugArgs> _debugEventExecuted;
-        public event EventHandler<DebugArgs> DebugEventExecuted
-        {
-            add
-            {
-                _debugEventExecuted -= value;
-                _debugEventExecuted += value;
-            }
-            remove
-            {
-                _debugEventExecuted -= value;
-            }
         }
 
 
@@ -150,88 +146,13 @@ namespace ChessLib.UCI
         };
         private ProcessPriorityClass _priority;
 
-
-
+        public Task _task;
         public async Task StartAsync()
         {
             EngineInformation = new UCIEngineInformation();
             using (_process = new Process())
             {
                 await Task.Run(() => { ExecuteEngine(null); });
-            }
-        }
-
-        private void OnUCIResponseRecieved(object sender, DataReceivedEventArgs e)
-        {
-
-            string engineResponse = e.Data;
-            EngineToAppCommand responseType;
-            OnEngineTextReceived(engineResponse);
-            if (string.IsNullOrEmpty(engineResponse))
-            {
-                return;
-            }
-            EngineToAppCommand matchingFlag = EngineToAppCommand.None;
-            if (_currentCommand != null)
-            {
-                var command = _currentCommand;
-                IEngineResponse response = null;
-                if (command.AwaitResponse && command.IsResponseTheExpectedResponse(engineResponse, out matchingFlag))
-                {
-                    if (command.CommandSent == AppToUCICommand.UCI)
-                    {
-                        UCIOkFinished = false;
-                        ProcessUCIResponse(command, engineResponse, matchingFlag, out response);
-                    }
-                    else if (matchingFlag == EngineToAppCommand.Ready)
-                    {
-                        FinalizeIsReadyResponse(command, engineResponse, out response);
-                    }
-                    else if (matchingFlag == EngineToAppCommand.Info)
-                    {
-                        var ignore = (command as Go).IgnoreCalculationInformationLines;
-                        ProcessInfoResponse(engineResponse, matchingFlag, ignore, out response);
-                    }
-                    else if (matchingFlag == EngineToAppCommand.BestMove)
-                    {
-                        ProcessBestMoveResponse(engineResponse, out response);
-                    }
-                    return;
-                }
-
-                OnResponseReceived(new EngineResponseArgs(engineResponse, _currentCommand.CommandSent, matchingFlag, response));
-            }
-           
-
-        }
-
-        private void OnDebugEventExecuted(string txt)
-        {
-            var time = DateTime.Now.TimeOfDay;
-            txt = time + ": " + txt;
-            _debugEventExecuted?.Invoke(this, new DebugArgs(txt));
-            Debug.WriteLine(txt);
-        }
-
-        private void OnCommandSent(string commandText)
-        {
-            var command = new CommandStringArgs(CommandStringArgs.TextSource.UI, commandText);
-            _commandTransferred?.Invoke(this, command);
-            _debugEventExecuted?.Invoke(this, new DebugArgs(command.ToString()));
-        }
-
-        private void OnEngineTextReceived(string engineResponse)
-        {
-            var receivedTxt = new CommandStringArgs(CommandStringArgs.TextSource.Engine, engineResponse);
-            _commandTransferred?.Invoke(this, receivedTxt);
-            _debugEventExecuted?.Invoke(this, new DebugArgs(receivedTxt.ToString()));
-        }
-
-        protected void OnResponseReceived(EngineResponseArgs eventArgs)
-        {
-            if (UCIOkFinished)
-            {
-                _responseReceived?.Invoke(EngineInformation, eventArgs);
             }
         }
 
@@ -242,51 +163,33 @@ namespace ChessLib.UCI
             var ponderMove = moves != null && moves.Count() > 1 ? moves[1] : null;
             IsAnalyizing = false;
             bestMoveResponse = new BestMoveResponse(bestMove, ponderMove);
-            CleanupAwaitedResponseFields();
         }
-        private void ProcessInfoResponse(string engineResponse, EngineToAppCommand responseCommand, bool ignoreCalculationOfSingleMoves, out IEngineResponse response)
+        private void ProcessInfoResponse(string engineResponse, EngineToAppCommand responseCommand, out IEngineResponse response)
         {
             response = null;
-            if (ignoreCalculationOfSingleMoves && InfoResponse.GetTypeOfInfo(engineResponse) == InfoResponse.InfoTypes.CalculationInfo)
+            if (IgnoreMoveCalculationLines && InfoResponse.GetTypeOfInfo(engineResponse) == InfoResponse.InfoTypes.CalculationInfo)
             {
                 return;
             }
             response = new InfoResponse(_fen, engineResponse);
         }
 
-        private void CleanupAwaitedResponseFields()
+        private void ProcessUCIResponse(string engineResponse, EngineToAppCommand commandResponse, out IEngineResponse responseObject)
         {
-            _sbUciResponse.Clear();
-            _currentCommand = null;
-        }
-
-        private void ProcessUCIResponse(CommandInfo command, string engineResponse, EngineToAppCommand commandResponse, out IEngineResponse responseObject)
-        {
-
+            _sbUciResponse.AppendLine(engineResponse);
             if (commandResponse == EngineToAppCommand.UCIOk)
             {
                 var engineInformation = new UCIEngineInformation(Id, _sbUciResponse.ToString());
-                CleanupAwaitedResponseFields();
-                UCIOkFinished = true;
+                _sbUciResponse.Clear();
                 responseObject = engineInformation;
             }
             else
             {
                 responseObject = null;
-                _sbUciResponse.AppendLine(engineResponse);
             }
         }
 
-        private void FinalizeIsReadyResponse(CommandInfo command, string engineResponse, out IEngineResponse response)
-        {
-            response = new ReadyOk(engineResponse);
-            CleanupAwaitedResponseFields();
-        }
 
-        private void FinalizeStopResponse(CommandInfo command, string engineResponse)
-        {
-            CleanupAwaitedResponseFields();
-        }
 
         private MoveExt[] MakeBestMoveArrayFromUCI(string engineResponse, out string sanMoveDisplay)
         {
@@ -309,52 +212,68 @@ namespace ChessLib.UCI
             {
                 if (!_uciCommandQueue.Any())
                 {
-                    OnDebugEventExecuted("Waiting for command...");
+                    OnDebugEventExecuted(new DebugEventArgs("Waiting for command..."));
                     waitResult = WaitHandle.WaitAny(CommandQueue.CommandIssuedEvents);
                 }
 
                 if (_uciCommandQueue.TryPeek(out CommandInfo commandToIssue))
                 {
+                    _uciCommandQueue.TryDequeue(out _);
                     _currentCommand = commandToIssue;
-                    if (waitResult == InterruptHandle)
+                    if (_currentCommand.CommandSent == AppToUCICommand.IsReady)
                     {
-                        OnDebugEventExecuted("Received interrupt command in queue - " + commandToIssue.CommandText);
+                        IsReady = false;
+                    }
+                    else if (_currentCommand.CommandSent == AppToUCICommand.UCI)
+                    {
+                        UCIOk = false;
+                    }
+                    if (waitResult == InterruptHandle || EngineHelpers.IsInterruptCommand(commandToIssue.CommandSent))
+                    {
+                        OnDebugEventExecuted(new DebugEventArgs($"Received interrupt command in queue - {commandToIssue.CommandText}"));
                         WriteToEngine(commandToIssue);
                         exit = commandToIssue.CommandSent == AppToUCICommand.Quit;
 
                     }
-                    else if (!IsAnalyizing || !UCIOkFinished)
+                    else
                     {
-                        OnDebugEventExecuted("Received command in queue - " + commandToIssue.CommandText);
+                        OnDebugEventExecuted(new DebugEventArgs($"Received command in queue - {commandToIssue.CommandText}"));
                         WriteToEngine(commandToIssue);
                     }
                 }
             }
-            OnDebugEventExecuted("Waiting to exit.");
-            _process.WaitForExit(1000);
+            OnDebugEventExecuted(new DebugEventArgs("Waiting for process to exit."));
+            _process.WaitForExit();
         }
 
         public void WriteToEngine(CommandInfo command)
         {
             _process.StandardInput.WriteLine(command.ToString());
             _process.StandardInput.Flush();
-            OnCommandSent(command.CommandText);
+            OnEngineCommunication(new EngineCommunicationArgs(EngineCommunicationArgs.TextSource.UI, command.ToString()));
         }
+
+
 
         private void StartEngineProcess()
         {
             _process.StartInfo = startInfo;
             _process.StartInfo.FileName = Command;
+            _process.EnableRaisingEvents = true;
             _process.OutputDataReceived += OnUCIResponseRecieved;
+            _process.OutputDataReceived += OnEngineCommunication;
+            _process.Exited += OnProcessExited;
             _process.Start();
-            OnDebugEventExecuted($"Process started. PID {_process.Id}.");
+            OnDebugEventExecuted(new DebugEventArgs($"Process started. PID {_process.Id}."));
             _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
             _process.PriorityClass = _priority;
-            _process.Exited += (sender, obj) =>
-            {
-                OnDebugEventExecuted("Process exited.");
-            };
+
+        }
+
+        private void OnProcessExited(object sender, EventArgs e)
+        {
+            OnDebugEventExecuted(new DebugEventArgs($"Process exited."));
         }
 
         public void Dispose()

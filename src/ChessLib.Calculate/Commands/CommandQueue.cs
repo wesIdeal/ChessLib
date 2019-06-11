@@ -13,9 +13,13 @@ namespace ChessLib.UCI.Commands
             if (item.CommandSent.IsInterruptCommand())
             {
                 EnqueueInterruptEvent(item);
-                return;
             }
-            base.Enqueue(item);
+            else
+            {
+                base.Enqueue(item);
+                CommandIssued.Set();
+            }
+
         }
 
         private void EnqueueInterruptEvent(CommandInfo item)
