@@ -23,13 +23,17 @@ namespace ChessLib.UCI.Tests
         [SetUp]
         public void Setup()
         {
-            _eng = new Engine("StockFish", sfDirectory, null);
+            _eng = new Engine("StockFish", sfDirectory);
 
             _eng.DebugEventExecuted += (sender, dbg) =>
             {
                 Console.WriteLine(dbg.ToString());
                 Debug.WriteLine(dbg.ToString());
             };
+            _eng.EngineCommunication += (sender, dbg) =>
+             {
+                 Debug.WriteLine(dbg.ToString());
+             };
         }
 
         [Test]
@@ -58,16 +62,18 @@ namespace ChessLib.UCI.Tests
         [Test]
         public void TestIsReadyCommand()
         {
-            var toggle = false;
-            var t =_eng.StartAsync();
+            var executedHandler = false;
+            var waitForCommand = new AutoResetEvent(false);
             _eng.StateChanged += (sender, obj) =>
             {
                 if (obj.StateChangeField != StateChangeField.IsReady) return;
-                Assert.AreEqual(toggle, obj.Value);
-                toggle = true;
-                _eng.SendQuit();
+                executedHandler = true;
+                waitForCommand.Set();
             };
+            var t = _eng.StartAsync();
             _eng.SendIsReady();
+            WaitHandle.WaitAny(new[] { waitForCommand }, 10 * 1000);
+            Assert.IsTrue(executedHandler);
             t.Wait();
         }
 

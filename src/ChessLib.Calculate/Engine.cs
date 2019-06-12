@@ -22,13 +22,98 @@ namespace ChessLib.UCI
     [Serializable]
     public partial class Engine : IDisposable
     {
-        public Guid Id => _uid;
-        private Guid _uid;
-        private bool _isReady;
-        private bool _uciFinished;
-        private bool _isAnalyizing;
-        public bool IgnoreMoveCalculationLines { get; set; }
+        #region Constructors / Descructor
+        protected Engine()
+        {
+            _preProcessQueue.Enqueue(CommandInfo.UCI());
+            _preProcessQueue.Enqueue(CommandInfo.IsReady());
+        }
 
+        public Engine(string description, string command)
+        {
+            UserEngineDescription = description;
+            CommandLineString = command;
+            Priority = ProcessPriorityClass.Normal;
+        }
+        public Engine(string description, string command, bool ignoreMoveCalculationLines)
+            : this(description, command)
+        {
+            IgnoreMoveCalculationLines = ignoreMoveCalculationLines;
+        }
+        public Engine(string description, string command, bool ignoreMoveCalculationLines, ProcessPriorityClass priorityClass)
+            : this(description, command, ignoreMoveCalculationLines)
+        {
+            Priority = priorityClass;
+        }
+        public Engine(string description, string command, bool ignoreMoveCalculationLines = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal, Guid? userEngineId = null)
+            : this(description, command, ignoreMoveCalculationLines, priority)
+        {
+            _userAssignedId = userEngineId ?? Guid.NewGuid();
+        }
+        public Engine(string description, string command, Dictionary<string, string> uciOptions, bool ignoreMoveCalculationLines = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal, Guid? userEngineId = null)
+            : this(description, command, ignoreMoveCalculationLines, priority, userEngineId)
+        {
+
+            UciOptions = uciOptions;
+        }
+
+        private void ProcessUCIOptions()
+        {
+            if (UciOptions == null) return;
+            foreach (var option in UciOptions)
+            {
+                var message = "";
+                if (!EngineInformation.SupportsOption(option.Key))
+                {
+                    throw new UCICommandException($"Option passed from command line {option.Key} is not valid.");
+                }
+                if (EngineInformation.IsOptionValid(option.Key, option.Value, out message))
+                {
+                    throw new UCICommandException(message);
+                }
+                WriteToEngine(new SetOption(option.Key, option.Value));
+            }
+
+        }
+        #endregion
+
+
+        #region Properties
+        public Guid UserAssignedId => _userAssignedId;
+        protected Guid _userAssignedId;
+
+        /// <summary>
+        /// Initial options to set on uci engine
+        /// </summary>
+        public Dictionary<string, string> UciOptions { get; private set; }
+
+        /// <summary>
+        /// Represents whether single move calculation lines should be sent to the client.
+        /// </summary>
+        public bool IgnoreMoveCalculationLines { get; set; }
+        /// <summary>
+        /// Command line path + additional arguemtns
+        /// </summary>
+        public string CommandLineString { get; private set; }
+
+        /// <summary>
+        /// Engine description supplied by user
+        /// </summary>
+        public string UserEngineDescription { get; set; }
+
+        public ProcessPriorityClass Priority
+        {
+            get => _priority;
+            private set => _priority = value;
+        }
+        #endregion
+
+        private ProcessPriorityClass _priority;
+
+        #region Non-Serialized Fields/Properties
+        /// <summary>
+        /// Gets the isready value from engine. This should only be false while processing the isready command and waiting for readyok.
+        /// </summary>
         public bool IsReady
         {
             get { return _isReady; }
@@ -41,12 +126,16 @@ namespace ChessLib.UCI
                 }
             }
         }
+
+        /// <summary>
+        /// Represents whether UCI information was sent back to the engine. 
+        /// </summary>
         public bool UCIOk
         {
-            get { return _uciFinished; }
+            get { return _uciOk; }
             protected set
             {
-                _uciFinished = value;
+                _uciOk = value;
                 if (value)
                 {
                     OnEngineStateChanged(new StateChangeEventArgs(StateChangeField.UCIOk, value));
@@ -54,23 +143,9 @@ namespace ChessLib.UCI
             }
         }
 
-        public string Description { get; set; }
-        public string Command { get; private set; }
-        public string[] UciArguments { get; private set; }
-        protected Engine() { }
-        public Engine(string description, string command, string[] uciArguments, Guid? id = null, bool ignoreMoveCalculationLines = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
-        {
-            _uid = id ?? Guid.NewGuid();
-            Description = description;
-            Command = command;
-            UciArguments = uciArguments;
-            Priority = priority;
-            IgnoreMoveCalculationLines = ignoreMoveCalculationLines;
-        }
-
-        [NonSerialized]
-        public string _fen;
-
+        /// <summary>
+        /// Represents whether engine is currently analyzing a position
+        /// </summary>
         public bool IsAnalyizing
         {
             get => _isAnalyizing;
@@ -81,19 +156,32 @@ namespace ChessLib.UCI
             }
         }
 
+        /// <summary>
+        /// Name and Id from uci command
+        /// </summary>
+        public string UCIName => $"{EngineInformation.Name} {EngineInformation.Id}";
 
-        private AutoResetEvent UCIResponseRecieved = new AutoResetEvent(false);
-        private StringBuilder _sbUciResponse = new StringBuilder();
-        [NonSerialized]
-        public UCIEngineInformation EngineInformation;
-        [NonSerialized]
-        private CommandQueue _uciCommandQueue = new CommandQueue();
-        private CommandInfo _currentCommand;
-        public ProcessPriorityClass Priority
-        {
-            get => _priority;
-            private set => _priority = value;
-        }
+        [NonSerialized] private StringBuilder _errorBuilder = new StringBuilder();
+
+        [NonSerialized] private TaskCompletionSource<bool> errorCloseEvent = new TaskCompletionSource<bool>();
+        [NonSerialized] private TaskCompletionSource<bool> outputCloseEvent = new TaskCompletionSource<bool>();
+
+        [NonSerialized] private string _fen;
+        [NonSerialized] private bool _uciOk = false;
+        [NonSerialized] private bool _isReady = true;
+        [NonSerialized] private bool _isAnalyizing = true;
+        [NonSerialized] private bool _optionsSet = false;
+
+        [NonSerialized] private StringBuilder _sbUciResponse = new StringBuilder();
+        [NonSerialized] public UCIEngineInformation EngineInformation = new UCIEngineInformation();
+        [NonSerialized] private CommandQueue _uciCommandQueue = new CommandQueue();
+        [NonSerialized] private CommandInfo _currentCommand;
+        [NonSerialized] private CommandQueue _preProcessQueue = new CommandQueue();
+        [NonSerialized] private readonly AutoResetEvent ReadyOkReceived = new AutoResetEvent(false);
+        [NonSerialized] private readonly AutoResetEvent UCIInfoReceived = new AutoResetEvent(false);
+
+        #endregion
+
         ~Engine()
         {
             Dispose();
@@ -144,16 +232,50 @@ namespace ChessLib.UCI
             RedirectStandardInput = true,
             RedirectStandardOutput = true
         };
-        private ProcessPriorityClass _priority;
 
-        public Task _task;
-        public async Task StartAsync()
+
+        public async Task<EngineProcessResult> StartAsync()
         {
             EngineInformation = new UCIEngineInformation();
+            var result = new EngineProcessResult();
+
             using (_process = new Process())
             {
-                await Task.Run(() => { ExecuteEngine(null); });
+                _process.ErrorDataReceived += OnErrorDataReceived;
+                StartEngineProcess();
+                ExecuteEngine();
+                var waitForExit = WaitForExitAsync();
+                // Create task to wait for process exit and closing all output streams
+                var processTask = Task.WhenAll(waitForExit, outputCloseEvent.Task, errorCloseEvent.Task);
+
+                // Waits process completion and then checks it was not completed by timeout
+                await Task.WhenAny(processTask)
+                    .ContinueWith((a) =>
+                        {
+                            result.Completed = true;
+                            result.ExitCode = _process.ExitCode;
+
+                            if (_process.ExitCode != 0)
+                            {
+                                var message = $"Exited with code {_process.ExitCode}";
+                                var dbMessage = new DebugEventArgs(message);
+                                OnDebugEventExecuted(dbMessage);
+
+                            }
+                            else
+                            {
+                                OnDebugEventExecuted(new DebugEventArgs($"Process exited normally."));
+                            }
+                        });
             }
+            return result;
+        }
+
+
+
+        private Task WaitForExitAsync()
+        {
+            return Task.Run(() => _process.WaitForExit());
         }
 
         private void ProcessBestMoveResponse(string engineResponse, out IEngineResponse bestMoveResponse)
@@ -164,6 +286,7 @@ namespace ChessLib.UCI
             IsAnalyizing = false;
             bestMoveResponse = new BestMoveResponse(bestMove, ponderMove);
         }
+
         private void ProcessInfoResponse(string engineResponse, EngineToAppCommand responseCommand, out IEngineResponse response)
         {
             response = null;
@@ -179,17 +302,16 @@ namespace ChessLib.UCI
             _sbUciResponse.AppendLine(engineResponse);
             if (commandResponse == EngineToAppCommand.UCIOk)
             {
-                var engineInformation = new UCIEngineInformation(Id, _sbUciResponse.ToString());
+                var engineInformation = new UCIEngineInformation(UserAssignedId, _sbUciResponse.ToString());
                 _sbUciResponse.Clear();
                 responseObject = engineInformation;
+                UCIInfoReceived.Set();
             }
             else
             {
                 responseObject = null;
             }
         }
-
-
 
         private MoveExt[] MakeBestMoveArrayFromUCI(string engineResponse, out string sanMoveDisplay)
         {
@@ -200,14 +322,19 @@ namespace ChessLib.UCI
             return rv;
         }
 
-        private void ExecuteEngine(object state)
+        private void ExecuteEngine()
         {
-            StartEngineProcess();
             var exit = false;
+            _process.BeginErrorReadLine();
+            _process.BeginOutputReadLine();
             int waitResult = WaitHandle.WaitTimeout;
-
             int InterruptHandle = 1;
 
+            WriteToEngine(new CommandInfo(AppToUCICommand.UCI));
+            WaitHandle.WaitAll(new[] { UCIInfoReceived }, 5 * 1000);
+            WriteToEngine(new CommandInfo(AppToUCICommand.IsReady));
+            var handle = WaitHandle.WaitAll(new[] { ReadyOkReceived }, (int)10 * 1000);
+            ProcessUCIOptions();
             while (!_process.HasExited && !exit)
             {
                 if (!_uciCommandQueue.Any())
@@ -243,7 +370,13 @@ namespace ChessLib.UCI
                 }
             }
             OnDebugEventExecuted(new DebugEventArgs("Waiting for process to exit."));
-            _process.WaitForExit();
+            var exitTimeout = 5 * 1000;
+            if (!_process.WaitForExit(exitTimeout))
+            {
+                OnDebugEventExecuted(new DebugEventArgs($"Engine process didn't shutdown in {exitTimeout}ms. Killing process."));
+                _process.Kill();
+                OnDebugEventExecuted(new DebugEventArgs($"Engine process killed."));
+            }
         }
 
         public void WriteToEngine(CommandInfo command)
@@ -258,17 +391,13 @@ namespace ChessLib.UCI
         private void StartEngineProcess()
         {
             _process.StartInfo = startInfo;
-            _process.StartInfo.FileName = Command;
+            _process.StartInfo.FileName = CommandLineString;
             _process.EnableRaisingEvents = true;
             _process.OutputDataReceived += OnUCIResponseRecieved;
-            _process.OutputDataReceived += OnEngineCommunication;
             _process.Exited += OnProcessExited;
             _process.Start();
             OnDebugEventExecuted(new DebugEventArgs($"Process started. PID {_process.Id}."));
-            _process.BeginErrorReadLine();
-            _process.BeginOutputReadLine();
             _process.PriorityClass = _priority;
-
         }
 
         private void OnProcessExited(object sender, EventArgs e)
@@ -285,5 +414,11 @@ namespace ChessLib.UCI
         }
 
 
+    }
+    public struct EngineProcessResult
+    {
+        public bool Completed;
+        public int? ExitCode;
+        public string Output;
     }
 }

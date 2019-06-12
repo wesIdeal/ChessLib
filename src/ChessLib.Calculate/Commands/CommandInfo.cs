@@ -8,7 +8,7 @@ using System.Text;
 
 namespace ChessLib.UCI.Commands
 {
- 
+
     public class CommandInfo
     {
         public readonly AppToUCICommand CommandSent;
@@ -28,6 +28,17 @@ namespace ChessLib.UCI.Commands
         }
 
         public bool AwaitResponse => ExpectedResponses.Any();
+
+        public static CommandInfo IsReady()
+        {
+            return new CommandInfo(AppToUCICommand.IsReady);
+        }
+
+        public static CommandInfo UCI()
+        {
+            return new CommandInfo(AppToUCICommand.UCI);
+        }
+
 
         public CommandInfo(AppToUCICommand command)
         {

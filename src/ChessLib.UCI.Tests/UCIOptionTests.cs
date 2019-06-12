@@ -109,7 +109,7 @@ namespace ChessLib.UCI.Tests
         public void TestSpinOptionIsValid(string option, double value, bool expected)
         {
             var engInfo = new UCIEngineInformation(Guid.Empty, option);
-            Assert.AreEqual(expected, engInfo.IsOptionValid("MultiPV", value.ToString()));
+            Assert.AreEqual(expected, engInfo.IsOptionValid("MultiPV", value.ToString(), out _));
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace ChessLib.UCI.Tests
 
         [TestCase("MultiPV", true)]
         [TestCase("multipv", false)]
-        [TestCase("Ponder",true)]
+        [TestCase("Ponder", true)]
         public void TestSupportsOption(string optionName, bool expected)
         {
             var engineInfo = new UCIEngineInformation(Guid.Empty, uciResponse);

@@ -10,14 +10,8 @@ using System.Threading;
 
 namespace ChessLib.UCI
 {
-    public enum DebugInformationLevel
-    {
-
-    }
     public partial class Engine
     {
-
-
 
         /// <summary>
         /// Fired each time the app communicates with the engine or a response is received.
@@ -33,6 +27,8 @@ namespace ChessLib.UCI
         public event EventHandler<DebugEventArgs> DebugEventExecuted;
 
         public event EventHandler<StateChangeEventArgs> StateChanged;
+
+        public event EventHandler<DataReceivedEventArgs> ErrorReceivedFromEngineProcess;
         #region Event Raisers
 
         protected void OnEngineCommunication(object sender, DataReceivedEventArgs args)
@@ -59,6 +55,22 @@ namespace ChessLib.UCI
         {
             Volatile.Read(ref StateChanged)?.Invoke(this, args);
         }
+
+        private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            var message = e.Data;
+            if (string.IsNullOrEmpty(message))
+            {
+                message = "No message received.";
+                errorCloseEvent.SetResult(true);
+            }
+            else
+            {
+                _errorBuilder.AppendLine(message);
+            }
+            OnDebugEventExecuted(new DebugEventArgs(message));
+            Volatile.Read(ref ErrorReceivedFromEngineProcess)?.Invoke(sender, e);
+        }
         #endregion
 
         private const EngineToAppCommand UCIFlags = EngineToAppCommand.Id | EngineToAppCommand.Option | EngineToAppCommand.UCIOk;
@@ -66,43 +78,42 @@ namespace ChessLib.UCI
         {
 
             string engineResponse = e.Data;
-            EngineToAppCommand responseType;
             if (string.IsNullOrEmpty(engineResponse))
             {
                 return;
             }
-            EngineToAppCommand matchingFlag = EngineHelpers.GetResponseType(engineResponse);
-            if (matchingFlag == EngineToAppCommand.None)
+            OnEngineCommunication(new EngineCommunicationArgs(EngineCommunicationArgs.TextSource.Engine, e.Data));
+            EngineToAppCommand responseFlag = EngineHelpers.GetResponseType(engineResponse);
+
+            IEngineResponse response = null;
+
+            if (UCIFlags.HasFlag(responseFlag))
+            {
+                ProcessUCIResponse(engineResponse, responseFlag, out response);
+            }
+            else if (responseFlag == EngineToAppCommand.Ready)
+            {
+                IsReady = true;
+                ReadyOkReceived.Set();
+            }
+            else if (responseFlag == EngineToAppCommand.Info)
+            {
+                ProcessInfoResponse(engineResponse, responseFlag, out response);
+            }
+            else if (responseFlag == EngineToAppCommand.BestMove)
+            {
+                ProcessBestMoveResponse(engineResponse, out response);
+            }
+            else if (responseFlag == EngineToAppCommand.UCIOk)
+            {
+                UCIOk = true;
+                OnEngineInfoReceived(new EngineInfoArgs(engineResponse, AppToUCICommand.UCI, responseFlag, response));
+            }
+            else
             {
                 var message = $"**Message with no corresponding command received**\r\n\t{engineResponse}\r\n**End Message**";
                 OnDebugEventExecuted(new DebugEventArgs(message));
             }
-
-            IEngineResponse response = null;
-
-            if (UCIFlags.HasFlag(matchingFlag))
-            {
-                ProcessUCIResponse(engineResponse, matchingFlag, out response);
-            }
-            else if (matchingFlag == EngineToAppCommand.Ready)
-            {
-                IsReady = true;
-            }
-            else if (matchingFlag == EngineToAppCommand.Info)
-            {
-                ProcessInfoResponse(engineResponse, matchingFlag, out response);
-            }
-            else if (matchingFlag == EngineToAppCommand.BestMove)
-            {
-                ProcessBestMoveResponse(engineResponse, out response);
-            }
-            if (matchingFlag == EngineToAppCommand.UCIOk)
-            {
-                UCIOk = true;
-                OnEngineInfoReceived(new EngineInfoArgs(engineResponse, AppToUCICommand.UCI, matchingFlag, response));
-            }
-            return;
-
         }
 
 

@@ -21,11 +21,11 @@ namespace ChessLib.UCI.Commands
         [Command("info")]
         Info = 1 << 5,
         [Command("uciok")]
-        UCIOk,
+        UCIOk = 1 << 6,
         [Command("id")]
-        Id,
+        Id = 1 << 7,
         [Command("option")]
-        Option
+        Option = 1 << 8
     }
 
 }
