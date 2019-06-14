@@ -25,11 +25,11 @@ namespace ChessLib.UCI
         #region Constructors / Descructor
         protected Engine()
         {
-            _preProcessQueue.Enqueue(CommandInfo.UCI());
-            _preProcessQueue.Enqueue(CommandInfo.IsReady());
+            _process = new Process();
+            _uciCommandQueue = new CommandQueue();
         }
 
-        public Engine(string description, string command)
+        public Engine(string description, string command) : this()
         {
             UserEngineDescription = description;
             CommandLineString = command;
@@ -160,23 +160,20 @@ namespace ChessLib.UCI
         /// Name and Id from uci command
         /// </summary>
         public string UCIName => $"{EngineInformation.Name} {EngineInformation.Id}";
-
+        [NonSerialized] private bool _isDisposed = false;
         [NonSerialized] private StringBuilder _errorBuilder = new StringBuilder();
-
+        [NonSerialized] private Process _process;
         [NonSerialized] private TaskCompletionSource<bool> errorCloseEvent = new TaskCompletionSource<bool>();
-        [NonSerialized] private TaskCompletionSource<bool> outputCloseEvent = new TaskCompletionSource<bool>();
 
         [NonSerialized] private string _fen;
         [NonSerialized] private bool _uciOk = false;
-        [NonSerialized] private bool _isReady = true;
+        [NonSerialized] private bool _isReady = false;
         [NonSerialized] private bool _isAnalyizing = true;
-        [NonSerialized] private bool _optionsSet = false;
 
         [NonSerialized] private StringBuilder _sbUciResponse = new StringBuilder();
         [NonSerialized] public UCIEngineInformation EngineInformation = new UCIEngineInformation();
-        [NonSerialized] private CommandQueue _uciCommandQueue = new CommandQueue();
+        [NonSerialized] private CommandQueue _uciCommandQueue;
         [NonSerialized] private CommandInfo _currentCommand;
-        [NonSerialized] private CommandQueue _preProcessQueue = new CommandQueue();
         [NonSerialized] private readonly AutoResetEvent ReadyOkReceived = new AutoResetEvent(false);
         [NonSerialized] private readonly AutoResetEvent UCIInfoReceived = new AutoResetEvent(false);
 
@@ -190,38 +187,21 @@ namespace ChessLib.UCI
         public void SetPriority(ProcessPriorityClass priority)
         {
             _priority = priority;
-            if (_process != null)
+            if (_process != null && !_process.HasExited)
             {
                 _process.PriorityClass = priority;
             }
         }
 
-        public void QueueCommand(CommandInfo commandInfo, params string[] args)
+        private void QueueCommand(CommandInfo commandInfo, params string[] args)
         {
-            if (!GetIsProcessRunning())
-            {
-                throw new NullReferenceException("Process must be started before sending command.");
-            }
             OnDebugEventExecuted(new DebugEventArgs($"Adding {commandInfo.CommandText} to queue."));
             commandInfo.SetCommandArguments(args);
             _uciCommandQueue.Enqueue(commandInfo);
         }
 
-        private bool GetIsProcessRunning()
-        {
-            return _process != null;
-        }
-
-        private event EventHandler<EngineInfoArgs> _responseReceived;
-
-        public void SendStop()
-        {
-
-        }
 
 
-        [NonSerialized]
-        public Process _process;
 
         [NonSerialized]
         ProcessStartInfo startInfo = new ProcessStartInfo()
@@ -234,48 +214,12 @@ namespace ChessLib.UCI
         };
 
 
-        public async Task<EngineProcessResult> StartAsync()
+
+        public Task StartAsync()
         {
             EngineInformation = new UCIEngineInformation();
-            var result = new EngineProcessResult();
-
-            using (_process = new Process())
-            {
-                _process.ErrorDataReceived += OnErrorDataReceived;
-                StartEngineProcess();
-                ExecuteEngine();
-                var waitForExit = WaitForExitAsync();
-                // Create task to wait for process exit and closing all output streams
-                var processTask = Task.WhenAll(waitForExit, outputCloseEvent.Task, errorCloseEvent.Task);
-
-                // Waits process completion and then checks it was not completed by timeout
-                await Task.WhenAny(processTask)
-                    .ContinueWith((a) =>
-                        {
-                            result.Completed = true;
-                            result.ExitCode = _process.ExitCode;
-
-                            if (_process.ExitCode != 0)
-                            {
-                                var message = $"Exited with code {_process.ExitCode}";
-                                var dbMessage = new DebugEventArgs(message);
-                                OnDebugEventExecuted(dbMessage);
-
-                            }
-                            else
-                            {
-                                OnDebugEventExecuted(new DebugEventArgs($"Process exited normally."));
-                            }
-                        });
-            }
-            return result;
-        }
-
-
-
-        private Task WaitForExitAsync()
-        {
-            return Task.Run(() => _process.WaitForExit());
+            OnDebugEventExecuted(new DebugEventArgs("Starting engine task - ExecuteEngineAsync()"));
+            return Task.Run(() => { ExecuteEngineAsync(); });
         }
 
         private void ProcessBestMoveResponse(string engineResponse, out IEngineResponse bestMoveResponse)
@@ -287,7 +231,7 @@ namespace ChessLib.UCI
             bestMoveResponse = new BestMoveResponse(bestMove, ponderMove);
         }
 
-        private void ProcessInfoResponse(string engineResponse, EngineToAppCommand responseCommand, out IEngineResponse response)
+        private void ProcessInfoResponse(string engineResponse, out IEngineResponse response)
         {
             response = null;
             if (IgnoreMoveCalculationLines && InfoResponse.GetTypeOfInfo(engineResponse) == InfoResponse.InfoTypes.CalculationInfo)
@@ -322,24 +266,43 @@ namespace ChessLib.UCI
             return rv;
         }
 
-        private void ExecuteEngine()
+        private void ExecuteEngineAsync()
         {
-            var exit = false;
+            StartEngineProcess();
+            SendStartupMessagesToEngine();
+            OnDebugEventExecuted(new DebugEventArgs($"Engine Id: {UserAssignedId.ToString()} PID:{_process.Id}\r\nStarted as {EngineInformation.Name} {EngineInformation.Id}"));
+            ProcessUCIOptions();
+            StartMessageQueue();
+        }
+
+        private int StartEngineProcess()
+        {
+            OnDebugEventExecuted(new DebugEventArgs("executing StartEngineProcess()"));
+            _process.StartInfo = startInfo;
+            _process.StartInfo.FileName = CommandLineString;
+            _process.EnableRaisingEvents = true;
+            _process.OutputDataReceived += OnUCIResponseRecieved;
+            _process.Exited += OnProcessExited;
+            _process.ErrorDataReceived += OnErrorDataReceived;
+            _process.Start();
+            OnDebugEventExecuted(new DebugEventArgs("Process.Start() called."));
             _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
-            int waitResult = WaitHandle.WaitTimeout;
-            int InterruptHandle = 1;
+            _process.PriorityClass = _priority;
+            return _process.Id;
+        }
 
-            WriteToEngine(new CommandInfo(AppToUCICommand.UCI));
-            WaitHandle.WaitAll(new[] { UCIInfoReceived }, 5 * 1000);
-            WriteToEngine(new CommandInfo(AppToUCICommand.IsReady));
-            var handle = WaitHandle.WaitAll(new[] { ReadyOkReceived }, (int)10 * 1000);
-            ProcessUCIOptions();
-            while (!_process.HasExited && !exit)
+        private void StartMessageQueue()
+        {
+            var waitResult = WaitHandle.WaitTimeout;
+            var exit = false;
+            var interruptHandle = 1;
+            OnDebugEventExecuted(new DebugEventArgs("Starting message queue - StartMessageQueue()"));
+            while (!_process.HasExited && !exit && !_isDisposed)
             {
                 if (!_uciCommandQueue.Any())
                 {
-                    OnDebugEventExecuted(new DebugEventArgs("Waiting for command..."));
+                    OnDebugEventExecuted(new DebugEventArgs("Nothing in queue. Waiting for command..."));
                     waitResult = WaitHandle.WaitAny(CommandQueue.CommandIssuedEvents);
                 }
 
@@ -355,7 +318,7 @@ namespace ChessLib.UCI
                     {
                         UCIOk = false;
                     }
-                    if (waitResult == InterruptHandle || EngineHelpers.IsInterruptCommand(commandToIssue.CommandSent))
+                    if (waitResult == interruptHandle || EngineHelpers.IsInterruptCommand(commandToIssue.CommandSent))
                     {
                         OnDebugEventExecuted(new DebugEventArgs($"Received interrupt command in queue - {commandToIssue.CommandText}"));
                         WriteToEngine(commandToIssue);
@@ -369,8 +332,13 @@ namespace ChessLib.UCI
                     }
                 }
             }
+            BeginExitRoutine();
+        }
+
+        private void BeginExitRoutine()
+        {
             OnDebugEventExecuted(new DebugEventArgs("Waiting for process to exit."));
-            var exitTimeout = 5 * 1000;
+            var exitTimeout = (int)TimeSpan.FromSeconds(5).TotalMilliseconds;
             if (!_process.WaitForExit(exitTimeout))
             {
                 OnDebugEventExecuted(new DebugEventArgs($"Engine process didn't shutdown in {exitTimeout}ms. Killing process."));
@@ -379,38 +347,91 @@ namespace ChessLib.UCI
             }
         }
 
-        public void WriteToEngine(CommandInfo command)
+        private void SendStartupMessagesToEngine()
+        {
+            WriteToEngine(new CommandInfo(AppToUCICommand.UCI));
+            WaitHandle.WaitAll(new[] { UCIInfoReceived }, 5 * 1000);
+            WriteToEngine(new CommandInfo(AppToUCICommand.IsReady));
+            var handle = WaitHandle.WaitAll(new[] { ReadyOkReceived }, (int)10 * 1000);
+        }
+
+        private void WriteToEngine(CommandInfo command)
         {
             _process.StandardInput.WriteLine(command.ToString());
             _process.StandardInput.Flush();
             OnEngineCommunication(new EngineCommunicationArgs(EngineCommunicationArgs.TextSource.UI, command.ToString()));
         }
 
-
-
-        private void StartEngineProcess()
+        public void SendIsReady()
         {
-            _process.StartInfo = startInfo;
-            _process.StartInfo.FileName = CommandLineString;
-            _process.EnableRaisingEvents = true;
-            _process.OutputDataReceived += OnUCIResponseRecieved;
-            _process.Exited += OnProcessExited;
-            _process.Start();
-            OnDebugEventExecuted(new DebugEventArgs($"Process started. PID {_process.Id}."));
-            _process.PriorityClass = _priority;
+            var commandInfo = new CommandInfo(AppToUCICommand.IsReady);
+            QueueCommand(commandInfo);
         }
+
+        public void SendUCI()
+        {
+            var commandInfo = new CommandInfo(AppToUCICommand.UCI);
+            QueueCommand(commandInfo);
+        }
+
+        public void SendStop()
+        {
+            var commandInfo = new CommandInfo(AppToUCICommand.Stop);
+            QueueCommand(commandInfo);
+        }
+
+        public void SendPosition(string fen)
+        {
+            var commandInfo = new CommandInfo(AppToUCICommand.Position);
+            QueueCommand(commandInfo, "fen", fen);
+        }
+
+        public void SendQuit()
+        {
+            var commandInfo = new CommandInfo(AppToUCICommand.Quit);
+            QueueCommand(commandInfo);
+        }
+
+        /// <summary>
+        /// Starts a search for set amount of time
+        /// </summary>
+        /// <param name="eng"></param>
+        /// <param name="searchTime">Time to spend searching</param>
+        /// <param name="searchMoves">only consider these moves</param>
+        public void SendGo(TimeSpan searchTime, MoveExt[] searchMoves = null)
+        {
+            QueueCommand(new Go(searchTime, searchMoves));
+        }
+
+        public void SetNumberOfLinesToCalculate(double numberOfLines)
+        {
+            SetOption("MultiPV", numberOfLines.ToString());
+        }
+
+        public void SetOption(string optionName, string value)
+        {
+            var option = new SetOption(optionName, value);
+            QueueCommand(option);
+        }
+
+
 
         private void OnProcessExited(object sender, EventArgs e)
         {
-            OnDebugEventExecuted(new DebugEventArgs($"Process exited."));
+            OnDebugEventExecuted(new DebugEventArgs($"Received process exited event."));
+            CommandQueue.InterruptIssued.Set();
         }
 
         public void Dispose()
         {
+            _process.Exited -= OnProcessExited;
+            _process.ErrorDataReceived -= OnErrorDataReceived;
             _process.OutputDataReceived -= OnUCIResponseRecieved;
-            // Dispose of the process
             _process.Dispose();
-            GC.SuppressFinalize(this);
+            _uciCommandQueue.Dispose();
+            ReadyOkReceived.Dispose();
+            UCIInfoReceived.Dispose();
+            _isDisposed = true;
         }
 
 

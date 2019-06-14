@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.UCI.Commands.FromEngine;
@@ -16,9 +17,8 @@ namespace ChessLib.UCI.Tests
     {
         public bool isFinished = false;
         public const string sfDirectory = @".\stockfish_10_x64.exe";
-        private Task _task;
+
         private Engine _eng;
-        private UCIEngineInformation _engInfo;
 
         [SetUp]
         public void Setup()
@@ -37,25 +37,26 @@ namespace ChessLib.UCI.Tests
         }
 
         [Test]
-        public async Task TestUCICommand()
+        public void TestUCICommand()
         {
-            _eng.ResponseReceived += (sender, obj) =>
+            using (var waitHandle = new AutoResetEvent(false))
+
             {
-                if (!(obj.ResponseObject is UCIEngineInformation)) { return; }
-                var responseObj = (UCIEngineInformation)obj.ResponseObject;
-                Assert.IsNotNull(obj.ResponseObject);
-                Assert.IsTrue(responseObj.UCIOk);
-            };
-            _eng.StateChanged += (sender, obj) =>
-            {
-                if (obj.StateChangeField != StateChangeField.UCIOk) return;
-                Assert.IsNotNull(obj.StateChangeField);
-                Assert.IsTrue(_eng.UCIOk);
+
+                _eng.StateChanged += (sender, obj) =>
+                {
+                    if (obj.StateChangeField != StateChangeField.UCIOk) return;
+                    Assert.IsNotNull(obj.StateChangeField);
+                    Assert.IsTrue(_eng.UCIOk);
+                    waitHandle.Set();
+
+                };
+
+                var t = _eng.StartAsync();
+                WaitHandle.WaitAll(new[] { waitHandle });
                 _eng.SendQuit();
-            };
-            _eng.SendUCI();
-            _eng.SendIsReady();
-            _task.Wait();
+                t.Wait();
+            }
         }
 
 
@@ -63,18 +64,24 @@ namespace ChessLib.UCI.Tests
         public void TestIsReadyCommand()
         {
             var executedHandler = false;
-            var waitForCommand = new AutoResetEvent(false);
-            _eng.StateChanged += (sender, obj) =>
+            using (var waitForCommand = new AutoResetEvent(false))
             {
-                if (obj.StateChangeField != StateChangeField.IsReady) return;
-                executedHandler = true;
-                waitForCommand.Set();
-            };
-            var t = _eng.StartAsync();
-            _eng.SendIsReady();
-            WaitHandle.WaitAny(new[] { waitForCommand }, 10 * 1000);
-            Assert.IsTrue(executedHandler);
-            t.Wait();
+                _eng.StateChanged += (sender, obj) =>
+                {
+                    if (obj.StateChangeField != StateChangeField.IsReady) return;
+                    executedHandler = true;
+                    waitForCommand.Set();
+
+                };
+                Assert.IsFalse(_eng.IsReady);
+                var t = _eng.StartAsync();
+                WaitHandle.WaitAny(new[] { waitForCommand }, 10 * 1000);
+                Assert.IsTrue(_eng.IsReady);
+                Assert.IsTrue(executedHandler);
+                _eng.SendQuit();
+                t.Wait();
+                Assert.IsTrue(t.Status == TaskStatus.RanToCompletion);
+            }
         }
 
         [Test]

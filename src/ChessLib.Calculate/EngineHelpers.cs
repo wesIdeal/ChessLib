@@ -19,23 +19,7 @@ namespace ChessLib.UCI
     {
         public static readonly string[] OptionKeywords = new[] { "name", "default", "min", "max", "var", "type" };
 
-        public static void SendIsReady(this Engine engine)
-        {
-            var commandInfo = new CommandInfo(AppToUCICommand.IsReady);
-            engine.QueueCommand(commandInfo);
-        }
 
-        public static void SendUCI(this Engine engine)
-        {
-            var commandInfo = new CommandInfo(AppToUCICommand.UCI);
-            engine.QueueCommand(commandInfo);
-        }
-
-        public static void SendStop(this Engine engine)
-        {
-            var commandInfo = new CommandInfo(AppToUCICommand.Stop);
-            engine.QueueCommand(commandInfo);
-        }
         delegate bool CompareString(string response, string expected);
         static CompareString CompareExact = (engineResponse, expectedResponse) => engineResponse.Equals(expectedResponse);
         static CompareString CompareStart = (engineResponsetr, expectedResponse) => engineResponsetr.StartsWith(expectedResponse);
@@ -273,16 +257,7 @@ namespace ChessLib.UCI
 
 
 
-        public static void SendLinesToSearch(this Engine eng, int lines)
-        {
-            eng.QueueCommand(new SetOption("MultiPV", lines.ToString()));
-        }
-
-        public static void SendQuit(this Engine engine)
-        {
-            var commandInfo = new CommandInfo(AppToUCICommand.Quit);
-            engine.QueueCommand(commandInfo);
-        }
+       
 
         public static string UCIMovesFromMoveObjects(this IEnumerable<MoveExt> moves)
         {
@@ -298,26 +273,6 @@ namespace ChessLib.UCI
             }));
         }
 
-        /// <summary>
-        /// Starts a search for set amount of time
-        /// </summary>
-        /// <param name="eng"></param>
-        /// <param name="searchTime">Time to spend searching</param>
-        /// <param name="searchMoves">only consider these moves</param>
-        public static void SendGo(this Engine eng, TimeSpan searchTime, MoveExt[] searchMoves = null)
-        {
-            eng.QueueCommand(new Go(searchTime, searchMoves));
-        }
-
-        public static void SetNumberOfLinesToCalculate(this Engine eng, double numberOfLines)
-        {
-            eng.SetOption("MultiPV", numberOfLines.ToString());
-        }
-
-        public static void SetOption(this Engine eng, string optionName, string value)
-        {
-            var option = new SetOption(optionName, value);
-            eng.QueueCommand(option);
-        }
+        
     }
 }

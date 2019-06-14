@@ -1,13 +1,11 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Types.Enums;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ChessLib.Data.Helpers;
 using System.Diagnostics;
-using ChessLib.Types.Enums;
+using System.Linq;
 
 namespace ChessLib.UCI.Commands.FromEngine
 {

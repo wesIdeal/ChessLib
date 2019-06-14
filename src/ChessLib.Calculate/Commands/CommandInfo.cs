@@ -12,7 +12,7 @@ namespace ChessLib.UCI.Commands
     public class CommandInfo
     {
         public readonly AppToUCICommand CommandSent;
-        public readonly string CommandText;
+        public string CommandText { get; private set; }
         public readonly int ArgumentCount;
         public readonly string[] ExpectedResponses;
         public readonly bool ExactMatch;
@@ -60,6 +60,11 @@ namespace ChessLib.UCI.Commands
         {
             return CommandText;
         }
-    }
 
+       
+
+
+    }
 }
+
+

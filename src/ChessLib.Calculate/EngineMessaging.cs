@@ -98,7 +98,7 @@ namespace ChessLib.UCI
             }
             else if (responseFlag == EngineToAppCommand.Info)
             {
-                ProcessInfoResponse(engineResponse, responseFlag, out response);
+                ProcessInfoResponse(engineResponse, out response);
             }
             else if (responseFlag == EngineToAppCommand.BestMove)
             {
