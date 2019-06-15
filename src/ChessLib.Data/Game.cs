@@ -9,6 +9,6 @@ namespace ChessLib.Data
     public class Game<TMove> where TMove : IMove
     {
         public Tags TagSection = new Tags();
-        public IMoveTree<TMove> MoveSection = new MoveTree<TMove>(null);
+        public MoveTree<TMove> MoveSection = new MoveTree<TMove>(null);
     }
 }

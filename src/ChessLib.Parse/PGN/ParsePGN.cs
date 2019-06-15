@@ -8,7 +8,9 @@ using ChessLib.Parse.PGN.Parser.BaseClasses;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ChessLib.Parse.PGN
 {
@@ -26,21 +28,17 @@ namespace ChessLib.Parse.PGN
             return new ParsePgn() { _inputStream = new AntlrInputStream(pgnText) };
         }
 
-        private ParsePgn()
+        public ParsePgn()
         {
         }
 
-        public double AvgTimePerMove;
-        public double AvgTimePerGame;
-        public double AvgValidationTimePerGame;
-        public double TotalValidationTime;
-        public double TotalTime;
+        public TimeSpan TotalValidationTime;
 
-        public List<Game<IMoveText>> GetGameTexts(int? maxGames = null)
+
+        public IEnumerable<Game<IMoveText>> GetGameTexts(AntlrInputStream inputStream, int? maxGames = null)
         {
-
             var listener = new PGNListener();
-            PGNLexer lexer = new PGNLexer(_inputStream);
+            PGNLexer lexer = new PGNLexer(inputStream);
             var tokens = new CommonTokenStream(lexer);
             var parser = new PGNParser(tokens);
             var parseTree = parser.parse();
@@ -49,9 +47,7 @@ namespace ChessLib.Parse.PGN
             sw.Start();
             walker.Walk(listener, parseTree);
             sw.Stop();
-            AvgTimePerMove = listener.AvgTimePerMove;
-            AvgTimePerGame = listener.AvgTimePerGame;
-            TotalTime = sw.Elapsed.TotalSeconds;
+            Debug.WriteLine($"Parsed {listener.Games.Count()} games in {sw.ElapsedMilliseconds} ms, ({sw.ElapsedMilliseconds / 1000} seconds.)");
             return listener.Games;
         }
 
@@ -59,30 +55,48 @@ namespace ChessLib.Parse.PGN
         /// Gets MoveExt objects from PGN and validates moves while parsing.
         /// </summary>
         /// <returns>Validated Moves</returns>
-        public List<Game<MoveHashStorage>> GetGames(int? MaxGames = null)
+        public List<Game<MoveStorage>> ParseAndValidateGames(string strGameDatabase, int? MaxGames = null)
         {
-            var rv = new List<Game<MoveHashStorage>>();
-            var perGame = new List<long>();
-            var sw = new Stopwatch();
-            var games = GetGameTexts();
-            var gameCount = MaxGames ?? games.Count();
-            foreach (var game in games.Take(gameCount))
-            {
-                sw.Reset();
-                sw.Start();
-                var fen = game.TagSection.FENStart;
-                var boardInfo = new BoardInfo();
-                foreach (var move in game.MoveSection)
-                {
-                    boardInfo.ApplyMove(move.Move.SAN);
-                }
-                sw.Stop();
-                perGame.Add(sw.ElapsedMilliseconds);
-                rv.Add(new Game<MoveHashStorage>() { TagSection = game.TagSection, MoveSection = boardInfo.MoveTree });
-            }
+            AntlrInputStream stream = new AntlrInputStream(strGameDatabase);
+            var games = GetGameTexts(stream, MaxGames);
+            return ValidateGames(games, MaxGames);
+        }
 
-            AvgValidationTimePerGame = perGame.Average();
-            TotalValidationTime = (double)perGame.Sum() / 1000;
+        /// <summary>
+        /// Gets MoveExt objects from PGN and validates moves while parsing.
+        /// </summary>
+        /// <returns>Validated Moves</returns>
+        public List<Game<MoveStorage>> ParseAndValidateGames(FileStream fs, int? MaxGames = null)
+        {
+            AntlrInputStream stream = new AntlrInputStream(fs);
+            var games = GetGameTexts(stream, MaxGames);
+            return ValidateGames(games, MaxGames);
+        }
+
+        /// <summary>
+        /// Gets MoveExt objects from PGN and validates moves while parsing.
+        /// </summary>
+        /// <returns>Validated Moves</returns>
+        private List<Game<MoveStorage>> ValidateGames(IEnumerable<Game<IMoveText>> games, int? MaxGames = null)
+        {
+            var rv = new List<Game<MoveStorage>>();
+            var sw = new Stopwatch();
+            var gameCount = MaxGames ?? games.Count();
+            sw.Start();
+            Parallel.ForEach(games, (game) =>
+             {
+                 var fen = game.TagSection.FENStart;
+                 var boardInfo = new BoardInfo();
+                 foreach (var move in game.MoveSection)
+                 {
+                     boardInfo.ApplyMove(move.SAN);
+                 }
+
+                 rv.Add(new Game<MoveStorage>() { TagSection = game.TagSection, MoveSection = boardInfo.MoveTree });
+             });
+            sw.Stop();
+            TotalValidationTime = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
+            Debug.WriteLine($"Validated {games.Count()} games in {sw.ElapsedMilliseconds} ms, ({sw.ElapsedMilliseconds / 1000} seconds.)");
             return rv;
         }
 

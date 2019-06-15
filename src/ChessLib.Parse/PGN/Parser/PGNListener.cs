@@ -1,12 +1,12 @@
-﻿using System;
-using Antlr4.Runtime.Misc;
+﻿using Antlr4.Runtime.Misc;
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
+using ChessLib.Types.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Parse.PGN.Parser
 {
@@ -35,7 +35,7 @@ namespace ChessLib.Parse.PGN.Parser
         public List<Game<IMoveText>> Games;
 
         private Game<IMoveText> CurrentGame { get; set; }
-        private LinkedListNode<IMoveNode<IMoveText>> _currentMove;
+        private IMoveNode<IMoveText> _currentMove;
         private MoveTree<IMoveText> _currentList;
 
         public override void EnterPgn_database(PGNParser.Pgn_databaseContext context)
@@ -61,12 +61,12 @@ namespace ChessLib.Parse.PGN.Parser
 
         public override void EnterComment(PGNParser.CommentContext context)
         {
-            _currentMove.Value.Move.Comment = context.GetText().Replace("\r\n", "");
+            _currentMove.MoveData.Comment = context.GetText().Replace("\r\n", "");
         }
 
         public override void EnterNag(PGNParser.NagContext context)
         {
-            _currentMove.Value.Move.NAG = context.GetText();
+            _currentMove.MoveData.NAG = context.GetText();
         }
 
         public override void EnterTag_name([NotNull] PGNParser.Tag_nameContext context)
@@ -88,18 +88,18 @@ namespace ChessLib.Parse.PGN.Parser
         {
             var moveText = context.GetText();
             _moveCount++;
-            _currentMove = _currentList.Add(new MoveNode<IMoveText>(new MoveText(moveText)));
+            _currentMove = _currentList.AddMove((IMoveText)new MoveText(moveText));
         }
         public override void EnterRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
         {
             _moveTreeStack.Push(_currentList);
-            _currentList = (MoveTree<IMoveText>)_currentMove.Value.AddVariation();
+            _currentList = (MoveTree<IMoveText>)_currentMove.AddVariation();
         }
 
         public override void ExitRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
         {
             _currentList = _moveTreeStack.Pop();
-            _currentMove = _currentList.Last;
+            _currentMove = _currentList.LastMove;
         }
     }
 }

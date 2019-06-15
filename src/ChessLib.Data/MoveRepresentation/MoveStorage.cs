@@ -1,29 +1,54 @@
 ﻿using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 using System;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ChessLib.Data.MoveRepresentation
 {
-    public abstract class MoveStorage : IMove, IMoveStorage, IEquatable<MoveStorage>
+    public class MoveStorage : MoveExt, IEquatable<MoveStorage>, IMove
     {
-        protected MoveStorage(ushort move, Piece pieceMoving, Color colorMoving)
+        public MoveStorage(string fen, IMoveExt move, Piece pieceMoving, Color colorMoving, string textRepresentation)
+        : this(move, pieceMoving, colorMoving)
         {
-            Move = move;
+            FEN = fen;
+
+        }
+        protected MoveStorage(ushort move, Piece pieceMoving, Color colorMoving)
+            : base(move)
+        {
             PieceMoving = pieceMoving;
             ColorMoving = colorMoving;
         }
 
+        protected MoveStorage(MoveExt move, Piece pieceMoving, Color colorMoving)
+            : this(move.Move, pieceMoving, colorMoving) { }
+
         protected MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move, pieceMoving, colorMoving) { }
 
         public virtual Color ColorMoving { get; private set; }
-        public virtual ushort Move { get; }
+
         public virtual Piece PieceMoving { get; private set; }
-        public bool Equals(IMoveStorage other)
+
+        public string SAN { get; protected set; }
+
+        public string FEN { get; protected set; }
+
+        public string BoardStateHash { get; }
+
+        public static byte[] GetHash(string inputString)
         {
-            return other != null &&
-                   ColorMoving == other.ColorMoving &&
-                   Move == other.Move &&
-                   PieceMoving == other.PieceMoving;
+            HashAlgorithm algorithm = SHA256.Create();
+            return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+        }
+
+        public static string GetHashString(string inputString)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in GetHash(inputString))
+                sb.Append(b.ToString("X2"));
+
+            return sb.ToString();
         }
 
         public bool Equals(MoveStorage other)
@@ -33,5 +58,8 @@ namespace ChessLib.Data.MoveRepresentation
                    Move == other.Move &&
                    PieceMoving == other.PieceMoving;
         }
+
+       
+
     }
 }

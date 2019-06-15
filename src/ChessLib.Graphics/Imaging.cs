@@ -121,7 +121,7 @@ namespace ChessLib.Graphics
             public int Index { get; set; }
             public IMagickImage Image { get; set; }
         }
-        public void MakeAnimationFromMoveTree(Stream writeTo, Game<MoveHashStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
+        public void MakeAnimationFromMoveTree(Stream writeTo, Game<MoveStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
         {
             MagickFormat format = MagickFormat.Gif;
             var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FENHelpers.FENInitial;
@@ -133,24 +133,29 @@ namespace ChessLib.Graphics
             var delay = SecondsToHundredths(positionDelayInSeconds);
             using (var boardImage = MakeBoardInstance(imageOpts, game.TagSection))
             {
-                var imageList = new MagickImageCollection();
-                var firstImage = MakeBoardFromFen(initialFen, boardImage, game.TagSection, null);
-                firstImage.AnimationDelay = delay * 2;
-                imageList.Add(firstImage);
-                var images = new List<MoveImages>();
-                var results = Parallel.ForEach(moves.Select((x, i) => new { mv = x, idx = i }), move =>
-                   {
-                       var positionBoard = MakeBoardFromFen(move.mv.Move.FEN, boardImage, game.TagSection, null);
-                       positionBoard.AnimationDelay = delay;
-                       images.Add(new MoveImages { Image = positionBoard, Index = move.idx });
-                   });
-                imageList.AddRange(images.OrderBy(i => i.Index).Select(x => (IMagickImage)x.Image));
-                imageList.OptimizePlus();
-                imageList.Write(writeTo, format);
+                using (var imageList = new MagickImageCollection())
+                {
+                    using (var firstImage = MakeBoardFromFen(initialFen, boardImage, game.TagSection, null))
+                    {
+                        firstImage.AnimationDelay = delay * 2;
+                        imageList.Add(firstImage);
+                        var images = new List<MoveImages>();
+                        var results = Parallel.ForEach(moves.Select((x, i) => new { mv = x, idx = i }), move =>
+                           {
+                               var positionBoard = MakeBoardFromFen(move.mv.FEN, boardImage, game.TagSection, null);
+                               positionBoard.AnimationDelay = delay;
+                               images.Add(new MoveImages { Image = positionBoard, Index = move.idx });
+                           });
+                        imageList.AddRange(images.OrderBy(i => i.Index).Select(x => (IMagickImage)x.Image));
+                        imageList.OptimizePlus();
+                        imageList.Write(writeTo, format);
+                        images.ForEach(i => { i.Image.Dispose(); });
+                    }
+                }
             }
         }
 
-   
+
         protected static MagickFormat GetMagickFormatFromFormat(ImageFormat format)
         {
             switch (format)

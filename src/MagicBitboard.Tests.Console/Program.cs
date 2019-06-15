@@ -72,28 +72,24 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
 
         static void Main(string[] args)
         {
+            var parsePgn = new ParsePgn();
 
-            // var parsePgn = ParsePgn.FromFilePath(".\\PGN\\talLarge.pgn");
-            var parsePgn = ParsePgn.FromText(pgn);
-            //var games = parsePgn.GetGameTexts();
-            var games = parsePgn.GetGames();
+            using (var fs = new FileStream(".\\PGN\\talLarge.pgn",FileMode.Open, FileAccess.Read))
+            {
+                var games = parsePgn.ParseAndValidateGames(fs);
 
-            Console.WriteLine($"Avg time per move:\t{parsePgn.AvgTimePerMove} ms");
-            Console.WriteLine($"Avg time per game:\t{parsePgn.AvgTimePerGame} ms");
-            Console.WriteLine($"Avg validation time per game:\t{parsePgn.AvgValidationTimePerGame} ms");
-            Console.WriteLine($"Total validation time:\t{parsePgn.TotalValidationTime} ms");
-            Console.WriteLine($"Total Time:\t{parsePgn.TotalTime} seconds");
-            //MakeGifs(games);
-            EvalPosition(games[0]);
-            Console.ReadKey();
+                Console.WriteLine($"Parsed {games.Count} games in {parsePgn.TotalValidationTime.TotalMilliseconds} ms, ({parsePgn.TotalValidationTime.TotalMilliseconds / 1000} seconds.)");
+                EvalPosition(games[0]);
+            }
+           // Console.ReadKey();
         }
 
-        private static void EvalPosition(Game<MoveHashStorage> game)
+        private static void EvalPosition(Game<MoveStorage> game)
         {
-            var engineRunner = new EngineRunner();
+           // var engineRunner = new EngineRunner();
         }
 
-        private static void MakeGifs(List<Game<MoveHashStorage>> games)
+        private static void MakeGifs(List<Game<MoveStorage>> games)
         {
             var graphics = new Imaging();
             var game = games[0];
@@ -102,8 +98,7 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
                     && x.TagSection["Date"].Contains("1960"))
                 .Where(x => x.TagSection["Round"] == "2");
             game = botvinnik.FirstOrDefault() ?? game;
-            //foreach (var game in botvinnik)
-            //{
+
             var bi = new BoardInfo();
             var round = game.TagSection["Round"];
             var black = game.TagSection["Black"];

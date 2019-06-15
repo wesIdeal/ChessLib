@@ -209,7 +209,7 @@ namespace ChessLib.UCI.Commands.FromEngine
                 }
                 board.ApplyValidatedMove(generatedMove);
 
-                sanMoveArray.Add($"{moveNumber}{board.MoveTree.Last().Move.SAN}");
+                sanMoveArray.Add($"{moveNumber}{board.MoveTree.Last().SAN}");
                 count++;
                 moveReturnValue.Add(generatedMove);
             }

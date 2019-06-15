@@ -7,13 +7,15 @@ using ChessLib.Types.Interfaces;
 using ChessLib.Validators.BoardValidators;
 using ChessLib.Validators.MoveValidation;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 
 namespace ChessLib.Data
 {
     public class BoardInfo : BoardBase
     {
-        public IMoveTree<MoveHashStorage> MoveTree { get; set; }
+        public MoveTree<MoveStorage> MoveTree { get; set; }
 
         public BoardInfo() : this(FENHelpers.FENInitial, false) { }
 
@@ -27,7 +29,7 @@ namespace ChessLib.Data
 
         public BoardInfo(string fen, bool is960 = false)
         {
-            MoveTree = new MoveTree<MoveHashStorage>(null);
+            MoveTree = new MoveTree<MoveStorage>(null);
             _piecePlacement = FENHelpers.BoardFromFen(fen, out Color active, out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
             ActivePlayer = active;
             CastlingAvailability = ca;
@@ -66,8 +68,8 @@ namespace ChessLib.Data
         public void ApplyValidatedMove(MoveExt move)
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
-            var san = move.MoveToSAN(this, MoveTree.ParentMove == null);
-            MoveTree.Add(new MoveNode<MoveHashStorage>(new MoveHashStorage(this.ToFEN(), move, pocSource.Value.Piece, ActivePlayer, san)));
+            var san = move.MoveToSAN(this, MoveTree.FirstMove == null);
+            MoveTree.AddVariation(new MoveNode<MoveStorage>(new MoveStorage(this.ToFEN(), move, pocSource.Value.Piece, ActivePlayer, san)));
             var newBoard = this.ApplyMoveToBoard(move);
             this._piecePlacement = newBoard.GetPiecePlacement();
             this.ActivePlayer = newBoard.ActivePlayer;
@@ -102,6 +104,15 @@ namespace ChessLib.Data
         }
 
 
+        public string GetLANStringToCurrent(bool startPositionToFEN = false)
+        {
+
+            Stack<string> lanStack = new Stack<string>();
+
+            var sb = new StringBuilder();
+
+            return sb.ToString();
+        }
 
 
         public bool DoesPieceAtSquareAttackSquare(ushort attackerSquare, ushort attackedSquare,

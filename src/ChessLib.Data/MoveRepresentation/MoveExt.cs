@@ -1,4 +1,5 @@
 ﻿using System;
+using ChessLib.Data.Helpers;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 
@@ -6,11 +7,11 @@ namespace ChessLib.Data.MoveRepresentation
 {
 
 
-    public class MoveExt : IMoveExt
+    public class MoveExt : IMoveExt, ICloneable, IMove
     {
         public MoveExt(ushort move) { Move = move; }
         private ushort _move;
-        public ushort Move { get => _move; private set { _move = value; } }
+        public ushort Move { get => _move; protected set { _move = value; } }
 
         public ushort SourceIndex => (ushort)((_move >> 6) & 63);
 
@@ -31,7 +32,17 @@ namespace ChessLib.Data.MoveRepresentation
             }
         }
 
+        public string LAN => $"{SourceIndexText}{DestIndexText}{PromotionPieceChar}";
+
         public PromotionPiece PromotionPiece => (PromotionPiece)((_move >> 12) & 3);
+
+        public char? PromotionPieceChar => MoveType == MoveType.Promotion ?
+            char.ToLower(PieceHelpers.GetCharFromPromotionPiece(PromotionPiece)) :
+            (char?)null;
+
+        public string SourceIndexText => SourceIndex.IndexToSquareDisplay();
+
+        public string DestIndexText => DestinationIndex.IndexToSquareDisplay();
 
         public bool Equals(ushort other)
         {
@@ -52,6 +63,11 @@ namespace ChessLib.Data.MoveRepresentation
         public bool Equals(IMoveExt other)
         {
             return this._move == other.Move;
+        }
+
+        public object Clone()
+        {
+            return new MoveExt(Move);
         }
     }
 }

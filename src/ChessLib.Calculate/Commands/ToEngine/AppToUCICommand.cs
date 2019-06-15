@@ -23,7 +23,10 @@ namespace ChessLib.UCI.Commands.ToEngine
         [Command("name")]
         Option_Name,
         [Command("value")]
-        Option_Value
+        Option_Value,
+        [Command("ucinewgame")]
+        NewGame,
+
 
     }
 
