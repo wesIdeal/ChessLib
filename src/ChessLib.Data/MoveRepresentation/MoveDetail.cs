@@ -7,7 +7,7 @@ namespace ChessLib.Data.MoveRepresentation
 {
 
     /// <summary>
-    /// Holds intermediate move inforation, while transforming from text to a binary move
+    /// Holds intermediate move inforation (in-between text SAN and ushort), while transforming from text to a binary move
     /// </summary>
     public class MoveDetail : IEquatable<MoveDetail>
     {
