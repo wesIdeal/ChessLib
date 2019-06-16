@@ -48,7 +48,7 @@ namespace ChessLib.Data.Tests.Helpers
         public static void GetSetBits_ShouldReturnASquareIndex_GivenOneSquareOfInput()
         {
             var count = 0;
-            foreach (ulong sq in BoardHelpers.IndividualSquares)
+            foreach (ulong sq in ChessLib.Data.Helpers.BoardHelpers.IndividualSquares)
             {
                 var idx = sq.GetSetBits();
                 Assert.AreEqual(count, idx[0]);
@@ -61,10 +61,10 @@ namespace ChessLib.Data.Tests.Helpers
         {
             var expectedR2 = new ushort[] { 8, 9, 10, 11, 12, 13, 14, 15 };
             var expectedR7 = new ushort[] { 48, 49, 50, 51, 52, 53, 54, 55 };
-            var rank2Value = BoardHelpers.RankMasks[1];
+            var rank2Value = ChessLib.Data.Helpers.BoardHelpers.RankMasks[1];
             var rank2SetBits = rank2Value.GetSetBits();
             Assert.AreEqual(expectedR2, rank2SetBits);
-            Assert.AreEqual(expectedR7, BoardHelpers.RankMasks[6].GetSetBits());
+            Assert.AreEqual(expectedR7, ChessLib.Data.Helpers.BoardHelpers.RankMasks[6].GetSetBits());
 
         }
 

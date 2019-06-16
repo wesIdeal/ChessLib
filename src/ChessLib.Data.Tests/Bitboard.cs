@@ -5,7 +5,7 @@ using ChessLib.Types.Enums;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace ChessLib.Data.Tests.Helpers
+namespace ChessLib.Data.Tests
 {
     [TestFixture]
     public class Bitboard
