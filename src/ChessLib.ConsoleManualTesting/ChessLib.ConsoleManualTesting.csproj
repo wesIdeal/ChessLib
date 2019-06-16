@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ChessLib.Calculate\ChessLib.UCI.csproj" />
     <ProjectReference Include="..\ChessLib.Graphics\ChessLib.Graphics.csproj" />
     <ProjectReference Include="..\ChessLib.Parse\ChessLib.Parse.csproj" />
     <ProjectReference Include="..\ChessLib.UCI\ChessLib.UCI.csproj" />
