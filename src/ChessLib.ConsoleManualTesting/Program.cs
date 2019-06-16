@@ -74,19 +74,19 @@ Rf8 35. Bg3 c3 36. Rc1 Rf3 37. c6 c2 38. c7 Rc3 39. Rd8+  1-0";
         {
             var parsePgn = new ParsePgn();
 
-            using (var fs = new FileStream(".\\PGN\\talLarge.pgn",FileMode.Open, FileAccess.Read))
+            using (var fs = new FileStream(".\\PGN\\talLarge.pgn", FileMode.Open, FileAccess.Read))
             {
                 var games = parsePgn.ParseAndValidateGames(fs);
 
                 Console.WriteLine($"Parsed {games.Count} games in {parsePgn.TotalValidationTime.TotalMilliseconds} ms, ({parsePgn.TotalValidationTime.TotalMilliseconds / 1000} seconds.)");
                 EvalPosition(games[0]);
             }
-           // Console.ReadKey();
+            // Console.ReadKey();
         }
 
         private static void EvalPosition(Game<MoveStorage> game)
         {
-           // var engineRunner = new EngineRunner();
+            // var engineRunner = new EngineRunner();
         }
 
         private static void MakeGifs(List<Game<MoveStorage>> games)

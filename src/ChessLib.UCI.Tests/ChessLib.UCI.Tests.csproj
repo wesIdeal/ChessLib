@@ -11,6 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Calculate\ChessLib.UCI.csproj" />
+    <ProjectReference Include="..\ChessLib.UCI\ChessLib.UCI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="stockfish_10_x64.exe">
