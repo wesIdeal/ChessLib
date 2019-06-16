@@ -1,5 +1,6 @@
 ﻿using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
+using ChessLib.Data.Magic;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Types.Enums;
 using ChessLib.Validators.MoveValidation;
@@ -442,85 +443,6 @@ namespace ChessLib.Data.Tests
 
 
 
-
-
-        //[Test]
-        //public static void ShouldThrowExceptionWhenNoBishopAttacksSquare()
-        //{
-
-        //}
-
-        //[Test]
-        //public static void ShouldThrowExceptionWhenNoKingAttacksSquare()
-        //{
-        //    var bi = new BoardInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1");
-        //    var md = new MoveDetail(null, null, 0, 2, Piece.King, Color.White, "Kc1");
-        //    Assert.Throws(typeof(MoveException),
-        //        () => { bi.FindKingMoveSourceIndex(md, bi.ActivePlayerKingIndex, bi.TotalOccupancy); });
-        //}
-
-        //[Test]
-        //public static void ShouldThrowExceptionWhenNoKnightAttacksSquare()
-        //{
-        //    var bi = new BoardInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PNP5/1P2NPPP/R2QKB1R w KQkq - 1 5");
-        //    var md = new MoveDetail(null, null, 3, 4, Piece.Knight, Color.White, "Ne4");
-        //    Assert.Throws(typeof(MoveException), () => { bi.FindKnightMoveSourceIndex(md, bi.ActiveKnightOccupancy); });
-        //}
-
-        //[Test]
-        //public static void ShouldThrowExceptionWhenNoQueenAttacksSquare()
-        //{
-        //    var bi = new BoardInfo("4k3/8/8/8/8/8/8/Q1qbK3 w - - 0 1");
-        //    var md = new MoveDetail(null, null, 0, 3, Piece.Queen, Color.White, "Qxd1");
-        //    Assert.Throws(typeof(MoveException),
-        //        () => { bi.FindQueenMoveSourceIndex(md, bi.ActiveQueenOccupancy, bi.TotalOccupancy); });
-        //}
-
-        //[Test]
-        //public static void ShouldThrowExceptionWhenNoRookAttacksSquare()
-        //{
-        //    var bi = new BoardInfo("4k3/8/8/8/8/8/8/R1qbK3 w - - 0 1");
-        //    var md = new MoveDetail(null, null, 0, 3, Piece.Rook, Color.White, "Rxd1");
-        //    Assert.Throws(typeof(MoveException),
-        //        () => { bi.FindRookMoveSourceIndex(md, bi.ActiveRookOccupancy, bi.TotalOccupancy); });
-        //}
-
-        //[Test]
-        //public static void ShouldThrowExceptionWhenTwoBishopsAttackSquare()
-        //{
-        //    var bi = new BoardInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PBP5/1P3PPP/RN1QKBNR w KQkq - 1 5");
-        //    var md = new MoveDetail(null, null, 3, 2, Piece.Bishop, Color.White, "Bc4");
-        //    Assert.Throws(typeof(MoveException),
-        //        () => { bi.FindBishopMoveSourceIndex(md, bi.ActiveBishopOccupancy, bi.TotalOccupancy); });
-        //}
-
-        //[Test]
-        //public static void ShouldThrowExceptionWhenTwoKnightsAttackSquare()
-        //{
-        //    var bi = new BoardInfo("rnb1kbnr/1p1ppppp/p7/1q6/2pPP3/PNP5/1P2NPPP/R2QKB1R w KQkq - 1 5");
-        //    var md = new MoveDetail(null, null, 5, 0, Piece.Knight, Color.White, "Nxd4");
-        //    Assert.Throws(typeof(MoveException), () => { bi.FindKnightMoveSourceIndex(md, bi.ActiveKnightOccupancy); });
-        //}
-
-        //[Test]
-        //public static void ShouldThrowExceptionWhenTwoQueensAttackSquare()
-        //{
-        //    var bi = new BoardInfo("4k3/8/8/8/8/8/2Q5/Q1qbK3 w - - 0 1");
-        //    var md = new MoveDetail(null, null, 0, 2, Piece.Queen, Color.White, "Qxc1");
-        //    Assert.Throws(typeof(MoveException),
-        //        () => { bi.FindQueenMoveSourceIndex(md, bi.ActiveQueenOccupancy, bi.TotalOccupancy); });
-        //}
-
-        //[Test]
-        //public static void ShouldThrowExceptionWhenTwoRooksAttackSquare()
-        //{
-        //    var bi = new BoardInfo("4k3/8/8/8/8/8/2R5/R1qbK3 w - - 0 1");
-        //    var md = new MoveDetail(null, null, 0, 2, Piece.Rook, Color.White, "Rxd1");
-        //    Assert.Throws(typeof(MoveException),
-        //        () => { bi.FindRookMoveSourceIndex(md, bi.ActiveRookOccupancy, bi.TotalOccupancy); });
-        //}
-
-
         [Test(Description = "ToFEN() should return the FEN of the current board's state")]
         public static void ToFEN_ShouldReturnCurrentBoardState()
         {
@@ -535,77 +457,7 @@ namespace ChessLib.Data.Tests
             Assert.AreEqual(closedRuyFEN, actual);
         }
 
-        [Test]
-        public static void ValidatePawnMove_ShouldThrowExc_IfNoPieceAvailableForCapture()
-        {
-            var pawnAttackBoards = PieceAttackPatternHelper.PawnAttackMask[(int)Color.White];
-            for (ushort idx = 8; idx < 16; idx++)
-            {
-                var attackBoard = pawnAttackBoards[idx];
-                var notAttackBoard = ~attackBoard;
-                var attackSquare = attackBoard.GetSetBits()[0];
-                var pawnOccupancy = BoardHelpers.RankMasks[1];
-                Assert.Throws(typeof(MoveException),
-                    () =>
-                    {
-                        BoardInfo.ValidatePawnMove(Color.White, idx, attackSquare, pawnOccupancy,
-                            pawnOccupancy | notAttackBoard);
-                    });
-                Assert.DoesNotThrow(
-                    () =>
-                    {
-                        BoardInfo.ValidatePawnMove(Color.White, idx, attackSquare, pawnOccupancy,
-                            pawnOccupancy | attackBoard);
-                    });
-            }
-        }
 
-        [Test]
-        public static void ValidatePawnMove_ShouldThrowExc_WhenMoveIsBlocked()
-        {
-            const ulong occupancyBothRanks = 0x1010000;
-            const ulong occupancy3RdRank = 0x10000;
-
-            ulong occBoth, occ3, occ4;
-            var md = new MoveDetail { SourceRank = 1, Color = Color.White };
-            ushort pawnSourceIndex = 8;
-            for (ushort idx = 16; idx < 23; idx++)
-            {
-                md.DestinationFile = idx.FileFromIdx();
-                md.DestinationRank = idx.RankFromIdx();
-                occBoth = occupancyBothRanks << (pawnSourceIndex - 8);
-                occ3 = occupancy3RdRank << (pawnSourceIndex - 8);
-                occ4 = occ3 << 8;
-
-                var pawnOcc = BoardHelpers.RankMasks[1];
-                var destinationIndex = (ushort)(pawnSourceIndex + 8);
-                Assert.Throws(typeof(MoveException),
-                    () =>
-                    {
-                        BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc,
-                            occBoth | pawnOcc);
-                    });
-                Assert.Throws(typeof(MoveException),
-                    () =>
-                    {
-                        BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc,
-                            occ3 | pawnOcc);
-                    });
-                if (pawnSourceIndex >= 16)
-                    Assert.Throws(typeof(MoveException),
-                        () =>
-                        {
-                            BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc,
-                                occ4 | pawnOcc);
-                        });
-                else
-                    Assert.DoesNotThrow(() =>
-                    {
-                        BoardInfo.ValidatePawnMove(md.Color, pawnSourceIndex, destinationIndex, pawnOcc,
-                            occ4 | pawnOcc);
-                    });
-            }
-        }
         StringBuilder sb = new StringBuilder();
         [TestCase("5r2/6Pk/1R6/7P/6K1/8/8/8 w - - 0 62", 54, 61, PromotionPiece.Queen, MoveType.Promotion)]
         [TestCase("6K1/4k1P1/8/7q/8/8/8/8 b - - 9 56", 52, 60)]

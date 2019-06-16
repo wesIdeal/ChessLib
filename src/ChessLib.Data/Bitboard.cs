@@ -1,25 +1,28 @@
 ﻿using ChessLib.Data.Helpers;
+using ChessLib.Data.Magic;
+using ChessLib.Data.Magic.Init;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.PieceMobility;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace ChessLib.Data
 {
     public static class Bitboard
     {
 
-        private static readonly MovePatternStorage Bishop = new MovePatternStorage();
-        private static readonly MovePatternStorage Rook = new MovePatternStorage();
-
+        private static readonly MovePatternStorage Bishop = new BishopPatterns();
+        private static readonly MovePatternStorage Rook = new RookPatterns();
+        private static readonly Object lockObj = new object();
         static Bitboard()
         {
-            Bishop.Initialize(PieceAttackPatternHelper.BishopAttackMask, new BishopMovesInitializer());
-            Rook.Initialize(PieceAttackPatternHelper.RookAttackMask, new RookMovesInitializer());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,7 +75,7 @@ namespace ChessLib.Data
                     possibleMoves = GetPawnPseudoLegalMoves(pieceSquare, activeOcc, oppOcc, color, enPassantIndex);
                     break;
                 case Piece.Knight:
-                    var totalAttacks = PieceAttackPatternHelper.KnightAttackMask[pieceSquare];
+                    var totalAttacks = PieceAttackPatterns.Instance.KnightAttackMask[pieceSquare];
                     possibleMoves = totalAttacks & ~(activeOcc);
                     break;
                 case Piece.Bishop:
@@ -86,7 +89,7 @@ namespace ChessLib.Data
                     break;
                 case Piece.King:
 
-                    possibleMoves = PieceAttackPatternHelper.KingMoveMask[pieceSquare] & ~(activeOcc);
+                    possibleMoves = PieceAttackPatterns.Instance.KingMoveMask[pieceSquare] & ~(activeOcc);
                     if (ca != CastlingAvailability.NoCastlingAvailable)
                     {
                         if (color == Color.Black)
@@ -126,8 +129,8 @@ namespace ChessLib.Data
             var pieceValue = 1ul << pieceSquare;
             var enPassantValue = (1ul << enPassantIndex) ?? 0;
             var opponentOccupancyWithEnPassant = oppOcc | enPassantValue;
-            var pMoves = PieceAttackPatternHelper.PawnMoveMask[(int)color][pieceSquare];
-            var attacks = PieceAttackPatternHelper.PawnAttackMask[(int)color][pieceSquare] & opponentOccupancyWithEnPassant;
+            var pMoves = PieceAttackPatterns.Instance.PawnMoveMask[(int)color][pieceSquare];
+            var attacks = PieceAttackPatterns.Instance.PawnAttackMask[(int)color][pieceSquare] & opponentOccupancyWithEnPassant;
             var pawnMoves = pMoves & ~((activeOcc | oppOcc));
             var pawnAttacks = attacks & opponentOccupancyWithEnPassant;
             var isInitialPawnMove = ((pieceValue & BoardHelpers.RankMasks[1]) != 0 && color == Color.White) ||
@@ -158,11 +161,11 @@ namespace ChessLib.Data
                 case Piece.Queen:
                     return Bishop.GetLegalMoves(pieceIndex, occupancy) | Rook.GetLegalMoves(pieceIndex, occupancy);
                 case Piece.Pawn:
-                    return PieceAttackPatternHelper.PawnAttackMask[color.ToInt()][pieceIndex];
+                    return PieceAttackPatterns.Instance.PawnAttackMask[color.ToInt()][pieceIndex];
                 case Piece.King:
-                    return PieceAttackPatternHelper.KingMoveMask[r, f];
+                    return PieceAttackPatterns.Instance.KingMoveMask[r, f];
                 case Piece.Knight:
-                    return PieceAttackPatternHelper.KnightAttackMask[r, f];
+                    return PieceAttackPatterns.Instance.KnightAttackMask[r, f];
                 default:
                     throw new Exception("Piece not supported for GetAttackSquares().");
             }
@@ -219,11 +222,11 @@ namespace ChessLib.Data
             totalOcc = oppositeOccupancy | activeOccupancy;
             var bishopAttack = GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc);
             var rookAttack = GetAttackedSquares(Piece.Rook, squareIndex, totalOcc);
-            if ((PieceAttackPatternHelper.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
-            if ((PieceAttackPatternHelper.KnightAttackMask[r, f] & piecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
+            if ((PieceAttackPatterns.Instance.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
+            if ((PieceAttackPatterns.Instance.KnightAttackMask[r, f] & piecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
             if ((bishopAttack & (piecesOnBoard[nColor][Piece.Bishop.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
             if ((rookAttack & (piecesOnBoard[nColor][Piece.Rook.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
-            if ((PieceAttackPatternHelper.KingMoveMask[r, f] & piecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
+            if ((PieceAttackPatterns.Instance.KingMoveMask[r, f] & piecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
             return false;
         }
 
@@ -239,14 +242,14 @@ namespace ChessLib.Data
 
         public static ulong XRayRookAttacks(this IBoard board, ushort squareIndex)
         {
-            var rookMovesFromSquare = PieceAttackPatternHelper.RookMoveMask[squareIndex];
+            var rookMovesFromSquare = PieceAttackPatterns.Instance.RookMoveMask[squareIndex];
             //blockers &= rookMovesFromSquare;
             return rookMovesFromSquare ^ Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, board.GetPiecePlacement().Occupancy());
         }
 
         public static ulong XRayBishopAttacks(this IBoard board, ushort squareIndex)
         {
-            var bishopMovesFromSquare = PieceAttackPatternHelper.BishopMoveMask[squareIndex];
+            var bishopMovesFromSquare = PieceAttackPatterns.Instance.BishopMoveMask[squareIndex];
             //blockers &= bishopMovesFromSquare;
             return bishopMovesFromSquare ^ Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, board.GetPiecePlacement().Occupancy());
         }

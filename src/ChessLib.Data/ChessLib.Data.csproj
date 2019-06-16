@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
@@ -20,6 +20,10 @@
 
   <ItemGroup>
     <PackageReference Include="Enums.NET" Version="2.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="SlidingPieces\" />
   </ItemGroup>
 
 

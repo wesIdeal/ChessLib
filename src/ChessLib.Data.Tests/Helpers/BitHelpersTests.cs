@@ -48,7 +48,7 @@ namespace ChessLib.Data.Tests.Helpers
         public static void GetSetBits_ShouldReturnASquareIndex_GivenOneSquareOfInput()
         {
             var count = 0;
-            foreach (ulong sq in BoardHelpers.IndividualSquares.MoveBoard)
+            foreach (ulong sq in BoardHelpers.IndividualSquares)
             {
                 var idx = sq.GetSetBits();
                 Assert.AreEqual(count, idx[0]);

@@ -1,6 +1,7 @@
 ﻿using ChessLib.Data.Boards;
 using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
+using ChessLib.Data.Magic;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
@@ -176,59 +177,11 @@ namespace ChessLib.Data
             }
 
             var idx = moveDetail.Color == Color.Black ? sourceIndex.FlipIndexVertically() : sourceIndex;
-            ValidatePawnMove(moveDetail.Color, idx, moveDetail.DestinationIndex.Value, pawnOccupancy, totalOccupancy,
-                moveDetail.MoveText);
+            
             return idx;
         }
 
-        /// <summary>
-        ///     Validates a pawn move that has been parsed via SAN, after the source has been determined.
-        /// </summary>
-        /// <param name="pawnColor"></param>
-        /// <param name="sourceIndex"></param>
-        /// <param name="destinationIndex"></param>
-        /// <param name="pawnOccupancy">Active pawn occupancy board</param>
-        /// <param name="opponentOccupancy">Opponent's occupancy board; used to validate captures</param>
-        /// <param name="moveText">SAN that is used in the error messages only.</param>
-        /// <exception cref="MoveException">
-        ///     Thrown if no pawn exists at source, pawn cannot move from source to destination
-        ///     (blocked, wrong square), destination is occupied, or if move is capture, but no opposing piece is there for
-        ///     capture.
-        /// </exception>
-        public static void ValidatePawnMove(Color pawnColor, ushort sourceIndex, ushort destinationIndex,
-            ulong pawnOccupancy, ulong opponentOccupancy, string moveText = "")
-        {
-            moveText = !string.IsNullOrEmpty(moveText) ? moveText + ": " : "";
-            var sourceValue = sourceIndex.IndexToValue();
-            var isCapture = sourceIndex.FileFromIdx() != destinationIndex.FileFromIdx();
-            var destValue = destinationIndex.IndexToValue();
-            //validate pawn is at supposed source
-            var pawnAtSource = sourceValue & pawnOccupancy;
-            if (pawnAtSource == 0)
-                throw new MoveException(
-                    $"There is no pawn on {sourceIndex.IndexToSquareDisplay()} to move to {destinationIndex.IndexToSquareDisplay()}.");
 
-            //validate pawn move to square is valid
-            var pawnMoves = isCapture
-                ? PieceAttackPatternHelper.PawnAttackMask[(int)pawnColor][sourceIndex]
-                : PieceAttackPatternHelper.PawnMoveMask[(int)pawnColor][sourceIndex];
-            if ((pawnMoves & destValue) == 0)
-                throw new MoveException(
-                    $"{moveText}Pawn from {sourceIndex.IndexToSquareDisplay()} to {destinationIndex.IndexToSquareDisplay()} is illegal.");
-
-            var destinationOccupancy = destValue & opponentOccupancy;
-            //validate pawn is not blocked from move, if move is not a capture
-            if (!isCapture)
-            {
-                if (destinationOccupancy != 0)
-                    throw new MoveException($"{moveText}Destination square is occupied.");
-            }
-            else // validate Piece is on destination for capture
-            {
-                if (destinationOccupancy == 0)
-                    throw new MoveException($"{moveText}Destination capture square is unoccupied.");
-            }
-        }
 
         public override object Clone()
         {

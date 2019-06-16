@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace ChessLib.Data.Helpers
@@ -66,6 +67,26 @@ namespace ChessLib.Data.Helpers
             var file = idx.FileFromIdx();
             var rankCompliment = rank.RankCompliment();
             return (ushort)((rankCompliment * 8) + file);
+        }
+
+        /// <summary>
+        /// Convert a board index to value
+        /// </summary>
+        public static ulong ToBoardValue(this ushort index)
+        {
+            return 1ul << index;
+        }
+
+        public static bool IsIndexOnFile(this ushort index, ushort file)
+        {
+            Debug.Assert(file >= 0 && file < 8);
+            return (index.ToBoardValue() & BoardHelpers.FileMasks[file]) != 0;
+        }
+
+        public static bool IsIndexOnRank(this ushort index, ushort rank)
+        {
+            Debug.Assert(rank >= 0 && rank < 8);
+            return (index.ToBoardValue() & BoardHelpers.RankMasks[rank]) != 0;
         }
 
         /// <summary>
