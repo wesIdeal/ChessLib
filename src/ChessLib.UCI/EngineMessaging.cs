@@ -28,17 +28,17 @@ namespace ChessLib.UCI
 
         public event EventHandler<StateChangeEventArgs> StateChanged;
 
-        public event EventHandler<DataReceivedEventArgs> ErrorReceivedFromEngineProcess;
+        public event EventHandler<DataReceivedEventArgs> ErrorReceivedFromEngine;
         #region Event Raisers
 
-        protected void OnEngineCommunication(object sender, DataReceivedEventArgs args)
+        protected void OnEngineCommunicationReceived(object sender, EngineCommunicationArgs args)
         {
-            OnEngineCommunication(new EngineCommunicationArgs(EngineCommunicationArgs.TextSource.Engine, args.Data));
+            OnEngineCommunication(args);
         }
 
-        protected void OnEngineCommunication(EngineCommunicationArgs args)
+        protected void OnEngineCommunication(EngineCommunicationArgs engineCommunicationArgs)
         {
-            Volatile.Read(ref EngineCommunication)?.Invoke(this, args);
+            Volatile.Read(ref EngineCommunication)?.Invoke(this, engineCommunicationArgs);
         }
 
         protected void OnEngineInfoReceived(EngineInfoArgs engineResponseArgs)
@@ -69,53 +69,9 @@ namespace ChessLib.UCI
                 _errorBuilder.AppendLine(message);
             }
             OnDebugEventExecuted(new DebugEventArgs(message));
-            Volatile.Read(ref ErrorReceivedFromEngineProcess)?.Invoke(sender, e);
+            //Volatile.Read(ref ErrorReceivedFromEngineProcess)?.Invoke(sender, e);
         }
         #endregion
-
-        private const EngineToAppCommand UCIFlags = EngineToAppCommand.Id | EngineToAppCommand.Option | EngineToAppCommand.UCIOk;
-        private void OnUCIResponseRecieved(object sender, DataReceivedEventArgs e)
-        {
-
-            string engineResponse = e.Data;
-            if (string.IsNullOrEmpty(engineResponse))
-            {
-                return;
-            }
-            OnEngineCommunication(new EngineCommunicationArgs(EngineCommunicationArgs.TextSource.Engine, e.Data));
-            EngineToAppCommand responseFlag = EngineHelpers.GetResponseType(engineResponse);
-
-            IEngineResponse response = null;
-
-            if (UCIFlags.HasFlag(responseFlag))
-            {
-                ProcessUCIResponse(engineResponse, responseFlag, out response);
-            }
-            else if (responseFlag == EngineToAppCommand.Ready)
-            {
-                IsReady = true;
-                ReadyOkReceived.Set();
-            }
-            else if (responseFlag == EngineToAppCommand.Info)
-            {
-                ProcessInfoResponse(engineResponse, out response);
-            }
-            else if (responseFlag == EngineToAppCommand.BestMove)
-            {
-                ProcessBestMoveResponse(engineResponse, out response);
-            }
-            else if (responseFlag == EngineToAppCommand.UCIOk)
-            {
-                UCIOk = true;
-                OnEngineInfoReceived(new EngineInfoArgs(engineResponse, AppToUCICommand.UCI, responseFlag, response));
-            }
-            else
-            {
-                var message = $"**Message with no corresponding command received**\r\n\t{engineResponse}\r\n**End Message**";
-                OnDebugEventExecuted(new DebugEventArgs(message));
-            }
-        }
-
 
 
         public class StateChangeEventArgs : EventArgs

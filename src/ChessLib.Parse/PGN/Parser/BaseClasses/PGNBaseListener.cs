@@ -34,13 +34,16 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 /// </summary>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.7.2")]
 [System.CLSCompliant(false)]
-public partial class PGNBaseListener : IPGNListener {
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="PGNParser.parse"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterParse([NotNull] PGNParser.ParseContext context) { }
+#pragma warning disable CS3021 // Type or member does not need a CLSCompliant attribute because the assembly does not have a CLSCompliant attribute
+    public partial class PGNBaseListener : IPGNListener
+    {
+#pragma warning restore CS3021 // Type or member does not need a CLSCompliant attribute because the assembly does not have a CLSCompliant attribute
+                              /// <summary>
+                              /// Enter a parse tree produced by <see cref="PGNParser.parse"/>.
+                              /// <para>The default implementation does nothing.</para>
+                              /// </summary>
+                              /// <param name="context">The parse tree.</param>
+        public virtual void EnterParse([NotNull] PGNParser.ParseContext context) { }
 	/// <summary>
 	/// Exit a parse tree produced by <see cref="PGNParser.parse"/>.
 	/// <para>The default implementation does nothing.</para>

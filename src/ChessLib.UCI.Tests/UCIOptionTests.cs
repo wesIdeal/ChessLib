@@ -5,6 +5,8 @@ using System.Text;
 using ChessLib.UCI;
 using ChessLib.UCI.Commands.FromEngine;
 using ChessLib.UCI.Commands.FromEngine.Options;
+using System.Linq;
+
 namespace ChessLib.UCI.Tests
 {
     [TestFixture]
@@ -108,7 +110,7 @@ namespace ChessLib.UCI.Tests
         [TestCase("option name MultiPV type spin default 1 max 500", 501, false)]
         public void TestSpinOptionIsValid(string option, double value, bool expected)
         {
-            var engInfo = new UCIEngineInformation(Guid.Empty, option);
+            var engInfo = new OptionsResponseArgs(Guid.Empty, option);
             Assert.AreEqual(expected, engInfo.IsOptionValid("MultiPV", value.ToString(), out _));
         }
 
@@ -116,11 +118,11 @@ namespace ChessLib.UCI.Tests
         public void TestOptionsClass()
         {
             var id = Guid.NewGuid();
-            var engineInfo = new UCIEngineInformation(id, uciResponse);
+            var engineInfo = new OptionsResponseArgs(id, uciResponse);
             Assert.AreEqual(id, engineInfo.Id);
             Assert.AreEqual("Stockfish 10 64", engineInfo.Name);
             Assert.AreEqual("T. Romstad, M. Costalba, J. Kiiski, G. Linscott", engineInfo.Author);
-            Assert.AreEqual(19, engineInfo.Options.Length);
+            Assert.AreEqual(19, engineInfo.Options.Count());
             Assert.AreEqual(true, engineInfo.UCIOk);
         }
 
@@ -129,7 +131,7 @@ namespace ChessLib.UCI.Tests
         [TestCase("Ponder", true)]
         public void TestSupportsOption(string optionName, bool expected)
         {
-            var engineInfo = new UCIEngineInformation(Guid.Empty, uciResponse);
+            var engineInfo = new OptionsResponseArgs(Guid.Empty, uciResponse);
             Assert.AreEqual(expected, engineInfo.SupportsOption(optionName));
         }
 

@@ -12,6 +12,7 @@ namespace ChessLib.Data.MoveRepresentation
         : this(move, pieceMoving, colorMoving)
         {
             FEN = fen;
+            SAN = textRepresentation;
 
         }
         protected MoveStorage(ushort move, Piece pieceMoving, Color colorMoving)

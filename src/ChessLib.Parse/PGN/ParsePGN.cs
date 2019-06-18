@@ -16,17 +16,7 @@ namespace ChessLib.Parse.PGN
 {
     public class ParsePgn
     {
-        AntlrInputStream _inputStream;
 
-        public static ParsePgn FromFilePath(string pgnPath)
-        {
-            return new ParsePgn() { _inputStream = new AntlrFileStream(pgnPath) };
-        }
-
-        public static ParsePgn FromText(string pgnText)
-        {
-            return new ParsePgn() { _inputStream = new AntlrInputStream(pgnText) };
-        }
 
         public ParsePgn()
         {

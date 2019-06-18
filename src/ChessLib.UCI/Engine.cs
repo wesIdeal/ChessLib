@@ -18,40 +18,46 @@ using ChessLib.UCI.Commands.FromEngine;
 namespace ChessLib.UCI
 {
 
-
     [Serializable]
     public partial class Engine : IDisposable
     {
         #region Constructors / Descructor
-        protected Engine()
+
+        protected Engine(Guid userEngineId)
         {
-            _process = new Process();
+            UserAssignedId = userEngineId;
+            EngineInformation = new OptionsResponseArgs(UserAssignedId);
+            _process = new UCIEngineProcess(UserAssignedId);
+            _process.EngineCommunicationReceived += OnEngineCommunicationReceived;
             _uciCommandQueue = new CommandQueue();
         }
 
-        public Engine(string description, string command) : this()
+        public Engine(Guid userEngineId, string description, string command) : this(userEngineId)
         {
             UserEngineDescription = description;
             CommandLineString = command;
             Priority = ProcessPriorityClass.Normal;
         }
-        public Engine(string description, string command, bool ignoreMoveCalculationLines)
-            : this(description, command)
+
+        public Engine(Guid userEngineId, string description, string command, UCIEngineProcess process)
+            : this(userEngineId, description, command)
+        {
+            _process = process;
+        }
+
+        public Engine(Guid userEngineId, string description, string command, bool ignoreMoveCalculationLines)
+            : this(userEngineId, description, command)
         {
             IgnoreMoveCalculationLines = ignoreMoveCalculationLines;
         }
-        public Engine(string description, string command, bool ignoreMoveCalculationLines, ProcessPriorityClass priorityClass)
-            : this(description, command, ignoreMoveCalculationLines)
+        public Engine(Guid userEngineId, string description, string command, bool ignoreMoveCalculationLines, ProcessPriorityClass priority)
+            : this(userEngineId, description, command, ignoreMoveCalculationLines)
         {
-            Priority = priorityClass;
+            Priority = priority;
         }
-        public Engine(string description, string command, bool ignoreMoveCalculationLines = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal, Guid? userEngineId = null)
-            : this(description, command, ignoreMoveCalculationLines, priority)
-        {
-            _userAssignedId = userEngineId ?? Guid.NewGuid();
-        }
-        public Engine(string description, string command, Dictionary<string, string> uciOptions, bool ignoreMoveCalculationLines = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal, Guid? userEngineId = null)
-            : this(description, command, ignoreMoveCalculationLines, priority, userEngineId)
+
+        public Engine(Guid userEngineId, string description, string command, bool ignoreMoveCalculationLines, ProcessPriorityClass priority, Dictionary<string, string> uciOptions)
+            : this(userEngineId, description, command, ignoreMoveCalculationLines, priority)
         {
 
             UciOptions = uciOptions;
@@ -79,8 +85,7 @@ namespace ChessLib.UCI
 
 
         #region Properties
-        public Guid UserAssignedId => _userAssignedId;
-        protected Guid _userAssignedId;
+        public readonly Guid UserAssignedId;
 
         /// <summary>
         /// Initial options to set on uci engine
@@ -162,7 +167,7 @@ namespace ChessLib.UCI
         public string UCIName => $"{EngineInformation.Name} {EngineInformation.Id}";
         [NonSerialized] private bool _isDisposed = false;
         [NonSerialized] private StringBuilder _errorBuilder = new StringBuilder();
-        [NonSerialized] private Process _process;
+        [NonSerialized] protected UCIEngineProcess _process;
         [NonSerialized] private TaskCompletionSource<bool> errorCloseEvent = new TaskCompletionSource<bool>();
 
         [NonSerialized] private string _fen;
@@ -171,8 +176,8 @@ namespace ChessLib.UCI
         [NonSerialized] private bool _isAnalyizing = true;
 
         [NonSerialized] private StringBuilder _sbUciResponse = new StringBuilder();
-        [NonSerialized] public UCIEngineInformation EngineInformation = new UCIEngineInformation();
-        [NonSerialized] private CommandQueue _uciCommandQueue;
+        [NonSerialized] public OptionsResponseArgs EngineInformation;
+        [NonSerialized] protected CommandQueue _uciCommandQueue;
         [NonSerialized] private CommandInfo _currentCommand;
         [NonSerialized] private readonly AutoResetEvent ReadyOkReceived = new AutoResetEvent(false);
         [NonSerialized] private readonly AutoResetEvent UCIInfoReceived = new AutoResetEvent(false);
@@ -189,7 +194,7 @@ namespace ChessLib.UCI
             _priority = priority;
             if (_process != null && !_process.HasExited)
             {
-                _process.PriorityClass = priority;
+                _process.SetPriority(_priority);
             }
         }
 
@@ -217,36 +222,20 @@ namespace ChessLib.UCI
 
         public Task StartAsync()
         {
-            EngineInformation = new UCIEngineInformation();
             OnDebugEventExecuted(new DebugEventArgs("Starting engine task - ExecuteEngineAsync()"));
             return Task.Run(() => { ExecuteEngineAsync(); });
         }
 
-        private void ProcessBestMoveResponse(string engineResponse, out IEngineResponse bestMoveResponse)
-        {
-            var moves = MakeBestMoveArrayFromUCI(engineResponse, out string variationDisplay);
-            var bestMove = moves != null && moves.Count() > 0 ? moves[0] : null;
-            var ponderMove = moves != null && moves.Count() > 1 ? moves[1] : null;
-            IsAnalyizing = false;
-            bestMoveResponse = new BestMoveResponse(bestMove, ponderMove);
-        }
 
-        private void ProcessInfoResponse(string engineResponse, out IEngineResponse response)
-        {
-            response = null;
-            if (IgnoreMoveCalculationLines && InfoResponse.GetTypeOfInfo(engineResponse) == InfoResponse.InfoTypes.CalculationInfo)
-            {
-                return;
-            }
-            response = new InfoResponse(_fen, engineResponse);
-        }
+
+
 
         private void ProcessUCIResponse(string engineResponse, EngineToAppCommand commandResponse, out IEngineResponse responseObject)
         {
             _sbUciResponse.AppendLine(engineResponse);
             if (commandResponse == EngineToAppCommand.UCIOk)
             {
-                var engineInformation = new UCIEngineInformation(UserAssignedId, _sbUciResponse.ToString());
+                var engineInformation = new OptionsResponseArgs(UserAssignedId, _sbUciResponse.ToString());
                 _sbUciResponse.Clear();
                 responseObject = engineInformation;
                 UCIInfoReceived.Set();
@@ -255,15 +244,6 @@ namespace ChessLib.UCI
             {
                 responseObject = null;
             }
-        }
-
-        private MoveExt[] MakeBestMoveArrayFromUCI(string engineResponse, out string sanMoveDisplay)
-        {
-            var strBestMove = engineResponse.GetValueForUCIKeyValuePair(EngineToAppCommand.BestMove.AsString(EnumFormat.Description));
-            var strPonder = engineResponse.GetValueForUCIKeyValuePair(EngineToAppCommand.Ponder.AsString(EnumFormat.Description));
-            var rv = InfoResponse.FillMoves(_fen, new[] { strBestMove, strPonder }, out List<string> moveDisplay).ToArray();
-            sanMoveDisplay = string.Join(" ", moveDisplay);
-            return rv;
         }
 
         private void ExecuteEngineAsync()
@@ -278,17 +258,12 @@ namespace ChessLib.UCI
         private int StartEngineProcess()
         {
             OnDebugEventExecuted(new DebugEventArgs("executing StartEngineProcess()"));
-            _process.StartInfo = startInfo;
-            _process.StartInfo.FileName = CommandLineString;
-            _process.EnableRaisingEvents = true;
-            _process.OutputDataReceived += OnUCIResponseRecieved;
-            _process.Exited += OnProcessExited;
-            _process.ErrorDataReceived += OnErrorDataReceived;
-            _process.Start();
+
+            _process.Start(CommandLineString, startInfo);
             OnDebugEventExecuted(new DebugEventArgs("Process.Start() called."));
             _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
-            _process.PriorityClass = _priority;
+            _process.SetPriority(_priority);
             return _process.Id;
         }
 
@@ -298,7 +273,7 @@ namespace ChessLib.UCI
             var exit = false;
             var interruptHandle = 1;
             OnDebugEventExecuted(new DebugEventArgs("Starting message queue - StartMessageQueue()"));
-            while (!_process.HasExited && !exit && !_isDisposed)
+            while (!exit && !_isDisposed)
             {
                 if (!_uciCommandQueue.Any())
                 {
@@ -347,18 +322,19 @@ namespace ChessLib.UCI
             }
         }
 
-        private void SendStartupMessagesToEngine()
+        public void SendStartupMessagesToEngine()
         {
             WriteToEngine(new CommandInfo(AppToUCICommand.UCI));
-            WaitHandle.WaitAll(new[] { UCIInfoReceived }, 5 * 1000);
-            WriteToEngine(new CommandInfo(AppToUCICommand.IsReady));
-            var handle = WaitHandle.WaitAll(new[] { ReadyOkReceived }, (int)10 * 1000);
+            if (UCIInfoReceived.WaitOne(5 * 1000))
+            {
+                WriteToEngine(new CommandInfo(AppToUCICommand.IsReady));
+                ReadyOkReceived.WaitOne(5 * 1000);
+            }
         }
 
-        private void WriteToEngine(CommandInfo command)
+        public void WriteToEngine(CommandInfo command)
         {
-            _process.StandardInput.WriteLine(command.ToString());
-            _process.StandardInput.Flush();
+            _process.SendCommmand(command.ToString());
             OnEngineCommunication(new EngineCommunicationArgs(EngineCommunicationArgs.TextSource.UI, command.ToString()));
         }
 
@@ -426,7 +402,6 @@ namespace ChessLib.UCI
         {
             _process.Exited -= OnProcessExited;
             _process.ErrorDataReceived -= OnErrorDataReceived;
-            _process.OutputDataReceived -= OnUCIResponseRecieved;
             _process.Dispose();
             _uciCommandQueue.Dispose();
             ReadyOkReceived.Dispose();

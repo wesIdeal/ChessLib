@@ -39,10 +39,9 @@ namespace ChessLib.UCI
             }
         }
 
-        public int AddEngine(string description, string command, Guid? id = null, bool ignoreMoveCalcLines = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        public int AddEngine(string description, string command, Guid id, bool ignoreMoveCalcLines = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
-            var engine = new Engine(description, command, ignoreMoveCalcLines, priority);
-            Engines.Add(engine);
+            Engines.Add(new Engine(id, description, command, ignoreMoveCalcLines, priority));
             return Engines.Count - 1;
         }
 

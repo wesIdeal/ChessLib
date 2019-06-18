@@ -184,40 +184,42 @@ namespace ChessLib.UCI
             return tEnum.AsString(EnumFormat.Description);
         }
 
-        public static IUCIOption[] GetOptions(this IEnumerable<string> optionsResponse)
+        public static List<IUCIOption> GetOptions(this IEnumerable<string> optionsResponse)
         {
             var rv = new List<IUCIOption>();
             foreach (var opt in optionsResponse)
             {
-                switch (opt.GetOptionType())
-                {
-                    case OptionType.Spin:
-                        rv.Add(opt.ProcessSpinOption());
-                        break;
-                    case OptionType.Check:
-                        rv.Add(opt.ProcessCheckOption());
-                        break;
-                    case OptionType.Combo:
-                        rv.Add(opt.ProcessComboOption());
-                        break;
-                    case OptionType.Button:
-                        rv.Add(opt.ProcessButtonOption());
-                        break;
-                    case OptionType.String:
-                        rv.Add(opt.ProcessStringOption());
-                        break;
-                    default:
-                        break;
-                }
+                var option = GetOption(opt);
+                if (option != null) rv.Add(option);
             }
-            return rv.ToArray();
+            return rv;
         }
 
-        public static IUCIOption[] GetOptions(this string optionsResponse)
+        public static IUCIOption GetOption(this string opt)
         {
-            var options = optionsResponse.Split('\n').Select(x => x.Trim()).ToList();
-            return options.GetOptions();
+            switch (opt.GetOptionType())
+            {
+                case OptionType.Spin:
+                    return opt.ProcessSpinOption();
+
+                case OptionType.Check:
+                    return opt.ProcessCheckOption();
+
+                case OptionType.Combo:
+                    return opt.ProcessComboOption();
+
+                case OptionType.Button:
+                    return opt.ProcessButtonOption();
+
+                case OptionType.String:
+                    return opt.ProcessStringOption();
+
+                default:
+                    return null;
+            }
         }
+
+
 
         private static UCIButtonOption ProcessButtonOption(this string opt)
             => new UCIButtonOption() { Name = opt.GetOptionName() };
@@ -257,7 +259,7 @@ namespace ChessLib.UCI
 
 
 
-       
+
 
         public static string UCIMovesFromMoveObjects(this IEnumerable<MoveExt> moves)
         {
@@ -273,6 +275,6 @@ namespace ChessLib.UCI
             }));
         }
 
-        
+
     }
 }

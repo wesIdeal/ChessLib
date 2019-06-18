@@ -8,6 +8,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.UCI.Commands.FromEngine;
+using Microsoft.Win32.SafeHandles;
+using Moq;
 using NUnit.Framework;
 
 namespace ChessLib.UCI.Tests
@@ -15,107 +17,86 @@ namespace ChessLib.UCI.Tests
     [TestFixture]
     public class EngineTests
     {
-        public bool isFinished = false;
-        public const string sfDirectory = @".\stockfish_10_x64.exe";
 
-        private Engine _eng;
+        public string LastReceived;
+        public bool isStarted = false;
+        public const string sfDirectory = @".\stockfish_10_x64.exe";
+        public Mock<UCIEngineProcess> _processMock = new Mock<UCIEngineProcess>();
+        public UCIEngineProcess _process => _processMock.Object;
+
+        public string LastCommand { get; private set; }
+
+        public Engine _eng;
+        public Task _engineTask;
+        private StringWriter _stringWriter;
+
 
         [SetUp]
         public void Setup()
         {
-            _eng = new Engine("StockFish", sfDirectory);
-
-            _eng.DebugEventExecuted += (sender, dbg) =>
+            _processMock.Setup<bool>(x => x.Start()).Callback(() =>
             {
-                Console.WriteLine(dbg.ToString());
-                Debug.WriteLine(dbg.ToString());
-            };
-            _eng.EngineCommunication += (sender, dbg) =>
-             {
-                 Debug.WriteLine(dbg.ToString());
-             };
-        }
+                isStarted = true;
 
-        [Test]
-        public void TestUCICommand()
-        {
-            using (var waitHandle = new AutoResetEvent(false))
+            }).Returns(true);
 
+            _processMock.Setup(x => x.BeginErrorReadLine()).Callback(SetupErrorReadLine);
+            _processMock.Setup(x => x.BeginOutputReadLine()).Callback(SetupOutputReadLine);
+            _processMock.Setup(x => x.SetPriority(It.IsAny<ProcessPriorityClass>())).Callback<ProcessPriorityClass>(SetupSetPriority);
+            _processMock.Setup(x => x.WaitForExit(It.IsAny<int>())).Returns(true);
+            _processMock.Setup(s => s.SendCommmand(It.IsAny<string>())).Callback<string>((txt) =>
             {
-
-                _eng.StateChanged += (sender, obj) =>
+                if (txt == "quit")
                 {
-                    if (obj.StateChangeField != StateChangeField.UCIOk) return;
-                    Assert.IsNotNull(obj.StateChangeField);
-                    Assert.IsTrue(_eng.UCIOk);
-                    waitHandle.Set();
+                    _process.Close();
+                }
+                LastCommand = txt;
+            });
 
-                };
+            _eng = new Engine(Guid.NewGuid(), "moqEngine", "runMoqEngine.exe", _process);
 
-                var t = _eng.StartAsync();
-                WaitHandle.WaitAll(new[] { waitHandle });
-                _eng.SendQuit();
-                t.Wait();
-            }
+            _engineTask = _eng.StartAsync();
+        }
+
+        private void SetupSetPriority(ProcessPriorityClass priority)
+        {
+
         }
 
 
-        [Test]
-        public void TestIsReadyCommand()
-        {
-            var executedHandler = false;
-            using (var waitForCommand = new AutoResetEvent(false))
-            {
-                _eng.StateChanged += (sender, obj) =>
-                {
-                    if (obj.StateChangeField != StateChangeField.IsReady) return;
-                    executedHandler = true;
-                    waitForCommand.Set();
 
-                };
-                Assert.IsFalse(_eng.IsReady);
-                var t = _eng.StartAsync();
-                WaitHandle.WaitAny(new[] { waitForCommand }, 10 * 1000);
-                Assert.IsTrue(_eng.IsReady);
-                Assert.IsTrue(executedHandler);
-                _eng.SendQuit();
-                t.Wait();
-                Assert.IsTrue(t.Status == TaskStatus.RanToCompletion);
-            }
+        private void SetupOutputReadLine()
+        {
+
+        }
+
+        private void SetupErrorReadLine()
+        {
+
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _eng.SendQuit();
+            _engineTask.Wait(10 * 1000);
+            _eng.Dispose();
         }
 
         [Test]
-        public void TestIsAnalyzingIsFalseCommand()
+        public void WriteToEngineShouldSendCommandToWriter()
         {
-
-            //_eng.ResponseReceived += (sender, obj) =>
-            //{
-            //    if (obj.IssuedCommand != Commands.ToEngine.AppToUCICommand.Go) { return; }
-            //    var ro = obj.ResponseObject as InfoResponse;
-            //    if (ro == null)
-            //    {
-            //        var bestMove = obj.ResponseObject as BestMoveResponse;
-            //        Assert.IsNotNull(bestMove);
-            //    }
-            //    Assert.IsTrue(_eng.IsAnalyizing);
-            //    _eng.SendStop();
-            //};
-            //_eng.EngineCommunication += (sender, obj) =>
-            //{
-            //    if (obj.CommandText == "stop")
-            //    {
-            //        Thread.Sleep(2000);
-            //        Assert.IsFalse(_eng.IsAnalyizing);
-            //    }
-            //};
-            //_eng.SendUCI();
-            //_eng.SendIsReady();
-            //_eng.SendGo(TimeSpan.FromSeconds(2));
-            //_task.Wait();
+            //Arrange
+            _eng.WriteToEngine(new ChessLib.UCI.Commands.CommandInfo(UCI.Commands.ToEngine.AppToUCICommand.UCI));
+            Assert.AreEqual("uci", LastCommand);
         }
+
 
 
 
 
     }
+
+
+
 }

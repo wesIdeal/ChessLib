@@ -70,7 +70,7 @@ namespace ChessLib.Data
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
             var san = move.MoveToSAN(this, MoveTree.FirstMove == null);
-            MoveTree.AddVariation(new MoveNode<MoveStorage>(new MoveStorage(this.ToFEN(), move, pocSource.Value.Piece, ActivePlayer, san)));
+            MoveTree.AddMove(new MoveStorage(this.ToFEN(), move, pocSource.Value.Piece, pocSource.Value.Color, san));
             var newBoard = this.ApplyMoveToBoard(move);
             this._piecePlacement = newBoard.GetPiecePlacement();
             this.ActivePlayer = newBoard.ActivePlayer;

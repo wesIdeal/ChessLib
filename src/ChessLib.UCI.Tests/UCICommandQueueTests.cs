@@ -15,6 +15,10 @@ namespace ChessLib.UCI.Tests
     public class CommandQueueTests
     {
         private CommandQueue q = new CommandQueue();
+        ~CommandQueueTests()
+        {
+            q.Dispose();
+        }
         [SetUp]
         public void Setup()
         {
@@ -59,7 +63,7 @@ namespace ChessLib.UCI.Tests
             }
             Assert.AreEqual(expectedSize, q.Count());
             q.Enqueue(new CommandInfo(interruptCommand));
-            var waitHandle = WaitHandle.WaitAny(new[] { CommandQueue.InterruptIssued },timeout);
+            var waitHandle = WaitHandle.WaitAny(new[] { CommandQueue.InterruptIssued }, timeout);
             Assert.AreEqual(expectedWaitHandle, waitHandle);
         }
 

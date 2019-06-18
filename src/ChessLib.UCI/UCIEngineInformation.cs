@@ -1,24 +1,51 @@
 ﻿using ChessLib.UCI.Commands.FromEngine;
 using ChessLib.UCI.Commands.FromEngine.Options;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ChessLib.UCI
 {
-    public class UCIEngineInformation : IEngineResponse
+    public class OptionsResponseArgs : EngineResponseArgs
     {
         public Guid Id { get; private set; }
-        public IUCIOption[] Options { get; private set; }
+        public List<IUCIOption> Options { get; private set; }
         public string Name { get; private set; }
         public string Author { get; private set; }
         public bool UCIOk { get; private set; }
-        public UCIEngineInformation()
-        {
-        }
-
-        public UCIEngineInformation(Guid id, string optResponse)
+        public OptionsResponseArgs(Guid id)
         {
             Id = id;
+            UCIOk = false;
+        }
+        public void SetInfoFromString(string optResponse)
+        {
+            var optsUnfiltered = optResponse.Split('\n').Select(x => x.Trim()).Where(x => x != "").ToArray();
+            foreach (var opt in optsUnfiltered)
+            {
+                if (opt.StartsWith("id name"))
+                {
+                    Name = opt.Replace("id name ", "").Trim();
+                }
+                else if (opt.StartsWith("id author"))
+                {
+                    Author = opt.Replace("id author ", "").Trim();
+                }
+                else if (opt.StartsWith("option"))
+                {
+                    Options.Add(opt.GetOption());
+                }
+                else if (opt == "uciok")
+                {
+                    UCIOk = true;
+                }
+
+            }
+        }
+
+
+        public OptionsResponseArgs(Guid id, string optResponse) : this(id)
+        {
             var optsUnfiltered = optResponse.Split('\n').Select(x => x.Trim()).Where(x => x != "").ToArray();
             Name = optsUnfiltered.FirstOrDefault(x => x.StartsWith("id name"))?.Replace("id name", "").Trim();
             Author = optsUnfiltered.FirstOrDefault(x => x.StartsWith("id author"))?.Replace("id author", "").Trim();

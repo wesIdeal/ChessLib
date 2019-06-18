@@ -30,10 +30,63 @@ namespace ChessLib.Data
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int File(ushort idx) => idx % 8;
 
-        public static bool IsCastlingMove(Piece p, ushort source, ushort destination) => (p == Piece.King && ((source == 60 && (destination == 62 || destination == 58)) ||
-                                        (source == 4 && (destination == 6 || destination == 2))));
+        public static bool IsCastlingMove(Piece sourcePiece, ushort src, ushort dest)
+        {
+            if (sourcePiece == Piece.King)
+            {
+                if (src == 60)
+                {
+                    if (new[] { 62, 58 }.Contains(dest))
+                    {
+                        return true;
+                    }
 
-        public static bool IsEnPassantCapture(Piece p, ushort source, ushort destination, ushort? enPassantSq) => (enPassantSq == null) || (destination != enPassantSq.Value) || p != Piece.Pawn ? false : true;
+                }
+                if (src == 4)
+                {
+                    if (new[] { 6, 2 }.Contains(dest))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static bool IsCastlingMove(this BoardInfo board, MoveExt unFilledMove)
+        {
+            var sourcePiece = BoardHelpers.GetTypeOfPieceAtIndex(unFilledMove.SourceIndex, board.GetPiecePlacement());
+            if(sourcePiece == null)
+            {
+                return false;
+            }
+            return IsCastlingMove(sourcePiece.Value, unFilledMove.SourceIndex, unFilledMove.DestinationIndex);
+        }
+
+        public static bool IsEnPassantCapture(Piece sourcePiece, ushort src, ushort dest, ushort? enPassantSquare)
+        {
+            if (enPassantSquare != null)
+            {
+                if (sourcePiece == Piece.Pawn)
+                {
+                    if (dest == enPassantSquare.Value && dest.FileFromIdx() != src.FileFromIdx())
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static bool IsEnPassantCapture(this BoardInfo board, MoveExt unFilledMove)
+        {
+            var sourcePiece = BoardHelpers.GetTypeOfPieceAtIndex(unFilledMove.SourceIndex, board.GetPiecePlacement());
+            if (sourcePiece == null)
+            {
+                return false;
+            }
+            return IsEnPassantCapture(sourcePiece.Value, unFilledMove.SourceIndex, unFilledMove.DestinationIndex, board.EnPassantSquare);
+        }
 
         public static bool IsPromotion(Piece p, ushort source, ushort destination)
         {
@@ -41,6 +94,7 @@ namespace ChessLib.Data
             var dRank = destination.RankFromIdx();
             return p == Piece.Pawn && ((sRank == 1 && dRank == 0) || (sRank == 6 && dRank == 7));
         }
+
         public static IEnumerable<MoveExt> BoardValueToMoves(Piece p, ushort source, ulong destinations, ushort? enPassantSq, CastlingAvailability ca)
         {
             var rv = new List<MoveExt>();

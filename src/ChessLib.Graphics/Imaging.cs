@@ -20,7 +20,7 @@ namespace ChessLib.Graphics
     {
         GIF
     }
-    public class Imaging
+    public class Imaging : IDisposable
     {
 
         private MagickImage _boardBase;
@@ -28,6 +28,8 @@ namespace ChessLib.Graphics
         private int _squareSize;
         private int _offset;
         private ImageOptions _imageOptions = new ImageOptions();
+        private bool _disposed = false;
+        public bool IsDisposed { get { return _disposed; } private set { _disposed = value; } }
 
         public Imaging()
         {
@@ -53,11 +55,7 @@ namespace ChessLib.Graphics
 
         ~Imaging()
         {
-            _boardBase.Dispose();
-            foreach (var p in _pieceMap)
-            {
-                p.Value.Dispose();
-            }
+            Dispose();
         }
         private MagickColor SquareColor(int rank, int file) => ((rank + file) % 2) == 1 ? _imageOptions.MagickLightSquareColor : _imageOptions.MagickDarkSquareColor;
 
@@ -70,40 +68,47 @@ namespace ChessLib.Graphics
                 {
                     BackgroundColor = MagickColors.Transparent
                 };
-                var bm = new MagickImage(resources, readSettings);
-                var pieces = new List<IMagickImage>();
-                var colorFrom = new MagickColor(0, 0, 0);
-                var colorTo = _imageOptions.BlackPieceColor;
-                var alterPieceColor = _imageOptions.MagickBlackPieceColor != MagickColor.FromRgb(0, 0, 0) || _imageOptions.MagickWhitePieceColor != MagickColor.FromRgb(255, 255, 255);
-
-                for (var row = 0; row < 2; row++)
+                using (var bm = new MagickImage(resources, readSettings))
                 {
-                    for (var col = 0; col < 6; col++)
+                    var pieces = new List<IMagickImage>();
+                    var colorFrom = new MagickColor(0, 0, 0);
+                    var colorTo = _imageOptions.BlackPieceColor;
+                    var alterPieceColor = _imageOptions.MagickBlackPieceColor != MagickColor.FromRgb(0, 0, 0) || _imageOptions.MagickWhitePieceColor != MagickColor.FromRgb(255, 255, 255);
+
+                    for (var row = 0; row < 2; row++)
                     {
-                        var x = col * 60;
-                        var y = row * 60;
-                        var piece = bm.Clone(new MagickGeometry(x, y, 60, 60));
-                        piece.Resize(squareWidth, squareWidth);
-                        piece.Alpha(AlphaOption.Set);
-                        pieces.Add(piece);
+                        for (var col = 0; col < 6; col++)
+                        {
+                            var x = col * 60;
+                            var y = row * 60;
+                            var piece = bm.Clone(new MagickGeometry(x, y, 60, 60));
+                            piece.Resize(squareWidth, squareWidth);
+                            piece.Alpha(AlphaOption.Set);
+                            pieces.Add(piece.Clone());
+                            piece.Dispose();
+                        }
+                    }
+
+                    _pieceMap = new Dictionary<char, IMagickImage>
+                    {
+                        {'k', pieces[0].Clone()},
+                        {'q', pieces[1].Clone()},
+                        {'r', pieces[2].Clone()},
+                        {'b', pieces[3].Clone()},
+                        {'n', pieces[4].Clone()},
+                        {'p', pieces[5].Clone()},
+                        {'K', pieces[6].Clone()},
+                        {'Q', pieces[7].Clone()},
+                        {'R', pieces[8].Clone()},
+                        {'B', pieces[9].Clone()},
+                        {'N', pieces[10].Clone()},
+                        {'P', pieces[11].Clone()}
+                    };
+                    foreach (var piece in pieces)
+                    {
+                        piece.Dispose();
                     }
                 }
-
-                _pieceMap = new Dictionary<char, IMagickImage>
-                {
-                    {'k', pieces[0]},
-                    {'q', pieces[1]},
-                    {'r', pieces[2]},
-                    {'b', pieces[3]},
-                    {'n', pieces[4]},
-                    {'p', pieces[5]},
-                    {'K', pieces[6]},
-                    {'Q', pieces[7]},
-                    {'R', pieces[8]},
-                    {'B', pieces[9]},
-                    {'N', pieces[10]},
-                    {'P', pieces[11]}
-                };
             }
         }
 
@@ -142,9 +147,11 @@ namespace ChessLib.Graphics
                         var images = new List<MoveImages>();
                         var results = Parallel.ForEach(moves.Select((x, i) => new { mv = x, idx = i }), move =>
                            {
-                               var positionBoard = MakeBoardFromFen(move.mv.FEN, boardImage, game.TagSection, null);
-                               positionBoard.AnimationDelay = delay;
-                               images.Add(new MoveImages { Image = positionBoard, Index = move.idx });
+                               using (var positionBoard = MakeBoardFromFen(move.mv.FEN, boardImage, game.TagSection, null))
+                               {
+                                   positionBoard.AnimationDelay = delay;
+                                   images.Add(new MoveImages { Image = positionBoard, Index = move.idx });
+                               }
                            });
                         imageList.AddRange(images.OrderBy(i => i.Index).Select(x => (IMagickImage)x.Image));
                         imageList.OptimizePlus();
@@ -349,6 +356,22 @@ namespace ChessLib.Graphics
         {
             var p = GetPointFromBoardIndex(squareIndex);
             return new RectangleF((float)p.X, (float)p.Y + _squareSize, _squareSize, _squareSize);
+        }
+
+        public void Dispose()
+        {
+            if (!_boardBase.IsDisposed)
+            {
+                _boardBase.Dispose();
+            }
+            foreach (var p in _pieceMap)
+            {
+                if (!p.Value.IsDisposed)
+                {
+                    p.Value.Dispose();
+                }
+            }
+            IsDisposed = true;
         }
 
         //private void SetBoardBaseImage()
