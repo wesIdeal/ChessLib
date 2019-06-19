@@ -309,6 +309,10 @@ namespace ChessLib.UCI
                     }
                     OnQueueMessageSent(commandToIssue);
                 }
+                foreach(var c in CommandQueue.CommandIssuedEvents)
+                {
+                    c.Reset();
+                }
             }
             BeginExitRoutine();
         }

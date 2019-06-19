@@ -56,7 +56,9 @@ namespace ChessLib.UCI.Tests
             });
 
             _eng = new Engine(Guid.NewGuid(), "moqEngine", "runMoqEngine.exe", _processMock.Object);
-
+            _eng.DebugEventExecuted += (s, arg) => {
+                Console.WriteLine(arg.DebugText);
+            };
             _engineTask = _eng.StartAsync();
         }
 
