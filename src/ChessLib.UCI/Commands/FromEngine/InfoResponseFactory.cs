@@ -83,8 +83,7 @@ namespace ChessLib.UCI.Commands.FromEngine
                 new KeyValuePair<string,int>("pv", 1),//special case - string of moves after this until newline
                 new KeyValuePair<string,int>("currmove",1),
                 new KeyValuePair<string, int>("currmovenumber",1),
-                new KeyValuePair<string, int>("lowerbound", 0),
-                new KeyValuePair<string, int>("upperbound", 0),
+                
             };
 
         public static readonly Dictionary<string, int> InfoFieldDepth = _initializers.ToDictionary(k => k.Key, v => v.Value);
@@ -113,6 +112,11 @@ namespace ChessLib.UCI.Commands.FromEngine
             for (int i = 0; i < infoFields.Count(); i++)
             {
                 var data = infoFields[i];
+                if (data == "lowerbound" || data == "upperbound")
+                {
+                    infoDictionary.Add("bound", data);
+                    continue;
+                }
                 Debug.Assert(InfoFieldDepth.ContainsKey(data));
                 var keyLength = InfoFieldDepth[data];
                 var key = string.Join(" ", infoFields.Skip(i).Take(keyLength));
@@ -120,7 +124,7 @@ namespace ChessLib.UCI.Commands.FromEngine
                 if (key == "pv")
                 {
                     var begin = i + 1;
-                    var lastIndex = infoFields.Count() - 1;
+                    var lastIndex = infoFields.Count();
                     infoDictionary.Add(key, string.Join(" ", infoFields.GetRange(begin, lastIndex - begin)));
                     break;
                 }
@@ -195,12 +199,10 @@ namespace ChessLib.UCI.Commands.FromEngine
                     case "pv":
                         infoMovesUnvalidated = FillUnvalidatedMoves(field.Value.Split(' ')).ToArray();
                         break;
-                    case "lowerbound":
-                        ir.Score.Bound = Bound.Lower;
+                    case "bound":
+                        ir.Score.Bound = field.Value == "lowerbound" ? Bound.Lower : field.Value == "upperbound" ? Bound.Upper : Bound.None;
                         break;
-                    case "upperbound":
-                        ir.Score.Bound = Bound.Upper;
-                        break;
+
                 }
             }
 

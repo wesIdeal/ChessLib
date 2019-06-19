@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using ChessLib.UCI.Commands;
 using ChessLib.UCI.Commands.ToEngine;
 using ChessLib.UCI.Commands.FromEngine;
+using ChessLib.Data;
 
 namespace ChessLib.UCI
 {
@@ -181,7 +182,8 @@ namespace ChessLib.UCI
         [NonSerialized] private CommandInfo _currentCommand;
         [NonSerialized] private readonly AutoResetEvent ReadyOkReceived = new AutoResetEvent(false);
         [NonSerialized] private readonly AutoResetEvent UCIInfoReceived = new AutoResetEvent(false);
-
+        public event EventHandler<DebugEventArgs> MessageSentFromQueue;
+        
         #endregion
 
         ~Engine()
@@ -272,7 +274,7 @@ namespace ChessLib.UCI
             var waitResult = WaitHandle.WaitTimeout;
             var exit = false;
             var interruptHandle = 1;
-            OnDebugEventExecuted(new DebugEventArgs("Starting message queue - StartMessageQueue()"));
+            OnDebugEventExecuted(new DebugEventArgs("Starting message queue."));
             while (!exit && !_isDisposed)
             {
                 if (!_uciCommandQueue.Any())
@@ -305,9 +307,15 @@ namespace ChessLib.UCI
                         OnDebugEventExecuted(new DebugEventArgs($"Received command in queue - {commandToIssue.CommandText}"));
                         WriteToEngine(commandToIssue);
                     }
+                    OnQueueMessageSent(commandToIssue);
                 }
             }
             BeginExitRoutine();
+        }
+
+        private void OnQueueMessageSent(CommandInfo commandToIssue)
+        {
+            Volatile.Read(ref MessageSentFromQueue)?.Invoke(this, new DebugEventArgs(commandToIssue.CommandText));
         }
 
         private void BeginExitRoutine()
@@ -356,10 +364,49 @@ namespace ChessLib.UCI
             QueueCommand(commandInfo);
         }
 
+        public void SendNewGame()
+        {
+            var commandInfo = new CommandInfo(AppToUCICommand.NewGame);
+            _process.SetPosition(FENHelpers.FENInitial);
+            QueueCommand(commandInfo);
+        }
+
         public void SendPosition(string fen)
         {
+            SendPosition(fen, new MoveExt[] { });
+        }
+
+        public void SendPosition(MoveExt[] moves)
+        {
+            SendPosition(FENHelpers.FENInitial, moves);
+        }
+
+        public void SendPosition(string fen, MoveExt[] moves)
+        {
             var commandInfo = new CommandInfo(AppToUCICommand.Position);
-            QueueCommand(commandInfo, "fen", fen);
+            string resultingFen = GetFENResult(fen, moves);
+            var positionString = "startpos";
+            if (fen != FENHelpers.FENInitial)
+            {
+                positionString = $"fen {fen}";
+            }
+            var moveString = "";
+            if (moves.Any())
+            {
+                moveString = " moves " + string.Join(" ", moves.Select(x => x.LAN));
+            }
+            QueueCommand(commandInfo, $"{positionString}{moveString}");
+            _process.SetPosition(resultingFen);
+        }
+
+        private string GetFENResult(string fen, MoveExt[] moves)
+        {
+            BoardInfo bi = new BoardInfo(fen);
+            foreach (var mv in moves)
+            {
+                bi.ApplyMove(mv);
+            }
+            return bi.ToFEN();
         }
 
         public void SendQuit()

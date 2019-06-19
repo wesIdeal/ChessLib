@@ -58,6 +58,10 @@ namespace ChessLib.UCI.Commands
 
         public override string ToString()
         {
+            if(CommandArguments.Any())
+            {
+                return GetFullCommand();
+            }
             return CommandText;
         }
 

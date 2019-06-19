@@ -5,6 +5,7 @@ using System.Threading;
 using System.Text;
 using ChessLib.UCI.Commands;
 using ChessLib.UCI.Commands.FromEngine;
+using ChessLib.Data.MoveRepresentation;
 
 namespace ChessLib.UCI
 {
@@ -72,10 +73,12 @@ namespace ChessLib.UCI
 
         protected virtual new TextWriter StandardInput => base.StandardInput;
         private readonly string[] UCIFlags = new string[] { "id", "option" }; //EngineToAppCommand.Id | EngineToAppCommand.Option | EngineToAppCommand.UCIOk;
-        public void SetPosition(string fen)
+
+        public virtual void SetPosition(string fen)
         {
             _fen = fen;
         }
+
         private void EngineResponseReceived(object sender, DataReceivedEventArgs e)
         {
 

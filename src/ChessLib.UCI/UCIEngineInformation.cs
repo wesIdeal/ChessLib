@@ -8,16 +8,21 @@ namespace ChessLib.UCI
 {
     public class OptionsResponseArgs : EngineResponseArgs
     {
+        public OptionsResponseArgs()
+        {
+            Options = new List<IUCIOption>();
+        }
+        public OptionsResponseArgs(Guid id) : this()
+        {
+            Id = id;
+            UCIOk = false;
+        }
         public Guid Id { get; private set; }
         public List<IUCIOption> Options { get; private set; }
         public string Name { get; private set; }
         public string Author { get; private set; }
         public bool UCIOk { get; private set; }
-        public OptionsResponseArgs(Guid id)
-        {
-            Id = id;
-            UCIOk = false;
-        }
+        
         public void SetInfoFromString(string optResponse)
         {
             var optsUnfiltered = optResponse.Split('\n').Select(x => x.Trim()).Where(x => x != "").ToArray();
@@ -52,6 +57,8 @@ namespace ChessLib.UCI
             Options = optsUnfiltered.Where(x => x.StartsWith("option")).GetOptions();
             UCIOk = optsUnfiltered.Any(x => x.Equals("uciok"));
         }
+
+       
 
         public bool SupportsOption(string optionName)
         {

@@ -31,7 +31,7 @@ namespace ChessLib.UCI
 
         public EngineResponseArgs MakeResponseArgs(in string fen, in string communication, out string error)
         {
-            EngineToAppCommand responseFlag = EngineHelpers.GetResponseType(communication);
+            EngineToAppCommand responseFlag = EngineHelpers.GetResponseType(communication.Split(' ')[0]);
             error = "";
             if (UCIFlags.HasFlag(responseFlag))
             {

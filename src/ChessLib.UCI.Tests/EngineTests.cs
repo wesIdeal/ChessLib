@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using ChessLib.Data.Helpers;
 using ChessLib.UCI.Commands.FromEngine;
 using Microsoft.Win32.SafeHandles;
 using Moq;
@@ -17,11 +18,11 @@ namespace ChessLib.UCI.Tests
     [TestFixture]
     public class EngineTests
     {
-
+        public Guid Id = Guid.NewGuid();
         public string LastReceived;
         public bool isStarted = false;
         public const string sfDirectory = @".\stockfish_10_x64.exe";
-        public Mock<UCIEngineProcess> _processMock = new Mock<UCIEngineProcess>();
+        public Mock<UCIEngineProcess> _processMock;
         public UCIEngineProcess _process => _processMock.Object;
 
         public string LastCommand { get; private set; }
@@ -34,6 +35,7 @@ namespace ChessLib.UCI.Tests
         [SetUp]
         public void Setup()
         {
+            _processMock = new Mock<UCIEngineProcess>(Id);
             _processMock.Setup<bool>(x => x.Start()).Callback(() =>
             {
                 isStarted = true;
@@ -53,7 +55,7 @@ namespace ChessLib.UCI.Tests
                 LastCommand = txt;
             });
 
-            _eng = new Engine(Guid.NewGuid(), "moqEngine", "runMoqEngine.exe", _process);
+            _eng = new Engine(Guid.NewGuid(), "moqEngine", "runMoqEngine.exe", _processMock.Object);
 
             _engineTask = _eng.StartAsync();
         }
@@ -87,11 +89,134 @@ namespace ChessLib.UCI.Tests
         public void WriteToEngineShouldSendCommandToWriter()
         {
             //Arrange
-            _eng.WriteToEngine(new ChessLib.UCI.Commands.CommandInfo(UCI.Commands.ToEngine.AppToUCICommand.UCI));
+            _eng.WriteToEngine(new UCI.Commands.CommandInfo(UCI.Commands.ToEngine.AppToUCICommand.UCI));
             Assert.AreEqual("uci", LastCommand);
         }
 
+        [Test]
+        public void SendPosition_FEN()
+        {
+            var fen = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2";
+            AutoResetEvent finished = new AutoResetEvent(false);
+            EventHandler<DebugEventArgs> handler = (s, args) =>
+            {
+                if (args.DebugText.StartsWith("position"))
+                {
+                    try
+                    {
+                        Assert.AreEqual($"position fen {fen}", LastCommand);
+                    }
+                    catch (Exception)
+                    {
 
+                        throw;
+                    }
+                    finally
+                    {
+                        finished.Set();
+                    }
+                }
+            };
+            _eng.MessageSentFromQueue += handler;
+
+            _processMock.Setup(x => x.SetPosition(It.IsAny<string>())).Verifiable();
+            _eng.SendPosition(fen);
+            _processMock.Verify(x => x.SetPosition(It.Is<string>(f => f == fen)), Times.Once);
+            finished.WaitOne();
+        }
+
+        [Test]
+        public void SendPosition_Moves()
+        {
+            AutoResetEvent finished = new AutoResetEvent(false);
+            EventHandler<DebugEventArgs> handler = (s, args) =>
+            {
+                if (args.DebugText.StartsWith("position"))
+                {
+                    try
+                    {
+                        Assert.AreEqual($"position startpos moves e2e4 d7d5 e4d5", LastCommand);
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
+                    finally
+                    {
+                        finished.Set();
+                    }
+                }
+            };
+            _eng.MessageSentFromQueue += handler;
+
+            _processMock.Setup(x => x.SetPosition(It.IsAny<string>())).Verifiable();
+            _eng.SendPosition(new[] { MoveHelpers.GenerateMove(12, 28), MoveHelpers.GenerateMove(51, 35), MoveHelpers.GenerateMove(28, 35) });
+            var fenResult = "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2";
+            _processMock.Verify(x => x.SetPosition(It.Is<string>(f => f == fenResult)), Times.Once);
+            finished.WaitOne();
+        }
+        [Test]
+        public void SendPosition_FEN_PlusMoves()
+        {
+            var fen = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2";
+            AutoResetEvent finished = new AutoResetEvent(false);
+            EventHandler<DebugEventArgs> handler = (s, args) =>
+            {
+                if (args.DebugText.StartsWith("position"))
+                {
+                    try
+                    {
+                        Assert.AreEqual($"position fen {fen} moves e4d5", LastCommand);
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
+                    finally
+                    {
+                        finished.Set();
+                    }
+                }
+            };
+            _eng.MessageSentFromQueue += handler;
+
+            _processMock.Setup(x => x.SetPosition(It.IsAny<string>())).Verifiable();
+            _eng.SendPosition(fen, new[] { MoveHelpers.GenerateMove(28, 35) });
+            var fenResult = "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2";
+            _processMock.Verify(x => x.SetPosition(It.Is<string>(f => f == fenResult)), Times.Once);
+            finished.WaitOne();
+        }
+
+        [Test]
+        public void SendPosition_NewGame()
+        {
+            AutoResetEvent finished = new AutoResetEvent(false);
+            EventHandler<DebugEventArgs> handler = (s, args) =>
+            {
+                if (args.DebugText.StartsWith("ucinewgame"))
+                {
+                    try
+                    {
+                        Assert.AreEqual($"ucinewgame", LastCommand);
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
+                    finally
+                    {
+                        finished.Set();
+                    }
+                }
+            };
+
+            _eng.MessageSentFromQueue += handler;
+            _eng.SendNewGame();
+            finished.WaitOne();
+        }
 
 
 
