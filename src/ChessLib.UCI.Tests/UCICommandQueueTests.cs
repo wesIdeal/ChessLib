@@ -63,7 +63,7 @@ namespace ChessLib.UCI.Tests
             }
             Assert.AreEqual(expectedSize, q.Count());
             q.Enqueue(new CommandInfo(interruptCommand));
-            var waitHandle = WaitHandle.WaitAny(new[] { CommandQueue.InterruptIssued }, timeout);
+            var waitHandle = WaitHandle.WaitAny(new[] { q.InterruptIssued }, timeout);
             Assert.AreEqual(expectedWaitHandle, waitHandle);
         }
 

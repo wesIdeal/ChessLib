@@ -183,7 +183,7 @@ namespace ChessLib.UCI
         [NonSerialized] private readonly AutoResetEvent ReadyOkReceived = new AutoResetEvent(false);
         [NonSerialized] private readonly AutoResetEvent UCIInfoReceived = new AutoResetEvent(false);
         public event EventHandler<DebugEventArgs> MessageSentFromQueue;
-        
+
         #endregion
 
         ~Engine()
@@ -280,7 +280,7 @@ namespace ChessLib.UCI
                 if (!_uciCommandQueue.Any())
                 {
                     OnDebugEventExecuted(new DebugEventArgs("Nothing in queue. Waiting for command..."));
-                    waitResult = WaitHandle.WaitAny(CommandQueue.CommandIssuedEvents);
+                    waitResult = WaitHandle.WaitAny(_uciCommandQueue.CommandIssuedEvents);
                 }
 
                 if (_uciCommandQueue.TryPeek(out CommandInfo commandToIssue))
@@ -309,10 +309,7 @@ namespace ChessLib.UCI
                     }
                     OnQueueMessageSent(commandToIssue);
                 }
-                foreach(var c in CommandQueue.CommandIssuedEvents)
-                {
-                    c.Reset();
-                }
+
             }
             BeginExitRoutine();
         }
@@ -446,7 +443,7 @@ namespace ChessLib.UCI
         private void OnProcessExited(object sender, EventArgs e)
         {
             OnDebugEventExecuted(new DebugEventArgs($"Received process exited event."));
-            CommandQueue.InterruptIssued.Set();
+            _uciCommandQueue.InterruptIssued.Set();
         }
 
         public void Dispose()

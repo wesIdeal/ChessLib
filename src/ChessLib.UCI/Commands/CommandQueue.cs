@@ -6,10 +6,16 @@ namespace ChessLib.UCI.Commands
 {
     public class CommandQueue : ConcurrentQueue<CommandInfo>, IDisposable
     {
-        public static AutoResetEvent InterruptIssued = new AutoResetEvent(false);
-        public static AutoResetEvent CommandIssued = new AutoResetEvent(false);
+        public AutoResetEvent InterruptIssued = new AutoResetEvent(false);
+        public AutoResetEvent CommandIssued = new AutoResetEvent(false);
         private bool _isDisposed = false;
-        public static readonly AutoResetEvent[] CommandIssuedEvents = new[] { CommandQueue.CommandIssued, CommandQueue.InterruptIssued };
+        public readonly AutoResetEvent[] CommandIssuedEvents;
+
+        public CommandQueue()
+        {
+            CommandIssuedEvents = new[] { CommandIssued, InterruptIssued };
+        }
+
         public new void Enqueue(CommandInfo item)
         {
             if (item.CommandSent.IsInterruptCommand())
@@ -23,6 +29,7 @@ namespace ChessLib.UCI.Commands
             }
 
         }
+
 
         private void EnqueueInterruptEvent(CommandInfo item)
         {
@@ -43,6 +50,7 @@ namespace ChessLib.UCI.Commands
             {
                 CommandIssued.Dispose();
                 InterruptIssued.Dispose();
+                _isDisposed = true;
             }
         }
     }
