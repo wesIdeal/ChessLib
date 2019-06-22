@@ -14,16 +14,15 @@
 
   <ItemGroup>
     <Compile Remove="Exceptions\**" />
+    <Compile Remove="SlidingPieces\**" />
     <EmbeddedResource Remove="Exceptions\**" />
+    <EmbeddedResource Remove="SlidingPieces\**" />
     <None Remove="Exceptions\**" />
+    <None Remove="SlidingPieces\**" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Enums.NET" Version="2.3.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="SlidingPieces\" />
   </ItemGroup>
 
 

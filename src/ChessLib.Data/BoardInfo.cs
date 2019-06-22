@@ -49,7 +49,8 @@ namespace ChessLib.Data
 
         public void ApplyMove(string moveText)
         {
-            var move = this.GenerateMoveFromText(moveText);
+            var moveTranslatorService = new MoveTranslatorService(this);
+            var move = moveTranslatorService.GenerateMoveFromText(moveText);
             ApplyMove(move);
         }
 
@@ -126,60 +127,6 @@ namespace ChessLib.Data
 
 
         #region MoveDetail- Finding the Source Square From SAN
-
-
-
-
-
-        /// <summary>
-        ///     Finds the source square index for a Pawn's move
-        /// </summary>
-        /// <param name="moveDetail">Move details, gathered from text input</param>
-        /// <param name="pawnOccupancy">The pawn's occupancy board</param>
-        /// <param name="totalOccupancy">The board's occupancy</param>
-        /// <returns></returns>
-        public static ushort FindPawnMoveSourceIndex(IBoard board, MoveDetail moveDetail)
-        {
-            ulong pawnOccupancy = board.GetPiecePlacement().Occupancy(board.ActivePlayer, Piece.Pawn);
-            ulong totalOccupancy = board.TotalOccupancy();
-            if (moveDetail.DestinationIndex == null)
-                throw new ArgumentException("moveDetail.DestinationIndex cannot be null");
-            if (moveDetail.DestinationRank == null)
-                throw new ArgumentException("moveDetail.DestinationRank cannot be null");
-            if (moveDetail.DestinationFile == null)
-                throw new ArgumentException("moveDetail.DestinationFile cannot be null");
-            var rank = moveDetail.Color == Color.Black
-                ? moveDetail.DestinationRank.Value.RankCompliment()
-                : moveDetail.DestinationRank.Value;
-            var file = moveDetail.DestinationFile.Value;
-            ushort sourceIndex = 0;
-            var adjustedRelevantPieceOccupancy =
-                moveDetail.Color == Color.Black ? BitHelpers.FlipVertically(pawnOccupancy) : pawnOccupancy;
-            Debug.Assert(rank < 8);
-            var supposedRank = (ushort)(rank - 1);
-            if (rank == 3) // 2 possible source ranks, 2 & 3 (offsets 1 & 2)
-            {
-                //Check 3rd rank first, logically if a pawn is there that is the source
-                if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[2] & BoardHelpers.FileMasks[file]) != 0)
-                    sourceIndex = (ushort)((8 * 2) + (file % 8));
-                else if ((adjustedRelevantPieceOccupancy & BoardHelpers.RankMasks[1] & BoardHelpers.FileMasks[file]) != 0)
-                    sourceIndex = (ushort)((1 * 8) + (file % 8));
-            }
-            else //else source square was destination + 8 (a move one rank ahead), but we need to make sure a pawn was there
-            {
-                var supposedIndex = BoardHelpers.RankAndFileToIndex(
-                    moveDetail.Color == Color.Black ? supposedRank.RankCompliment() : supposedRank,
-                    moveDetail.DestinationFile.Value);
-                if (supposedRank == 0)
-                    throw new MoveException(
-                        $"{moveDetail.MoveText}: Cannot possibly be a pawn at the source square {supposedIndex.IndexToSquareDisplay()} implied by move.");
-                sourceIndex = (ushort)((supposedRank * 8) + moveDetail.DestinationFile.Value);
-            }
-
-            var idx = moveDetail.Color == Color.Black ? sourceIndex.FlipIndexVertically() : sourceIndex;
-            
-            return idx;
-        }
 
 
 
