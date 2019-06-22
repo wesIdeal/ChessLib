@@ -54,7 +54,7 @@ namespace ChessLib.Validators.MoveValidation
             }
         }
 
-        public MoveExceptionType? Validate()
+        public MoveError? Validate()
         {
             foreach (var rule in _rules)
             {

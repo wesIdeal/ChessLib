@@ -23,7 +23,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         [Test]
         public void Validate_ShouldReturnCorrectErrorForBadMove()
         {
-            Assert.AreEqual(MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, Validate(_boardInfo, _postMoveBoard, _badColor));
+            Assert.AreEqual(MoveError.ActivePlayerHasNoPieceOnSourceSquare, Validate(_boardInfo, _postMoveBoard, _badColor));
         }
     }
 }

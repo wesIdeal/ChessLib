@@ -8,19 +8,19 @@ namespace ChessLib.Validators.MoveValidation
     public enum ValidationSeverity { None, Warning, Error };
     class ValidationResult
     {
-        public ValidationResult(MoveExceptionType validationIssue)
+        public ValidationResult(MoveError validationIssue)
         {
             ValidationIssue = validationIssue;
             Severity = ValidationSeverity.Error;
         }
 
-        public ValidationResult(MoveExceptionType validationIssue = MoveExceptionType.NoneSet, ValidationSeverity severity = ValidationSeverity.None)
+        public ValidationResult(MoveError validationIssue = MoveError.NoneSet, ValidationSeverity severity = ValidationSeverity.None)
         {
             ValidationIssue = validationIssue;
             Severity = severity;
         }
 
-        public MoveExceptionType ValidationIssue { get; set; }
+        public MoveError ValidationIssue { get; set; }
         public ValidationSeverity Severity { get; set; }
     }
 }

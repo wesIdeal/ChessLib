@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 
 namespace ChessLib.Data.Exceptions
 {
-    public enum MoveExceptionType
+    public enum MoveError
     {
         NoneSet,
         Castle_ThroughCheck,
@@ -33,26 +33,26 @@ namespace ChessLib.Data.Exceptions
         [NonSerialized]
         private readonly IMoveExt move;
         private readonly Color activePlayer;
-        public MoveExceptionType ExceptionType { get; set; }
+        public MoveError Error { get; set; }
         public MoveException()
         {
-            ExceptionType = MoveExceptionType.NoneSet;
+            Error = MoveError.NoneSet;
         }
 
         public MoveException(string message) : base(message)
         {
-            ExceptionType = MoveExceptionType.NoneSet;
+            Error = MoveError.NoneSet;
         }
 
         public MoveException(string message, Exception innerException) : base(message, innerException)
         {
-            ExceptionType = MoveExceptionType.NoneSet;
+            Error = MoveError.NoneSet;
         }
 
-        public MoveException(string message, MoveExceptionType type, IMoveExt move, Color activePlayer)
+        public MoveException(string message, MoveError type, IMoveExt move, Color activePlayer)
            : this(message + $"\r\n{activePlayer.ToString()}'s move: {move.ToString()}")
         {
-            ExceptionType = type;
+            Error = type;
             this.move = move;
             this.activePlayer = activePlayer;
         }
@@ -60,7 +60,7 @@ namespace ChessLib.Data.Exceptions
         public MoveException(string message, IMoveExt move, Color activePlayer)
             : this(message + $"\r\n{activePlayer.ToString()}'s move: {move.ToString()}")
         {
-            ExceptionType = MoveExceptionType.NoneSet;
+            Error = MoveError.NoneSet;
             this.move = move;
             this.activePlayer = activePlayer;
         }

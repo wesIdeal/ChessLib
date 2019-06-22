@@ -9,12 +9,12 @@ namespace ChessLib.Validators.MoveValidation.MoveRules
 {
     public class KingNotInCheckAfterMove : IMoveRule
     {
-        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
+        public MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             var activeKingIndex = postMoveBoard[(int)boardInfo.ActivePlayer][(int)Piece.King].GetSetBits()[0];
             if (Bitboard.IsSquareAttackedByColor(activeKingIndex, boardInfo.OpponentColor(), postMoveBoard))
             {
-                return MoveExceptionType.MoveLeavesKingInCheck;
+                return MoveError.MoveLeavesKingInCheck;
             }
             return null;
         }

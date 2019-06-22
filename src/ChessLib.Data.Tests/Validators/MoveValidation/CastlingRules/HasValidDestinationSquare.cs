@@ -20,7 +20,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
             foreach (var dest in badDestinations)
             {
                 var move = MoveHelpers.GenerateMove(60, dest, MoveType.Castle);
-                Assert.AreEqual(MoveExceptionType.Castle_BadDestinationSquare, Validate(BoardInfo, postMoveBoard, move));
+                Assert.AreEqual(MoveError.Castle_BadDestinationSquare, Validate(BoardInfo, postMoveBoard, move));
             }
         }
         #endregion

@@ -47,14 +47,14 @@ namespace ChessLib.Data
         public ulong ActiveQueenOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Queen);
         public ulong ActiveBishopOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Bishop);
 
-        public void ApplyMove(string moveText)
+        public void ApplySANMove(string moveText)
         {
             var moveTranslatorService = new MoveTranslatorService(this);
             var move = moveTranslatorService.GenerateMoveFromText(moveText);
             ApplyMove(move);
         }
 
-        public MoveExceptionType? ApplyMove(MoveExt move)
+        public MoveError? ApplyMove(MoveExt move)
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
             var pocDestination = this.GetPieceOfColorAtIndex(move.DestinationIndex);
@@ -70,7 +70,9 @@ namespace ChessLib.Data
         public void ApplyValidatedMove(MoveExt move)
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
-            var san = move.MoveToSAN(this, MoveTree.FirstMove == null);
+            var moveDisplayService = new MoveDisplayService(this);
+            var shouldRecordResult = true;
+            var san = moveDisplayService.MoveToSAN(move, shouldRecordResult);
             MoveTree.AddMove(new MoveStorage(this.ToFEN(), move, pocSource.Value.Piece, pocSource.Value.Color, san));
             var newBoard = this.ApplyMoveToBoard(move);
             this._piecePlacement = newBoard.GetPiecePlacement();
@@ -106,15 +108,7 @@ namespace ChessLib.Data
         }
 
 
-        public string GetLANStringToCurrent(bool startPositionToFEN = false)
-        {
 
-            Stack<string> lanStack = new Stack<string>();
-
-            var sb = new StringBuilder();
-
-            return sb.ToString();
-        }
 
 
         public bool DoesPieceAtSquareAttackSquare(ushort attackerSquare, ushort attackedSquare,
@@ -125,22 +119,9 @@ namespace ChessLib.Data
             return (attackedSquares & attackedValue) != 0;
         }
 
-
-        #region MoveDetail- Finding the Source Square From SAN
-
-
-
         public override object Clone()
         {
             return new BoardInfo(this.ToFEN());
         }
-
-
-        #endregion
-
-        #region SAN Moves
-
-        #endregion
-
     }
 }

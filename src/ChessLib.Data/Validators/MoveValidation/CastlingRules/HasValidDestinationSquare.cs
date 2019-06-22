@@ -12,12 +12,12 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
     public class HasValidDestinationSquare : IMoveRule
     {
         public readonly ushort[] ValidDestinationSquares = { 2, 6, 58, 62 };
-        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
+        public MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             if (move.MoveType != MoveType.Castle) return null;
             return ValidDestinationSquares.Contains(move.DestinationIndex)
-                ? (MoveExceptionType?)null
-                : MoveExceptionType.Castle_BadDestinationSquare;
+                ? (MoveError?)null
+                : MoveError.Castle_BadDestinationSquare;
         }
     }
 }

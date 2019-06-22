@@ -7,6 +7,6 @@ namespace ChessLib.Types.Interfaces
 
     public interface IMoveRule
     {
-        MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move);
+        MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move);
     }
 }

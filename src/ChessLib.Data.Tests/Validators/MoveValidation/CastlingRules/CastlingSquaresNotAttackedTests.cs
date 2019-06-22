@@ -15,7 +15,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
             var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
             var position = new BoardInfo("4k2r/8/8/8/8/8/8/4KR2 b kq - 1 2");
             var postMoveBoard = BoardHelpers.GetBoardPostMove(position.GetPiecePlacement(), position.ActivePlayer, move);
-            Assert.AreEqual(MoveExceptionType.Castle_ThroughCheck, Validate(position, postMoveBoard, move), "IsKingsPathInCheck() should return true when Rook on f1 blocks castling privilege.");
+            Assert.AreEqual(MoveError.Castle_ThroughCheck, Validate(position, postMoveBoard, move), "IsKingsPathInCheck() should return true when Rook on f1 blocks castling privilege.");
         }
 
         [Test(Description = "Should return null when castle's path is not attacked")]

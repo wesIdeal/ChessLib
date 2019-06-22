@@ -23,7 +23,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         [Test]
         public void Validate_ShouldReturnErrorIfKingIsNotInCheckWhenCastling()
         {
-            var expected = MoveExceptionType.Castle_KingInCheck;
+            var expected = MoveError.Castle_KingInCheck;
             Assert.AreEqual(expected, Validate(_biInCheck, _postBoard, _move));
         }
     }

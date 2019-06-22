@@ -12,12 +12,17 @@ using ChessLib.Validators.MoveValidation;
 
 namespace ChessLib.Data
 {
-    internal class MoveTranslatorService
+    public class MoveTranslatorService
     {
         private readonly IBoard _board;
         public MoveTranslatorService(IBoard board)
         {
             _board = board;
+        }
+
+        public MoveTranslatorService(string fen)
+        {
+            _board = new BoardInfo(fen);
         }
 
         #region RegEx strings
@@ -29,7 +34,6 @@ namespace ChessLib.Data
         private const string RegExPromotion = "(?<sourceFile>[a-h])(((?<capture>x)(?<destinationFile>[a-h])(?<destinationRank>[1-8]))|(?<destinationRank>[1-8]))=(?<promotionPiece>[NBRQK])";
         private const string RegExCastleShortGroup = "castleShort";
         private static readonly string RegExCastle = $"(?<{RegExCastleLongGroup}>O-O-O)|(?<{RegExCastleShortGroup}>O-O)";
-
         #endregion
 
 
@@ -68,6 +72,34 @@ namespace ChessLib.Data
             var promotionPiece = md.PromotionPiece ?? PromotionPiece.Knight;
             var moveExt = MoveHelpers.GenerateMove(source, destination, moveType, promotionPiece);
             return moveExt;
+        }
+
+        /// <summary>
+        /// Create move from long alg. notation
+        /// 
+        /// </summary>
+        /// <example>e2e4 from inital position is 1. e4. e7e8q would be e8=Q</example>
+        /// <param name="lanMove"></param>
+        /// <remarks>
+        /// Move will need to be validated against a board, as it can only know if the move is normal or promotion.
+        /// It will not be aware of En Passant captures or Castling.
+        /// This constructor's main use is to interpret moves from an engine and not for normal use.
+        /// </remarks>
+        /// <returns>A basic move that needs to be validated against a board of pieces. Null if the move source and/or destination are invalid.</returns>
+        public static MoveExt FromLANMove(string lanMove)
+        {
+            var moveType = MoveType.Normal;
+            var promotionPiece = PromotionPiece.Knight;
+            var source = lanMove.Substring(0, 2).SquareTextToIndex();
+            var dest = lanMove.Substring(2, 2).SquareTextToIndex();
+            if (source == null || dest == null) { return null; }
+            if (lanMove.Length == 5)
+            {
+                moveType = MoveType.Promotion;
+                var promotionPieceChar = lanMove[4];
+                promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionPieceChar);
+            }
+            return MoveHelpers.GenerateMove(source.Value, dest.Value, moveType, promotionPiece);
         }
 
         private bool IsEnPassantCapture(MoveDetail md)

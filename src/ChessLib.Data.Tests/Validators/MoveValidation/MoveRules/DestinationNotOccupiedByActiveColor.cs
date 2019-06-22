@@ -32,7 +32,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             var board = new BoardInfo("4k3/8/8/8/8/5N2/8/4K1B1 w - - 0 1");
             var move = MoveHelpers.GenerateMove(21, 6);
             var postMove = BoardHelpers.GetBoardPostMove(board.GetPiecePlacement(), Color.White, move);
-            Assert.AreEqual(MoveExceptionType.ActiveColorPieceAtDestination, Validate(board, postMove, move));
+            Assert.AreEqual(MoveError.ActiveColorPieceAtDestination, Validate(board, postMove, move));
         }
     }
 }

@@ -79,7 +79,7 @@ namespace ChessLib.Parse.PGN
                  var boardInfo = new BoardInfo();
                  foreach (var move in game.MoveSection)
                  {
-                     boardInfo.ApplyMove(move.SAN);
+                     boardInfo.ApplySANMove(move.SAN);
                  }
 
                  rv.Add(new Game<MoveStorage>() { TagSection = game.TagSection, MoveSection = boardInfo.MoveTree });

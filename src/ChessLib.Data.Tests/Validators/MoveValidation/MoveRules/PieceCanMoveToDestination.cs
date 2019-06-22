@@ -21,7 +21,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             var bi = new BoardInfo(fen);
             var moveValidator = new MoveValidator(bi, MoveHelpers.GenerateMove((ushort)from, (ushort)to));
             var actual = moveValidator.Validate();
-            Assert.AreEqual(MoveExceptionType.BadDestination, actual, errorMsg);
+            Assert.AreEqual(MoveError.BadDestination, actual, errorMsg);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var move = MoveHelpers.GenerateMove(0, 56);
             var BoardInfo = new BoardInfo("4k3/8/8/8/2q5/8/8/2R1K3 w - - 0 1");
-            Assert.AreEqual(MoveExceptionType.ActivePlayerHasNoPieceOnSourceSquare, Validate(BoardInfo, _postMoveBoard, move), "Should return error when active color has no piece at source.");
+            Assert.AreEqual(MoveError.ActivePlayerHasNoPieceOnSourceSquare, Validate(BoardInfo, _postMoveBoard, move), "Should return error when active color has no piece at source.");
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var move = MoveHelpers.GenerateMove(2, 26);
             var BoardInfo = new BoardInfo("4k3/8/8/8/2q5/2p5/8/2R1K3 w - - 0 1");
-            Assert.AreEqual(MoveExceptionType.BadDestination, Validate(BoardInfo, _postMoveBoard, move), "Should return error when capturing on c4 but is blocked.");
+            Assert.AreEqual(MoveError.BadDestination, Validate(BoardInfo, _postMoveBoard, move), "Should return error when capturing on c4 but is blocked.");
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var move = MoveHelpers.GenerateMove(2, 11);
             var BoardInfo = new BoardInfo("4k3/8/8/8/2q5/8/8/2R1K3 w - - 0 1");
-            Assert.AreEqual(MoveExceptionType.BadDestination, Validate(BoardInfo, _postMoveBoard, move), "Should return error when the destination is invalid.");
+            Assert.AreEqual(MoveError.BadDestination, Validate(BoardInfo, _postMoveBoard, move), "Should return error when the destination is invalid.");
         }
 
         class PawnMoves : ChessLib.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
@@ -99,7 +99,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var move = MoveHelpers.GenerateMove(28, 12);
 
                 var actual = Validate(bi, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't move backwards.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't move backwards.");
             }
 
             [Test]
@@ -109,7 +109,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var move = MoveHelpers.GenerateMove(36, 52);
 
                 var actual = Validate(bi, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't move backwards.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't move backwards.");
             }
 
             [Test]
@@ -117,10 +117,10 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             {
                 var move = MoveHelpers.GenerateMove(12, 21);
                 var actual = Validate(_BoardInfo, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture an empty square to the NE.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't capture an empty square to the NE.");
                 move = MoveHelpers.GenerateMove(12, 19);
                 actual = Validate(_BoardInfo, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture an empty square to the NW.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't capture an empty square to the NW.");
             }
 
             [Test]
@@ -129,10 +129,10 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 _BoardInfo.ActivePlayer = Color.Black;
                 var move = MoveHelpers.GenerateMove(52, 43);
                 var actual = Validate(_BoardInfo, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture an empty square to the SE.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't capture an empty square to the SE.");
                 move = MoveHelpers.GenerateMove(52, 45);
                 actual = Validate(_BoardInfo, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture an empty square to the SW.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't capture an empty square to the SW.");
             }
 
             [Test]
@@ -141,10 +141,10 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var bi = new BoardInfo("rnbqkbnr/pp1ppp1p/3p1p2/8/8/3P1P2/PP1PPP1P/RNBQKBNR w KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(12, 21);
                 var actual = Validate(bi, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture a friendly-occupied square to the NE.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't capture a friendly-occupied square to the NE.");
                 move = MoveHelpers.GenerateMove(12, 19);
                 actual = Validate(bi, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture a friendly-occupied square to the NW.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't capture a friendly-occupied square to the NW.");
             }
 
             [Test]
@@ -153,10 +153,10 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var bi = new BoardInfo("rnbqkbnr/pp1ppp1p/3p1p2/8/8/3P1P2/PP1PPP1P/RNBQKBNR b KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(52, 43);
                 var actual = Validate(bi, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture a friendly-occupied square to the SE.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't capture a friendly-occupied square to the SE.");
                 move = MoveHelpers.GenerateMove(52, 45);
                 actual = Validate(bi, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't capture a friendly-occupied square to the SW.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't capture a friendly-occupied square to the SW.");
             }
 
             [Test]
@@ -167,9 +167,9 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var move1 = MoveHelpers.GenerateMove(12, 20);
                 var move2 = MoveHelpers.GenerateMove(12, 28);
                 var actual = Validate(bi1, _postMoveBoard, move1);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Cannot move pawn when piece blocks its mobility.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Cannot move pawn when piece blocks its mobility.");
                 actual = Validate(bi2, _postMoveBoard, move2);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Cannot move pawn 2 squares in opening when piece blocks its mobility.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Cannot move pawn 2 squares in opening when piece blocks its mobility.");
             }
 
             [Test]
@@ -180,9 +180,9 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var move1 = MoveHelpers.GenerateMove(52, 44);
                 var move2 = MoveHelpers.GenerateMove(52, 36);
                 var actual = Validate(bi1, _postMoveBoard, move1);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Cannot move pawn when piece blocks its mobility.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Cannot move pawn when piece blocks its mobility.");
                 actual = Validate(bi2, _postMoveBoard, move2);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Cannot move pawn 2 squares in opening when piece blocks its mobility.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Cannot move pawn 2 squares in opening when piece blocks its mobility.");
             }
 
             [Test]
@@ -191,7 +191,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var bi = new BoardInfo("rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(20, 36);
                 var actual = Validate(bi, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Pawn cannot move 2 squares if not on the opening rank.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Pawn cannot move 2 squares if not on the opening rank.");
             }
 
             [Test]
@@ -200,7 +200,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var bi = new BoardInfo("rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(44, 28);
                 var actual = Validate(bi, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Pawn cannot move 2 squares if not on the opening rank.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Pawn cannot move 2 squares if not on the opening rank.");
             }
 
             [Test]
@@ -210,7 +210,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var move1 = MoveHelpers.GenerateMove(28, 36);
 
                 var actual = Validate(bi1, _postMoveBoard, move1);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Cannot move pawn when piece blocks its mobility.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Cannot move pawn when piece blocks its mobility.");
             }
 
             [Test]
@@ -221,7 +221,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var move1 = MoveHelpers.GenerateMove(36, 28);
 
                 var actual = Validate(bi1, _postMoveBoard, move1);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Cannot move pawn when piece blocks its mobility.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Cannot move pawn when piece blocks its mobility.");
             }
 
             [Test]
@@ -232,7 +232,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var move1 = MoveHelpers.GenerateMove(8, 15);
 
                 var actual = Validate(bi1, _postMoveBoard, move1);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Cannot capture across board.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Cannot capture across board.");
             }
 
             [Test]
@@ -243,7 +243,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var move1 = MoveHelpers.GenerateMove(48, 39);
 
                 var actual = Validate(bi1, _postMoveBoard, move1);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Cannot capture across board.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Cannot capture across board.");
             }
 
             [Test]
@@ -251,7 +251,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             {
                 var move = MoveHelpers.GenerateMove(12, 36);
                 var actual = Validate(_BoardInfo, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't move 3 squares.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't move 3 squares.");
             }
 
             [Test]
@@ -260,7 +260,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 _BoardInfo.ActivePlayer = Color.Black;
                 var move = MoveHelpers.GenerateMove(52, 28);
                 var actual = Validate(_BoardInfo, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, "Expected validation error. Pawns can't move 3 squares.");
+                Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't move 3 squares.");
             }
             #endregion
 
@@ -383,7 +383,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 foreach (var move in _illegalMoves)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
-                    Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Knight should not be able to move to illegal square. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.BadDestination, actual, $"Knight should not be able to move to illegal square. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
             }
 
@@ -430,7 +430,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 foreach (var move in _movesFromE5)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
-                    Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Knight should not be able to move to legal square occupied by side to move. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.BadDestination, actual, $"Knight should not be able to move to legal square occupied by side to move. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
 
             }
@@ -462,9 +462,9 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             public void ShouldReturnNoError_WhenBishopMovesToFriendlySquare()
             {
                 var actual = Validate(_bAttacksFriendlyOnE5.BoardInfo, _postMoveBoard, _bAttacksFriendlyOnE5.Move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Bishop should not be able to capture friendly piece.  {_bAttacksFriendlyOnE5.Move.SourceIndex.IndexToSquareDisplay()} to {_bAttacksFriendlyOnE5.Move.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.BadDestination, actual, $"Bishop should not be able to capture friendly piece.  {_bAttacksFriendlyOnE5.Move.SourceIndex.IndexToSquareDisplay()} to {_bAttacksFriendlyOnE5.Move.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_qAttacksFriendlyOnE5.BoardInfo, _postMoveBoard, _qAttacksFriendlyOnE5.Move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Queen should not be able to capture friendly piece.  {_qAttacksFriendlyOnE5.Move.SourceIndex.IndexToSquareDisplay()} to {_qAttacksFriendlyOnE5.Move.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.BadDestination, actual, $"Queen should not be able to capture friendly piece.  {_qAttacksFriendlyOnE5.Move.SourceIndex.IndexToSquareDisplay()} to {_qAttacksFriendlyOnE5.Move.DestinationIndex.IndexToSquareDisplay()}");
             }
 
             [Test]
@@ -513,9 +513,9 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             {
                 var move = MoveHelpers.GenerateMove(18, 54);
                 var actual = Validate(_bAttacksEnemyOnE5.BoardInfo, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Bishop should not be able to move past enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.BadDestination, actual, $"Bishop should not be able to move past enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_qAttacksEnemyOnE5.BoardInfo, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Queen should not be able to move past enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.BadDestination, actual, $"Queen should not be able to move past enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
 
             }
 
@@ -525,12 +525,12 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var move = _bAttacksFriendlyOnE5.Move;
                 var board = _bAttacksFriendlyOnE5.BoardInfo;
                 var actual = Validate(board, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Bishop should not be able to move past enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.BadDestination, actual, $"Bishop should not be able to move past enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
 
                 move = _qAttacksFriendlyOnE5.Move;
                 board = _qAttacksFriendlyOnE5.BoardInfo;
                 actual = Validate(board, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Queen should not be able to move past enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.BadDestination, actual, $"Queen should not be able to move past enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
             }
         }
 
@@ -585,17 +585,17 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             public void ShouldReturnError_WhenCapturingBehindBlockedPiece()
             {
                 var actual = Validate(_rEnemyOnC8.BoardInfo, _postMoveBoard, _rEnemyOnC8.Move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Should not be able to capture. {_rEnemyOnC7.ToString()}");
+                Assert.AreEqual(MoveError.BadDestination, actual, $"Should not be able to capture. {_rEnemyOnC7.ToString()}");
 
                 actual = Validate(_qEnemyOnC8.BoardInfo, _postMoveBoard, _qEnemyOnC8.Move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Should not be able to capture. {_qEnemyOnC7.ToString()}");
+                Assert.AreEqual(MoveError.BadDestination, actual, $"Should not be able to capture. {_qEnemyOnC7.ToString()}");
             }
             [Test]
             public void ShouldReturnError_WhenMovingToWrongSquare()
             {
                 var move = MoveHelpers.GenerateMove(2, 11);
                 var actual = Validate(_rEnemyOnC8.BoardInfo, _postMoveBoard, move);
-                Assert.AreEqual(MoveExceptionType.BadDestination, actual, $"Should not be able to move from {_rEnemyOnC7.ToString()}");
+                Assert.AreEqual(MoveError.BadDestination, actual, $"Should not be able to move from {_rEnemyOnC7.ToString()}");
             }
         }
 
@@ -630,7 +630,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             {
                 foreach (var badMove in badMoves)
                 {
-                    Assert.AreEqual(MoveExceptionType.BadDestination, Validate(_bi, _postMoveBoard, badMove), $"Should not be able to move king to {badMove.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.BadDestination, Validate(_bi, _postMoveBoard, badMove), $"Should not be able to move king to {badMove.DestinationIndex.IndexToSquareDisplay()}");
                 }
             }
         }

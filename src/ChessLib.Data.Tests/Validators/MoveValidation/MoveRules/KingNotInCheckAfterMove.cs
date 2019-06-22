@@ -23,8 +23,8 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             var discoveredPostMove = BoardHelpers.GetBoardPostMove(biDiscovered.GetPiecePlacement(), Color.White, moveDiscovery);
             var inCheckPostMove = BoardHelpers.GetBoardPostMove(biInCheck.GetPiecePlacement(), Color.White, moveInCheck);
 
-            Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, Validate(biDiscovered, discoveredPostMove, moveDiscovery));
-            Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, Validate(biInCheck, inCheckPostMove, moveInCheck));
+            Assert.AreEqual(MoveError.MoveLeavesKingInCheck, Validate(biDiscovered, discoveredPostMove, moveDiscovery));
+            Assert.AreEqual(MoveError.MoveLeavesKingInCheck, Validate(biInCheck, inCheckPostMove, moveInCheck));
 
         }
 
@@ -52,7 +52,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             var move = MoveHelpers.GenerateMove(62, 44);
             var kingInCheck = new BoardInfo("5kb1/8/8/8/8/8/6K1/5R2 b - - 1 2");
             var postMoveBoard = BoardHelpers.GetBoardPostMove(kingInCheck.GetPiecePlacement(), Color.Black, move);
-            Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move));
+            Assert.AreEqual(MoveError.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move));
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             var move = MoveHelpers.GenerateMove(53, 62);
             var kingInCheck = new BoardInfo("5k2/5b2/8/8/8/8/6K1/5R2 b - - 1 2");
             var postMoveBoard = BoardHelpers.GetBoardPostMove(kingInCheck.GetPiecePlacement(), Color.Black, move);
-            Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move), "ValidateMove should throw and exception if the move leaves the King in check. Move is Bg7.");
+            Assert.AreEqual(MoveError.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move), "ValidateMove should throw and exception if the move leaves the King in check. Move is Bg7.");
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             var move = MoveHelpers.GenerateMove(61, 60);
             var kingInCheck = new BoardInfo("5k2/3B4/8/8/8/1b6/6K1/5R2 b - - 1 2");
             var postMoveBoard = BoardHelpers.GetBoardPostMove(kingInCheck.GetPiecePlacement(), Color.Black, move);
-            Assert.AreEqual(MoveExceptionType.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move), "ValidateMove should throw and exception if the move leaves the King in check.");
+            Assert.AreEqual(MoveError.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move), "ValidateMove should throw and exception if the move leaves the King in check.");
         }
     }
 }

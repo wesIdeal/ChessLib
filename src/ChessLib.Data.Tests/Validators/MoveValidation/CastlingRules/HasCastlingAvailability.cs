@@ -117,7 +117,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
                     }
                     catch (MoveException m)
                     {
-                        Assert.AreEqual(m.ExceptionType, m.ExceptionType);
+                        Assert.AreEqual(m.Error, m.Error);
                         throw;
                     }
                 });
@@ -127,7 +127,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
 
         private void AssertCastlingAvailabilityExceptionThrown(MoveExt move)
         {
-            const MoveExceptionType expectedMoveExceptionType = MoveExceptionType.Castle_Unavailable;
+            const MoveError expectedMoveExceptionType = MoveError.Castle_Unavailable;
             var postBoard = new ulong[2][];
             var actual = Validate(_bi, postBoard, move);
             Assert.AreEqual(expectedMoveExceptionType, actual);

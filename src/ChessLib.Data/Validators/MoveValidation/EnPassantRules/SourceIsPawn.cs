@@ -8,11 +8,11 @@ namespace ChessLib.Validators.MoveValidation.EnPassantRules
 {
     public class SourceIsPawn : IMoveRule
     {
-        public MoveExceptionType? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
+        public MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             var isPawn = (boardInfo.GetPiecePlacement().Occupancy(boardInfo.ActivePlayer, Piece.Pawn) & move.SourceValue) != 0;
             if (isPawn) return null;
-            return MoveExceptionType.EP_SourceIsNotPawn;
+            return MoveError.EP_SourceIsNotPawn;
         }
     }
 }

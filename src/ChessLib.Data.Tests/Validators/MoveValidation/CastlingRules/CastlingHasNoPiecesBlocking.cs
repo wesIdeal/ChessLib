@@ -98,7 +98,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
                     }
                     catch (MoveException m)
                     {
-                        Assert.AreEqual(m.ExceptionType, m.ExceptionType);
+                        Assert.AreEqual(m.Error, m.Error);
                         throw;
                     }
                 });
@@ -108,7 +108,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
 
         private void AssertOccupiedExceptionThrown(MoveExt move)
         {
-            const MoveExceptionType expected = MoveExceptionType.Castle_OccupancyBetween;
+            const MoveError expected = MoveError.Castle_OccupancyBetween;
             var result = Validate(_biOccupied,
                 BoardHelpers.GetBoardPostMove(_biOccupied.GetPiecePlacement(), _biOccupied.ActivePlayer, move), move);
             Assert.AreEqual(expected, result);

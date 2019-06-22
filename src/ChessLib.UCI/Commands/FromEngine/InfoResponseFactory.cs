@@ -83,7 +83,7 @@ namespace ChessLib.UCI.Commands.FromEngine
                 new KeyValuePair<string,int>("pv", 1),//special case - string of moves after this until newline
                 new KeyValuePair<string,int>("currmove",1),
                 new KeyValuePair<string, int>("currmovenumber",1),
-                
+
             };
 
         public static readonly Dictionary<string, int> InfoFieldDepth = _initializers.ToDictionary(k => k.Key, v => v.Value);
@@ -162,7 +162,7 @@ namespace ChessLib.UCI.Commands.FromEngine
                 switch (field.Key)
                 {
                     case "currmove":
-                        currentMoveUn = MoveExt.FromLANMove(field.Value);
+                        currentMoveUn = MoveTranslatorService.FromLANMove(field.Value);
                         break;
                     case "currmovenumber":
                         ir.CurrentMoveNumber = uint.Parse(field.Value);
@@ -235,7 +235,7 @@ namespace ChessLib.UCI.Commands.FromEngine
         {
             foreach (var move in lanMoves)
             {
-                yield return MoveExt.FromLANMove(move);
+                yield return MoveTranslatorService.FromLANMove(move);
             }
         }
 
