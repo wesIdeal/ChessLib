@@ -17,11 +17,10 @@ namespace ChessLib.Data.Helpers
             if (strPiece.Length > 1) throw new Exception("Piece should be a single char.");
             return GetPiece(strPiece[0]);
         }
-        public static Piece GetPieceFromPromotion(this PromotionPiece piece) =>
-            piece == PromotionPiece.Knight ? Piece.Knight :
-            piece == PromotionPiece.Bishop ? Piece.Bishop :
-            piece == PromotionPiece.Rook ? Piece.Rook : Piece.Queen;
 
+        /// <summary>
+        /// Gets a Piece <see cref="ChessLib.Data.Types.Piece"/>
+        /// </summary>
         public static Piece GetPiece(char p)
         {
             switch (Char.ToLower(p))
@@ -42,6 +41,10 @@ namespace ChessLib.Data.Helpers
             }
         }
 
+       
+        /// <summary>
+        /// Returns uppercase character representing promotion pieces
+        /// </summary>
         public static char GetCharFromPromotionPiece(PromotionPiece p)
         {
             switch (p)
@@ -54,6 +57,9 @@ namespace ChessLib.Data.Helpers
             }
         }
 
+        /// <summary>
+        /// Returns a PromotionPiece object from character (uppercase or lowercase)
+        /// </summary>
         public static PromotionPiece GetPromotionPieceFromChar(char p)
         {
             switch (char.ToUpper(p))
@@ -66,7 +72,13 @@ namespace ChessLib.Data.Helpers
             }
         }
 
-        public static char GetCharRepresentation(Color c, Piece p)
+        /// <summary>
+        /// Gets the FEN character representation for a piece.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static char GetFENCharPieceRepresentation(Color c, Piece p)
         {
             var pChar = GetCharRepresentation(p);
             if (c == Color.Black)
@@ -77,6 +89,9 @@ namespace ChessLib.Data.Helpers
 
         }
 
+        /// <summary>
+        /// Gets a lowercase character to represent a piece
+        /// </summary>
         public static char GetCharRepresentation(this Piece p)
         {
             switch (p)
@@ -91,6 +106,12 @@ namespace ChessLib.Data.Helpers
             }
         }
 
+
+        /// <summary>
+        /// Gets a piece and it's color from a character.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public static PieceOfColor GetPieceOfColor(char p)
         {
             var poc = new PieceOfColor();
@@ -99,7 +120,6 @@ namespace ChessLib.Data.Helpers
             poc.Piece = GetPiece(p);
             return poc;
         }
-
 
     }
     public struct PieceOfColor

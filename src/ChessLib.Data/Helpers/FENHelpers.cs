@@ -27,7 +27,7 @@ namespace ChessLib.Data.Helpers
             for (var iPiece = 0; iPiece < 6; iPiece++)
             {
                 var pieceArray = piecesOnBoard[iColor][iPiece];
-                var charRepForPieceOfColor = PieceHelpers.GetCharRepresentation((Color)iColor, (Piece)iPiece);
+                var charRepForPieceOfColor = PieceHelpers.GetFENCharPieceRepresentation((Color)iColor, (Piece)iPiece);
                 while (pieceArray != 0)
                 {
                     var squareIndex = BitHelpers.BitScanForward(pieceArray);
