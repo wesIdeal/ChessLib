@@ -10,7 +10,7 @@ using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Data
 {
-    internal class MoveDisplayService
+    public class MoveDisplayService
     {
         private readonly IBoard _board;
 
@@ -18,6 +18,13 @@ namespace ChessLib.Data
         {
             _board = board;
         }
+
+        public static string MoveToLan(MoveExt move) => $"{move.SourceIndex.IndexToSquareDisplay()}{move.DestinationIndex.IndexToSquareDisplay()}{PromotionPieceChar(move)}";
+
+        private static char? PromotionPieceChar(MoveExt move) =>
+            move.MoveType == MoveType.Promotion ?
+                char.ToLower(PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)) : (char?)null;
+
         /// <summary>
         /// Gets a Standard Algebraic Notation string from a move.
         /// </summary>

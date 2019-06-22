@@ -2,6 +2,9 @@
 
 namespace ChessLib.Data.MoveRepresentation
 {
+    /// <summary>
+    /// Holds move information that was retrieved from text
+    /// </summary>
     public class MoveText : IMoveText, IEquatable<MoveText>
     {
         /// <summary>

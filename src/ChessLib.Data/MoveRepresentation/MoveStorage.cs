@@ -6,6 +6,9 @@ using System.Text;
 
 namespace ChessLib.Data.MoveRepresentation
 {
+    /// <summary>
+    /// A class that stores move information in a way that can easily be hashed for quick lookup
+    /// </summary>
     public class MoveStorage : MoveExt, IEquatable<MoveStorage>, IMove
     {
         public MoveStorage(string fen, IMoveExt move, Piece pieceMoving, Color colorMoving, string textRepresentation)

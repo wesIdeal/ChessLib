@@ -9,8 +9,6 @@ namespace ChessLib.Data.MoveRepresentation
     {
         public MoveExt(ushort move) { Move = move; }
 
-
-
         private ushort _move;
         public ushort Move { get => _move; protected set { _move = value; } }
 
@@ -33,17 +31,7 @@ namespace ChessLib.Data.MoveRepresentation
             }
         }
 
-        public string LAN => $"{SourceIndexText}{DestIndexText}{PromotionPieceChar}";
-
         public PromotionPiece PromotionPiece => (PromotionPiece)((_move >> 12) & 3);
-
-        public char? PromotionPieceChar => MoveType == MoveType.Promotion ?
-            char.ToLower(PieceHelpers.GetCharFromPromotionPiece(PromotionPiece)) :
-            (char?)null;
-
-        public string SourceIndexText => SourceIndex.IndexToSquareDisplay();
-
-        public string DestIndexText => DestinationIndex.IndexToSquareDisplay();
 
         public bool Equals(ushort other)
         {

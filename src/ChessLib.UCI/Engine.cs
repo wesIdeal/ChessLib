@@ -386,6 +386,7 @@ namespace ChessLib.UCI
         {
             var commandInfo = new CommandInfo(AppToUCICommand.Position);
             string resultingFen = GetFENResult(fen, moves);
+            
             var positionString = "startpos";
             if (fen != FENHelpers.FENInitial)
             {
@@ -394,7 +395,7 @@ namespace ChessLib.UCI
             var moveString = "";
             if (moves.Any())
             {
-                moveString = " moves " + string.Join(" ", moves.Select(x => x.LAN));
+                moveString = " moves " + string.Join(" ", moves.Select(x => MoveDisplayService.MoveToLan(x)));
             }
             QueueCommand(commandInfo, $"{positionString}{moveString}");
             _process.SetPosition(resultingFen);
