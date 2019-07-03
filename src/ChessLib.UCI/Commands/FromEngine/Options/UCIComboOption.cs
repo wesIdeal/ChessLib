@@ -1,11 +1,8 @@
 ﻿namespace ChessLib.UCI.Commands.FromEngine.Options
 {
-    public class UCIComboOption : IUCIOption
+    public class UCIComboOption : UCIOption<string>
     {
-        public string Name { get; set; }
         public string Default { get; set; }
-        public string Value { get; set; }
         public string[] Options { get; set; }
-
     }
 }

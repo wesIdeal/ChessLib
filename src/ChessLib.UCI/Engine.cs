@@ -28,7 +28,7 @@ namespace ChessLib.UCI
         {
             UserAssignedId = userEngineId;
             EngineInformation = new OptionsResponseArgs(UserAssignedId);
-            _process = new UCIEngineProcess(UserAssignedId);
+            _process = new UCIEngineProc(UserAssignedId);
             _process.EngineCommunicationReceived += OnEngineCommunicationReceived;
             _uciCommandQueue = new CommandQueue();
         }
@@ -40,7 +40,7 @@ namespace ChessLib.UCI
             Priority = ProcessPriorityClass.Normal;
         }
 
-        public Engine(Guid userEngineId, string description, string command, UCIEngineProcess process)
+        public Engine(Guid userEngineId, string description, string command, UCIEngineProc process)
             : this(userEngineId, description, command)
         {
             _process = process;
@@ -168,7 +168,7 @@ namespace ChessLib.UCI
         public string UCIName => $"{EngineInformation.Name} {EngineInformation.Id}";
         [NonSerialized] private bool _isDisposed = false;
         [NonSerialized] private StringBuilder _errorBuilder = new StringBuilder();
-        [NonSerialized] protected UCIEngineProcess _process;
+        [NonSerialized] protected UCIEngineProc _process;
         [NonSerialized] private TaskCompletionSource<bool> errorCloseEvent = new TaskCompletionSource<bool>();
 
         [NonSerialized] private string _fen;

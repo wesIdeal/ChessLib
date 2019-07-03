@@ -20,7 +20,7 @@ namespace ChessLib.Graphics
     {
         GIF
     }
-    public sealed class Imaging : IDisposable
+    public class Imaging : IDisposable
     {
 
         private MagickImage _boardBase;

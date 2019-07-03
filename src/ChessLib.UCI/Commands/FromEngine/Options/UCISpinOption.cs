@@ -1,11 +1,9 @@
 ﻿namespace ChessLib.UCI.Commands.FromEngine.Options
 {
-    public class UCISpinOption : IUCIOption
+    public class UCISpinOption : UCIOption<double>
     {
-        public string Name { get; set; }
         public double? Min { get; internal set; }
         public double? Default { get; internal set; }
         public double? Max { get; internal set; }
-        public string Value { get; set; }
     }
 }

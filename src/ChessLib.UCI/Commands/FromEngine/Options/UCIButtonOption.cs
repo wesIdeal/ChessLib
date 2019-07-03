@@ -1,8 +1,12 @@
-﻿namespace ChessLib.UCI.Commands.FromEngine.Options
+﻿using System.Windows.Input;
+
+namespace ChessLib.UCI.Commands.FromEngine.Options
 {
-    public class UCIButtonOption : IUCIOption
+    public delegate void OnOptionButtonPressed(string optionName);
+    public class UCIButtonOption : UCIOption<OnOptionButtonPressed>
     {
-        public string Name { get; set; }
-        public string Value { get; set; }
+        public UCIButtonOption()
+        {
+        }
     }
 }

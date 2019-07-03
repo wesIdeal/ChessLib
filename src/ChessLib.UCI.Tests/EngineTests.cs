@@ -22,8 +22,8 @@ namespace ChessLib.UCI.Tests
         public string LastReceived;
         public bool isStarted = false;
         public const string sfDirectory = @".\stockfish_10_x64.exe";
-        public Mock<UCIEngineProcess> _processMock;
-        public UCIEngineProcess _process => _processMock.Object;
+        public Mock<UCIEngineProc> _processMock;
+        public UCIEngineProc _process => _processMock.Object;
 
         public string LastCommand { get; private set; }
 
@@ -35,7 +35,7 @@ namespace ChessLib.UCI.Tests
         [SetUp]
         public void Setup()
         {
-            _processMock = new Mock<UCIEngineProcess>(Id);
+            _processMock = new Mock<UCIEngineProc>(Id);
             _processMock.Setup<bool>(x => x.Start()).Callback(() =>
             {
                 isStarted = true;

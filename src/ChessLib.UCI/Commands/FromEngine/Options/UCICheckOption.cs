@@ -1,9 +1,7 @@
 ﻿namespace ChessLib.UCI.Commands.FromEngine.Options
 {
-    public class UCICheckOption : IUCIOption
+    public class UCICheckOption : UCIOption<bool>
     {
-        public string Name { get; set; }
-        public string Value { get; set; }
         public bool Default { get; set; }
     }
 }
