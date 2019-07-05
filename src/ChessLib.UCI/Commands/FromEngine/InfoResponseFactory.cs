@@ -45,6 +45,8 @@ namespace ChessLib.UCI.Commands.FromEngine
 
             public string SAN { get; set; }
 
+            public Guid Id { get; set; }
+
             public PrincipalVariationResponse ToPVResponse()
             {
                 return new PrincipalVariationResponse(PVOrdinal, Variation, Score, SelectiveSearchDepth, SearchTime,

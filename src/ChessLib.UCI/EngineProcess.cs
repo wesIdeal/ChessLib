@@ -10,34 +10,28 @@ namespace ChessLib.UCI
     {
         public enum UciState { NeverStarted, Running, Exited }
 
-        public EngineProcess(Guid id) : base()
+        public event DataReceivedEventHandler ProcessLevelErrorReceived;
+        public event EventHandler EngineExited;
+
+        public IEngineMessageSubscriber MessageSubscriber;
+
+
+        public EngineProcess(IEngineMessageSubscriber messageSubscriber) : base()
         {
-            EngineId = id;
-        }
-        ~EngineProcess()
-        {
-            Dispose();
+            MessageSubscriber = messageSubscriber;
         }
 
-        private readonly StringWriter _stringWriter = new StringWriter();
-        private UciState _state = UciState.NeverStarted;
-      
-        private const char LineEnding = '\n';
-        public UciState State => _state;
+        public UciState State { get; private set; } = UciState.NeverStarted;
         public string LastCommandSent { get; set; }
-        public new virtual int Id { get => base.Id; }
-        
-        public event DataReceivedEventHandler ErrorReceived;
-        public event EventHandler<EngineCommunicationArgs> EngineCommunicationReceived;
-        public event EventHandler EngineExited;
-       
+        public new virtual int ProcessId { get => base.Id; }
+        private const char LineEnding = '\n';
+
+
         /// <summary>
         /// Fired each time the app communicates with the engine or a response is received.
         /// Contains raw text responses and commands.
         /// </summary>
         public event EventHandler<EngineCommunicationArgs> EngineCommunication;
-
-        public event DataReceivedEventHandler EngineDataReceived;
 
         public virtual bool Start(string cliString, ProcessStartInfo startInfo)
         {
@@ -46,12 +40,16 @@ namespace ChessLib.UCI
             EnableRaisingEvents = true;
             OutputDataReceived += EngineDataReceived;
             Exited += EngineExited;
-            ErrorDataReceived += ErrorReceived;
-            ErrorReceived += OnErrorReceived;
+            ErrorDataReceived += ProcessLevelErrorReceived;
             EngineExited += OnEngineExit;
             var result = base.Start();
-            _state = UciState.Running;
+            State = UciState.Running;
             return result;
+        }
+
+        private void EngineDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            MessageSubscriber.ProcessEngineResponse(e.Data);
         }
 
         public virtual new bool Start()
@@ -61,17 +59,13 @@ namespace ChessLib.UCI
 
         private void OnEngineExit(object sender, EventArgs e)
         {
-            _state = UciState.Exited;
+            State = UciState.Exited;
         }
 
-        private void OnErrorReceived(object sender, DataReceivedEventArgs e)
-        {
-
-        }
 
         protected virtual new TextWriter StandardInput => base.StandardInput;
 
-        
+
         private void OnEngineCommunication(EngineCommunicationArgs engineCommunicationArgs)
         {
             Volatile.Read(ref EngineCommunication)?.Invoke(this, engineCommunicationArgs);
@@ -111,8 +105,6 @@ namespace ChessLib.UCI
         public new void Dispose()
         {
             base.Dispose();
-            _stringWriter?.Dispose();
-
         }
     }
 }

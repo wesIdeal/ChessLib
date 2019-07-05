@@ -49,13 +49,12 @@ namespace ChessLib.UCI.Commands.FromEngine
 
     public class InfoCalculationResponse : EngineResponseArgs, IInfoCalculationResponse
     {
-        public InfoCalculationResponse(uint depth, uint currentMoveNumber, MoveExt currentMove, string fromFEN, string san, string engineResponse)
+        public InfoCalculationResponse(uint depth, uint currentMoveNumber, MoveExt currentMove, string fromFEN, string san, string engineResponse) : base(engineResponse)
         {
             Depth = depth;
             CurrentMoveNumber = currentMoveNumber;
             CurrentMove = currentMove;
             FromFEN = fromFEN;
-            EngineResponse = engineResponse;
         }
 
         public bool MovesValidated { get => FromFEN != string.Empty; }
@@ -98,7 +97,7 @@ namespace ChessLib.UCI.Commands.FromEngine
     {
         public PrincipalVariationResponse(ushort pVOrdinal, MoveExt[] variation, IInfoScore score, uint selectiveSearchDepth,
             TimeSpan searchTime, ulong nodes, ulong nodesPerSecond, ushort tableBaseHits, uint depth,
-            string fromFEN, string san, string response)
+            string fromFEN, string san, string response) : base(response)
         {
             PVOrdinal = pVOrdinal;
             Score = score;
@@ -109,7 +108,6 @@ namespace ChessLib.UCI.Commands.FromEngine
             TableBaseHits = tableBaseHits;
             Depth = depth;
             FromFEN = fromFEN;
-            EngineResponse = response;
             Variation = variation;
             SAN = san;
         }
@@ -130,12 +128,12 @@ namespace ChessLib.UCI.Commands.FromEngine
     public class BestMoveResponse : EngineResponseArgs, IBestMoveResponse
     {
         public BestMoveResponse(MoveExt bestMove, MoveExt ponderMove, string bestMoveSan, string ponderMoveSan, string engineResponse)
+            : base(engineResponse)
         {
             BestMove = bestMove;
             PonderMove = ponderMove;
             BestMoveSan = bestMoveSan;
             PonderMoveSan = ponderMoveSan;
-            EngineResponse = engineResponse;
         }
 
         public MoveExt BestMove { get; private set; }

@@ -91,7 +91,7 @@ namespace ChessLib.UCI
             Process.BeginErrorReadLine();
             Process.BeginOutputReadLine();
             Process.SetPriority(_priority);
-            return Process.Id;
+            return Process.ProcessId;
         }
 
         private void BeginMessageQueue()
@@ -172,21 +172,24 @@ namespace ChessLib.UCI
 
         public void SendPosition(string fen)
         {
+            FEN = fen;
             SendPosition(fen, new MoveExt[] { });
         }
 
         public void SendPosition(MoveExt[] moves)
         {
-            SendPosition(FENHelpers.FENInitial, moves);
+            FEN = FENHelpers.FENInitial;
+            SendPosition(FEN, moves);
         }
 
         public void SendPosition(string fen, MoveExt[] moves)
         {
+            FEN = fen;
             var commandInfo = new CommandInfo(AppToUCICommand.Position);
-            var resultingFen = GetFENResult(fen, moves);
+            var resultingFen = GetFENResult(FEN, moves);
 
             var positionString = "startpos";
-            if (fen != FENHelpers.FENInitial) positionString = $"fen {fen}";
+            if (FEN != FENHelpers.FENInitial) positionString = $"fen {FEN}";
             var moveString = "";
             if (moves.Any())
                 moveString = " moves " + string.Join(" ", moves.Select(MoveDisplayService.MoveToLan));
@@ -244,7 +247,7 @@ namespace ChessLib.UCI
         protected Engine(Guid userEngineId)
         {
             UserAssignedId = userEngineId;
-            Process = new EngineProcess(UserAssignedId);
+            Process = new EngineProcess();
             Process.EngineDataReceived += EngineDataReceived;
             Process.EngineCommunicationReceived += OnEngineCommunicationReceived;
             EngineCommandQueue = new CommandQueue();

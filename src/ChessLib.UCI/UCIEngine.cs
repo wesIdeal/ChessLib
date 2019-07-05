@@ -11,12 +11,36 @@ using ChessLib.UCI.Commands.ToEngine;
 
 namespace ChessLib.UCI
 {
+    public class EngineStartupArgs
+    {
+        public Guid EngineId { get; set; }
+        public string Description { get; set; }
+        public string CommandLine { get; set; }
+        public EngineProcess EngineProcess { get; set; }
+    }
     public class UCIEngine : Engine
     {
         public UCIEngine(Guid userEngineId) : base(userEngineId)
         {
-            EngineInformation = new UCIResponseArgs(UserAssignedId);
-            _responseFactory = new UCIResponseFactory(UserAssignedId);
+            EngineInformation = new UCIResponseArgs();
+            EngineMessageSubscriber = new UCIEngineMessageSubscriber(ResponseReceived, false);
+        }
+
+        private void ResponseReceived(EngineResponseArgs engineResponse)
+        {
+            if (engineResponse is ReadyOkResponseArgs)
+            {
+                _readyOkReceived.Set();
+            }
+            else if (engineResponse is UCIResponseArgs)
+            {
+                _uciInfoReceived.Set();
+            }
+            else
+            {
+                engineResponse.Id = UserAssignedId;
+                OnEngineObjectReceived(engineResponse);
+            }
         }
 
         public UCIEngine(Guid userEngineId, string description, string command) : base(userEngineId, description,
@@ -44,15 +68,13 @@ namespace ChessLib.UCI
         {
         }
         [NonSerialized] private bool _isDisposed;
-        [NonSerialized] private readonly UCIResponseFactory _responseFactory;
-        [NonSerialized] public UCIResponseArgs EngineInformation;
-        [NonSerialized] private readonly ManualResetEventSlim _readyOkReceived = new ManualResetEventSlim(false);
-        [NonSerialized] private readonly ManualResetEventSlim _uciInfoReceived = new ManualResetEventSlim(false);
-        [NonSerialized] private readonly string[] _uciFlags = { "id", "option" };
 
-        [NonSerialized]
-        private string timeoutFormat =
-            "{0} did not return a result from command '{1}' in the specified timeout period of {2} seconds";
+        [NonSerialized] public UCIResponseArgs EngineInformation;
+        [NonSerialized] private readonly AutoResetEvent _readyOkReceived = new AutoResetEvent(false);
+        [NonSerialized] private readonly AutoResetEvent _uciInfoReceived = new AutoResetEvent(false);
+        [NonSerialized] private readonly string[] _uciFlags = { "id", "option" };
+        [NonSerialized] public readonly UCIEngineMessageSubscriber EngineMessageSubscriber;
+        [NonSerialized] private string timeoutFormat = "{0} did not return a result from command '{1}' in the specified timeout period of {2} seconds";
 
         private readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(19);
         protected string GetTimeoutErrorMessage(string awaitedCommand, TimeSpan timeout) =>
@@ -70,7 +92,7 @@ namespace ChessLib.UCI
         {
             var commandInfo = new CommandInfo(AppToUCICommand.IsReady);
             QueueCommand(commandInfo);
-            return _readyOkReceived.WaitHandle.AsTask();
+            return _readyOkReceived.AsTask();
         }
 
         public UCIResponseArgs SendUCI(TimeSpan? timeout = null)
@@ -87,7 +109,7 @@ namespace ChessLib.UCI
         {
             var commandInfo = new CommandInfo(AppToUCICommand.UCI);
             QueueCommand(commandInfo);
-            return _uciInfoReceived.WaitHandle.AsTask();
+            return _uciInfoReceived.AsTask();
         }
 
         public void SendStop()
@@ -123,7 +145,7 @@ namespace ChessLib.UCI
         protected override void ExecuteEngineAsync()
         {
             OnDebugEventExecuted(new DebugEventArgs(
-                $"Engine Id: {UserAssignedId.ToString()} PID:{Process.Id}\r\nStarted as {EngineInformation}"));
+                $"Engine Id: {UserAssignedId.ToString()} PID:{Process.ProcessId}\r\nStarted as {EngineInformation}"));
             base.ExecuteEngineAsync();
         }
 
@@ -152,32 +174,8 @@ namespace ChessLib.UCI
 
             string engineResponseText = e.Data;
             if (string.IsNullOrEmpty(engineResponseText)) { return; }
-
             OnEngineCommunication(new EngineCommunicationArgs(EngineCommunicationArgs.TextSource.Engine, e.Data));
 
-            var response = _responseFactory.MakeResponseArgs(FEN, engineResponseText, out string error);
-
-            if (response != null)
-            {
-                if (response is ReadyOkResponseArgs)
-                {
-                    _readyOkReceived.Set();
-                }
-                else if (response is UCIResponseArgs)
-                {
-                    _uciInfoReceived.Set();
-                }
-                OnEngineObjectReceived(response);
-            }
-            else if (!IsResponseUCI(engineResponseText))
-            {
-                var message = $"**Message with no corresponding command received**\r\n\t{engineResponseText}\r\n**End Message**";
-                OnDebugEventExecuted(new DebugEventArgs(message));
-            }
-            if (!string.IsNullOrWhiteSpace(error))
-            {
-                OnDebugEventExecuted(new DebugEventArgs(error));
-            }
         }
 
         protected bool IsResponseUCI(string response) => _uciFlags.Any(response.StartsWith);

@@ -19,17 +19,18 @@ namespace ChessLib.UCI
     }
     public class UCIResponseFactory : IEngineResponseFactory
     {
+        private delegate void UCIInformationReceived(UCIResponseArgs uciInformation);
         private readonly InfoResponseFactory _infoFactory;
-        public UCIResponseFactory(Guid engineId, bool ignoreSingleMoveCalcLines = true)
+        public UCIResponseFactory(bool includeMoveCalculationInformation = false)
         {
             _infoFactory = new InfoResponseFactory();
-            _uciInformation = new UCIResponseArgs(engineId);
-            IgnoreMoveCalculationLines = ignoreSingleMoveCalcLines;
+            _uciInformation = new UCIResponseArgs();
+            IncludeMoveCalculationInformation = includeMoveCalculationInformation;
         }
 
         readonly UCIResponseArgs _uciInformation;
 
-        public bool IgnoreMoveCalculationLines { get; }
+        public bool IncludeMoveCalculationInformation { get; }
 
         private const EngineToAppCommand UCIFlags = EngineToAppCommand.Id | EngineToAppCommand.Option | EngineToAppCommand.UCIOk;
 
