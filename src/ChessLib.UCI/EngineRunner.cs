@@ -39,11 +39,15 @@ namespace ChessLib.UCI
             }
         }
 
-        public int AddEngine(string description, string command, Guid id, bool ignoreMoveCalcLines = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
-        {
-            Engines.Add(new Engine(id, description, command, ignoreMoveCalcLines, priority));
-            return Engines.Count - 1;
-        }
+        //private UCIEngine engine;
+
+
+        //public int AddEngine(string description, string command, Guid id, bool ignoreMoveCalcLines = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        //{
+        //    engine = new UCIEngine(id, description, command, ignoreMoveCalcLines, priority);
+        //    Engines.Add(engine);
+        //    return Engines.Count - 1;
+        //}
 
         private void _receiveOutput(Guid engineId, string engineName, string strOutput)
         {

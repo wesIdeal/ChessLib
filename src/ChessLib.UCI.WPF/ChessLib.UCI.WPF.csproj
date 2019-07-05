@@ -66,6 +66,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LabelBox.xaml.cs">
+      <DependentUpon>LabelBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OptionsControls\ButtonOption.xaml.cs">
       <DependentUpon>ButtonOption.xaml</DependentUpon>
     </Compile>
@@ -81,10 +84,17 @@
     <Compile Include="OptionsControls\StringOption.xaml.cs">
       <DependentUpon>StringOption.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SampleData\SampleDataSource\SampleDataSource.xaml.cs">
+      <DependentUpon>SampleDataSource.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UCIOptions.xaml.cs">
       <DependentUpon>UCIOptions.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\UCIOptionsViewModel.cs" />
+    <Page Include="LabelBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="OptionsControls\ButtonOption.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -105,6 +115,22 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <DesignTimeOnly Include="SampleData\SampleDataSource\SampleDataSource.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </DesignTimeOnly>
+    <Page Include="SampleData\UCICheckOptionSampleData.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SampleData\UCIComboOptionSampleData.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <DesignData Include="SampleData\UCISpinOptionSampleData.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </DesignData>
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -139,6 +165,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="SampleData\SampleDataSource\SampleDataSource.xsd" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.UCI\ChessLib.UCI.csproj">

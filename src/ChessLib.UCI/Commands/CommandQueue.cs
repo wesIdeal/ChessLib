@@ -9,7 +9,7 @@ namespace ChessLib.UCI.Commands
         public AutoResetEvent InterruptIssued = new AutoResetEvent(false);
         public AutoResetEvent CommandIssued = new AutoResetEvent(false);
         private bool _isDisposed = false;
-        public readonly AutoResetEvent[] CommandIssuedEvents;
+        public readonly WaitHandle[] CommandIssuedEvents;
 
         public CommandQueue()
         {

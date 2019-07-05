@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChessLib.UCI.Commands.FromEngine.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,13 @@ using System.Windows.Shapes;
 
 namespace ChessLib.UCI.WPF.OptionsControls
 {
+    public partial class OptionBase : UserControl
+    {
+        public OptionBase()
+        {
+
+        }
+    }
     /// <summary>
     /// Interaction logic for CheckOption.xaml
     /// </summary>
@@ -23,6 +31,12 @@ namespace ChessLib.UCI.WPF.OptionsControls
         public CheckOption()
         {
             InitializeComponent();
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(CheckOption), new FrameworkPropertyMetadata(typeof(CheckOption)));
+
         }
+
+        
     }
+
+
 }

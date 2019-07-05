@@ -6,13 +6,13 @@ using System.Linq;
 
 namespace ChessLib.UCI
 {
-    public class OptionsResponseArgs : EngineResponseArgs
+    public class UCIResponseArgs : EngineResponseArgs
     {
-        public OptionsResponseArgs()
+        public UCIResponseArgs()
         {
             Options = new List<IUCIOption>();
         }
-        public OptionsResponseArgs(Guid id) : this()
+        public UCIResponseArgs(Guid id) : this()
         {
             Id = id;
             UCIOk = false;
@@ -22,7 +22,7 @@ namespace ChessLib.UCI
         public string Name { get; private set; }
         public string Author { get; private set; }
         public bool UCIOk { get; private set; }
-        
+
         public void SetInfoFromString(string optResponse)
         {
             var optsUnfiltered = optResponse.Split('\n').Select(x => x.Trim()).Where(x => x != "").ToArray();
@@ -49,7 +49,7 @@ namespace ChessLib.UCI
         }
 
 
-        public OptionsResponseArgs(Guid id, string optResponse) : this(id)
+        public UCIResponseArgs(Guid id, string optResponse) : this(id)
         {
             var optsUnfiltered = optResponse.Split('\n').Select(x => x.Trim()).Where(x => x != "").ToArray();
             Name = optsUnfiltered.FirstOrDefault(x => x.StartsWith("id name"))?.Replace("id name", "").Trim();
@@ -58,7 +58,7 @@ namespace ChessLib.UCI
             UCIOk = optsUnfiltered.Any(x => x.Equals("uciok"));
         }
 
-       
+
 
         public bool SupportsOption(string optionName)
         {
@@ -142,5 +142,6 @@ namespace ChessLib.UCI
             return true;
         }
 
+        public override string ToString() => $"{Name} {Id}";
     }
 }

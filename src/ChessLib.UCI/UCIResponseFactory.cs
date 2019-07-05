@@ -12,57 +12,52 @@ namespace ChessLib.UCI
         /// </summary>
         public string FEN { get; set; }
     }
-    public class UCIResponseFactory
+
+    public interface IEngineResponseFactory
+    {
+        EngineResponseArgs MakeResponseArgs(in string fen, in string communication, out string error);
+    }
+    public class UCIResponseFactory : IEngineResponseFactory
     {
         private readonly InfoResponseFactory _infoFactory;
         public UCIResponseFactory(Guid engineId, bool ignoreSingleMoveCalcLines = true)
         {
-            _id = engineId;
             _infoFactory = new InfoResponseFactory();
-            UCIInformation = new OptionsResponseArgs(_id);
+            _uciInformation = new UCIResponseArgs(engineId);
             IgnoreMoveCalculationLines = ignoreSingleMoveCalcLines;
         }
-        OptionsResponseArgs UCIInformation;
+
+        readonly UCIResponseArgs _uciInformation;
 
         public bool IgnoreMoveCalculationLines { get; }
 
-        private Guid _id;
         private const EngineToAppCommand UCIFlags = EngineToAppCommand.Id | EngineToAppCommand.Option | EngineToAppCommand.UCIOk;
 
         public EngineResponseArgs MakeResponseArgs(in string fen, in string communication, out string error)
         {
             EngineToAppCommand responseFlag = EngineHelpers.GetResponseType(communication.Split(' ')[0]);
             error = "";
-            if (UCIFlags.HasFlag(responseFlag))
-            {
-                UCIInformation.SetInfoFromString(communication);
-                if (UCIInformation.UCIOk)
-                {
-                    return UCIInformation;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else if (responseFlag == EngineToAppCommand.Ready)
-            {
-                return new ReadyOkResponseArgs(communication);
-            }
-            else if (responseFlag == EngineToAppCommand.Info || responseFlag == EngineToAppCommand.BestMove)
+            if (responseFlag == EngineToAppCommand.Info || responseFlag == EngineToAppCommand.BestMove)
             {
                 return _infoFactory.GetInfoResponse(fen, communication);
             }
-
-            else if (responseFlag == EngineToAppCommand.UCIOk)
+            if (responseFlag == EngineToAppCommand.Ready)
             {
                 return new ReadyOkResponseArgs(communication);
             }
 
-            else
+            if (UCIFlags.HasFlag(responseFlag))
             {
+                _uciInformation.SetInfoFromString(communication);
+                if (_uciInformation.UCIOk)
+                {
+                    return _uciInformation;
+                }
                 return null;
             }
+            
+
+            return null;
 
         }
 

@@ -1,0 +1,4 @@
+﻿<Options:UCISpinOption xmlns:Options="clr-namespace:ChessLib.UCI.Commands.FromEngine.Options;assembly=ChessLib.UCI" 
+                       xmlns:Markup="clr-namespace:System.Windows.Markup;assembly=System.Xaml" 
+                       xmlns:System="clr-namespace:System;assembly=mscorlib" 
+                       Name="Hash" Value="16" Max="131072" Min="1"/>

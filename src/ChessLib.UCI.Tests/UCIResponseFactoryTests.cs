@@ -31,18 +31,18 @@ namespace ChessLib.UCI.Tests
         [Test]
         public void TestUCI()
         {
-            OptionsResponseArgs obj = null;
+            UCIResponseArgs obj = null;
             var str = "id name Stockfish 10 64\r\n" + "\r\n" +
                         "id author T.Romstad, M.Costalba, J.Kiiski, G.Linscott\r\n" +
                         "option name Debug Log File type string default\r\n" +
                         "uciok";
             foreach (var command in str.Split("\r\n"))
             {
-                var resp = (OptionsResponseArgs)_factory.MakeResponseArgs(FENHelpers.FENInitial, command, out _);
+                var resp = (UCIResponseArgs)_factory.MakeResponseArgs(FENHelpers.FENInitial, command, out _);
                 if (command == "uciok")
                 {
-                    Assert.IsTrue(resp is OptionsResponseArgs);
-                    obj = resp as OptionsResponseArgs;
+                    Assert.IsTrue(resp is UCIResponseArgs);
+                    obj = resp as UCIResponseArgs;
                 }
                 else
                 {

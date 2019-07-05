@@ -1,0 +1,11 @@
+﻿<Options:UCIComboOption xmlns:Options="clr-namespace:ChessLib.UCI.Commands.FromEngine.Options;assembly=ChessLib.UCI" xmlns:Markup="clr-namespace:System.Windows.Markup;assembly=System.Xaml" xmlns:System="clr-namespace:System;assembly=mscorlib" Default="Aenean class cras curae mauris" Name="Analysis Contempt" Value="Off">
+	<Options:UCIComboOption.Options>
+		<Markup:Array Type="{Markup:Type System:String}">
+			<System:String>Off</System:String>
+            <System:String>White</System:String>
+            <System:String>Black</System:String>
+            <System:String>Both</System:String>
+			
+		</Markup:Array>
+	</Options:UCIComboOption.Options>
+</Options:UCIComboOption>

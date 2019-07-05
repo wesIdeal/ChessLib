@@ -4,10 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ChessLib.UCI.WPF.OptionsControls"
+             xmlns:base="clr-namespace:ChessLib.UCI.WPF"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DataContext="{d:DesignData Source=/SampleData/UCIComboOptionSampleData.xaml}"
+    MinWidth="300" >
     <Grid>
-        <TextBlock Text="{Binding Name}" Grid.Row="0"></TextBlock>
-        <ComboBox Grid.Row="1" ItemsSource="{Binding Options}" SelectedValue="{Binding Value}"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <base:LabelBox Text="{Binding Name}" Grid.Row="0" Foreground="WhiteSmoke"    />
+        <ComboBox Grid.Row="2" ItemsSource="{Binding Options}" SelectedValue="{Binding Value}"/>
     </Grid>
 </UserControl>

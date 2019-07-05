@@ -6,50 +6,51 @@ using System.Threading;
 
 namespace ChessLib.UCI
 {
-    public class UCIEngineProc : Process
+    public class EngineProcess : Process
     {
-        public enum UCIState { NeverStarted, Running, Exited }
+        public enum UciState { NeverStarted, Running, Exited }
 
-        public UCIEngineProc(Guid id) : base()
+        public EngineProcess(Guid id) : base()
         {
             EngineId = id;
-            _responseFactory = new UCIResponseFactory(EngineId);
         }
-        ~UCIEngineProc()
+        ~EngineProcess()
         {
             Dispose();
         }
 
-        private StringWriter stringWriter = new StringWriter();
-        private UCIState _state = UCIState.NeverStarted;
-        private string _fen;
-
-        public UCIState State => _state;
+        private readonly StringWriter _stringWriter = new StringWriter();
+        private UciState _state = UciState.NeverStarted;
+      
+        private const char LineEnding = '\n';
+        public UciState State => _state;
         public string LastCommandSent { get; set; }
         public new virtual int Id { get => base.Id; }
-        public event EventHandler<EngineResponseArgs> EngineResponseObjectReceived;
+        
         public event DataReceivedEventHandler ErrorReceived;
         public event EventHandler<EngineCommunicationArgs> EngineCommunicationReceived;
         public event EventHandler EngineExited;
-        private readonly UCIResponseFactory _responseFactory;
+       
         /// <summary>
         /// Fired each time the app communicates with the engine or a response is received.
         /// Contains raw text responses and commands.
         /// </summary>
         public event EventHandler<EngineCommunicationArgs> EngineCommunication;
 
+        public event DataReceivedEventHandler EngineDataReceived;
+
         public virtual bool Start(string cliString, ProcessStartInfo startInfo)
         {
             StartInfo = startInfo;
             StartInfo.FileName = cliString;
             EnableRaisingEvents = true;
-            OutputDataReceived += EngineResponseReceived;
+            OutputDataReceived += EngineDataReceived;
             Exited += EngineExited;
             ErrorDataReceived += ErrorReceived;
             ErrorReceived += OnErrorReceived;
             EngineExited += OnEngineExit;
             var result = base.Start();
-            _state = UCIState.Running;
+            _state = UciState.Running;
             return result;
         }
 
@@ -60,7 +61,7 @@ namespace ChessLib.UCI
 
         private void OnEngineExit(object sender, EventArgs e)
         {
-            _state = UCIState.Exited;
+            _state = UciState.Exited;
         }
 
         private void OnErrorReceived(object sender, DataReceivedEventArgs e)
@@ -69,44 +70,8 @@ namespace ChessLib.UCI
         }
 
         protected virtual new TextWriter StandardInput => base.StandardInput;
-        private readonly string[] UCIFlags = new string[] { "id", "option" }; //EngineToAppCommand.Id | EngineToAppCommand.Option | EngineToAppCommand.UCIOk;
 
-        public virtual void SetPosition(string fen)
-        {
-            _fen = fen;
-        }
-
-        private void EngineResponseReceived(object sender, DataReceivedEventArgs e)
-        {
-
-            string engineResponse = e.Data;
-            if (string.IsNullOrEmpty(engineResponse)) { return; }
-
-            OnEngineCommunication(new EngineCommunicationArgs(EngineCommunicationArgs.TextSource.Engine, e.Data));
-
-            var response = _responseFactory.MakeResponseArgs(_fen, engineResponse, out string error);
-            var isUci = false;
-            foreach (var uci in UCIFlags)
-            {
-                isUci |= engineResponse.StartsWith(uci);
-            }
-            if (response != null)
-            {
-                OnEngineObjectReceived(response);
-            }
-
-            else if (!isUci)
-            {
-                var message = $"**Message with no corresponding command received**\r\n\t{engineResponse}\r\n**End Message**";
-                ///OnDebugEventExecuted(new DebugEventArgs(message));
-            }
-        }
-
-        private void OnEngineObjectReceived(EngineResponseArgs response)
-        {
-            Volatile.Read(ref EngineResponseObjectReceived)?.Invoke(this, response);
-        }
-
+        
         private void OnEngineCommunication(EngineCommunicationArgs engineCommunicationArgs)
         {
             Volatile.Read(ref EngineCommunication)?.Invoke(this, engineCommunicationArgs);
@@ -122,7 +87,7 @@ namespace ChessLib.UCI
 
         public new virtual bool WaitForExit(int waitTime)
         {
-            if (State == UCIState.Running) { return base.WaitForExit(waitTime); }
+            if (State == UciState.Running) { return base.WaitForExit(waitTime); }
             else return true;
         }
 
@@ -136,17 +101,17 @@ namespace ChessLib.UCI
             base.BeginErrorReadLine();
         }
 
-        public virtual void SendCommmand(string command)
+        public virtual void SendCommandToEngine(string command)
         {
             LastCommandSent = command;
-            StandardInput.WriteLine(command);
+            StandardInput.Write(command + LineEnding);
             StandardInput.Flush();
         }
 
         public new void Dispose()
         {
             base.Dispose();
-            stringWriter?.Dispose();
+            _stringWriter?.Dispose();
 
         }
     }

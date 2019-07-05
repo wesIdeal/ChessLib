@@ -1,0 +1,1 @@
+﻿<Options:UCICheckOption xmlns:Options="clr-namespace:ChessLib.UCI.Commands.FromEngine.Options;assembly=ChessLib.UCI" Default="True" Name="Ponder" Value="True"/>

@@ -1,0 +1,19 @@
+﻿<TextBlock
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ChessLib.UCI.WPF"
+             xmlns:SampleDataSource="clr-namespace:Expression.Blend.SampleData.SampleDataSource"
+             x:Class="ChessLib.UCI.WPF.LabelBox"
+             mc:Ignorable="d" Foreground="WhiteSmoke" MinWidth="200" MinHeight="30" 
+    d:DataContext="{Binding SampleDataSource}" FontSize="14"
+             >
+
+
+
+    <TextBlock.Text>
+        <Binding Path="Text" Source="{StaticResource SampleDataSource}"/>
+    </TextBlock.Text>
+
+</TextBlock>

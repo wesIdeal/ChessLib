@@ -13,18 +13,17 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace ChessLib.UCI.WPF.OptionsControls
+namespace ChessLib.UCI.WPF
 {
     /// <summary>
-    /// Interaction logic for ComboOption.xaml
+    /// Interaction logic for LabelBox.xaml
     /// </summary>
-    public partial class ComboOption : UserControl
+    public partial class LabelBox : TextBlock
     {
-        public ComboOption()
+        public LabelBox()
         {
             InitializeComponent();
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(ComboOption), new FrameworkPropertyMetadata(typeof(ComboOption)));
-
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(LabelBox), new FrameworkPropertyMetadata(typeof(LabelBox)));
         }
     }
 }

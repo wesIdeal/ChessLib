@@ -139,7 +139,7 @@
 //            base.BeginErrorReadLine();
 //        }
 
-//        public virtual void SendCommmand(string command)
+//        public virtual void SendCommandToEngine(string command)
 //        {
 //            LastCommandSent = command;
 //            StandardInput.WriteLine(command);
