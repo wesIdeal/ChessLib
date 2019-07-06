@@ -14,7 +14,7 @@ namespace ChessLib.EngineInterface
             Engines = new List<Engine>();
         }
 
-        public List<Engine> Engines { get; private set; }
+        public List<Engine> Engines { get; }
 
         public void SaveEngineConfig(string engineConfigFilePath)
         {

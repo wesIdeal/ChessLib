@@ -9,13 +9,14 @@ namespace ChessLib.Data.MoveRepresentation
     /// <summary>
     /// A class that stores move information in a way that can easily be hashed for quick lookup
     /// </summary>
-    public class MoveStorage : MoveExt, IEquatable<MoveStorage>, IMove
+    public class MoveStorage : MoveExt, IEquatable<MoveStorage>
     {
         public MoveStorage(string fen, IMoveExt move, Piece pieceMoving, Color colorMoving, string textRepresentation)
         : this(move, pieceMoving, colorMoving)
         {
             FEN = fen;
             SAN = textRepresentation;
+            BoardStateHash = GetHashString(fen);
 
         }
         protected MoveStorage(ushort move, Piece pieceMoving, Color colorMoving)
@@ -33,8 +34,6 @@ namespace ChessLib.Data.MoveRepresentation
         public virtual Color ColorMoving { get; private set; }
 
         public virtual Piece PieceMoving { get; private set; }
-
-        public string SAN { get; protected set; }
 
         public string FEN { get; protected set; }
 

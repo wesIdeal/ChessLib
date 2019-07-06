@@ -19,8 +19,8 @@ namespace ChessLib.EngineInterface
 
 
         delegate bool CompareString(string response, string expected);
-        static CompareString CompareExact = (engineResponse, expectedResponse) => engineResponse.Equals(expectedResponse);
-        static CompareString CompareStart = (engineResponsetr, expectedResponse) => engineResponsetr.StartsWith(expectedResponse);
+        static readonly CompareString CompareExact = (engineResponse, expectedResponse) => engineResponse.Equals(expectedResponse);
+        static readonly CompareString CompareStart = (engineResponse, expectedResponse) => engineResponse.StartsWith(expectedResponse);
 
         public static bool IsResponseTheExpectedResponse(this CommandInfo command, string engineResponse, out EngineToAppCommand matchingFlag)
         {
@@ -146,13 +146,13 @@ namespace ChessLib.EngineInterface
             return val;
         }
 
+       
         public static double? GetNumericOptionType(this string option, string key)
         {
-            double rv = 0;
             if (string.IsNullOrWhiteSpace(option)) return null;
             var val = option.GetValueForUCIKeyValuePair(key);
             if (string.IsNullOrWhiteSpace(val)) return null;
-            if (double.TryParse(val, out rv))
+            if (double.TryParse(val, out var rv))
             {
                 return rv;
             }

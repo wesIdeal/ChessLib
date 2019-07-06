@@ -92,15 +92,13 @@ namespace ChessLib.EngineInterface
 
         private void BeginMessageQueue()
         {
-            var waitResult = WaitHandle.WaitTimeout;
             var exit = false;
-            var interruptHandle = 1;
             OnDebugEventExecuted(new DebugEventArgs("Starting message queue."));
             while (!exit && !_isDisposed)
             {
                 if (!EngineCommandQueue.Any())
                 {
-                    waitResult = WaitHandle.WaitAny(EngineCommandQueue.CommandIssuedEvents);
+                    var waitResult = WaitHandle.WaitAny(EngineCommandQueue.CommandIssuedEvents);
                     if (waitResult == WaitHandle.WaitTimeout)
                     {
                         OnDebugEventExecuted(new DebugEventArgs("Nothing in queue after waiting."));

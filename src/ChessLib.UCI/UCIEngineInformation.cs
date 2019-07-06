@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ChessLib.EngineInterface.UCI.Commands.FromEngine;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChessLib.EngineInterface.UCI.Commands.FromEngine;
-using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;
 
 namespace ChessLib.EngineInterface
 {
@@ -13,8 +13,8 @@ namespace ChessLib.EngineInterface
             Options = new List<IUCIOption>();
         }
 
-        public Guid Id { get; private set; }
-        public List<IUCIOption> Options { get; private set; }
+        public Guid Id { get; }
+        public List<IUCIOption> Options { get; }
         public string Name { get; private set; }
         public string Author { get; private set; }
         public bool UCIOk { get; private set; }
@@ -63,7 +63,6 @@ namespace ChessLib.EngineInterface
         public bool IsOptionValid(string name, string value, out string message)
         {
             message = "";
-            var validOptionTypes = new Type[] { typeof(UCIButtonOption), typeof(UCIStringOption) };
             var option = Options.FirstOrDefault(x => x.Name == name);
             if (option == null)
             {
@@ -73,7 +72,7 @@ namespace ChessLib.EngineInterface
             var optionType = option.GetType();
             if (optionType == typeof(UCICheckOption))
             {
-                return IsCheckOptionValid((UCICheckOption)option, value, out message);
+                return IsCheckOptionValid(value, out message);
             }
             else if (optionType == typeof(UCIComboOption))
             {
@@ -103,7 +102,7 @@ namespace ChessLib.EngineInterface
             message = "";
             if (!double.TryParse(value, out double dValue))
             {
-                message = $"Option value {value} cannot be interpretted as a number.";
+                message = $"Option value {value} cannot be interpreted as a number.";
                 return false;
             }
             if (opt.Min.HasValue)
@@ -125,7 +124,7 @@ namespace ChessLib.EngineInterface
             return true;
         }
 
-        private static bool IsCheckOptionValid(UCICheckOption opt, string value, out string message)
+        private static bool IsCheckOptionValid(string value, out string message)
         {
             message = "";
             if (!(new[] { "true", "false" }.Contains(value)))

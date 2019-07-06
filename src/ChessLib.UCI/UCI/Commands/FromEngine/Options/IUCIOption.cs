@@ -13,12 +13,14 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine.Options
         public string Name { get; set; }
         public T Value
         {
-            get { return _value; }
+            get => _value;
             set
             {
-
+                _value = value;
+                OnPropertyChanged(nameof(Value));
             }
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(string name)

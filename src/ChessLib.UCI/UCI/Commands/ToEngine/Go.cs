@@ -10,13 +10,13 @@ namespace ChessLib.EngineInterface.UCI.Commands.ToEngine
 
         public bool IgnoreCalculationInformationLines { get; }
 
-        private IEnumerable<MoveExt> _searchMoves;
-        private int? _depth;
-        private int? _nodes;
-        private TimeSpan? _moveTime;
-        private string _commandText;
+        private readonly IEnumerable<MoveExt> _searchMoves;
+        private readonly int? _depth;
+        private readonly int? _nodes;
+        private readonly TimeSpan? _moveTime;
+        private readonly string _commandText;
 
-        public Go(TimeSpan timeSpan, IEnumerable<MoveExt> searchMoves = null) : this(timeSpan, null, searchMoves, null, true)
+        public Go(TimeSpan timeSpan, IEnumerable<MoveExt> searchMoves = null) : this(timeSpan, null, searchMoves)
         {
 
         }
@@ -38,7 +38,16 @@ namespace ChessLib.EngineInterface.UCI.Commands.ToEngine
         private string GetNodesParameter() => _nodes.HasValue ? $" nodes {_nodes.Value}" : "";
         private string GetSearchMovesParameter() =>
             _searchMoves != null && _searchMoves.Any() ? $" searchmoves {_searchMoves.UCIMovesFromMoveObjects()}" : "";
-        private string GetMoveTimeParameter() => " " + _moveTime == null ? "infinite" : $"movetime {_moveTime.Value.TotalMilliseconds}";
+        private string GetMoveTimeParameter()
+        {
+            if (_moveTime != null)
+            {
+                return $" movetime {_moveTime.Value.TotalMilliseconds}";
+            }
+
+            return "";
+        }
+
         public new string ToString() => _commandText;
     }
 

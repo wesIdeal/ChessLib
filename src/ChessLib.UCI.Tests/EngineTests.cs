@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.EngineInterface;
@@ -27,59 +26,58 @@ namespace ChessLib.UCI.Tests
     {
         public Guid Id = Guid.NewGuid();
         public string LastReceived;
-        public bool isStarted;
-        public const string sfDirectory = @".\stockfish_10_x64.exe";
-        public Mock<EngineProcess> _processMock;
-        public EngineProcess _process => _processMock.Object;
+        public bool IsStarted;
+        public const string StockfishPath = @".\stockfish_10_x64.exe";
+        public Mock<EngineProcess> ProcessMock;
+        public EngineProcess Process => ProcessMock.Object;
 
         public string LastCommand { get; private set; }
 
-        public UCIEngine _eng;
-        public Task _engineTask;
-        private StringWriter _stringWriter;
+        public UCIEngine Eng;
+        public Task EngineTask;
 
-        UCIEngineStartupArgs startup;
+        UCIEngineStartupArgs _startup;
         //[SetUp]
         public void Setup()
         {
 
-            startup = new UCIEngineStartupArgs(Guid.NewGuid(), "mocked engine", "runMockEngine.exe");
-            _processMock = new Mock<EngineProcess>(new UCIEngineMessageSubscriber(null));
-            _processMock.Setup(x => x.Start()).Callback(() =>
+            _startup = new UCIEngineStartupArgs(Guid.NewGuid(), "mocked engine", "runMockEngine.exe");
+            ProcessMock = new Mock<EngineProcess>(new UCIEngineMessageSubscriber(null));
+            ProcessMock.Setup(x => x.Start()).Callback(() =>
             {
-                isStarted = true;
+                IsStarted = true;
 
             }).Returns(true);
 
-            _processMock.Setup(x => x.BeginErrorReadLine()).Callback(SetupErrorReadLine);
-            _processMock.Setup(x => x.BeginOutputReadLine()).Callback(SetupOutputReadLine);
-            _processMock.Setup(x => x.SetPriority(It.IsAny<ProcessPriorityClass>())).Callback<ProcessPriorityClass>(SetupSetPriority);
-            _processMock.Setup(x => x.WaitForExit(It.IsAny<int>())).Returns(true);
-            _processMock.SetupGet(x => x.ProcessId).Returns(420);
-            _processMock.Setup(s => s.SendCommandToEngine(It.IsAny<string>())).Callback<string>(txt =>
+            ProcessMock.Setup(x => x.BeginErrorReadLine()).Callback(SetupErrorReadLine);
+            ProcessMock.Setup(x => x.BeginOutputReadLine()).Callback(SetupOutputReadLine);
+            ProcessMock.Setup(x => x.SetPriority(It.IsAny<ProcessPriorityClass>())).Callback<ProcessPriorityClass>(SetupSetPriority);
+            ProcessMock.Setup(x => x.WaitForExit(It.IsAny<int>())).Returns(true);
+            ProcessMock.SetupGet(x => x.ProcessId).Returns(420);
+            ProcessMock.Setup(s => s.SendCommandToEngine(It.IsAny<string>())).Callback<string>(txt =>
             {
                 if (txt == "uci")
                 {
-                    _processMock.Object.MessageSubscriber.ProcessEngineResponse(EngineConstants.UCIResponse);
+                    ProcessMock.Object.MessageSubscriber.ProcessEngineResponse(EngineConstants.UCIResponse);
                 }
                 if (txt == "isready")
                 {
-                    _processMock.Object.MessageSubscriber.ProcessEngineResponse(EngineConstants.ReadyOk);
+                    ProcessMock.Object.MessageSubscriber.ProcessEngineResponse(EngineConstants.ReadyOk);
                 }
                 if (txt == "quit")
                 {
-                    _process.Close();
+                    Process.Close();
                 }
                 LastCommand = txt;
             });
-            _eng = new UCIEngine(startup, null, _process);
-            (_processMock.Object.MessageSubscriber as UCIEngineMessageSubscriber).EngineResponseCallback =
-                _eng.ResponseReceived;
-            _eng.DebugEventExecuted += (s, arg) =>
+            Eng = new UCIEngine(_startup, null, Process);
+            (ProcessMock.Object.MessageSubscriber as UCIEngineMessageSubscriber).EngineResponseCallback =
+                Eng.ResponseReceived;
+            Eng.DebugEventExecuted += (s, arg) =>
             {
                 Console.WriteLine(arg.DebugText);
             };
-            _engineTask = _eng.StartAsync();
+            EngineTask = Eng.StartAsync();
         }
 
         private void SetupSetPriority(ProcessPriorityClass priority)
@@ -102,16 +100,16 @@ namespace ChessLib.UCI.Tests
         //[TearDown]
         public void TearDown()
         {
-            _eng.SendQuit();
-            _engineTask.Wait(10 * 1000);
-            _eng.Dispose();
+            Eng.SendQuit();
+            EngineTask.Wait(10 * 1000);
+            Eng.Dispose();
         }
 
         [Test]
         public void WriteToEngineShouldSendCommandToWriter()
         {
             //Arrange
-            _eng.WriteToEngine(new CommandInfo(AppToUCICommand.UCI));
+            Eng.WriteToEngine(new CommandInfo(AppToUCICommand.UCI));
             Assert.AreEqual("uci", LastCommand);
         }
 
@@ -122,7 +120,7 @@ namespace ChessLib.UCI.Tests
             using (var engine = new UCIEngine(startupArgs))
             {
                 //engine.DebugEventExecuted += (s, o) => { Console.WriteLine(o.ToString()); };
-                _engineTask = engine.StartAsync();
+                EngineTask = engine.StartAsync();
                 engine.SetOption("Debug Log File", "c:\\temp\\sf.log.txt");
                 engine.EngineCalculationReceived += (s, o) =>
                 {
@@ -146,7 +144,7 @@ namespace ChessLib.UCI.Tests
                 engine.SetOption("MultiPV", "3");
                 engine.SendPosition("rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1");
                 engine.SendGo(TimeSpan.FromSeconds(20));
-               _engineTask.Wait();
+               EngineTask.Wait();
             }
         }
 
@@ -265,7 +263,7 @@ namespace ChessLib.UCI.Tests
                 }
             };
 
-            _eng.SendPosition();
+            Eng.SendPosition();
             finished.WaitOne();
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+// ReSharper disable StringLiteralTypo
 
 namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
 {

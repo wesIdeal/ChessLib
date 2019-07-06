@@ -7,7 +7,7 @@ namespace ChessLib.EngineInterface.UCI.Commands
     public class CommandInfo
     {
         public readonly AppToUCICommand CommandSent;
-        public string CommandText { get; private set; }
+        public string CommandText { get; }
         public readonly int ArgumentCount;
         public readonly string[] ExpectedResponses;
         public readonly bool ExactMatch;
@@ -18,13 +18,6 @@ namespace ChessLib.EngineInterface.UCI.Commands
             CommandArguments = arguments ?? new string[] { };
         }
 
-        public bool AwaitResponse => ExpectedResponses.Any();
-
-       
-        protected CommandInfo()
-        {
-
-        }
 
         public CommandInfo(AppToUCICommand command)
         {

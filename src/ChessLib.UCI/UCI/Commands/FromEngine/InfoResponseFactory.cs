@@ -163,8 +163,6 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
         private ICalculationInfoResponse SetPropertiesFromInfoDict(in CalculationResponseTypes calculationResponseType, in Dictionary<string, string> infoDictionary)
         {
             var ir = new InfoResponse();
-            MoveExt currentMoveUn = null;
-            MoveExt[] infoMovesUnvalidated = null;
             foreach (var field in infoDictionary)
             {
                 switch (field.Key)

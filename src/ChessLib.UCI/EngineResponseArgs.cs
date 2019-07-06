@@ -19,27 +19,5 @@ namespace ChessLib.EngineInterface
             return $"{Received.ToString(TimeFormat)}\t{DebugText.Replace("\r\n", "\r\n\t")}";
         }
     }
-    public class EngineCommunicationArgs : EventArgs
-    {
-        public enum TextSource { Engine, UI }
-        public EngineCommunicationArgs(TextSource source, string commandText)
-        {
-            CommandSource = source;
-            CommandText = commandText;
-        }
-        public TextSource CommandSource { get; set; }
-        public string CommandText { get; set; }
-
-        /// <summary>
-        /// Can be used to quickly write debug text
-        /// </summary>
-        /// <returns></returns>
-        public new string ToString()
-        {
-            var sourceStr = CommandSource == TextSource.Engine ? "Engine" : "UI";
-            var sourceDelimiter = "> ";
-            return $"{sourceStr}{sourceDelimiter}{CommandText}";
-        }
-    }
-
+   
 }

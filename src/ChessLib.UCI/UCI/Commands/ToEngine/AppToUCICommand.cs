@@ -21,10 +21,6 @@ namespace ChessLib.EngineInterface.UCI.Commands.ToEngine
         Go,
         [Command("setoption", 2)]
         SetOption,
-        [Command("name")]
-        Option_Name,
-        [Command("value")]
-        Option_Value,
         [Command("ucinewgame")]
         NewGame,
 

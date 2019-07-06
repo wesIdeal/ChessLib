@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
 
 namespace ChessLib.EngineInterface.UCI.Commands
@@ -8,12 +9,11 @@ namespace ChessLib.EngineInterface.UCI.Commands
     {
         public AutoResetEvent InterruptIssued = new AutoResetEvent(false);
         public AutoResetEvent CommandIssued = new AutoResetEvent(false);
-        private bool _isDisposed = false;
         public readonly WaitHandle[] CommandIssuedEvents;
 
         public CommandQueue()
         {
-            CommandIssuedEvents = new[] { CommandIssued, InterruptIssued };
+            CommandIssuedEvents = new WaitHandle[] { CommandIssued, InterruptIssued };
         }
 
         public new void Enqueue(CommandInfo item)
@@ -39,18 +39,21 @@ namespace ChessLib.EngineInterface.UCI.Commands
         }
         public void Clear()
         {
-            while (TryDequeue(out _)) ;
+            while (TryDequeue(out var command))
+            {
+                Debug.WriteLine($"Dequeued {command}");
+            }
         }
 
-        public bool IsDisposed => _isDisposed;
+        public bool IsDisposed { get; private set; }
 
         public void Dispose()
         {
-            if (!_isDisposed)
+            if (!IsDisposed)
             {
                 CommandIssued.Dispose();
                 InterruptIssued.Dispose();
-                _isDisposed = true;
+                IsDisposed = true;
             }
         }
     }

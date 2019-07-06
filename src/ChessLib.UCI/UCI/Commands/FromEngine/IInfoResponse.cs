@@ -10,8 +10,6 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
     }
     public interface IInfoResponse : ICalculationInfoResponse
     {
-        uint Depth { get; }
-        string FromFEN { get; }
     }
 
     public interface IBestMoveResponse : ICalculationInfoResponse
@@ -27,7 +25,6 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
     {
         string CurrentMoveLong { get; }
         MoveExt CurrentMove { get; set; }
-        uint CurrentMoveNumber { get; }
     }
 
     public enum Bound { None, Lower, Upper }
@@ -41,13 +38,7 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
 
     public interface IPrincipalVariationResponse : IInfoResponse
     {
-        uint SelectiveSearchDepth { get; }
-        ushort PVOrdinal { get; }
-        IInfoScore Score { get; }
         ulong Nodes { get; }
-        ulong NodesPerSecond { get; }
-        ushort TableBaseHits { get; }
-        TimeSpan SearchTime { get; }
         string[] VariationLong { get; }
         MoveExt[] Variation { get; set; }
     }
@@ -62,11 +53,9 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
             CurrentMoveLong = currentMoveLong;
         }
         public MoveExt CurrentMove { get; set; }
-        public bool MovesValidated => FromFEN != string.Empty;
         public string CurrentMoveLong { get; set; }
         public uint CurrentMoveNumber { get; set; }
         public uint Depth { get; }
-        public string FromFEN { get; set; }
     }
 
     public class PrincipalVariationScore : IInfoScore
@@ -122,7 +111,6 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
         public ulong NodesPerSecond { get; }
         public ushort TableBaseHits { get; }
         public uint Depth { get; }
-        public string FromFEN { get; set; }
         public MoveExt[] Variation { get; set; }
         public string[] VariationLong { get; }
         public override string ToString()
