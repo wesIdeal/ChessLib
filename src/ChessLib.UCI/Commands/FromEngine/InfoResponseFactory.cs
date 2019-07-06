@@ -1,12 +1,11 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.MoveRepresentation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using ChessLib.Data.MoveRepresentation;
 
-namespace ChessLib.UCI.Commands.FromEngine
+namespace ChessLib.EngineInterface.Commands.FromEngine
 {
     public enum CalculationResponseTypes
     {

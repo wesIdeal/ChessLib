@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Graphics", "ChessL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Parse.Console", "ChessLib.Parse.Console\ChessLib.Parse.Console.csproj", "{071B4118-D68E-4035-8F77-5601842EF6FA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.UCI", "ChessLib.UCI\ChessLib.UCI.csproj", "{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.EngineInterface", "ChessLib.UCI\ChessLib.EngineInterface.csproj", "{956FC2A4-8718-4BDB-9836-EF45E6F91CF5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.UCI.Tests", "ChessLib.UCI.Tests\ChessLib.UCI.Tests.csproj", "{3CE428CB-39DF-4B72-B00B-7C976AFF450A}"
 EndProject

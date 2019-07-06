@@ -1,41 +1,43 @@
-﻿using ChessLib.Data.Helpers;
-using ChessLib.UCI;
-using ChessLib.UCI.Commands.FromEngine;
-using System;
+﻿using System;
 using System.Diagnostics;
+using ChessLib.Data.Helpers;
+using ChessLib.EngineInterface.Commands.FromEngine;
 
-public interface IEngineMessageSubscriber
+namespace ChessLib.EngineInterface
 {
-    string FEN { get; set; }
-    void ProcessEngineResponse(string engineResponseText);
-}
-public delegate void EngineResponseCallback(EngineResponseArgs engineResponse);
-
-public class UCIEngineMessageSubscriber : IEngineMessageSubscriber
-{
-    public EngineResponseCallback EngineResponseCallback { get; set; }
-    private readonly IEngineResponseFactory _responseFactory;
-    public UCIEngineMessageSubscriber(EngineResponseCallback callback, bool includeMoveCalcInformation = false)
-        : this(callback, new UCIResponseFactory())
-    { }
-
-    public UCIEngineMessageSubscriber(EngineResponseCallback callback, IEngineResponseFactory responseFactory, bool includeMoveCalcInformation = false)
+    public interface IEngineMessageSubscriber
     {
-        EngineResponseCallback = callback;
-        _responseFactory = responseFactory;
+        string FEN { get; set; }
+        void ProcessEngineResponse(string engineResponseText);
     }
-    private string _fen = FENHelpers.FENInitial;
-    public string FEN { get => _fen; set => _fen = value; }
+    public delegate void EngineResponseCallback(EngineResponseArgs engineResponse);
 
-    public void ProcessEngineResponse(string engineResponseText)
+    public class UCIEngineMessageSubscriber : IEngineMessageSubscriber
     {
-        if (string.IsNullOrEmpty(engineResponseText)) { return; }
+        public EngineResponseCallback EngineResponseCallback { get; set; }
+        private readonly IEngineResponseFactory _responseFactory;
+        public UCIEngineMessageSubscriber(EngineResponseCallback callback, bool includeMoveCalcInformation = false)
+            : this(callback, new UCIResponseFactory())
+        { }
 
-        var response = _responseFactory.MakeResponseArgs(FEN, engineResponseText);
-
-        if (response != null)
+        public UCIEngineMessageSubscriber(EngineResponseCallback callback, IEngineResponseFactory responseFactory, bool includeMoveCalcInformation = false)
         {
-            EngineResponseCallback(response);
+            EngineResponseCallback = callback;
+            _responseFactory = responseFactory;
+        }
+        private string _fen = FENHelpers.FENInitial;
+        public string FEN { get => _fen; set => _fen = value; }
+
+        public void ProcessEngineResponse(string engineResponseText)
+        {
+            if (string.IsNullOrEmpty(engineResponseText)) { return; }
+
+            var response = _responseFactory.MakeResponseArgs(FEN, engineResponseText);
+
+            if (response != null)
+            {
+                EngineResponseCallback(response);
+            }
         }
     }
 }

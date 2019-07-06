@@ -1,10 +1,9 @@
-﻿using ChessLib.UCI.Commands.FromEngine;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
-namespace ChessLib.UCI
+namespace ChessLib.EngineInterface
 {
     public class EngineProcess : Process
     {

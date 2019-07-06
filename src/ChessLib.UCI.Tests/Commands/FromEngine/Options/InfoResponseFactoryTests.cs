@@ -1,6 +1,5 @@
 ﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.UCI.Commands.FromEngine;
 using NUnit.Framework;
 using System;
 using System.Collections;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChessLib.Data;
+using ChessLib.EngineInterface.Commands.FromEngine;
 
 namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
 {

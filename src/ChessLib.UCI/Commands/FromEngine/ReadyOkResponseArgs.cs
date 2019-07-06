@@ -1,4 +1,4 @@
-﻿namespace ChessLib.UCI.Commands.FromEngine
+﻿namespace ChessLib.EngineInterface.Commands.FromEngine
 {
 
     public class ReadyOkResponseArgs : EngineResponseArgs

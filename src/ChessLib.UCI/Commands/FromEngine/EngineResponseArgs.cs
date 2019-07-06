@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ChessLib.UCI.Commands.FromEngine
+namespace ChessLib.EngineInterface.Commands.FromEngine
 {
     public class EngineResponseArgs : EventArgs, IEngineResponse
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace ChessLib.UCI.Commands
+namespace ChessLib.EngineInterface.Commands
 {
     [Serializable]
     internal class UCICommandException : Exception

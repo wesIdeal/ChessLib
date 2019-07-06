@@ -1,4 +1,4 @@
-﻿namespace ChessLib.UCI
+﻿namespace ChessLib.EngineInterface
 {
     public enum StateChangeField
     {

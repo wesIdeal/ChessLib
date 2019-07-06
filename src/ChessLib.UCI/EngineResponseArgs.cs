@@ -1,10 +1,7 @@
-﻿using ChessLib.UCI.Commands;
-using ChessLib.UCI.Commands.ToEngine;
-using ChessLib.UCI.Commands.FromEngine;
-using System;
+﻿using System;
 using System.Diagnostics.Tracing;
 
-namespace ChessLib.UCI
+namespace ChessLib.EngineInterface
 {
     public class DebugEventArgs : EventArgs
     {

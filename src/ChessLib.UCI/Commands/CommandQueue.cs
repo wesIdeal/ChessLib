@@ -1,8 +1,8 @@
-﻿using System.Threading;
+﻿using System;
 using System.Collections.Concurrent;
-using System;
+using System.Threading;
 
-namespace ChessLib.UCI.Commands
+namespace ChessLib.EngineInterface.Commands
 {
     public class CommandQueue : ConcurrentQueue<CommandInfo>, IDisposable
     {

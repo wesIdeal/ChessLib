@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ChessLib.UCI.Commands.ToEngine
+﻿namespace ChessLib.EngineInterface.Commands.ToEngine
 {
     public class IsReady : CommandInfo
     {

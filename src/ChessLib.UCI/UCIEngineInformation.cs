@@ -1,10 +1,10 @@
-﻿using ChessLib.UCI.Commands.FromEngine;
-using ChessLib.UCI.Commands.FromEngine.Options;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChessLib.EngineInterface.Commands.FromEngine;
+using ChessLib.EngineInterface.Commands.FromEngine.Options;
 
-namespace ChessLib.UCI
+namespace ChessLib.EngineInterface
 {
     public class UCIResponse : IResponseObject
     {

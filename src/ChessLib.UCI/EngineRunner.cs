@@ -1,11 +1,10 @@
-﻿using EnumsNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace ChessLib.UCI
+namespace ChessLib.EngineInterface
 {
 
     public class EngineRunner : IDisposable

@@ -1,4 +1,4 @@
-﻿namespace ChessLib.UCI.Commands.ToEngine
+﻿namespace ChessLib.EngineInterface.Commands.ToEngine
 {
     public class SetOption : CommandInfo
     {

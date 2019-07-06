@@ -6,9 +6,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using ChessLib.UCI.Commands;
-using ChessLib.UCI.Commands.FromEngine;
-using ChessLib.UCI.Commands.ToEngine;
+using ChessLib.EngineInterface;
+using ChessLib.EngineInterface.Commands;
+using ChessLib.EngineInterface.Commands.FromEngine;
+using ChessLib.EngineInterface.Commands.ToEngine;
 using Moq;
 using NUnit.Framework;
 

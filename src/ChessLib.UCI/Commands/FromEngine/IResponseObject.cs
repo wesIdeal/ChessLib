@@ -1,6 +1,4 @@
-﻿using ChessLib.Data.Helpers;
-
-namespace ChessLib.UCI.Commands.FromEngine
+﻿namespace ChessLib.EngineInterface.Commands.FromEngine
 {
     public interface IResponseObject
     {

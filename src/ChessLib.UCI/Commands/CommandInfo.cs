@@ -1,12 +1,7 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using ChessLib.UCI.Commands.FromEngine;
-using ChessLib.UCI.Commands.ToEngine;
-using EnumsNET;
-using System;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
+using ChessLib.EngineInterface.Commands.ToEngine;
 
-namespace ChessLib.UCI.Commands
+namespace ChessLib.EngineInterface.Commands
 {
 
     public class CommandInfo

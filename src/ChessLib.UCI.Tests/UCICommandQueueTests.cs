@@ -1,6 +1,4 @@
-﻿using ChessLib.UCI.Commands;
-using ChessLib.UCI.Commands.ToEngine;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ChessLib.EngineInterface.Commands;
+using ChessLib.EngineInterface.Commands.ToEngine;
 
 namespace ChessLib.UCI.Tests
 {

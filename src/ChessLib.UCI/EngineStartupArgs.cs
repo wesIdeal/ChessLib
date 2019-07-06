@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace ChessLib.UCI
+namespace ChessLib.EngineInterface
 {
     public class EngineStartupArgs : IEngineStartupArgs
     {

@@ -1,8 +1,7 @@
 ﻿using System;
-using ChessLib.UCI.Commands;
-using ChessLib.UCI.Commands.FromEngine;
+using ChessLib.EngineInterface.Commands.FromEngine;
 
-namespace ChessLib.UCI
+namespace ChessLib.EngineInterface
 {
     public class PositionChangedArgs : EventArgs
     {

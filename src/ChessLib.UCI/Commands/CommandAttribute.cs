@@ -1,9 +1,10 @@
-﻿using ChessLib.UCI.Commands.ToEngine;
-using EnumsNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using ChessLib.EngineInterface.Commands.FromEngine;
+using ChessLib.EngineInterface.Commands.ToEngine;
+using EnumsNET;
 
-namespace ChessLib.UCI.Commands
+namespace ChessLib.EngineInterface.Commands
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class CommandAttribute : Attribute

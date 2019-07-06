@@ -1,19 +1,18 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using ChessLib.UCI.Commands;
-using ChessLib.UCI.Commands.FromEngine;
-using ChessLib.UCI.Commands.ToEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.Data;
 using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.EngineInterface.Commands;
+using ChessLib.EngineInterface.Commands.FromEngine;
+using ChessLib.EngineInterface.Commands.ToEngine;
 
-namespace ChessLib.UCI
+namespace ChessLib.EngineInterface
 {
     [Serializable]
     public abstract class Engine : IDisposable

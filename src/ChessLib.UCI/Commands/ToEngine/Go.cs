@@ -1,9 +1,9 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChessLib.Data.MoveRepresentation;
 
-namespace ChessLib.UCI.Commands.ToEngine
+namespace ChessLib.EngineInterface.Commands.ToEngine
 {
     public class Go : CommandInfo
     {

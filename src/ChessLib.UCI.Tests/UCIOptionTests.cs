@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using ChessLib.UCI;
-using ChessLib.UCI.Commands.FromEngine;
-using ChessLib.UCI.Commands.FromEngine.Options;
 using System.Linq;
+using ChessLib.EngineInterface;
+using ChessLib.EngineInterface.Commands.FromEngine;
 
 namespace ChessLib.UCI.Tests
 {

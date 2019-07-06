@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
-using System.Runtime.Serialization;
 
-namespace ChessLib.UCI.Commands
+namespace ChessLib.EngineInterface.Commands.FromEngine
 {
 
     [Flags]

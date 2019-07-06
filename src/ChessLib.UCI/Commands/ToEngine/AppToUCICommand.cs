@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
+using ChessLib.EngineInterface.Commands.FromEngine;
 
-namespace ChessLib.UCI.Commands.ToEngine
+namespace ChessLib.EngineInterface.Commands.ToEngine
 {
     public enum AppToUCICommand
     {

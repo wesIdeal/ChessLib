@@ -1,4 +1,4 @@
-﻿namespace ChessLib.UCI.Commands.FromEngine.Options
+﻿namespace ChessLib.EngineInterface.Commands.FromEngine.Options
 {
     public class UCICheckOption : UCIOption<bool>
     {

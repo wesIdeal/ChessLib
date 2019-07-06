@@ -1,18 +1,16 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using EnumsNET;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using ChessLib.Data.Helpers;
-using System.Collections.Generic;
-using System.IO;
-using ChessLib.UCI.Commands.ToEngine;
-using ChessLib.UCI.Commands;
-using ChessLib.UCI.Commands.FromEngine;
-using ChessLib.UCI.Commands.FromEngine.Options;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.EngineInterface.Commands;
+using ChessLib.EngineInterface.Commands.FromEngine;
+using ChessLib.EngineInterface.Commands.FromEngine.Options;
+using ChessLib.EngineInterface.Commands.ToEngine;
+using EnumsNET;
 
-namespace ChessLib.UCI
+namespace ChessLib.EngineInterface
 {
 
     public static class EngineHelpers

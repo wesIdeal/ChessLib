@@ -13,7 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
-    <ProjectReference Include="..\ChessLib.UCI\ChessLib.UCI.csproj" />
+    <ProjectReference Include="..\ChessLib.UCI\ChessLib.EngineInterface.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="stockfish_10_x64.exe">
