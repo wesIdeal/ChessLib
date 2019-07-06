@@ -1,15 +1,16 @@
 ﻿using ChessLib.Types.Enums;
 using System;
+using ChessLib.Data.Types.Exceptions;
 
 namespace ChessLib.Data.Helpers
 {
     public static class PieceHelpers
     {
         /// <summary>
-        /// Gets a Piece <see cref="ChessLib.Data.Types.Piece"/>
+        /// Gets a Piece <see cref="Piece"/>
         /// </summary>
         /// <param name="strPiece">String representation of a piece</param>
-        /// <returns>A Piece <see cref="ChessLib.Data.Types.Piece"/> enumeration value.</returns>
+        /// <returns>A Piece <see cref="Piece"/> enumeration value.</returns>
         /// <remarks><paramref name="strPiece">strPiece</paramref>should be 1 character. Calls <see cref="GetPiece(char)">GetPiece(char).</see>
         /// </remarks>
         public static Piece GetPiece(string strPiece)
@@ -19,7 +20,7 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets a Piece <see cref="ChessLib.Data.Types.Piece"/>
+        /// Gets a Piece <see cref="Piece"/>
         /// </summary>
         public static Piece GetPiece(char p)
         {
@@ -41,10 +42,11 @@ namespace ChessLib.Data.Helpers
             }
         }
 
-       
+
         /// <summary>
         /// Returns uppercase character representing promotion pieces
         /// </summary>
+        /// <exception cref="PieceException">Thrown if promotion piece is not found in enumeration. Highly unlikely and indicative of another problem.</exception>
         public static char GetCharFromPromotionPiece(PromotionPiece p)
         {
             switch (p)
@@ -53,16 +55,21 @@ namespace ChessLib.Data.Helpers
                 case PromotionPiece.Knight: return 'N';
                 case PromotionPiece.Queen: return 'Q';
                 case PromotionPiece.Rook: return 'R';
-                default: throw new Exception("Promotion Piece not found in switch cases.");
+                default: throw new PieceException($"Promotion Piece not found in switch cases.{Environment.NewLine}(Exception is not likely and probably indicative of another issue.)");
             }
         }
 
         /// <summary>
-        /// Returns a PromotionPiece object from character (uppercase or lowercase)
+        /// Gets a PromotionPiece object from character (uppercase or lowercase).
         /// </summary>
-        public static PromotionPiece GetPromotionPieceFromChar(char p)
+        /// <remarks>Piece case is insensitive, as this should work with both SAN and LAN promotion strings.</remarks>
+        /// <param name="promotionPieceCharacter">The piece represented by promotion string. If null, this returns <see cref="PromotionPiece"/>.Knight, as this is specified for the condensed move in <see cref="ushort"/> format.</param>
+        /// <returns>The <see cref="PromotionPiece"/>PromotionPiece enum value represented by <param name="promotionPieceCharacter">promotionPieceCharacter</param></returns>
+        /// <exception cref="PieceException"><param name="promotionPieceCharacter"></param> is not a valid promotion character [null|n|b|r|q], case insensitive.</exception>
+        public static PromotionPiece GetPromotionPieceFromChar(char? promotionPieceCharacter)
         {
-            switch (char.ToUpper(p))
+            if (promotionPieceCharacter == null) return PromotionPiece.Knight;
+            switch (char.ToUpper(promotionPieceCharacter.Value))
             {
                 case 'B': return PromotionPiece.Bishop;
                 case 'N': return PromotionPiece.Knight;

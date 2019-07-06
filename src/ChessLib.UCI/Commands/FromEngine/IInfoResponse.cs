@@ -1,28 +1,32 @@
 ﻿using ChessLib.Data.MoveRepresentation;
 using System;
+using System.Linq;
 
 namespace ChessLib.UCI.Commands.FromEngine
 {
-    public interface IInfoResponse : IResponseObject
+    public interface ICalculationInfoResponse : IResponseObject
+    {
+        CalculationResponseTypes ResponseType { get; }
+    }
+    public interface IInfoResponse : ICalculationInfoResponse
     {
         uint Depth { get; }
         string FromFEN { get; }
-        string SAN { get; }
     }
 
-    public interface IBestMoveResponse : IResponseObject
+    public interface IBestMoveResponse : ICalculationInfoResponse
     {
-        MoveExt BestMove { get; }
-        MoveExt PonderMove { get; }
-        string BestMoveSan { get; }
-        string PonderMoveSan { get; }
-
+        string BestMoveLong { get; }
+        MoveExt BestMove { get; set; }
+        string PonderMoveLong { get; }
+        MoveExt PonderMove { get; set; }
         string ToString();
     }
 
     public interface IInfoCalculationResponse : IInfoResponse
     {
-        MoveExt CurrentMove { get; }
+        string CurrentMoveLong { get; }
+        MoveExt CurrentMove { get; set; }
         uint CurrentMoveNumber { get; }
     }
 
@@ -44,25 +48,25 @@ namespace ChessLib.UCI.Commands.FromEngine
         ulong NodesPerSecond { get; }
         ushort TableBaseHits { get; }
         TimeSpan SearchTime { get; }
-        MoveExt[] Variation { get; }
+        string[] VariationLong { get; }
+        MoveExt[] Variation { get; set; }
     }
 
     public class InfoCalculationResponse : IInfoCalculationResponse
     {
-        public InfoCalculationResponse(uint depth, uint currentMoveNumber, MoveExt currentMove, string fromFEN, string san)
+        public CalculationResponseTypes ResponseType => CalculationResponseTypes.CalculationInformation;
+        public InfoCalculationResponse(uint depth, uint currentMoveNumber, string currentMoveLong)
         {
             Depth = depth;
             CurrentMoveNumber = currentMoveNumber;
-            CurrentMove = currentMove;
-            FromFEN = fromFEN;
+            CurrentMoveLong = currentMoveLong;
         }
-
-        public bool MovesValidated { get => FromFEN != string.Empty; }
-        public MoveExt CurrentMove { get; }
+        public MoveExt CurrentMove { get; set; }
+        public bool MovesValidated => FromFEN != string.Empty;
+        public string CurrentMoveLong { get; }
         public uint CurrentMoveNumber { get; }
         public uint Depth { get; }
-        public string FromFEN { get; }
-        public string SAN { get; }
+        public string FromFEN { get; set; }
     }
 
     public class PrincipalVariationScore : IInfoScore
@@ -86,7 +90,7 @@ namespace ChessLib.UCI.Commands.FromEngine
 
         public override string ToString()
         {
-            var integerValue = CentipawnScore.HasValue ? CentipawnScore.Value / 100 : 0;
+            var integerValue = CentipawnScore / 100 ?? 0;
             var floatLength = integerValue.ToString().Length + 3;
             return (MateInXMoves.HasValue ? $"M{MateInXMoves.Value}" :
                     CentipawnScore.HasValue ? $"{(float)CentipawnScore.Value / 100}".PadRight(floatLength, '0') : "");
@@ -95,9 +99,9 @@ namespace ChessLib.UCI.Commands.FromEngine
 
     public class PrincipalVariationResponse : IPrincipalVariationResponse
     {
-        public PrincipalVariationResponse(ushort pVOrdinal, MoveExt[] variation, IInfoScore score, uint selectiveSearchDepth,
-            TimeSpan searchTime, ulong nodes, ulong nodesPerSecond, ushort tableBaseHits, uint depth,
-            string fromFEN, string san)
+        public CalculationResponseTypes ResponseType => CalculationResponseTypes.PrincipalVariation;
+        public PrincipalVariationResponse(ushort pVOrdinal, string[] variation, IInfoScore score, uint selectiveSearchDepth,
+            TimeSpan searchTime, ulong nodes, ulong nodesPerSecond, ushort tableBaseHits, uint depth)
         {
             PVOrdinal = pVOrdinal;
             Score = score;
@@ -107,9 +111,7 @@ namespace ChessLib.UCI.Commands.FromEngine
             NodesPerSecond = nodesPerSecond;
             TableBaseHits = tableBaseHits;
             Depth = depth;
-            FromFEN = fromFEN;
-            Variation = variation;
-            SAN = san;
+            VariationLong = variation;
         }
 
         public uint SelectiveSearchDepth { get; }
@@ -120,29 +122,41 @@ namespace ChessLib.UCI.Commands.FromEngine
         public ulong NodesPerSecond { get; }
         public ushort TableBaseHits { get; }
         public uint Depth { get; }
-        public string FromFEN { get; }
-        public string SAN { get; }
-        public MoveExt[] Variation { get; }
+        public string FromFEN { get; set; }
+        public MoveExt[] Variation { get; set; }
+        public string[] VariationLong { get; }
+        public override string ToString()
+        {
+            return Variation != null
+                ? string.Join(" ", Variation.Select(x => x.SAN))
+                : string.Join(" ", VariationLong);
+        }
     }
 
-    public class BestMoveResponse : IResponseObject, IBestMoveResponse
+    public class BestMoveResponse : IBestMoveResponse
     {
-        public BestMoveResponse(MoveExt bestMove, MoveExt ponderMove, string bestMoveSan, string ponderMoveSan)
+        public CalculationResponseTypes ResponseType => CalculationResponseTypes.BestMove;
+        public BestMoveResponse(string bestMove, string ponderMove)
         {
-            BestMove = bestMove;
-            PonderMove = ponderMove;
-            BestMoveSan = bestMoveSan;
-            PonderMoveSan = ponderMoveSan;
+            BestMoveLong = bestMove;
+            PonderMoveLong = ponderMove;
+
         }
 
-        public MoveExt BestMove { get; }
+        public string BestMoveLong { get; }
 
-        public MoveExt PonderMove { get; }
+        public string PonderMoveLong { get; }
 
-        public string BestMoveSan { get; }
+        public MoveExt BestMove { get; set; }
 
-        public string PonderMoveSan { get; }
+        public MoveExt PonderMove { get; set; }
 
-        public override string ToString() => BestMoveSan + " " + PonderMoveSan;
+        public override string ToString()
+        {
+            var str = "{0} {1}";
+            var bmSan = BestMove != null ? BestMove.SAN : BestMoveLong;
+            var pvSan = PonderMove != null ? PonderMove.SAN : PonderMoveLong;
+            return string.Format(str, bmSan, pvSan);
+        }
     }
 }

@@ -25,16 +25,7 @@ namespace ChessLib.UCI.Commands
 
         public bool AwaitResponse => ExpectedResponses.Any();
 
-        public static CommandInfo IsReady()
-        {
-            return new CommandInfo(AppToUCICommand.IsReady);
-        }
-
-        public static CommandInfo UCI()
-        {
-            return new CommandInfo(AppToUCICommand.UCI);
-        }
-
+       
         protected CommandInfo()
         {
 

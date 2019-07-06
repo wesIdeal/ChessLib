@@ -8,7 +8,7 @@ namespace ChessLib.UCI
     {
 
         /// <summary>
-        /// FEN Position - Caller is responsible for passing in valid FEN
+        /// StartingPositionFEN Position - Caller is responsible for passing in valid StartingPositionFEN
         /// </summary>
         public string FEN { get; set; }
     }
@@ -37,11 +37,11 @@ namespace ChessLib.UCI
         public EngineResponseArgs MakeResponseArgs(in string fen, in string engineText)
         {
             EngineToAppCommand responseFlag = EngineHelpers.GetResponseType(engineText.Split(' ')[0]);
-            
+
             if (responseFlag == EngineToAppCommand.Info || responseFlag == EngineToAppCommand.BestMove)
             {
-                var uciObject = _infoFactory.GetInfoResponse(fen, engineText);
-                return new EngineResponseArgs(uciObject, engineText);
+                var uciObject = _infoFactory.GetInfoResponse(engineText);
+                return new EngineCalculationResponseArgs(uciObject, engineText);
             }
             if (responseFlag == EngineToAppCommand.Ready)
             {
@@ -53,12 +53,12 @@ namespace ChessLib.UCI
                 _uciInformation.SetInfoFromString(engineText);
                 if (_uciInformation.UCIOk)
                 {
-                   return new EngineResponseArgs(_uciInformation, engineText);
+                    return new EngineResponseArgs(_uciInformation, engineText);
                 }
                 return null;
             }
 
-            return new ErrorResponseArgs("Response from engine unhandled.", engineText);
+            return new EngineResponseArgs(new ErrorResponse("Response from engine unhandled."), engineText);
         }
 
     }

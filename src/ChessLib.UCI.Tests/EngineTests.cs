@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.UCI.Commands;
+using ChessLib.UCI.Commands.FromEngine;
 using ChessLib.UCI.Commands.ToEngine;
 using Moq;
 using NUnit.Framework;
@@ -119,18 +120,32 @@ namespace ChessLib.UCI.Tests
             var startupArgs = new UCIEngineStartupArgs(Guid.NewGuid(), "StockFish", "stockfish_10_x64.exe");
             using (var engine = new UCIEngine(startupArgs))
             {
-                engine.DebugEventExecuted += (s, o) => { Console.WriteLine(o.ToString()); };
+                //engine.DebugEventExecuted += (s, o) => { Console.WriteLine(o.ToString()); };
                 _engineTask = engine.StartAsync();
-                engine.SetOption("Debug Log File", ".\\sf.log.txt");
-                engine.EngineResponseObjectReceived += (s, o) =>
+                engine.SetOption("Debug Log File", "c:\\temp\\sf.log.txt");
+                engine.EngineCalculationReceived += (s, o) =>
                 {
-                    if (o == null) return;
-                    var obj = o.ResponseObject;
+                    if (o.ResponseObject == null)
+                    {
+                        Debug.WriteLine("****Calc Result Was Null****");
+                    }
+                    else if (o.ResponseObject.ResponseType == CalculationResponseTypes.BestMove)
+                    {
+                        var bm = o.ResponseObject as BestMoveResponse;
+                        Console.WriteLine($"Bestmove found: {bm.BestMove}. Pondering: {bm.PonderMove}");
+                        engine.SendQuit();
+                       
+                    }
+                    else if (o.ResponseObject.ResponseType == CalculationResponseTypes.PrincipalVariation)
+                    {
+                        var pv = o.ResponseObject as PrincipalVariationResponse;
+                        Console.WriteLine($"Principal variation {pv.PVOrdinal} found, starting with {pv.Variation[0].SAN}.");
+                    }
                 };
-                engine.SendUCI();
-                engine.SendIsReady();
-                engine.SendQuit();
-                var b = _engineTask.Wait(10 * 1000);
+                engine.SetOption("MultiPV", "3");
+                engine.SendPosition("rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1");
+                engine.SendGo(TimeSpan.FromSeconds(20));
+               _engineTask.Wait();
             }
         }
 

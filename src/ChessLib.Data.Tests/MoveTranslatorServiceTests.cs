@@ -246,8 +246,8 @@ namespace ChessLib.Data.Tests
         [Test]
         public static void ShouldFindCorrectSource_PawnMove_NoCapture_StartingPosition()
         {
-            var boardInfo = new BoardInfo();
-            var moveTranslaterService = new MoveTranslatorService(boardInfo);
+            var boardInfo = new BoardInfo() { ActivePlayer = Color.Black };
+            var moveTranslatorService = new MoveTranslatorService(boardInfo);
             var md = new MoveDetail
             {
                 Color = Color.Black
@@ -259,7 +259,7 @@ namespace ChessLib.Data.Tests
                 md.DestinationFile = (ushort)(destIndex % 8);
                 md.DestinationRank = (ushort)(destIndex / 8);
                 var expectedSource = MoveHelpers.GenerateMove((ushort)(48 + (destIndex % 8)), destIndex);
-                var actual = moveTranslaterService.GenerateMoveFromText(destIndex.IndexToSquareDisplay());
+                var actual = moveTranslatorService.GenerateMoveFromText(destIndex.IndexToSquareDisplay());
                 Assert.AreEqual(expectedSource.Move, actual.Move);
             }
 
@@ -267,11 +267,13 @@ namespace ChessLib.Data.Tests
             boardInfo.ActivePlayer = Color.White;
             for (ushort destIndex = 31; destIndex >= 16; destIndex--)
             {
+                moveTranslatorService.InitializeBoard();
                 md.MoveText = destIndex.IndexToSquareDisplay();
                 md.DestinationFile = (ushort)(destIndex % 8);
                 md.DestinationRank = (ushort)(destIndex / 8);
-                var expectedSource = MoveHelpers.GenerateMove((ushort)(8 + (destIndex % 8)), destIndex);
-                var actual = moveTranslaterService.GenerateMoveFromText(destIndex.IndexToSquareDisplay());
+                var source = (ushort)(8 + (destIndex % 8));
+                var expectedSource = MoveHelpers.GenerateMove(source, destIndex);
+                var actual = moveTranslatorService.GenerateMoveFromText(destIndex.IndexToSquareDisplay());
                 Assert.AreEqual(expectedSource.Move, actual.Move);
             }
         }

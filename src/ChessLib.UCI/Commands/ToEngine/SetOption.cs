@@ -9,7 +9,7 @@
             Name = name;
             Value = value;
         }
-        public new string ToString()
+        public override string ToString()
         {
             return $"setoption name {Name} value {Value}";
         }

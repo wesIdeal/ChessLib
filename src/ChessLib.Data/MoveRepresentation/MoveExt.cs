@@ -8,7 +8,7 @@ namespace ChessLib.Data.MoveRepresentation
     public class MoveExt : IMoveExt, ICloneable, IMove
     {
         public MoveExt(ushort move) { Move = move; }
-
+        public string SAN { get; set; }
         private ushort _move;
         public ushort Move { get => _move; protected set { _move = value; } }
 
@@ -40,13 +40,7 @@ namespace ChessLib.Data.MoveRepresentation
 
         public override string ToString()
         {
-            var srcFile = (char)('a' + (SourceIndex % 8));
-            var srcRank = (char)('1' + (SourceIndex / 8));
-            var dstFile = (char)('a' + (DestinationIndex % 8));
-            var dstRank = (char)('1' + (DestinationIndex / 8));
-            var from = $"{srcFile}{srcRank}";
-            var to = $"{dstFile}{dstRank}";
-            return $"{from}->{to}";
+            return !string.IsNullOrEmpty(SAN) ? SAN : $"{SourceIndex.IndexToSquareDisplay()}->{DestinationIndex.IndexToSquareDisplay()}";
         }
 
         public bool Equals(IMoveExt other)

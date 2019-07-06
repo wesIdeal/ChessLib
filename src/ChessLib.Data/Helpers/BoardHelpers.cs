@@ -1,118 +1,112 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using ChessLib.Data.Exceptions;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Data.Helpers
 {
     public static class BoardHelpers
     {
-        static BoardHelpers()
-        {
-            InitializeInBetween();
-        }
-        #region Initialization
-
-        private static void InitializeInBetween()
-        {
-            for (var f = 0; f < 64; f++)
-            {
-                for (var t = f; t < 64; t++)
-                {
-                    const long m1 = (-1);
-                    const long aFileBorder = (0x0001010101010100);
-                    const long b2DiagonalBorder = (0x0040201008040200);
-                    const long hFileBorder = (0x0002040810204080);
-
-                    var between = (m1 << f) ^ (m1 << t);
-                    long file = (t & 7) - (f & 7);
-                    long rank = ((t | 7) - f) >> 3;
-                    var line = ((file & 7) - 1) & aFileBorder;
-                    line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
-                    line += (((rank - file) & 15) - 1) & b2DiagonalBorder; /* b2g7 if same diagonal */
-                    line += (((rank + file) & 15) - 1) & hFileBorder; /* h1b7 if same anti-diagonal */
-                    line *= between & -between; /* mul acts like shift by smaller square */
-                    ArrInBetween[f, t] = (ulong)(line & between);   /* return the bits on that line in-between */
-                }
-            }
-        }
-
-        #endregion
-
-
-        #region Constant Piece and Color Values for Indexing arrays
-        // ReSharper disable InconsistentNaming
-        public const int PAWN = (int)Piece.Pawn;
-        public const int BISHOP = (int)Piece.Bishop;
-        public const int KNIGHT = (int)Piece.Knight;
-        public const int ROOK = (int)Piece.Rook;
-        public const int QUEEN = (int)Piece.Queen;
-        public const int KING = (int)Piece.King;
-        public const int WHITE = (int)Color.White;
-        public const int BLACK = (int)Color.Black;
-        // ReSharper restore InconsistentNaming
-        #endregion
-
         /// <summary>
-        /// Gets the opoposite color
-        /// </summary>
-        /// <param name="c"></param>
-        /// <returns></returns>
-        public static Color Toggle(this Color c) => c == Color.White ? Color.Black : Color.White;
-
-        /// <summary>
-        /// Contains square values for a square index
+        ///     Contains boardIndex values for a boardIndex index
         /// </summary>
         public static readonly ulong[] IndividualSquares =
-       new ulong[]{
+        {
             0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80,
             0x100, 0x200, 0x400, 0x800, 0x1000, 0x2000, 0x4000,
             0x8000, 0x10000, 0x20000, 0x40000, 0x80000, 0x100000, 0x200000,
             0x400000, 0x800000, 0x1000000, 0x2000000, 0x4000000, 0x8000000, 0x10000000,
             0x20000000, 0x40000000, 0x80000000, 0x100000000, 0x200000000, 0x400000000, 0x800000000,
             0x1000000000, 0x2000000000, 0x4000000000, 0x8000000000, 0x10000000000, 0x20000000000, 0x40000000000,
-            0x80000000000, 0x100000000000, 0x200000000000, 0x400000000000, 0x800000000000, 0x1000000000000, 0x2000000000000,
-            0x4000000000000, 0x8000000000000, 0x10000000000000, 0x20000000000000, 0x40000000000000, 0x80000000000000, 0x100000000000000,
-            0x200000000000000, 0x400000000000000, 0x800000000000000, 0x1000000000000000, 0x2000000000000000, 0x4000000000000000, 0x8000000000000000,
-
+            0x80000000000, 0x100000000000, 0x200000000000, 0x400000000000, 0x800000000000, 0x1000000000000,
+            0x2000000000000,
+            0x4000000000000, 0x8000000000000, 0x10000000000000, 0x20000000000000, 0x40000000000000, 0x80000000000000,
+            0x100000000000000,
+            0x200000000000000, 0x400000000000000, 0x800000000000000, 0x1000000000000000, 0x2000000000000000,
+            0x4000000000000000, 0x8000000000000000
         };
 
         /// <summary>
-        /// Contains set bits for each rank
+        ///     Contains set bits for each rank
         /// </summary>
-        public static ulong[] RankMasks = {
-            0xff,               //R1
-            0xff00,             //R2
-            0xff0000,           //R3
-            0xff000000,         //R4
-            0xff00000000,       //R5
-            0xff0000000000,     //R6
-            0xff000000000000,   //R7
-            0xff00000000000000  //R8
+        public static ulong[] RankMasks =
+        {
+            0xff, //R1
+            0xff00, //R2
+            0xff0000, //R3
+            0xff000000, //R4
+            0xff00000000, //R5
+            0xff0000000000, //R6
+            0xff000000000000, //R7
+            0xff00000000000000 //R8
         };
 
         /// <summary>
-        /// Contains set bits for each file
+        ///     Contains set bits for each file
         /// </summary>
-        public static ulong[] FileMasks = {
-            0x101010101010101,  //A
-            0x202020202020202,  //B
-            0x404040404040404,  //C
-            0x808080808080808,  //D
+        public static ulong[] FileMasks =
+        {
+            0x101010101010101, //A
+            0x202020202020202, //B
+            0x404040404040404, //C
+            0x808080808080808, //D
             0x1010101010101010, //E
             0x2020202020202020, //F
             0x4040404040404040, //G
-            0x8080808080808080  //H
+            0x8080808080808080 //H
         };
 
         private static readonly ulong[,] ArrInBetween = new ulong[64, 64];
 
+        static BoardHelpers()
+        {
+            InitializeInBetween();
+        }
+
+        #region Initialization
+
+        private static void InitializeInBetween()
+        {
+            for (var f = 0; f < 64; f++)
+            for (var t = f; t < 64; t++)
+            {
+                const long m1 = -1;
+                const long aFileBorder = 0x0001010101010100;
+                const long b2DiagonalBorder = 0x0040201008040200;
+                const long hFileBorder = 0x0002040810204080;
+
+                var between = (m1 << f) ^ (m1 << t);
+                long file = (t & 7) - (f & 7);
+                long rank = ((t | 7) - f) >> 3;
+                var line = ((file & 7) - 1) & aFileBorder;
+                line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
+                line += (((rank - file) & 15) - 1) & b2DiagonalBorder; /* b2g7 if same diagonal */
+                line += (((rank + file) & 15) - 1) & hFileBorder; /* h1b7 if same anti-diagonal */
+                line *= between & -between; /* mul acts like shift by smaller boardIndex */
+                ArrInBetween[f, t] = (ulong) (line & between); /* return the bits on that line in-between */
+            }
+        }
+
+        #endregion
+
         /// <summary>
-        /// Gets the squares in between two squares, returns 0 for squares not linked diagonally or by file or rank
+        ///     Gets the opposite color
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        public static Color Toggle(this Color c)
+        {
+            return c == Color.White ? Color.Black : Color.White;
+        }
+
+        /// <summary>
+        ///     Gets the squares in between two squares, returns 0 for squares not linked diagonally or by file or rank
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
@@ -125,7 +119,7 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets the OR'ed version of all bitboard representations
+        ///     Gets the OR version of all bitboard representations
         /// </summary>
         /// <param name="board"></param>
         /// <returns></returns>
@@ -135,7 +129,7 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets the OR'ed version of all active-color pieces
+        ///     Gets the OR of all active-color pieces
         /// </summary>
         /// <param name="board"></param>
         /// <returns></returns>
@@ -143,8 +137,9 @@ namespace ChessLib.Data.Helpers
         {
             return board.GetPiecePlacement().Occupancy(board.ActivePlayer);
         }
+
         /// <summary>
-        /// Gets the OR'ed version of all non-active-color (opponent) pieces
+        ///     Gets the OR version of all non-active-color (opponent) pieces
         /// </summary>
         /// <param name="board"></param>
         /// <returns></returns>
@@ -154,267 +149,159 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets the occupancy of a board by color and/or piece (or neither = TotalOccupancy)
+        ///     Gets the occupancy of a pieceLayout by color and/or piece (or neither = TotalOccupancy)
         /// </summary>
         /// <param name="board"></param>
         /// <param name="c"></param>
         /// <param name="p"></param>
-        /// <returns></returns>
+        /// <returns><see cref="ulong" /> of pieces on board, optionally by
+        ///     <param name="c">color</param>
+        ///     and
+        ///     <param name="p">piece</param>
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong Occupancy(this ulong[][] board, Color? c = null, Piece? p = null)
         {
             if (c == null && p == null)
-                return board.Select(x => x.Aggregate((acc, val) => acc |= val)).Aggregate((acc, val) => acc |= val);
+                return board.Select(x => x.Aggregate((acc, val) => acc | val)).Aggregate((acc, val) => acc | val);
             if (c == null)
-                return board[(int)Color.White][(int)p] | board[(int)Color.Black][(int)p];
-            if (p == null)
-            {
-                return board[(int)c].Aggregate((curr, val) => curr |= val);
-            }
+                return board[(int) Color.White][(int) p] | board[(int) Color.Black][(int) p];
+            if (p == null) return board[(int) c].Aggregate((current, val) => current | val);
 
-            return board[(int)c][(int)p];
-        }
-
-
-        #region Enum ToInt() methods
-        /// <summary>
-        /// Extension to get the int of a color
-        /// </summary>
-        /// <param name="c"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ToInt(this Color c) => (int)c;
-
-        /// <summary>
-        /// Extension to get the int of a piece
-        /// </summary>
-        /// <param name="p"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ToInt(this Piece p) => (int)p;
-
-        /// <summary>
-        /// Extension to get the int of a file
-        /// </summary>
-        /// <param name="f"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ToInt(this File f) => (int)f;
-
-        /// <summary>
-        /// Extension to get the int of a rank
-        /// </summary>
-        /// <param name="r"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ToInt(this Rank r) => (int)r;
-
-        /// <summary>
-        /// Gets the hex display of a long (for debugging, mainly)
-        /// </summary>
-        /// <param name="u">long to get display from</param>
-        /// <param name="appendHexNotation">append '0x' to the representation</param>
-        /// <param name="pad">pad length to a certain size</param>
-        /// <param name="padSize">size to pad</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToHexDisplay(this ulong u, bool appendHexNotation = true, bool pad = false, int padSize = 64)
-        {
-            var str = Convert.ToString((long)u, 16);
-            if (pad)
-            {
-                str = str.PadLeft(padSize, '0');
-            }
-            if (appendHexNotation)
-            {
-                str = "0x" + str;
-            }
-            return str;
-        }
-        #endregion
-
-        #region Array Position to Friendly Position Helpers
-
-        /// <summary>
-        /// Gets the index of a square
-        /// </summary>
-        /// <param name="square">SAN square representation (A1, H5, E4, etc). Must be either '-' (FEN En Passant) or 2 characters</param>
-        /// <returns>Square index</returns>
-        /// <exception cref="ArgumentException">Thrown if square length, File, or Rank is invalid.</exception>
-        public static ushort? SquareTextToIndex(this string square)
-        {
-            if (square.Trim() == "-")
-            {
-                return null;
-            }
-            if (square.Length != 2)
-            {
-                throw new ArgumentException($"Square passed to SquareTextToIndex(), {square} has an invalid length.");
-            }
-            var file = Char.ToLower(square[0]);
-            var rank = UInt16.Parse(square[1].ToString());
-            if (!Char.IsLetter(file) || file < 'a' || file > 'h')
-            {
-                throw new ArgumentException("File portion of square-text should be a letter, between 'a' and 'h'.");
-            }
-            if (rank < 1 || rank > 8)
-            {
-                throw new ArgumentException("Rank portion of square-text should be a digit with a value between 1 and 8.");
-            }
-            var rankMultiplier = rank - 1;
-            return (ushort)((rankMultiplier * 8) + file - 'a');
+            return board[(int) c][(int) p];
         }
 
         /// <summary>
-        /// Converts rank and file to a board index
+        ///     Gets the <see cref="Piece" /> object occupying the supplied
+        ///     <param name="boardIndex">pieceLayout index</param>
+        ///     on the current
+        ///     <param name="occupancy">pieceLayout</param>
         /// </summary>
-        /// <param name="rank"></param>
-        /// <param name="file"></param>
-        /// <returns>Corresponding board index specified by rank and file</returns>
-        public static ushort RankAndFileToIndex(ushort rank, ushort file)
-        {
-            Debug.Assert((rank >= 0 && rank <= 7) && (file >= 0 && file <= 7));
-            return (ushort)((rank * 8) + file);
-        }
-        /// <summary>
-        /// Gets a File basked on square index
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static File GetFile(this int square) => (File)(square % 8);
-
-        /// <summary>
-        /// Gets a File basked on square index
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort GetFile(this ushort square) => (ushort)(square % 8);
-
-        /// <summary>
-        /// Gets a Rank basked on square index
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rank GetRank(this int square)
-        {
-            Debug.Assert(square >= 0 && square < 64);
-            return (Rank)((ushort)square).GetRank();
-        }
-
-        /// <summary>
-        /// Gets a Rank basked on square index
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort GetRank(this ushort square)
-        {
-            return (ushort)(square / 8);
-        }
-        /// <summary>
-        /// Gets a rank index from square indes
-        /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort RankFromIdx(this ushort idx) => (ushort)(idx / 8);
-
-        /// <summary>
-        /// Gets a file index from a square index
-        /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort FileFromIdx(this ushort idx) => (ushort)(idx % 8);
-
-        /// <summary>
-        /// Gets 
-        /// </summary>
-        /// <param name="rank"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort RankCompliment(this ushort rank) => (ushort)Math.Abs(rank - 7);
-
-        #endregion
-
-        /// <summary>
-        /// Returns type of piece at the given index
-        /// </summary>
-        /// <param name="idx">board index</param>
-        /// <param name="occupancy">occupancy arrays</param>
+        /// <param name="occupancy">occupancy arrays in [white][black] format</param>
+        /// <param name="boardIndex">pieceLayout index</param>
         /// <returns>Type of Piece, if found, otherwise null</returns>
-        public static Piece? GetTypeOfPieceAtIndex(ushort idx, in ulong[][] occupancy)
+        /// <exception cref="ArgumentException">if
+        ///     <param name="boardIndex">index</param>
+        ///     is not in range
+        /// </exception>
+        public static Piece? GetPieceAtIndex(in ulong[][] occupancy, in ushort boardIndex)
         {
-            var val = 1ul << idx;
+            boardIndex.ValidateIndex();
+            var val = 1ul << boardIndex;
             foreach (var color in Enum.GetValues(typeof(Color)))
-            {
-                foreach (var piece in (Piece[])Enum.GetValues(typeof(Piece)))
-                {
-                    if ((val & occupancy[(int)color][(int)piece]) != 0)
-                        return piece;
-                }
-            }
+            foreach (var piece in (Piece[]) Enum.GetValues(typeof(Piece)))
+                if ((val & occupancy[(int) color][(int) piece]) != 0)
+                    return piece;
             return null;
         }
 
         /// <summary>
-        /// Gets a piece of color object for the index
+        ///     Gets the <see cref="Piece" /> object occupying the supplied
+        ///     <param name="index">pieceLayout index</param>
+        ///     on the current
+        ///     <param name="board">pieceLayout</param>
         /// </summary>
-        /// <param name="occupancy"></param>
-        /// <param name="idx"></param>
-        /// <returns>The object representing the piece at an index, or null of the piece isn't there.</returns>
-        public static PieceOfColor? GetPieceOfColorAtIndex(this ulong[][] occupancy, ushort idx)
+        /// <param name="board">The current pieceLayout configuration</param>
+        /// <param name="index">The pieceLayout index</param>
+        /// <returns>Type of Piece, if found, otherwise null</returns>
+        public static Piece? GetPieceAtIndex(this IBoard board, ushort index)
         {
-            var val = 1ul << idx;
+            index.ValidateIndex();
+            var poc = GetPieceOfColorAtIndex(board, index);
+            return poc?.Piece;
+        }
+
+        /// <summary>
+        ///     Gets a piece of color object for the index
+        /// </summary>
+        /// <param name="occupancy">Board's piece occupancy</param>
+        /// <param name="boardIndex">Index on pieceLayout</param>
+        /// <returns>The object representing the piece at an index, or null if no piece occupies the supplied
+        ///     <param name="boardIndex">index</param>
+        ///     .
+        /// </returns>
+        public static PieceOfColor? GetPieceOfColorAtIndex(this ulong[][] occupancy, ushort boardIndex)
+        {
+            boardIndex.ValidateIndex();
+            var val = 1ul << boardIndex;
             foreach (var color in Enum.GetValues(typeof(Color)))
-            {
-                foreach (var piece in (Piece[])Enum.GetValues(typeof(Piece)))
-                {
-                    if ((val & occupancy[(int)color][(int)piece]) != 0)
-                        return new PieceOfColor() { Color = (Color)color, Piece = piece };
-                }
-            }
+            foreach (var piece in (Piece[]) Enum.GetValues(typeof(Piece)))
+                if ((val & occupancy[(int) color][(int) piece]) != 0)
+                    return new PieceOfColor {Color = (Color) color, Piece = piece};
             return null;
         }
 
         /// <summary>
-        /// Gets a piece of color object for the index
+        ///     Gets a piece of color object for the index
         /// </summary>
-        /// <param name="occupancy"></param>
-        /// <param name="idx"></param>
+        /// <param name="board">The current pieceLayout configuration</param>
+        /// <param name="index">The pieceLayout index in which to find piece of color</param>
         /// <returns>The object representing the piece at an index, or null of the piece isn't there.</returns>
-        public static PieceOfColor? GetPieceOfColorAtIndex(this IBoard board, ushort index) => GetPieceOfColorAtIndex(board.GetPiecePlacement(), index);
+        public static PieceOfColor? GetPieceOfColorAtIndex(this IBoard board, ushort index)
+        {
+            return GetPieceOfColorAtIndex(board.GetPiecePlacement(), index);
+        }
+
 
         /// <summary>
-        /// Returns a boolean to represent if the specified player is in check
+        ///     Method to validate if index is in range.
+        /// </summary>
+        /// <param name="index">pieceLayout index to validate</param>
+        /// <exception cref="ArgumentException">if index is out of range (0...63)</exception>
+        public static void ValidateIndex(this ushort index)
+        {
+            if (index >= 64) throw new ArgumentException($"Board index {index} is out of range.");
+        }
+
+        /// <summary>
+        ///     Method to validate if all index params are in range (0...63)
+        /// </summary>
+        /// <param name="indices">indexes to validate</param>
+        /// <exception cref="ArgumentException">if index is out of range (0...63)</exception>
+        public static void ValidateIndices(params ushort[] indices)
+        {
+            foreach (var index in indices) index.ValidateIndex();
+        }
+
+        /// <summary>
+        ///     Returns a boolean to represent if the specified player is in check
         /// </summary>
         /// <param name="board"></param>
         /// <param name="playerInCheckColor"></param>
         /// <returns></returns>
         public static bool IsPlayerInCheck(this ulong[][] board, int playerInCheckColor)
         {
-            var kingIndex = board[playerInCheckColor][BoardHelpers.KING].GetSetBits()[0];
-            return Bitboard.IsSquareAttackedByColor(kingIndex, (Color)(1 - playerInCheckColor), board);
+            var kingIndex = board[playerInCheckColor][KING].GetSetBits()[0];
+            return kingIndex.IsSquareAttackedByColor((Color) (1 - playerInCheckColor), board);
         }
 
         /// <summary>
-        /// Generate array of potential moves, disregarding legality of move
+        ///     Generate array of potential moves, disregarding legality of move
         /// </summary>
-        /// <param name="board"></param>
-        /// <param name="c"></param>
-        /// <param name="enPassentSq"></param>
-        /// <param name="ca"></param>
+        /// <param name="pieceLayout">Piece Layout of board: [white][black]</param>
+        /// <param name="activeColor">Active color to move</param>
+        /// <param name="enPassantSquare">En Passant boardIndex, if any, null if not</param>
+        /// <param name="castlingAvailability">Castling Availability flags</param>
         /// <returns></returns>
-        public static IMoveExt[] GenerateAllPseudoLegalMoves(this ulong[][] board, Color c, ushort? enPassentSq, CastlingAvailability ca)
+        public static MoveExt[] GenerateAllPseudoLegalMoves(this ulong[][] pieceLayout, Color activeColor,
+            ushort? enPassantSquare, CastlingAvailability castlingAvailability)
         {
             var rv = new List<MoveExt>();
-            var nColor = (int)c;
+            var nColor = (int) activeColor;
 
-            for (int i = 0; i < 6; i++)
+            for (var i = 0; i < 6; i++)
             {
-                var p = (Piece)i;
-                var pieceLocations = board[nColor][i].GetSetBits();
+                var p = (Piece) i;
+                var pieceLocations = pieceLayout[nColor][i].GetSetBits();
                 foreach (var sq in pieceLocations)
                 {
-                    var pseudoLegalMoves = Bitboard.GetPseudoLegalMoves(p, sq, BoardHelpers.Occupancy(board, c), BoardHelpers.Occupancy(board, c.Toggle()), c, enPassentSq, ca, out List<MoveExt> plm);
+                    Bitboard.GetPseudoLegalMoves(p, sq, Occupancy(pieceLayout, activeColor),
+                        Occupancy(pieceLayout, activeColor.Toggle()), activeColor, enPassantSquare,
+                        castlingAvailability, out var plm);
                     rv.AddRange(plm);
                 }
             }
+
             return rv.ToArray();
         }
 
@@ -422,9 +309,11 @@ namespace ChessLib.Data.Helpers
         ///     Clears appropriate castling availability flag when <paramref name="movingPiece">piece moving</paramref> is a
         ///     <see cref="Piece.Rook">Rook</see> or <see cref="Piece.King">King</see>
         /// </summary>
+        /// <param name="board">The current pieceLayout configuration</param>
         /// <param name="move">Move object</param>
         /// <param name="movingPiece">Piece that is moving</param>
-        public static CastlingAvailability GetCastlingAvailabilityPostMove(IBoard board, MoveExt move, Piece movingPiece)
+        public static CastlingAvailability GetCastlingAvailabilityPostMove(IBoard board, MoveExt move,
+            Piece movingPiece)
         {
             var ca = board.CastlingAvailability;
             switch (movingPiece)
@@ -453,7 +342,7 @@ namespace ChessLib.Data.Helpers
         /// </summary>
         /// <param name="move"></param>
         /// <param name="pocSource"></param>
-        public static ushort? GetEnPassentIndex(MoveExt move, PieceOfColor? pocSource)
+        public static ushort? GetEnPassantIndex(MoveExt move, PieceOfColor? pocSource)
         {
             ushort? rv = null;
             if (pocSource.HasValue)
@@ -462,41 +351,45 @@ namespace ChessLib.Data.Helpers
                 var endRank = pocSource.Value.Color == Color.White ? 3 : 4;
                 var enPassantIndexOffset = pocSource.Value.Color == Color.White ? 8 : -8;
                 if (pocSource.Value.Piece == Piece.Pawn)
-                    if ((move.SourceValue & BoardHelpers.RankMasks[startRank]) != 0
-                        && (move.DestinationValue & BoardHelpers.RankMasks[endRank]) != 0)
-                    {
-                        rv = (ushort)(move.SourceIndex + enPassantIndexOffset);
-                    }
+                    if ((move.SourceValue & RankMasks[startRank]) != 0
+                        && (move.DestinationValue & RankMasks[endRank]) != 0)
+                        rv = (ushort) (move.SourceIndex + enPassantIndexOffset);
             }
 
             return rv;
         }
 
         /// <summary>
-        /// Applies a move to a board
+        ///     Applies a move to a pieceLayout
         /// </summary>
         /// <param name="board"></param>
         /// <param name="move"></param>
-        /// <returns></returns>
+        /// <returns>The board after the move has been applied.</returns>
+        /// <exception cref="MoveException">If no piece exists at source.</exception>
         public static IBoard ApplyMoveToBoard(this IBoard board, in MoveExt move)
         {
             var pieceMoving = GetPieceOfColorAtIndex(board.GetPiecePlacement(), move.SourceIndex);
-            var isCapture = (board.GetPiecePlacement().Occupancy(board.ActivePlayer.Toggle()) & move.DestinationValue) != 0;
-            var isPawnMove = GetTypeOfPieceAtIndex(move.SourceIndex, board.GetPiecePlacement()).Equals(Piece.Pawn);
-            var halfMoveClock = (isCapture || isPawnMove) ? 0 : (board.HalfmoveClock + 1);
+            if (pieceMoving == null)
+                throw new MoveException("No piece at current source to apply move to.",
+                    MoveError.ActivePlayerHasNoPieceOnSourceSquare, move, board.ActivePlayer);
+            var isCapture =
+                (board.GetPiecePlacement().Occupancy(board.ActivePlayer.Toggle()) & move.DestinationValue) != 0;
+            var isPawnMove = GetPieceAtIndex(board.GetPiecePlacement(), move.SourceIndex).Equals(Piece.Pawn);
+            var halfMoveClock = isCapture || isPawnMove ? 0 : board.HalfmoveClock + 1;
             var fullMoveCounter =
-                (board.ActivePlayer == Color.Black) ? board.FullmoveCounter + 1 : board.FullmoveCounter;
+                board.ActivePlayer == Color.Black ? board.FullmoveCounter + 1 : board.FullmoveCounter;
 
             var piecePlacement = board.GetPiecePlacement().GetBoardPostMove(board.ActivePlayer, move);
             var castlingAvailability = GetCastlingAvailabilityPostMove(board, move, pieceMoving.Value.Piece);
-            var enPassantSquare = GetEnPassentIndex(move, pieceMoving.Value);
+            var enPassantSquare = GetEnPassantIndex(move, pieceMoving.Value);
             var activePlayer = board.ActivePlayer.Toggle();
 
-            return new BoardInfo(piecePlacement, activePlayer, castlingAvailability, enPassantSquare, halfMoveClock, fullMoveCounter, false);
+            return new BoardInfo(piecePlacement, activePlayer, castlingAvailability, enPassantSquare, halfMoveClock,
+                fullMoveCounter, false);
         }
 
         /// <summary>
-        /// Gets the piece setup post-move
+        ///     Gets the piece setup post-move
         /// </summary>
         /// <param name="board"></param>
         /// <param name="move"></param>
@@ -505,49 +398,55 @@ namespace ChessLib.Data.Helpers
         {
             return GetBoardPostMove(board.GetPiecePlacement(), board.ActivePlayer, move);
         }
+
         /// <summary>
-        /// Gets a board's piece setup after the specified player makes the specified move
+        ///     Gets a pieceLayout's piece setup after the specified player makes the specified move
         /// </summary>
         /// <param name="currentBoard"></param>
         /// <param name="activePlayerColor"></param>
         /// <param name="move"></param>
         /// <returns></returns>
-        public static ulong[][] GetBoardPostMove(this ulong[][] currentBoard, in Color activePlayerColor, in MoveExt move)
+        public static ulong[][] GetBoardPostMove(this ulong[][] currentBoard, in Color activePlayerColor,
+            in MoveExt move)
         {
-            var nActiveColor = (int)activePlayerColor;
+            var nActiveColor = (int) activePlayerColor;
             var opponentColor = activePlayerColor.Toggle();
-            var nOppColor = (int)opponentColor;
+            var nOppColor = (int) opponentColor;
             var resultantBoard = new ulong[2][];
-            var pieceMoving = GetTypeOfPieceAtIndex(move.SourceIndex, currentBoard);
+            var pieceMoving = GetPieceAtIndex(currentBoard, move.SourceIndex);
             for (var i = 0; i < 2; i++)
             {
                 resultantBoard[i] = new ulong[6];
                 foreach (var p in Enum.GetValues(typeof(Piece)))
                 {
-                    resultantBoard[i][(int)p] = currentBoard[i][(int)p];
-                    if (i == nActiveColor && (Piece)p == pieceMoving)
+                    resultantBoard[i][(int) p] = currentBoard[i][(int) p];
+                    if (i == nActiveColor && (Piece) p == pieceMoving)
                     {
-                        resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.SourceIndex);
-                        resultantBoard[i][(int)p] = resultantBoard[i][(int)p].SetBit(move.DestinationIndex);
+                        resultantBoard[i][(int) p] = BitHelpers.ClearBit(resultantBoard[i][(int) p], move.SourceIndex);
+                        resultantBoard[i][(int) p] = resultantBoard[i][(int) p].SetBit(move.DestinationIndex);
                     }
-                    else if (i == (int)opponentColor)
+                    else if (i == (int) opponentColor)
                     {
-                        resultantBoard[i][(int)p] = BitHelpers.ClearBit(resultantBoard[i][(int)p], move.DestinationIndex);
+                        resultantBoard[i][(int) p] =
+                            BitHelpers.ClearBit(resultantBoard[i][(int) p], move.DestinationIndex);
                     }
                 }
             }
+
             if (move.MoveType == MoveType.Castle)
             {
                 resultantBoard[nActiveColor][ROOK] = GetRookBoardPostCastle(move, resultantBoard[nActiveColor][ROOK]);
             }
             else if (move.MoveType == MoveType.EnPassant)
             {
-                var capturedPawnValue = 1ul << (opponentColor == Color.Black ? move.DestinationIndex - 8 : move.DestinationIndex + 8);
-                resultantBoard[nOppColor][PAWN] &= ~(capturedPawnValue);
+                var capturedPawnValue = 1ul << (opponentColor == Color.Black
+                                            ? move.DestinationIndex - 8
+                                            : move.DestinationIndex + 8);
+                resultantBoard[nOppColor][PAWN] &= ~capturedPawnValue;
             }
             else if (move.MoveType == MoveType.Promotion)
             {
-                resultantBoard[nActiveColor][PAWN] &= ~(move.DestinationValue);
+                resultantBoard[nActiveColor][PAWN] &= ~move.DestinationValue;
                 switch (move.PromotionPiece)
                 {
                     case PromotionPiece.Knight:
@@ -564,6 +463,7 @@ namespace ChessLib.Data.Helpers
                         break;
                 }
             }
+
             return resultantBoard;
         }
 
@@ -571,81 +471,88 @@ namespace ChessLib.Data.Helpers
         {
             var rank = move.DestinationIndex.RankFromIdx();
             var file = move.DestinationIndex.FileFromIdx();
-            var rookSource = rank == 7      // black castling
+            var rookSource = rank == 7 // black castling
                 ? file == 2
-                    ? 0x100000000000000ul           // BLACK O-O-O
-                    : 0x8000000000000000ul      // BLACK O-O
+                    ? 0x100000000000000ul // BLACK O-O-O
+                    : 0x8000000000000000ul // BLACK O-O
                 : file == 2
-                    ? 0x01ul                        // WHITE O-O-O
-                    : 0x80ul;                   // WHITE O-O
+                    ? 0x01ul // WHITE O-O-O
+                    : 0x80ul; // WHITE O-O
 
-            var rookDest = rank == 7        // black castling
+            var rookDest = rank == 7 // black castling
                 ? file == 2
-                    ? 0x800000000000000ul           // BLACK O-O-O
-                    : 0x2000000000000000ul      // BLACK O-O
+                    ? 0x800000000000000ul // BLACK O-O-O
+                    : 0x2000000000000000ul // BLACK O-O
                 : file == 2
-                    ? 0x08ul                        // WHITE O-O-O
-                    : 0x20ul;                   // WHITE O-O
+                    ? 0x08ul // WHITE O-O-O
+                    : 0x20ul; // WHITE O-O
 
-            return (rookBoard & ~(rookSource)) | rookDest;
+            return (rookBoard & ~rookSource) | rookDest;
         }
 
 
-        public static Color OpponentColor(this IBoard board) => board.ActivePlayer.Toggle();
+        public static Color OpponentColor(this IBoard board)
+        {
+            return board.ActivePlayer.Toggle();
+        }
 
         public static ushort ActiveKingIndex(this IBoard board)
         {
             return board.GetPiecePlacement()[board.ActivePlayer.ToInt()][KING].GetSetBits()[0];
         }
 
-        public static ushort OpponentKingIndex(this IBoard board) => board.GetPiecePlacement()[board.OpponentColor().ToInt()][KING].GetSetBits()[0];
+        public static ushort OpponentKingIndex(this IBoard board)
+        {
+            return board.GetPiecePlacement()[board.OpponentColor().ToInt()][KING].GetSetBits()[0];
+        }
 
 
-        public static bool IsActivePlayerInCheck(this IBoard board) =>
-            IsColorInCheck(board.GetPiecePlacement(), board.ActivePlayer, board.ActiveKingIndex());
+        public static bool IsActivePlayerInCheck(this IBoard board)
+        {
+            return IsColorInCheck(board.GetPiecePlacement(), board.ActivePlayer, board.ActiveKingIndex());
+        }
 
-        public static bool IsOpponentInCheck(this IBoard board) =>
-            IsColorInCheck(board.GetPiecePlacement(), board.OpponentColor(), board.OpponentKingIndex());
+        public static bool IsOpponentInCheck(this IBoard board)
+        {
+            return IsColorInCheck(board.GetPiecePlacement(), board.OpponentColor(), board.OpponentKingIndex());
+        }
 
         private static bool IsColorInCheck(ulong[][] board, Color checkedColor, ushort? checkedColorKingIdx)
         {
             checkedColorKingIdx = checkedColorKingIdx ?? board[checkedColor.ToInt()][KING].GetSetBits()[0];
             Debug.Assert(checkedColorKingIdx.HasValue);
-            return Bitboard.IsSquareAttackedByColor(checkedColorKingIdx.Value, checkedColor.Toggle(), board);
+            return checkedColorKingIdx.Value.IsSquareAttackedByColor(checkedColor.Toggle(), board);
         }
 
         /// <summary>
-        /// Determines if active player is stalemated
+        ///     Determines if active player is stalemated.
         /// </summary>
-        /// <param name="board"></param>
-        /// <returns></returns>
+        /// <remarks>
+        ///     Algorithm is (active player is not in check (thus, not mate, either)) AND (active player has no moves)
+        /// </remarks>
+        /// <param name="board">Current board configuration</param>
+        /// <returns>true if activePlayer is stalemated, false otherwise</returns>
         public static bool IsStalemate(this IBoard board)
         {
-            if (board.IsActivePlayerInCheck())
-            {
-                return false;
-            }
+            if (board.IsActivePlayerInCheck()) return false;
             var canAnyPieceMove = false;
             var myPieceLocations = board.GetPiecePlacement().Occupancy(board.ActivePlayer).GetSetBits();
             foreach (var square in myPieceLocations)
             {
-                if (canAnyPieceMove == false)
+                var pieceType = GetPieceAtIndex(board.GetPiecePlacement(), square);
+                Debug.Assert(pieceType.HasValue);
+                if (board.CanPieceMove(square))
                 {
-                    var pieceType = BoardHelpers.GetTypeOfPieceAtIndex(square, board.GetPiecePlacement());
-                    Debug.Assert(pieceType.HasValue);
-                    if (board.CanPieceMove(square))
-                    {
-                        canAnyPieceMove = true;
-                        break;
-                    }
-
+                    canAnyPieceMove = true;
+                    break;
                 }
             }
+
             return !canAnyPieceMove;
         }
 
         /// <summary>
-        /// Determines if active player has been mated
+        ///     Determines if active player has been mated
         /// </summary>
         /// <param name="board"></param>
         /// <returns></returns>
@@ -655,7 +562,7 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Can the specified color's king evade an attack through a block or a capture
+        ///     Can the specified color's king evade an attack through a block or a capture
         /// </summary>
         /// <param name="board"></param>
         /// <param name="c"></param>
@@ -668,19 +575,24 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets a list of possible evasions for the active player's King
+        ///     Gets a list of possible evasions for the active player's King
         /// </summary>
-        /// <param name="board"></param>
-        /// <returns></returns>
+        /// <param name="board">Current board configuration</param>
+        /// <returns>A list of evasive moves from attacker</returns>
+        /// <exception cref="PieceException">
+        ///     If no piece is on 'occupied' boardIndex. Not likely, due to method only looking at
+        ///     occupied squares.
+        /// </exception>
         public static MoveExt[] GetEvasions(this IBoard board)
         {
             var rv = new List<MoveExt>();
-            var nColor = board.ActivePlayer.ToInt();
+            board.ActivePlayer.ToInt();
             var nOppColor = board.OpponentColor().ToInt();
             var kingIndex = board.ActiveKingIndex();
             var activeOccupancy = board.GetPiecePlacement().Occupancy(board.ActivePlayer);
             var oppOccupancy = board.GetPiecePlacement().Occupancy(board.OpponentColor());
-            var piecesAttacking = board.PiecesAttackingSquare(kingIndex) & board.GetPiecePlacement().Occupancy(board.ActivePlayer.Toggle());
+            var piecesAttacking = board.PiecesAttackingSquare(kingIndex) &
+                                  board.GetPiecePlacement().Occupancy(board.ActivePlayer.Toggle());
             var attackerIndexes = piecesAttacking.GetSetBits();
 
 
@@ -688,15 +600,19 @@ namespace ChessLib.Data.Helpers
             if (attackerIndexes.Length == 1)
             {
                 var attackerIdx = attackerIndexes[0];
-                var activeOccupancyNotKing = activeOccupancy & ~(kingIndex.GetBoardValueOfIndex());
+                var activeOccupancyNotKing = activeOccupancy & ~kingIndex.GetBoardValueOfIndex();
                 foreach (var occupiedSquare in activeOccupancyNotKing.GetSetBits())
                 {
-                    var piece = GetTypeOfPieceAtIndex(occupiedSquare, board.GetPiecePlacement());
+                    var piece = GetPieceAtIndex(board.GetPiecePlacement(), occupiedSquare);
+                    if (piece == null)
+                        throw new PieceException(
+                            "No piece found at given index in BoardHelpers.GetEvasions(). Not likely, due to method only looking at occupied squares.");
                     var attackedSquares =
-                        Bitboard.GetPseudoLegalMoves(piece.Value, occupiedSquare, activeOccupancy, oppOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
+                        Bitboard.GetPseudoLegalMoves(piece.Value, occupiedSquare, activeOccupancy, oppOccupancy,
+                            board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
                     var squaresBetween = InBetween(kingIndex, attackerIdx);
                     ulong destination;
-                    if ((destination = (attackedSquares & squaresBetween)) != 0)
+                    if ((destination = attackedSquares & squaresBetween) != 0)
                     {
                         var destIdx = destination.GetSetBits();
                         foreach (var potentialBlockingPiece in destIdx)
@@ -706,34 +622,32 @@ namespace ChessLib.Data.Helpers
                         }
                     }
                 }
-
             }
+
             Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, activeOccupancy, oppOccupancy, board.ActivePlayer,
-                board.EnPassantSquare, CastlingAvailability.NoCastlingAvailable, out List<MoveExt> plMoves);
+                board.EnPassantSquare, CastlingAvailability.NoCastlingAvailable, out var plMoves);
             foreach (var mv in plMoves)
             {
                 var boardPostMove = GetBoardPostMove(board.GetPiecePlacement(), board.ActivePlayer, mv);
-                if (!Bitboard.IsSquareAttackedByColor(mv.DestinationIndex, (Color)nOppColor, boardPostMove))
-                {
-                    rv.Add(mv);
-                }
+                if (!mv.DestinationIndex.IsSquareAttackedByColor((Color) nOppColor, boardPostMove)) rv.Add(mv);
             }
 
             return rv.ToArray();
         }
 
         /// <summary>
-        /// Gets piece value of pieces that attack the square index.
+        ///     Gets piece value of pieces that attack the boardIndex index.
         /// </summary>
-        /// <param name="board">The IBoard from which to derive board information.</param>
-        /// <param name="squareIndex">index of square being attacked.</param>
-        /// <returns></returns>
+        /// <param name="board">The IBoard from which to derive pieceLayout information.</param>
+        /// <param name="squareIndex">index of boardIndex being attacked.</param>
+        /// <returns><see cref="ulong" /> that represents squares containing pieces attacking
+        ///     <param name="squareIndex">index</param>
+        ///     boardIndex
+        /// </returns>
         public static ulong PiecesAttackingSquare(this IBoard board, in ushort squareIndex)
         {
             var piecesOnBoard = board.GetPiecePlacement();
-            var total = piecesOnBoard
-                .Select(color => color.Aggregate((current, x) => current |= x))
-                .Aggregate((current, x) => current |= x);
+            var total = board.TotalOccupancy();
             var pawnWhite = piecesOnBoard[WHITE][PAWN];
             var pawnBlack = piecesOnBoard[BLACK][PAWN];
             var knight = piecesOnBoard[BLACK][KNIGHT] | piecesOnBoard[WHITE][KNIGHT];
@@ -743,14 +657,218 @@ namespace ChessLib.Data.Helpers
             var king = piecesOnBoard[BLACK][KING] | piecesOnBoard[WHITE][KING];
             return (Bitboard.GetAttackedSquares(Piece.Pawn, squareIndex, total, Color.Black) & pawnWhite)
                    | (Bitboard.GetAttackedSquares(Piece.Pawn, squareIndex, total, Color.White) & pawnBlack)
-                   | (Bitboard.GetAttackedSquares(Piece.Knight, squareIndex, total) & knight)
-                   | (Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, total) & bishop)
-                   | (Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, total) & rook)
-                   | (Bitboard.GetAttackedSquares(Piece.Queen, squareIndex, total) & (queen))
-                   | (Bitboard.GetAttackedSquares(Piece.King, squareIndex, total) & king);
-
+                   | (Bitboard.GetAttackedSquares(Piece.Knight, squareIndex, total, Color.White) & knight)
+                   | (Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, total, Color.White) & bishop)
+                   | (Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, total, Color.White) & rook)
+                   | (Bitboard.GetAttackedSquares(Piece.Queen, squareIndex, total, Color.White) & queen)
+                   | (Bitboard.GetAttackedSquares(Piece.King, squareIndex, total, Color.White) & king);
         }
 
+
+        #region Constant Piece and Color Values for Indexing arrays
+
+        // ReSharper disable InconsistentNaming
+        public const int PAWN = (int) Piece.Pawn;
+        public const int BISHOP = (int) Piece.Bishop;
+        public const int KNIGHT = (int) Piece.Knight;
+        public const int ROOK = (int) Piece.Rook;
+        public const int QUEEN = (int) Piece.Queen;
+        public const int KING = (int) Piece.King;
+        public const int WHITE = (int) Color.White;
+
+        public const int BLACK = (int) Color.Black;
+        // ReSharper restore InconsistentNaming
+
+        #endregion
+
+
+        #region Enum ToInt() methods
+
+        /// <summary>
+        ///     Extension to get the int of a color
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ToInt(this Color c)
+        {
+            return (int) c;
+        }
+
+        /// <summary>
+        ///     Extension to get the int of a piece
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ToInt(this Piece p)
+        {
+            return (int) p;
+        }
+
+        /// <summary>
+        ///     Extension to get the int of a file
+        /// </summary>
+        /// <param name="f"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ToInt(this File f)
+        {
+            return (int) f;
+        }
+
+        /// <summary>
+        ///     Extension to get the int of a rank
+        /// </summary>
+        /// <param name="r"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ToInt(this Rank r)
+        {
+            return (int) r;
+        }
+
+        /// <summary>
+        ///     Gets the hex display of a long (for debugging, mainly)
+        /// </summary>
+        /// <param name="u">long to get display from</param>
+        /// <param name="appendHexNotation">append '0x' to the representation</param>
+        /// <param name="pad">pad length to a certain size</param>
+        /// <param name="padSize">size to pad</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToHexDisplay(this ulong u, bool appendHexNotation = true, bool pad = false,
+            int padSize = 64)
+        {
+            var str = Convert.ToString((long) u, 16);
+            if (pad) str = str.PadLeft(padSize, '0');
+            if (appendHexNotation) str = "0x" + str;
+            return str;
+        }
+
+        #endregion
+
+        #region Array Position to Friendly Position Helpers
+
+        /// <summary>
+        ///     Gets the index of a boardIndex
+        /// </summary>
+        /// <param name="square">
+        ///     SAN boardIndex representation (A1, H5, E4, etc). Must be either '-' (FEN En Passant) or 2
+        ///     characters
+        /// </param>
+        /// <returns>Square index</returns>
+        /// <exception cref="ArgumentException">Thrown if boardIndex length, File, or Rank is invalid.</exception>
+        public static ushort? SquareTextToIndex(this string square)
+        {
+            if (square.Trim() == "-") return null;
+            if (square.Length != 2)
+                throw new ArgumentException($"Square passed to SquareTextToIndex(), {square} has an invalid length.");
+            var file = char.ToLower(square[0]);
+            var rank = ushort.Parse(square[1].ToString());
+            if (!char.IsLetter(file) || file < 'a' || file > 'h')
+                throw new ArgumentException("File portion of boardIndex-text should be a letter, between 'a' and 'h'.");
+            if (rank < 1 || rank > 8)
+                throw new ArgumentException(
+                    "Rank portion of boardIndex-text should be a digit with a value between 1 and 8.");
+            var rankMultiplier = rank - 1;
+            return (ushort) (rankMultiplier * 8 + file - 'a');
+        }
+
+        /// <summary>
+        ///     Converts rank and file to a pieceLayout index
+        /// </summary>
+        /// <param name="rank"></param>
+        /// <param name="file"></param>
+        /// <returns>Corresponding pieceLayout index specified by rank and file</returns>
+        public static ushort RankAndFileToIndex(ushort rank, ushort file)
+        {
+            Debug.Assert(rank <= 7 && file <= 7);
+            return (ushort) (rank * 8 + file);
+        }
+
+        /// <summary>
+        ///     Gets a File basked on boardIndex index
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static File GetFile(this int square)
+        {
+            return (File) (square % 8);
+        }
+
+        /// <summary>
+        ///     Gets a File basked on boardIndex index
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort GetFile(this ushort square)
+        {
+            return (ushort) (square % 8);
+        }
+
+        /// <summary>
+        ///     Gets a Rank basked on boardIndex index
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rank GetRank(this int square)
+        {
+            Debug.Assert(square >= 0 && square < 64);
+            return (Rank) ((ushort) square).GetRank();
+        }
+
+        /// <summary>
+        ///     Gets a Rank basked on boardIndex index
+        /// </summary>
+        /// <exception cref="ArgumentException">if
+        ///     <param name="boardIndex">index</param>
+        ///     is not in range.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort GetRank(this ushort boardIndex)
+        {
+            boardIndex.ValidateIndex();
+            return (ushort) (boardIndex / 8);
+        }
+
+        /// <summary>
+        ///     Gets a rank index from boardIndex
+        ///     <param name="boardIndex">index</param>
+        /// </summary>
+        /// <param name="boardIndex"></param>
+        /// <returns>Board rank (First rank: 0)</returns>
+        /// <exception cref="ArgumentException">if
+        ///     <param name="boardIndex">index</param>
+        ///     is out of range.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort RankFromIdx(this ushort boardIndex)
+        {
+            boardIndex.ValidateIndex();
+            return (ushort) (boardIndex / 8);
+        }
+
+        /// <summary>
+        ///     Gets a file index from a boardIndex index
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort FileFromIdx(this ushort idx)
+        {
+            return (ushort) (idx % 8);
+        }
+
+        /// <summary>
+        ///     Gets
+        /// </summary>
+        /// <param name="rank"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort RankCompliment(this ushort rank)
+        {
+            return (ushort) Math.Abs(rank - 7);
+        }
+
+        #endregion
 
 
         #region FEN String Retrieval

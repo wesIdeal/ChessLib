@@ -1,9 +1,9 @@
 ﻿namespace ChessLib.UCI.Commands.FromEngine
 {
-    public class ErrorResponseArgs : EngineResponseArgs
+    public class ErrorResponse : IResponseObject
     {
         public string ErrorMessage { get; protected set; }
-        public ErrorResponseArgs(string errorMessage, string response) : base(null, response)
+        public ErrorResponse(string errorMessage)
         {
             ErrorMessage = errorMessage;
         }

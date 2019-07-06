@@ -14,4 +14,14 @@ namespace ChessLib.UCI.Commands.FromEngine
         public string ResponseText { get; set; }
         public Guid Id { get; set; }
     }
+
+    public class EngineCalculationResponseArgs : EngineResponseArgs
+    {
+        public EngineCalculationResponseArgs(ICalculationInfoResponse responseObject, string response) : base(responseObject, response)
+        {
+            ResponseObject = responseObject;
+        }
+        public new ICalculationInfoResponse ResponseObject;
+    }
+
 }

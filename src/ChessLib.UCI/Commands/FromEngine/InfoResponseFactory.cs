@@ -1,19 +1,34 @@
-﻿using System;
+﻿using ChessLib.Data;
+using ChessLib.Data.MoveRepresentation;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using ChessLib.Data;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
 
 namespace ChessLib.UCI.Commands.FromEngine
 {
+    public enum CalculationResponseTypes
+    {
+        /// <summary>
+        /// Used to signify the info line coming back contains an analysis of a variation
+        /// </summary>
+        PrincipalVariation,
+        /// <summary>
+        /// Used to signify the info line coming back tells which move is being calculated
+        /// </summary>
+        CalculationInformation,
+        /// <summary>
+        /// Used to signify the information contains a best move and ponder move only
+        /// </summary>
+        BestMove
+    }
     [SuppressMessage("ReSharper", "StringLiteralTypo")]
     public class InfoResponseFactory
     {
         internal class InfoResponse : IPrincipalVariationResponse, IInfoCalculationResponse
         {
+            
             public InfoResponse()
             {
                 Score = new PrincipalVariationScore();
@@ -39,9 +54,13 @@ namespace ChessLib.UCI.Commands.FromEngine
 
             public string ResponseText { get; set; }
 
+            public string CurrentMoveLong { get; set; }
+
             public MoveExt CurrentMove { get; set; }
 
             public uint CurrentMoveNumber { get; set; }
+
+            public string[] VariationLong { get; set; }
 
             public MoveExt[] Variation { get; set; }
 
@@ -51,27 +70,19 @@ namespace ChessLib.UCI.Commands.FromEngine
 
             public PrincipalVariationResponse ToPVResponse()
             {
-                return new PrincipalVariationResponse(PVOrdinal, Variation, Score, SelectiveSearchDepth, SearchTime,
-                    Nodes, NodesPerSecond, TableBaseHits, Depth, FromFEN, SAN);
+                return new PrincipalVariationResponse(PVOrdinal, VariationLong, Score, SelectiveSearchDepth, SearchTime,
+                    Nodes, NodesPerSecond, TableBaseHits, Depth);
             }
 
             public InfoCalculationResponse ToInfoCalculationResponse()
             {
-                return new InfoCalculationResponse(Depth, CurrentMoveNumber, CurrentMove, FromFEN, SAN);
+                return new InfoCalculationResponse(Depth, CurrentMoveNumber, CurrentMoveLong);
             }
+
+            public CalculationResponseTypes ResponseType { get; set; }
         }
 
-        public enum InfoTypes
-        {
-            /// <summary>
-            /// Used to signify the info line coming back contains an analysis of a variation
-            /// </summary>
-            AnalysisInfo,
-            /// <summary>
-            /// Used to signify the info line coming back tells which move is being calculated
-            /// </summary>
-            CalculationInfo
-        }
+
 
         private static readonly KeyValuePair<string, int>[] InfoFieldNames =
             {
@@ -87,7 +98,7 @@ namespace ChessLib.UCI.Commands.FromEngine
                 new KeyValuePair<string,int>("pv", 1),//special case - string of moves after this until newline
                 new KeyValuePair<string,int>("currmove",1),
                 new KeyValuePair<string, int>("currmovenumber",1)
-                
+
             };
 
         public static readonly Dictionary<string, int> InfoFieldDepth = InfoFieldNames.ToDictionary(k => k.Key, v => v.Value);
@@ -96,20 +107,20 @@ namespace ChessLib.UCI.Commands.FromEngine
         [SuppressMessage("ReSharper", "StringLiteralTypo")]
         private static readonly string[] CalcKeywords = { "currmove", "currmovenumber" };
 
-        public static InfoTypes GetTypeOfInfo(string engineResponse)
+        public static CalculationResponseTypes GetTypeOfInfo(string engineResponse)
         {
             foreach (var kw in CalcKeywords)
             {
-                if (engineResponse.Contains(kw)) return InfoTypes.CalculationInfo;
+                if (engineResponse.Contains(kw)) return CalculationResponseTypes.CalculationInformation;
             }
-            return InfoTypes.AnalysisInfo;
+            return CalculationResponseTypes.PrincipalVariation;
         }
 
-        public IResponseObject GetInfoResponse(in string fen, in string engineResponse)
+        public ICalculationInfoResponse GetInfoResponse(in string engineResponse)
         {
             if (engineResponse.StartsWith("bestmove"))
             {
-                return GetBestMoveResponse(fen, engineResponse);
+                return GetBestMoveResponse(engineResponse);
             }
             var response = engineResponse.Replace("info", "").Trim();
             var infoDictionary = new Dictionary<string, string>();
@@ -138,23 +149,19 @@ namespace ChessLib.UCI.Commands.FromEngine
                 i += keyLength;
 
             }
-            var infoType = response.Contains("currmove") ? InfoTypes.CalculationInfo : InfoTypes.AnalysisInfo;
-            return SetPropertiesFromInfoDict(fen, infoType, infoDictionary);
+            var infoType = response.Contains("currmove") ? CalculationResponseTypes.CalculationInformation : CalculationResponseTypes.PrincipalVariation;
+            return SetPropertiesFromInfoDict(infoType, infoDictionary);
         }
 
-        private IResponseObject GetBestMoveResponse(string fen, string engineResponse)
+        private ICalculationInfoResponse GetBestMoveResponse(string engineResponse)
         {
-            var keys = new[] { "bestmove", "ponder" };
-            var values = engineResponse.Split(' ').Where(x => !keys.Contains(x)).ToArray();
-            var bestMoveUnvalidated = FillUnvalidatedMoves(values);
-            var bestMoves = GetMoveInfo(fen, bestMoveUnvalidated.ToArray(), out var san);
-            var bestMove = bestMoves[0];
-            var ponderMove = bestMoves.Count > 1 ? bestMoves[1] : null;
-            var ponderSan = san.Count > 1 ? san[1] : "";
-            return new BestMoveResponse(bestMove, ponderMove, san[0], ponderSan);
+            var values = engineResponse.Split(' ').ToArray();
+            var bestMove = GetKeyValue(values, "bestmove");
+            var ponderMove = GetKeyValue(values, "ponder");
+            return new BestMoveResponse(bestMove, ponderMove);
         }
 
-        private IResponseObject SetPropertiesFromInfoDict(in string fen, in InfoTypes infoType, in Dictionary<string, string> infoDictionary)
+        private ICalculationInfoResponse SetPropertiesFromInfoDict(in CalculationResponseTypes calculationResponseType, in Dictionary<string, string> infoDictionary)
         {
             var ir = new InfoResponse();
             MoveExt currentMoveUn = null;
@@ -164,7 +171,7 @@ namespace ChessLib.UCI.Commands.FromEngine
                 switch (field.Key)
                 {
                     case "currmove":
-                        currentMoveUn = MoveTranslatorService.FromLANMove(field.Value);
+                        ir.CurrentMoveLong = field.Value;
                         break;
                     case "currmovenumber":
                         ir.CurrentMoveNumber = uint.Parse(field.Value);
@@ -199,7 +206,7 @@ namespace ChessLib.UCI.Commands.FromEngine
                         ir.SearchTime = TimeSpan.FromMilliseconds(long.Parse(field.Value));
                         break;
                     case "pv":
-                        infoMovesUnvalidated = FillUnvalidatedMoves(field.Value.Split(' ')).ToArray();
+                        ir.VariationLong = field.Value.Split(' ');
                         break;
                     case "bound":
                         ir.Score.Bound = field.Value == "lowerbound" ? Bound.Lower : field.Value == "upperbound" ? Bound.Upper : Bound.None;
@@ -208,63 +215,31 @@ namespace ChessLib.UCI.Commands.FromEngine
                 }
             }
 
-           
-            if (infoType == InfoTypes.AnalysisInfo)
+            if (calculationResponseType == CalculationResponseTypes.PrincipalVariation)
             {
-                Debug.Assert(infoMovesUnvalidated != null);
-                var validatedMoves = GetMoveInfo(fen, infoMovesUnvalidated, out _).ToArray();
-                ir.Variation = validatedMoves;
                 return ir.ToPVResponse();
             }
 
-            Debug.Assert(currentMoveUn != null);
-            var moves = GetMoveInfo(fen, new[] { currentMoveUn }, out _).ToArray();
-            ir.CurrentMove = moves.Any() ? moves[0] : null;
             return ir.ToInfoCalculationResponse();
         }
 
-        private IEnumerable<MoveExt> FillUnvalidatedMoves(string[] lanMoves)
+        private string GetKeyValue(IEnumerable<string> keyValueArray, string key)
         {
-            foreach (var move in lanMoves)
+            var arr = keyValueArray.ToArray();
+            for (var i = 0; i < arr.Length; i++)
             {
-                yield return MoveTranslatorService.FromLANMove(move);
+                if (arr[i] == key)
+                {
+                    var valueIdx = i + 1;
+                    if (valueIdx < arr.Length)
+                    {
+                        return arr[valueIdx];
+                    }
+
+                    return null;
+                }
             }
+            return null;
         }
-
-        private List<MoveExt> GetMoveInfo(string fen, MoveExt[] mvs, out List<string> san)
-        {
-            var board = new BoardInfo(fen);
-            var sanMoveArray = new List<string>();
-            var moveReturnValue = new List<MoveExt>();
-            var count = 0;
-            foreach (var move in mvs)
-            {
-                var isPromotion = move.MoveType == MoveType.Promotion;
-                if (!isPromotion)
-                {
-                    var isEnPassant = board.IsEnPassantCapture(move);
-                    var isCastlingMove = board.IsCastlingMove(move);
-                    move.MoveType = isEnPassant ? MoveType.EnPassant : isCastlingMove ? MoveType.Castle : MoveType.Normal;
-                }
-
-                string moveNumber = "";
-                if (count == 0 && board.ActivePlayer == Color.Black)
-                {
-                    moveNumber += board.FullmoveCounter + "...";
-
-                }
-                else if (board.ActivePlayer == Color.White)
-                {
-                    moveNumber = board.FullmoveCounter + ". ";
-                }
-                board.ApplyValidatedMove(move);
-                sanMoveArray.Add($"{moveNumber}{board.MoveTree.Last().SAN}");
-                count++;
-                moveReturnValue.Add(move);
-            }
-            san = sanMoveArray;
-            return moveReturnValue;
-        }
-
     }
 }

@@ -114,7 +114,7 @@ namespace ChessLib.Data
         public bool DoesPieceAtSquareAttackSquare(ushort attackerSquare, ushort attackedSquare,
             Piece attackerPiece)
         {
-            var attackedSquares = Bitboard.GetAttackedSquares(attackerPiece, attackerSquare, TotalOccupancy);
+            var attackedSquares = Bitboard.GetAttackedSquares(attackerPiece, attackerSquare, TotalOccupancy, Color.White);
             var attackedValue = attackedSquare.GetBoardValueOfIndex();
             return (attackedSquares & attackedValue) != 0;
         }

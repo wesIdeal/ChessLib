@@ -12,7 +12,7 @@ namespace ChessLib.UCI
         {
             Options = new List<IUCIOption>();
         }
-       
+
         public Guid Id { get; private set; }
         public List<IUCIOption> Options { get; private set; }
         public string Name { get; private set; }
@@ -46,6 +46,7 @@ namespace ChessLib.UCI
 
         public UCIResponse(Guid id, string optResponse)
         {
+            Id = id;
             var optsUnfiltered = optResponse.Split('\n').Select(x => x.Trim()).Where(x => x != "").ToArray();
             Name = optsUnfiltered.FirstOrDefault(x => x.StartsWith("id name"))?.Replace("id name", "").Trim();
             Author = optsUnfiltered.FirstOrDefault(x => x.StartsWith("id author"))?.Replace("id author", "").Trim();

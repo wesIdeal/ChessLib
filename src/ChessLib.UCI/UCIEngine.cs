@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,42 +34,6 @@ namespace ChessLib.UCI
         bool IgnoreMoveCalculationLines { get; set; }
     }
 
-    public class EngineStartupArgs : IEngineStartupArgs
-    {
-        public EngineStartupArgs(Guid engineId, string description, string commandLine,
-            ProcessPriorityClass priority = ProcessPriorityClass.Normal, Dictionary<string, string> initialEngineOptions = null)
-        {
-            EngineId = engineId;
-            Description = description;
-            CommandLine = commandLine;
-            InitialPriority = priority;
-            EngineOptions = initialEngineOptions ?? new Dictionary<string, string>();
-        }
-
-        /// <summary>
-        /// User assigned id for the engine
-        /// </summary>
-        public Guid EngineId { get; set; }
-        /// <summary>
-        /// User assigned engine description
-        /// </summary>
-        public string Description { get; set; }
-        /// <summary>
-        /// Command to start the engine, along with any commandline options
-        /// </summary>
-        public string CommandLine { get; set; }
-
-        /// <summary>
-        /// Priority to apply upon startup
-        /// </summary>
-        public ProcessPriorityClass InitialPriority { get; set; }
-
-        /// <summary>
-        /// Options to apply upon startup
-        /// </summary>
-        public Dictionary<string, string> EngineOptions { get; set; }
-    }
-
     public class UCIEngineStartupArgs : EngineStartupArgs, IUCIEngineStartArgs
     {
         public UCIEngineStartupArgs(Guid engineId, string description, string commandLine, bool ignoreMoveCalculationLines = true)
@@ -84,14 +46,17 @@ namespace ChessLib.UCI
         /// </summary>
         public bool IgnoreMoveCalculationLines { get; set; }
     }
+
     public sealed class UCIEngine : Engine
     {
-        public new IUCIEngineStartArgs UserSuppliedArgs { get; protected set; }
+        private readonly MoveTranslatorService _moveTranslatorService;
+        public new IUCIEngineStartArgs UserSuppliedArgs { get; }
 
         public UCIEngine(UCIEngineStartupArgs args, UCIEngineMessageSubscriber engineMessageSubscriber = null, EngineProcess process = null)
         : base(args, engineMessageSubscriber)
         {
             UserSuppliedArgs = args;
+            _moveTranslatorService = new MoveTranslatorService();
             MessageSubscriber = engineMessageSubscriber ?? new UCIEngineMessageSubscriber(ResponseReceived);
             if (process != null)
             {
@@ -104,6 +69,7 @@ namespace ChessLib.UCI
             if (engineResponse == null)
             {
                 OnDebugEventExecuted(new DebugEventArgs("Received null object from engine."));
+                return;
             }
             else if (engineResponse is ReadyOkResponseArgs)
             {
@@ -113,7 +79,10 @@ namespace ChessLib.UCI
             {
                 _uciInfoReceived.Set();
             }
-            engineResponse.Id = UserAssignedId;
+            else if (engineResponse is EngineCalculationResponseArgs calcResponse)
+            {
+                engineResponse.ResponseObject = FillCalculationResponseWithMoveObjects(calcResponse.ResponseObject);
+            }
             OnEngineObjectReceived(engineResponse);
         }
 
@@ -178,32 +147,40 @@ namespace ChessLib.UCI
         }
 
         #region Send Position Command Methods
+
+        public void SendNewGame()
+        {
+            SendPosition();
+        }
         public override void SendPosition()
         {
+            base.SendPosition();
+            _moveTranslatorService.InitializeBoard();
             var commandInfo = new CommandInfo(AppToUCICommand.NewGame);
             QueueCommand(commandInfo);
         }
 
         public override void SendPosition(string fen)
         {
-            FEN = fen;
             SendPosition(fen, new MoveExt[] { });
         }
 
-
-
         public override void SendPosition(MoveExt[] moves)
         {
-            FEN = FENHelpers.FENInitial;
-            SendPosition(FEN, moves);
+            SendIsReady();
+            base.SendPosition(moves);
+            _moveTranslatorService.InitializeBoard(CurrentFEN);
+            SendPosition(StartingPositionFEN, moves);
         }
 
         public override void SendPosition(string fen, MoveExt[] moves)
         {
-            FEN = fen;
+            SendIsReady();
+            base.SendPosition(fen);
+            base.SendPosition(moves);
+            _moveTranslatorService.InitializeBoard(CurrentFEN);
             var commandInfo = new CommandInfo(AppToUCICommand.Position);
-            var positionString = "startpos";
-            if (FEN != FENHelpers.FENInitial) positionString = $"fen {FEN}";
+            var positionString = $"fen {StartingPositionFEN}";
             var moveString = "";
             if (moves.Any())
                 moveString = " moves " + string.Join(" ", moves.Select(MoveDisplayService.MoveToLan));
@@ -220,6 +197,7 @@ namespace ChessLib.UCI
         /// <param name="searchMoves">only consider these moves</param>
         public void SendGo(TimeSpan searchTime, MoveExt[] searchMoves = null)
         {
+            SendIsReady();
             QueueCommand(new Go(searchTime, searchMoves));
         }
 
@@ -259,8 +237,6 @@ namespace ChessLib.UCI
             base.ExecuteEngineAsync();
         }
 
-
-
         public override void SendStartupMessagesToEngine()
         {
             TimeSpan timeout = TimeSpan.FromSeconds(100);
@@ -281,9 +257,50 @@ namespace ChessLib.UCI
             }
         }
 
+        private IResponseObject FillCalculationResponseWithMoveObjects(in ICalculationInfoResponse calculation)
+        {
+            if (calculation.ResponseType == CalculationResponseTypes.BestMove)
+            {
+                var bmResponse = calculation as IBestMoveResponse;
+                FillBestMoveResponseWithMoveObjects(ref bmResponse);
+                return bmResponse;
+            }
 
-        private bool IsResponseUCI(string response) => _uciFlags.Any(response.StartsWith);
+            if (calculation.ResponseType == CalculationResponseTypes.CalculationInformation)
+            {
+                var infoCalcResponse = calculation as IInfoCalculationResponse;
+                FillBestMoveResponseWithMoveObjects(ref infoCalcResponse);
+                return infoCalcResponse;
+            }
 
+            if (calculation.ResponseType == CalculationResponseTypes.PrincipalVariation)
+            {
+                var pvResponse = calculation as IPrincipalVariationResponse;
+                FillBestMoveResponseWithMoveObjects(ref pvResponse);
+                return pvResponse;
+            }
+            return calculation;
+        }
+
+        private void FillBestMoveResponseWithMoveObjects(ref IPrincipalVariationResponse principalVariationResponse)
+        {
+            principalVariationResponse.Variation = _moveTranslatorService.FromLongAlgebraicNotation(principalVariationResponse.VariationLong).ToArray();
+        }
+
+        private void FillBestMoveResponseWithMoveObjects(ref IInfoCalculationResponse infoCalcResponse)
+        {
+            infoCalcResponse.CurrentMove = _moveTranslatorService.FromLongAlgebraicNotation(infoCalcResponse.CurrentMoveLong);
+        }
+
+        private void FillBestMoveResponseWithMoveObjects(ref IBestMoveResponse bestMoveResponse)
+        {
+            bestMoveResponse.BestMove = _moveTranslatorService.FromLongAlgebraicNotation(bestMoveResponse.BestMoveLong);
+            if (!string.IsNullOrWhiteSpace(bestMoveResponse.PonderMoveLong))
+            {
+                bestMoveResponse.PonderMove =
+                    _moveTranslatorService.FromLongAlgebraicNotation(bestMoveResponse.PonderMoveLong);
+            }
+        }
 
         protected override void Dispose(bool disposing)
         {

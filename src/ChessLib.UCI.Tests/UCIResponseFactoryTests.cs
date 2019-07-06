@@ -62,7 +62,7 @@ namespace ChessLib.UCI.Tests
         public void TestInfo(string engineResponse, Type t)
         {
             var resp = _factory.MakeResponseArgs(FENHelpers.FENInitial, engineResponse);
-            Assert.IsTrue(resp.GetType() == t);
+            Assert.IsTrue(resp.ResponseObject.GetType() == t);
         }
     }
 }

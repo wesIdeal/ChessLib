@@ -1,17 +1,14 @@
-﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Magic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using ChessLib.Data.Exceptions;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic.Init;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.PieceMobility;
+using ChessLib.Data.Types.Exceptions;
 using ChessLib.Types.Enums;
 using ChessLib.Types.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace ChessLib.Data
 {
@@ -20,7 +17,6 @@ namespace ChessLib.Data
 
         private static readonly MovePatternStorage Bishop = new BishopPatterns();
         private static readonly MovePatternStorage Rook = new RookPatterns();
-        private static readonly Object lockObj = new object();
         static Bitboard()
         {
         }
@@ -55,8 +51,8 @@ namespace ChessLib.Data
 
         public static bool IsCastlingMove(this BoardInfo board, MoveExt unFilledMove)
         {
-            var sourcePiece = BoardHelpers.GetTypeOfPieceAtIndex(unFilledMove.SourceIndex, board.GetPiecePlacement());
-            if(sourcePiece == null)
+            var sourcePiece = BoardHelpers.GetPieceAtIndex(board.GetPiecePlacement(), unFilledMove.SourceIndex);
+            if (sourcePiece == null)
             {
                 return false;
             }
@@ -80,7 +76,7 @@ namespace ChessLib.Data
 
         public static bool IsEnPassantCapture(this BoardInfo board, MoveExt unFilledMove)
         {
-            var sourcePiece = BoardHelpers.GetTypeOfPieceAtIndex(unFilledMove.SourceIndex, board.GetPiecePlacement());
+            var sourcePiece = BoardHelpers.GetPieceAtIndex(board.GetPiecePlacement(), unFilledMove.SourceIndex);
             if (sourcePiece == null)
             {
                 return false;
@@ -93,6 +89,60 @@ namespace ChessLib.Data
             var sRank = source.RankFromIdx();
             var dRank = destination.RankFromIdx();
             return p == Piece.Pawn && ((sRank == 1 && dRank == 0) || (sRank == 6 && dRank == 7));
+        }
+
+        /// <summary>
+        /// Gets the type of move based on the current board and piece source/destination
+        /// </summary>
+        /// <param name="boardInfo">Board information for current position</param>
+        /// <param name="source">Source Index</param>
+        /// <param name="dest">Destination Index</param>
+        /// <returns>The type of move represented by the given parameters</returns>
+        /// <exception cref="PieceException">Thrown if there is no piece on the source square.</exception>
+        public static MoveType GetMoveType(in IBoard boardInfo, ushort source, ushort dest)
+        {
+            var relevantPieces = new[] { Piece.Pawn, Piece.King };
+            var sourcePieceColor = boardInfo.GetPieceOfColorAtIndex(source);
+            if (sourcePieceColor == null)
+            {
+                var move = $"{source.IndexToSquareDisplay()}->{dest.IndexToSquareDisplay()}";
+                throw new PieceException($"Error getting piece on source in Bitboard.GetMoveType(...):" + move);
+            }
+
+            var piece = sourcePieceColor.Value.Piece;
+            if (!relevantPieces.Contains(piece)) { return MoveType.Normal; }
+
+            if (IsEnPassantCapture(piece, source, dest, boardInfo.EnPassantSquare))
+            {
+                return MoveType.EnPassant;
+            }
+
+            if (IsCastlingMove(piece, source, dest))
+            {
+                return MoveType.Castle;
+            }
+
+            if (IsPromotion(piece, source, dest))
+            {
+                return MoveType.Promotion;
+            }
+
+            return MoveType.Normal;
+        }
+
+        /// <summary>
+        /// Gets a move based on given information
+        /// </summary>
+        /// <param name="board">Current board information</param>
+        /// <param name="source">Source index for move</param>
+        /// <param name="dest">Destination index for move</param>
+        /// <returns>A move object</returns>
+        /// <exception cref="MoveException">if promotion character is not [n|b|r|q|null], insensitive of case</exception>
+        public static MoveExt GetMove(IBoard board, ushort source, ushort dest, char? promotionPieceChar)
+        {
+            var moveType = GetMoveType(board, source, dest);
+            var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionPieceChar);
+            return MoveHelpers.GenerateMove(source, dest, moveType, promotionPiece);
         }
 
         public static IEnumerable<MoveExt> BoardValueToMoves(Piece p, ushort source, ulong destinations, ushort? enPassantSq, CastlingAvailability ca)
@@ -171,7 +221,7 @@ namespace ChessLib.Data
                     }
                     break;
                 default:
-                    throw new Exception("Piece argument passed to GetPossibleMoves()");
+                    throw new Exception("Piece argument passed to GetPossibleMoves() not contained in switch statement.");
             }
 
             moves = BoardValueToMoves(piece, pieceSquare, possibleMoves, enPassantIndex, ca).ToList();
@@ -202,7 +252,7 @@ namespace ChessLib.Data
             return pawnMoves | pawnAttacks;
         }
 
-        public static ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color color = Color.White)
+        public static ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color color)
         {
             var r = Rank(pieceIndex);
             var f = File(pieceIndex);
@@ -225,32 +275,65 @@ namespace ChessLib.Data
             }
         }
 
+        /// <summary>
+        /// Returns value representing if piece can move.
+        /// </summary>
+        /// <param name="board">Current board configuration</param>
+        /// <param name="square">Board index of piece</param>
+        /// <returns>true if piece is mobile, false if not</returns>
+        /// <exception cref="ArgumentException">if square is out of board range</exception>
+        /// <exception cref="PieceException">if no piece exists on given <param name="square">index</param></exception>
         public static bool CanPieceMove(this IBoard board, ushort square)
         {
-            var canMove = false;
-            var p = BoardHelpers.GetPieceOfColorAtIndex(board.GetPiecePlacement(), square);
-            var pseudoLegalMoves = GetPseudoLegalMoves(p.Value.Piece, square, board.GetPiecePlacement().Occupancy(p.Value.Color),
+            square.ValidateIndex();
+            var p = board.GetPiecePlacement().GetPieceOfColorAtIndex(square);
+            if (p == null)
+            {
+                throw new PieceException("There is no piece occupying the index supplied.");
+            }
+
+            _ = GetPseudoLegalMoves(p.Value.Piece, square, board.GetPiecePlacement().Occupancy(p.Value.Color),
                 board.GetPiecePlacement().Occupancy(p.Value.Color.Toggle()), p.Value.Color, board.EnPassantSquare,
                 board.CastlingAvailability, out List<MoveExt> moves);
             foreach (var mv in moves)
             {
                 var postMove = board.GetPiecePlacement().GetBoardPostMove(board.ActivePlayer, mv);
-                if (!BoardHelpers.IsPlayerInCheck(postMove, (int)board.ActivePlayer))
-                    canMove |= true;
+                if (!postMove.IsPlayerInCheck((int)board.ActivePlayer))
+                {
+                    return true;
+                }
             }
-            return canMove;
+            return false;
         }
 
         public static bool CanPieceMoveToDestination(this IBoard boardInfo, ushort src, ushort dst) =>
         CanPieceMoveToDestination(boardInfo.GetPiecePlacement(), boardInfo.ActivePlayer, src, dst,
             boardInfo.EnPassantSquare, boardInfo.CastlingAvailability);
 
-        public static bool CanPieceMoveToDestination(this ulong[][] boardInfo, Color activeColor, ushort src, ushort dst, ushort? enPassantIndex, CastlingAvailability ca)
+        /// <summary>
+        /// Determines if piece can move to the supplied <param name="destinationIndex">destination</param>
+        /// </summary>
+        /// <param name="pieceOccupancyArrays">Current piece location arrays</param>
+        /// <param name="activeColor">Color moving</param>
+        /// <param name="sourceIndex">Source square index</param>
+        /// <param name="destinationIndex">Destination square index</param>
+        /// <param name="enPassantIndex">En Passant index, if available</param>
+        /// <param name="castlingAvailability">Castling availability</param>
+        /// <returns>true if piece can move to destination index</returns>
+        /// <exception cref="ArgumentException">if any index is out of range</exception>
+        /// <exception cref="PieceException">if no piece is found at <param name="sourceIndex">source index</param></exception>
+        public static bool CanPieceMoveToDestination(this ulong[][] pieceOccupancyArrays, Color activeColor, ushort sourceIndex, ushort destinationIndex, ushort? enPassantIndex, CastlingAvailability castlingAvailability)
         {
-            var piece = BoardHelpers.GetTypeOfPieceAtIndex(src, boardInfo);
-            var dstValue = dst.GetBoardValueOfIndex();
-            var legalMoves = GetPseudoLegalMoves(piece.Value, src, boardInfo.Occupancy(activeColor),
-                boardInfo.Occupancy(activeColor.Toggle()), activeColor, enPassantIndex, ca,
+            BoardHelpers.ValidateIndices(sourceIndex, destinationIndex, enPassantIndex ?? 0);
+
+            var piece = BoardHelpers.GetPieceAtIndex(pieceOccupancyArrays, sourceIndex);
+            if (piece == null)
+            {
+                throw new PieceException($"No piece found at index {sourceIndex}.");
+            }
+            var dstValue = destinationIndex.GetBoardValueOfIndex();
+            var legalMoves = GetPseudoLegalMoves(piece.Value, sourceIndex, pieceOccupancyArrays.Occupancy(activeColor),
+                pieceOccupancyArrays.Occupancy(activeColor.Toggle()), activeColor, enPassantIndex, castlingAvailability,
                 out List<MoveExt> pseudoMoves);
             return ((legalMoves & dstValue) != 0);
         }
@@ -274,8 +357,8 @@ namespace ChessLib.Data
             var oppositeOccupancy = piecesOnBoard[(int)color.Toggle()].Aggregate((x, y) => x |= y);
             var activeOccupancy = piecesOnBoard[(int)color].Aggregate((x, y) => x |= y);
             totalOcc = oppositeOccupancy | activeOccupancy;
-            var bishopAttack = GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc);
-            var rookAttack = GetAttackedSquares(Piece.Rook, squareIndex, totalOcc);
+            var bishopAttack = GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc, Color.White);
+            var rookAttack = GetAttackedSquares(Piece.Rook, squareIndex, totalOcc, Color.White);
             if ((PieceAttackPatterns.Instance.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
             if ((PieceAttackPatterns.Instance.KnightAttackMask[r, f] & piecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
             if ((bishopAttack & (piecesOnBoard[nColor][Piece.Bishop.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
@@ -298,14 +381,14 @@ namespace ChessLib.Data
         {
             var rookMovesFromSquare = PieceAttackPatterns.Instance.RookMoveMask[squareIndex];
             //blockers &= rookMovesFromSquare;
-            return rookMovesFromSquare ^ Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, board.GetPiecePlacement().Occupancy());
+            return rookMovesFromSquare ^ GetAttackedSquares(Piece.Rook, squareIndex, board.GetPiecePlacement().Occupancy(), Color.White);
         }
 
         public static ulong XRayBishopAttacks(this IBoard board, ushort squareIndex)
         {
             var bishopMovesFromSquare = PieceAttackPatterns.Instance.BishopMoveMask[squareIndex];
             //blockers &= bishopMovesFromSquare;
-            return bishopMovesFromSquare ^ Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, board.GetPiecePlacement().Occupancy());
+            return bishopMovesFromSquare ^ GetAttackedSquares(Piece.Bishop, squareIndex, board.GetPiecePlacement().Occupancy(), Color.White);
         }
 
         public static ulong GetAbsolutePins(this IBoard board)

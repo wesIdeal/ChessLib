@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ChessLib.Data;
 
 namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
 {
@@ -24,27 +25,37 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
         [TestCase("bestmove e7e8q", 32060, null, "6k1/3RP3/8/8/8/8/8/4K3 w - - 0 60")]
         public void TestBestMove(string engineResponse, int bm, int? pm, string fen)
         {
+            var translator = new MoveTranslatorService(fen);
             var bestMove = new MoveExt((ushort)bm);
             var ponderMove = pm.HasValue ? new MoveExt((ushort)pm) : null;
-            var iResp = _infoObj.GetInfoResponse(fen, engineResponse);
+            var iResp = _infoObj.GetInfoResponse(engineResponse);
             Assert.IsTrue(iResp is BestMoveResponse);
             var obj = iResp as BestMoveResponse;
-            Assert.AreEqual(bestMove, obj.BestMove);
-            Assert.AreEqual(ponderMove, obj.PonderMove);
+            var ponderMoveFromResponse = string.IsNullOrWhiteSpace(obj.PonderMoveLong)
+                ? null
+                : translator.FromLongAlgebraicNotation(obj.PonderMoveLong);
+
+            Assert.AreEqual(bestMove, translator.FromLongAlgebraicNotation(obj.BestMoveLong));
+            Assert.AreEqual(ponderMove, ponderMoveFromResponse);
 
         }
-        [TestCase("bestmove e7e8q", "60. e8=Q# 1-0", "", "6k1/3RP3/8/8/8/8/8/4K3 w - - 0 60")]
-        [TestCase("bestmove e2e4 ponder e7e6", "1. e4", "e6", FENHelpers.FENInitial)]
-        [TestCase("bestmove e7e5 ponder g2g3", "1...e5", "2. g3", "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1")]
+        [TestCase("bestmove e7e8q", "e8=Q# 1-0", null, "6k1/3RP3/8/8/8/8/8/4K3 w - - 0 60")]
+        [TestCase("bestmove e2e4 ponder e7e6", "e4", "e6", FENHelpers.FENInitial)]
+        [TestCase("bestmove e7e5 ponder g2g3", "e5", "g3", "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1")]
         //[TestCase("bestmove d5f7 ponder f8f7", 2293, 3957, "r1b2rk1/pp1p1pp1/1b1p2B1/n1qQ2p1/8/5N2/P3RPPP/4R1K1 w - - 0 1")]
         public void TestBestMoveSAN(string engineResponse, string bmSAN, string pmSAN, string fen)
         {
-            var iResp = _infoObj.GetInfoResponse(fen, engineResponse);
+            var trans = new MoveTranslatorService(fen);
+            var iResp = _infoObj.GetInfoResponse(engineResponse);
             Assert.IsTrue(iResp is BestMoveResponse);
             var obj = iResp as BestMoveResponse;
-            Assert.AreEqual(bmSAN, obj.BestMoveSan);
-            Assert.AreEqual(pmSAN, obj.PonderMoveSan);
-            Assert.AreEqual(bmSAN + " " + pmSAN, obj.ToString());
+            var tBm = trans.FromLongAlgebraicNotation(obj.BestMoveLong);
+            var ponderMoveFromResponse = string.IsNullOrWhiteSpace(obj.PonderMoveLong)
+                ? null
+                : trans.FromLongAlgebraicNotation(obj.PonderMoveLong);
+            Assert.AreEqual(bmSAN, tBm.SAN);
+            Assert.AreEqual(pmSAN, ponderMoveFromResponse?.SAN);
+            //Assert.AreEqual(bmSAN + " " + pmSAN, obj.ToString());
         }
 
         static object[][] NodeCases = new[]
@@ -73,12 +84,12 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
         [TestCaseSource("ScoreStrings_Mate")]
         public void TestInfoPV_Scores_Mate(string fen, string info, int pvCount, int mateIn)
         {
-            var resp = _infoObj.GetInfoResponse(fen, info);
+            var resp = _infoObj.GetInfoResponse(info);
             Assert.IsTrue(resp is PrincipalVariationResponse);
             var obj = resp as PrincipalVariationResponse;
             Assert.AreEqual(pvCount, obj.Variation.Count());
             Assert.AreEqual(mateIn, obj.Score.MateInXMoves);
-            Console.Write($"({obj.ToString()})\t" + obj.SAN);
+            Console.Write($"({obj.ToString()})\t");
         }
 
         [TestCase("info depth 25 currmove e2e3 currmovenumber 14", 25, 788, 14)]
@@ -87,27 +98,27 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
         [TestCase("info depth 4 currmove h2h4 currmovenumber 17", 4, 991, 17)]
         public void TestInfoCalc(string info, int depth, int move, int moveNumber)
         {
-            var resp = _infoObj.GetInfoResponse(FENHelpers.FENInitial, info);
+            var resp = _infoObj.GetInfoResponse(info);
             Assert.IsTrue(resp is InfoCalculationResponse);
             var obj = resp as InfoCalculationResponse;
             var mv = new MoveExt((ushort)move);
             Assert.AreEqual(depth, obj.Depth);
             Assert.AreEqual(mv, obj.CurrentMove);
             Assert.AreEqual(moveNumber, obj.CurrentMoveNumber);
-            Console.Write($"({obj.ToString()})\t" + obj.SAN);
+            Console.Write($"({obj.ToString()})\t");
         }
 
         [Test]
         [TestCaseSource("ScoreStrings_Centipawn")]
         public void TestInfoPV_Scores_Centipawn(string fen, string info, int pvCount, int centipawn, Bound scoreBound)
         {
-            var resp = _infoObj.GetInfoResponse(fen, info);
+            var resp = _infoObj.GetInfoResponse(info);
             Assert.IsTrue(resp is PrincipalVariationResponse);
             var obj = resp as PrincipalVariationResponse;
             Assert.AreEqual(pvCount, obj.Variation.Count());
             Assert.AreEqual(centipawn, obj.Score.CentipawnScore);
             Assert.AreEqual(scoreBound, obj.Score.Bound);
-            Console.Write($"({obj.ToString()})\t" + obj.SAN);
+            Console.Write($"({obj.ToString()})\t");
         }
 
         [Test]
@@ -115,11 +126,11 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
         public void TestInfoPV_Nodes(string info)
         {
             string fen = "r1b2rk1/pp1p1pp1/1b1p2B1/n1qQ2p1/8/5N2/P3RPPP/4R1K1 w - - 0 1";
-            var resp = _infoObj.GetInfoResponse(fen, info);
+            var resp = _infoObj.GetInfoResponse(info);
             Assert.IsTrue(resp is PrincipalVariationResponse);
             var obj = resp as PrincipalVariationResponse;
             Assert.AreEqual(14765893, obj.Nodes);
-            Console.Write($"({obj.ToString()})\t" + obj.SAN);
+            Console.Write($"({obj.ToString()})\t");
         }
     }
 }
