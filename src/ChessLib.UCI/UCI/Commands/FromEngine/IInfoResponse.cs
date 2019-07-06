@@ -2,7 +2,7 @@
 using System.Linq;
 using ChessLib.Data.MoveRepresentation;
 
-namespace ChessLib.EngineInterface.Commands.FromEngine
+namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
 {
     public interface ICalculationInfoResponse : IResponseObject
     {
@@ -63,8 +63,8 @@ namespace ChessLib.EngineInterface.Commands.FromEngine
         }
         public MoveExt CurrentMove { get; set; }
         public bool MovesValidated => FromFEN != string.Empty;
-        public string CurrentMoveLong { get; }
-        public uint CurrentMoveNumber { get; }
+        public string CurrentMoveLong { get; set; }
+        public uint CurrentMoveNumber { get; set; }
         public uint Depth { get; }
         public string FromFEN { get; set; }
     }

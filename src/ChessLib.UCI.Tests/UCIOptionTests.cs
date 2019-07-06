@@ -5,7 +5,7 @@ using System.Text;
 using ChessLib.UCI;
 using System.Linq;
 using ChessLib.EngineInterface;
-using ChessLib.EngineInterface.Commands.FromEngine;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
 namespace ChessLib.UCI.Tests
 {

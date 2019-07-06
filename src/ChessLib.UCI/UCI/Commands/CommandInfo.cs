@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using ChessLib.EngineInterface.Commands.ToEngine;
+using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 
-namespace ChessLib.EngineInterface.Commands
+namespace ChessLib.EngineInterface.UCI.Commands
 {
 
     public class CommandInfo

@@ -1,5 +1,5 @@
 ﻿using System;
-using ChessLib.EngineInterface.Commands.FromEngine;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
 namespace ChessLib.EngineInterface
 {

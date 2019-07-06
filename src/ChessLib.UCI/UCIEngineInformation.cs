@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChessLib.EngineInterface.Commands.FromEngine;
-using ChessLib.EngineInterface.Commands.FromEngine.Options;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;
 
 namespace ChessLib.EngineInterface
 {

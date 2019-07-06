@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.EngineInterface.Commands;
-using ChessLib.EngineInterface.Commands.FromEngine;
-using ChessLib.EngineInterface.Commands.ToEngine;
+using ChessLib.EngineInterface.UCI.Commands;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine;
+using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 
 namespace ChessLib.EngineInterface
 {

@@ -14,8 +14,4 @@
     <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="UCI\" />
-  </ItemGroup>
-
 </Project>

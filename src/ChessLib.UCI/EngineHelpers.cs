@@ -4,10 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.EngineInterface.Commands;
-using ChessLib.EngineInterface.Commands.FromEngine;
-using ChessLib.EngineInterface.Commands.FromEngine.Options;
-using ChessLib.EngineInterface.Commands.ToEngine;
+using ChessLib.EngineInterface.UCI.Commands;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;
+using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 using EnumsNET;
 
 namespace ChessLib.EngineInterface

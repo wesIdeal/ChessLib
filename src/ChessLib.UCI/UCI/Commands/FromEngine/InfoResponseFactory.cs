@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ChessLib.Data.MoveRepresentation;
 
-namespace ChessLib.EngineInterface.Commands.FromEngine
+namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
 {
     public enum CalculationResponseTypes
     {

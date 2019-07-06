@@ -1,4 +1,4 @@
-﻿namespace ChessLib.EngineInterface.Commands.FromEngine.Options
+﻿namespace ChessLib.EngineInterface.UCI.Commands.FromEngine.Options
 {
     public class UCISpinOption : UCIOption<double>
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using ChessLib.Data.Helpers;
-using ChessLib.EngineInterface.Commands.FromEngine;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
 namespace ChessLib.EngineInterface
 {

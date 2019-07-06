@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace ChessLib.EngineInterface.Commands
+namespace ChessLib.EngineInterface.UCI.Commands
 {
     public class CommandQueue : ConcurrentQueue<CommandInfo>, IDisposable
     {

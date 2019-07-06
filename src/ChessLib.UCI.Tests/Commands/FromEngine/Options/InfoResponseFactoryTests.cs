@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChessLib.Data;
-using ChessLib.EngineInterface.Commands.FromEngine;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
 namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
 {

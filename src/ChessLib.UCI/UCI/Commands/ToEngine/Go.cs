@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Data.MoveRepresentation;
 
-namespace ChessLib.EngineInterface.Commands.ToEngine
+namespace ChessLib.EngineInterface.UCI.Commands.ToEngine
 {
     public class Go : CommandInfo
     {

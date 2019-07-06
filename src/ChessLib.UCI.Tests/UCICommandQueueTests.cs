@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ChessLib.EngineInterface.Commands;
-using ChessLib.EngineInterface.Commands.ToEngine;
+using ChessLib.EngineInterface.UCI.Commands;
+using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 
 namespace ChessLib.UCI.Tests
 {

@@ -7,9 +7,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.EngineInterface;
-using ChessLib.EngineInterface.Commands;
-using ChessLib.EngineInterface.Commands.FromEngine;
-using ChessLib.EngineInterface.Commands.ToEngine;
+using ChessLib.EngineInterface.UCI.Commands;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine;
+using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 using Moq;
 using NUnit.Framework;
 

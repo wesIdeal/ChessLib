@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace ChessLib.EngineInterface.Commands.FromEngine
+namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
 {
     public enum OptionType
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace ChessLib.EngineInterface.Commands.FromEngine.Options
+namespace ChessLib.EngineInterface.UCI.Commands.FromEngine.Options
 {
     public interface IUCIOption
     {
