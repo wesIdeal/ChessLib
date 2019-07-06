@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace ChessLib.UCI
 {
-    public class UCIResponseArgs : EngineResponseArgs
+    public class UCIResponse : IResponseObject
     {
-        public UCIResponseArgs()
+        public UCIResponse()
         {
             Options = new List<IUCIOption>();
         }
@@ -44,7 +44,7 @@ namespace ChessLib.UCI
             }
         }
 
-        public UCIResponseArgs(Guid id, string optResponse)
+        public UCIResponse(Guid id, string optResponse)
         {
             var optsUnfiltered = optResponse.Split('\n').Select(x => x.Trim()).Where(x => x != "").ToArray();
             Name = optsUnfiltered.FirstOrDefault(x => x.StartsWith("id name"))?.Replace("id name", "").Trim();

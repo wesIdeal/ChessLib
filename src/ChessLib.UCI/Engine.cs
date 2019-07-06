@@ -1,33 +1,24 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
+﻿using ChessLib.Data.MoveRepresentation;
 using ChessLib.UCI.Commands;
+using ChessLib.UCI.Commands.FromEngine;
 using ChessLib.UCI.Commands.ToEngine;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ChessLib.UCI.Commands.FromEngine;
 
 namespace ChessLib.UCI
 {
     [Serializable]
     public abstract class Engine : IDisposable
     {
-        [NonSerialized]
-        private readonly ProcessStartInfo _startInfo = new ProcessStartInfo
-        {
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardError = true,
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true
-        };
 
-        private ProcessPriorityClass _priority;
+
+        public IEngineStartupArgs UserSuppliedArgs { get; protected set; }
 
         public virtual void Dispose()
         {
@@ -54,19 +45,23 @@ namespace ChessLib.UCI
 
         public void SetPriority(ProcessPriorityClass priority)
         {
-            _priority = priority;
-            if (Process != null && !Process.HasExited) Process.SetPriority(_priority);
+            Priority = priority;
+            if (Process != null && !Process.HasExited) Process.SetPriority(Priority);
         }
 
         protected void QueueCommand(CommandInfo commandInfo, params string[] args)
         {
-            OnDebugEventExecuted(new DebugEventArgs($"Adding {commandInfo.CommandText} to queue."));
             commandInfo.SetCommandArguments(args);
             EngineCommandQueue.Enqueue(commandInfo);
         }
 
+        protected void QueueCommand(SetOption commandInfo)
+        {
+            EngineCommandQueue.Enqueue(commandInfo);
+        }
 
-        public Task StartAsync()
+
+        public virtual Task StartAsync()
         {
             OnDebugEventExecuted(new DebugEventArgs("Starting engine task - ExecuteEngineAsync()"));
             return Task.Run(ExecuteEngineAsync);
@@ -77,20 +72,21 @@ namespace ChessLib.UCI
         protected virtual void ExecuteEngineAsync()
         {
             ProcessId = StartEngineProcess();
-            SendStartupMessagesToEngine();
-            ProcessEngineStartupOptions();
             BeginMessageQueue();
+
+            ProcessEngineStartupOptions();
+
         }
 
         private int StartEngineProcess()
         {
             OnDebugEventExecuted(new DebugEventArgs("executing StartEngineProcess()"));
 
-            Process.Start(CommandLineString, _startInfo);
+            Process.Start(UserSuppliedArgs.CommandLine, _startInfo);
             OnDebugEventExecuted(new DebugEventArgs("Process.Start() called."));
             Process.BeginErrorReadLine();
             Process.BeginOutputReadLine();
-            Process.SetPriority(_priority);
+            Process.SetPriority(Priority);
             return Process.ProcessId;
         }
 
@@ -104,38 +100,25 @@ namespace ChessLib.UCI
             {
                 if (!EngineCommandQueue.Any())
                 {
-                    OnDebugEventExecuted(new DebugEventArgs("Nothing in queue. Waiting for command..."));
                     waitResult = WaitHandle.WaitAny(EngineCommandQueue.CommandIssuedEvents);
+                    if (waitResult == WaitHandle.WaitTimeout)
+                    {
+                        OnDebugEventExecuted(new DebugEventArgs("Nothing in queue after waiting."));
+                    }
                 }
 
                 if (EngineCommandQueue.TryPeek(out var commandToIssue))
                 {
                     EngineCommandQueue.TryDequeue(out _);
-                    if (waitResult == interruptHandle || commandToIssue.CommandSent.IsInterruptCommand())
-                    {
-                        OnDebugEventExecuted(
-                            new DebugEventArgs($"Received interrupt command in queue - {commandToIssue.CommandText}"));
-                        WriteToEngine(commandToIssue);
-                        exit = commandToIssue.CommandSent == AppToUCICommand.Quit;
-                    }
-                    else
-                    {
-                        OnDebugEventExecuted(
-                            new DebugEventArgs($"Received command in queue - {commandToIssue.CommandText}"));
-                        WriteToEngine(commandToIssue);
-                    }
+                    WriteToEngine(commandToIssue);
+                    exit = commandToIssue.CommandSent == AppToUCICommand.Quit;
 
-                    OnQueueMessageSent(commandToIssue);
                 }
             }
 
             BeginExitRoutine();
         }
 
-        private void OnQueueMessageSent(CommandInfo commandToIssue)
-        {
-            Volatile.Read(ref MessageSentFromQueue)?.Invoke(this, new DebugEventArgs(commandToIssue.CommandText));
-        }
 
         private void BeginExitRoutine()
         {
@@ -156,59 +139,51 @@ namespace ChessLib.UCI
         public void WriteToEngine(CommandInfo command)
         {
             Process.SendCommandToEngine(command.ToString());
-            OnEngineCommunication(
-                new EngineCommunicationArgs(EngineCommunicationArgs.TextSource.UI, command.ToString()));
+            var message = $"[To {UserAssignedId.ToString().Substring(0, 4)}...] {command}";
+            OnDebugEventExecuted(new DebugEventArgs(message));
         }
 
-
-
-
-
-        public void SendNewGame()
+        public void WriteToEngine(SetOption command)
         {
-            var commandInfo = new CommandInfo(AppToUCICommand.NewGame);
-            QueueCommand(commandInfo);
+            Process.SendCommandToEngine(command.ToString());
+            var message = $"[To {UserAssignedId.ToString().Substring(0, 4)}...] {command}";
+            OnDebugEventExecuted(new DebugEventArgs(message));
         }
 
-        public void SendPosition(string fen)
-        {
-            FEN = fen;
-            SendPosition(fen, new MoveExt[] { });
-        }
 
-        public void SendPosition(MoveExt[] moves)
-        {
-            FEN = FENHelpers.FENInitial;
-            SendPosition(FEN, moves);
-        }
+        /// <summary>
+        /// Sends a new game position to engine
+        /// </summary>
+        public abstract void SendPosition();
 
-        public void SendPosition(string fen, MoveExt[] moves)
-        {
-            FEN = fen;
-            var commandInfo = new CommandInfo(AppToUCICommand.Position);
-            var resultingFen = GetFENResult(FEN, moves);
+        /// <summary>
+        /// Sends a fen to the engine
+        /// </summary>
+        /// <param name="fen"></param>
+        public abstract void SendPosition(string fen);
 
-            var positionString = "startpos";
-            if (FEN != FENHelpers.FENInitial) positionString = $"fen {FEN}";
-            var moveString = "";
-            if (moves.Any())
-                moveString = " moves " + string.Join(" ", moves.Select(MoveDisplayService.MoveToLan));
-            QueueCommand(commandInfo, $"{positionString}{moveString}");
-        }
+        /// <summary>
+        /// Sends moves to the engine to be applied from the original FEN sent.
+        /// </summary>
+        /// <param name="moves"></param>
+        public abstract void SendPosition(MoveExt[] moves);
 
-        private string GetFENResult(string fen, MoveExt[] moves)
-        {
-            var bi = new BoardInfo(fen);
-            foreach (var mv in moves) bi.ApplyMove(mv);
-            return bi.ToFEN();
-        }
+        /// <summary>
+        /// Sends a fen to the board and moves
+        /// </summary>
+        /// <param name="fen"></param>
+        /// <param name="moves"></param>
+        public abstract void SendPosition(string fen, MoveExt[] moves);
 
-        public void SendQuit()
-        {
-            var commandInfo = new CommandInfo(AppToUCICommand.Quit);
-            QueueCommand(commandInfo);
-        }
+        /// <summary>
+        /// Sends the quit command to the engine
+        /// </summary>
+        public abstract void SendQuit();
 
+        /// <summary>
+        /// Sets an engine option
+        /// </summary>
+        public abstract void SetOption(string optionName, string optionValue);
 
         private void OnProcessExited(object sender, EventArgs e)
         {
@@ -216,85 +191,47 @@ namespace ChessLib.UCI
             EngineCommandQueue.InterruptIssued.Set();
         }
 
-        /// <summary>
-        ///     Fired each time the app communicates with the engine or a response is received.
-        ///     Contains raw text responses and commands.
-        /// </summary>
-        public event EventHandler<EngineCommunicationArgs> EngineCommunication;
 
-
-
-        public event EventHandler<DebugEventArgs> DebugEventExecuted;
-
-        public event EventHandler<StateChangeEventArgs> StateChanged;
-
-        public event DataReceivedEventHandler EngineDataReceived;
-
-        public class StateChangeEventArgs : EventArgs
-        {
-            public StateChangeEventArgs(StateChangeField stateChangeField, bool value)
-            {
-                StateChangeField = stateChangeField;
-                Value = value;
-            }
-
-            public StateChangeField StateChangeField { get; set; }
-            public bool Value { get; set; }
-        }
 
         #region Constructors / Descructor
 
-        protected Engine(Guid userEngineId)
+        protected Engine()
         {
-            UserAssignedId = userEngineId;
-            Process = new EngineProcess();
-            Process.EngineDataReceived += EngineDataReceived;
-            Process.EngineCommunicationReceived += OnEngineCommunicationReceived;
+            Process = new EngineProcess(MessageSubscriber);
+            Process.EngineCommunicationReceived += OnCommunicationFromEngine;
             EngineCommandQueue = new CommandQueue();
+            _startInfo = new ProcessStartInfo
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true
+            };
         }
 
-        protected Engine(Guid userEngineId, string description, string command) : this(userEngineId)
+        private void OnCommunicationFromEngine(object sender, DebugEventArgs e)
         {
-            UserEngineDescription = description;
-            CommandLineString = command;
-            Priority = ProcessPriorityClass.Normal;
+            var message = $"[Fr {UserAssignedId.ToString().Substring(0, 4)}...] {e.DebugText}";
+            OnDebugEventExecuted(new DebugEventArgs(message));
         }
 
-        protected Engine(Guid userEngineId, string description, string command, EngineProcess process)
-            : this(userEngineId, description, command)
+        protected Engine(EngineStartupArgs args, IEngineMessageSubscriber subscriber) : this()
         {
-            Process = process;
-        }
-
-        protected Engine(Guid userEngineId, string description, string command, bool ignoreMoveCalculationLines)
-            : this(userEngineId, description, command)
-        {
-            IgnoreMoveCalculationLines = ignoreMoveCalculationLines;
-        }
-
-        protected Engine(Guid userEngineId, string description, string command, bool ignoreMoveCalculationLines,
-            ProcessPriorityClass priority)
-            : this(userEngineId, description, command, ignoreMoveCalculationLines)
-        {
-            Priority = priority;
-        }
-
-        protected Engine(Guid userEngineId, string description, string command, bool ignoreMoveCalculationLines,
-            ProcessPriorityClass priority, Dictionary<string, string> engineOptions)
-            : this(userEngineId, description, command, ignoreMoveCalculationLines, priority)
-        {
-            EngineOptions = engineOptions;
+            MessageSubscriber = subscriber;
+            UserSuppliedArgs = args;
+            Priority = args.InitialPriority;
+            EngineOptions = args.EngineOptions;
         }
 
         protected abstract void ProcessEngineStartupOptions();
-
 
         #endregion
 
 
         #region Properties
 
-        public readonly Guid UserAssignedId;
+        public Guid UserAssignedId => UserSuppliedArgs.EngineId;
 
         /// <summary>
         ///     Initial options to set on uci engine
@@ -302,68 +239,48 @@ namespace ChessLib.UCI
         public Dictionary<string, string> EngineOptions { get; }
 
         /// <summary>
-        ///     Represents whether single move calculation lines should be sent to the client.
-        /// </summary>
-        public bool IgnoreMoveCalculationLines { get; set; }
-
-        /// <summary>
-        ///     Command line path + additional arguments
-        /// </summary>
-        public string CommandLineString { get; }
-
-        /// <summary>
         ///     Engine description supplied by user
         /// </summary>
-        public string UserEngineDescription { get; set; }
+        public string UserEngineDescription => UserSuppliedArgs.Description;
 
-        public ProcessPriorityClass Priority
-        {
-            get => _priority;
-            private set => _priority = value;
-        }
+        public ProcessPriorityClass Priority { get; private set; }
 
         #endregion
 
         #region Non-Serialized Fields/Properties
 
+        protected virtual IEngineMessageSubscriber MessageSubscriber { get; set; }
         [NonSerialized] protected string FEN;
         [NonSerialized] private bool _isDisposed;
         [NonSerialized] public int ProcessId = -1;
-        [NonSerialized] private readonly StringBuilder _errorBuilder = new StringBuilder();
-        [NonSerialized] protected EngineProcess Process;
+        protected EngineProcess Process { get; set; }
         [NonSerialized] private readonly TaskCompletionSource<bool> _errorCloseEvent = new TaskCompletionSource<bool>();
         [NonSerialized] protected CommandQueue EngineCommandQueue;
+        [NonSerialized] private readonly ProcessStartInfo _startInfo;
+
+        /// <summary>
+        /// Invoked when a response was received from the engine
+        /// </summary>
         public event EventHandler<EngineResponseArgs> EngineResponseObjectReceived;
-        public event EventHandler<DebugEventArgs> MessageSentFromQueue;
+
+        /// <summary>
+        /// Invoked when general debug information is written
+        /// </summary>
+        public event EventHandler<DebugEventArgs> DebugEventExecuted;
 
         #endregion
 
         #region Event Raisers
 
-        protected abstract void EngineResponseReceived(object sender, DataReceivedEventArgs e);
-
-        protected void OnEngineCommunicationReceived(object sender, EngineCommunicationArgs args)
-        {
-            OnEngineCommunication(args);
-        }
-
-        protected void OnEngineCommunication(EngineCommunicationArgs engineCommunicationArgs)
-        {
-            Volatile.Read(ref EngineCommunication)?.Invoke(this, engineCommunicationArgs);
-        }
-
         protected void OnDebugEventExecuted(DebugEventArgs args)
         {
-            Volatile.Read(ref DebugEventExecuted)?.Invoke(this, args);
-        }
 
-        protected void OnEngineStateChanged(StateChangeEventArgs args)
-        {
-            Volatile.Read(ref StateChanged)?.Invoke(this, args);
+            Volatile.Read(ref DebugEventExecuted)?.Invoke(this, args);
         }
 
         protected void OnEngineObjectReceived(EngineResponseArgs response)
         {
+            response.Id = UserAssignedId;
             Volatile.Read(ref EngineResponseObjectReceived)?.Invoke(this, response);
         }
 
@@ -375,13 +292,7 @@ namespace ChessLib.UCI
                 message = "No message received.";
                 _errorCloseEvent.SetResult(true);
             }
-            else
-            {
-                _errorBuilder.AppendLine(message);
-            }
-
-            OnDebugEventExecuted(new DebugEventArgs(message));
-            //Volatile.Read(ref ErrorReceivedFromEngineProcess)?.Invoke(sender, e);
+            OnDebugEventExecuted(new DebugEventArgs(message) { EventLevel = EventLevel.Error });
         }
 
         #endregion

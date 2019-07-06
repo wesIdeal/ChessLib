@@ -15,51 +15,50 @@ namespace ChessLib.UCI
 
     public interface IEngineResponseFactory
     {
-        EngineResponseArgs MakeResponseArgs(in string fen, in string communication, out string error);
+        EngineResponseArgs MakeResponseArgs(in string fen, in string engineText);
     }
     public class UCIResponseFactory : IEngineResponseFactory
     {
-        private delegate void UCIInformationReceived(UCIResponseArgs uciInformation);
+        private delegate void UCIInformationReceived(UCIResponse uciInformation);
         private readonly InfoResponseFactory _infoFactory;
         public UCIResponseFactory(bool includeMoveCalculationInformation = false)
         {
             _infoFactory = new InfoResponseFactory();
-            _uciInformation = new UCIResponseArgs();
+            _uciInformation = new UCIResponse();
             IncludeMoveCalculationInformation = includeMoveCalculationInformation;
         }
 
-        readonly UCIResponseArgs _uciInformation;
+        readonly UCIResponse _uciInformation;
 
         public bool IncludeMoveCalculationInformation { get; }
 
         private const EngineToAppCommand UCIFlags = EngineToAppCommand.Id | EngineToAppCommand.Option | EngineToAppCommand.UCIOk;
 
-        public EngineResponseArgs MakeResponseArgs(in string fen, in string communication, out string error)
+        public EngineResponseArgs MakeResponseArgs(in string fen, in string engineText)
         {
-            EngineToAppCommand responseFlag = EngineHelpers.GetResponseType(communication.Split(' ')[0]);
-            error = "";
+            EngineToAppCommand responseFlag = EngineHelpers.GetResponseType(engineText.Split(' ')[0]);
+            
             if (responseFlag == EngineToAppCommand.Info || responseFlag == EngineToAppCommand.BestMove)
             {
-                return _infoFactory.GetInfoResponse(fen, communication);
+                var uciObject = _infoFactory.GetInfoResponse(fen, engineText);
+                return new EngineResponseArgs(uciObject, engineText);
             }
             if (responseFlag == EngineToAppCommand.Ready)
             {
-                return new ReadyOkResponseArgs(communication);
+                return new ReadyOkResponseArgs(engineText);
             }
 
             if (UCIFlags.HasFlag(responseFlag))
             {
-                _uciInformation.SetInfoFromString(communication);
+                _uciInformation.SetInfoFromString(engineText);
                 if (_uciInformation.UCIOk)
                 {
-                    return _uciInformation;
+                   return new EngineResponseArgs(_uciInformation, engineText);
                 }
                 return null;
             }
-            
 
-            return null;
-
+            return new ErrorResponseArgs("Response from engine unhandled.", engineText);
         }
 
     }

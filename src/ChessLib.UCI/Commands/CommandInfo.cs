@@ -20,10 +20,6 @@ namespace ChessLib.UCI.Commands
 
         public void SetCommandArguments(string[] arguments)
         {
-            if ((arguments == null && ArgumentCount != 0) || arguments.Length < ArgumentCount)
-            {
-                throw new UCICommandException($"The {CommandText} command requires {ArgumentCount} arguments.");
-            }
             CommandArguments = arguments ?? new string[] { };
         }
 
@@ -39,6 +35,10 @@ namespace ChessLib.UCI.Commands
             return new CommandInfo(AppToUCICommand.UCI);
         }
 
+        protected CommandInfo()
+        {
+
+        }
 
         public CommandInfo(AppToUCICommand command)
         {

@@ -18,31 +18,31 @@ namespace ChessLib.UCI.Tests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            _factory = new UCIResponseFactory(Guid.Empty, false);
+            _factory = new UCIResponseFactory(false);
         }
         [Test]
         public void TestReadyOk()
         {
-            var resp = _factory.MakeResponseArgs(FENHelpers.FENInitial, "readyok", out _);
+            var resp = _factory.MakeResponseArgs(FENHelpers.FENInitial, "readyok");
             Assert.IsTrue(resp is ReadyOkResponseArgs);
-            Assert.AreEqual("readyok", resp.EngineResponse);
+            Assert.AreEqual("readyok", resp.ResponseText);
         }
 
         [Test]
         public void TestUCI()
         {
-            UCIResponseArgs obj = null;
+            UCIResponse obj = null;
             var str = "id name Stockfish 10 64\r\n" + "\r\n" +
                         "id author T.Romstad, M.Costalba, J.Kiiski, G.Linscott\r\n" +
                         "option name Debug Log File type string default\r\n" +
                         "uciok";
             foreach (var command in str.Split("\r\n"))
             {
-                var resp = (UCIResponseArgs)_factory.MakeResponseArgs(FENHelpers.FENInitial, command, out _);
+                var resp = _factory.MakeResponseArgs(FENHelpers.FENInitial, command);
                 if (command == "uciok")
                 {
-                    Assert.IsTrue(resp is UCIResponseArgs);
-                    obj = resp as UCIResponseArgs;
+                    Assert.IsTrue(resp.ResponseObject is UCIResponse);
+                    obj = resp.ResponseObject as UCIResponse;
                 }
                 else
                 {
@@ -61,7 +61,7 @@ namespace ChessLib.UCI.Tests
         [TestCase("bestmove e2e4 ponder e7e6", typeof(BestMoveResponse))]
         public void TestInfo(string engineResponse, Type t)
         {
-            var resp = _factory.MakeResponseArgs(FENHelpers.FENInitial, engineResponse, out _);
+            var resp = _factory.MakeResponseArgs(FENHelpers.FENInitial, engineResponse);
             Assert.IsTrue(resp.GetType() == t);
         }
     }

@@ -110,7 +110,7 @@ namespace ChessLib.UCI.Tests
         [TestCase("option name MultiPV type spin default 1 max 500", 501, false)]
         public void TestSpinOptionIsValid(string option, double value, bool expected)
         {
-            var engInfo = new UCIResponseArgs(Guid.Empty, option);
+            var engInfo = new UCIResponse(Guid.Empty, option);
             Assert.AreEqual(expected, engInfo.IsOptionValid("MultiPV", value.ToString(), out _));
         }
 
@@ -118,7 +118,7 @@ namespace ChessLib.UCI.Tests
         public void TestOptionsClass()
         {
             var id = Guid.NewGuid();
-            var engineInfo = new UCIResponseArgs(id, uciResponse);
+            var engineInfo = new UCIResponse(id, uciResponse);
             Assert.AreEqual(id, engineInfo.Id);
             Assert.AreEqual("Stockfish 10 64", engineInfo.Name);
             Assert.AreEqual("T. Romstad, M. Costalba, J. Kiiski, G. Linscott", engineInfo.Author);
@@ -131,7 +131,7 @@ namespace ChessLib.UCI.Tests
         [TestCase("Ponder", true)]
         public void TestSupportsOption(string optionName, bool expected)
         {
-            var engineInfo = new UCIResponseArgs(Guid.Empty, uciResponse);
+            var engineInfo = new UCIResponse(Guid.Empty, uciResponse);
             Assert.AreEqual(expected, engineInfo.SupportsOption(optionName));
         }
 

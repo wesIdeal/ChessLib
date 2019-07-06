@@ -4,7 +4,7 @@ namespace ChessLib.UCI.Commands.FromEngine
 {
     public interface IEngineResponse
     {
-        string EngineResponse { get; }
+        string ResponseText { get; }
         Guid Id { get; set; }
     };
 }

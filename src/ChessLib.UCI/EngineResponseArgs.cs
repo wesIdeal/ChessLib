@@ -2,20 +2,24 @@
 using ChessLib.UCI.Commands.ToEngine;
 using ChessLib.UCI.Commands.FromEngine;
 using System;
+using System.Diagnostics.Tracing;
 
 namespace ChessLib.UCI
 {
     public class DebugEventArgs : EventArgs
     {
+        public EventLevel EventLevel = EventLevel.Informational;
+        protected const string TimeFormat = "mm:ss.fff";
         public string DebugText { get; set; }
         public readonly DateTime Received = DateTime.Now;
         public DebugEventArgs(string txt)
         {
             DebugText = txt;
         }
+
         public new string ToString()
         {
-            return $"{Received.TimeOfDay}\t{DebugText.Replace("\r\n", "\r\n\t")}";
+            return $"{Received.ToString(TimeFormat)}\t{DebugText.Replace("\r\n", "\r\n\t")}";
         }
     }
     public class EngineCommunicationArgs : EventArgs
@@ -40,19 +44,5 @@ namespace ChessLib.UCI
             return $"{sourceStr}{sourceDelimiter}{CommandText}";
         }
     }
-    public class EngineInfoArgs : EventArgs
-    {
-        public EngineInfoArgs(string engineOutput, AppToUCICommand issuedCommand, EngineToAppCommand responseTypeReceived, IEngineResponse responseObject)
-        {
-            EngineOutput = engineOutput;
-            IssuedCommand = issuedCommand;
-            ResponseTypeReceived = responseTypeReceived;
-            ResponseObject = responseObject;
-        }
 
-        public string EngineOutput { get; private set; }
-        public AppToUCICommand IssuedCommand { get; private set; }
-        public EngineToAppCommand ResponseTypeReceived { get; private set; }
-        public IEngineResponse ResponseObject { get; private set; }
-    }
 }

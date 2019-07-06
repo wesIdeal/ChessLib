@@ -1,13 +1,15 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using ChessLib.Data;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Types.Enums;
 
 namespace ChessLib.UCI.Commands.FromEngine
 {
+    [SuppressMessage("ReSharper", "StringLiteralTypo")]
     public class InfoResponseFactory
     {
         internal class InfoResponse : IPrincipalVariationResponse, IInfoCalculationResponse
@@ -35,7 +37,7 @@ namespace ChessLib.UCI.Commands.FromEngine
 
             public string FromFEN { get; set; }
 
-            public string EngineResponse { get; set; }
+            public string ResponseText { get; set; }
 
             public MoveExt CurrentMove { get; set; }
 
@@ -50,12 +52,12 @@ namespace ChessLib.UCI.Commands.FromEngine
             public PrincipalVariationResponse ToPVResponse()
             {
                 return new PrincipalVariationResponse(PVOrdinal, Variation, Score, SelectiveSearchDepth, SearchTime,
-                    Nodes, NodesPerSecond, TableBaseHits, Depth, FromFEN, SAN, EngineResponse);
+                    Nodes, NodesPerSecond, TableBaseHits, Depth, FromFEN, SAN);
             }
 
             public InfoCalculationResponse ToInfoCalculationResponse()
             {
-                return new InfoCalculationResponse(Depth, CurrentMoveNumber, CurrentMove, FromFEN, SAN, EngineResponse);
+                return new InfoCalculationResponse(Depth, CurrentMoveNumber, CurrentMove, FromFEN, SAN);
             }
         }
 
@@ -69,10 +71,10 @@ namespace ChessLib.UCI.Commands.FromEngine
             /// Used to signify the info line coming back tells which move is being calculated
             /// </summary>
             CalculationInfo
-        };
+        }
 
-        private static readonly KeyValuePair<string, int>[] _initializers =
-            new KeyValuePair<string, int>[] {
+        private static readonly KeyValuePair<string, int>[] InfoFieldNames =
+            {
                 new KeyValuePair<string,int>("depth", 1),
                 new KeyValuePair<string,int>("seldepth", 1),
                 new KeyValuePair<string,int>("multipv", 1),
@@ -84,25 +86,26 @@ namespace ChessLib.UCI.Commands.FromEngine
                 new KeyValuePair<string,int>("time", 1),
                 new KeyValuePair<string,int>("pv", 1),//special case - string of moves after this until newline
                 new KeyValuePair<string,int>("currmove",1),
-                new KeyValuePair<string, int>("currmovenumber",1),
-
+                new KeyValuePair<string, int>("currmovenumber",1)
+                
             };
 
-        public static readonly Dictionary<string, int> InfoFieldDepth = _initializers.ToDictionary(k => k.Key, v => v.Value);
+        public static readonly Dictionary<string, int> InfoFieldDepth = InfoFieldNames.ToDictionary(k => k.Key, v => v.Value);
 
 
-        static readonly string[] _calcKeywords = new string[] { "currmove", "currmovenumber" };
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
+        private static readonly string[] CalcKeywords = { "currmove", "currmovenumber" };
 
         public static InfoTypes GetTypeOfInfo(string engineResponse)
         {
-            foreach (var kw in _calcKeywords)
+            foreach (var kw in CalcKeywords)
             {
                 if (engineResponse.Contains(kw)) return InfoTypes.CalculationInfo;
             }
             return InfoTypes.AnalysisInfo;
         }
 
-        public EngineResponseArgs GetInfoResponse(in string fen, in string engineResponse)
+        public IResponseObject GetInfoResponse(in string fen, in string engineResponse)
         {
             if (engineResponse.StartsWith("bestmove"))
             {
@@ -111,7 +114,7 @@ namespace ChessLib.UCI.Commands.FromEngine
             var response = engineResponse.Replace("info", "").Trim();
             var infoDictionary = new Dictionary<string, string>();
             var infoFields = response.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            for (int i = 0; i < infoFields.Count(); i++)
+            for (int i = 0; i < infoFields.Count; i++)
             {
                 var data = infoFields[i];
                 if (data == "lowerbound" || data == "upperbound")
@@ -126,35 +129,32 @@ namespace ChessLib.UCI.Commands.FromEngine
                 if (key == "pv")
                 {
                     var begin = i + 1;
-                    var lastIndex = infoFields.Count();
+                    var lastIndex = infoFields.Count;
                     infoDictionary.Add(key, string.Join(" ", infoFields.GetRange(begin, lastIndex - begin)));
                     break;
                 }
-                else
-                {
-                    infoDictionary.Add(key, valueArray.FirstOrDefault());
-                }
+
+                infoDictionary.Add(key, valueArray.FirstOrDefault());
                 i += keyLength;
 
             }
             var infoType = response.Contains("currmove") ? InfoTypes.CalculationInfo : InfoTypes.AnalysisInfo;
-            return SetPropertiesFromInfoDict(fen, infoType, infoDictionary, engineResponse);
+            return SetPropertiesFromInfoDict(fen, infoType, infoDictionary);
         }
 
-        private BestMoveResponse GetBestMoveResponse(string fen, string engineResponse)
+        private IResponseObject GetBestMoveResponse(string fen, string engineResponse)
         {
             var keys = new[] { "bestmove", "ponder" };
             var values = engineResponse.Split(' ').Where(x => !keys.Contains(x)).ToArray();
             var bestMoveUnvalidated = FillUnvalidatedMoves(values);
-            var san = new List<string>();
-            var bestMoves = GetMoveInfo(fen, bestMoveUnvalidated.ToArray(), out san);
+            var bestMoves = GetMoveInfo(fen, bestMoveUnvalidated.ToArray(), out var san);
             var bestMove = bestMoves[0];
-            var ponderMove = bestMoves.Count() > 1 ? bestMoves[1] : null;
-            var ponderSan = san.Count() > 1 ? san[1] : "";
-            return new BestMoveResponse(bestMove, ponderMove, san[0], ponderSan, engineResponse);
+            var ponderMove = bestMoves.Count > 1 ? bestMoves[1] : null;
+            var ponderSan = san.Count > 1 ? san[1] : "";
+            return new BestMoveResponse(bestMove, ponderMove, san[0], ponderSan);
         }
 
-        private EngineResponseArgs SetPropertiesFromInfoDict(in string fen, in InfoTypes infoType, in Dictionary<string, string> infoDictionary, in string engineResponse)
+        private IResponseObject SetPropertiesFromInfoDict(in string fen, in InfoTypes infoType, in Dictionary<string, string> infoDictionary)
         {
             var ir = new InfoResponse();
             MoveExt currentMoveUn = null;
@@ -208,29 +208,19 @@ namespace ChessLib.UCI.Commands.FromEngine
                 }
             }
 
-            var san = new List<string>();
-            MoveExt[] validatedMoves;
+           
             if (infoType == InfoTypes.AnalysisInfo)
             {
                 Debug.Assert(infoMovesUnvalidated != null);
-                validatedMoves = GetMoveInfo(fen, infoMovesUnvalidated, out san).ToArray();
+                var validatedMoves = GetMoveInfo(fen, infoMovesUnvalidated, out _).ToArray();
                 ir.Variation = validatedMoves;
                 return ir.ToPVResponse();
             }
-            else
-            {
-                Debug.Assert(currentMoveUn != null);
-                var moves = GetMoveInfo(fen, new MoveExt[] { currentMoveUn }, out san).ToArray();
-                if (moves.Any())
-                {
-                    ir.CurrentMove = moves[0];
-                }
-                else
-                {
-                    ir.CurrentMove = null;
-                }
-                return ir.ToInfoCalculationResponse();
-            }
+
+            Debug.Assert(currentMoveUn != null);
+            var moves = GetMoveInfo(fen, new[] { currentMoveUn }, out _).ToArray();
+            ir.CurrentMove = moves.Any() ? moves[0] : null;
+            return ir.ToInfoCalculationResponse();
         }
 
         private IEnumerable<MoveExt> FillUnvalidatedMoves(string[] lanMoves)
@@ -252,8 +242,8 @@ namespace ChessLib.UCI.Commands.FromEngine
                 var isPromotion = move.MoveType == MoveType.Promotion;
                 if (!isPromotion)
                 {
-                    var isEnPassant = Bitboard.IsEnPassantCapture(board, move);
-                    var isCastlingMove = Bitboard.IsCastlingMove(board, move);
+                    var isEnPassant = board.IsEnPassantCapture(move);
+                    var isCastlingMove = board.IsCastlingMove(move);
                     move.MoveType = isEnPassant ? MoveType.EnPassant : isCastlingMove ? MoveType.Castle : MoveType.Normal;
                 }
 

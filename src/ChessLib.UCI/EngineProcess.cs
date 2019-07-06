@@ -13,7 +13,7 @@ namespace ChessLib.UCI
         public event DataReceivedEventHandler ProcessLevelErrorReceived;
         public event EventHandler EngineExited;
 
-        public IEngineMessageSubscriber MessageSubscriber;
+        public virtual IEngineMessageSubscriber MessageSubscriber { get; set; }
 
 
         public EngineProcess(IEngineMessageSubscriber messageSubscriber) : base()
@@ -23,7 +23,7 @@ namespace ChessLib.UCI
 
         public UciState State { get; private set; } = UciState.NeverStarted;
         public string LastCommandSent { get; set; }
-        public new virtual int ProcessId { get => base.Id; }
+        public virtual int ProcessId { get; protected set; }
         private const char LineEnding = '\n';
 
 
@@ -31,7 +31,7 @@ namespace ChessLib.UCI
         /// Fired each time the app communicates with the engine or a response is received.
         /// Contains raw text responses and commands.
         /// </summary>
-        public event EventHandler<EngineCommunicationArgs> EngineCommunication;
+        public event EventHandler<DebugEventArgs> EngineCommunicationReceived;
 
         public virtual bool Start(string cliString, ProcessStartInfo startInfo)
         {
@@ -43,16 +43,18 @@ namespace ChessLib.UCI
             ErrorDataReceived += ProcessLevelErrorReceived;
             EngineExited += OnEngineExit;
             var result = base.Start();
+            ProcessId = base.Id;
             State = UciState.Running;
             return result;
         }
 
-        private void EngineDataReceived(object sender, DataReceivedEventArgs e)
+        public virtual void EngineDataReceived(object sender, DataReceivedEventArgs e)
         {
+            OnCommunicationReceived(new DebugEventArgs(e.Data));
             MessageSubscriber.ProcessEngineResponse(e.Data);
         }
 
-        public virtual new bool Start()
+        public new virtual bool Start()
         {
             return base.Start();
         }
@@ -63,12 +65,12 @@ namespace ChessLib.UCI
         }
 
 
-        protected virtual new TextWriter StandardInput => base.StandardInput;
+        protected new virtual TextWriter StandardInput => base.StandardInput;
 
 
-        private void OnEngineCommunication(EngineCommunicationArgs engineCommunicationArgs)
+        private void OnCommunicationReceived(DebugEventArgs args)
         {
-            Volatile.Read(ref EngineCommunication)?.Invoke(this, engineCommunicationArgs);
+            Volatile.Read(ref EngineCommunicationReceived)?.Invoke(this, args);
         }
 
         private new ProcessPriorityClass PriorityClass { get => base.PriorityClass; set => base.PriorityClass = value; }
@@ -92,7 +94,7 @@ namespace ChessLib.UCI
 
         public new virtual void BeginOutputReadLine()
         {
-            base.BeginErrorReadLine();
+            base.BeginOutputReadLine();
         }
 
         public virtual void SendCommandToEngine(string command)

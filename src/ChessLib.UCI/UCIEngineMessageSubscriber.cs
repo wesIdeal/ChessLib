@@ -13,7 +13,7 @@ public delegate void EngineResponseCallback(EngineResponseArgs engineResponse);
 
 public class UCIEngineMessageSubscriber : IEngineMessageSubscriber
 {
-    private EngineResponseCallback EngineResponseCallback;
+    public EngineResponseCallback EngineResponseCallback { get; set; }
     private readonly IEngineResponseFactory _responseFactory;
     public UCIEngineMessageSubscriber(EngineResponseCallback callback, bool includeMoveCalcInformation = false)
         : this(callback, new UCIResponseFactory())
@@ -31,20 +31,11 @@ public class UCIEngineMessageSubscriber : IEngineMessageSubscriber
     {
         if (string.IsNullOrEmpty(engineResponseText)) { return; }
 
-        var response = _responseFactory.MakeResponseArgs(FEN, engineResponseText, out string error);
+        var response = _responseFactory.MakeResponseArgs(FEN, engineResponseText);
 
         if (response != null)
         {
-            OnEngineObjectReceived(response);
-        }
-        else if (!IsResponseUCI(engineResponseText))
-        {
-            var message = $"**Message with no corresponding command received**\r\n\t{engineResponseText}\r\n**End Message**";
-            OnDebugEventExecuted(new DebugEventArgs(message));
-        }
-        if (!string.IsNullOrWhiteSpace(error))
-        {
-            OnDebugEventExecuted(new DebugEventArgs(error));
+            EngineResponseCallback(response);
         }
     }
 }
