@@ -1,4 +1,6 @@
-﻿namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
+﻿using ChessLib.EngineInterface.UCI.Commands.FromEngine;
+
+namespace ChessLib.EngineInterface.UCI
 {
     public class ErrorResponse : IResponseObject
     {

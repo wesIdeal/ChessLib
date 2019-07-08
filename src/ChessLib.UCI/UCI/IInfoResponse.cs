@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
-namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
+namespace ChessLib.EngineInterface.UCI
 {
     public interface ICalculationInfoResponse : IResponseObject
     {

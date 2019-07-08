@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChessLib.EngineInterface;
+using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;
 
