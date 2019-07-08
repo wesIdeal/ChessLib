@@ -3,7 +3,6 @@ using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
-using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -263,8 +262,7 @@ namespace ChessLib.EngineInterface
         [NonSerialized] private bool _isDisposed;
         [NonSerialized] public int ProcessId = -1;
         protected IEngineProcess Process { get; set; }
-        [NonSerialized] private readonly TaskCompletionSource<bool> _errorCloseEvent = new TaskCompletionSource<bool>();
-
+       
         /// <summary>
         /// Invoked when a response object was received from the underlying engine process
         /// </summary>
@@ -312,7 +310,6 @@ namespace ChessLib.EngineInterface
             if (string.IsNullOrEmpty(message))
             {
                 message = "No message received.";
-                _errorCloseEvent.SetResult(true);
             }
             OnDebugEventExecuted(new DebugEventArgs(message) { EventLevel = EventLevel.Error });
         }

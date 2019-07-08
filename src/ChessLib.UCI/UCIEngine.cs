@@ -68,7 +68,7 @@ namespace ChessLib.EngineInterface
             InitializeEngineProcess(new UCIEngineMessageSubscriber(ResponseReceived));
         }
 
-        public UCIEngine(UCIEngineStartupArgs args, EngineProcess process = null)
+        public UCIEngine(UCIEngineStartupArgs args, EngineProcess process)
         : base(args, process)
         {
             UserSuppliedArgs = args;
@@ -91,13 +91,6 @@ namespace ChessLib.EngineInterface
 
         [NonSerialized] private bool _isDisposed;
         [NonSerialized] public UCIResponse EngineInformation;
-        [NonSerialized] private string timeoutFormat = "{0} did not return a result from command '{1}' in the specified timeout period of {2} seconds";
-
-        private readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(10);
-
-        private string GetTimeoutErrorMessage(string awaitedCommand, TimeSpan timeout) =>
-            string.Format(timeoutFormat, ToString(), awaitedCommand, timeout.TotalSeconds);
-
 
         public override ManualResetEvent SendIsReadyAsync()
         {
@@ -294,26 +287,26 @@ namespace ChessLib.EngineInterface
 
     }
 
-    internal static class WaitHandleExtensions
-    {
-        public static Task AsTask(this WaitHandle handle)
-        {
-            return AsTask(handle, Timeout.InfiniteTimeSpan);
-        }
+    //internal static class WaitHandleExtensions
+    //{
+    //    public static Task AsTask(this WaitHandle handle)
+    //    {
+    //        return AsTask(handle, Timeout.InfiniteTimeSpan);
+    //    }
 
-        public static Task AsTask(this WaitHandle handle, TimeSpan timeout)
-        {
-            var tcs = new TaskCompletionSource<object>();
-            var registration = ThreadPool.RegisterWaitForSingleObject(handle, (state, timedOut) =>
-            {
-                var localTcs = (TaskCompletionSource<object>)state;
-                if (timedOut)
-                    localTcs.TrySetCanceled();
-                else
-                    localTcs.TrySetResult(null);
-            }, tcs, timeout, executeOnlyOnce: true);
-            tcs.Task.ContinueWith((_, state) => ((RegisteredWaitHandle)state).Unregister(null), registration, TaskScheduler.Default);
-            return tcs.Task;
-        }
-    }
+    //    public static Task AsTask(this WaitHandle handle, TimeSpan timeout)
+    //    {
+    //        var tcs = new TaskCompletionSource<object>();
+    //        var registration = ThreadPool.RegisterWaitForSingleObject(handle, (state, timedOut) =>
+    //        {
+    //            var localTcs = (TaskCompletionSource<object>)state;
+    //            if (timedOut)
+    //                localTcs.TrySetCanceled();
+    //            else
+    //                localTcs.TrySetResult(null);
+    //        }, tcs, timeout, executeOnlyOnce: true);
+    //        tcs.Task.ContinueWith((_, state) => ((RegisteredWaitHandle)state).Unregister(null), registration, TaskScheduler.Default);
+    //        return tcs.Task;
+    //    }
+    //}
 }
