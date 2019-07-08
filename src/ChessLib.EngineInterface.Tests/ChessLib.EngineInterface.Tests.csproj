@@ -4,6 +4,8 @@
     <IsPackable>false</IsPackable>
     <LangVersion>7.3</LangVersion>
     <Platforms>AnyCPU;x64</Platforms>
+    <AssemblyName>ChessLib.EngineInterface.Tests</AssemblyName>
+    <RootNamespace>ChessLib.EngineInterface.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.11.0" />
@@ -13,7 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
-    <ProjectReference Include="..\ChessLib.UCI\ChessLib.EngineInterface.csproj" />
+    <ProjectReference Include="..\ChessLib.EngineInterface\ChessLib.EngineInterface.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="stockfish_10_x64.exe">
