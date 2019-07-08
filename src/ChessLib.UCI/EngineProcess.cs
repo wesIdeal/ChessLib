@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 

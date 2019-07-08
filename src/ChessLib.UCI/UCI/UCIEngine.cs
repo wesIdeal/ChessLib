@@ -8,7 +8,7 @@ using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 
-namespace ChessLib.EngineInterface
+namespace ChessLib.EngineInterface.UCI
 {
     public sealed class UCIEngine : Engine
     {

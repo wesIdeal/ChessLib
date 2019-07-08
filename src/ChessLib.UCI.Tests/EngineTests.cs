@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.EngineInterface;
+using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using ChessLib.EngineInterface.UCI.Commands.ToEngine;

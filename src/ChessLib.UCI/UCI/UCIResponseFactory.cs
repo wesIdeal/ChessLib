@@ -1,6 +1,6 @@
 ﻿using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
-namespace ChessLib.EngineInterface
+namespace ChessLib.EngineInterface.UCI
 {
     public interface IEngineResponseFactory
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ChessLib.EngineInterface
+namespace ChessLib.EngineInterface.UCI
 {
     public class UCIEngineStartupArgs : EngineStartupArgs
     {
