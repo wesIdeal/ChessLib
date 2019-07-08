@@ -1,16 +1,16 @@
-﻿using System;
-using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+﻿using ChessLib.Data.Helpers;
+using System;
+using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.MoveRepresentation
 {
-    public class MoveExt : IMoveExt, ICloneable, IMove
+    public class MoveExt : IMoveExt, ICloneable
     {
         public MoveExt(ushort move) { Move = move; }
         public string SAN { get; set; }
         private ushort _move;
-        public ushort Move { get => _move; protected set { _move = value; } }
+        public ushort Move { get => _move; protected set => _move = value;
+        }
 
         public ushort SourceIndex => (ushort)((_move >> 6) & 63);
 
@@ -22,7 +22,7 @@ namespace ChessLib.Data.MoveRepresentation
 
         public MoveType MoveType
         {
-            get { return (MoveType)((_move >> 14) & 3); }
+            get => (MoveType)((_move >> 14) & 3);
             set
             {
                 ushort mt = (ushort)((ushort)value << 14);
@@ -35,7 +35,7 @@ namespace ChessLib.Data.MoveRepresentation
 
         public bool Equals(ushort other)
         {
-            return this._move == other;
+            return _move == other;
         }
 
         public override string ToString()
@@ -45,7 +45,12 @@ namespace ChessLib.Data.MoveRepresentation
 
         public bool Equals(IMoveExt other)
         {
-            return this._move == other.Move;
+            if (other == null)
+            {
+                return false;
+            }
+
+            return _move == other.Move;
         }
 
         public object Clone()

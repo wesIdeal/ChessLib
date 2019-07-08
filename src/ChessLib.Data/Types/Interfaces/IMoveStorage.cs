@@ -1,8 +1,8 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using System;
+﻿using System;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Enums;
 
-namespace ChessLib.Types.Interfaces
+namespace ChessLib.Data.Types.Interfaces
 {
     public interface IMove
     {

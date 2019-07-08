@@ -1,13 +1,10 @@
-﻿using ChessLib.Data.Exceptions;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
-using EnumsNET;
+﻿using EnumsNET;
 using System;
 using System.Linq;
-using ChessLib.Data.Boards;
-using ChessLib.Validators.BoardValidators.Rules;
-using ChessLib.Validators.FENValidation;
 using System.Text;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Validators.FENValidation;
 
 namespace ChessLib.Data.Helpers
 {
@@ -17,8 +14,8 @@ namespace ChessLib.Data.Helpers
         /// Initial FEN - starting position of a chess game
         /// </summary>
         public const string FENInitial = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        public static readonly char[] ValidCastlingStringChars = new char[] { 'k', 'K', 'q', 'Q', '-' };
-        public static readonly char[] ValidFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
+        public static readonly char[] ValidCastlingStringChars = { 'k', 'K', 'q', 'Q', '-' };
+        public static readonly char[] ValidFENChars = { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
 
         public static string GetPiecePlacement(this ulong[][] piecesOnBoard)
         {
@@ -31,7 +28,7 @@ namespace ChessLib.Data.Helpers
                 while (pieceArray != 0)
                 {
                     var squareIndex = BitHelpers.BitScanForward(pieceArray);
-                    var fenIndex = FENHelpers.BoardIndexToFENIndex(squareIndex);
+                    var fenIndex = BoardIndexToFENIndex(squareIndex);
                     pieceSection[fenIndex] = charRepForPieceOfColor;
                     pieceArray &= pieceArray - 1;
                 }
@@ -122,7 +119,7 @@ namespace ChessLib.Data.Helpers
         /// Gets the Active Color type from the corresponding FEN section
         /// </summary>
         /// <param name="v">The Active Color piece of the FEN</param>
-        /// <returns>A Color object representing the actice Color</returns>
+        /// <returns>A Color object representing the active Color</returns>
         public static Color GetActiveColor(string v)
         {
             switch (v)

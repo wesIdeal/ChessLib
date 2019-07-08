@@ -1,13 +1,10 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
+﻿using System.Linq;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Interfaces;
-using ChessLib.Validators;
-using ChessLib.Validators.MoveValidation;
-using System.Linq;
-using ChessLib.Types.Enums;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Validators.MoveValidation.CastlingRules
+namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
 {
     public class HasValidDestinationSquare : IMoveRule
     {
@@ -17,7 +14,7 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
             if (move.MoveType != MoveType.Castle) return null;
             return ValidDestinationSquares.Contains(move.DestinationIndex)
                 ? (MoveError?)null
-                : MoveError.Castle_BadDestinationSquare;
+                : MoveError.CastleBadDestinationSquare;
         }
     }
 }

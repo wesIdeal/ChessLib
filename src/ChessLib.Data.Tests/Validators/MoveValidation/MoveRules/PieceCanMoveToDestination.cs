@@ -1,16 +1,16 @@
 ﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
 using NUnit.Framework;
 using System.Linq;
-using ChessLib.Validators.MoveValidation;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Validators.MoveValidation;
 
 namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
 {
     [TestFixture]
-    internal class PieceCanMoveToDestination : ChessLib.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+    internal class PieceCanMoveToDestination : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
     {
         protected static readonly ulong[][] _postMoveBoard = new ulong[2][];
 
@@ -81,7 +81,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             Assert.AreEqual(MoveError.BadDestination, Validate(BoardInfo, _postMoveBoard, move), "Should return error when the destination is invalid.");
         }
 
-        class PawnMoves : ChessLib.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        class PawnMoves : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
             private const string InitialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
             private BoardInfo _BoardInfo;
@@ -325,7 +325,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
 
         }
 
-        class KnightMoves : ChessLib.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        class KnightMoves : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
             private static readonly MoveExt Ne5Tof3 = MoveHelpers.GenerateMove(36, 21);
             private static readonly MoveExt Ne5Tod3 = MoveHelpers.GenerateMove(36, 19);
@@ -439,7 +439,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         /// <summary>
         /// Test Bishop Moves- should be minimal, as sliding piece attacks were tested by calculated shifts
         /// </summary>
-        class BishopQueenMoves : ChessLib.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        class BishopQueenMoves : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
 
             private readonly SlidingPieceMoveAndBoard _bAttacksEnemyOnE5 =
@@ -534,7 +534,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             }
         }
 
-        class RookQueenMoves : ChessLib.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        class RookQueenMoves : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
             private readonly SlidingPieceMoveAndBoard _rEnemyOnC7 = new SlidingPieceMoveAndBoard(2, 50, "2r1k3/2r5/8/8/8/8/8/n1R1K3 w - - 0 1");
             private readonly SlidingPieceMoveAndBoard _rEnemyOnC8 = new SlidingPieceMoveAndBoard(2, 58, "2r1k3/2r5/8/8/8/8/8/n1R1K3 w - - 0 1");
@@ -599,7 +599,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             }
         }
 
-        class KingMoves : ChessLib.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        class KingMoves : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
             readonly BoardInfo _bi = new BoardInfo("4k3/8/8/8/8/8/1K6/8 w - - 0 1");
 

@@ -1,12 +1,10 @@
-﻿using System;
+﻿using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Data
 {
@@ -52,6 +50,7 @@ namespace ChessLib.Data
         /// <summary>
         /// Gets a Standard Algebraic Notation string from a move.
         /// </summary>
+        /// <param name="move">move to convert</param>
         /// <param name="recordResult">if true, the game result is included with the SAN (ie. 1-0, 1/2-1/2, 0-1)</param>
         public string MoveToSAN(MoveExt move, bool recordResult = true)
         {
@@ -75,13 +74,13 @@ namespace ChessLib.Data
                 promotionInfo = $"={PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)}";
             }
 
-            var board = BoardHelpers.ApplyMoveToBoard(Board, move);
+            var board = Board.ApplyMoveToBoard(move);
             if (board.IsActivePlayerInCheck())
             {
                 checkInfo = "+";
                 if (board.IsCheckmate())
                 {
-                    checkInfo = $"#";
+                    checkInfo = "#";
                     if (recordResult)
                     {
                         result = (activePlayer == Color.White ? "1-0" : "0-1");
@@ -123,7 +122,7 @@ namespace ChessLib.Data
                 }
             }
 
-            if (duplicateAttackerIndexes.Count() == 1) return strSrcPiece;
+            if (duplicateAttackerIndexes.Count == 1) return strSrcPiece;
             var duplicateFiles = duplicateAttackerIndexes.Select(x => x.GetFile()).GroupBy(x => x)
                 .Any(x => x.Count() > 1);
             var duplicateRanks = duplicateAttackerIndexes.Select(x => x.GetRank()).GroupBy(x => x)

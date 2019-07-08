@@ -1,5 +1,4 @@
-﻿using ChessLib.Data.Magic;
-using ChessLib.Data.PieceMobility;
+﻿using ChessLib.Data.PieceMobility;
 
 namespace ChessLib.Data.Magic.Init
 {

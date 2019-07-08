@@ -1,9 +1,8 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.PieceMobility
 {

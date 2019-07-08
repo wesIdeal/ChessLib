@@ -1,16 +1,11 @@
 ﻿using ChessLib.Data.Boards;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.Magic;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
-using ChessLib.Validators.BoardValidators;
-using ChessLib.Validators.MoveValidation;
+using ChessLib.Data.Types.Enums;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Validators.BoardValidation;
+using ChessLib.Data.Validators.MoveValidation;
 
 namespace ChessLib.Data
 {
@@ -18,7 +13,7 @@ namespace ChessLib.Data
     {
         public MoveTree<MoveStorage> MoveTree { get; set; }
 
-        public BoardInfo() : this(FENHelpers.FENInitial, false) { }
+        public BoardInfo() : this(FENHelpers.FENInitial) { }
 
         public BoardInfo(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability,
             ushort? enPassantIdx, uint? halfMoveClock, uint fullMoveCount, bool validationException = true) : base(occupancy, activePlayer,
@@ -31,7 +26,7 @@ namespace ChessLib.Data
         public BoardInfo(string fen, bool is960 = false)
         {
             MoveTree = new MoveTree<MoveStorage>(null);
-            _piecePlacement = FENHelpers.BoardFromFen(fen, out Color active, out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
+            PiecePlacement = fen.BoardFromFen(out Color active, out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
             ActivePlayer = active;
             CastlingAvailability = ca;
             EnPassantSquare = enPassant;
@@ -57,7 +52,6 @@ namespace ChessLib.Data
         public MoveError? ApplyMove(MoveExt move)
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
-            var pocDestination = this.GetPieceOfColorAtIndex(move.DestinationIndex);
             if (pocSource == null) throw new ArgumentException("No piece at source.");
             var moveValidator = new MoveValidator(this, move);
             var validationError = moveValidator.Validate();
@@ -71,16 +65,19 @@ namespace ChessLib.Data
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
             var moveDisplayService = new MoveDisplayService(this);
-            var shouldRecordResult = true;
-            var san = moveDisplayService.MoveToSAN(move, shouldRecordResult);
+            var san = moveDisplayService.MoveToSAN(move);
+            if (pocSource == null)
+            {
+                throw new ArgumentException("No piece found at source.");
+            }
             MoveTree.AddMove(new MoveStorage(this.ToFEN(), move, pocSource.Value.Piece, pocSource.Value.Color, san));
             var newBoard = this.ApplyMoveToBoard(move);
-            this._piecePlacement = newBoard.GetPiecePlacement();
-            this.ActivePlayer = newBoard.ActivePlayer;
-            this.CastlingAvailability = newBoard.CastlingAvailability;
-            this.EnPassantSquare = newBoard.EnPassantSquare;
-            this.HalfmoveClock = newBoard.HalfmoveClock;
-            this.FullmoveCounter = newBoard.FullmoveCounter;
+            PiecePlacement = newBoard.GetPiecePlacement();
+            ActivePlayer = newBoard.ActivePlayer;
+            CastlingAvailability = newBoard.CastlingAvailability;
+            EnPassantSquare = newBoard.EnPassantSquare;
+            HalfmoveClock = newBoard.HalfmoveClock;
+            FullmoveCounter = newBoard.FullmoveCounter;
 
         }
 
@@ -106,10 +103,6 @@ namespace ChessLib.Data
 
             return pinned;
         }
-
-
-
-
 
         public bool DoesPieceAtSquareAttackSquare(ushort attackerSquare, ushort attackedSquare,
             Piece attackerPiece)

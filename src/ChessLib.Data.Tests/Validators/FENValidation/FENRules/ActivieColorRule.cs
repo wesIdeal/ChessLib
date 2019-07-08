@@ -1,4 +1,5 @@
-﻿using ChessLib.Types.Enums;
+﻿using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Validators.FENValidation.Rules;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
@@ -12,7 +13,7 @@ namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
         [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", FENError.None)]
         public static void ValidateActiveColor(string fen, FENError expectedError)
         {
-            var validator = new ChessLib.Validators.FENValidation.Rules.ActiveColorRule();
+            var validator = new ActiveColorRule();
             var actual = validator.Validate(fen);
             Assert.AreEqual(expectedError, actual);
         }

@@ -1,12 +1,10 @@
-﻿using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Validators.MoveValidation;
 using NUnit.Framework;
 using System;
 using System.Text;
+using ChessLib.Data.Types.Enums;
 
 // ReSharper disable once CheckNamespace
 namespace ChessLib.Data.Tests

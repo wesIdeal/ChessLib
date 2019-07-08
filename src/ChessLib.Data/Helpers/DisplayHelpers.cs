@@ -1,16 +1,16 @@
-﻿using ChessLib.Types.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using ChessLib.Data.Types.Enums;
 
 
 namespace ChessLib.Data.Helpers
 {
     public static class DisplayHelpers
     {
-        public readonly static Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations = new Dictionary<Color, Dictionary<Piece, string>>();
+        public static readonly Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations = new Dictionary<Color, Dictionary<Piece, string>>();
 
         static DisplayHelpers()
         {
@@ -67,8 +67,6 @@ namespace ChessLib.Data.Helpers
         public static string MakeBoardTable(this ulong u, ushort pieceIndex, string header = "", string pieceRep = "^", string attackSquareRep = "*")
         {
             string boardBits = Convert.ToString((long)u, 2).PadLeft(64, '0');
-            var board = new List<string>();
-
             var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
             if (string.IsNullOrWhiteSpace(header))
             {
@@ -119,7 +117,7 @@ namespace ChessLib.Data.Helpers
             var str = Convert.ToString((long)u, 2).PadLeft(64, '0');
             sb.Append(str + "\r\n");
 
-            var lRanks = new List<string>();
+            
             var footerHeader = "";
 
             for (char c = 'a'; c <= 'h'; c++)
@@ -142,7 +140,7 @@ namespace ChessLib.Data.Helpers
 
         public static string PrintBoardHtml(string htmlBoards)
         {
-            var htmlFormat = string.Format(htmlMain, htmlStyles, htmlBoards);
+            var htmlFormat = string.Format(HtmlMain, HtmlStyles, htmlBoards);
             return htmlFormat;
         }
 
@@ -174,7 +172,7 @@ namespace ChessLib.Data.Helpers
             return sb.ToString();
         }
 
-        public static string MakeBoardTableFromFEN(string FEN, string header = "")
+        public static string MakeBoardTableFromFEN(string fen, string header = "")
         {
             var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
             if (!string.IsNullOrWhiteSpace(header))
@@ -191,7 +189,7 @@ namespace ChessLib.Data.Helpers
                 for (File f = File.A; f <= File.H; f++)
                 {
                     var file = (int)f;
-                    var piece = FEN[(BoardHelpers.RankCompliment((ushort)r) * 8) + (ushort)f];
+                    var piece = fen[(BoardHelpers.RankCompliment((ushort)r) * 8) + (ushort)f];
                     var pieceRep = GetHtmlRepresentation(piece);
 
                     sb.AppendFormat(squareFormat, f.ToString() + r.ToString(), pieceRep ?? "&nbsp;");
@@ -232,7 +230,7 @@ namespace ChessLib.Data.Helpers
 
 
         #region Html Strings
-        const string htmlMain = @"<!DOCTYPE html>
+        const string HtmlMain = @"<!DOCTYPE html>
 <html>
     <head>
         <title>Chess Boards</title>
@@ -242,7 +240,7 @@ namespace ChessLib.Data.Helpers
     {1}
     </body>
 </html>";
-        private const string htmlStyles = @"
+        private const string HtmlStyles = @"
 <style>
     * 
     {

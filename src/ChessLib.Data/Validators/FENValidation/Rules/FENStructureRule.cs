@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+﻿using ChessLib.Data.Types.Enums;
 
-namespace ChessLib.Validators.FENValidation.Rules
+namespace ChessLib.Data.Validators.FENValidation.Rules
 {
     public class FENStructureRule : IFENRule
     {

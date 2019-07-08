@@ -1,4 +1,4 @@
-﻿namespace ChessLib.Types.Interfaces
+﻿namespace ChessLib.Data.Types.Interfaces
 {
     public interface IBlockerAndMoveBoards
     {

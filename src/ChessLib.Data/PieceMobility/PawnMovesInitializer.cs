@@ -1,6 +1,4 @@
-﻿using ChessLib.Types.Enums;
-
-namespace ChessLib.Data.PieceMobility
+﻿namespace ChessLib.Data.PieceMobility
 {
     internal class PawnMovesInitializer : MoveInitializer
     {

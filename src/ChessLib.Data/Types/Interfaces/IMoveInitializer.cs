@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ChessLib.Types.Interfaces
+namespace ChessLib.Data.Types.Interfaces
 {
     public interface IMoveInitializer
     {

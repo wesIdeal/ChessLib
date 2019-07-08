@@ -3,7 +3,6 @@ using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Graphics;
 using ChessLib.Parse.PGN;
-using ChessLib.Types.Enums;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

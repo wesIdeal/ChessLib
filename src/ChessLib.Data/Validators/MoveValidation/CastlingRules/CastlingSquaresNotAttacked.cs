@@ -1,11 +1,10 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Validators.MoveValidation.CastlingRules
+namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
 {
     public class CastlingSquaresNotAttacked : IMoveRule
     {
@@ -13,7 +12,7 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
         {
             if (IsKingsPathInCheck(boardInfo.OpponentColor(), boardInfo.GetPiecePlacement(), move))
             {
-                return MoveError.Castle_ThroughCheck;
+                return MoveError.CastleThroughCheck;
             }
             return null;
         }
@@ -31,7 +30,7 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
             while (squaresBetween != 0)
             {
                 var square = BitHelpers.BitScanForward(squaresBetween);
-                if (Bitboard.IsSquareAttackedByColor(square, opponentColor, occupancy)) return true;
+                if (square.IsSquareAttackedByColor(opponentColor, occupancy)) return true;
                 squaresBetween &= squaresBetween - 1;
             }
             return false;

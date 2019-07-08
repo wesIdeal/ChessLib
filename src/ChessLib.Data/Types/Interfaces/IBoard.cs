@@ -1,7 +1,7 @@
-﻿using ChessLib.Types.Enums;
-using System;
+﻿using System;
+using ChessLib.Data.Types.Enums;
 
-namespace ChessLib.Types.Interfaces
+namespace ChessLib.Data.Types.Interfaces
 {
     public interface IBoard : ICloneable
     {

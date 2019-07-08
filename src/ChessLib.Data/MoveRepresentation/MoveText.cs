@@ -1,4 +1,5 @@
 ﻿using System;
+using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data.MoveRepresentation
 {
@@ -40,24 +41,7 @@ namespace ChessLib.Data.MoveRepresentation
             return MoveNumber == other.MoveNumber && string.Equals(SAN, other.SAN) && string.Equals(Comment, other.Comment) && string.Equals(NAG, other.NAG);
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj == null) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((MoveText)obj);
-        }
+       
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = MoveNumber;
-                hashCode = (hashCode * 397) ^ (SAN != null ? SAN.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Comment != null ? Comment.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (NAG != null ? NAG.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
     }
 }

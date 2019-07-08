@@ -1,9 +1,9 @@
-﻿using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
-using ChessLib.Validators.MoveValidation;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
+using ChessLib.Data.Validators.MoveValidation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -68,7 +68,7 @@ namespace ChessLib.Data
         /// <param name="fen">FEN string detailing the board configuration</param>
         public void InitializeBoard(string fen)
         {
-            base.Initialize(fen);
+            Initialize(fen);
         }
         /// <summary>
         /// Used to initialize the underlying board object based on an existing board.
@@ -77,7 +77,7 @@ namespace ChessLib.Data
         /// <param name="board">An existing board to base the service's board from.</param>
         public void InitializeBoard(in IBoard board)
         {
-            base.Initialize(board);
+            Initialize(board);
         }
         /// <summary>
         /// Given a board and a simple algebraic notation (SAN), generate a move object

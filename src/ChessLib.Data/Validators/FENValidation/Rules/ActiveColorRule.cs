@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
+using ChessLib.Data.Types.Enums;
 
-namespace ChessLib.Validators.FENValidation.Rules
+namespace ChessLib.Data.Validators.FENValidation.Rules
 {
     public class ActiveColorRule : IFENRule
     {

@@ -1,8 +1,8 @@
 ﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 
 namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
@@ -11,7 +11,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
     /// Tests for castling through occupied and non-occupied squares between castling King and Rook
     /// </summary>
     [TestFixture(Description = "Tests for castling through occupied and non-occupied squares between castling King and Rook")]
-    class CastlingHasNoPiecesBlocking : ChessLib.Validators.MoveValidation.CastlingRules.CastlingHasNoPiecesBlocking
+    class CastlingHasNoPiecesBlocking : Data.Validators.MoveValidation.CastlingRules.CastlingHasNoPiecesBlocking
     {
         BoardInfo _biOccupied, _biNonOccupied;
         [SetUp]
@@ -108,7 +108,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
 
         private void AssertOccupiedExceptionThrown(MoveExt move)
         {
-            const MoveError expected = MoveError.Castle_OccupancyBetween;
+            const MoveError expected = MoveError.CastleOccupancyBetween;
             var result = Validate(_biOccupied,
                 BoardHelpers.GetBoardPostMove(_biOccupied.GetPiecePlacement(), _biOccupied.ActivePlayer, move), move);
             Assert.AreEqual(expected, result);

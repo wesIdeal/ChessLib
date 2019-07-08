@@ -4,8 +4,8 @@ using System.Diagnostics;
 
 namespace ChessLib.Data.Helpers
 {
-    using BoardRepresentation = System.UInt64;
-    using PieceIndex = System.UInt16;
+    using BoardRepresentation = UInt64;
+    using PieceIndex = UInt16;
     public static class BitHelpers
     {
         private static readonly ushort[] Index64 = {
@@ -79,13 +79,13 @@ namespace ChessLib.Data.Helpers
 
         public static bool IsIndexOnFile(this ushort index, ushort file)
         {
-            Debug.Assert(file >= 0 && file < 8);
+            Debug.Assert(file < 8);
             return (index.ToBoardValue() & BoardHelpers.FileMasks[file]) != 0;
         }
 
         public static bool IsIndexOnRank(this ushort index, ushort rank)
         {
-            Debug.Assert(rank >= 0 && rank < 8);
+            Debug.Assert(rank < 8);
             return (index.ToBoardValue() & BoardHelpers.RankMasks[rank]) != 0;
         }
 

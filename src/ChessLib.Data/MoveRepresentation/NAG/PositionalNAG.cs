@@ -20,7 +20,7 @@ namespace ChessLib.Data.MoveRepresentation.NAG
         WhiteSlightAdvantage = 14,
 
         [Symbol("⩱")] [Description("Black has a slight advantage")]
-        BlacKingSidelightAdvantage = 15,
+        BlackKingSidelightAdvantage = 15,
 
         [Symbol("±")] [Description("White has a moderate advantage")]
         WhiteModerateAdvantage = 16,
@@ -50,7 +50,7 @@ namespace ChessLib.Data.MoveRepresentation.NAG
         WhiteSlightSpaceAdvantage = 24,
 
         [Symbol("")] [Description("Black has a slight space advantage")]
-        BlacKingSidelightSpaceAdvantage = 25,
+        BlackKingSidelightSpaceAdvantage = 25,
 
         [Symbol("")] [Description("White has a moderate space advantage")]
         WhiteModerateSpaceAdvantage = 26,
@@ -68,7 +68,7 @@ namespace ChessLib.Data.MoveRepresentation.NAG
         WhiteSlightTempoAdvantage = 30,
 
         [Symbol("")] [Description("Black has a slight time (development) advantage")]
-        BlacKingSidelightTempoAdvantage = 31,
+        BlackKingSidelightTempoAdvantage = 31,
 
         [Symbol("⟳")] [Description("White has a moderate time (development) advantage")]
         WhiteModerateTempoAdvantage = 32,
@@ -101,22 +101,22 @@ namespace ChessLib.Data.MoveRepresentation.NAG
         BlackHasTheAttack = 41,
 
         [Symbol("")] [Description("White has insufficient compensation for material deficit")]
-        WhiteHasInsufficientCompensationForMaterialDefecit = 42,
+        WhiteHasInsufficientCompensationForMaterialDeficit = 42,
 
         [Symbol("")] [Description("Black has insufficient compensation for material deficit")]
-        BlackHasInsufficientCompensationForMaterialDefecit = 43,
+        BlackHasInsufficientCompensationForMaterialDeficit = 43,
 
         [Symbol("")] [Description("White has sufficient compensation for material deficit")]
-        WhiteHasCompensationForMaterialDefecit = 44,
+        WhiteHasCompensationForMaterialDeficit = 44,
 
         [Symbol("")] [Description("Black has sufficient compensation for material deficit")]
-        BlackHasCompensationForMaterialDefecit = 45,
+        BlackHasCompensationForMaterialDeficit = 45,
 
         [Symbol("")] [Description("White has more than adequate compensation for material deficit")]
-        WhiteHasMoreThanAdequateCompensationForMaterialDefecit = 46,
+        WhiteHasMoreThanAdequateCompensationForMaterialDeficit = 46,
 
         [Symbol("")] [Description("Black has more than adequate compensation for material deficit")]
-        BlackHasMoreThanAdequateCompensationForMaterialDefecit = 47,
+        BlackHasMoreThanAdequateCompensationForMaterialDeficit = 47,
 
         [Symbol("")] [Description("White has a slight center control advantage")]
         WhiteHasASlightCentralControlAdvantage = 48,

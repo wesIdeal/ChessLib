@@ -1,8 +1,7 @@
-﻿using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
-using System;
+﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.MoveRepresentation
 {
@@ -26,14 +25,11 @@ namespace ChessLib.Data.MoveRepresentation
             ColorMoving = colorMoving;
         }
 
-        protected MoveStorage(MoveExt move, Piece pieceMoving, Color colorMoving)
-            : this(move.Move, pieceMoving, colorMoving) { }
-
         protected MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move, pieceMoving, colorMoving) { }
 
-        public virtual Color ColorMoving { get; private set; }
+        public virtual Color ColorMoving { get; }
 
-        public virtual Piece PieceMoving { get; private set; }
+        public virtual Piece PieceMoving { get; }
 
         public string FEN { get; protected set; }
 

@@ -2,11 +2,11 @@
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
-using ChessLib.Types.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Parse.PGN.Parser
 {

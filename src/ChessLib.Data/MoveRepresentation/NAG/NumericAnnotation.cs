@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EnumsNET;
+// ReSharper disable InconsistentNaming
 
 namespace ChessLib.Data.MoveRepresentation.NAG
 {

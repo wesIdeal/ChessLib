@@ -1,12 +1,12 @@
 ﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
+using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 
 namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
 {
     [TestFixture]
-    class SourceIsPawn : ChessLib.Validators.MoveValidation.EnPassantRules.SourceIsPawn
+    class SourceIsPawn : Data.Validators.MoveValidation.EnPassantRules.SourceIsPawn
     {
         private readonly ulong[][] _pmb = new ulong[2][];
         [Test]
@@ -14,7 +14,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
         {
             var board = new BoardInfo("rnbqkbnr/pppp1ppp/8/3Bp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
             var move = MoveHelpers.GenerateMove(35, 44);
-            Assert.AreEqual(MoveError.EP_SourceIsNotPawn, Validate(board, _pmb, move));
+            Assert.AreEqual(MoveError.EpSourceIsNotPawn, Validate(board, _pmb, move));
         }
 
         [Test]
@@ -27,7 +27,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
     }
 
     [TestFixture]
-    class SourceIsCorrectRank : ChessLib.Validators.MoveValidation.EnPassantRules.SourceIsCorrectRank
+    class SourceIsCorrectRank : Data.Validators.MoveValidation.EnPassantRules.SourceIsCorrectRank
     {
         readonly ulong[][] _pmb = new ulong[2][];
         [Test]
@@ -35,7 +35,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
         {
             var board = new BoardInfo("rnbqkbnr/ppp2ppp/3p4/3Pp3/8/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3");
             var move = MoveHelpers.GenerateMove(27, 44);
-            Assert.AreEqual(MoveError.EP_WrongSourceRank, Validate(board, _pmb, move));
+            Assert.AreEqual(MoveError.EpWrongSourceRank, Validate(board, _pmb, move));
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
         {
             var board = new BoardInfo("rnbqkbnr/ppp1pppp/8/8/1P1pP3/P7/2PP1PPP/RNBQKBNR b KQkq e3 0 1");
             var move = MoveHelpers.GenerateMove(35, 28);
-            Assert.AreEqual(MoveError.EP_WrongSourceRank, Validate(board, _pmb, move));
+            Assert.AreEqual(MoveError.EpWrongSourceRank, Validate(board, _pmb, move));
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
     }
 
     [TestFixture]
-    class EnPassantSquareIsAttackedBySource : ChessLib.Validators.MoveValidation.EnPassantRules.EnPassantSquareIsAttackedBySource
+    class EnPassantSquareIsAttackedBySource : Data.Validators.MoveValidation.EnPassantRules.EnPassantSquareIsAttackedBySource
     {
         readonly ulong[][] _pmb = new ulong[2][];
         [Test]
@@ -72,7 +72,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
             var board = new BoardInfo("rnbqkbnr/ppp2ppp/3p4/3Pp3/8/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3");
             var move = MoveHelpers.GenerateMove(35, 45);
             var actual = Validate(board, _pmb, move);
-            Assert.AreEqual(MoveError.EP_NotAttackedBySource, actual);
+            Assert.AreEqual(MoveError.EpNotAttackedBySource, actual);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
         }
     }
     [TestFixture()]
-    class EnPassantIsPossible : ChessLib.Validators.MoveValidation.EnPassantRules.EnPassantIsPossible
+    class EnPassantIsPossible : Data.Validators.MoveValidation.EnPassantRules.EnPassantIsPossible
     {
         readonly ulong[][] _pmb = new ulong[2][];
         [Test]
@@ -92,7 +92,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
         {
             var board = new BoardInfo("rnbqkbnr/ppp2ppp/3p4/3Pp3/8/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3");
             var move = MoveHelpers.GenerateMove(35, 44);
-            Assert.AreEqual(MoveError.Ep_NotAvailalbe, Validate(board, _pmb, move));
+            Assert.AreEqual(MoveError.EpNotAvailable, Validate(board, _pmb, move));
         }
 
         [Test]

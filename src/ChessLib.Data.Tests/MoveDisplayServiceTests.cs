@@ -1,6 +1,5 @@
 ﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
 using NUnit.Framework;
 using System;
 using System.Collections;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.Tests
 {

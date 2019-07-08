@@ -1,13 +1,13 @@
 ﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 
 namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
 {
     [TestFixture]
-    public class CastlingSquaresNotAttacked : ChessLib.Validators.MoveValidation.CastlingRules.CastlingSquaresNotAttacked
+    public class CastlingSquaresNotAttacked : Data.Validators.MoveValidation.CastlingRules.CastlingSquaresNotAttacked
     {
         [Test(Description = "Should return correct error when castle's path is attacked")]
         public void Validate_ShouldReturnCorrectErrorWhenPathIsAttacked()
@@ -15,7 +15,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
             var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
             var position = new BoardInfo("4k2r/8/8/8/8/8/8/4KR2 b kq - 1 2");
             var postMoveBoard = BoardHelpers.GetBoardPostMove(position.GetPiecePlacement(), position.ActivePlayer, move);
-            Assert.AreEqual(MoveError.Castle_ThroughCheck, Validate(position, postMoveBoard, move), "IsKingsPathInCheck() should return true when Rook on f1 blocks castling privilege.");
+            Assert.AreEqual(MoveError.CastleThroughCheck, Validate(position, postMoveBoard, move), "IsKingsPathInCheck() should return true when Rook on f1 blocks castling privilege.");
         }
 
         [Test(Description = "Should return null when castle's path is not attacked")]

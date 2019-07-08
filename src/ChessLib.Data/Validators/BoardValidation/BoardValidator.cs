@@ -1,12 +1,12 @@
-﻿using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
-using ChessLib.Validators.BoardValidators.Rules;
-using EnumsNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Interfaces;
+using ChessLib.Data.Validators.BoardValidation.Rules;
+using EnumsNET;
 
-namespace ChessLib.Validators.BoardValidators
+namespace ChessLib.Data.Validators.BoardValidation
 {
     public class BoardValidator
     {

@@ -1,10 +1,8 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Interfaces;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
 {
@@ -15,7 +13,7 @@ namespace ChessLib.Data
         private IMoveNode<T> _last;
         private IMoveNode<T> _first;
 
-        public IMoveNode<T> VariationParent { get; private set; }
+        public IMoveNode<T> VariationParent { get; }
         public MoveTree(MoveNode<T> parentMove)
         {
             VariationParent = parentMove;
@@ -49,10 +47,8 @@ namespace ChessLib.Data
             {
                 return AddMove(node);
             }
-            else
-            {
-                return _last.AddVariation(node);
-            }
+
+            return _last.AddVariation(node);
         }
 
         public IMoveNode<T> FirstMove => _first;
@@ -62,11 +58,11 @@ namespace ChessLib.Data
         public override string ToString()
         {
             var sb = new StringBuilder();
-            IMoveNode<T> curr = _first;
-            while (curr != null)
+            IMoveNode<T> current = _first;
+            while (current != null)
             {
-                sb.AppendLine(curr.MoveData.ToString());
-                curr = curr.Next;
+                sb.AppendLine(current.MoveData.ToString());
+                current = current.Next;
             }
             return sb.ToString();
         }
@@ -83,11 +79,11 @@ namespace ChessLib.Data
 
         public IEnumerable<T> GetItemsInReverse()
         {
-            var curr = _last;
-            while (curr != null)
+            var current = _last;
+            while (current != null)
             {
-                yield return curr.MoveData;
-                curr = curr.Previous ?? curr.Parent;
+                yield return current.MoveData;
+                current = current.Previous ?? current.Parent;
             }
         }
 

@@ -1,5 +1,5 @@
 ﻿using ChessLib.Data;
-using ChessLib.Types.Enums;
+using ChessLib.Data.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Validators.Tests.BoardValidation
@@ -13,7 +13,7 @@ namespace ChessLib.Validators.Tests.BoardValidation
         {
 
             var board = new BoardInfo(fen);
-            var rule = new ChessLib.Validators.BoardValidators.Rules.OpponentInCheckRule();
+            var rule = new Data.Validators.BoardValidation.Rules.OpponentInCheckRule();
             var actual = rule.Validate(board);
             Assert.AreEqual(expectedException, actual);
         }

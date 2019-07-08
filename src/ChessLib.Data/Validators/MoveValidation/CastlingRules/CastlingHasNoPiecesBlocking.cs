@@ -1,10 +1,9 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Interfaces;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Validators.MoveValidation.CastlingRules
+namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
 {
     public class CastlingHasNoPiecesBlocking : IMoveRule
     {
@@ -26,12 +25,12 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
                     piecesBetween = BoardHelpers.InBetween(4, 7);
                     break;
                 default:
-                    throw new MoveException("Bad destination square for castling move.", MoveError.Castle_BadDestinationSquare, move, boardInfo.ActivePlayer);
+                    throw new MoveException("Bad destination square for castling move.", MoveError.CastleBadDestinationSquare, move, boardInfo.ActivePlayer);
 
             }
             if ((boardInfo.GetPiecePlacement().Occupancy() & piecesBetween) != 0)
             {
-                return MoveError.Castle_OccupancyBetween;
+                return MoveError.CastleOccupancyBetween;
             }
             return null;
         }

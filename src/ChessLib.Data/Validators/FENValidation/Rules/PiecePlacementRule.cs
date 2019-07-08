@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
-using ChessLib.Validators.FENValidation;
+using ChessLib.Data.Types.Enums;
 
-namespace ChessLib.Validators.FENValidation.Rules
+namespace ChessLib.Data.Validators.FENValidation.Rules
 {
     public class PiecePlacementRule : IFENRule
     {
-        private static readonly char[] ValidFENChars = new char[] { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
+        private static readonly char[] ValidFENChars = { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
         private string _piecePlacement = "";
         public FENError Validate(in string fen)
         {

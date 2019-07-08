@@ -1,7 +1,6 @@
-﻿using ChessLib.Types.Interfaces;
-using System;
+﻿using System;
 
-namespace ChessLib.Data.MoveRepresentation
+namespace ChessLib.Data.Types.Interfaces
 {
     public interface IMoveText : IEquatable<IMoveText>, IMove
     {

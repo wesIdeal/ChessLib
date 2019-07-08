@@ -1,14 +1,14 @@
 ﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
 namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
 {
     [TestFixture()]
-    class KingNotInCheckAfterMove : Validators.MoveValidation.MoveRules.KingNotInCheckAfterMove
+    class KingNotInCheckAfterMove : Data.Validators.MoveValidation.MoveRules.KingNotInCheckAfterMove
     {
 
         [Test]

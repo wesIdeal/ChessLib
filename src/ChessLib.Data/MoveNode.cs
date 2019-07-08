@@ -1,8 +1,7 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
 {

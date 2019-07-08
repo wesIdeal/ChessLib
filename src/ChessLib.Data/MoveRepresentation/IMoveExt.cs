@@ -1,6 +1,6 @@
 ﻿using System;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data.MoveRepresentation
 {

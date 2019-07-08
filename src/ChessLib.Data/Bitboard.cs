@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic.Init;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
 {
@@ -106,7 +105,7 @@ namespace ChessLib.Data
             if (sourcePieceColor == null)
             {
                 var move = $"{source.IndexToSquareDisplay()}->{dest.IndexToSquareDisplay()}";
-                throw new PieceException($"Error getting piece on source in Bitboard.GetMoveType(...):" + move);
+                throw new PieceException("Error getting piece on source in Bitboard.GetMoveType(...):" + move);
             }
 
             var piece = sourcePieceColor.Value.Piece;
@@ -136,6 +135,7 @@ namespace ChessLib.Data
         /// <param name="board">Current board information</param>
         /// <param name="source">Source index for move</param>
         /// <param name="dest">Destination index for move</param>
+        /// <param name="promotionPieceChar">Character for promotion</param>
         /// <returns>A move object</returns>
         /// <exception cref="MoveException">if promotion character is not [n|b|r|q|null], insensitive of case</exception>
         public static MoveExt GetMove(IBoard board, ushort source, ushort dest, char? promotionPieceChar)
@@ -166,6 +166,9 @@ namespace ChessLib.Data
         /// <param name="activeOcc"></param>
         /// <param name="oppOcc"></param>
         /// <param name="color"></param>
+        /// <param name="enPassantIndex">En Passant index, if set</param>
+        /// <param name="ca">Castling availability flags</param>
+        /// <param name="moves">Actual move objects</param>
         /// <returns></returns>
         public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex, CastlingAvailability ca, out List<MoveExt> moves)
         {
@@ -353,10 +356,9 @@ namespace ChessLib.Data
             var notNColor = nColor ^ 1;
             var r = squareIndex / 8;
             var f = squareIndex % 8;
-            var totalOcc = 0ul;
             var oppositeOccupancy = piecesOnBoard[(int)color.Toggle()].Aggregate((x, y) => x |= y);
             var activeOccupancy = piecesOnBoard[(int)color].Aggregate((x, y) => x |= y);
-            totalOcc = oppositeOccupancy | activeOccupancy;
+            var totalOcc = oppositeOccupancy | activeOccupancy;
             var bishopAttack = GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc, Color.White);
             var rookAttack = GetAttackedSquares(Piece.Rook, squareIndex, totalOcc, Color.White);
             if ((PieceAttackPatterns.Instance.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;

@@ -1,5 +1,5 @@
-﻿using ChessLib.Types.Enums;
-using System;
+﻿using System;
+using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 
 namespace ChessLib.Data.Helpers
@@ -121,47 +121,9 @@ namespace ChessLib.Data.Helpers
         /// <returns></returns>
         public static PieceOfColor GetPieceOfColor(char p)
         {
-            var poc = new PieceOfColor();
-            if (Char.IsUpper(p)) poc.Color = Color.White;
-            else poc.Color = Color.Black;
-            poc.Piece = GetPiece(p);
+            var poc = new PieceOfColor {Color = char.IsUpper(p) ? Color.White : Color.Black, Piece = GetPiece(p)};
             return poc;
         }
 
-    }
-    public struct PieceOfColor
-    {
-        public Color Color { get; set; }
-        public Piece Piece { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            if (!(obj is PieceOfColor))
-            {
-                return false;
-            }
-
-            var actual = (PieceOfColor)obj;
-            return Color == actual.Color &&
-                   Piece == actual.Piece;
-        }
-
-        public override int GetHashCode()
-        {
-            var hashCode = 1709797085;
-            hashCode = hashCode * -1521134295 + Color.GetHashCode();
-            hashCode = hashCode * -1521134295 + Piece.GetHashCode();
-            return hashCode;
-        }
-
-        public static bool operator ==(PieceOfColor left, PieceOfColor right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(PieceOfColor left, PieceOfColor right)
-        {
-            return !(left == right);
-        }
     }
 }

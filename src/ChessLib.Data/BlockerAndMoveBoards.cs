@@ -1,8 +1,8 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Types.Interfaces;
 using System;
 using System.Linq;
 using System.Text;
+using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
 {

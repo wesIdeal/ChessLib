@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+﻿using ChessLib.Data.Helpers;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Validators.BoardValidators.Rules
+namespace ChessLib.Data.Validators.BoardValidation.Rules
 {
     public class OpponentInCheckRule : IBoardRule
     {

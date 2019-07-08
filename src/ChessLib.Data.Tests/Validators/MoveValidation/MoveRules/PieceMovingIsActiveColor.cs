@@ -1,14 +1,14 @@
 ﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
 namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
 {
     [TestFixture]
-    class PieceMovingIsActiveColor : ChessLib.Validators.MoveValidation.MoveRules.PieceMovingIsActiveColor
+    class PieceMovingIsActiveColor : Data.Validators.MoveValidation.MoveRules.PieceMovingIsActiveColor
     {
         private readonly MoveExt _goodMove = MoveHelpers.GenerateMove(4, 5);
         private readonly MoveExt _badColor = MoveHelpers.GenerateMove(60, 61);

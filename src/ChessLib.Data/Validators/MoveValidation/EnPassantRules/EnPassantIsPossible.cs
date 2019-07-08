@@ -1,18 +1,15 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Interfaces;
-using ChessLib.Validators;
-using ChessLib.Validators.MoveValidation;
+﻿using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Validators.MoveValidation.EnPassantRules
+namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules
 {
     public class EnPassantIsPossible : IMoveRule
     {
         public MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             return (boardInfo.EnPassantSquare != move.DestinationIndex)
-                ? MoveError.Ep_NotAvailalbe
+                ? MoveError.EpNotAvailable
                 : (MoveError?)null;
         }
     }

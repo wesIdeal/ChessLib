@@ -1,7 +1,6 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
-using ChessLib.Validators.BoardValidators.Rules;
+using ChessLib.Data.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Validators.Tests.BoardValidation
@@ -23,7 +22,7 @@ namespace ChessLib.Validators.Tests.BoardValidation
         public static void TestPawnCounts(string fen, BoardException expectedResult)
         {
             var board = new BoardInfo(fen);
-            var pawnCountRule = new ChessLib.Validators.BoardValidators.Rules.PawnCountRule();
+            var pawnCountRule = new Data.Validators.BoardValidation.Rules.PawnCountRule();
             var actual = pawnCountRule.Validate(board);
             Assert.AreEqual(expectedResult, actual);
         }

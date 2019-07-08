@@ -1,15 +1,15 @@
-﻿using ChessLib.Data.Exceptions;
+﻿using System;
+using System.Collections.Generic;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
-using ChessLib.Validators.MoveValidation.CastlingRules;
-using ChessLib.Validators.MoveValidation.EnPassantRules;
-using ChessLib.Validators.MoveValidation.MoveRules;
-using System;
-using System.Collections.Generic;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
+using ChessLib.Data.Validators.MoveValidation.CastlingRules;
+using ChessLib.Data.Validators.MoveValidation.EnPassantRules;
+using ChessLib.Data.Validators.MoveValidation.MoveRules;
 
-namespace ChessLib.Validators.MoveValidation
+namespace ChessLib.Data.Validators.MoveValidation
 {
     public class MoveValidator
     {
@@ -23,7 +23,7 @@ namespace ChessLib.Validators.MoveValidation
         {
             _board = board;
             _move = move;
-            PostMoveBoard = BoardHelpers.GetBoardPostMove(board.GetPiecePlacement(), board.ActivePlayer, move);
+            PostMoveBoard = board.GetPiecePlacement().GetBoardPostMove(board.ActivePlayer, move);
             _rules.Add(new PieceMovingIsActiveColor());
             _rules.Add(new KingNotInCheckAfterMove());
             switch (move.MoveType)
@@ -58,7 +58,7 @@ namespace ChessLib.Validators.MoveValidation
         {
             foreach (var rule in _rules)
             {
-                var moveIssue = rule.Validate(this._board, PostMoveBoard, _move);
+                var moveIssue = rule.Validate(_board, PostMoveBoard, _move);
                 if (moveIssue.HasValue)
                 {
                     return moveIssue;

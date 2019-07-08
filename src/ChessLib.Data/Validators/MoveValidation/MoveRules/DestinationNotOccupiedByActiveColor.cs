@@ -1,12 +1,9 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Interfaces;
-using ChessLib.Validators;
-using ChessLib.Validators.MoveValidation;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Validators.MoveValidation.MoveRules
+namespace ChessLib.Data.Validators.MoveValidation.MoveRules
 {
     public class DestinationNotOccupiedByActiveColor : IMoveRule
     {

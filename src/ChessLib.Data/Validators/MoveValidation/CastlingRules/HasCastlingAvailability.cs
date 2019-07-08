@@ -1,9 +1,9 @@
-﻿using ChessLib.Data.Exceptions;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+﻿using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Validators.MoveValidation.CastlingRules
+namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
 {
     public class HasCastlingAvailability : IMoveRule
     {
@@ -28,12 +28,12 @@ namespace ChessLib.Validators.MoveValidation.CastlingRules
                     castleChar = CastlingAvailability.WhiteKingside;
                     break;
                 default:
-                    throw new MoveException("Bad destination square for castling move.", MoveError.Castle_BadDestinationSquare, move, boardInfo.ActivePlayer);
+                    throw new MoveException("Bad destination square for castling move.", MoveError.CastleBadDestinationSquare, move, boardInfo.ActivePlayer);
             }
 
             if (!boardInfo.CastlingAvailability.HasFlag(castleChar.Value))
             {
-                return MoveError.Castle_Unavailable;
+                return MoveError.CastleUnavailable;
             }
             return null;
 

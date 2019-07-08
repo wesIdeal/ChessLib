@@ -1,7 +1,6 @@
-﻿using ChessLib.Data.Exceptions;
-using ChessLib.Types.Enums;
+﻿using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 using System;
-using System.Collections.Generic;
 
 namespace ChessLib.Data.MoveRepresentation
 {
@@ -32,30 +31,6 @@ namespace ChessLib.Data.MoveRepresentation
             SourceRank = sourceRank;
             DestinationFile = destFile;
             DestinationRank = destRank;
-            Piece = piece;
-            PromotionPiece = promotionPiece;
-            MoveType = moveType;
-            IsCapture = isCapture;
-            Color = color;
-            MoveText = moveText;
-        }
-
-        /// <summary>
-        /// Constructs a new move detail object from indexes.
-        /// </summary>
-        /// <param name="sourceIndex"></param>
-        /// <param name="destinationIndex"></param>
-        /// <param name="piece"></param>
-        /// <param name="color"></param>
-        /// <param name="moveText">Used only for exception messages</param>
-        /// <param name="isCapture"></param>
-        /// <param name="moveType"></param>
-        /// <param name="promotionPiece"></param>
-        public MoveDetail(ushort? sourceIndex, ushort? destinationIndex, Piece piece, Color color, string moveText = "", bool isCapture = false, MoveType moveType = MoveType.Normal, PromotionPiece? promotionPiece = null)
-        {
-            SourceIndex = sourceIndex;
-            DestinationIndex = destinationIndex;
-
             Piece = piece;
             PromotionPiece = promotionPiece;
             MoveType = moveType;
@@ -122,7 +97,7 @@ namespace ChessLib.Data.MoveRepresentation
         public override bool Equals(object obj)
         {
             var detail = obj as MoveDetail;
-            return this.Equals(detail);
+            return Equals(detail);
         }
 
         public bool Equals(MoveDetail other)
@@ -140,20 +115,5 @@ namespace ChessLib.Data.MoveRepresentation
                   MoveText == other.MoveText;
         }
 
-        public override int GetHashCode()
-        {
-            var hashCode = -1046514577;
-            hashCode = hashCode * -1521134295 + EqualityComparer<ushort?>.Default.GetHashCode(SourceFile);
-            hashCode = hashCode * -1521134295 + EqualityComparer<ushort?>.Default.GetHashCode(SourceRank);
-            hashCode = hashCode * -1521134295 + EqualityComparer<ushort?>.Default.GetHashCode(DestinationFile);
-            hashCode = hashCode * -1521134295 + EqualityComparer<ushort?>.Default.GetHashCode(DestinationRank);
-            hashCode = hashCode * -1521134295 + Piece.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<PromotionPiece?>.Default.GetHashCode(PromotionPiece);
-            hashCode = hashCode * -1521134295 + MoveType.GetHashCode();
-            hashCode = hashCode * -1521134295 + IsCapture.GetHashCode();
-            hashCode = hashCode * -1521134295 + Color.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(MoveText);
-            return hashCode;
-        }
     }
 }

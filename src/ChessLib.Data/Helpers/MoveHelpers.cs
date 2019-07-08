@@ -1,19 +1,10 @@
-﻿using ChessLib.Data.Exceptions;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
-using ChessLib.Validators.MoveValidation;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.Helpers
 {
     public static class MoveHelpers
     {
-
-
         /// <summary>
         /// Creates a <see cref="MoveExt"/> object from move details.
         /// </summary>

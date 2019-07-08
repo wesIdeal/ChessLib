@@ -1,8 +1,8 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.MoveRepresentation;
+﻿using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Types.Interfaces
+namespace ChessLib.Data.Validators.MoveValidation
 {
 
     public interface IMoveRule

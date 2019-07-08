@@ -1,15 +1,15 @@
 ﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
 namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
 {
     [TestFixture]
-    class KingNotInCheckBeforeMove : ChessLib.Validators.MoveValidation.CastlingRules.KingNotInCheckBeforeMove
+    class KingNotInCheckBeforeMove : Data.Validators.MoveValidation.CastlingRules.KingNotInCheckBeforeMove
     {
         private readonly ulong[][] _postBoard = new ulong[2][];
         private readonly BoardInfo _biNotInCheck = new BoardInfo("r3k2r/8/8/8/8/8/8/RRRRKRRR b KQkq - 0 1");
@@ -23,7 +23,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         [Test]
         public void Validate_ShouldReturnErrorIfKingIsNotInCheckWhenCastling()
         {
-            var expected = MoveError.Castle_KingInCheck;
+            var expected = MoveError.CastleKingInCheck;
             Assert.AreEqual(expected, Validate(_biInCheck, _postBoard, _move));
         }
     }

@@ -1,14 +1,14 @@
-﻿using ChessLib.Types.Enums;
-using ChessLib.Validators.FENValidation.Rules;
-using System.Collections.Generic;
-using ChessLib.Data.Exceptions;
+﻿using System.Collections.Generic;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Validators.FENValidation.Rules;
 
-namespace ChessLib.Validators.FENValidation
+namespace ChessLib.Data.Validators.FENValidation
 {
     public class FENValidator
     {
         private readonly string _fen;
-        List<IFENRule> _rules = new List<IFENRule>();
+        private readonly List<IFENRule> _rules = new List<IFENRule>();
         public FENValidator(string fen)
         {
             _fen = fen;

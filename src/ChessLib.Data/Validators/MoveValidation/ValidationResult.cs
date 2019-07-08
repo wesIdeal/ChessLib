@@ -1,9 +1,6 @@
-﻿using ChessLib.Data.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ChessLib.Data.Types.Exceptions;
 
-namespace ChessLib.Validators.MoveValidation
+namespace ChessLib.Data.Validators.MoveValidation
 {
     public enum ValidationSeverity { None, Warning, Error };
     class ValidationResult

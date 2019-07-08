@@ -1,18 +1,17 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Interfaces;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Validators.MoveValidation.CastlingRules
+namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
 {
     public class KingNotInCheckBeforeMove : IMoveRule
     {
         public MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
-            if (Bitboard.IsSquareAttackedByColor(boardInfo.ActiveKingIndex(), boardInfo.OpponentColor(), boardInfo.GetPiecePlacement()))
+            if (boardInfo.ActiveKingIndex().IsSquareAttackedByColor(boardInfo.OpponentColor(), boardInfo.GetPiecePlacement()))
             {
-                return MoveError.Castle_KingInCheck;
+                return MoveError.CastleKingInCheck;
             }
             return null;
         }

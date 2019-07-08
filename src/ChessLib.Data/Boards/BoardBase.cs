@@ -1,20 +1,18 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data.Boards
 {
     public abstract class BoardBase : IBoard
     {
-        protected ulong[][] _piecePlacement;
+        protected ulong[][] PiecePlacement;
 
+        protected BoardBase() { }
 
         protected BoardBase(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIdx, uint? halfMoveClock, uint fullMoveCount)
         {
-            _piecePlacement = occupancy;
+            PiecePlacement = occupancy;
             ActivePlayer = activePlayer;
             CastlingAvailability = castlingAvailability;
             EnPassantSquare = enPassantIdx;
@@ -22,13 +20,9 @@ namespace ChessLib.Data.Boards
             FullmoveCounter = fullMoveCount;
         }
 
-        protected BoardBase()
-        {
-        }
-
         public ulong[][] GetPiecePlacement()
         {
-            return _piecePlacement;
+            return PiecePlacement;
         }
 
         public Color ActivePlayer { get; set; }

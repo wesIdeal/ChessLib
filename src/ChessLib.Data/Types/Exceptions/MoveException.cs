@@ -1,38 +1,33 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using System;
-
+﻿using System;
 using System.Runtime.Serialization;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Enums;
 
-
-namespace ChessLib.Data.Exceptions
+namespace ChessLib.Data.Types.Exceptions
 {
     public enum MoveError
     {
         NoneSet,
-        Castle_ThroughCheck,
-        Castle_KingNotOnStartingSquare,
-        Castle_RookNotOnStartingSquare,
+        CastleThroughCheck,
+        CastleKingNotOnStartingSquare,
+        CastleRookNotOnStartingSquare,
         ActivePlayerHasNoPieceOnSourceSquare,
         MoveLeavesKingInCheck,
-        Ep_NotAvailalbe,
-        Castle_BadDestinationSquare,
-        Castle_OccupancyBetween,
-        Castle_Unavailable,
+        EpNotAvailable,
+        CastleBadDestinationSquare,
+        CastleOccupancyBetween,
+        CastleUnavailable,
         BadDestination,
-        Castle_KingInCheck,
+        CastleKingInCheck,
         ActiveColorPieceAtDestination,
-        EP_SourceIsNotPawn,
-        EP_WrongSourceRank,
-        EP_NotAttackedBySource,
+        EpSourceIsNotPawn,
+        EpWrongSourceRank,
+        EpNotAttackedBySource,
         Stalemate
     }
     [Serializable]
     public class MoveException : Exception
     {
-        [NonSerialized]
-        private readonly IMoveExt move;
-        private readonly Color activePlayer;
         public MoveError Error { get; set; }
         public MoveException()
         {
@@ -53,16 +48,12 @@ namespace ChessLib.Data.Exceptions
            : this(message + $"\r\n{activePlayer.ToString()}'s move: {move.ToString()}")
         {
             Error = type;
-            this.move = move;
-            this.activePlayer = activePlayer;
         }
 
         public MoveException(string message, IMoveExt move, Color activePlayer)
             : this(message + $"\r\n{activePlayer.ToString()}'s move: {move.ToString()}")
         {
             Error = MoveError.NoneSet;
-            this.move = move;
-            this.activePlayer = activePlayer;
         }
 
         protected MoveException(SerializationInfo info, StreamingContext context) : base(info, context)

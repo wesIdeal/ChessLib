@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data.Helpers
 {

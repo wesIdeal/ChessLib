@@ -1,11 +1,10 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Validators.MoveValidation.EnPassantRules
+namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules
 {
     public class EnPassantSquareIsAttackedBySource : IMoveRule
     {
@@ -15,7 +14,7 @@ namespace ChessLib.Validators.MoveValidation.EnPassantRules
                 boardInfo.TotalOccupancy(), boardInfo.ActivePlayer);
             var isAttacked = (pawnAttacksFromSquare & move.DestinationValue) != 0;
             if (isAttacked) return null;
-            return MoveError.EP_NotAttackedBySource;
+            return MoveError.EpNotAttackedBySource;
         }
     }
 }

@@ -1,7 +1,6 @@
-﻿using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+﻿using ChessLib.Data.Types.Enums;
 
-namespace ChessLib.Validators.FENValidation
+namespace ChessLib.Data.Validators.FENValidation
 {
     public interface IFENRule
     {

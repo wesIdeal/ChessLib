@@ -1,11 +1,11 @@
-﻿using ChessLib.Types.Enums;
-using EnumsNET;
-using System;
+﻿using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using ChessLib.Data.Types.Enums;
+using EnumsNET;
 
-namespace ChessLib.Data.Exceptions
+namespace ChessLib.Data.Types.Exceptions
 {
     [Serializable]
     public class FENException : Exception

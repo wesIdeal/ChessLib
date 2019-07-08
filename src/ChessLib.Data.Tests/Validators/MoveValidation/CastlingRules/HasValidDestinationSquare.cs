@@ -1,13 +1,13 @@
 ﻿using ChessLib.Data;
-using ChessLib.Data.Exceptions;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 
 namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
 {
     [TestFixture]
-    public class HasValidDestinationSquare : ChessLib.Validators.MoveValidation.CastlingRules.HasValidDestinationSquare
+    public class HasValidDestinationSquare : Data.Validators.MoveValidation.CastlingRules.HasValidDestinationSquare
     {
         #region BadDestination
 
@@ -20,7 +20,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
             foreach (var dest in badDestinations)
             {
                 var move = MoveHelpers.GenerateMove(60, dest, MoveType.Castle);
-                Assert.AreEqual(MoveError.Castle_BadDestinationSquare, Validate(BoardInfo, postMoveBoard, move));
+                Assert.AreEqual(MoveError.CastleBadDestinationSquare, Validate(BoardInfo, postMoveBoard, move));
             }
         }
         #endregion

@@ -1,9 +1,6 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.MoveRepresentation;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace ChessLib.Types.Interfaces
+namespace ChessLib.Data.Types.Interfaces
 {
     public interface IMoveNode<T>
         where T : IMove

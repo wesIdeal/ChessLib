@@ -1,5 +1,5 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
+using ChessLib.Data.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
@@ -13,7 +13,7 @@ namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
         [TestCase(FENHelpers.FENInitial, FENError.None)]
         public static void ValidateStructure(string fen, FENError expectedError)
         {
-            var validator = new ChessLib.Validators.FENValidation.Rules.FENStructureRule();
+            var validator = new Data.Validators.FENValidation.Rules.FENStructureRule();
             var actual = validator.Validate(fen);
             Assert.AreEqual(expectedError, actual);
         }

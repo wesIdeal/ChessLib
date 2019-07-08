@@ -1,10 +1,10 @@
-﻿using ChessLib.Data.Exceptions;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Validators.MoveValidation.EnPassantRules
+namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules
 {
     public class SourceIsPawn : IMoveRule
     {
@@ -12,7 +12,7 @@ namespace ChessLib.Validators.MoveValidation.EnPassantRules
         {
             var isPawn = (boardInfo.GetPiecePlacement().Occupancy(boardInfo.ActivePlayer, Piece.Pawn) & move.SourceValue) != 0;
             if (isPawn) return null;
-            return MoveError.EP_SourceIsNotPawn;
+            return MoveError.EpSourceIsNotPawn;
         }
     }
 }

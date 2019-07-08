@@ -1,10 +1,10 @@
 ﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.PieceMobility;
-using ChessLib.Types.Enums;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using ChessLib.Data.Types.Enums;
 
 [assembly: InternalsVisibleTo("ChessLib.Data.Tests")]
 namespace ChessLib.Data.Magic.Init
@@ -26,7 +26,7 @@ namespace ChessLib.Data.Magic.Init
         public readonly MoveBoard[] PawnMoveMask = new MoveBoard[2];
 
         private static readonly Lazy<PieceAttackPatterns> _instance = new Lazy<PieceAttackPatterns>(() => new PieceAttackPatterns());
-        public static PieceAttackPatterns Instance { get { return _instance.Value; } }
+        public static PieceAttackPatterns Instance => _instance.Value;
 
         private PieceAttackPatterns()
         {
@@ -37,25 +37,25 @@ namespace ChessLib.Data.Magic.Init
             Debug.Write($"All Magic Bitboards generated in {sw.ElapsedMilliseconds} ms, parallel.");
         }
 
-        private void InitializePieces()
-        {
-            InitializeRookMovesAndAttacks();
-            InitializeKnightAttacks();
-            InitializeBishopMovesAndAttacks();
-            InitializeQueenAttacks();
-            InitializePawnAttacksAndMoves();
-            InitializeKingAttacks();
-        }
+        //private void InitializePieces()
+        //{
+        //    InitializeRookMovesAndAttacks();
+        //    InitializeKnightAttacks();
+        //    InitializeBishopMovesAndAttacks();
+        //    InitializeQueenAttacks();
+        //    InitializePawnAttacksAndMoves();
+        //    InitializeKingAttacks();
+        //}
 
         private void ParallelInitializePieces()
         {
             Parallel.Invoke(
-            () => { InitializeRookMovesAndAttacks(); },
-            () => { InitializeKnightAttacks(); },
-            () => { InitializeBishopMovesAndAttacks(); },
-            () => { InitializeQueenAttacks(); },
-            () => { InitializePawnAttacksAndMoves(); },
-            () => { InitializeKingAttacks(); }
+            InitializeRookMovesAndAttacks,
+            InitializeKnightAttacks,
+            InitializeBishopMovesAndAttacks,
+            InitializeQueenAttacks,
+            InitializePawnAttacksAndMoves,
+            InitializeKingAttacks
             );
             for(int i = 0; i < 64; i++)
             {
