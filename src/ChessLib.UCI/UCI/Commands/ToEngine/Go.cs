@@ -21,11 +21,21 @@ namespace ChessLib.EngineInterface.UCI.Commands.ToEngine
 
         }
 
+        public Go(): base(AppToUCICommand.Go)
+        {
+            _commandText = "go infinite";
+        }
+
         public Go(TimeSpan? moveTime = null, int? depth = null, IEnumerable<MoveExt> searchMoves = null,
             int? nodes = null, bool ignoreMoveCalculationLines = true) : base(AppToUCICommand.Go)
         {
             IgnoreCalculationInformationLines = ignoreMoveCalculationLines;
             _searchMoves = searchMoves;
+            if (moveTime == null && depth == null && nodes == null)
+            {
+                _commandText = "go infinite";
+                return;
+            }
             _depth = depth;
             _nodes = nodes;
             _moveTime = moveTime;
@@ -48,7 +58,7 @@ namespace ChessLib.EngineInterface.UCI.Commands.ToEngine
             return "";
         }
 
-        public new string ToString() => _commandText;
+        public override string ToString() => _commandText;
     }
 
 }

@@ -1,24 +1,34 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace ChessLib.EngineInterface.UCI.Commands
 {
+
     public class CommandQueue : ConcurrentQueue<CommandInfo>, IDisposable
     {
         public AutoResetEvent InterruptIssued = new AutoResetEvent(false);
         public AutoResetEvent CommandIssued = new AutoResetEvent(false);
-        public readonly WaitHandle[] CommandIssuedEvents;
+        private readonly WaitHandle[] _standardWaitHandles;
+
+        public WaitHandle[] CommandIssuedEvents
+        {
+            get { return _standardWaitHandles; }
+        }
+
+
 
         public CommandQueue()
         {
-            CommandIssuedEvents = new WaitHandle[] { CommandIssued, InterruptIssued };
+            _standardWaitHandles = new WaitHandle[] { CommandIssued, InterruptIssued };
         }
 
         public new void Enqueue(CommandInfo item)
         {
-            if (item.CommandSent.IsInterruptCommand())
+            if (item is InterruptCommand)
             {
                 EnqueueInterruptEvent(item);
             }
@@ -30,6 +40,15 @@ namespace ChessLib.EngineInterface.UCI.Commands
 
         }
 
+        public new bool TryDequeue(out CommandInfo commandToIssue)
+        {
+            var success = base.TryDequeue(out commandToIssue);
+            if (success)
+            {
+                CommandIssued.Set();
+            }
+            return success;
+        }
 
         private void EnqueueInterruptEvent(CommandInfo item)
         {

@@ -9,7 +9,7 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
     {
         [Command("NONE")]
         None = 0,
-        [Command(command: "readyok", 0)]
+        [Command(command: "readyok")]
         Ready = 1 << 1,
         [Command("uciok")]
         Ok = 1 << 2,

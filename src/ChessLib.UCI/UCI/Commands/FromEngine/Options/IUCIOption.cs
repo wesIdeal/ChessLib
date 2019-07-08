@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading;
 
 namespace ChessLib.EngineInterface.UCI.Commands.FromEngine.Options
 {
@@ -26,10 +27,7 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine.Options
         protected void OnPropertyChanged(string name)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
+            Volatile.Read(ref handler)?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

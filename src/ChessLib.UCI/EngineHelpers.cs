@@ -8,6 +8,7 @@ using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;
 using ChessLib.EngineInterface.UCI.Commands.ToEngine;
+using ChessLib.Types.Enums;
 using EnumsNET;
 
 namespace ChessLib.EngineInterface
@@ -15,35 +16,17 @@ namespace ChessLib.EngineInterface
 
     public static class EngineHelpers
     {
-        public static readonly string[] OptionKeywords = new[] { "name", "default", "min", "max", "var", "type" };
+        public static readonly string[] OptionKeywords = { "name", "default", "min", "max", "var", "type" };
 
-
-        delegate bool CompareString(string response, string expected);
-        static readonly CompareString CompareExact = (engineResponse, expectedResponse) => engineResponse.Equals(expectedResponse);
-        static readonly CompareString CompareStart = (engineResponse, expectedResponse) => engineResponse.StartsWith(expectedResponse);
-
-        public static bool IsResponseTheExpectedResponse(this CommandInfo command, string engineResponse, out EngineToAppCommand matchingFlag)
-        {
-            CompareString compare = command.ExactMatch ? CompareExact : CompareStart;
-            string match;
-            matchingFlag = EngineToAppCommand.None;
-            if ((match = command.ExpectedResponses.FirstOrDefault(x => compare(engineResponse, x))) != null)
-            {
-                matchingFlag = Enums.Parse<EngineToAppCommand>(match, CommandAttribute.UciCommandFormat);
-                return true;
-            }
-            return false;
-        }
 
         public static EngineToAppCommand GetResponseType(string engineResponse)
         {
-            var matchingFlag = EngineToAppCommand.None;
-            var success = Enums.TryParse<EngineToAppCommand>(engineResponse, out matchingFlag, CommandAttribute.UciCommandFormat);
+            var success = Enums.TryParse<EngineToAppCommand>(engineResponse, out var matchingFlag, CommandAttribute.UciCommandFormat);
             return success ? matchingFlag : EngineToAppCommand.None;
         }
 
         public static bool IsInterruptCommand(this AppToUCICommand command) =>
-            (new AppToUCICommand[] { AppToUCICommand.Stop, AppToUCICommand.Quit }).Contains(command);
+            (new[] { AppToUCICommand.Stop, AppToUCICommand.Quit }).Contains(command);
 
 
 
@@ -52,8 +35,7 @@ namespace ChessLib.EngineInterface
             if (string.IsNullOrWhiteSpace(option)) { return false; }
             Debug.Assert(option.GetOptionType() == OptionType.Check);
             var val = option.GetStringDefault();
-            bool rv = false;
-            if (bool.TryParse(val, out rv))
+            if (bool.TryParse(val, out var rv))
             {
                 return rv;
             }
@@ -67,10 +49,9 @@ namespace ChessLib.EngineInterface
             var splitOptions = option.Split(' ').Select(x => x.Trim()).ToArray();
             var keyFound = false;
             var value = "";
-            for (int i = 0; i < splitOptions.Length; i++)
+            foreach (var fields in splitOptions)
             {
-
-                string opt = (string)splitOptions[i];
+                string opt = fields;
                 if (keyFound && OptionKeywords.Contains(opt)) { break; }
                 if (keyFound && !string.IsNullOrWhiteSpace(opt))
                 {
@@ -90,9 +71,9 @@ namespace ChessLib.EngineInterface
             var splitOptions = option.Split(' ').Select(x => x.Trim()).ToArray();
             var keyFound = false;
             var value = "";
-            for (int i = 0; i < splitOptions.Length; i++)
+            foreach (var field in splitOptions)
             {
-                string opt = (string)splitOptions[i];
+                string opt = field;
                 if (keyFound && !string.IsNullOrWhiteSpace(opt))
                 {
                     value = opt;
@@ -111,9 +92,9 @@ namespace ChessLib.EngineInterface
             var splitOptions = option.Split(' ').Select(x => x.Trim()).ToArray();
             var keyFound = false;
             var rv = new List<string>();
-            for (int i = 0; i < splitOptions.Length; i++)
+            foreach (var field in splitOptions)
             {
-                string opt = (string)splitOptions[i];
+                string opt = field;
                 if (keyFound && !string.IsNullOrWhiteSpace(opt))
                 {
                     rv.Add(opt);
@@ -146,7 +127,7 @@ namespace ChessLib.EngineInterface
             return val;
         }
 
-       
+
         public static double? GetNumericOptionType(this string option, string key)
         {
             if (string.IsNullOrWhiteSpace(option)) return null;
@@ -220,14 +201,14 @@ namespace ChessLib.EngineInterface
 
 
         private static UCIButtonOption ProcessButtonOption(this string opt)
-            => new UCIButtonOption() { Name = opt.GetOptionName() };
+            => new UCIButtonOption { Name = opt.GetOptionName() };
 
         private static UCIStringOption ProcessStringOption(this string opt)
-            => new UCIStringOption() { Default = opt.GetStringDefault(), Name = opt.GetOptionName() };
+            => new UCIStringOption { Default = opt.GetStringDefault(), Name = opt.GetOptionName() };
 
         private static UCIComboOption ProcessComboOption(this string opt)
         {
-            return new UCIComboOption()
+            return new UCIComboOption
             {
                 Name = opt.GetOptionName(),
                 Default = opt.GetStringDefault(),
@@ -237,7 +218,7 @@ namespace ChessLib.EngineInterface
 
         private static UCISpinOption ProcessSpinOption(this string opt)
         {
-            return new UCISpinOption()
+            return new UCISpinOption
             {
                 Name = opt.GetOptionName(),
                 Min = opt.GetNumericOptionType("min"),
@@ -248,7 +229,7 @@ namespace ChessLib.EngineInterface
 
         private static UCICheckOption ProcessCheckOption(this string opt)
         {
-            return new UCICheckOption()
+            return new UCICheckOption
             {
                 Name = opt.GetOptionName(),
                 Default = opt.GetDefaultForCheckbox()
@@ -259,15 +240,16 @@ namespace ChessLib.EngineInterface
 
 
 
-        public static string UCIMovesFromMoveObjects(this IEnumerable<MoveExt> moves)
+        public static string UCIMovesFromMoveObjects(this IEnumerable<MoveExt> moveCollection)
         {
-            if (moves == null || !moves.Any())
+            var moves = moveCollection.ToArray();
+            if (!moves.Any())
             {
                 return "";
             }
             return string.Join(" ", moves.Select(m =>
             {
-                var pString = m.MoveType == Types.Enums.MoveType.Promotion ?
+                var pString = m.MoveType == MoveType.Promotion ?
                     char.ToLower(PieceHelpers.GetCharFromPromotionPiece(m.PromotionPiece)).ToString() : "";
                 return $"{m.SourceIndex.IndexToSquareDisplay()}{m.DestinationIndex.IndexToSquareDisplay()}{pString}";
             }));

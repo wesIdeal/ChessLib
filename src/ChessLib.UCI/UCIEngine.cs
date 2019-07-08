@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,14 +28,19 @@ namespace ChessLib.EngineInterface
         /// Command to start the engine, along with any commandline options
         /// </summary>
         string CommandLine { get; set; }
+
+        /// <summary>
+        /// Priority in which the process starts
+        /// </summary>
+        ProcessPriorityClass InitialPriority { get; set; }
+
+        /// <summary>
+        /// A dictionary of name/values of options to set on startup
+        /// </summary>
+        Dictionary<string, string> EngineOptions { get; set; }
     }
 
-    public interface IUCIEngineStartArgs : IEngineStartupArgs
-    {
-        bool IgnoreMoveCalculationLines { get; set; }
-    }
-
-    public class UCIEngineStartupArgs : EngineStartupArgs, IUCIEngineStartArgs
+    public class UCIEngineStartupArgs : EngineStartupArgs
     {
         public UCIEngineStartupArgs(Guid engineId, string description, string commandLine, bool ignoreMoveCalculationLines = true)
         : base(engineId, description, commandLine)
@@ -49,18 +56,22 @@ namespace ChessLib.EngineInterface
     public sealed class UCIEngine : Engine
     {
         private readonly MoveTranslatorService _moveTranslatorService;
-        public new IUCIEngineStartArgs UserSuppliedArgs { get; }
+        public new UCIEngineStartupArgs UserSuppliedArgs { get; }
+        public override InterruptCommand QuitCommand { get; } = new InterruptCommand(AppToUCICommand.Quit);
+        public override InterruptCommand StopCommand { get; } = new InterruptCommand(AppToUCICommand.Stop);
 
-        public UCIEngine(UCIEngineStartupArgs args, UCIEngineMessageSubscriber engineMessageSubscriber = null, EngineProcess process = null)
-        : base(args, engineMessageSubscriber)
+        public UCIEngine(UCIEngineStartupArgs args)
+            : base(args)
         {
             UserSuppliedArgs = args;
             _moveTranslatorService = new MoveTranslatorService();
-            MessageSubscriber = engineMessageSubscriber ?? new UCIEngineMessageSubscriber(ResponseReceived);
-            if (process != null)
-            {
-                Process = process;
-            }
+            InitializeEngineProcess(new UCIEngineMessageSubscriber(ResponseReceived));
+        }
+
+        public UCIEngine(UCIEngineStartupArgs args, EngineProcess process = null)
+        : base(args, process)
+        {
+            UserSuppliedArgs = args;
         }
 
         public void ResponseReceived(EngineResponseArgs engineResponse)
@@ -69,14 +80,6 @@ namespace ChessLib.EngineInterface
             {
                 OnDebugEventExecuted(new DebugEventArgs("Received null object from engine."));
                 return;
-            }
-            else if (engineResponse is ReadyOkResponseArgs)
-            {
-                _readyOkReceived.Set();
-            }
-            else if (engineResponse.ResponseObject is UCIResponse)
-            {
-                _uciInfoReceived.Set();
             }
             else if (engineResponse is EngineCalculationResponseArgs calcResponse)
             {
@@ -88,61 +91,39 @@ namespace ChessLib.EngineInterface
 
         [NonSerialized] private bool _isDisposed;
         [NonSerialized] public UCIResponse EngineInformation;
-        [NonSerialized] private readonly AutoResetEvent _readyOkReceived = new AutoResetEvent(false);
-        [NonSerialized] private readonly AutoResetEvent _uciInfoReceived = new AutoResetEvent(false);
-        [NonSerialized] private readonly string[] _uciFlags = { "id", "option" };
-
-        protected override IEngineMessageSubscriber MessageSubscriber
-        {
-            get => _engineMessageSubscriber ?? (_engineMessageSubscriber = new UCIEngineMessageSubscriber(ResponseReceived));
-            set => _engineMessageSubscriber = (UCIEngineMessageSubscriber)value;
-        }
-
         [NonSerialized] private string timeoutFormat = "{0} did not return a result from command '{1}' in the specified timeout period of {2} seconds";
 
         private readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(10);
-        private UCIEngineMessageSubscriber _engineMessageSubscriber;
 
         private string GetTimeoutErrorMessage(string awaitedCommand, TimeSpan timeout) =>
             string.Format(timeoutFormat, ToString(), awaitedCommand, timeout.TotalSeconds);
 
-        public void SendIsReady(TimeSpan? timeout = null)
-        {
-            timeout = timeout ?? _defaultTimeout;
-            if (!SendIsReadyAsync().Wait((int)timeout.Value.TotalMilliseconds))
-            {
-                throw new Exception(GetTimeoutErrorMessage("isready", timeout.Value));
-            }
-        }
 
-        private Task SendIsReadyAsync()
+        public override ManualResetEvent SendIsReadyAsync()
         {
-            var commandInfo = new CommandInfo(AppToUCICommand.IsReady);
+            var commandInfo = new AwaitableCommandInfo(AppToUCICommand.IsReady);
             QueueCommand(commandInfo);
-            return _readyOkReceived.AsTask();
+            return commandInfo.ResetEvent;
         }
 
         public UCIResponse SendUCI(TimeSpan? timeout = null)
         {
-            timeout = timeout ?? _defaultTimeout;
-            if (!SendUCIAsync().Wait((int)timeout.Value.TotalMilliseconds))
+            using (var resetEvent = SendUCIAsync())
             {
-                throw new Exception(GetTimeoutErrorMessage("uci", timeout.Value));
+                if (!resetEvent.WaitOne())
+                {
+                    throw new TimeoutException("Timeout waiting for event after sending uci command.");
+                }
             }
+
             return EngineInformation;
         }
 
-        public Task SendUCIAsync()
+        public ManualResetEvent SendUCIAsync()
         {
-            var commandInfo = new CommandInfo(AppToUCICommand.UCI);
+            var commandInfo = new AwaitableCommandInfo(AppToUCICommand.IsReady);
             QueueCommand(commandInfo);
-            return _uciInfoReceived.AsTask();
-        }
-
-        public void SendStop()
-        {
-            var commandInfo = new CommandInfo(AppToUCICommand.Stop);
-            QueueCommand(commandInfo);
+            return commandInfo.ResetEvent;
         }
 
         #region Send Position Command Methods
@@ -166,7 +147,6 @@ namespace ChessLib.EngineInterface
 
         public override void SendPosition(MoveExt[] moves)
         {
-            SendIsReady();
             base.SendPosition(moves);
             _moveTranslatorService.InitializeBoard(CurrentFEN);
             SendPosition(StartingPositionFEN, moves);
@@ -174,7 +154,7 @@ namespace ChessLib.EngineInterface
 
         public override void SendPosition(string fen, MoveExt[] moves)
         {
-            SendIsReady();
+            base.SendPosition(fen, moves);
             base.SendPosition(fen);
             base.SendPosition(moves);
             _moveTranslatorService.InitializeBoard(CurrentFEN);
@@ -196,19 +176,18 @@ namespace ChessLib.EngineInterface
         /// <param name="searchMoves">only consider these moves</param>
         public void SendGo(TimeSpan searchTime, MoveExt[] searchMoves = null)
         {
-            SendIsReady();
             QueueCommand(new Go(searchTime, searchMoves));
+        }
+
+        public void SendGoInfinite()
+        {
+            QueueCommand(new Go());
         }
 
         #endregion
 
         #region Other Command Methods
-        public override void SendQuit()
-        {
-            var commandInfo = new CommandInfo(AppToUCICommand.Quit);
-            QueueCommand(commandInfo);
-        }
-        public override void SetOption(string optionName, string optionValue)
+        public void SetOption(string optionName, string optionValue)
         {
             var option = new SetOption(optionName, optionValue);
             QueueCommand(option);
@@ -229,18 +208,11 @@ namespace ChessLib.EngineInterface
             return task;
         }
 
-        protected override void ExecuteEngineAsync()
-        {
-            OnDebugEventExecuted(new DebugEventArgs(
-                $"Engine Id: {UserSuppliedArgs.EngineId.ToString()} PID:{Process.ProcessId}\r\nStarted as {EngineInformation}"));
-            base.ExecuteEngineAsync();
-        }
-
-        public override void SendStartupMessagesToEngine()
+        public void SendStartupMessagesToEngine()
         {
             TimeSpan timeout = TimeSpan.FromSeconds(100);
             SendUCI(timeout);
-            SendIsReady(timeout);
+            SendIsReady();
         }
 
         protected override void ProcessEngineStartupOptions()
@@ -249,10 +221,15 @@ namespace ChessLib.EngineInterface
             foreach (var option in EngineOptions)
             {
                 if (!EngineInformation.SupportsOption(option.Key))
-                    throw new UCICommandException($"Option passed from command line {option.Key} is not valid.");
+                {
+                    throw new ArgumentException($"Option passed from command line {option.Key} is not valid.");
+                }
+
                 if (EngineInformation.IsOptionValid(option.Key, option.Value, out var message))
-                    throw new UCICommandException(message);
-                WriteToEngine(new SetOption(option.Key, option.Value));
+                {
+                    throw new ArgumentException(message);
+                }
+                QueueCommand(new SetOption(option.Key, option.Value));
             }
         }
 
@@ -310,12 +287,11 @@ namespace ChessLib.EngineInterface
 
             if (disposing)
             {
-                _readyOkReceived.Dispose();
-                _uciInfoReceived.Dispose();
             }
             _isDisposed = true;
             base.Dispose(disposing);
         }
+
     }
 
     internal static class WaitHandleExtensions

@@ -49,10 +49,6 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
 
             public uint Depth { get; set; }
 
-            public string FromFEN { get; set; }
-
-            public string ResponseText { get; set; }
-
             public string CurrentMoveLong { get; set; }
 
             public MoveExt CurrentMove { get; set; }
@@ -62,8 +58,6 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
             public string[] VariationLong { get; set; }
 
             public MoveExt[] Variation { get; set; }
-
-            public string SAN { get; set; }
 
             public Guid Id { get; set; }
 
@@ -102,18 +96,6 @@ namespace ChessLib.EngineInterface.UCI.Commands.FromEngine
 
         public static readonly Dictionary<string, int> InfoFieldDepth = InfoFieldNames.ToDictionary(k => k.Key, v => v.Value);
 
-
-        [SuppressMessage("ReSharper", "StringLiteralTypo")]
-        private static readonly string[] CalcKeywords = { "currmove", "currmovenumber" };
-
-        public static CalculationResponseTypes GetTypeOfInfo(string engineResponse)
-        {
-            foreach (var kw in CalcKeywords)
-            {
-                if (engineResponse.Contains(kw)) return CalculationResponseTypes.CalculationInformation;
-            }
-            return CalculationResponseTypes.PrincipalVariation;
-        }
 
         public ICalculationInfoResponse GetInfoResponse(in string engineResponse)
         {

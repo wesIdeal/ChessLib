@@ -1,17 +1,7 @@
-﻿using System;
-using ChessLib.EngineInterface.UCI.Commands.FromEngine;
+﻿using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
 namespace ChessLib.EngineInterface
 {
-    public class PositionChangedArgs : EventArgs
-    {
-
-        /// <summary>
-        /// StartingPositionFEN Position - Caller is responsible for passing in valid StartingPositionFEN
-        /// </summary>
-        public string FEN { get; set; }
-    }
-
     public interface IEngineResponseFactory
     {
         EngineResponseArgs MakeResponseArgs(in string fen, in string engineText);

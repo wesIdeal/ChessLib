@@ -3,8 +3,5 @@
     public delegate void OnOptionButtonPressed(string optionName);
     public class UCIButtonOption : UCIOption<OnOptionButtonPressed>
     {
-        public UCIButtonOption()
-        {
-        }
     }
 }
