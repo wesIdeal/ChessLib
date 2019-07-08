@@ -133,7 +133,7 @@ namespace ChessLib.Data
 
             var promotionChar = lanMove.Length == 5 ? lanMove[4] : (char?)null;
             var rv = Bitboard.GetMove(Board, source.Value, dest.Value, promotionChar);
-            rv.SAN = MoveToSAN(rv, true);
+            rv.SAN = MoveToSAN(rv);
             return rv;
         }
 

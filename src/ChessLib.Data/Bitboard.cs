@@ -356,8 +356,8 @@ namespace ChessLib.Data
             var notNColor = nColor ^ 1;
             var r = squareIndex / 8;
             var f = squareIndex % 8;
-            var oppositeOccupancy = piecesOnBoard[(int)color.Toggle()].Aggregate((x, y) => x |= y);
-            var activeOccupancy = piecesOnBoard[(int)color].Aggregate((x, y) => x |= y);
+            var oppositeOccupancy = piecesOnBoard[(int)color.Toggle()].Aggregate((x, y) => x | y);
+            var activeOccupancy = piecesOnBoard[(int)color].Aggregate((x, y) => x | y);
             var totalOcc = oppositeOccupancy | activeOccupancy;
             var bishopAttack = GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc, Color.White);
             var rookAttack = GetAttackedSquares(Piece.Rook, squareIndex, totalOcc, Color.White);

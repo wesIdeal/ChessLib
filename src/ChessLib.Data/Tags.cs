@@ -5,10 +5,10 @@ namespace ChessLib.Data
 {
     public class Tags : Dictionary<string, string>
     {
-        private readonly string[] requiredTags = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
+        private readonly string[] _requiredTags = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
         public Tags()
         {
-            foreach (var requiredTag in requiredTags)
+            foreach (var requiredTag in _requiredTags)
             {
                 Add(requiredTag, requiredTag);
             }

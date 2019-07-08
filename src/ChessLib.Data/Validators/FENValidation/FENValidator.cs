@@ -22,7 +22,7 @@ namespace ChessLib.Data.Validators.FENValidation
 
         public FENError Validate(bool exceptionOnError = true)
         {
-            FENError rv = FENError.None;
+            FENError rv;
             if ((rv = (new FENStructureRule()).Validate(_fen)) != FENError.None) return rv;
             _rules.ForEach(rule => { rv |= rule.Validate(_fen); });
             if (exceptionOnError && rv != FENError.None)
