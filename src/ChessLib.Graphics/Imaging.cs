@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Graphics
 {
@@ -59,7 +60,20 @@ namespace ChessLib.Graphics
         }
         private MagickColor SquareColor(int rank, int file) => ((rank + file) % 2) == 1 ? _imageOptions.MagickLightSquareColor : _imageOptions.MagickDarkSquareColor;
 
-        private void InitPieces(int squareWidth)
+        public Dictionary<PieceOfColor, IMagickImage> GetPieceTypeDictionaryOfSize(int size)
+        {
+            var pieces = GetPieceDictionaryOfSize(size);
+            var dict = new Dictionary<PieceOfColor, IMagickImage>();
+            foreach (var p in pieces)
+            {
+                dict.Add(PieceHelpers.GetPieceOfColor(p.Key), p.Value.Clone());
+                p.Value.Dispose();
+            }
+
+            return dict;
+        }
+
+        public Dictionary<char, IMagickImage> GetPieceDictionaryOfSize(int size)
         {
             var assembly = Assembly.GetExecutingAssembly();
             using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.pieceArray.svg"))
@@ -70,11 +84,12 @@ namespace ChessLib.Graphics
                 };
                 using (var bm = new MagickImage(resources, readSettings))
                 {
+
                     var pieces = new List<IMagickImage>();
                     var colorFrom = new MagickColor(0, 0, 0);
                     var colorTo = _imageOptions.BlackPieceColor;
-                    var alterPieceColor = _imageOptions.MagickBlackPieceColor != MagickColor.FromRgb(0, 0, 0) || _imageOptions.MagickWhitePieceColor != MagickColor.FromRgb(255, 255, 255);
-
+                    var alterPieceColor = _imageOptions.MagickBlackPieceColor != MagickColor.FromRgb(0, 0, 0) ||
+                                          _imageOptions.MagickWhitePieceColor != MagickColor.FromRgb(255, 255, 255);
                     for (var row = 0; row < 2; row++)
                     {
                         for (var col = 0; col < 6; col++)
@@ -82,14 +97,13 @@ namespace ChessLib.Graphics
                             var x = col * 60;
                             var y = row * 60;
                             var piece = bm.Clone(new MagickGeometry(x, y, 60, 60));
-                            piece.Resize(squareWidth, squareWidth);
+                            piece.Resize(size, size);
                             piece.Alpha(AlphaOption.Set);
                             pieces.Add(piece.Clone());
                             piece.Dispose();
                         }
                     }
-
-                    _pieceMap = new Dictionary<char, IMagickImage>
+                    var pieceMap = new Dictionary<char, IMagickImage>
                     {
                         {'k', pieces[0].Clone()},
                         {'q', pieces[1].Clone()},
@@ -108,8 +122,15 @@ namespace ChessLib.Graphics
                     {
                         piece.Dispose();
                     }
+
+                    return pieceMap;
                 }
             }
+        }
+
+        private void InitPieces(int squareWidth)
+        {
+            _pieceMap = GetPieceDictionaryOfSize(squareWidth);
         }
 
         private static IMagickImage ChangeColor(in IMagickImage orig, MagickColor from, MagickColor to)
