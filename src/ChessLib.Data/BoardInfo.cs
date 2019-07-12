@@ -6,6 +6,8 @@ using System;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Validators.BoardValidation;
 using ChessLib.Data.Validators.MoveValidation;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace ChessLib.Data
 {
@@ -49,6 +51,13 @@ namespace ChessLib.Data
             ApplyMove(move);
         }
 
+        public MoveError? ApplyMove(ushort sourceIndex, ushort destinationIndex, PromotionPiece? promotionPiece)
+        {
+            var moveTranslatorService = new MoveTranslatorService(this);
+            var move = moveTranslatorService.GenerateMoveFromIndexes(sourceIndex, destinationIndex, promotionPiece);
+            return ApplyMove(move);
+        }
+
         public MoveError? ApplyMove(MoveExt move)
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
@@ -79,6 +88,21 @@ namespace ChessLib.Data
             HalfmoveClock = newBoard.HalfmoveClock;
             FullmoveCounter = newBoard.FullmoveCounter;
 
+        }
+
+        public MoveNode<MoveStorage> CurrentMove = null;
+
+        public MoveStorage GetPreviousMove()
+        {
+            return CurrentMove.Previous.MoveData ?? CurrentMove.Parent.MoveData ?? null;
+        }
+
+        public MoveStorage[] GetNextMoves()
+        {
+           
+            var lMoves = new List<MoveStorage>();
+            if(CurrentMove.Next == null)
+                
         }
 
         public ulong GetPinnedPieces()

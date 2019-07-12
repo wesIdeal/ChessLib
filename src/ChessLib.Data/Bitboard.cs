@@ -138,10 +138,9 @@ namespace ChessLib.Data
         /// <param name="promotionPieceChar">Character for promotion</param>
         /// <returns>A move object</returns>
         /// <exception cref="MoveException">if promotion character is not [n|b|r|q|null], insensitive of case</exception>
-        public static MoveExt GetMove(IBoard board, ushort source, ushort dest, char? promotionPieceChar)
+        public static MoveExt GetMove(IBoard board, ushort source, ushort dest, PromotionPiece promotionPiece)
         {
             var moveType = GetMoveType(board, source, dest);
-            var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionPieceChar);
             return MoveHelpers.GenerateMove(source, dest, moveType, promotionPiece);
         }
 
