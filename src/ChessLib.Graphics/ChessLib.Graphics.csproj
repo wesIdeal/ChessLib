@@ -21,7 +21,6 @@
     <None Remove="Images\BlackKing.svg" />
     <None Remove="Images\Board.svg" />
     <None Remove="Images\ChessPieces.svg" />
-    <None Remove="Images\ChessPiecesArray.png" />
     <None Remove="Images\pieceArray.svg" />
     <None Remove="Images\WhiteKing.svg" />
   </ItemGroup>
@@ -29,9 +28,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Images\Board.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Images\ChessPiecesArray.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Images\pieceArray.svg" />
   </ItemGroup>
@@ -42,12 +38,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Images\board.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

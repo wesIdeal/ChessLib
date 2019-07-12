@@ -49,6 +49,14 @@ namespace ChessLib.Data
             ApplyMove(move);
         }
 
+        public MoveError? ApplyMove(ushort source, ushort dest, PromotionPiece? promotionPiece = null)
+        {
+            var pp = promotionPiece.HasValue ? PieceHelpers.GetCharFromPromotionPiece(promotionPiece.Value).ToString().ToLower() : "";
+            var str = $"{source.IndexToSquareDisplay()}{dest.IndexToSquareDisplay()}{pp}";
+            MoveTranslatorService translator = new MoveTranslatorService(this);
+            return ApplyMove(translator.FromLongAlgebraicNotation(str));
+        }
+
         public MoveError? ApplyMove(MoveExt move)
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
