@@ -1,17 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <LangVersion>7.3</LangVersion>
-    <Version>0.2.0</Version>
+    <Version>0.2.10</Version>
     <Company />
     <Authors>Wes Idell</Authors>
     <Product>ChessLib</Product>
     <Copyright>2019</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Platforms>AnyCPU;x64</Platforms>
+    <AssemblyVersion>0.2.9.0</AssemblyVersion>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Exceptions\**" />
     <Compile Remove="SlidingPieces\**" />
@@ -20,11 +19,7 @@
     <None Remove="Exceptions\**" />
     <None Remove="SlidingPieces\**" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Enums.NET" Version="2.3.2" />
   </ItemGroup>
-
-
-
 </Project>

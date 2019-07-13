@@ -51,6 +51,8 @@ namespace ChessLib.Data
         private const string RegExPromotion = "(?<sourceFile>[a-h])(((?<capture>x)(?<destinationFile>[a-h])(?<destinationRank>[1-8]))|(?<destinationRank>[1-8]))=(?<promotionPiece>[NBRQK])";
         private const string RegExCastleShortGroup = "castleShort";
         private static readonly string RegExCastle = $"(?<{RegExCastleLongGroup}>O-O-O)|(?<{RegExCastleShortGroup}>O-O)";
+
+
         #endregion
 
         /// <summary>
@@ -132,7 +134,13 @@ namespace ChessLib.Data
             }
 
             var promotionChar = lanMove.Length == 5 ? lanMove[4] : (char?)null;
-            var rv = Bitboard.GetMove(Board, source.Value, dest.Value, promotionChar);
+            var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionChar);
+            return GenerateMoveFromIndexes(source.Value, dest.Value, promotionPiece);
+        }
+
+        public MoveExt GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex, PromotionPiece? promotionPiece)
+        {
+            var rv = Bitboard.GetMove(Board, sourceIndex, destinationIndex, promotionPiece ?? PromotionPiece.Knight);
             rv.SAN = MoveToSAN(rv);
             return rv;
         }

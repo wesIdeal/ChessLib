@@ -6,6 +6,9 @@ using System;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Validators.BoardValidation;
 using ChessLib.Data.Validators.MoveValidation;
+using System.Linq;
+using System.Collections.Generic;
+using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
 {
@@ -49,12 +52,11 @@ namespace ChessLib.Data
             ApplyMove(move);
         }
 
-        public MoveError? ApplyMove(ushort source, ushort dest, PromotionPiece? promotionPiece = null)
+        public MoveError? ApplyMove(ushort sourceIndex, ushort destinationIndex, PromotionPiece? promotionPiece)
         {
-            var pp = promotionPiece.HasValue ? PieceHelpers.GetCharFromPromotionPiece(promotionPiece.Value).ToString().ToLower() : "";
-            var str = $"{source.IndexToSquareDisplay()}{dest.IndexToSquareDisplay()}{pp}";
-            MoveTranslatorService translator = new MoveTranslatorService(this);
-            return ApplyMove(translator.FromLongAlgebraicNotation(str));
+            var moveTranslatorService = new MoveTranslatorService(this);
+            var move = moveTranslatorService.GenerateMoveFromIndexes(sourceIndex, destinationIndex, promotionPiece);
+            return ApplyMove(move);
         }
 
         public MoveError? ApplyMove(MoveExt move)
@@ -87,6 +89,88 @@ namespace ChessLib.Data
             HalfmoveClock = newBoard.HalfmoveClock;
             FullmoveCounter = newBoard.FullmoveCounter;
 
+        }
+
+        public MoveNode<MoveStorage> CurrentMove = null;
+
+        public MoveStorage GetPreviousMove()
+        {
+            return CurrentMove.Previous.MoveData ?? CurrentMove.Parent.MoveData ?? null;
+        }
+
+        public MoveStorage[] GetNextMoves()
+        {
+
+            var lMoves = new List<MoveStorage>();
+            if (CurrentMove.Next != null)
+            {
+                lMoves.Add(CurrentMove.Next.MoveData);
+            }
+
+            if (CurrentMove.Variations.Any())
+            {
+                lMoves.AddRange(CurrentMove.Variations.Select(x => x.FirstMove.MoveData));
+            }
+
+            return lMoves.ToArray();
+        }
+
+        public void TraverseForward(MoveStorage move)
+        {
+            var foundMove = FindNextNode(move);
+            if (foundMove == null)
+            {
+                return;
+            }
+
+            CurrentMove = (MoveNode<MoveStorage>)foundMove;
+            ApplyCurrentMoveToBoard();
+        }
+
+        private void ApplyCurrentMoveToBoard()
+        {
+            var board = new BoardInfo(CurrentMove.MoveData.FEN);
+            this.PiecePlacement = board.GetPiecePlacement();
+            this.ActivePlayer = board.ActivePlayer;
+            this.CastlingAvailability = board.CastlingAvailability;
+            this.EnPassantSquare = board.EnPassantSquare;
+            this.HalfmoveClock = board.HalfmoveClock;
+            this.FullmoveCounter = board.FullmoveCounter;
+        }
+
+        public void TraverseBackward()
+        {
+            var previousMove = FindPreviousNode();
+            if (previousMove == null)
+            {
+                return;
+            }
+
+            CurrentMove = (MoveNode<MoveStorage>)previousMove;
+            ApplyCurrentMoveToBoard();
+        }
+
+        private IMoveNode<MoveStorage> FindPreviousNode()
+        {
+            return CurrentMove.Previous ?? CurrentMove.Parent ?? null;
+        }
+
+        private IMoveNode<MoveStorage> FindNextNode(MoveStorage move)
+        {
+            if (CurrentMove.Next.MoveData == move)
+            {
+                return CurrentMove.Next;
+            }
+
+            foreach (var variation in CurrentMove.Variations)
+            {
+                if (variation.FirstMove.MoveData == move)
+                {
+                    return variation.FirstMove;
+                }
+            }
+
+            return null;
         }
 
         public ulong GetPinnedPieces()
