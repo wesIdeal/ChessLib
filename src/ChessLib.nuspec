@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>ChessLib</id>
-    <version>0.2.10</version>
+    <version>0.2.12</version>
     <authors>Wes Idell</authors>
     <owners>Wes Idell</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

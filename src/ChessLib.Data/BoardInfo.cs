@@ -82,13 +82,19 @@ namespace ChessLib.Data
             }
             MoveTree.AddMove(new MoveStorage(this.ToFEN(), move, pocSource.Value.Piece, pocSource.Value.Color, san));
             var newBoard = this.ApplyMoveToBoard(move);
+            ApplyNewBoard(newBoard);
+            CurrentMove = (MoveNode<MoveStorage>)MoveTree.LastMove;
+
+        }
+
+        private void ApplyNewBoard(IBoard newBoard)
+        {
             PiecePlacement = newBoard.GetPiecePlacement();
             ActivePlayer = newBoard.ActivePlayer;
             CastlingAvailability = newBoard.CastlingAvailability;
             EnPassantSquare = newBoard.EnPassantSquare;
             HalfmoveClock = newBoard.HalfmoveClock;
             FullmoveCounter = newBoard.FullmoveCounter;
-
         }
 
         public MoveNode<MoveStorage> CurrentMove = null;
@@ -115,44 +121,45 @@ namespace ChessLib.Data
             return lMoves.ToArray();
         }
 
+
+
         public void TraverseForward(MoveStorage move)
         {
             var foundMove = FindNextNode(move);
-            if (foundMove == null)
+            if (foundMove != null)
             {
-                return;
+                CurrentMove = (MoveNode<MoveStorage>)foundMove;
+                var board = new BoardInfo(move.FEN);
+                ApplyNewBoard(board); ;
             }
-
-            CurrentMove = (MoveNode<MoveStorage>)foundMove;
-            ApplyCurrentMoveToBoard();
-        }
-
-        private void ApplyCurrentMoveToBoard()
-        {
-            var board = new BoardInfo(CurrentMove.MoveData.FEN);
-            this.PiecePlacement = board.GetPiecePlacement();
-            this.ActivePlayer = board.ActivePlayer;
-            this.CastlingAvailability = board.CastlingAvailability;
-            this.EnPassantSquare = board.EnPassantSquare;
-            this.HalfmoveClock = board.HalfmoveClock;
-            this.FullmoveCounter = board.FullmoveCounter;
         }
 
         public void TraverseBackward()
         {
             var previousMove = FindPreviousNode();
+
             if (previousMove == null)
             {
-                return;
+                CurrentMove = null;
+            }
+            else
+            {
+                CurrentMove = (MoveNode<MoveStorage>)previousMove;
             }
 
-            CurrentMove = (MoveNode<MoveStorage>)previousMove;
-            ApplyCurrentMoveToBoard();
+            var fen = CurrentMove?.MoveData.FEN ?? InitialFEN;
+            var board = new BoardInfo(fen);
+            ApplyNewBoard(board);
         }
+
+
+
+
 
         private IMoveNode<MoveStorage> FindPreviousNode()
         {
-            return CurrentMove.Previous ?? CurrentMove.Parent ?? null;
+            return CurrentMove == null ? null
+            : CurrentMove.Previous ?? CurrentMove.Parent ?? null;
         }
 
         private IMoveNode<MoveStorage> FindNextNode(MoveStorage move)

@@ -8,6 +8,7 @@ using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
+using ChessLib.Data.Validators.MoveValidation;
 
 namespace ChessLib.Data
 {
@@ -157,8 +158,30 @@ namespace ChessLib.Data
             }
         }
 
+        public static ulong GetPseudoLegalMoves(IBoard board, ushort idx, out List<MoveExt> moves)
+        {
+            var piece = board.GetPieceAtIndex(idx);
+            moves = new List<MoveExt>();
+            if (piece == null) return 0;
+            var pslMoves = GetPseudoLegalMoves(piece.Value, idx, board.ActiveOccupancy(), board.OpponentOccupancy(),
+                board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out moves);
+            var rv = new List<MoveExt>();
+            foreach (var m in moves)
+            {
+                MoveValidator mv = new MoveValidator(board, m);
+                var validationResult = mv.Validate();
+                if (validationResult == MoveError.NoneSet || validationResult == null)
+                {
+                    rv.Add(m);
+                }
+            }
+
+            moves = rv;
+            return pslMoves;
+        }
+
         /// <summary>
-        /// Gets both moves and attacks/captures for a piece
+        /// Gets both unvalidatedMoves and attacks/captures for a piece
         /// </summary>
         /// <param name="piece"></param>
         /// <param name="pieceSquare"></param>
@@ -167,9 +190,9 @@ namespace ChessLib.Data
         /// <param name="color"></param>
         /// <param name="enPassantIndex">En Passant index, if set</param>
         /// <param name="ca">Castling availability flags</param>
-        /// <param name="moves">Actual move objects</param>
+        /// <param name="unvalidatedMoves">Actual move objects</param>
         /// <returns></returns>
-        public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex, CastlingAvailability ca, out List<MoveExt> moves)
+        public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex, CastlingAvailability ca, out List<MoveExt> unvalidatedMoves)
         {
             var lMoves = new List<MoveExt>();
             var totalOccupancy = activeOcc | oppOcc;
@@ -226,7 +249,7 @@ namespace ChessLib.Data
                     throw new Exception("Piece argument passed to GetPossibleMoves() not contained in switch statement.");
             }
 
-            moves = BoardValueToMoves(piece, pieceSquare, possibleMoves, enPassantIndex, ca).ToList();
+            unvalidatedMoves = BoardValueToMoves(piece, pieceSquare, possibleMoves, enPassantIndex, ca).ToList();
             return possibleMoves;
         }
 

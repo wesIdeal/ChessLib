@@ -60,5 +60,6 @@ dotnet build -c Release
 nuget pack -Build -Properties Configuration=Release -Version ${version}
 $command = "nuget add $package.${version}.nupkg -Source $installDir"
 Write-Output $command
+Invoke-Expression -Command $command
 $myXML.Save("$projFile")
 $nuXML.Save($nuspecFile)
