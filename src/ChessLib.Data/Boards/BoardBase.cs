@@ -1,12 +1,16 @@
-﻿using ChessLib.Data.Helpers;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using ChessLib.Data.Annotations;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data.Boards
 {
-    public abstract class BoardBase : IBoard
+    public abstract class BoardBase : INotifyPropertyChanged, IBoard
     {
         protected ulong[][] PiecePlacement;
+        private Color _activePlayer;
 
         protected BoardBase() { }
 
@@ -25,7 +29,16 @@ namespace ChessLib.Data.Boards
             return PiecePlacement;
         }
 
-        public Color ActivePlayer { get; set; }
+        public Color ActivePlayer
+        {
+            get => _activePlayer;
+            set
+            {
+                _activePlayer = value;
+                OnPropertyChanged(nameof(ActivePlayer));
+            }
+        }
+
         public CastlingAvailability CastlingAvailability { get; set; }
         public ushort? EnPassantSquare { get; set; }
         public uint? HalfmoveClock { get; set; }
@@ -43,5 +56,12 @@ namespace ChessLib.Data.Boards
         public abstract object Clone();
 
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

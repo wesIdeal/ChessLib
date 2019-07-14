@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
@@ -9,11 +12,10 @@ namespace ChessLib.Data
     public class MoveTree<T> : IEnumerable<T>, IMove
         where T : IMove
     {
+        private MoveNode<T> _last;
+        private MoveNode<T> _head;
 
-        private IMoveNode<T> _last;
-        private IMoveNode<T> _first;
-
-        public IMoveNode<T> VariationParent { get; }
+        public MoveNode<T> VariationParent { get; internal set; }
         public MoveTree(MoveNode<T> parentMove)
         {
             VariationParent = parentMove;
@@ -21,50 +23,75 @@ namespace ChessLib.Data
 
         public IMoveNode<T> AddMove(T move)
         {
+            return InsertLast(move);
+        }
+
+        public IMoveNode<T> InsertFirst(T move)
+        {
             var node = new MoveNode<T>(move);
-            return AddMove(node);
+            node.Next = _head;
+            node.Previous = null;
+            if (_head != null)
+            {
+                _head.Previous = node;
+            }
+
+            _head = node;
+            return _head;
         }
 
-        public IMoveNode<T> AddMove(IMoveNode<T> node)
+        public IMoveNode<T> InsertLast(T move)
         {
-            node.Next = null;
-            if (_first == null)
+            var moveNode = new MoveNode<T>(move);
+            if (_head == null)
             {
-                _first = _last = node;
-                node.Previous = null;
+                moveNode.Previous = null;
+                _head = moveNode;
+                _last = _head;
+                return moveNode;
             }
-            else
-            {
-                node.Previous = _last;
-                _last = node;
-            }
-            return _last;
+
+            var lastNode = _last;
+            lastNode.Next = moveNode;
+            moveNode.Previous = lastNode;
+            _last = moveNode;
+            return moveNode;
         }
 
-        public IMoveNode<T> AddVariation(IMoveNode<T> node)
+        private void GetLastNode(out IMoveNode<T> lastNode)
         {
-            if (_last == null)
+            var temp = HeadMove;
+            while (temp.Next != null)
             {
-                return AddMove(node);
+                temp = temp.Next;
             }
-
-            return _last.AddVariation(node);
+            lastNode = temp;
         }
 
-        public IMoveNode<T> FirstMove => _first;
-        public IMoveNode<T> LastMove => _last;
+        public MoveNode<T> HeadMove => _head;
+        public MoveNode<T> LastMove => _last;
 
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-            IMoveNode<T> current = _first;
+            IMoveNode<T> current = _head;
             while (current != null)
             {
                 sb.AppendLine(current.MoveData.ToString());
                 current = current.Next;
             }
             return sb.ToString();
+        }
+
+        public IEnumerable<MoveNode<T>> GetNodeEnumerator()
+        {
+            var node = _head;
+            while (node != null)
+            {
+                yield return node;
+                node = node.Next;
+            }
         }
 
         public IEnumerator<T> GetEnumerator()

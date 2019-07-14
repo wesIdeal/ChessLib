@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.MoveRepresentation
@@ -8,15 +9,14 @@ namespace ChessLib.Data.MoveRepresentation
     /// <summary>
     /// A class that stores move information in a way that can easily be hashed for quick lookup
     /// </summary>
-    public class MoveStorage : MoveExt, IEquatable<MoveStorage>
+    public class MoveStorage : MoveExt, IEquatable<MoveStorage>, IContainsSAN
     {
-        public MoveStorage(string fen, IMoveExt move, Piece pieceMoving, Color colorMoving, string textRepresentation)
+        public MoveStorage(string premoveFen, IMoveExt move, Piece pieceMoving, Color colorMoving, string textRepresentation)
         : this(move, pieceMoving, colorMoving)
         {
-            FEN = fen;
+            PremoveFEN = premoveFen;
             SAN = textRepresentation;
-            BoardStateHash = GetHashString(fen);
-
+            BoardStateHash = GetHashString(premoveFen);
         }
         protected MoveStorage(ushort move, Piece pieceMoving, Color colorMoving)
             : base(move)
@@ -31,9 +31,14 @@ namespace ChessLib.Data.MoveRepresentation
 
         public virtual Piece PieceMoving { get; }
 
-        public string FEN { get; protected set; }
-
+        public void SetPostMoveFEN(string fen)
+        {
+            PostmoveFEN = fen;
+        }
+        public string PremoveFEN { get; protected set; }
+        public string PostmoveFEN { get; private set; }
         public string BoardStateHash { get; }
+
 
         public static byte[] GetHash(string inputString)
         {
@@ -58,7 +63,12 @@ namespace ChessLib.Data.MoveRepresentation
                    PieceMoving == other.PieceMoving;
         }
 
-       
 
+
+    }
+
+    public interface IContainsSAN
+    {
+        string SAN { get; set; }
     }
 }

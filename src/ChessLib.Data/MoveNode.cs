@@ -8,9 +8,9 @@ namespace ChessLib.Data
     public class MoveNode<T> : IMoveNode<T>
         where T : IMove
     {
-        public IMoveNode<T> Parent { get; set; }
-        public IMoveNode<T> Previous { get; set; }
-        public IMoveNode<T> Next { get; internal set; }
+        public MoveNode<T> Parent { get; set; }
+        public MoveNode<T> Previous { get; set; }
+        public MoveNode<T> Next { get; set; }
 
         private MoveNode()
         {
@@ -29,16 +29,20 @@ namespace ChessLib.Data
             Parent = parent;
         }
 
-        public IMoveNode<T> AddVariation(IMoveNode<T> node)
-        {
-            Variations.Add(new MoveTree<T>(this));
-            return Variations.Last().LastMove;
-        }
-
         public MoveTree<T> AddVariation()
         {
             Variations.Add(new MoveTree<T>(this));
             return Variations.Last();
+        }
+
+        public void AddVariation(MoveTree<T> tree)
+        {
+            tree.VariationParent = this;
+            if (tree.HeadMove != null)
+            {
+                tree.HeadMove.Parent = this;
+            }
+            Variations.Add(tree);
         }
 
         public List<MoveTree<T>> Variations { get; }
@@ -48,7 +52,7 @@ namespace ChessLib.Data
             get
             {
                 uint depth = 0;
-                IMoveNode<T> node = this;
+                MoveNode<T> node = this;
                 while (node.Parent != null)
                 {
                     node = node.Parent;
@@ -59,7 +63,7 @@ namespace ChessLib.Data
         }
 
 
-        IMoveNode<T> IMoveNode<T>.Next { get; set; }
+        MoveNode<T> IMoveNode<T>.Next { get; set; }
 
         public override int GetHashCode()
         {

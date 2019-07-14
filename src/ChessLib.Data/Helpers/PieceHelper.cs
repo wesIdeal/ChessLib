@@ -80,7 +80,7 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets the FEN character representation for a piece.
+        /// Gets the PremoveFEN character representation for a piece.
         /// </summary>
         /// <param name="c"></param>
         /// <param name="p"></param>

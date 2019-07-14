@@ -8,13 +8,25 @@ using ChessLib.Data.Validators.BoardValidation;
 using ChessLib.Data.Validators.MoveValidation;
 using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using ChessLib.Data.Annotations;
 using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
 {
-    public class BoardInfo : BoardBase
+    public class BoardInfo : BoardBase, INotifyPropertyChanged
     {
-        public MoveTree<MoveStorage> MoveTree { get; set; }
+
+        public virtual MoveTree<MoveStorage> MoveTree
+        {
+            get { return _moveTree; }
+            set
+            {
+                _moveTree = value;
+                CurrentMove = _moveTree.HeadMove;
+            }
+        }
 
         public BoardInfo() : this(FENHelpers.FENInitial) { }
 
@@ -28,6 +40,7 @@ namespace ChessLib.Data
 
         public BoardInfo(string fen, bool is960 = false)
         {
+            InitialFEN = fen;
             MoveTree = new MoveTree<MoveStorage>(null);
             PiecePlacement = fen.BoardFromFen(out Color active, out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
             ActivePlayer = active;
@@ -36,7 +49,6 @@ namespace ChessLib.Data
             HalfmoveClock = hmClock;
             FullmoveCounter = fmClock;
             Chess960 = is960;
-            InitialFEN = this.ToFEN();
         }
 
         public ulong ActiveRookOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Rook);
@@ -66,7 +78,10 @@ namespace ChessLib.Data
             var moveValidator = new MoveValidator(this, move);
             var validationError = moveValidator.Validate();
             if (validationError.HasValue)
+            {
                 throw new MoveException("Error with move.", validationError.Value, move, ActivePlayer);
+            }
+
             ApplyValidatedMove(move);
             return null;
         }
@@ -80,14 +95,14 @@ namespace ChessLib.Data
             {
                 throw new ArgumentException("No piece found at source.");
             }
-            MoveTree.AddMove(new MoveStorage(this.ToFEN(), move, pocSource.Value.Piece, pocSource.Value.Color, san));
+            var node = MoveTree.AddMove(new MoveStorage(this.ToFEN(), move, pocSource.Value.Piece, pocSource.Value.Color, san));
             var newBoard = this.ApplyMoveToBoard(move);
             ApplyNewBoard(newBoard);
+            node.MoveData.SetPostMoveFEN(this.ToFEN());
             CurrentMove = (MoveNode<MoveStorage>)MoveTree.LastMove;
-
         }
 
-        private void ApplyNewBoard(IBoard newBoard)
+        protected void ApplyNewBoard(IBoard newBoard)
         {
             PiecePlacement = newBoard.GetPiecePlacement();
             ActivePlayer = newBoard.ActivePlayer;
@@ -97,7 +112,14 @@ namespace ChessLib.Data
             FullmoveCounter = newBoard.FullmoveCounter;
         }
 
-        public MoveNode<MoveStorage> CurrentMove = null;
+        public MoveNode<MoveStorage> CurrentMove
+        {
+            get => _currentMove;
+            set => _currentMove = value;
+        }
+
+        private MoveTree<MoveStorage> _moveTree;
+        private MoveNode<MoveStorage> _currentMove = null;
 
         public MoveStorage GetPreviousMove()
         {
@@ -108,14 +130,18 @@ namespace ChessLib.Data
         {
 
             var lMoves = new List<MoveStorage>();
-            if (CurrentMove.Next != null)
+            if (CurrentMove == null)
             {
-                lMoves.Add(CurrentMove.Next.MoveData);
-            }
+                return lMoves.ToArray();
 
-            if (CurrentMove.Variations.Any())
+            }
+            else
             {
-                lMoves.AddRange(CurrentMove.Variations.Select(x => x.FirstMove.MoveData));
+                lMoves.Add(CurrentMove.MoveData);
+                if (CurrentMove.Variations.Any())
+                {
+                    lMoves.AddRange(CurrentMove.Variations.Select(x => x.HeadMove.MoveData));
+                }
             }
 
             return lMoves.ToArray();
@@ -128,28 +154,25 @@ namespace ChessLib.Data
             var foundMove = FindNextNode(move);
             if (foundMove != null)
             {
-                CurrentMove = (MoveNode<MoveStorage>)foundMove;
-                var board = new BoardInfo(move.FEN);
-                ApplyNewBoard(board); ;
+                BoardInfo board;
+                board = new BoardInfo(CurrentMove.MoveData.PostmoveFEN);
+                ApplyNewBoard(board);
+                CurrentMove = foundMove.Next;
+                ApplyNewBoard(board);
+
             }
         }
 
         public void TraverseBackward()
         {
             var previousMove = FindPreviousNode();
-
-            if (previousMove == null)
-            {
-                CurrentMove = null;
-            }
-            else
+            if (previousMove != null)
             {
                 CurrentMove = (MoveNode<MoveStorage>)previousMove;
+                var fen = CurrentMove?.MoveData.PremoveFEN ?? InitialFEN;
+                var board = new BoardInfo(fen);
+                ApplyNewBoard(board); 
             }
-
-            var fen = CurrentMove?.MoveData.FEN ?? InitialFEN;
-            var board = new BoardInfo(fen);
-            ApplyNewBoard(board);
         }
 
 
@@ -158,22 +181,30 @@ namespace ChessLib.Data
 
         private IMoveNode<MoveStorage> FindPreviousNode()
         {
-            return CurrentMove == null ? null
-            : CurrentMove.Previous ?? CurrentMove.Parent ?? null;
+            if (CurrentMove == null)
+            {
+                return MoveTree.LastMove;
+            }
+
+            if (CurrentMove == MoveTree.HeadMove)
+            {
+                return null;
+            }
+            return CurrentMove.Previous ?? CurrentMove.Parent ?? null;
         }
 
-        private IMoveNode<MoveStorage> FindNextNode(MoveStorage move)
+        private MoveNode<MoveStorage> FindNextNode(MoveStorage move)
         {
-            if (CurrentMove.Next.MoveData == move)
+            if (CurrentMove.MoveData == move)
             {
-                return CurrentMove.Next;
+                return CurrentMove;
             }
 
             foreach (var variation in CurrentMove.Variations)
             {
-                if (variation.FirstMove.MoveData == move)
+                if (variation.HeadMove.MoveData == move)
                 {
-                    return variation.FirstMove;
+                    return variation.HeadMove;
                 }
             }
 
@@ -214,6 +245,14 @@ namespace ChessLib.Data
         public override object Clone()
         {
             return new BoardInfo(this.ToFEN());
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

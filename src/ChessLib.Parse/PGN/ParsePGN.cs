@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Parse.PGN
@@ -77,18 +78,33 @@ namespace ChessLib.Parse.PGN
             Parallel.ForEach(games, (game) =>
              {
                  var fen = game.TagSection.FENStart;
-                 var boardInfo = new BoardInfo();
-                 foreach (var move in game.MoveSection)
-                 {
-                     boardInfo.ApplySANMove(move.SAN);
-                 }
-
-                 rv.Add(new Game<MoveStorage>() { TagSection = game.TagSection, MoveSection = boardInfo.MoveTree });
+                 var moveTree = ValidateGame(game.MoveSection, fen);
+                 rv.Add(new Game<MoveStorage>() { TagSection = game.TagSection, MoveSection = moveTree });
              });
             sw.Stop();
             TotalValidationTime = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
             Debug.WriteLine($"Validated {games.Count()} games in {sw.ElapsedMilliseconds} ms, ({sw.ElapsedMilliseconds / 1000} seconds.)");
             return rv;
+        }
+
+        private MoveTree<MoveStorage> ValidateGame(MoveTree<IMoveText> sanGame, string initialFEN)
+        {
+            var boardInfo = new BoardInfo(initialFEN);
+            foreach (var move in sanGame.GetNodeEnumerator())
+            {
+                var currentFen = boardInfo.ToFEN();
+                boardInfo.ApplySANMove(move.MoveData.SAN);
+                if (move.Variations.Any())
+                {
+                    var node = boardInfo.MoveTree.LastMove;
+                    foreach (var variation in move.Variations)
+                    {
+                        var validatedVariation = ValidateGame(variation, currentFen);
+                        node.AddVariation(validatedVariation);
+                    }
+                }
+            }
+            return boardInfo.MoveTree;
         }
 
     }

@@ -753,7 +753,7 @@ namespace ChessLib.Data.Helpers
         ///     Gets the index of a boardIndex
         /// </summary>
         /// <param name="square">
-        ///     SAN boardIndex representation (A1, H5, E4, etc). Must be either '-' (FEN En Passant) or 2
+        ///     SAN boardIndex representation (A1, H5, E4, etc). Must be either '-' (PremoveFEN En Passant) or 2
         ///     characters
         /// </param>
         /// <returns>Square index</returns>
@@ -870,7 +870,7 @@ namespace ChessLib.Data.Helpers
         #endregion
 
 
-        #region FEN String Retrieval
+        #region PremoveFEN String Retrieval
 
         public static string GetFENPiecePlacement(this IBoard board)
         {

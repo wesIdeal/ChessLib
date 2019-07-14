@@ -1,16 +1,37 @@
 ﻿using ChessLib.Data.Helpers;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ChessLib.Data
 {
     public class Tags : Dictionary<string, string>
     {
-        private readonly string[] _requiredTags = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
+        public readonly string[] RequiredTagKeys = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
         public Tags()
         {
-            foreach (var requiredTag in _requiredTags)
+            foreach (var requiredTag in RequiredTagKeys)
             {
                 Add(requiredTag, requiredTag);
+            }
+        }
+
+
+        public IEnumerable<KeyValuePair<string, string>> RequiredTags
+        {
+            get
+            {
+                var requiredTagKeys = this.RequiredTagKeys;
+                return requiredTagKeys.Select(t => new KeyValuePair<string, string>(t, Get(t)));
+            }
+        }
+
+
+        public IEnumerable<KeyValuePair<string, string>> SupplementalTags
+        {
+            get
+            {
+                var suppTags = this.Keys.Where(k => !RequiredTagKeys.Contains(k));
+                return suppTags.Select(t => new KeyValuePair<string, string>(t, Get(t)));
             }
         }
 
@@ -29,6 +50,16 @@ namespace ChessLib.Data
             set => Add("Black", value);
         }
 
+        public string Get(string key)
+        {
+            if (this.ContainsKey(key))
+            {
+                return this[key];
+            }
+
+            return "?";
+        }
+
         public new void Add(string key, string value)
         {
             if (ContainsKey(key))
@@ -36,6 +67,11 @@ namespace ChessLib.Data
                 this[key] = value;
             }
             else { base.Add(key, value); }
+        }
+
+        internal void SetFen(string fen)
+        {
+            this["PremoveFEN"] = fen;
         }
     }
 }

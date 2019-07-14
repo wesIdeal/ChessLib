@@ -31,7 +31,7 @@ namespace ChessLib.Data.Types.Enums
     }
 
     /// <summary>
-    /// Pieces/sections of a FEN. />
+    /// Pieces/sections of a PremoveFEN. />
     /// </summary>
     public enum FENPieces { PiecePlacement = 0, ActiveColor, CastlingAvailability, EnPassantSquare, HalfmoveClock, FullMoveCounter }
 
@@ -123,7 +123,7 @@ namespace ChessLib.Data.Types.Enums
     {
         [Description("")]
         None = 0,
-        [Description("Invalid FEN. FEN string must have 6 pieces. See See https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation for more information")]
+        [Description("Invalid PremoveFEN. PremoveFEN string must have 6 pieces. See See https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation for more information")]
         InvalidFENString = 1,
         [Description("Piece Placement section should have exactly 8 ranks.")]
         PiecePlacementRankCount = 2,

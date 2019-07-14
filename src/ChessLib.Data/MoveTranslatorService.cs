@@ -34,9 +34,9 @@ namespace ChessLib.Data
         }
 
         /// <summary>
-        /// Constructs the service based on an existing board configuration supplied via a FEN string
+        /// Constructs the service based on an existing board configuration supplied via a PremoveFEN string
         /// </summary>
-        /// <param name="fen">A FEN string detailing the board config</param>
+        /// <param name="fen">A PremoveFEN string detailing the board config</param>
         public MoveTranslatorService(string fen)
         {
             InitializeBoard(fen);
@@ -65,9 +65,9 @@ namespace ChessLib.Data
         }
 
         /// <summary>
-        /// Used to initialize the underlying board object based on FEN
+        /// Used to initialize the underlying board object based on PremoveFEN
         /// </summary>
-        /// <param name="fen">FEN string detailing the board configuration</param>
+        /// <param name="fen">PremoveFEN string detailing the board configuration</param>
         public void InitializeBoard(string fen)
         {
             Initialize(fen);

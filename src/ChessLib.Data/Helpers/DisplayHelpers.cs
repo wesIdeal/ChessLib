@@ -59,7 +59,7 @@ namespace ChessLib.Data.Helpers
                 case 'r': piece = Piece.Rook; break;
                 case 'q': piece = Piece.Queen; break;
                 case 'k': piece = Piece.King; break;
-                default: throw new Exception("Unexpected FEN char passed into method GetHtmlRepresentation()");
+                default: throw new Exception("Unexpected PremoveFEN char passed into method GetHtmlRepresentation()");
             }
             return HtmlPieceRepresentations[color][piece];
         }

@@ -15,7 +15,7 @@ namespace ChessLib.Data.Types.Exceptions
         private static string FormatFENError(string fen, FENError e)
         {
             if (e == FENError.None) return "";
-            var sb = new StringBuilder($"FEN Errors Found ({fen}):\r\n");
+            var sb = new StringBuilder($"PremoveFEN Errors Found ({fen}):\r\n");
             foreach (var error in e.GetFlags().Select(x => new { error = x, message = GetFormattedMessage(x) }))
             {
                 sb.AppendLine(error.message);

@@ -11,7 +11,7 @@ namespace ChessLib.Data.Helpers
     public static class FENHelpers
     {
         /// <summary>
-        /// Initial FEN - starting position of a chess game
+        /// Initial PremoveFEN - starting position of a chess game
         /// </summary>
         public const string FENInitial = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         public static readonly char[] ValidCastlingStringChars = { 'k', 'K', 'q', 'Q', '-' };
@@ -35,7 +35,7 @@ namespace ChessLib.Data.Helpers
             }
 
             var sb = new StringBuilder();
-            for (var rank = 0; rank < 8; rank++) //start at FEN Rank of zero -> 7
+            for (var rank = 0; rank < 8; rank++) //start at PremoveFEN Rank of zero -> 7
             {
                 var emptyCount = 0;
                 for (var file = 0; file < 8; file++)
@@ -63,9 +63,9 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets a rank from a validated fen string
+        /// Gets a rank from a validated premoveFen string
         /// </summary>
-        /// <param name="fen">FEN string</param>
+        /// <param name="fen">PremoveFEN string</param>
         /// <param name="rank">Board Rank (*not bitboard index rank*)</param>
         /// <returns></returns>
         public static string GetRankFromFen(this string fen, int rank)
@@ -76,9 +76,9 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets all ranks from fen, in FEN-rank order
+        /// Gets all ranks from premoveFen, in PremoveFEN-rank order
         /// </summary>
-        /// <param name="fen">FEN String</param>
+        /// <param name="fen">PremoveFEN String</param>
         /// <returns>An array of ranks, where [0] corresponds with rank 8</returns>
         public static string[] GetRanksFromFen(this string fen)
         {
@@ -88,10 +88,10 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets one of the six pieces from a FEN string
+        /// Gets one of the six pieces from a PremoveFEN string
         /// </summary>
-        /// <param name="fen">FEN string</param>
-        /// <param name="piece">the FEN piece to return</param>
+        /// <param name="fen">PremoveFEN string</param>
+        /// <param name="piece">the PremoveFEN piece to return</param>
         /// <returns>The string of the specified piece</returns>
         public static string GetFENPiece(this string fen, FENPieces piece)
         {
@@ -100,9 +100,9 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets CastingAvailability flags from the provided FEN castle availability piece
+        /// Gets CastingAvailability flags from the provided PremoveFEN castle availability piece
         /// </summary>
-        /// <param name="castleAvailability">the Castling Availability piece of the FEN</param>
+        /// <param name="castleAvailability">the Castling Availability piece of the PremoveFEN</param>
         /// <returns>Flags representing who can castle where</returns>
         private static CastlingAvailability GetCastlingFromString(string castleAvailability)
         {
@@ -116,9 +116,9 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets the Active Color type from the corresponding FEN section
+        /// Gets the Active Color type from the corresponding PremoveFEN section
         /// </summary>
-        /// <param name="v">The Active Color piece of the FEN</param>
+        /// <param name="v">The Active Color piece of the PremoveFEN</param>
         /// <returns>A Color object representing the active Color</returns>
         public static Color GetActiveColor(string v)
         {
@@ -135,7 +135,7 @@ namespace ChessLib.Data.Helpers
         /// Creates a castling availability string given a set of CastlingAvailability flags
         /// </summary>
         /// <param name="caBitFlags">flags for castling availability</param>
-        /// <returns>a FEN string for the castling availability piece</returns>
+        /// <returns>a PremoveFEN string for the castling availability piece</returns>
         public static string MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability caBitFlags)
         {
             var s = "";
@@ -151,7 +151,7 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Converts a board Index (0 = 1st Rank) to the FEN Index (7 = 1st Rank)
+        /// Converts a board Index (0 = 1st Rank) to the PremoveFEN Index (7 = 1st Rank)
         /// </summary>
         /// <param name="idx">The square index</param>
         /// <returns>the corresponding board index</returns>
@@ -162,10 +162,10 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets a piece representation from FEN, indexed by [color][piece]
+        /// Gets a piece representation from PremoveFEN, indexed by [color][piece]
         /// </summary>
-        /// <param name="fen">validated FEN</param>
-        /// <returns>Board representation corresponding to FEN</returns>
+        /// <param name="fen">validated PremoveFEN</param>
+        /// <returns>Board representation corresponding to PremoveFEN</returns>
         public static ulong[][] BoardFromFen(in string fen)
         {
             uint pieceIndex = 0;
@@ -193,7 +193,7 @@ namespace ChessLib.Data.Helpers
         }
 
         /// <summary>
-        /// Gets a board-state representation from a FEN
+        /// Gets a board-state representation from a PremoveFEN
         /// </summary>
         /// <param name="fen"></param>
         /// <param name="activePlayer"></param>

@@ -7,14 +7,19 @@ namespace ChessLib.Data.Types.Interfaces
     {
         uint Depth { get; }
         T MoveData { get; }
-        IMoveNode<T> Parent { get; set; }
+        MoveNode<T> Parent { get; set; }
         List<MoveTree<T>> Variations { get; }
-        IMoveNode<T> Next { get; set; }
-        IMoveNode<T> Previous { get; set; }
+        MoveNode<T> Next { get; set; }
+        MoveNode<T> Previous { get; set; }
         IMoveNode<T> CutNext();
-        IMoveNode<T> AddVariation(IMoveNode<T> node);
         int GetHashCode();
         string ToString();
         MoveTree<T> AddVariation();
+        /// <summary>
+        /// Adds a tree to the list of variations
+        /// </summary>
+        /// <param name="tree"></param>
+        /// <returns></returns>
+        void AddVariation(MoveTree<T> tree);
     }
 }

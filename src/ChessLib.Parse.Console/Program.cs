@@ -19,7 +19,7 @@ namespace ChessLib.Parse.Console
         {
             var games = new List<Game<MoveText>>();
             var listener = new PGNListener();
-            using (var fStream = File.OpenRead(".\\PGN\\talLarge.pgn"))
+            using (var fStream = File.OpenRead(".\\PGN\\tal.pgn"))
             {
                 var inputStream = new AntlrInputStream(fStream);
                 PGNLexer lexer = new PGNLexer(inputStream);
