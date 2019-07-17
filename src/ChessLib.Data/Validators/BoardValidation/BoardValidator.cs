@@ -39,7 +39,7 @@ namespace ChessLib.Data.Validators.BoardValidation
 
                 rv |= moveIssue;
             }
-            if(throwValidationExceptionOnError)
+            if(throwValidationExceptionOnError && rv != BoardExceptionType.None)
             {
                 StringBuilder sb = new StringBuilder();
                 foreach (var validationIssue in rv.GetFlags())
