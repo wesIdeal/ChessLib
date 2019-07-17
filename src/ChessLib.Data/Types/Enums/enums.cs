@@ -81,7 +81,7 @@ namespace ChessLib.Data.Types.Enums
     }
 
     [Flags]
-    public enum BoardException
+    public enum BoardExceptionType
     {
         None = 0,
         [Description("White has too many pawns.")]

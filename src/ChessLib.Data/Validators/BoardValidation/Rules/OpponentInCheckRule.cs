@@ -6,10 +6,10 @@ namespace ChessLib.Data.Validators.BoardValidation.Rules
 {
     public class OpponentInCheckRule : IBoardRule
     {
-        public BoardException Validate(in IBoard boardInfo)
+        public BoardExceptionType Validate(in IBoard boardInfo)
         {
-            if (boardInfo.IsOpponentInCheck()) return BoardException.OppositeCheck;
-            return BoardException.None;
+            if (boardInfo.IsOpponentInCheck()) return BoardExceptionType.OppositeCheck;
+            return BoardExceptionType.None;
         }
     }
 }

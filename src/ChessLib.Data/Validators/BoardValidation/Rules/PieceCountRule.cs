@@ -6,13 +6,13 @@ namespace ChessLib.Data.Validators.BoardValidation.Rules
 {
     public class PieceCountRule : IBoardRule
     {
-        public BoardException Validate(in IBoard boardInfo)
+        public BoardExceptionType Validate(in IBoard boardInfo)
         {
-            var rv = BoardException.None;
+            var rv = BoardExceptionType.None;
             if (boardInfo.GetPiecePlacement().Occupancy(Color.White).CountSetBits() > 16)
-                rv |= BoardException.WhiteTooManyPieces;
+                rv |= BoardExceptionType.WhiteTooManyPieces;
             if (boardInfo.GetPiecePlacement().Occupancy(Color.Black).CountSetBits() > 16)
-                rv |= BoardException.BlackTooManyPieces;
+                rv |= BoardExceptionType.BlackTooManyPieces;
             return rv;
         }
     }

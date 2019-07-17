@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.BoardValidation.Rules;
 using EnumsNET;
@@ -29,9 +30,9 @@ namespace ChessLib.Data.Validators.BoardValidation
             _rules.Add(new EndOfGameRule());
         }
 
-        public BoardException Validate(bool throwValidationExceptionOnError)
+        public BoardExceptionType Validate(bool throwValidationExceptionOnError)
         {
-            BoardException rv = BoardException.None;
+            BoardExceptionType rv = BoardExceptionType.None;
             foreach (var rule in _rules)
             {
                 var moveIssue = rule.Validate(_board);
@@ -45,7 +46,7 @@ namespace ChessLib.Data.Validators.BoardValidation
                 {
                     sb.AppendLine($"* {validationIssue.AsString(EnumFormat.Description)}");
                 }
-                throw new Exception(sb.ToString());
+                throw BoardException.MakeBoardException(rv);
             }
             return rv;
         }

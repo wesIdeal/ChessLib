@@ -6,19 +6,19 @@ namespace ChessLib.Data.Validators.BoardValidation.Rules
 {
     public class EndOfGameRule : IBoardRule
     {
-        public BoardException Validate(in IBoard boardInfo)
+        public BoardExceptionType Validate(in IBoard boardInfo)
         {
             if (boardInfo.IsCheckmate())
             {
-                return BoardException.Checkmate;
+                return BoardExceptionType.Checkmate;
             }
 
             if (boardInfo.IsStalemate())
             {
-                return BoardException.Stalemate;
+                return BoardExceptionType.Stalemate;
             }
 
-            return BoardException.None;
+            return BoardExceptionType.None;
         }
     }
 }

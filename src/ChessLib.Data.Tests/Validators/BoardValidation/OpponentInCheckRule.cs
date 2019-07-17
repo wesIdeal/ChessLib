@@ -7,9 +7,9 @@ namespace ChessLib.Validators.Tests.BoardValidation
     [TestFixture]
     public sealed class OpponentInCheckRule
     {
-        [TestCase("8/8/8/8/8/8/6kQ/4K3 b - - 0 1", BoardException.None)]
-        [TestCase("8/8/8/8/8/8/6kQ/4K3 w - - 0 1", BoardException.OppositeCheck)]
-        public static void ValidateCheck(string fen, BoardException expectedException)
+        [TestCase("8/8/8/8/8/8/6kQ/4K3 b - - 0 1", BoardExceptionType.None)]
+        [TestCase("8/8/8/8/8/8/6kQ/4K3 w - - 0 1", BoardExceptionType.OppositeCheck)]
+        public static void ValidateCheck(string fen, BoardExceptionType expectedException)
         {
 
             var board = new BoardInfo(fen);

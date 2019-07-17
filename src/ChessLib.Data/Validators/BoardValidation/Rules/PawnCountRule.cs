@@ -7,11 +7,11 @@ namespace ChessLib.Data.Validators.BoardValidation.Rules
     public class PawnCountRule : IBoardRule
     {
 
-        public BoardException Validate(in IBoard boardInfo)
+        public BoardExceptionType Validate(in IBoard boardInfo)
         {
-            var rv = BoardException.None;
-            rv |= boardInfo.GetPiecePlacement().Occupancy(Color.White, Piece.Pawn).CountSetBits() > 8 ? BoardException.WhiteTooManyPawns : BoardException.None;
-            rv |= boardInfo.GetPiecePlacement().Occupancy(Color.Black, Piece.Pawn).CountSetBits() > 8 ? BoardException.BlackTooManyPawns : BoardException.None;
+            var rv = BoardExceptionType.None;
+            rv |= boardInfo.GetPiecePlacement().Occupancy(Color.White, Piece.Pawn).CountSetBits() > 8 ? BoardExceptionType.WhiteTooManyPawns : BoardExceptionType.None;
+            rv |= boardInfo.GetPiecePlacement().Occupancy(Color.Black, Piece.Pawn).CountSetBits() > 8 ? BoardExceptionType.BlackTooManyPawns : BoardExceptionType.None;
             return rv;
         }
 
