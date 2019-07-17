@@ -8,6 +8,7 @@ using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.BoardValidation;
+using ChessLib.Data.Validators.MoveValidation;
 
 namespace ChessLib.Data.Helpers
 {
@@ -368,8 +369,6 @@ namespace ChessLib.Data.Helpers
         /// <exception cref="MoveException">If no piece exists at source.</exception>
         public static IBoard ApplyMoveToBoard(this IBoard currentBoard, in MoveExt move)
         {
-          
-
             var board = (IBoard)currentBoard.Clone();
             var boardValidator = new BoardValidator(board);
             boardValidator.Validate(true);
@@ -379,19 +378,24 @@ namespace ChessLib.Data.Helpers
                     MoveError.ActivePlayerHasNoPieceOnSourceSquare, move, board.ActivePlayer);
 
             var isCapture = IsMoveCapture(board.OpponentOccupancy(), move);
-                
-            var isPawnMove = GetPieceAtIndex(board.GetPiecePlacement(), move.SourceIndex).Equals(Piece.Pawn);
+            var isPawnMove = IsPawnMoving(board, move);
+
             var halfMoveClock = isCapture || isPawnMove ? 0 : board.HalfmoveClock + 1;
             var fullMoveCounter =
                 board.ActivePlayer == Color.Black ? board.FullmoveCounter + 1 : board.FullmoveCounter;
 
-            var piecePlacement = board.GetPiecePlacement().GetBoardPostMove(board.ActivePlayer, move);
+            var piecePlacement = GetBoardPostMove(board, move);
             var castlingAvailability = GetCastlingAvailabilityPostMove(board, move, pieceMoving.Value.Piece);
             var enPassantSquare = GetEnPassantIndex(move, pieceMoving.Value);
             var activePlayer = board.ActivePlayer.Toggle();
 
             return new BoardInfo(piecePlacement, activePlayer, castlingAvailability, enPassantSquare, halfMoveClock,
                 fullMoveCounter, false);
+        }
+
+        private static bool IsPawnMoving(in IBoard board, in MoveExt move)
+        {
+            return (board.GetPiecePlacement()[(int)board.ActivePlayer][PAWN] & move.SourceValue) != 0;
         }
 
         private static bool IsMoveCapture(ulong opponentBB, MoveExt move)
@@ -407,7 +411,52 @@ namespace ChessLib.Data.Helpers
         /// <returns></returns>
         public static ulong[][] GetBoardPostMove(this IBoard board, in MoveExt move)
         {
-            return GetBoardPostMove(board.GetPiecePlacement(), board.ActivePlayer, move);
+            var pieces = board.GetPiecePlacement();
+            var activeColor = (int)board.ActivePlayer;
+            var oppColor = activeColor ^ 1;
+            var piece = board.GetPieceOfColorAtIndex(move.SourceIndex);
+            if (piece == null)
+            {
+                throw new MoveException($"No piece is present at the source indicated: {move.SourceIndex.IndexToSquareDisplay()}");
+            }
+
+            if (piece.Value.Color != board.ActivePlayer)
+            {
+                throw new MoveException($"Piece found was {piece.Value.Color.ToString()} when it is {board.ActivePlayer}'s move.");
+            }
+
+            var nPiece = (int)piece.Value.Piece;
+            pieces[activeColor][nPiece] ^= move.SourceValue ^ move.DestinationValue;
+            if ((board.OpponentOccupancy() & move.DestinationValue) != 0)
+            {
+                for (var idx = 0; idx < pieces[oppColor].Length; idx++)
+                {
+                    pieces[oppColor][idx] &= ~(move.DestinationValue);
+                }
+            }
+            switch (move.MoveType)
+            {
+                case MoveType.Promotion:
+                    pieces[activeColor][nPiece] ^= move.DestinationValue;
+                    var promotionPiece = ((int)move.PromotionPiece) + 1;
+                    pieces[activeColor][promotionPiece] ^= move.DestinationValue;
+                    break;
+                case MoveType.EnPassant:
+                    if (!board.EnPassantSquare.HasValue)
+                    {
+                        throw new MoveException("En Passant is not available, but move was flagged as En Passant capture.", MoveError.EpNotAvailable, move, board.ActivePlayer);
+                    }
+                    var antiEnPassantValue = ~(board.EnPassantSquare.Value.ToBoardValue());
+                    pieces[oppColor][PAWN] &= antiEnPassantValue;
+                    break;
+                case MoveType.Castle:
+                    var rookMove = MoveHelpers.GetRookMoveForCastleMove(move);
+                    pieces[activeColor][ROOK] ^= rookMove.SourceValue ^ rookMove.DestinationValue;
+                    break;
+            }
+
+            return pieces;
+            //return GetBoardPostMove(board.GetPiecePlacement(), board.ActivePlayer, move);
         }
 
         /// <summary>

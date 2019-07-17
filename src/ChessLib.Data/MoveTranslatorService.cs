@@ -17,7 +17,7 @@ namespace ChessLib.Data
     /// </summary>
     public class MoveTranslatorService : MoveDisplayService
     {
-        protected readonly MoveExt BlackCastleKingSide, BlackCastleQueenSide, WhiteCastleKingSide, WhiteCastleQueenSide;
+        
         protected readonly string CastleKingSide = "O-O";
         protected readonly string CastleQueenSide = "O-O-O";
         /// <summary>
@@ -25,10 +25,7 @@ namespace ChessLib.Data
         /// </summary>
         public MoveTranslatorService()
         {
-            BlackCastleKingSide = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
-            BlackCastleQueenSide = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
-            WhiteCastleKingSide = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
-            WhiteCastleQueenSide = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
+            
             InitializeBoard();
         }
 
@@ -177,9 +174,9 @@ namespace ChessLib.Data
             {
                 if (colorMoving == Color.White)
                 {
-                    return move == CastleKingSide ? WhiteCastleKingSide : WhiteCastleQueenSide;
+                    return move == CastleKingSide ? MoveHelpers.WhiteCastleKingSide : MoveHelpers.WhiteCastleQueenSide;
                 }
-                return move == CastleKingSide ? BlackCastleKingSide : BlackCastleQueenSide;
+                return move == CastleKingSide ? MoveHelpers.BlackCastleKingSide : MoveHelpers.BlackCastleQueenSide;
             }
             else
             {

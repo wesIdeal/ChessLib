@@ -1,10 +1,29 @@
 ﻿using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 
 namespace ChessLib.Data.Helpers
 {
     public static class MoveHelpers
     {
+        public static readonly MoveExt BlackCastleKingSide, BlackCastleQueenSide, WhiteCastleKingSide, WhiteCastleQueenSide;
+
+        private static readonly MoveExt BlackCastleKingSideRookMove,
+            BlackCastleQueenSideRookMove,
+            WhiteCastleKingSideRookMove,
+            WhiteCastleQueenSideRookMove;
+
+        static MoveHelpers()
+        {
+            BlackCastleKingSide = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+            BlackCastleQueenSide = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
+            WhiteCastleKingSide = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
+            WhiteCastleQueenSide = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
+            BlackCastleKingSideRookMove = MoveHelpers.GenerateMove(63, 61);
+            BlackCastleQueenSideRookMove = GenerateMove(56, 59);
+            WhiteCastleKingSideRookMove = GenerateMove(7, 5);
+            WhiteCastleQueenSideRookMove = GenerateMove(0, 3);
+        }
         /// <summary>
         /// Creates a <see cref="MoveExt"/> object from move details.
         /// </summary>
@@ -19,6 +38,21 @@ namespace ChessLib.Data.Helpers
             return new MoveExt((ushort)(mt | pp | origin | dest));
         }
 
+        public static MoveExt GetRookMoveForCastleMove(in MoveExt move)
+        {
+            switch (move.Move)
+            {
+                case 53054:
+                    return new MoveExt(4093);
+                case 53050:
+                    return new MoveExt(3643);
+                case 49414:
+                    return new MoveExt(453);
+                case 49410:
+                    return new MoveExt(3);
+                default: throw new MoveException($"{move} is probably not a castling move.\r\nError from GetRookMoveForCastleMove()");
+            }
+        }
     }
 
 }
