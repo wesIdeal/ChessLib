@@ -118,7 +118,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         {
             var result = Validate(_biNonOccupied,
                 BoardHelpers.GetBoardPostMove(_biOccupied.GetPiecePlacement(), _biOccupied.ActivePlayer, move), move);
-            Assert.IsNull(result);
+            Assert.AreEqual(MoveError.NoneSet, result);
         }
     }
 }

@@ -168,7 +168,7 @@ namespace ChessLib.Graphics
                         var images = new List<MoveImages>();
                         var results = Parallel.ForEach(moves.Select((x, i) => new { mv = x, idx = i }), move =>
                            {
-                               using (var positionBoard = MakeBoardFromFen(move.mv.FEN, boardImage, game.TagSection, null))
+                               using (var positionBoard = MakeBoardFromFen(move.mv.PremoveFEN, boardImage, game.TagSection, null))
                                {
                                    positionBoard.AnimationDelay = delay;
                                    images.Add(new MoveImages { Image = positionBoard, Index = move.idx });

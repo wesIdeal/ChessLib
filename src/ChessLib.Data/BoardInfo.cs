@@ -60,7 +60,7 @@ namespace ChessLib.Data
         public void ApplySANMove(string moveText)
         {
             var moveTranslatorService = new MoveTranslatorService(this);
-            var move = moveTranslatorService.GenerateMoveFromText(moveText);
+            var move = moveTranslatorService.GetMoveFromSAN(moveText);
             ApplyMove(move);
         }
 
@@ -71,19 +71,19 @@ namespace ChessLib.Data
             return ApplyMove(move);
         }
 
-        public MoveError? ApplyMove(MoveExt move)
+        public MoveError ApplyMove(MoveExt move)
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
             if (pocSource == null) throw new ArgumentException("No piece at source.");
             var moveValidator = new MoveValidator(this, move);
             var validationError = moveValidator.Validate();
-            if (validationError.HasValue)
+            if (validationError != MoveError.NoneSet)
             {
-                throw new MoveException("Error with move.", validationError.Value, move, ActivePlayer);
+                throw new MoveException("Error with move.", validationError, move, ActivePlayer);
             }
 
             ApplyValidatedMove(move);
-            return null;
+            return MoveError.NoneSet;
         }
 
         public void ApplyValidatedMove(MoveExt move)
@@ -171,7 +171,7 @@ namespace ChessLib.Data
                 CurrentMove = (MoveNode<MoveStorage>)previousMove;
                 var fen = CurrentMove?.MoveData.PremoveFEN ?? InitialFEN;
                 var board = new BoardInfo(fen);
-                ApplyNewBoard(board); 
+                ApplyNewBoard(board);
             }
         }
 

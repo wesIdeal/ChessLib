@@ -136,7 +136,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         private void AssertCastlingAvailabilityExceptionNotThrown(MoveExt move)
         {
             var postBoard = new ulong[2][];
-            Assert.IsNull(Validate(_bi, postBoard, move));
+            Assert.AreEqual(MoveError.NoneSet, Validate(_bi, postBoard, move));
         }
     }
 }

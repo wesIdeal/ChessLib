@@ -22,7 +22,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
         {
             var board = new BoardInfo("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
             var move = MoveHelpers.GenerateMove(35, 44);
-            Assert.IsNull(Validate(board, _pmb, move));
+            Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
     }
 
@@ -43,7 +43,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
         {
             var board = new BoardInfo("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
             var move = MoveHelpers.GenerateMove(35, 44);
-            Assert.IsNull(Validate(board, _pmb, move));
+            Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
         [Test]
         public void ShouldReturnErrorWhenWrongSourceRank_Black()
@@ -58,7 +58,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
         {
             var board = new BoardInfo("rnbqkbnr/ppp1pppp/8/8/1P1pP3/P7/2PP1PPP/RNBQKBNR b KQkq e3 0 1");
             var move = MoveHelpers.GenerateMove(27, 20);
-            Assert.IsNull(Validate(board, _pmb, move));
+            Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
     }
 
@@ -80,7 +80,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
         {
             var board = new BoardInfo("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
             var move = MoveHelpers.GenerateMove(35, 44);
-            Assert.IsNull(Validate(board, _pmb, move));
+            Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
     }
     [TestFixture()]
@@ -100,7 +100,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
         {
             var board = new BoardInfo("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
             var move = MoveHelpers.GenerateMove(35, 44);
-            Assert.IsNull(Validate(board, _pmb, move));
+            Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
     }
 }

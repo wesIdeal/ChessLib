@@ -7,13 +7,13 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
 {
     public class KingNotInCheckBeforeMove : IMoveRule
     {
-        public MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
+        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             if (boardInfo.ActiveKingIndex().IsSquareAttackedByColor(boardInfo.OpponentColor(), boardInfo.GetPiecePlacement()))
             {
                 return MoveError.CastleKingInCheck;
             }
-            return null;
+            return MoveError.NoneSet;
         }
     }
 }

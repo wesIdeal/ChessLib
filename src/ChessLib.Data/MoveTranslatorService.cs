@@ -7,6 +7,7 @@ using ChessLib.Data.Validators.MoveValidation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ChessLib.Data
@@ -16,11 +17,18 @@ namespace ChessLib.Data
     /// </summary>
     public class MoveTranslatorService : MoveDisplayService
     {
+        protected readonly MoveExt BlackCastleKingSide, BlackCastleQueenSide, WhiteCastleKingSide, WhiteCastleQueenSide;
+        protected readonly string CastleKingSide = "O-O";
+        protected readonly string CastleQueenSide = "O-O-O";
         /// <summary>
         /// Constructs the service based on the normal starting position
         /// </summary>
         public MoveTranslatorService()
         {
+            BlackCastleKingSide = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+            BlackCastleQueenSide = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
+            WhiteCastleKingSide = MoveHelpers.GenerateMove(4, 6, MoveType.Castle);
+            WhiteCastleQueenSide = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
             InitializeBoard();
         }
 
@@ -28,7 +36,7 @@ namespace ChessLib.Data
         /// Constructs the service based on an existing board configuration
         /// </summary>
         /// <param name="board">The configuration/state of the current board.</param>
-        public MoveTranslatorService(in IBoard board)
+        public MoveTranslatorService(in IBoard board) : this()
         {
             InitializeBoard(board);
         }
@@ -37,7 +45,7 @@ namespace ChessLib.Data
         /// Constructs the service based on an existing board configuration supplied via a PremoveFEN string
         /// </summary>
         /// <param name="fen">A PremoveFEN string detailing the board config</param>
-        public MoveTranslatorService(string fen)
+        public MoveTranslatorService(string fen) : this()
         {
             InitializeBoard(fen);
         }
@@ -81,35 +89,7 @@ namespace ChessLib.Data
         {
             Initialize(board);
         }
-        /// <summary>
-        /// Given a board and a simple algebraic notation (SAN), generate a move object
-        /// </summary>
-        /// <param name="moveText">The SAN text of a move</param>
-        /// <returns>A move object based on the board state and information from text.</returns>
-        /// <exception cref="MoveException">If no destination index is present in the SAN text or if no piece was found at the source index.</exception>
-        public MoveExt GenerateMoveFromText(string moveText)
-        {
 
-            var md = GetAvailableMoveDetails(moveText, Board.ActivePlayer);
-            if (!md.DestinationIndex.HasValue)
-            {
-                throw new MoveException("Move detail error: no destination index was supplied.");
-            }
-            if (md.SourceFile == null || md.SourceRank == null)
-            {
-                md.SourceIndex = FindPieceSourceIndex(md);
-            }
-            if (md.SourceIndex == null)
-            {
-                throw new MoveException("Move detail error: no piece found at source.");
-            }
-            var source = md.SourceIndex.Value;
-            var destination = md.DestinationIndex.Value;
-            var moveType = md.MoveType;
-            var promotionPiece = md.PromotionPiece ?? PromotionPiece.Knight;
-            var moveExt = MoveHelpers.GenerateMove(source, destination, moveType, promotionPiece);
-            return moveExt;
-        }
 
         /// <summary>
         /// Create move from long alg. notation
@@ -166,70 +146,210 @@ namespace ChessLib.Data
             return moves;
         }
 
-        /// <summary>
-        /// Gets move details by using regex. Second step in translating SAN -> ushort move.
-        /// </summary>
-        /// <param name="move">SAN move</param>
-        /// <param name="color">Active player</param>
-        public static MoveDetail GetAvailableMoveDetails(string move, Color color)
+        private string StripNonMoveInfoFromMove(in string move)
         {
-            MoveDetail md = new MoveDetail() { MoveText = move, Color = color };
-            if (move.Length < 2) throw new Exception("Invalid move. Must have at least 2 characters.");
-            Match promotionMatch, castleMatch;
-            var match = Regex.Match(move, RegExMoveDetails);
-            md.SourceFile = match.Groups["sourceFile"].Success ? (ushort)(match.Groups["sourceFile"].Value[0] - 'a') : (ushort?)null;
-            md.SourceRank = match.Groups["sourceRank"].Success ? (ushort)(ushort.Parse(match.Groups["sourceRank"].Value) - 1) : (ushort?)null;
-            md.DestinationFile = match.Groups["destinationFile"].Success ? (ushort)(match.Groups["destinationFile"].Value[0] - 'a') : (ushort?)null;
-            md.DestinationRank = match.Groups["destinationRank"].Success ? (ushort)(ushort.Parse((match.Groups["destinationRank"].Value)) - 1) : (ushort?)null;
-            md.IsCapture = match.Groups["capture"].Success;
-
-            if ((promotionMatch = Regex.Match(move, RegExPromotion)).Success)
+            var nmi = new[] { "#", "+", "1/2-1/2", "1-0", "0-1" };
+            var mv = (string)move.Clone();
+            foreach (var s in nmi)
             {
-                md.MoveType = MoveType.Promotion;
-                md.Piece = Piece.Pawn;
-                md.PromotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionMatch.Groups["promotionPiece"].Value[0]);
-            }
-            if ((castleMatch = Regex.Match(move, RegExCastle)).Success)
-            {
-                md.Piece = Piece.King;
-                md.MoveType = MoveType.Castle;
-                md.SourceFile = 4;
-                md.DestinationRank = md.SourceRank = (ushort)(color == Color.Black ? 7 : 0);
-                md.DestinationFile = castleMatch.Groups[RegExCastleLongGroup].Success ? (ushort?)2 : (ushort?)6;
-                return md;
+                mv = mv.Replace(s, "");
             }
 
-            if (match.Groups["pawnFile"].Success)
+            return mv;
+        }
+
+        public MoveExt GetMoveFromSAN(string sanMove)
+        {
+            
+            MoveExt moveExt = null;
+            var move = StripNonMoveInfoFromMove(sanMove);
+            if (move.Length < 2)
             {
-                md.Piece = Piece.Pawn;
-
-                if (md.IsCapture)
+                throw new MoveException("Invalid move. Must have at least 2 characters.");
+            }
+            var colorMoving = Board.ActivePlayer;
+            var moveType = MoveType.Normal;
+            if (char.IsLower(move[0]))
+            {
+                moveExt = GetPawnMoveDetails(move);
+            }
+            else if (move == CastleKingSide || move == CastleQueenSide)
+            {
+                if (colorMoving == Color.White)
                 {
-                    md.SourceFile = (ushort)(match.Groups["pawnFile"].Value[0] - 'a');
-                    if (color == Color.Black)
-                    {
-                        Debug.Assert(md.DestinationRank != null, "md.DestinationRank != null");
-                        md.SourceRank = (ushort)(md.DestinationRank.Value + 1);
-                    }
-                    else
-                    {
-                        Debug.Assert(md.DestinationRank != null, "md.DestinationRank != null");
-                        md.SourceRank = (ushort)(md.DestinationRank.Value - 1);
-                    }
+                    return move == CastleKingSide ? WhiteCastleKingSide : WhiteCastleQueenSide;
                 }
-                else
-                {
-                    md.DestinationFile = match.Groups["pawnFile"].Success ? (ushort)(match.Groups["pawnFile"].Value[0] - 'a') : (ushort?)null;
-                }
-
+                return move == CastleKingSide ? BlackCastleKingSide : BlackCastleQueenSide;
             }
             else
             {
-                var pieceMatch = match.Groups["piece"];
-                md.Piece = PieceHelpers.GetPiece(pieceMatch.Value[0]);
+                var pieceMoving = PieceHelpers.GetPiece(move[0]);
+                var destinationSquare = move.Substring(move.Length - 2, 2).SquareTextToIndex();
+                Debug.Assert(destinationSquare.HasValue && destinationSquare >= 0 && destinationSquare < 64);
+                var squaresAttackingTarget = Board.PiecesAttackingSquare(destinationSquare.Value);
+                if (squaresAttackingTarget == 0)
+                {
+                    throw new MoveException($"No pieces on any squares are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}");
+                }
+
+                var possibleAttackersOfType = new List<ushort>();
+                var applicableBB = Board.GetPiecePlacement()[(int)colorMoving][(int)pieceMoving];
+                foreach (var possAttacker in squaresAttackingTarget.GetSetBits())
+                {
+                    if ((possAttacker.GetBoardValueOfIndex() & applicableBB) != 0)
+                    {
+                        possibleAttackersOfType.Add(possAttacker);
+                    }
+                }
+
+                if (possibleAttackersOfType.Count == 0)
+                {
+                    throw new MoveException($"No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}");
+                }
+                else if (possibleAttackersOfType.Count == 1)
+                {
+                    moveExt = MoveHelpers.GenerateMove(possibleAttackersOfType[0], destinationSquare.Value);
+                }
+                else
+                {
+                    moveExt = DetermineWhichPieceMovesToSquare(move, possibleAttackersOfType, applicableBB,
+                        destinationSquare.Value);
+                }
+            }
+            if (moveExt == null)
+            {
+                throw new NotImplementedException("Move from san not implemented for this piece.");
             }
 
-            return md;
+            return moveExt;
+        }
+
+        private MoveExt DetermineWhichPieceMovesToSquare(in string move, IEnumerable<ushort> possibleAttackersOfType, ulong applicableBb, ushort destinationSquare)
+        {
+            var mv = (string)move.Clone();
+            mv = mv.Substring(1);
+            mv = mv.Substring(0, mv.Length - 2);
+            mv = mv.Replace("x", "");
+            ushort source = 0;
+            ushort? sourceIdx = null;
+            if (mv.Length == 2)
+            {
+                sourceIdx = mv.SquareTextToIndex();
+                if (sourceIdx == null)
+                {
+                    throw new MoveException($"Error parsing source disambiguating square from {move}");
+                }
+
+                source = sourceIdx.Value;
+            }
+            else if (mv.Length == 1)
+            {
+                ushort[] sourceSquares = null;
+                if (char.IsDigit(mv[0]))
+                {
+                    var sourceRank = ushort.Parse(mv).GetRank();
+                    sourceSquares = possibleAttackersOfType.Where(s => s.GetRank() == sourceRank).ToArray();
+
+                }
+                else
+                {
+                    var sourceFile = mv[0] - 'a';
+                    sourceSquares = possibleAttackersOfType.Where(s => s.GetFile() == sourceFile).ToArray();
+                }
+
+                if (!sourceSquares.Any())
+                {
+                    throw new MoveException($"Problem finding attacking piece from move {move}.");
+                }
+
+                if (sourceSquares.Count() > 1)
+                {
+                    throw new MoveException($"Problem finding only one attacking piece from move {move}.");
+                }
+
+                source = sourceSquares[0];
+            }
+
+            else
+            {
+                var narrowedSquares = new List<ushort>();
+                foreach (var square in possibleAttackersOfType)
+                {
+                    var testMove = MoveHelpers.GenerateMove(square, destinationSquare);
+                    MoveValidator moveValidator = new MoveValidator(Board, testMove);
+                    if (moveValidator.Validate() == MoveError.NoneSet)
+                    {
+                        narrowedSquares.Add(square);
+                    }
+                }
+                if (narrowedSquares.Count!= 1)
+                { throw new MoveException($"Problem finding only one attacking piece from move {move}."); }
+
+                source = narrowedSquares[0];
+            }
+            var sourceVal = source.ToBoardValue();
+            if ((sourceVal & applicableBb) == 0)
+            {
+                throw new MoveException($"No pieces attack {destinationSquare.IndexToSquareDisplay()} from move {move}.");
+            }
+            return MoveHelpers.GenerateMove(source, destinationSquare);
+        }
+
+        private MoveExt GetPawnMoveDetails(string move)
+        {
+            var colorMoving = Board.ActivePlayer;
+            var promotionPiece = PromotionPiece.Knight;
+            var pawnBB = Board.GetPiecePlacement()[(int)colorMoving][(int)Piece.Pawn];
+
+            var moveLength = move.Length;
+            bool isCapture = move.Contains("x");
+
+            bool isPromotion = move.Contains("=");
+            ushort sourceIndex = 0;
+            ushort? destIndex = 0;
+            ushort startingFile = 0;
+            MoveType moveType = MoveType.Normal;
+            if (isCapture)
+            {
+                startingFile = (ushort)(move[0] - 'a');
+                move = move.Substring(2, moveLength - 2);
+            }
+            if (isPromotion)
+            {
+                moveType = MoveType.Promotion;
+                var equalIndex = move.IndexOf('=');
+                var promotionPieceStr = move.Substring(equalIndex + 1, 1);
+                promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionPieceStr[0]);
+                move = move.Substring(0, equalIndex);
+            }
+
+            destIndex = move.SquareTextToIndex();
+            Debug.Assert(destIndex.HasValue);
+
+            bool isPossibleInitialMove =
+                (destIndex.Value.IsIndexOnRank(3) && colorMoving == Color.White) ||
+                (destIndex.Value.IsIndexOnRank(4) && colorMoving == Color.Black);
+            var destinationFile = destIndex.Value.FileFromIdx();
+            var countBack = isCapture ?
+                colorMoving.Equals(Color.White) ? startingFile - destinationFile - 8
+                    : destinationFile - startingFile - 8 : -8;
+            if (colorMoving == Color.Black)
+            {
+                countBack = Math.Abs(countBack);
+            }
+            sourceIndex = (ushort)(destIndex.Value + countBack);
+            if (isPossibleInitialMove && !isCapture)
+            {
+
+                var srcValue = (sourceIndex).ToBoardValue();
+                //first check rank 2
+                if ((pawnBB & srcValue) == 0)
+                {
+                    //no, it was from the starting position
+                    sourceIndex = colorMoving == Color.White ? (ushort)(sourceIndex - 8) : (ushort)(sourceIndex + 8);
+                }
+            }
+            return MoveHelpers.GenerateMove(sourceIndex, destIndex.Value, moveType, promotionPiece);
         }
 
         /// <summary>

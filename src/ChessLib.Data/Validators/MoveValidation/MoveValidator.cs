@@ -54,18 +54,18 @@ namespace ChessLib.Data.Validators.MoveValidation
             }
         }
 
-        public MoveError? Validate()
+        public MoveError Validate()
         {
             foreach (var rule in _rules)
             {
                 var moveIssue = rule.Validate(_board, PostMoveBoard, _move);
-                if (moveIssue.HasValue)
+                if (moveIssue != MoveError.NoneSet)
                 {
                     return moveIssue;
                 }
             }
 
-            return null;
+            return MoveError.NoneSet;
         }
     }
 

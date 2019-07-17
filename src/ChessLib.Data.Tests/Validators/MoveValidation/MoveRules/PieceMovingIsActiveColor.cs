@@ -17,7 +17,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         [Test]
         public void Validate_ShouldReturnNullForGoodMove()
         {
-            Assert.IsNull(Validate(_boardInfo, _postMoveBoard, _goodMove));
+            Assert.AreEqual(MoveError.NoneSet, Validate(_boardInfo, _postMoveBoard, _goodMove));
         }
 
         [Test]

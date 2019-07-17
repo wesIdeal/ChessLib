@@ -29,7 +29,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var move = MoveHelpers.GenerateMove(0, 56);
             var BoardInfo = new BoardInfo("4k3/8/8/8/8/8/8/R3K3 w - - 0 1");
-            Assert.IsNull(Validate(BoardInfo, _postMoveBoard, move), "Should return null when moving to empty square on a8.");
+            Assert.AreEqual(MoveError.NoneSet, Validate(BoardInfo, _postMoveBoard, move), "Should return null when moving to empty square on a8.");
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var move = MoveHelpers.GenerateMove(2, 26);
             var BoardInfo = new BoardInfo("4k3/8/8/8/8/8/8/2R1K3 w - - 0 1");
-            Assert.IsNull(Validate(BoardInfo, _postMoveBoard, move), "Should return null when moving to empty square on c4.");
+            Assert.AreEqual(MoveError.NoneSet, Validate(BoardInfo, _postMoveBoard, move), "Should return null when moving to empty square on c4.");
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var move = MoveHelpers.GenerateMove(2, 58);
             var BoardInfo = new BoardInfo("2q1k3/8/8/8/8/8/8/2R1K3 w - - 0 1");
-            Assert.IsNull(Validate(BoardInfo, _postMoveBoard, move), "Should return null when capturing on c8.");
+            Assert.AreEqual(MoveError.NoneSet, Validate(BoardInfo, _postMoveBoard, move), "Should return null when capturing on c8.");
 
         }
 
@@ -54,7 +54,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
         {
             var move = MoveHelpers.GenerateMove(2, 26);
             var BoardInfo = new BoardInfo("4k3/8/8/8/2q5/8/8/2R1K3 w - - 0 1");
-            Assert.IsNull(Validate(BoardInfo, _postMoveBoard, move), "Should return null when capturing on c4.");
+            Assert.AreEqual(MoveError.NoneSet, Validate(BoardInfo, _postMoveBoard, move), "Should return null when capturing on c4.");
         }
 
         [Test]
@@ -270,7 +270,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             {
                 var move = MoveHelpers.GenerateMove(12, 20);
                 var actual = Validate(_BoardInfo, _postMoveBoard, move);
-                Assert.IsNull(actual, "Expected no error. Pawns can move 1 forward.");
+                Assert.AreEqual(MoveError.NoneSet, actual, "Expected no error. Pawns can move 1 forward.");
             }
 
             [Test]
@@ -279,14 +279,14 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 _BoardInfo.ActivePlayer = Color.Black;
                 var move = MoveHelpers.GenerateMove(52, 44);
                 var actual = Validate(_BoardInfo, _postMoveBoard, move);
-                Assert.IsNull(actual, "Expected no error. Pawns can move 1 forward.");
+                Assert.AreEqual(MoveError.NoneSet, actual, "Expected no error. Pawns can move 1 forward.");
             }
             [Test]
             public void ShouldReturnNoError_WhenWhitePawnMoves2From2ndRank()
             {
                 var move = MoveHelpers.GenerateMove(12, 28);
                 var actual = Validate(_BoardInfo, _postMoveBoard, move);
-                Assert.IsNull(actual, "Pawn can move 2 squares from the opening rank.");
+                Assert.AreEqual(MoveError.NoneSet, actual, "Pawn can move 2 squares from the opening rank.");
             }
 
             [Test]
@@ -295,7 +295,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 _BoardInfo.ActivePlayer = Color.Black;
                 var move = MoveHelpers.GenerateMove(52, 36);
                 var actual = Validate(_BoardInfo, _postMoveBoard, move);
-                Assert.IsNull(actual, "Pawn can move 2 squares from the opening rank.");
+                Assert.AreEqual(MoveError.NoneSet, actual, "Pawn can move 2 squares from the opening rank.");
             }
             [Test]
             public void ShouldReturnNoError_WhenWhitePawnAttacksEnemyOccupiedSquare()
@@ -303,10 +303,10 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var bi1 = new BoardInfo("rnbqkbnr/ppp1p1pp/3P1P2/8/8/3p1p2/PP2PPPP/RNBQKBNR w KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(12, 21);
                 var actual = Validate(bi1, _postMoveBoard, move);
-                Assert.IsNull(actual, "Expected no error. Pawns can capture an enemy-occupied square to the NE.");
+                Assert.AreEqual(MoveError.NoneSet, actual, "Expected no error. Pawns can capture an enemy-occupied square to the NE.");
                 move = MoveHelpers.GenerateMove(12, 19);
                 actual = Validate(bi1, _postMoveBoard, move);
-                Assert.IsNull(actual, "Expected no error. Pawns can capture an enemy-occupied square to the NW.");
+                Assert.AreEqual(MoveError.NoneSet, actual, "Expected no error. Pawns can capture an enemy-occupied square to the NW.");
             }
 
             [Test]
@@ -315,10 +315,10 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var bi1 = new BoardInfo("rnbqkbnr/ppp1p1pp/3P1P2/8/8/3p1p2/PP2PPPP/RNBQKBNR b KQkq - 0 1");
                 var move = MoveHelpers.GenerateMove(52, 43);
                 var actual = Validate(bi1, _postMoveBoard, move);
-                Assert.IsNull(actual, "Expected no error. Pawns can capture an enemy-occupied square to the SE.");
+                Assert.AreEqual(MoveError.NoneSet, actual, "Expected no error. Pawns can capture an enemy-occupied square to the SE.");
                 move = MoveHelpers.GenerateMove(52, 45);
                 actual = Validate(bi1, _postMoveBoard, move);
-                Assert.IsNull(actual, "Expected no error. Pawns can capture an enemy-occupied square to the SW.");
+                Assert.AreEqual(MoveError.NoneSet, actual, "Expected no error. Pawns can capture an enemy-occupied square to the SW.");
             }
 
             #endregion
@@ -394,7 +394,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 foreach (var move in _movesFromCorners)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
-                    Assert.IsNull(actual, $"Knight should be able to move to legal empty square from corner. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.NoneSet, actual, $"Knight should be able to move to legal empty square from corner. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
 
             }
@@ -406,7 +406,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 foreach (var move in _movesFromE5)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
-                    Assert.IsNull(actual, $"Knight should be able to move to legal empty square. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.NoneSet, actual, $"Knight should be able to move to legal empty square. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
 
             }
@@ -418,7 +418,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 foreach (var move in _movesFromE5)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
-                    Assert.IsNull(actual, $"Knight should be able to move to legal square occupied by opponent. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.NoneSet, actual, $"Knight should be able to move to legal square occupied by opponent. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
 
             }
@@ -453,9 +453,9 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             public void ShouldReturnNoError_WhenBishopCapturesEnemy()
             {
                 var actual = Validate(_bAttacksEnemyOnE5.BoardInfo, _postMoveBoard, _bAttacksEnemyOnE5.Move);
-                Assert.IsNull(actual, $"Bishop should be able to capture enemy.  {_bAttacksEnemyOnE5.Move.SourceIndex.IndexToSquareDisplay()} to {_bAttacksEnemyOnE5.Move.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Bishop should be able to capture enemy.  {_bAttacksEnemyOnE5.Move.SourceIndex.IndexToSquareDisplay()} to {_bAttacksEnemyOnE5.Move.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_qAttacksEnemyOnE5.BoardInfo, _postMoveBoard, _qAttacksEnemyOnE5.Move);
-                Assert.IsNull(actual, $"Queen should be able to capture enemy.  {_qAttacksEnemyOnE5.Move.SourceIndex.IndexToSquareDisplay()} to {_qAttacksEnemyOnE5.Move.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Queen should be able to capture enemy.  {_qAttacksEnemyOnE5.Move.SourceIndex.IndexToSquareDisplay()} to {_qAttacksEnemyOnE5.Move.DestinationIndex.IndexToSquareDisplay()}");
             }
 
             [Test]
@@ -472,10 +472,10 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             {
                 var move = MoveHelpers.GenerateMove(18, 27);
                 var actual = Validate(_bAttacksEnemyOnE5.BoardInfo, _postMoveBoard, move);
-                Assert.IsNull(actual, $"Bishop should be able to move short of enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Bishop should be able to move short of enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
 
                 actual = Validate(_qAttacksEnemyOnE5.BoardInfo, _postMoveBoard, move);
-                Assert.IsNull(actual, $"Queen should be able to move short of enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Queen should be able to move short of enemy piece.  {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
             }
             [Test]
             public void ShouldReturnNoError_WhenBishopMovesAwayFromEnemy()
@@ -486,26 +486,26 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 var moveToB2 = MoveHelpers.GenerateMove(18, 9);
                 var moveToA1 = MoveHelpers.GenerateMove(18, 0);
                 var actual = Validate(_bAttacksEnemyOnE5.BoardInfo, _postMoveBoard, moveToB4);
-                Assert.IsNull(actual, $"Bishop should be able to move short of enemy piece.  {moveToB4.SourceIndex.IndexToSquareDisplay()} to {moveToB4.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Bishop should be able to move short of enemy piece.  {moveToB4.SourceIndex.IndexToSquareDisplay()} to {moveToB4.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_bAttacksEnemyOnE5.BoardInfo, _postMoveBoard, moveToA5);
-                Assert.IsNull(actual, $"Bishop should be able to move short of enemy piece.  {moveToA5.SourceIndex.IndexToSquareDisplay()} to {moveToA5.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Bishop should be able to move short of enemy piece.  {moveToA5.SourceIndex.IndexToSquareDisplay()} to {moveToA5.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_bAttacksEnemyOnE5.BoardInfo, _postMoveBoard, moveToD2);
-                Assert.IsNull(actual, $"Bishop should be able to move short of enemy piece.  {moveToD2.SourceIndex.IndexToSquareDisplay()} to {moveToD2.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Bishop should be able to move short of enemy piece.  {moveToD2.SourceIndex.IndexToSquareDisplay()} to {moveToD2.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_bAttacksEnemyOnE5.BoardInfo, _postMoveBoard, moveToB2);
-                Assert.IsNull(actual, $"Bishop should be able to move short of enemy piece.  {moveToB2.SourceIndex.IndexToSquareDisplay()} to {moveToB2.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Bishop should be able to move short of enemy piece.  {moveToB2.SourceIndex.IndexToSquareDisplay()} to {moveToB2.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_bAttacksEnemyOnE5.BoardInfo, _postMoveBoard, moveToA1);
-                Assert.IsNull(actual, $"Bishop should be able to move short of enemy piece.  {moveToA1.SourceIndex.IndexToSquareDisplay()} to {moveToA1.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Bishop should be able to move short of enemy piece.  {moveToA1.SourceIndex.IndexToSquareDisplay()} to {moveToA1.DestinationIndex.IndexToSquareDisplay()}");
 
                 actual = Validate(_qAttacksEnemyOnE5.BoardInfo, _postMoveBoard, moveToB4);
-                Assert.IsNull(actual, $"Queen should be able to move short of enemy piece.  {moveToB4.SourceIndex.IndexToSquareDisplay()} to {moveToB4.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Queen should be able to move short of enemy piece.  {moveToB4.SourceIndex.IndexToSquareDisplay()} to {moveToB4.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_qAttacksEnemyOnE5.BoardInfo, _postMoveBoard, moveToA5);
-                Assert.IsNull(actual, $"Queen should be able to move short of enemy piece.  {moveToA5.SourceIndex.IndexToSquareDisplay()} to {moveToA5.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Queen should be able to move short of enemy piece.  {moveToA5.SourceIndex.IndexToSquareDisplay()} to {moveToA5.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_qAttacksEnemyOnE5.BoardInfo, _postMoveBoard, moveToD2);
-                Assert.IsNull(actual, $"Queen should be able to move short of enemy piece.  {moveToD2.SourceIndex.IndexToSquareDisplay()} to {moveToD2.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Queen should be able to move short of enemy piece.  {moveToD2.SourceIndex.IndexToSquareDisplay()} to {moveToD2.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_qAttacksEnemyOnE5.BoardInfo, _postMoveBoard, moveToB2);
-                Assert.IsNull(actual, $"Queen should be able to move short of enemy piece.  {moveToB2.SourceIndex.IndexToSquareDisplay()} to {moveToB2.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Queen should be able to move short of enemy piece.  {moveToB2.SourceIndex.IndexToSquareDisplay()} to {moveToB2.DestinationIndex.IndexToSquareDisplay()}");
                 actual = Validate(_qAttacksEnemyOnE5.BoardInfo, _postMoveBoard, moveToA1);
-                Assert.IsNull(actual, $"Queen should be able to move short of enemy piece.  {moveToA1.SourceIndex.IndexToSquareDisplay()} to {moveToA1.DestinationIndex.IndexToSquareDisplay()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Queen should be able to move short of enemy piece.  {moveToA1.SourceIndex.IndexToSquareDisplay()} to {moveToA1.DestinationIndex.IndexToSquareDisplay()}");
             }
 
             [Test]
@@ -547,20 +547,20 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             public void ShouldReturnNull_WhenMoveCapturesEnemyOnC7()
             {
                 var actual = Validate(_rEnemyOnC7.BoardInfo, _postMoveBoard, _rEnemyOnC7.Move);
-                Assert.IsNull(actual, $"Should be able to capture. {_rEnemyOnC7.ToString()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Should be able to capture. {_rEnemyOnC7.ToString()}");
 
                 actual = Validate(_qEnemyOnC7.BoardInfo, _postMoveBoard, _qEnemyOnC7.Move);
-                Assert.IsNull(actual, $"Should be able to capture. {_qEnemyOnC7.ToString()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Should be able to capture. {_qEnemyOnC7.ToString()}");
             }
 
             [Test]
             public void ShouldReturnNull_WhenMoveCapturesEnemyOnA1()
             {
                 var actual = Validate(_rEnemyOnA1.BoardInfo, _postMoveBoard, _rEnemyOnA1.Move);
-                Assert.IsNull(actual, $"Should be able to capture. {_rEnemyOnA1.ToString()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Should be able to capture. {_rEnemyOnA1.ToString()}");
 
                 actual = Validate(_qEnemyOnA1.BoardInfo, _postMoveBoard, _qEnemyOnA1.Move);
-                Assert.IsNull(actual, $"Should be able to capture. {_qEnemyOnA1.ToString()}");
+                Assert.AreEqual(MoveError.NoneSet, actual, $"Should be able to capture. {_qEnemyOnA1.ToString()}");
             }
 
             
@@ -572,13 +572,13 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
                 for (ushort dest = 10; dest < 50; dest += 8)
                 {
                     move = MoveHelpers.GenerateMove(2, dest);
-                    Assert.IsNull(Validate(_rEnemyOnC7.BoardInfo, _postMoveBoard, move), $"Rook from {move} should be legal.");
-                    Assert.IsNull(Validate(_qEnemyOnC7.BoardInfo, _postMoveBoard, move), $"Queen from {move} should be legal.");
+                    Assert.AreEqual(MoveError.NoneSet, Validate(_rEnemyOnC7.BoardInfo, _postMoveBoard, move), $"Rook from {move} should be legal.");
+                    Assert.AreEqual(MoveError.NoneSet, Validate(_qEnemyOnC7.BoardInfo, _postMoveBoard, move), $"Queen from {move} should be legal.");
                 }
 
                 move = MoveHelpers.GenerateMove(2, 1);
-                Assert.IsNull(Validate(_rEnemyOnC7.BoardInfo, _postMoveBoard, move), $"Rook from {move} should be legal.");
-                Assert.IsNull(Validate(_qEnemyOnC7.BoardInfo, _postMoveBoard, move), $"Queen from {move} should be legal.");
+                Assert.AreEqual(MoveError.NoneSet, Validate(_rEnemyOnC7.BoardInfo, _postMoveBoard, move), $"Rook from {move} should be legal.");
+                Assert.AreEqual(MoveError.NoneSet, Validate(_qEnemyOnC7.BoardInfo, _postMoveBoard, move), $"Queen from {move} should be legal.");
             }
 
             [Test]
@@ -621,7 +621,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             {
                 foreach (var move in moves)
                 {
-                    Assert.IsNull(Validate(_bi, _postMoveBoard, move), $"Should be able to move king to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.NoneSet, Validate(_bi, _postMoveBoard, move), $"Should be able to move king to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
             }
 

@@ -34,7 +34,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             var bi = new BoardInfo("4k3/4r3/8/8/8/8/8/3BK3 w - - 0 1");
             var move = MoveHelpers.GenerateMove(3, 12);
             var postMoveBoard = BoardHelpers.GetBoardPostMove(bi.GetPiecePlacement(), Color.White, move);
-            Assert.IsNull(Validate(bi, postMoveBoard, move));
+            Assert.AreEqual(MoveError.NoneSet, Validate(bi, postMoveBoard, move));
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
             var bi = new BoardInfo("3k4/4b3/8/8/8/8/4B3/5K2 w - - 0 1");
             var move = MoveHelpers.GenerateMove(12, 3);
             var postMoveBoard = BoardHelpers.GetBoardPostMove(bi.GetPiecePlacement(), Color.White, move);
-            Assert.IsNull(Validate(bi, postMoveBoard, move));
+            Assert.AreEqual(MoveError.NoneSet, Validate(bi, postMoveBoard, move));
         }
 
         [Test]

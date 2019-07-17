@@ -18,7 +18,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         [Test]
         public void Validate_ShouldReturnNullIfKingIsNotInCheckWhenCastling()
         {
-            Assert.IsNull(this.Validate(_biNotInCheck, _postBoard, _move));
+            Assert.AreEqual(MoveError.NoneSet, this.Validate(_biNotInCheck, _postBoard, _move));
         }
         [Test]
         public void Validate_ShouldReturnErrorIfKingIsNotInCheckWhenCastling()

@@ -8,13 +8,13 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
 {
     public class CastlingSquaresNotAttacked : IMoveRule
     {
-        public MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
+        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             if (IsKingsPathInCheck(boardInfo.OpponentColor(), boardInfo.GetPiecePlacement(), move))
             {
                 return MoveError.CastleThroughCheck;
             }
-            return null;
+            return MoveError.NoneSet;
         }
         /// <summary>
         /// Returns a boolean representing if castling path is attacked

@@ -35,7 +35,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
             foreach (var dest in badDestinations)
             {
                 var move = MoveHelpers.GenerateMove(60, dest, MoveType.Castle);
-                Assert.IsNull(Validate(BoardInfo, postMoveBoard, move));
+                Assert.AreEqual( MoveError.NoneSet, Validate(BoardInfo, postMoveBoard, move));
             }
         }
         #endregion

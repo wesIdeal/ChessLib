@@ -7,7 +7,7 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
 {
     public class CastlingHasNoPiecesBlocking : IMoveRule
     {
-        public MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
+        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             ulong piecesBetween;
             switch (move.DestinationIndex)
@@ -32,7 +32,7 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
             {
                 return MoveError.CastleOccupancyBetween;
             }
-            return null;
+            return MoveError.NoneSet;
         }
     }
 }

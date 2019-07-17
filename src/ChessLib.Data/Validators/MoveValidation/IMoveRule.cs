@@ -7,6 +7,6 @@ namespace ChessLib.Data.Validators.MoveValidation
 
     public interface IMoveRule
     {
-        MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move);
+        MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move);
     }
 }

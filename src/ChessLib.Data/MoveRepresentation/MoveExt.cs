@@ -4,12 +4,14 @@ using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.MoveRepresentation
 {
-    public class MoveExt : IMoveExt, ICloneable
+    public class MoveExt : IMoveExt, ICloneable, IEquatable<MoveExt>
     {
         public MoveExt(ushort move) { Move = move; }
         public string SAN { get; set; }
         private ushort _move;
-        public ushort Move { get => _move; protected set => _move = value;
+        public ushort Move
+        {
+            get => _move; protected set => _move = value;
         }
 
         public ushort SourceIndex => (ushort)((_move >> 6) & 63);
@@ -56,6 +58,15 @@ namespace ChessLib.Data.MoveRepresentation
         public object Clone()
         {
             return new MoveExt(Move);
+        }
+
+        public bool Equals(MoveExt other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            return Move == other.Move;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules
 {
     public class PieceCanMoveToDestination : IMoveRule
     {
-        public MoveError? Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
+        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
 
             var piece = BoardHelpers.GetPieceAtIndex(boardInfo.GetPiecePlacement(), move.SourceIndex);
@@ -16,7 +16,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules
                 return MoveError.ActivePlayerHasNoPieceOnSourceSquare;
             }
             return boardInfo.CanPieceMoveToDestination(move.SourceIndex, move.DestinationIndex)
-                ? (MoveError?)null
+                ? MoveError.NoneSet
                 : MoveError.BadDestination;
         }
 

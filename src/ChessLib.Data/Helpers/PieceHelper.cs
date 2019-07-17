@@ -38,7 +38,7 @@ namespace ChessLib.Data.Helpers
                     return Piece.Rook;
                 case 'q':
                     return Piece.Queen;
-                default: throw new Exception("Cannot determine piece for " + p.ToString());
+                default: throw new PieceException("Cannot determine piece for " + p.ToString());
             }
         }
 
@@ -121,7 +121,7 @@ namespace ChessLib.Data.Helpers
         /// <returns></returns>
         public static PieceOfColor GetPieceOfColor(char p)
         {
-            var poc = new PieceOfColor {Color = char.IsUpper(p) ? Color.White : Color.Black, Piece = GetPiece(p)};
+            var poc = new PieceOfColor { Color = char.IsUpper(p) ? Color.White : Color.Black, Piece = GetPiece(p) };
             return poc;
         }
 
