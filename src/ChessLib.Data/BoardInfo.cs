@@ -28,29 +28,25 @@ namespace ChessLib.Data
             }
         }
 
-        public BoardInfo() : this(FENHelpers.FENInitial) { }
+        public BoardInfo() : this(FENHelpers.FENInitial)
+        {
+            MoveTree = new MoveTree<MoveStorage>(null);
+        }
 
         public BoardInfo(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability,
-            ushort? enPassantIdx, uint? halfMoveClock, uint fullMoveCount, bool validationException = true) : base(occupancy, activePlayer,
-            castlingAvailability, enPassantIdx, halfMoveClock, fullMoveCount)
+            ushort? enPassantIdx, uint? halfMoveClock, uint fullMoveCount, bool validationException = true)
+            : base(occupancy, activePlayer, castlingAvailability, enPassantIdx, halfMoveClock, fullMoveCount)
         {
+            MoveTree = new MoveTree<MoveStorage>(null);
             BoardValidator validator = new BoardValidator(this);
             validator.Validate(validationException);
         }
 
-        public BoardInfo(string fen, bool is960 = false)
+        public BoardInfo(string fen, bool is960 = false) : base(fen, is960)
         {
-            InitialFEN = fen;
             MoveTree = new MoveTree<MoveStorage>(null);
-            PiecePlacement = fen.BoardFromFen(out Color active, out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
-            ActivePlayer = active;
-            CastlingAvailability = ca;
-            EnPassantSquare = enPassant;
-            HalfmoveClock = hmClock;
-            FullmoveCounter = fmClock;
-            Chess960 = is960;
         }
-
+        public new GameState GameState => base.GameState;
         public ulong ActiveRookOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Rook);
         public ulong ActiveKnightOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Knight);
         public ulong ActivePawnOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Pawn);

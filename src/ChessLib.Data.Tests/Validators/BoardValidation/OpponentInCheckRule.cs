@@ -1,5 +1,6 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 
 namespace ChessLib.Validators.Tests.BoardValidation
@@ -11,10 +12,17 @@ namespace ChessLib.Validators.Tests.BoardValidation
         [TestCase("8/8/8/8/8/8/6kQ/4K3 w - - 0 1", BoardExceptionType.OppositeCheck)]
         public static void ValidateCheck(string fen, BoardExceptionType expectedException)
         {
+            BoardExceptionType actual = BoardExceptionType.None;
+            try
+            {
 
-            var board = new BoardInfo(fen);
-            var rule = new Data.Validators.BoardValidation.Rules.OpponentInCheckRule();
-            var actual = rule.Validate(board);
+                var board = new BoardInfo(fen);
+            }
+            catch (BoardException be)
+            {
+
+                actual = be.ExceptionType;
+            }
             Assert.AreEqual(expectedException, actual);
         }
     }

@@ -39,7 +39,16 @@ namespace ChessLib.Data.Validators.BoardValidation
 
                 rv |= moveIssue;
             }
-            if(throwValidationExceptionOnError && rv != BoardExceptionType.None)
+
+            if (rv.HasFlag(BoardExceptionType.WhiteTooManyPawns) && rv.HasFlag(BoardExceptionType.WhiteTooManyPieces))
+            {
+                rv = rv ^ BoardExceptionType.WhiteTooManyPieces;
+            }
+            if (rv.HasFlag(BoardExceptionType.BlackTooManyPawns) && rv.HasFlag(BoardExceptionType.BlackTooManyPieces))
+            {
+                rv = rv ^ BoardExceptionType.BlackTooManyPieces;
+            }
+            if (throwValidationExceptionOnError && rv != BoardExceptionType.None)
             {
                 StringBuilder sb = new StringBuilder();
                 foreach (var validationIssue in rv.GetFlags())

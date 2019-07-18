@@ -3,7 +3,9 @@ using System.Runtime.CompilerServices;
 using ChessLib.Data.Annotations;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
+using ChessLib.Data.Validators.BoardValidation;
 
 namespace ChessLib.Data.Boards
 {
@@ -11,8 +13,14 @@ namespace ChessLib.Data.Boards
     {
         protected ulong[][] PiecePlacement;
         private Color _activePlayer;
+        private string fen;
+        private bool is960;
 
         protected BoardBase() { }
+
+        public GameState GameState { get; set; } = GameState.None;
+
+        public bool IsGameOver => GameState == GameState.Checkmate || GameState == GameState.StaleMate;
 
         protected BoardBase(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIdx, uint? halfMoveClock, uint fullMoveCount)
         {
@@ -22,6 +30,42 @@ namespace ChessLib.Data.Boards
             EnPassantSquare = enPassantIdx;
             HalfmoveClock = halfMoveClock;
             FullmoveCounter = fullMoveCount;
+            ValidateBoard();
+        }
+
+        protected BoardBase(string fen, bool is960)
+        {
+            InitialFEN = fen;
+            PiecePlacement = fen.BoardFromFen(out Color active, out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
+            ActivePlayer = active;
+            CastlingAvailability = ca;
+            EnPassantSquare = enPassant;
+            HalfmoveClock = hmClock;
+            FullmoveCounter = fmClock;
+            Chess960 = is960;
+            ValidateBoard();
+        }
+
+        private void ValidateBoard()
+        {
+            var boardValidator = new BoardValidator(this);
+            var exceptionType = boardValidator.Validate(false);
+            switch (exceptionType)
+            {
+                case BoardExceptionType.None:
+                    return;
+                case BoardExceptionType.Checkmate:
+                    GameState = GameState.Checkmate;
+                    break;
+                case BoardExceptionType.Stalemate:
+                    GameState = GameState.StaleMate;
+                    break;
+                case BoardExceptionType.MaterialDraw:
+                    GameState = GameState.Drawn;
+                    break;
+                default:
+                    throw BoardException.MakeBoardException(exceptionType);
+            }
         }
 
         public ulong[][] GetPiecePlacement()

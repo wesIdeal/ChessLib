@@ -13,5 +13,6 @@ namespace ChessLib.Data.Types.Interfaces
         ulong[][] GetPiecePlacement();
         bool Chess960 { get; }
         string InitialFEN { get; }
+        GameState GameState { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 
 namespace ChessLib.Validators.Tests.BoardValidation
@@ -21,10 +22,16 @@ namespace ChessLib.Validators.Tests.BoardValidation
         [TestCase("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e3 0 1", BoardExceptionType.BadEnPassant)]
         public static void TestEnPassant(string fen, BoardExceptionType expectedException)
         {
-            var board = new BoardInfo(fen);
-            var rule = new Data.Validators.BoardValidation.Rules.EnPassantSquareRule();
-            var actual = rule.Validate(board);
-            Assert.AreEqual(expectedException, actual);
+            BoardExceptionType actualExceptionType = BoardExceptionType.None;
+            try
+            {
+                var board = new BoardInfo(fen);
+            }
+            catch (BoardException exc)
+            {
+                actualExceptionType = exc.ExceptionType;
+            }
+            Assert.AreEqual(expectedException, actualExceptionType);
         }
 
     }

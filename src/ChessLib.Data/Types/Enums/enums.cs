@@ -71,9 +71,17 @@ namespace ChessLib.Data.Types.Enums
         BlackKingside = 4,
         [Description("q")]
         BlackQueenside = 8
-
-
     }
+
+    public enum GameState
+    {
+        None = 0,
+        Drawn,
+        StaleMate,
+        Checkmate
+    }
+
+
     public static class SlidingPieceDirectionConstants
     {
         public const MoveDirection RookDirections = MoveDirection.N | MoveDirection.E | MoveDirection.S | MoveDirection.W;
@@ -114,8 +122,12 @@ namespace ChessLib.Data.Types.Enums
         WhiteKingCount = 8192,
         [Description("Black should have one and only one King.")]
         BlackKingCount = 16384,
+        [Description("No moves - Stalemate")]
         Stalemate = 32768,
-        Checkmate = 65536
+        [Description("Mate")]
+        Checkmate = 65536,
+        [Description("Only Kings left - material draw")]
+        MaterialDraw = 65536 << 1
     }
 
     [Flags]

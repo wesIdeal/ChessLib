@@ -58,6 +58,17 @@ namespace ChessLib.Data.Tests.Helpers
             Assert.AreEqual(actual.GetPiecePlacement().Occupancy(oppColor, Piece.Pawn), oppPawn, $"{board.OpponentColor()}'s pawn structure incorrect after En Passant capture");
         }
 
+        [TestCase("4k3/8/8/8/8/8/8/4K3 w - - 0 1", GameState.Drawn, false)]
+        [TestCase("4k3/8/8/8/8/4r3/4q3/4K3 w - - 0 1", GameState.Checkmate, true)]
+        [TestCase("4k3/8/8/7r/8/5q2/7r/6K1 w - - 0 1", GameState.StaleMate, true)]
+        [TestCase(FENHelpers.FENInitial, GameState.None, false)]
+        public void GameState_SetCorrectly(string fen, GameState expectedGameState, bool ended)
+        {
+            var board = new BoardInfo(fen);
+            Assert.AreEqual(expectedGameState,board.GameState);
+            Assert.AreEqual(board.IsGameOver, ended);
+        }
+
         #region Cardinal Direction Shifts
 
         #region Cardinal Direction Test All Methods
