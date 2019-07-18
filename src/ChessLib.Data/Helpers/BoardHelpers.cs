@@ -446,8 +446,9 @@ namespace ChessLib.Data.Helpers
                     {
                         throw new MoveException("En Passant is not available, but move was flagged as En Passant capture.", MoveError.EpNotAvailable, move, board.ActivePlayer);
                     }
-                    var antiEnPassantValue = ~(board.EnPassantSquare.Value.ToBoardValue());
-                    pieces[oppColor][PAWN] &= antiEnPassantValue;
+                    var enPassantSqIdx = board.EnPassantSquare.Value;
+                    var captureSquare = board.ActivePlayer == Color.White ? enPassantSqIdx - 8 : enPassantSqIdx + 8;
+                    pieces[oppColor][PAWN] &= ~((ushort)captureSquare).ToBoardValue();
                     break;
                 case MoveType.Castle:
                     var rookMove = MoveHelpers.GetRookMoveForCastleMove(move);

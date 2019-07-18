@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using ChessLib.Data.Helpers;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Helpers
@@ -25,6 +27,35 @@ namespace ChessLib.Data.Tests.Helpers
                 //no pieces attack square
                 Assert.AreEqual(0, actual);
             }
+        }
+        [TestCase("r3k2r/8/8/8/8/8/8/R3K2R w - - 0 1", CastlingAvailability.WhiteKingside, 64ul, 33ul)]
+        [TestCase("r3k2r/8/8/8/8/8/8/R3K2R w - - 0 1", CastlingAvailability.WhiteQueenside, 4ul, 136ul)]
+        [TestCase("r3k2r/8/8/8/8/8/8/R3K2R b - - 0 1", CastlingAvailability.BlackKingside, 0x4000000000000000ul, 0x2100000000000000ul)]
+        [TestCase("r3k2r/8/8/8/8/8/8/R3K2R b - - 0 1", CastlingAvailability.BlackQueenside, 0x400000000000000ul, 0x8800000000000000ul)]
+        public void ApplyMove_Castles(string fen, CastlingAvailability castlingMove, ulong expectedKingVal, ulong expectedRookVal)
+        {
+            var move = castlingMove == CastlingAvailability.WhiteKingside ? MoveHelpers.WhiteCastleKingSide
+                : castlingMove == CastlingAvailability.WhiteQueenside ? MoveHelpers.WhiteCastleQueenSide
+                : castlingMove == CastlingAvailability.BlackKingside ? MoveHelpers.BlackCastleKingSide
+                : MoveHelpers.BlackCastleQueenSide;
+            var board = new BoardInfo(fen);
+            var postMove = BoardHelpers.ApplyMoveToBoard(board, move);
+            var activeKingVal = postMove.GetPiecePlacement().Occupancy(board.ActivePlayer, Piece.King);
+            var activeRookVal = postMove.GetPiecePlacement().Occupancy(board.ActivePlayer, Piece.Rook);
+            Assert.AreEqual(expectedKingVal, activeKingVal);
+            Assert.AreEqual(expectedRookVal, activeRookVal);
+        }
+
+        [TestCase("8/8/8/3pP2k/K7/8/8/8 w - d6 0 2", 36, 43, 0ul, 8796093022208ul)]
+        public void ApplyMove_EnPassantCaptures(string fen, int src, int dst, ulong oppPawn, ulong actPawn)
+        {
+            var move = MoveHelpers.GenerateMove((ushort)src, (ushort)dst, MoveType.EnPassant);
+            var board = new BoardInfo(fen);
+            var activeColor = board.ActivePlayer;
+            var oppColor = board.OpponentColor();
+            var actual = BoardHelpers.ApplyMoveToBoard(board, move);
+            Assert.AreEqual(actual.GetPiecePlacement().Occupancy(activeColor, Piece.Pawn), actPawn, $"{board.ActivePlayer}'s pawn structure incorrect after En Passant capture");
+            Assert.AreEqual(actual.GetPiecePlacement().Occupancy(oppColor, Piece.Pawn), oppPawn, $"{board.OpponentColor()}'s pawn structure incorrect after En Passant capture");
         }
 
         #region Cardinal Direction Shifts
