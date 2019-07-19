@@ -29,6 +29,11 @@ namespace ChessLib.Data.MoveRepresentation
 
         protected MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move, pieceMoving, colorMoving) { }
 
+        //public MoveStorage(BoardInfo boardInfo, MoveExt move)
+        //{
+
+        //}
+
         public virtual Color ColorMoving { get; }
 
         public virtual Piece PieceMoving { get; }

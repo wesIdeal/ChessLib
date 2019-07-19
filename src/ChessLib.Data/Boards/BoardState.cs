@@ -15,7 +15,8 @@ namespace ChessLib.Data.Boards
         /// En Passant Index    [Bits 8 - 12] 0-based index for board ranks 3 and 6, A3-H3, A6-H6
         /// Castling Rights     [Bits 13 - 15]
         /// Captured Piece      [Bits 17 - 19] 1-5 (pawn - Queen, 0 for none)
-        /// Unused              [Bits 20 - 32]
+        /// GameState           [Bits 20 - 21]
+        /// Unused              [Bits 22 - 32]
         /// </summary>
         uint BoardStateStorage { get; }
     }
@@ -29,13 +30,14 @@ namespace ChessLib.Data.Boards
         /// <param name="capturedPiece">The piece that was captured, if any</param>
         /// <param name="castlingAvailability">Castling Availability</param>
         public BoardState(ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
-            CastlingAvailability castlingAvailability)
+            CastlingAvailability castlingAvailability, GameState gameState)
         {
             var pieceCaptured = BoardStateHelpers.GetPieceCaptured(capturedPiece);
             var castlingAvail = BoardStateHelpers.GetCastlingRights(castlingAvailability);
             var epIdx = enPassantIndex == null ? 0 : BoardStateHelpers.GetEnPassantIndexArchival(enPassantIndex.Value);
             var hmClock = BoardStateHelpers.GetHalfMoveValue(halfMoveClock);
-            BoardStateStorage = pieceCaptured | castlingAvail | epIdx | hmClock;
+            var gmState = BoardStateHelpers.GetGameState(gameState);
+            BoardStateStorage = pieceCaptured | castlingAvail | epIdx | hmClock | gmState;
         }
         public uint BoardStateStorage { get; private set; }
     }
@@ -51,6 +53,7 @@ namespace ChessLib.Data.Boards
         private const string CastlingAvail = "CA";
         private const string EPIndex = "EP";
         private const string CapturedPiece = "PIECE";
+        private const string GameState = "GAMESTATE";
         private static Dictionary<string, BoardStateBitHelpers> Positions =
             new Dictionary<string, BoardStateBitHelpers>();
 
@@ -73,10 +76,28 @@ namespace ChessLib.Data.Boards
             });
             Positions.Add(CapturedPiece, new BoardStateBitHelpers()
             {
-                Mask = 0b01110_0000_0000_0000_0000,
+                Mask = 0b1110_0000_0000_0000_0000,
                 Offset = 17
             });
+            Positions.Add(GameState, new BoardStateBitHelpers()
+            {
+                Mask = 0b0011_0000_0000_0000_0000_0000,
+                Offset = 20
+            });
         }
+
+        internal static uint GetGameState(GameState state)
+        {
+            return (uint) state << Positions[GameState].Offset;
+        }
+
+        public static GameState GetGameState(this BoardState boardState)
+        {
+            var gsInfo = Positions[GameState];
+            var unmasked = (boardState.BoardStateStorage & gsInfo.Mask) >> gsInfo.Offset;
+            return (GameState) unmasked;
+        }
+
         internal static uint GetCastlingRights(CastlingAvailability ca)
         {
             return (uint)ca << Positions[CastlingAvail].Offset;
@@ -106,7 +127,7 @@ namespace ChessLib.Data.Boards
         {
             var pieceCapturedInfo = Positions[CapturedPiece];
             var unmasked = (boardState.BoardStateStorage & pieceCapturedInfo.Mask);
-            var unOffesetted = unmasked >> pieceCapturedInfo.Offset ;
+            var unOffesetted = unmasked >> pieceCapturedInfo.Offset;
             return unOffesetted == 0 ? (Piece?)null : (Piece)(unOffesetted - 1);
         }
 
