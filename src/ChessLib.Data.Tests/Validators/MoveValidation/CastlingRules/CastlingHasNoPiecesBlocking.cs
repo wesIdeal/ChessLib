@@ -25,6 +25,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         [Test]
         public void ValidateMove_CastleOccupancyBetween_ShouldReturnErrorIfPiecesAreBetween_q()
         {
+            _biOccupied.ActivePlayer = Color.Black;
             var move = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
             AssertOccupiedExceptionThrown(move);
         }
@@ -32,6 +33,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         [Test]
         public void ValidateMove_CastleOccupancyBetween_ShouldReturnErrorIfPiecesAreBetween_k()
         {
+            _biOccupied.ActivePlayer = Color.Black;
             var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
             AssertOccupiedExceptionThrown(move);
         }
@@ -39,6 +41,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         [Test]
         public void ValidateMove_CastleOccupancyBetween_ShouldReturnErrorIfPiecesAreBetween_Q()
         {
+            _biOccupied.ActivePlayer = Color.White;
             var move = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
             AssertOccupiedExceptionThrown(move);
         }
@@ -55,6 +58,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         [Test]
         public void ValidateMove_CastleOccupancyBetween_ShouldNotReturnErrorIfNoPiecesAreBetween_q()
         {
+            _biOccupied.ActivePlayer = Color.Black;
             var move = MoveHelpers.GenerateMove(60, 58, MoveType.Castle);
             AssertOccupiedExceptionNotThrown(move);
         }
@@ -62,6 +66,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         [Test]
         public void ValidateMove_CastleOccupancyBetween_ShouldNotReturnErrorIfNoPiecesAreBetween_k()
         {
+            _biOccupied.ActivePlayer = Color.Black;
             var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
             AssertOccupiedExceptionNotThrown(move);
         }
@@ -70,6 +75,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         public void ValidateMove_CastleOccupancyBetween_ShouldNotReturnErrorIfNoPiecesAreBetween_Q()
         {
             var move = MoveHelpers.GenerateMove(4, 2, MoveType.Castle);
+            _biNonOccupied.ActivePlayer = Color.Black;
             AssertOccupiedExceptionNotThrown(move);
         }
 
