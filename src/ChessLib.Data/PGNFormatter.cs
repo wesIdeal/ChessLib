@@ -92,7 +92,6 @@ namespace ChessLib.Data
 
         private string GetFormattedVariations(List<string> lstVariations, uint depth)
         {
-            var str = "";
             if (_options.IndentVariations)
             {
                 var formattedPgn = string.Join("", lstVariations.Select(v => $"{NewLine}( {v} )"));

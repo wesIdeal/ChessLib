@@ -17,16 +17,7 @@ namespace ChessLib.Data
 {
     public class BoardInfo : BoardBase, INotifyPropertyChanged
     {
-
-        public MoveTree<MoveStorage> MoveTree
-        {
-            get => _moveTree;
-            set
-            {
-                _moveTree = value;
-                CurrentMove = _moveTree.HeadMove;
-            }
-        }
+        private MoveTree<MoveStorage> _moveTree;
 
         public BoardInfo() : this(FENHelpers.FENInitial)
         {
@@ -45,23 +36,21 @@ namespace ChessLib.Data
             MoveTree = new MoveTree<MoveStorage>(null);
         }
 
-        public new GameState GameState
+        public MoveTree<MoveStorage> MoveTree
         {
-            get
+            get => _moveTree;
+            set
             {
-                return base.GameState;
-            }
-            internal set
-            {
-                base.GameState = value;
+                _moveTree = value;
+                CurrentMove = _moveTree.HeadMove;
             }
         }
 
-        public ulong ActiveRookOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Rook);
-        public ulong ActiveKnightOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Knight);
-        public ulong ActivePawnOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Pawn);
-        public ulong ActiveQueenOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Queen);
-        public ulong ActiveBishopOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Bishop);
+        public new GameState GameState
+        {
+            get => base.GameState;
+            internal set => base.GameState = value;
+        }
 
         public void ApplySANMove(string moveText)
         {
@@ -70,7 +59,14 @@ namespace ChessLib.Data
             ApplyMove(move);
         }
 
-        public MoveError? ApplyMove(ushort sourceIndex, ushort destinationIndex, PromotionPiece? promotionPiece)
+        /// <summary>
+        /// Applies a move from source and destination indexes
+        /// </summary>
+        /// <param name="sourceIndex"></param>
+        /// <param name="destinationIndex"></param>
+        /// <param name="promotionPiece"></param>
+        /// <returns></returns>
+        public MoveError ApplyMove(ushort sourceIndex, ushort destinationIndex, PromotionPiece? promotionPiece)
         {
             var moveTranslatorService = new MoveTranslatorService(this);
             var move = moveTranslatorService.GenerateMoveFromIndexes(sourceIndex, destinationIndex, promotionPiece);
@@ -108,33 +104,19 @@ namespace ChessLib.Data
             CurrentMove = (MoveNode<MoveStorage>)MoveTree.LastMove;
         }
 
-        protected void ApplyNewBoard(IBoard newBoard)
-        {
-            PiecePlacement = newBoard.GetPiecePlacement();
-            ActivePlayer = newBoard.ActivePlayer;
-            CastlingAvailability = newBoard.CastlingAvailability;
-            EnPassantSquare = newBoard.EnPassantSquare;
-            HalfmoveClock = newBoard.HalfmoveClock;
-            FullmoveCounter = newBoard.FullmoveCounter;
-        }
-
-        public MoveNode<MoveStorage> CurrentMove
-        {
-            get => _currentMove;
-            set => _currentMove = value;
-        }
-
-        private MoveTree<MoveStorage> _moveTree;
-        private MoveNode<MoveStorage> _currentMove = null;
+        public MoveNode<MoveStorage> CurrentMove { get; set; } = null;
 
         public MoveStorage GetPreviousMove()
         {
             return CurrentMove.Previous.MoveData ?? CurrentMove.Parent.MoveData ?? null;
         }
 
+        /// <summary>
+        /// Gets a list of moves to choose from for traversing forward
+        /// </summary>
+        /// <returns></returns>
         public MoveStorage[] GetNextMoves()
         {
-
             var lMoves = new List<MoveStorage>();
             if (CurrentMove == null)
             {
@@ -152,8 +134,6 @@ namespace ChessLib.Data
 
             return lMoves.ToArray();
         }
-
-
 
         public void TraverseForward(MoveStorage move)
         {
@@ -181,10 +161,6 @@ namespace ChessLib.Data
             }
         }
 
-
-
-
-
         private IMoveNode<MoveStorage> FindPreviousNode()
         {
             if (CurrentMove == null)
@@ -199,6 +175,11 @@ namespace ChessLib.Data
             return CurrentMove.Previous ?? CurrentMove.Parent ?? null;
         }
 
+        /// <summary>
+        /// Finds a given move from the next move in the tree or variations
+        /// </summary>
+        /// <param name="move"></param>
+        /// <returns></returns>
         private MoveNode<MoveStorage> FindNextNode(MoveStorage move)
         {
             if (CurrentMove.MoveData == move)
@@ -217,50 +198,23 @@ namespace ChessLib.Data
             return null;
         }
 
-        public ulong GetPinnedPieces()
-        {
-            ulong pinned = 0;
-            var xRayBishopAttacks = this.XRayBishopAttacks(ActivePlayerKingIndex);
-            var xRayRookAttacks = this.XRayRookAttacks(ActivePlayerKingIndex);
-            var oppQueenLocations = GetPiecePlacement().Occupancy(this.OpponentColor(), Piece.Queen);
-            var oppBishopLocations = GetPiecePlacement().Occupancy(this.OpponentColor(), Piece.Bishop);
-            var oppRookLocations = GetPiecePlacement().Occupancy(this.OpponentColor(), Piece.Rook);
-            var bishopPinnedPieces = (oppBishopLocations | oppQueenLocations) & xRayBishopAttacks;
-            var rookPinnedPieces = (oppRookLocations | oppQueenLocations) & xRayRookAttacks;
-            var allPins = rookPinnedPieces | bishopPinnedPieces;
-            while (allPins != 0)
-            {
-                var square = BitHelpers.BitScanForward(allPins);
-                var squaresBetween = BoardHelpers.InBetween(square, ActivePlayerKingIndex);
-                var piecesBetween = squaresBetween & GetPiecePlacement().Occupancy(ActivePlayer);
-                if (piecesBetween.CountSetBits() == 1) pinned |= piecesBetween;
-                allPins &= allPins - 1;
-            }
 
-            return pinned;
-        }
-
-        public bool DoesPieceAtSquareAttackSquare(ushort attackerSquare, ushort attackedSquare,
-            Piece attackerPiece)
-        {
-            var attackedSquares = Bitboard.GetAttackedSquares(attackerPiece, attackerSquare, TotalOccupancy, Color.White);
-            var attackedValue = attackedSquare.GetBoardValueOfIndex();
-            return (attackedSquares & attackedValue) != 0;
-        }
-
+        /// <summary>
+        /// Clones a board object from this board
+        /// </summary>
+        /// <returns></returns>
         public override object Clone()
         {
-            var b = new BoardInfo()
+            var b = new BoardInfo
             {
                 ActivePlayer = this.ActivePlayer,
                 CastlingAvailability = this.CastlingAvailability,
                 EnPassantSquare = this.EnPassantSquare,
                 FullmoveCounter = this.FullmoveCounter,
                 GameState = this.GameState,
-                HalfmoveClock = this.HalfmoveClock
-
+                HalfmoveClock = this.HalfmoveClock,
+                PiecePlacement = new ulong[2][]
             };
-            b.PiecePlacement = new ulong[2][];
             for (int i = 0; i < 2; i++)
             {
                 b.PiecePlacement[i] = (ulong[])PiecePlacement[i].Clone();
@@ -268,12 +222,19 @@ namespace ChessLib.Data
             return b;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        /// <summary>
+        /// Applies the given board parameter to this board
+        /// </summary>
+        /// <param name="newBoard"></param>
+        protected void ApplyNewBoard(IBoard newBoard)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PiecePlacement = newBoard.GetPiecePlacement();
+            ActivePlayer = newBoard.ActivePlayer;
+            CastlingAvailability = newBoard.CastlingAvailability;
+            EnPassantSquare = newBoard.EnPassantSquare;
+            HalfmoveClock = newBoard.HalfmoveClock;
+            FullmoveCounter = newBoard.FullmoveCounter;
         }
+        
     }
 }

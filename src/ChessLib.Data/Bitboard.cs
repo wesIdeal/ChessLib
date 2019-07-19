@@ -172,7 +172,7 @@ namespace ChessLib.Data
             {
                 MoveValidator mv = new MoveValidator(board, m);
                 var validationResult = mv.Validate();
-                if (validationResult == MoveError.NoneSet || validationResult == null)
+                if (validationResult == MoveError.NoneSet)
                 {
                     rv.Add(m);
                 }

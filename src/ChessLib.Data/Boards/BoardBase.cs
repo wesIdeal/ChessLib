@@ -13,8 +13,6 @@ namespace ChessLib.Data.Boards
     {
         protected ulong[][] PiecePlacement;
         private Color _activePlayer;
-        private string fen;
-        private bool is960;
 
         protected BoardBase() { }
 

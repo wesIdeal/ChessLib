@@ -165,7 +165,7 @@ namespace ChessLib.Data
                 throw new MoveException("Invalid move. Must have at least 2 characters.");
             }
             var colorMoving = Board.ActivePlayer;
-            var moveType = MoveType.Normal;
+           
             if (char.IsLower(move[0]))
             {
                 moveExt = GetPawnMoveDetails(move);
@@ -386,7 +386,7 @@ namespace ChessLib.Data
                     var proposedMove = MoveHelpers.GenerateMove(sourceIndex, md.DestinationIndex.Value, md.MoveType, md.PromotionPiece ?? PromotionPiece.Knight);
                     var moveValidator = new MoveValidator(Board, proposedMove);
                     var validationResult = moveValidator.Validate();
-                    if (validationResult == null)
+                    if (validationResult != MoveError.NoneSet)
                         possibleSources.Add(sourceIndex);
                 }
                 if (possibleSources.Count > 1) throw new MoveException("More than one piece can reach destination square.");

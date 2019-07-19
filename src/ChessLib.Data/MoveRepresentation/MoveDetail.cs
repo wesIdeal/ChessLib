@@ -100,6 +100,8 @@ namespace ChessLib.Data.MoveRepresentation
             return Equals(detail);
         }
 
+       
+
         public bool Equals(MoveDetail other)
         {
             return other != null &&

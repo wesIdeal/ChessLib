@@ -19,6 +19,16 @@ namespace ChessLib.Data.Helpers
                    Piece == actual.Piece;
         }
 
+        public override int GetHashCode()
+        {
+            return Color.ToInt() ^ Piece.ToInt();
+        }
+
+        public override string ToString()
+        {
+            return $"{Color} {Piece}";
+        }
+
         public static bool operator ==(PieceOfColor left, PieceOfColor right)
         {
             return left.Equals(right);
