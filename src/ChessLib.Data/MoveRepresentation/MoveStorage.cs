@@ -11,6 +11,8 @@ namespace ChessLib.Data.MoveRepresentation
     /// </summary>
     public class MoveStorage : MoveExt, IEquatable<MoveStorage>, IContainsSAN
     {
+        public static MoveStorage Root(Color c, string fen) => new MoveStorage(fen, null, Piece.King, c, "ROOT");
+
         public MoveStorage(string premoveFen, IMoveExt move, Piece pieceMoving, Color colorMoving, string textRepresentation)
         : this(move, pieceMoving, colorMoving)
         {

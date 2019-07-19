@@ -18,9 +18,9 @@ namespace ChessLib.Data
     public class BoardInfo : BoardBase, INotifyPropertyChanged
     {
 
-        public virtual MoveTree<MoveStorage> MoveTree
+        public MoveTree<MoveStorage> MoveTree
         {
-            get { return _moveTree; }
+            get => _moveTree;
             set
             {
                 _moveTree = value;
