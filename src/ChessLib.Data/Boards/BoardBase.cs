@@ -30,7 +30,6 @@ namespace ChessLib.Data.Boards
             EnPassantSquare = enPassantIdx;
             HalfmoveClock = halfMoveClock;
             FullmoveCounter = fullMoveCount;
-            ValidateBoard();
         }
 
         protected BoardBase(string fen, bool is960)
@@ -43,10 +42,10 @@ namespace ChessLib.Data.Boards
             HalfmoveClock = hmClock;
             FullmoveCounter = fmClock;
             Chess960 = is960;
-            ValidateBoard();
+
         }
 
-        private void ValidateBoard()
+        public void ValidateBoard()
         {
             var boardValidator = new BoardValidator(this);
             var exceptionType = boardValidator.Validate(false);
@@ -97,9 +96,6 @@ namespace ChessLib.Data.Boards
         public ushort ActivePlayerKingIndex => GetPiecePlacement().Occupancy(ActivePlayer, Piece.King).GetSetBits()[0];
         public ulong ActivePlayerOccupancy(Piece p) => GetPiecePlacement().Occupancy(ActivePlayer, p);
 
-        public abstract object Clone();
-
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
@@ -107,5 +103,7 @@ namespace ChessLib.Data.Boards
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public abstract object Clone();
     }
 }

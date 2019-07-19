@@ -65,6 +65,7 @@ namespace ChessLib.Data.Tests.Helpers
         public void GameState_SetCorrectly(string fen, GameState expectedGameState, bool ended)
         {
             var board = new BoardInfo(fen);
+            board.ValidateBoard();
             Assert.AreEqual(expectedGameState,board.GameState);
             Assert.AreEqual(board.IsGameOver, ended);
         }

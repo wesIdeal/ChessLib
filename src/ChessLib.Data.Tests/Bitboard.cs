@@ -2,6 +2,7 @@
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace ChessLib.Data.Tests
@@ -15,11 +16,18 @@ namespace ChessLib.Data.Tests
             "En passant should be available at c6.")]
         public void EnPassantShouldBeALegalMove(string fen, int pieceSourceIndex, int epSquare, string errorMessage = "")
         {
-            var board = new BoardInfo(fen);
-            var moves = ChessLib.Data.Bitboard.GetPseudoLegalMoves(Piece.Pawn, (ushort)pieceSourceIndex, board.ActiveOccupancy,
-                board.OpponentOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
-            var epSquareIncluded = moves.IsBitSet((ushort)epSquare);
-            Assert.IsTrue(epSquareIncluded, errorMessage);
+            try
+            {
+                var board = new BoardInfo(fen);
+                var moves = ChessLib.Data.Bitboard.GetPseudoLegalMoves(Piece.Pawn, (ushort)pieceSourceIndex, board.ActiveOccupancy,
+                    board.OpponentOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
+                var epSquareIncluded = moves.IsBitSet((ushort)epSquare);
+                Assert.IsTrue(epSquareIncluded, errorMessage);
+            }
+            catch(Exception e)
+            {
+                var exc = e;
+            }
         }
 
         [TestCase("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1", 4, 6, "White should be able to castle short.")]

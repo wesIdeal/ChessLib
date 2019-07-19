@@ -38,15 +38,25 @@ namespace ChessLib.Data
             : base(occupancy, activePlayer, castlingAvailability, enPassantIdx, halfMoveClock, fullMoveCount)
         {
             MoveTree = new MoveTree<MoveStorage>(null);
-            BoardValidator validator = new BoardValidator(this);
-            validator.Validate(validationException);
         }
 
         public BoardInfo(string fen, bool is960 = false) : base(fen, is960)
         {
             MoveTree = new MoveTree<MoveStorage>(null);
         }
-        public new GameState GameState => base.GameState;
+
+        public new GameState GameState
+        {
+            get
+            {
+                return base.GameState;
+            }
+            internal set
+            {
+                base.GameState = value;
+            }
+        }
+
         public ulong ActiveRookOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Rook);
         public ulong ActiveKnightOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Knight);
         public ulong ActivePawnOccupancy => GetPiecePlacement().Occupancy(ActivePlayer, Piece.Pawn);
@@ -240,7 +250,22 @@ namespace ChessLib.Data
 
         public override object Clone()
         {
-            return new BoardInfo(this.ToFEN());
+            var b = new BoardInfo()
+            {
+                ActivePlayer = this.ActivePlayer,
+                CastlingAvailability = this.CastlingAvailability,
+                EnPassantSquare = this.EnPassantSquare,
+                FullmoveCounter = this.FullmoveCounter,
+                GameState = this.GameState,
+                HalfmoveClock = this.HalfmoveClock
+
+            };
+            b.PiecePlacement = new ulong[2][];
+            for (int i = 0; i < 2; i++)
+            {
+                b.PiecePlacement[i] = (ulong[])PiecePlacement[i].Clone();
+            }
+            return b;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

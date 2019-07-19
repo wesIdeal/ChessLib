@@ -367,11 +367,14 @@ namespace ChessLib.Data.Helpers
         /// <param name="move"></param>
         /// <returns>The board after the move has been applied.</returns>
         /// <exception cref="MoveException">If no piece exists at source.</exception>
-        public static IBoard ApplyMoveToBoard(this IBoard currentBoard, in MoveExt move)
+        public static IBoard ApplyMoveToBoard(this IBoard currentBoard, in MoveExt move, bool bypassValid = true)
         {
             var board = (IBoard)currentBoard.Clone();
-            var boardValidator = new BoardValidator(board);
-            boardValidator.Validate(true);
+            if (!bypassValid)
+            {
+                var boardValidator = new BoardValidator(board);
+                boardValidator.Validate(true); 
+            }
             var pieceMoving = GetPieceOfColorAtIndex(board.GetPiecePlacement(), move.SourceIndex);
             if (pieceMoving == null)
                 throw new MoveException("No piece at current source to apply move to.",
@@ -408,8 +411,9 @@ namespace ChessLib.Data.Helpers
         /// <param name="board"></param>
         /// <param name="move"></param>
         /// <returns></returns>
-        public static ulong[][] GetBoardPostMove(this IBoard board, in MoveExt move)
+        public static ulong[][] GetBoardPostMove(in IBoard boardInfo, in MoveExt move)
         {
+            var board = (IBoard)boardInfo.Clone();
             var pieces = board.GetPiecePlacement();
             var activeColor = (int)board.ActivePlayer;
             var oppColor = activeColor ^ 1;
@@ -688,7 +692,7 @@ namespace ChessLib.Data.Helpers
                 board.EnPassantSquare, CastlingAvailability.NoCastlingAvailable, out var plMoves);
             foreach (var mv in plMoves)
             {
-                var boardPostMove = GetBoardPostMove(board.GetPiecePlacement(), board.ActivePlayer, mv);
+                var boardPostMove = GetBoardPostMove(board, mv);
                 if (!mv.DestinationIndex.IsSquareAttackedByColor((Color)nOppColor, boardPostMove)) rv.Add(mv);
             }
 

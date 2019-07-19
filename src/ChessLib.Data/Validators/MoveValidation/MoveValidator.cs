@@ -23,7 +23,8 @@ namespace ChessLib.Data.Validators.MoveValidation
         {
             _board = board;
             _move = move;
-            PostMoveBoard = board.GetPiecePlacement().GetBoardPostMove(board.ActivePlayer, move);
+            //PostMoveBoard = board.GetPiecePlacement().GetBoardPostMove(board.ActivePlayer, move);
+            PostMoveBoard = BoardHelpers.GetBoardPostMove(_board, move);
             _rules.Add(new PieceMovingIsActiveColor());
             _rules.Add(new KingNotInCheckAfterMove());
             switch (move.MoveType)

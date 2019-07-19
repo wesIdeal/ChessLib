@@ -110,14 +110,14 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
         {
             const MoveError expected = MoveError.CastleOccupancyBetween;
             var result = Validate(_biOccupied,
-                BoardHelpers.GetBoardPostMove(_biOccupied.GetPiecePlacement(), _biOccupied.ActivePlayer, move), move);
+                BoardHelpers.GetBoardPostMove(_biOccupied, move), move);
             Assert.AreEqual(expected, result);
         }
 
         private void AssertOccupiedExceptionNotThrown(MoveExt move)
         {
             var result = Validate(_biNonOccupied,
-                BoardHelpers.GetBoardPostMove(_biOccupied.GetPiecePlacement(), _biOccupied.ActivePlayer, move), move);
+                BoardHelpers.GetBoardPostMove(_biOccupied, move), move);
             Assert.AreEqual(MoveError.NoneSet, result);
         }
     }

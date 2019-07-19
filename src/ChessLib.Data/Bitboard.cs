@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic.Init;
@@ -322,7 +324,7 @@ namespace ChessLib.Data
                 board.CastlingAvailability, out List<MoveExt> moves);
             foreach (var mv in moves)
             {
-                var postMove = board.GetPiecePlacement().GetBoardPostMove(board.ActivePlayer, mv);
+                var postMove = BoardHelpers.GetBoardPostMove(board, mv);
                 if (!postMove.IsPlayerInCheck((int)board.ActivePlayer))
                 {
                     return true;
@@ -356,10 +358,35 @@ namespace ChessLib.Data
             {
                 throw new PieceException($"No piece found at index {sourceIndex}.");
             }
+            var activeOccupancy = pieceOccupancyArrays.Occupancy(activeColor);
+            var oppOccupancy = pieceOccupancyArrays.Occupancy(activeColor.Toggle());
             var dstValue = destinationIndex.GetBoardValueOfIndex();
-            var legalMoves = GetPseudoLegalMoves(piece.Value, sourceIndex, pieceOccupancyArrays.Occupancy(activeColor),
-                pieceOccupancyArrays.Occupancy(activeColor.Toggle()), activeColor, enPassantIndex, castlingAvailability,
+            var legalMoves = GetPseudoLegalMoves(piece.Value, sourceIndex, activeOccupancy,
+               oppOccupancy, activeColor, enPassantIndex, castlingAvailability,
                 out List<MoveExt> pseudoMoves);
+            if (piece == Piece.Pawn)
+            {
+                ulong moveSq1, moveSq2;
+                var occ = activeOccupancy | oppOccupancy;
+                if (activeColor == Color.White)
+                {
+                    moveSq1 = ((ushort)(sourceIndex + 8)).GetBoardValueOfIndex();
+                    moveSq2 = ((ushort)(sourceIndex + 16)).GetBoardValueOfIndex();
+                }
+                else
+                {
+                    moveSq1 = ((ushort)(sourceIndex - 8)).GetBoardValueOfIndex();
+                    moveSq2 = ((ushort)(sourceIndex - 16)).GetBoardValueOfIndex();
+                }
+                if ((moveSq1 & occ) != 0)
+                {
+                    legalMoves &= ~(moveSq1 | moveSq2);
+                }
+                else if((moveSq2 & occ) != 0)
+                {
+                    legalMoves &= ~(moveSq2);
+                }
+            }
             return ((legalMoves & dstValue) != 0);
         }
 
@@ -373,6 +400,9 @@ namespace ChessLib.Data
         /// <returns>true if <paramref name="squareIndex"/> is attacked by any piece of <paramref name="color"/></returns>
         public static bool IsSquareAttackedByColor(this ushort squareIndex, Color color, ulong[][] piecesOnBoard)
         {
+            StackTrace stackTrace = new StackTrace();
+            MethodBase methodBase = stackTrace.GetFrame(1).GetMethod();
+            Debug.WriteLine(methodBase.Name);
 
             var nColor = (int)color;
             var notNColor = nColor ^ 1;

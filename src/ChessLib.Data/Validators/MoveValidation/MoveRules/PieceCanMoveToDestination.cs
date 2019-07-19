@@ -15,6 +15,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules
             {
                 return MoveError.ActivePlayerHasNoPieceOnSourceSquare;
             }
+            
             return boardInfo.CanPieceMoveToDestination(move.SourceIndex, move.DestinationIndex)
                 ? MoveError.NoneSet
                 : MoveError.BadDestination;

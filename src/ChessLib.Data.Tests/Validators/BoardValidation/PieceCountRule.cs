@@ -19,6 +19,7 @@ namespace ChessLib.Validators.Tests.BoardValidation
             try
             {
                 var board = new BoardInfo(fen);
+                board.ValidateBoard();
 
             }
             catch (BoardException be)

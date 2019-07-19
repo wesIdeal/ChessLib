@@ -1,0 +1,116 @@
+TpTrace Information: 0 : 15028, 1, 2019/07/18, 19:22:42.577, 50635501861, testhost.dll, DefaultEngineInvoker.Invoke: Testhost process started with args :[--port, 62326],[--endpoint, 127.0.0.1:062326],[--role, client],[--parentprocessid, 14552],[--diag, C:\source\github\ChessLib\src\chesslib.data.tests\diag.host.19-07-18_19-22-42_18579_6.txt],[--tracelevel, 4],[--telemetryoptedin, false]
+TpTrace Information: 0 : 15028, 1, 2019/07/18, 19:22:42.585, 50635553430, testhost.dll, DefaultEngineInvoker.SetParentProcessExitCallback: Monitoring parent process with id: '14552'
+TpTrace Information: 0 : 15028, 1, 2019/07/18, 19:22:42.597, 50635671756, testhost.dll, DefaultEngineInvoker.GetConnectionInfo: Initialize communication on endpoint address: '127.0.0.1:062326'
+TpTrace Information: 0 : 15028, 1, 2019/07/18, 19:22:42.615, 50635851650, testhost.dll, SocketClient.Start: connecting to server endpoint: 127.0.0.1:062326
+TpTrace Information: 0 : 15028, 1, 2019/07/18, 19:22:42.622, 50635923350, testhost.dll, DefaultEngineInvoker.Invoke: Start Request Processing.
+TpTrace Information: 0 : 15028, 8, 2019/07/18, 19:22:42.625, 50635957113, testhost.dll, SocketClient.OnServerConnected: connected to server endpoint: 127.0.0.1:062326
+TpTrace Information: 0 : 15028, 7, 2019/07/18, 19:22:42.629, 50635994186, testhost.dll, DefaultEngineInvoker.StartProcessingAsync: Connected to vstest.console, Starting process requests.
+TpTrace Verbose: 0 : 15028, 8, 2019/07/18, 19:22:42.629, 50635995532, testhost.dll, Connected to server, and starting MessageLoopAsync
+TpTrace Verbose: 0 : 15028, 9, 2019/07/18, 19:22:42.633, 50636035741, testhost.dll, TcpClientExtensions.MessageLoopAsync: Polling on remoteEndPoint: 127.0.0.1:62326 localEndPoint: 127.0.0.1:62327
+TpTrace Verbose: 0 : 15028, 9, 2019/07/18, 19:22:42.696, 50636668082, testhost.dll, TcpClientExtensions.MessageLoopAsync: NotifyDataAvailable remoteEndPoint: 127.0.0.1:62326 localEndPoint: 127.0.0.1:62327
+TpTrace Information: 0 : 15028, 9, 2019/07/18, 19:22:42.907, 50638773555, testhost.dll, TestRequestHandler.ProcessRequests: received message: (ProtocolVersion) -> 2
+TpTrace Verbose: 0 : 15028, 9, 2019/07/18, 19:22:42.962, 50639319805, testhost.dll, TestRequestHandler.SendData:  sending data from testhost: {"Version":2,"MessageType":"TestSession.Message","Payload":{"MessageLevel":0,"Message":"Logging TestHost Diagnostics in file: C:\\source\\github\\ChessLib\\src\\chesslib.data.tests\\diag.host.19-07-18_19-22-42_18579_6.txt"}}
+TpTrace Verbose: 0 : 15028, 9, 2019/07/18, 19:22:42.962, 50639323833, testhost.dll, TcpClientExtensions.MessageLoopAsync: Polling on remoteEndPoint: 127.0.0.1:62326 localEndPoint: 127.0.0.1:62327
+TpTrace Verbose: 0 : 15028, 9, 2019/07/18, 19:22:42.962, 50639326650, testhost.dll, TcpClientExtensions.MessageLoopAsync: NotifyDataAvailable remoteEndPoint: 127.0.0.1:62326 localEndPoint: 127.0.0.1:62327
+TpTrace Information: 0 : 15028, 9, 2019/07/18, 19:22:42.969, 50639392296, testhost.dll, TestRequestHandler.ProcessRequests: received message: (TestExecution.Initialize) -> [
+  "C:\\source\\github\\ChessLib\\src\\chesslib.data.tests\\bin\\Debug\\netcoreapp2.1\\NUnit3.TestAdapter.dll"
+]
+TpTrace Information: 0 : 15028, 9, 2019/07/18, 19:22:42.969, 50639395451, testhost.dll, Execution Session Initialize.
+TpTrace Verbose: 0 : 15028, 9, 2019/07/18, 19:22:42.984, 50639542444, testhost.dll, TcpClientExtensions.MessageLoopAsync: Polling on remoteEndPoint: 127.0.0.1:62326 localEndPoint: 127.0.0.1:62327
+TpTrace Verbose: 0 : 15028, 9, 2019/07/18, 19:22:42.984, 50639545758, testhost.dll, TcpClientExtensions.MessageLoopAsync: NotifyDataAvailable remoteEndPoint: 127.0.0.1:62326 localEndPoint: 127.0.0.1:62327
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:42.987, 50639577517, testhost.dll, TestExecutorService: Loading the extensions
+TpTrace Information: 0 : 15028, 9, 2019/07/18, 19:22:42.991, 50639613276, testhost.dll, TestRequestHandler.ProcessRequests: received message: (TestExecution.StartWithSources) -> {
+  "AdapterSourceMap": {
+    "_none_": [
+      "C:\\source\\github\\ChessLib\\src\\chesslib.data.tests\\bin\\Debug\\netcoreapp2.1\\ChessLib.Data.Tests.dll"
+    ]
+  },
+  "RunSettings": "<RunSettings>\r\n  <RunConfiguration>\r\n    <ResultsDirectory>C:\\source\\github\\ChessLib\\src\\chesslib.data.tests\\TestResults</ResultsDirectory>\r\n    <TargetPlatform>X86</TargetPlatform>\r\n    <TargetFrameworkVersion>.NETCoreApp,Version=v2.1</TargetFrameworkVersion>\r\n    <DesignMode>False</DesignMode>\r\n    <CollectSourceInformation>False</CollectSourceInformation>\r\n  </RunConfiguration>\r\n  <LoggerRunSettings>\r\n    <Loggers>\r\n      <Logger friendlyName=\"Console\" uri=\"logger://microsoft/TestPlatform/ConsoleLogger/v1\" assemblyQualifiedName=\"Microsoft.VisualStudio.TestPlatform.CommandLine.Internal.ConsoleLogger, vstest.console, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a\" codeBase=\"C:\\Program Files\\dotnet\\sdk\\2.2.104\\vstest.console.dll\" enabled=\"True\" />\r\n    </Loggers>\r\n  </LoggerRunSettings>\r\n</RunSettings>",
+  "TestExecutionContext": {
+    "FrequencyOfRunStatsChangeEvent": 10,
+    "RunStatsChangeEventTimeout": "00:00:01.5000000",
+    "InIsolation": false,
+    "KeepAlive": false,
+    "AreTestCaseLevelEventsRequired": false,
+    "IsDebug": false,
+    "TestCaseFilter": null,
+    "FilterOptions": null
+  },
+  "Package": null
+}
+TpTrace Information: 0 : 15028, 9, 2019/07/18, 19:22:42.991, 50639617164, testhost.dll, Execution started.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:42.992, 50639624712, testhost.dll, TestPluginCache.DiscoverTestExtensions: finding test extensions in assemblies endswith: TestAdapter.dll TPluginInfo: Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilities.TestExecutorPluginInformation TExtension: Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter.ITestExecutor
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:42.995, 50639649779, testhost.dll, TestPluginCache.GetExtensionPaths: Filtered extension paths: 
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:42.995, 50639654200, testhost.dll, TestPluginCache.GetExtensionPaths: Added default extension paths: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\NUnit3.TestAdapter.dll
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:42.995, 50639656993, testhost.dll, TestPluginCache.GetExtensionPaths: Added unfilterableExtensionPaths: 
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:42.999, 50639697832, testhost.dll, AssemblyResolver.ctor: Creating AssemblyResolver with searchDirectories C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1,C:\Users\idewes\.nuget\packages\microsoft.testplatform.testhost\16.1.0\lib\netstandard1.5
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.002, 50639727363, testhost.dll, TestPluginCache.DiscoverTestExtensions: Discovering the extensions using extension path.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.003, 50639730928, testhost.dll, TestPluginCache.GetExtensionPaths: Filtered extension paths: 
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.003, 50639733541, testhost.dll, TestPluginCache.GetExtensionPaths: Added default extension paths: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\NUnit3.TestAdapter.dll
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.003, 50639736103, testhost.dll, TestPluginCache.GetExtensionPaths: Added unfilterableExtensionPaths: 
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.004, 50639739098, testhost.dll, TestPluginCache.DiscoverTestExtensions: Discovering the extensions using allExtensionPaths: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\NUnit3.TestAdapter.dll
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.006, 50639762718, testhost.dll, AssemblyResolver.AddSearchDirectories: Adding more searchDirectories C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1,C:\Users\idewes\.nuget\packages\microsoft.testplatform.testhost\16.1.0\lib\netstandard1.5
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.012, 50639818370, testhost.dll, AssemblyResolver.OnResolve: NUnit3.TestAdapter: Resolving assembly.
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.014, 50639844386, testhost.dll, AssemblyResolver.OnResolve: Resolved assembly: NUnit3.TestAdapter, from path: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\NUnit3.TestAdapter.dll
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.017, 50639870385, testhost.dll, AssemblyResolver.OnResolve: nunit.engine.netstandard: Resolving assembly.
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.018, 50639883022, testhost.dll, AssemblyResolver.OnResolve: Resolved assembly: nunit.engine.netstandard, from path: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\nunit.engine.netstandard.dll
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.025, 50639954512, testhost.dll, TestPluginCache: Discovered the extensions using extension path ''.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.027, 50639970609, testhost.dll, TestPluginCache: Discoverers are ''.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.027, 50639973998, testhost.dll, TestPluginCache: Executors are 'executor://NUnit3TestExecutor'.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.027, 50639978021, testhost.dll, TestPluginCache: Setting providers are ''.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.028, 50639981298, testhost.dll, TestPluginCache: Loggers are ''.
+TpTrace Verbose: 0 : 15028, 9, 2019/07/18, 19:22:43.029, 50639994747, testhost.dll, TcpClientExtensions.MessageLoopAsync: Polling on remoteEndPoint: 127.0.0.1:62326 localEndPoint: 127.0.0.1:62327
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.037, 50640073247, testhost.dll, TestPluginManager.CreateTestExtension: Attempting to load test extension: NUnit.VisualStudio.TestAdapter.NUnit3TestExecutor
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.038, 50640084791, testhost.dll, TestExecutorExtensionManager: Loading executor NUnit.VisualStudio.TestAdapter.NUnit3TestExecutor
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.038, 50640087588, testhost.dll, TestExecutorService: Loaded the executors
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.041, 50640110834, testhost.dll, TestPluginCache.DiscoverTestExtensions: finding test extensions in assemblies endswith: TestAdapter.dll TPluginInfo: Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilities.TestSettingsProviderPluginInformation TExtension: Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter.ISettingsProvider
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.042, 50640120057, testhost.dll, TestPluginCache.GetExtensionPaths: Filtered extension paths: 
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.042, 50640123531, testhost.dll, TestPluginCache.GetExtensionPaths: Added default extension paths: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\NUnit3.TestAdapter.dll
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.042, 50640126518, testhost.dll, TestPluginCache.GetExtensionPaths: Added unfilterableExtensionPaths: 
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.043, 50640131615, testhost.dll, AssemblyResolver.AddSearchDirectories: Adding more searchDirectories C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1,C:\Users\idewes\.nuget\packages\microsoft.testplatform.testhost\16.1.0\lib\netstandard1.5
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.043, 50640133969, testhost.dll, TestPluginCache.DiscoverTestExtensions: Discovering the extensions using extension path.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.043, 50640136009, testhost.dll, TestPluginCache.GetExtensionPaths: Filtered extension paths: 
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.044, 50640138429, testhost.dll, TestPluginCache.GetExtensionPaths: Added default extension paths: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\NUnit3.TestAdapter.dll
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.044, 50640140975, testhost.dll, TestPluginCache.GetExtensionPaths: Added unfilterableExtensionPaths: 
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.044, 50640142803, testhost.dll, TestPluginCache.DiscoverTestExtensions: Discovering the extensions using allExtensionPaths: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\NUnit3.TestAdapter.dll
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.044, 50640144967, testhost.dll, AssemblyResolver.AddSearchDirectories: Adding more searchDirectories C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1,C:\Users\idewes\.nuget\packages\microsoft.testplatform.testhost\16.1.0\lib\netstandard1.5
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.044, 50640148069, testhost.dll, TestPluginCache: Discovered the extensions using extension path ''.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.045, 50640150589, testhost.dll, TestPluginCache: Discoverers are ''.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.045, 50640153494, testhost.dll, TestPluginCache: Executors are 'executor://NUnit3TestExecutor'.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.045, 50640156684, testhost.dll, TestPluginCache: Setting providers are ''.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.046, 50640159309, testhost.dll, TestPluginCache: Loggers are ''.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.048, 50640180154, testhost.dll, TestExecutorService: Loaded the settings providers
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.048, 50640183155, testhost.dll, TestExecutorService: Loaded the extensions
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.099, 50640690005, testhost.dll, TestDiscoveryManager: Discovering tests from sources C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\ChessLib.Data.Tests.dll
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.101, 50640718058, testhost.dll, TestPluginCache.DiscoverTestExtensions: finding test extensions in assemblies endswith: TestAdapter.dll TPluginInfo: Microsoft.VisualStudio.TestPlatform.Common.ExtensionFramework.Utilities.TestDiscovererPluginInformation TExtension: Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter.ITestDiscoverer
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.102, 50640720257, testhost.dll, TestPluginCache.GetExtensionPaths: Filtered extension paths: 
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.102, 50640722022, testhost.dll, TestPluginCache.GetExtensionPaths: Added default extension paths: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\NUnit3.TestAdapter.dll
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.102, 50640723768, testhost.dll, TestPluginCache.GetExtensionPaths: Added unfilterableExtensionPaths: 
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.102, 50640726070, testhost.dll, AssemblyResolver.AddSearchDirectories: Adding more searchDirectories C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1,C:\Users\idewes\.nuget\packages\microsoft.testplatform.testhost\16.1.0\lib\netstandard1.5
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.102, 50640727916, testhost.dll, TestPluginCache.DiscoverTestExtensions: Discovering the extensions using extension path.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.103, 50640729888, testhost.dll, TestPluginCache.GetExtensionPaths: Filtered extension paths: 
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.103, 50640731597, testhost.dll, TestPluginCache.GetExtensionPaths: Added default extension paths: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\NUnit3.TestAdapter.dll
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.103, 50640733331, testhost.dll, TestPluginCache.GetExtensionPaths: Added unfilterableExtensionPaths: 
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.103, 50640735049, testhost.dll, TestPluginCache.DiscoverTestExtensions: Discovering the extensions using allExtensionPaths: C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\NUnit3.TestAdapter.dll
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.103, 50640737417, testhost.dll, AssemblyResolver.AddSearchDirectories: Adding more searchDirectories C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1,C:\Users\idewes\.nuget\packages\microsoft.testplatform.testhost\16.1.0\lib\netstandard1.5
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.106, 50640763714, testhost.dll, TestPluginCache: Discovered the extensions using extension path ''.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.106, 50640765718, testhost.dll, TestPluginCache: Discoverers are 'NUnit.VisualStudio.TestAdapter.NUnit3TestDiscoverer, NUnit3.TestAdapter, Version=3.13.0.0, Culture=neutral, PublicKeyToken=4cb40d35494691ac'.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.106, 50640767451, testhost.dll, TestPluginCache: Executors are 'executor://NUnit3TestExecutor'.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.107, 50640769376, testhost.dll, TestPluginCache: Setting providers are ''.
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.107, 50640771146, testhost.dll, TestPluginCache: Loggers are ''.
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.117, 50640877284, testhost.dll, PEReaderHelper.GetAssemblyType: Determined assemblyType:'Managed' for source: 'C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\ChessLib.Data.Tests.dll'
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.123, 50640933750, testhost.dll, BaseRunTests.RunTestInternalWithExecutors: Running tests for executor://NUnit3TestExecutor
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.145, 50641150207, testhost.dll, NUnit Adapter 3.13.0.0: Test execution started
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.145, 50641152981, testhost.dll, TestRequestHandler.SendData:  sending data from testhost: {"Version":2,"MessageType":"TestSession.Message","Payload":{"MessageLevel":0,"Message":"NUnit Adapter 3.13.0.0: Test execution started"}}
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.156, 50641259783, testhost.dll, Running all tests in C:\source\github\ChessLib\src\chesslib.data.tests\bin\Debug\netcoreapp2.1\ChessLib.Data.Tests.dll
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.156, 50641262269, testhost.dll, TestRequestHandler.SendData:  sending data from testhost: {"Version":2,"MessageType":"TestSession.Message","Payload":{"MessageLevel":0,"Message":"Running all tests in C:\\source\\github\\ChessLib\\src\\chesslib.data.tests\\bin\\Debug\\netcoreapp2.1\\ChessLib.Data.Tests.dll"}}
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.165, 50641348406, testhost.dll, AssemblyResolver.OnResolve: Mono.Cecil: Resolving assembly.
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.165, 50641351891, testhost.dll, AssemblyResolver.OnResolve: Mono.Cecil: Failed to load assembly.
+TpTrace Information: 0 : 15028, 3, 2019/07/18, 19:22:43.421, 50643915583, testhost.dll,    NUnit3TestExecutor converted 527 of 527 NUnit test cases
+TpTrace Verbose: 0 : 15028, 3, 2019/07/18, 19:22:43.422, 50643920538, testhost.dll, TestRequestHandler.SendData:  sending data from testhost: {"Version":2,"MessageType":"TestSession.Message","Payload":{"MessageLevel":0,"Message":"   NUnit3TestExecutor converted 527 of 527 NUnit test cases"}}
+TpTrace Verbose: 0 : 15028, 12, 2019/07/18, 19:22:43.481, 50644510989, testhost.dll, TestExecutionRecorder.RecordStart: Starting test: ChessLib.Data.Tests.Bitboard.EnPassantShouldBeALegalMove("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 1",35,44,"En passant should be available at e6.").
+TpTrace Verbose: 0 : 15028, 9, 2019/07/18, 19:22:44.029, 50649996050, testhost.dll, TcpClientExtensions.MessageLoopAsync: Polling on remoteEndPoint: 127.0.0.1:62326 localEndPoint: 127.0.0.1:62327
+TpTrace Information: 0 : 15028, 10, 2019/07/18, 19:22:44.569, 50655397937, testhost.dll, Sending test run statistics
+TpTrace Verbose: 0 : 15028, 10, 2019/07/18, 19:22:44.614, 50655839349, testhost.dll, TestRequestHandler.SendData:  sending data from testhost: {"Version":2,"MessageType":"TestExecution.StatsChange","Payload":{"NewTestResults":[],"TestRunStatistics":{"ExecutedTests":0,"Stats":{}},"ActiveTests":[{"Id":"64134126-fb0f-566b-5672-ebe3b7aa3483","FullyQualifiedName":"ChessLib.Data.Tests.Bitboard.EnPassantShouldBeALegalMove(\"rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 1\",35,44,\"En passant should be available at e6.\")","DisplayName":"EnPassantShouldBeALegalMove(\"rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 1\",35,44,\"En passant should be available at e6.\")","ExecutorUri":"executor://NUnit3TestExecutor","Source":"C:\\source\\github\\ChessLib\\src\\chesslib.data.tests\\bin\\Debug\\netcoreapp2.1\\ChessLib.Data.Tests.dll","CodeFilePath":null,"LineNumber":0,"Properties":[]}]}}
+TpTrace Verbose: 0 : 15028, 10, 2019/07/18, 19:22:44.614, 50655843399, testhost.dll, TestRunCache: OnNewTestResult: Notified the onCacheHit callback.
+TpTrace Verbose: 0 : 15028, 9, 2019/07/18, 19:22:45.030, 50660000137, testhost.dll, TcpClientExtensions.MessageLoopAsync: Polling on remoteEndPoint: 127.0.0.1:62326 localEndPoint: 127.0.0.1:62327

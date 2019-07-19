@@ -15,8 +15,8 @@ namespace ChessLib.Validators.Tests.BoardValidation
             BoardExceptionType actual = BoardExceptionType.None;
             try
             {
-
                 var board = new BoardInfo(fen);
+                board.ValidateBoard();
             }
             catch (BoardException be)
             {
