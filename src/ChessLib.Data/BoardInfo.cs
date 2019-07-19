@@ -25,7 +25,7 @@ namespace ChessLib.Data
         }
 
         public BoardInfo(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability,
-            ushort? enPassantIdx, uint? halfMoveClock, uint fullMoveCount, bool validationException = true)
+            ushort? enPassantIdx, ushort halfMoveClock, ushort fullMoveCount, bool validationException = true)
             : base(occupancy, activePlayer, castlingAvailability, enPassantIdx, halfMoveClock, fullMoveCount)
         {
             MoveTree = new MoveTree<MoveStorage>(null);
@@ -44,12 +44,6 @@ namespace ChessLib.Data
                 _moveTree = value;
                 CurrentMove = _moveTree.HeadMove;
             }
-        }
-
-        public new GameState GameState
-        {
-            get => base.GameState;
-            internal set => base.GameState = value;
         }
 
         public void ApplySANMove(string moveText)
@@ -211,7 +205,6 @@ namespace ChessLib.Data
                 CastlingAvailability = this.CastlingAvailability,
                 EnPassantSquare = this.EnPassantSquare,
                 FullmoveCounter = this.FullmoveCounter,
-                GameState = this.GameState,
                 HalfmoveClock = this.HalfmoveClock,
                 PiecePlacement = new ulong[2][]
             };

@@ -373,7 +373,7 @@ namespace ChessLib.Data.Helpers
             if (!bypassValid)
             {
                 var boardValidator = new BoardValidator(board);
-                boardValidator.Validate(true); 
+                boardValidator.Validate(true);
             }
             var pieceMoving = GetPieceOfColorAtIndex(board.GetPiecePlacement(), move.SourceIndex);
             if (pieceMoving == null)
@@ -391,8 +391,8 @@ namespace ChessLib.Data.Helpers
             var castlingAvailability = GetCastlingAvailabilityPostMove(board, move, pieceMoving.Value.Piece);
             var enPassantSquare = GetEnPassantIndex(move, pieceMoving.Value);
             var activePlayer = board.ActivePlayer.Toggle();
-            return new BoardInfo(piecePlacement, activePlayer, castlingAvailability, enPassantSquare, halfMoveClock,
-                fullMoveCounter, false);
+            return new BoardInfo(piecePlacement, activePlayer, castlingAvailability, enPassantSquare, (ushort)halfMoveClock,
+                (ushort)fullMoveCounter, false);
         }
 
         private static bool IsPawnMoving(in IBoard board, in MoveExt move)

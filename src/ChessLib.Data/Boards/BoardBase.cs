@@ -16,11 +16,7 @@ namespace ChessLib.Data.Boards
 
         protected BoardBase() { }
 
-        public GameState GameState { get; set; } = GameState.None;
-
-        public bool IsGameOver => GameState == GameState.Checkmate || GameState == GameState.StaleMate;
-
-        protected BoardBase(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIdx, uint? halfMoveClock, uint fullMoveCount)
+        protected BoardBase(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIdx, ushort halfMoveClock, uint fullMoveCount)
         {
             PiecePlacement = occupancy;
             ActivePlayer = activePlayer;
@@ -33,36 +29,39 @@ namespace ChessLib.Data.Boards
         protected BoardBase(string fen, bool is960)
         {
             InitialFEN = fen;
-            PiecePlacement = fen.BoardFromFen(out Color active, out CastlingAvailability ca, out ushort? enPassant, out uint hmClock, out uint fmClock);
+            PiecePlacement = fen.BoardFromFen(out Color active, out CastlingAvailability ca, out ushort? enPassantSquare, out ushort hmClock, out ushort fmClock);
             ActivePlayer = active;
             CastlingAvailability = ca;
-            EnPassantSquare = enPassant;
+            EnPassantSquare = enPassantSquare;
             HalfmoveClock = hmClock;
             FullmoveCounter = fmClock;
             Chess960 = is960;
 
         }
 
-        public void ValidateBoard()
+        public GameState ValidateBoard()
         {
             var boardValidator = new BoardValidator(this);
             var exceptionType = boardValidator.Validate(false);
+            var gameState = GameState.None;
             switch (exceptionType)
             {
                 case BoardExceptionType.None:
-                    return;
+                    gameState = GameState.None;
+                    break;
                 case BoardExceptionType.Checkmate:
-                    GameState = GameState.Checkmate;
+                    gameState = GameState.Checkmate;
                     break;
                 case BoardExceptionType.Stalemate:
-                    GameState = GameState.StaleMate;
+                    gameState = GameState.StaleMate;
                     break;
                 case BoardExceptionType.MaterialDraw:
-                    GameState = GameState.Drawn;
+                    gameState = GameState.Drawn;
                     break;
                 default:
                     throw BoardException.MakeBoardException(exceptionType);
             }
+            return gameState;
         }
 
         public ulong[][] GetPiecePlacement()
@@ -82,7 +81,7 @@ namespace ChessLib.Data.Boards
 
         public CastlingAvailability CastlingAvailability { get; set; }
         public ushort? EnPassantSquare { get; set; }
-        public uint? HalfmoveClock { get; set; }
+        public ushort HalfmoveClock { get; set; }
         public uint FullmoveCounter { get; set; }
         public bool Chess960 { get; protected set; }
         public string InitialFEN { get; protected set; }
