@@ -9,6 +9,7 @@ using ChessLib.Data.Validators.MoveValidation;
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using ChessLib.Data.Annotations;
 using ChessLib.Data.Types.Interfaces;
@@ -18,6 +19,7 @@ namespace ChessLib.Data
     public class BoardInfo : BoardBase, INotifyPropertyChanged
     {
         private MoveTree<MoveStorage> _moveTree;
+
 
         public BoardInfo() : this(FENHelpers.FENInitial)
         {
@@ -45,6 +47,7 @@ namespace ChessLib.Data
                 CurrentMove = _moveTree.HeadMove;
             }
         }
+
 
         public void ApplySANMove(string moveText)
         {
@@ -85,17 +88,87 @@ namespace ChessLib.Data
         public void ApplyValidatedMove(MoveExt move)
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
+            var capturedPiece = this.GetPieceOfColorAtIndex(move.DestinationIndex);
+            if (capturedPiece == null && move.MoveType == MoveType.EnPassant)
+            {
+                capturedPiece = new PieceOfColor() { Color = ActivePlayer.Toggle(), Piece = Piece.Pawn };
+            }
             var moveDisplayService = new MoveDisplayService(this);
             var san = moveDisplayService.MoveToSAN(move);
             if (pocSource == null)
             {
                 throw new ArgumentException("No piece found at source.");
             }
-            var node = MoveTree.AddMove(new MoveStorage(this.ToFEN(), move, pocSource.Value.Piece, pocSource.Value.Color, san));
             var newBoard = this.ApplyMoveToBoard(move);
             ApplyNewBoard(newBoard);
+            var node = MoveTree.AddMove(new MoveStorage(this, move, capturedPiece?.Piece));
             node.MoveData.SetPostMoveFEN(this.ToFEN());
             CurrentMove = (MoveNode<MoveStorage>)MoveTree.LastMove;
+        }
+
+        public void UnapplyMove()
+        {
+            var previousMoveNode = FindPreviousNode();
+            if (previousMoveNode == null)
+            {
+                var initialState = new BoardInfo(InitialFEN);
+                ApplyNewBoard(initialState);
+            }
+            else
+            {
+                var previousMove = previousMoveNode.MoveData;
+                var hmClock = previousMove.BoardState.GetHalfmoveClock();
+                var castlingAvailability = previousMove.BoardState.GetCastlingAvailability();
+                var epSquare = previousMove.BoardState.GetEnPassantSquare();
+                var pieces = UnApplyPiecesFromMove(CurrentMove);
+                var fullMove = ActivePlayer == Color.White ? FullmoveCounter - 1 : FullmoveCounter;
+                var board = new BoardInfo(pieces, ActivePlayer.Toggle(), castlingAvailability, epSquare, hmClock,
+                    (ushort)fullMove, false);
+                ApplyNewBoard(board);
+                CurrentMove = previousMoveNode;
+            }
+        }
+
+        private ulong[][] UnApplyPiecesFromMove(MoveNode<MoveStorage> currentMoveNode)
+        {
+            var currentMove = currentMoveNode.MoveData;
+            var piece = this.GetPieceAtIndex(currentMove.DestinationIndex);
+            Debug.Assert(piece.HasValue, "Piece for unapply() has no value.");
+            var src = currentMove.DestinationValue;
+            var dst = currentMove.SourceValue;
+            var board = (IBoard)this.Clone();
+            var active = (int)board.ActivePlayer.Toggle();
+            var opp = active ^ 1;
+            var piecePlacement = board.GetPiecePlacement();
+            var capturedPiece = currentMove.BoardState.GetPieceCaptured();
+
+            piecePlacement[active][(int)piece.Value] = piecePlacement[active][(int)piece] ^ (src | dst);
+            if (capturedPiece.HasValue)
+            {
+                var capturedPieceSrc = src;
+                if (currentMove.MoveType == MoveType.EnPassant)
+                {
+                    capturedPieceSrc = (Color)active == Color.White ?
+                        ((ushort)(src.GetSetBits()[0] - 8)).ToBoardValue()
+                        : ((ushort)(src.GetSetBits()[0] + 8)).ToBoardValue();
+                }
+
+                
+                piecePlacement[opp][(int)capturedPiece] ^= src;
+            }
+            if (currentMove.MoveType == MoveType.Promotion)
+            {
+                var promotionPiece = (Piece)(currentMove.PromotionPiece + 1);
+                piecePlacement[active][(int)Piece.Pawn] ^= dst;
+                piecePlacement[active][(int)piece.Value] ^= dst;
+            }
+            else if (currentMove.MoveType == MoveType.Castle)
+            {
+                MoveExt rookMove = MoveHelpers.GetRookMoveForCastleMove(currentMove);
+                piecePlacement[active][(int)Piece.Rook] = piecePlacement[active][(int)Piece.Rook] ^ (rookMove.SourceValue | rookMove.DestinationValue);
+            }
+
+            return piecePlacement;
         }
 
         public MoveNode<MoveStorage> CurrentMove { get; set; } = null;
@@ -155,7 +228,7 @@ namespace ChessLib.Data
             }
         }
 
-        private IMoveNode<MoveStorage> FindPreviousNode()
+        private MoveNode<MoveStorage> FindPreviousNode()
         {
             if (CurrentMove == null)
             {
@@ -228,6 +301,6 @@ namespace ChessLib.Data
             HalfmoveClock = newBoard.HalfmoveClock;
             FullmoveCounter = newBoard.FullmoveCounter;
         }
-        
+
     }
 }

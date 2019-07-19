@@ -3,6 +3,7 @@ using ChessLib.Data.Magic;
 using ChessLib.Data.MoveRepresentation;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using ChessLib.Data.Types.Enums;
 
@@ -122,6 +123,66 @@ namespace ChessLib.Data.Tests
         [TestFixture(Description = "Tests move application on board.")]
         private class MoveApplication
         {
+            private static readonly object[] UnApplyTestCases = new object[]
+            {
+                //Ruy
+                new object[]
+                {
+                    FENHelpers.FENInitial,
+                    new string[] {"e4", "e5", "Nf3", "Nc6", "Bb5", "a6", "Bxc6"},
+                    "Ruy Lopez"
+
+                },
+                new object[]
+                {
+                    "rnbqkbnr/1pp1pppp/8/p2pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3",
+                    new string[]{"exd6"},
+                    "En Passant"
+                },
+                new object[]
+                {
+                "r3k2r/qpp1pppp/2nP1n2/pb3b2/2BQ4/B1N2N2/PPPP1PPP/R3K2R w KQkq - 0 3",
+                new string[]{"O-O", "O-O"},
+                "Castling Kingside"
+                },
+                new object[]
+                {
+                    "r3k2r/qpp1pppp/2nP1n2/pb3b2/2BQ4/B1N2N2/PPPP1PPP/R3K2R w KQkq - 0 3",
+                    new string[]{"O-O-O", "O-O-O"},
+                    "Castling Queenside"
+                },
+                new object[]
+                {
+                    "1q6/2P5/8/8/5k1K/8/4p3/3Q4 w - - 0 1",
+                    new string[]{"c8=N", "e1=N"},
+                    "Promotion to Knight"
+                },
+                new object[]
+                {
+                    "1q6/2P5/8/8/5k1K/8/4p3/3Q4 w - - 0 1",
+                    new string[]{"c8=N", "e1=N"},
+                    "Promotion to Bishop"
+                },
+                new object[]
+                {
+                    "1q6/2P5/8/8/5k1K/8/4p3/3Q4 w - - 0 1",
+                    new string[]{"c8=R", "e1=R"},
+                    "Promotion to Rook"
+                },
+                new object[]
+                {
+                    "1q6/2P5/8/8/5k1K/8/4p3/3Q4 w - - 0 1",
+                    new string[]{"c8=Q", "e1=Q"},
+                    "Promotion to Queen"
+                },
+                new object[]
+                {
+                "1q6/2P5/6k1/8/7K/8/4p3/3Q4 w - - 0 1",
+                new string[]{"cxb8=Q", "exd1=Q"},
+                "Promotion to Queen after capture"
+                }
+            };
+
             [SetUp]
             public void Setup()
             {
@@ -139,6 +200,31 @@ namespace ChessLib.Data.Tests
                 Assert.AreEqual(expectedFEN, _bInitial.ToFEN());
             }
 
+            [Test, TestCaseSource(nameof(UnApplyTestCases))]
+            public void UnapplyMove(string fenStart, string[] moves, string description)
+            {
+                var board = new BoardInfo(fenStart);
+                var stateStack = new Stack<string>();
+                var index = 0;
+                for (index = 0; index < moves.Length; index++)
+                {
+                    var move = moves[index];
+                    var moveTranslator = new MoveTranslatorService(board);
+                    var moveExt = moveTranslator.GetMoveFromSAN(move);
+                    stateStack.Push(board.ToFEN());
+                    board.ApplyMove(moveExt);
+                }
+
+                string expectedState;
+                for (; index > 0; index--)
+                {
+                    expectedState = stateStack.Pop();
+                    Assert.AreNotEqual(board.ToFEN(), expectedState, $"{description}: expected state should not equal current state.");
+                    board.UnapplyMove();
+                    Assert.AreEqual(expectedState, board.ToFEN(), $"{description}: current state not equal to the expected state after Unapply()");
+                }
+
+            }
 
             [Test(Description = "Ruy - applying series of moves")]
             public void ApplyMove_ShouldReflectCorrectBoardStatusAfterSeriesOfMoves()

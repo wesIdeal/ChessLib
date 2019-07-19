@@ -5,6 +5,8 @@ using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
 {
+   
+
     public class MoveNode<T> : IMoveNode<T>
         where T : IMove
     {

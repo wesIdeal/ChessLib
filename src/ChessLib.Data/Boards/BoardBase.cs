@@ -16,7 +16,7 @@ namespace ChessLib.Data.Boards
 
         protected BoardBase() { }
 
-        protected BoardBase(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIdx, ushort halfMoveClock, uint fullMoveCount)
+        protected BoardBase(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIdx, ushort halfMoveClock, ushort fullMoveCount)
         {
             PiecePlacement = occupancy;
             ActivePlayer = activePlayer;
@@ -82,7 +82,7 @@ namespace ChessLib.Data.Boards
         public CastlingAvailability CastlingAvailability { get; set; }
         public ushort? EnPassantSquare { get; set; }
         public ushort HalfmoveClock { get; set; }
-        public uint FullmoveCounter { get; set; }
+        public ushort FullmoveCounter { get; set; }
         public bool Chess960 { get; protected set; }
         public string InitialFEN { get; protected set; }
 

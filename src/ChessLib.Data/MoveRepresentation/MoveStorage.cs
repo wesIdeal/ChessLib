@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Enums;
 
@@ -11,8 +14,7 @@ namespace ChessLib.Data.MoveRepresentation
     /// </summary>
     public class MoveStorage : MoveExt, IEquatable<MoveStorage>, IContainsSAN
     {
-        public static MoveStorage Root(Color c, string fen) => new MoveStorage(fen, null, Piece.King, c, "ROOT");
-
+       
         public MoveStorage(string premoveFen, IMoveExt move, Piece pieceMoving, Color colorMoving, string textRepresentation)
         : this(move, pieceMoving, colorMoving)
         {
@@ -29,10 +31,18 @@ namespace ChessLib.Data.MoveRepresentation
 
         protected MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move, pieceMoving, colorMoving) { }
 
-        //public MoveStorage(BoardInfo boardInfo, MoveExt move)
-        //{
+        public MoveStorage(BoardInfo boardInfo, IMoveExt move, Piece? capturedPiece) : base(move.Move)
+        {
+            var gameState = boardInfo.ValidateBoard();
+            var boardState = new BoardState(boardInfo.HalfmoveClock, boardInfo.EnPassantSquare, capturedPiece,
+                boardInfo.CastlingAvailability, gameState);
+            BoardState = boardState;
+        }
 
-        //}
+        public bool IsEndOfGame =>
+            new GameState[] { GameState.Checkmate, GameState.StaleMate }.Contains(BoardState.GetGameState());
+
+        public BoardState BoardState { get; private set; }
 
         public virtual Color ColorMoving { get; }
 
@@ -73,6 +83,9 @@ namespace ChessLib.Data.MoveRepresentation
 
 
     }
+
+
+
 
     public interface IContainsSAN
     {
