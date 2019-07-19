@@ -113,6 +113,7 @@ namespace ChessLib.Data
             {
                 var initialState = new BoardInfo(InitialFEN);
                 ApplyNewBoard(initialState);
+                CurrentMove = MoveTree.HeadMove;
             }
             else
             {
@@ -153,7 +154,7 @@ namespace ChessLib.Data
                         : ((ushort)(src.GetSetBits()[0] + 8)).ToBoardValue();
                 }
 
-                
+
                 piecePlacement[opp][(int)capturedPiece] ^= src;
             }
             if (currentMove.MoveType == MoveType.Promotion)
@@ -218,14 +219,7 @@ namespace ChessLib.Data
 
         public void TraverseBackward()
         {
-            var previousMove = FindPreviousNode();
-            if (previousMove != null)
-            {
-                CurrentMove = (MoveNode<MoveStorage>)previousMove;
-                var fen = CurrentMove?.MoveData.PremoveFEN ?? InitialFEN;
-                var board = new BoardInfo(fen);
-                ApplyNewBoard(board);
-            }
+            UnapplyMove();
         }
 
         private MoveNode<MoveStorage> FindPreviousNode()
