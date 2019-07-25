@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using ChessLib.Data.Types.Interfaces;
+using ChessLib.Data.Boards;
 
 namespace ChessLib.Parse.PGN.Parser
 {

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
+using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
 using NUnit.Framework;
 

@@ -1,4 +1,5 @@
-﻿using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Boards;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Interfaces;
 using NUnit.Framework;

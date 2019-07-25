@@ -5,7 +5,7 @@ using System.Text;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Interfaces;
+using ChessLib.Data.Boards;
 
 namespace ChessLib.Data
 {

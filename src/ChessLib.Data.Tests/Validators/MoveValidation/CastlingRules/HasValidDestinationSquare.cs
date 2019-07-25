@@ -1,8 +1,8 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
+using ChessLib.Data.Boards;
 
 namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
 {
@@ -35,7 +35,7 @@ namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
             foreach (var dest in badDestinations)
             {
                 var move = MoveHelpers.GenerateMove(60, dest, MoveType.Castle);
-                Assert.AreEqual( MoveError.NoneSet, Validate(BoardInfo, postMoveBoard, move));
+                Assert.AreEqual(MoveError.NoneSet, Validate(BoardInfo, postMoveBoard, move));
             }
         }
         #endregion

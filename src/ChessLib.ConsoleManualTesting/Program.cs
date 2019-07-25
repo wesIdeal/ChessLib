@@ -1,4 +1,5 @@
 ﻿using ChessLib.Data;
+using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Graphics;

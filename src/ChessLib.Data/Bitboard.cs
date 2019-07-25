@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic.Init;
 using ChessLib.Data.MoveRepresentation;

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.EngineInterface.UCI;
+using ChessLib.Data.Boards;
 
 namespace ChessLib.EngineInterface
 {

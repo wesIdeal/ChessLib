@@ -14,7 +14,7 @@ using System.Runtime.CompilerServices;
 using ChessLib.Data.Annotations;
 using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Data
+namespace ChessLib.Data.Boards
 {
     public class BoardInfo : BoardBase, INotifyPropertyChanged
     {

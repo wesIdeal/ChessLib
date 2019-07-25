@@ -1,11 +1,10 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Magic;
-using ChessLib.Data.MoveRepresentation;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Boards;
 
 // ReSharper disable once CheckNamespace
 namespace ChessLib.Data.Tests

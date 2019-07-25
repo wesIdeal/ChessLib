@@ -1,14 +1,9 @@
 ﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using NUnit.Framework;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
+using ChessLib.Data.Boards;
 
 namespace ChessLib.Data.Tests
 {

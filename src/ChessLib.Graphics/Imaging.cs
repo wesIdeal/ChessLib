@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using ChessLib.Data.Types.Enums;
+using ChessLib.Data.Boards;
 
 namespace ChessLib.Graphics
 {

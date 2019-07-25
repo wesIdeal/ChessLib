@@ -1,11 +1,11 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using NUnit.Framework;
 using System.Linq;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Validators.MoveValidation;
+using ChessLib.Data.Boards;
 
 namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
 {

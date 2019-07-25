@@ -1,4 +1,4 @@
-﻿using ChessLib.Data;
+﻿using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
