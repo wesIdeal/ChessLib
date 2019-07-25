@@ -1,4 +1,5 @@
 ﻿using ChessLib.Data.Helpers;
+using ChessLib.Data.Magic;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;

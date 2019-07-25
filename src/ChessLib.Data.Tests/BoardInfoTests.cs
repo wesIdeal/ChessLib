@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Boards;
+using ChessLib.Data.Magic;
 
 // ReSharper disable once CheckNamespace
 namespace ChessLib.Data.Tests
