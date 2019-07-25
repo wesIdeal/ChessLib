@@ -6,7 +6,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace ChessLib.Data.Tests
+namespace ChessLib.Data.Magic.Tests
 {
     [TestFixture]
     public class Bitboard
@@ -20,7 +20,7 @@ namespace ChessLib.Data.Tests
             try
             {
                 var board = new BoardInfo(fen);
-                var moves = ChessLib.Data.Bitboard.GetPseudoLegalMoves(Piece.Pawn, (ushort)pieceSourceIndex, board.ActiveOccupancy,
+                var moves = ChessLib.Data.Magic.Bitboard.GetPseudoLegalMoves(Piece.Pawn, (ushort)pieceSourceIndex, board.ActiveOccupancy,
                     board.OpponentOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
                 var epSquareIncluded = moves.IsBitSet((ushort)epSquare);
                 Assert.IsTrue(epSquareIncluded, errorMessage);
@@ -40,7 +40,7 @@ namespace ChessLib.Data.Tests
             string errorMessage = "")
         {
             var board = new BoardInfo(fen);
-            var moves = ChessLib.Data.Bitboard.GetPseudoLegalMoves(Piece.King, (ushort)pieceSourceIndex, board.ActiveOccupancy,
+            var moves = ChessLib.Data.Magic.Bitboard.GetPseudoLegalMoves(Piece.King, (ushort)pieceSourceIndex, board.ActiveOccupancy,
                 board.OpponentOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out List<MoveExt> arrMoves);
             var epSquareIncluded = moves.IsBitSet((ushort)destIndex);
             Assert.IsTrue(epSquareIncluded, errorMessage);

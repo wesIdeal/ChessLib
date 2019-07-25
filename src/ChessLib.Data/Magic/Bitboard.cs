@@ -13,7 +13,7 @@ using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.MoveValidation;
 
-namespace ChessLib.Data
+namespace ChessLib.Data.Magic
 {
     public static class Bitboard
     {
