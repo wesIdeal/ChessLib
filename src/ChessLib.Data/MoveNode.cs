@@ -5,10 +5,8 @@ using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
 {
-   
-
     public class MoveNode<T> : IMoveNode<T>
-        where T : IMove
+     where T : IMove
     {
         public MoveNode<T> Parent { get; set; }
         public MoveNode<T> Previous { get; set; }
