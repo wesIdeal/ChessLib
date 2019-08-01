@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using ChessLib.Data.Types.Interfaces;
 
-namespace ChessLib.Data
+namespace ChessLib.Data.Magic.Init
 {
     public class BlockerAndMoveBoards : IBlockerAndMoveBoards
     {
