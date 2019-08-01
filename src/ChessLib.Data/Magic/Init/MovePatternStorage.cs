@@ -1,10 +1,10 @@
 ﻿using ChessLib.Data.PieceMobility;
+using ChessLib.Data.Types.Enums;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.Magic.Init
 {
