@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace ChessLib.Data
+namespace ChessLib.Data.Magic.Init
 {
     /// <summary>
     /// Holds 64 move/attack boards. Usually used to represent a piece's possible attacks or moves from each square.
