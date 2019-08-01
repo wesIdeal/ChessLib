@@ -151,7 +151,7 @@ namespace ChessLib.EngineInterface
             Moves.Clear();
             Moves.AddRange(moves);
             var board = CurrentBoard;
-            CurrentFEN = board.ToFEN();
+            CurrentFEN = board.CurrentFEN;
         }
 
         public List<MoveExt> Moves { get; } = new List<MoveExt>();

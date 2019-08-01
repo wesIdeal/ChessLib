@@ -92,7 +92,7 @@ namespace ChessLib.Parse.PGN
             var boardInfo = new BoardInfo(initialFEN);
             foreach (var move in sanGame.GetNodeEnumerator())
             {
-                var currentFen = boardInfo.ToFEN();
+                var currentFen = boardInfo.CurrentFEN;
                 boardInfo.ApplySANMove(move.MoveData.SAN);
                 if (move.Variations.Any())
                 {

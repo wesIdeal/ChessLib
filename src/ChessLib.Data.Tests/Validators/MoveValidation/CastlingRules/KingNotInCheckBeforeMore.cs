@@ -6,7 +6,7 @@ using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
-namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
+namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
 {
     [TestFixture]
     class KingNotInCheckBeforeMove : Data.Validators.MoveValidation.CastlingRules.KingNotInCheckBeforeMove

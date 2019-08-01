@@ -7,7 +7,7 @@ using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Validators.MoveValidation;
 using ChessLib.Data.Boards;
 
-namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
+namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
 {
     [TestFixture]
     internal class PieceCanMoveToDestination : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination

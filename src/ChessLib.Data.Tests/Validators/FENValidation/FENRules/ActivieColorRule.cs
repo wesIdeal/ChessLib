@@ -2,7 +2,7 @@
 using ChessLib.Data.Validators.FENValidation.Rules;
 using NUnit.Framework;
 
-namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
+namespace ChessLib.Data.Validators.FENValidation.FENRules.Tests
 {
     [TestFixture]
     public static class ActivieColorRule

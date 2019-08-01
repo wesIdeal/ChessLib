@@ -4,7 +4,7 @@ using ChessLib.Data.Types.Exceptions;
 
 namespace ChessLib.Data.Helpers
 {
-    public static class MoveHelpers
+    internal static class MoveHelpers
     {
         public static readonly MoveExt BlackCastleKingSide, BlackCastleQueenSide, WhiteCastleKingSide, WhiteCastleQueenSide;
 

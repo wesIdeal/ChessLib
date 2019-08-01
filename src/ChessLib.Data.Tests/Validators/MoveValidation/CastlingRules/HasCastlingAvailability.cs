@@ -5,7 +5,7 @@ using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 
-namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
+namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
 {
     /// <summary>
     /// Tests that appropriate castling availability flag is set for castling.

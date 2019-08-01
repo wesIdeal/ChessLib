@@ -3,7 +3,7 @@ using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Enums;
 using NUnit.Framework;
 
-namespace ChessLib.Validators.Tests.BoardValidation
+namespace ChessLib.Data.Validators.BoardValidation.Tests
 {
     [TestFixture]
     public sealed class CastlingAvailabilityRule

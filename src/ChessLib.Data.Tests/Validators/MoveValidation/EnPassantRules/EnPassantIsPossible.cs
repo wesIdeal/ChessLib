@@ -3,7 +3,7 @@ using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 
-namespace ChessLib.Validators.Tests.MoveValidation.EnPassantRules
+namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
 {
     [TestFixture]
     class SourceIsPawn : Data.Validators.MoveValidation.EnPassantRules.SourceIsPawn

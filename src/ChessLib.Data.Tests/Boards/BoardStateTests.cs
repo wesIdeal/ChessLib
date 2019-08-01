@@ -2,7 +2,7 @@
 using ChessLib.Data.Types.Enums;
 using NUnit.Framework;
 
-namespace ChessLib.Data.Tests.Boards
+namespace ChessLib.Data.Boards.Tests
 {
     [TestFixture]
     public class BoardStateTests
@@ -11,9 +11,9 @@ namespace ChessLib.Data.Tests.Boards
                                         CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside, GameState.None)]
         [TestCase(0, null, null, CastlingAvailability.NoCastlingAvailable, GameState.StaleMate)]
         [TestCase(21, null, Piece.Pawn, CastlingAvailability.WhiteKingside, GameState.Checkmate)]
-        public void TestMax(int hm, int? ep, Piece? capPiece, CastlingAvailability ca, GameState gameState)
+        public void TestBoardStateStorage(int hm, int? ep, Piece? capPiece, CastlingAvailability ca, GameState gameState)
         {
-            var boardState = new BoardState((ushort) hm, (ushort?) ep, capPiece,  ca, gameState);
+            var boardState = new BoardState((ushort)hm, (ushort?)ep, capPiece, ca, gameState);
             Assert.AreEqual(hm, boardState.GetHalfmoveClock());
             Assert.AreEqual(ep, boardState.GetEnPassantSquare());
             Assert.AreEqual(capPiece, boardState.GetPieceCaptured());

@@ -4,7 +4,7 @@ using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
-namespace ChessLib.Validators.Tests.MoveValidation.MoveRules
+namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
 {
     [TestFixture()]
     class DestinationNotOccupiedByActiveColor : Data.Validators.MoveValidation.MoveRules.DestinationNotOccupiedByActiveColor

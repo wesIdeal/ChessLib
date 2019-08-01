@@ -14,10 +14,10 @@ namespace ChessLib.Data.Helpers
         /// Initial PremoveFEN - starting position of a chess game
         /// </summary>
         public const string FENInitial = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        public static readonly char[] ValidCastlingStringChars = { 'k', 'K', 'q', 'Q', '-' };
-        public static readonly char[] ValidFENChars = { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
+        internal static readonly char[] ValidCastlingStringChars = { 'k', 'K', 'q', 'Q', '-' };
+        internal static readonly char[] ValidFENChars = { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
 
-        public static string GetPiecePlacement(this ulong[][] piecesOnBoard)
+        internal static string GetPiecePlacement(this ulong[][] piecesOnBoard)
         {
             var pieceSection = new char[64];
             for (var iColor = 0; iColor < 2; iColor++)
@@ -68,7 +68,7 @@ namespace ChessLib.Data.Helpers
         /// <param name="fen">PremoveFEN string</param>
         /// <param name="rank">Board Rank (*not bitboard index rank*)</param>
         /// <returns></returns>
-        public static string GetRankFromFen(this string fen, int rank)
+        internal static string GetRankFromFen(this string fen, int rank)
         {
             var r = Math.Abs(rank - 8);
             var ranks = GetRanksFromFen(fen);
@@ -93,7 +93,7 @@ namespace ChessLib.Data.Helpers
         /// <param name="fen">PremoveFEN string</param>
         /// <param name="piece">the PremoveFEN piece to return</param>
         /// <returns>The string of the specified piece</returns>
-        public static string GetFENPiece(this string fen, FENPieces piece)
+        internal static string GetFENPiece(this string fen, FENPieces piece)
         {
             var fenPieces = fen.Split(' ');
             return fenPieces[(int)piece];
@@ -120,7 +120,7 @@ namespace ChessLib.Data.Helpers
         /// </summary>
         /// <param name="v">The Active Color piece of the PremoveFEN</param>
         /// <returns>A Color object representing the active Color</returns>
-        public static Color GetActiveColor(string v)
+        internal static Color GetActiveColor(string v)
         {
             switch (v)
             {
@@ -136,7 +136,7 @@ namespace ChessLib.Data.Helpers
         /// </summary>
         /// <param name="caBitFlags">flags for castling availability</param>
         /// <returns>a PremoveFEN string for the castling availability piece</returns>
-        public static string MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability caBitFlags)
+        internal static string MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability caBitFlags)
         {
             var s = "";
             if (caBitFlags == 0) s = CastlingAvailability.NoCastlingAvailable.AsString(EnumFormat.Description);
@@ -155,7 +155,7 @@ namespace ChessLib.Data.Helpers
         /// </summary>
         /// <param name="idx">The square index</param>
         /// <returns>the corresponding board index</returns>
-        public static int BoardIndexToFENIndex(ushort idx)
+        internal static int BoardIndexToFENIndex(ushort idx)
         {
             var rankOffset = ((ushort)(idx / 8)).RankCompliment();
             return (rankOffset * 8) + (idx % 8);
@@ -166,7 +166,7 @@ namespace ChessLib.Data.Helpers
         /// </summary>
         /// <param name="fen">validated PremoveFEN</param>
         /// <returns>Board representation corresponding to PremoveFEN</returns>
-        public static ulong[][] BoardFromFen(in string fen)
+        internal static ulong[][] BoardFromFen(in string fen)
         {
             uint pieceIndex = 0;
             var pieces = new ulong[2][];
@@ -203,7 +203,7 @@ namespace ChessLib.Data.Helpers
         /// <param name="fullmoveClock"></param>
         /// <param name="validate"></param>
         /// <returns></returns>
-        public static ulong[][] BoardFromFen(this string fen, out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out ushort halfmoveClock, out ushort fullmoveClock, bool validate = true)
+        internal static ulong[][] BoardFromFen(this string fen, out Color activePlayer, out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out ushort halfmoveClock, out ushort fullmoveClock, bool validate = true)
         {
             var fenPieces = fen.Split(' ');
             if (validate)
@@ -225,7 +225,7 @@ namespace ChessLib.Data.Helpers
             return pieces;
         }
 
-        public static Color GetActiveColorFromFENString(string fen)
+        internal static Color GetActiveColorFromFENString(string fen)
         {
             return GetActiveColor(fen.GetFENPiece(FENPieces.ActiveColor));
         }

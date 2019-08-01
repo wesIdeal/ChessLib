@@ -14,7 +14,7 @@ using ChessLib.Data.Validators.MoveValidation;
 
 namespace ChessLib.Data.Helpers
 {
-    public static class BoardHelpers
+    internal static class BoardHelpers
     {
         /// <summary>
         ///     Contains boardIndex values for a boardIndex index

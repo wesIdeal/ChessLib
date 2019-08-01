@@ -282,6 +282,11 @@ namespace ChessLib.Data.Boards
             return b;
         }
 
+        public string CurrentFEN
+        {
+            get => this.ToFEN();
+        }
+
         /// <summary>
         /// Applies the given board parameter to this board
         /// </summary>

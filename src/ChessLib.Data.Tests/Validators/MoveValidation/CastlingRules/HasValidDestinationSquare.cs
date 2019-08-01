@@ -4,7 +4,7 @@ using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 using ChessLib.Data.Boards;
 
-namespace ChessLib.Validators.Tests.MoveValidation.CastlingRules
+namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
 {
     [TestFixture]
     public class HasValidDestinationSquare : Data.Validators.MoveValidation.CastlingRules.HasValidDestinationSquare
