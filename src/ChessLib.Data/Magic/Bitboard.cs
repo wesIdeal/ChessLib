@@ -15,7 +15,7 @@ using ChessLib.Data.Validators.MoveValidation;
 
 namespace ChessLib.Data.Magic
 {
-    public static class Bitboard
+    internal static class Bitboard
     {
 
         private static readonly MovePatternStorage Bishop = new BishopPatterns();

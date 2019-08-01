@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ChessLib.Data.Magic.Init
 {
-    public class BlockerAndMoveBoards : IBlockerAndMoveBoards
+    internal class BlockerAndMoveBoards : IBlockerAndMoveBoards
     {
         public ulong Occupancy { get; }
         public ulong MoveBoard { get; }
