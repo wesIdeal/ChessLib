@@ -27,7 +27,7 @@ namespace ChessLib.Parse.PGN
         public TimeSpan TotalValidationTime;
 
 
-        public IEnumerable<Game<IMoveText>> GetGameTexts(AntlrInputStream inputStream, int? maxGames = null)
+        public IEnumerable<Game<IMoveText>> GetGameTexts(AntlrInputStream inputStream)
         {
             var listener = new PGNListener();
             PGNLexer lexer = new PGNLexer(inputStream);
@@ -50,32 +50,33 @@ namespace ChessLib.Parse.PGN
         public List<Game<MoveStorage>> ParseAndValidateGames(string strGameDatabase, int? MaxGames = null)
         {
             AntlrInputStream stream = new AntlrInputStream(strGameDatabase);
-            var games = GetGameTexts(stream, MaxGames);
-            return ValidateGames(games, MaxGames);
+            var games = GetGameTexts(stream);
+            return ValidateGames(games);
         }
 
         /// <summary>
         /// Gets MoveExt objects from PGN and validates moves while parsing.
         /// </summary>
         /// <returns>Validated Moves</returns>
-        public List<Game<MoveStorage>> ParseAndValidateGames(FileStream fs, int? MaxGames = null)
+        public List<Game<MoveStorage>> ParseAndValidateGames(FileStream fs)
         {
             AntlrInputStream stream = new AntlrInputStream(fs);
-            var games = GetGameTexts(stream, MaxGames);
-            return ValidateGames(games, MaxGames);
+            var games = GetGameTexts(stream);
+            return ValidateGames(games);
         }
 
         /// <summary>
         /// Gets MoveExt objects from PGN and validates moves while parsing.
         /// </summary>
         /// <returns>Validated Moves</returns>
-        private List<Game<MoveStorage>> ValidateGames(IEnumerable<Game<IMoveText>> games, int? MaxGames = null)
+        private List<Game<MoveStorage>> ValidateGames(IEnumerable<Game<IMoveText>> games)
         {
             var rv = new List<Game<MoveStorage>>();
             var sw = new Stopwatch();
-            var gameCount = MaxGames ?? games.Count();
+            
             sw.Start();
-            Parallel.ForEach(games, (game) =>
+            var gameArray = games as Game<IMoveText>[] ?? games.ToArray();
+            Parallel.ForEach(gameArray, (game) =>
              {
                  var fen = game.TagSection.FENStart;
                  var moveTree = ValidateGame(game.MoveSection, fen);
@@ -83,7 +84,7 @@ namespace ChessLib.Parse.PGN
              });
             sw.Stop();
             TotalValidationTime = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
-            Debug.WriteLine($"Validated {games.Count()} games in {sw.ElapsedMilliseconds} ms, ({sw.ElapsedMilliseconds / 1000} seconds.)");
+            Debug.WriteLine($"Validated {gameArray.Count()} games in {sw.ElapsedMilliseconds} ms, ({sw.ElapsedMilliseconds / 1000} seconds.)");
             return rv;
         }
 

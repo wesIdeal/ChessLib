@@ -4,54 +4,43 @@ using NUnit.Framework;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Boards;
+// ReSharper disable StringLiteralTypo
 
 namespace ChessLib.Data.Tests
 {
     [TestFixture]
     public class MoveTranslatorServiceTests
     {
-        private static void ValidateHasDestInfo(MoveDetail m, string moveText)
-        {
-            Assert.IsNotNull(m.DestinationRank, $"Destination rank should be specified for move {moveText}");
-            Assert.IsNotNull(m.DestinationFile, $"Destination file should be specified for move {moveText}");
-        }
-        MoveTranslatorService _moveTranslatorService = new MoveTranslatorService();
 
-        //[Test]
-        //public static void ShouldReturnCorrectDetailWhenBlackCastlesShort()
-        //{
-        //    var move = "O-O";
-        //    var mdExpected = new MoveDetail(7, 4, 7, 6, Piece.King, Color.Black, "O-O", false, MoveType.Castle);
-        //    var actual = _moveTranslatorService.GetMoveFromSAN(move, Color.Black);
-        //    Assert.AreEqual(mdExpected, actual);
-        //    ValidateHasDestInfo(actual, move);
-        //}
-        //[Test]
-        //public static void ShouldReturnCorrectDetailWhenWhiteCastlesShort()
-        //{
-        //    var move = "O-O";
-        //    var mdExpected = new MoveDetail(0, 4, 0, 6, Piece.King, Color.White, "O-O", false, MoveType.Castle);
-        //    var actual = _moveTranslatorService.GetMoveFromSAN(move, Color.White);
-        //    Assert.AreEqual(mdExpected, actual);
-        //}
-        //[Test]
-        //public static void ShouldReturnCorrectDetailWhenBlackCastlesLong()
-        //{
-        //    var move = "O-O-O";
-        //    var mdExpected = new MoveDetail(7, 4, 7, 2, Piece.King, Color.Black, "O-O-O", false, MoveType.Castle);
-        //    var actual = _moveTranslatorService.GetMoveFromSAN(move, Color.Black);
-        //    Assert.AreEqual(mdExpected, actual);
-        //    ValidateHasDestInfo(actual, move);
-        //}
-        //[Test]
-        //public static void ShouldReturnCorrectDetailWhenWhiteCastlesLong()
-        //{
-        //    var move = "O-O-O";
-        //    var mdExpected = new MoveDetail(0, 4, 0, 2, Piece.King, Color.White, "O-O-O", false, MoveType.Castle);
-        //    var actual = _moveTranslatorService.GetMoveFromSAN(move, Color.White);
-        //    Assert.AreEqual(mdExpected, actual);
-        //    ValidateHasDestInfo(actual, move);
-        //}
+        readonly MoveTranslatorService _moveTranslatorService = new MoveTranslatorService();
+
+        [TestCase("r4rk1/1bqn1pbp/pp1p1np1/2pPp3/P3PB2/2N4P/1PPNBPP1/R2Q1RK1 w - e6 0 13", "dxe6", (ushort)35, (ushort)44)]
+        [TestCase("rnbqkbnr/ppp1pppp/8/8/3pP3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", "dxe3", (ushort)27, (ushort)20)]
+        [TestCase("rnbqkbnr/ppp1pppp/8/8/3pP3/8/PPPP1KPP/RNBQ1BNR b kq e3 0 1", "dxe3+", (ushort)27, (ushort)20)]
+        public void SANTranslator_PawnMove_Capture_EnPassant(string fen, string move, ushort src, ushort dst)
+        {
+            _moveTranslatorService.InitializeBoard(fen);
+            var expectedMove = MoveHelpers.GenerateMove(src, dst, MoveType.EnPassant);
+            var actual = _moveTranslatorService.GetMoveFromSAN(move);
+            AssertMovesAreEqual(expectedMove, actual);
+        }
+
+        private void AssertMovesAreEqual(MoveExt expectedMove, MoveExt actual)
+        {
+            Assert.AreEqual(expectedMove.SourceIndex, actual.SourceIndex, $"Expected source to be {expectedMove.SourceIndex.IndexToSquareDisplay()}, but was {actual.SourceIndex.IndexToSquareDisplay()}.");
+            Assert.AreEqual(expectedMove.DestinationIndex, actual.DestinationIndex, $"Expected destination to be {expectedMove.DestinationIndex.IndexToSquareDisplay()}, but was {actual.DestinationIndex.IndexToSquareDisplay()}.");
+            Assert.AreEqual(expectedMove.MoveType, actual.MoveType, $"Expected move type to be {expectedMove.MoveType}, but was {actual.MoveType}.");
+            if (expectedMove.MoveType == MoveType.Promotion)
+            {
+                Assert.AreEqual(expectedMove.PromotionPiece, actual.PromotionPiece,
+                    $"Expected promotion piece to be {expectedMove.PromotionPiece}, but was {actual.PromotionPiece}.");
+            }
+            else
+            {
+                Assert.AreEqual(PromotionPiece.Knight, actual.PromotionPiece, $"Expected no promotion piece (Knight == 0 on non-promotion moves), but was {actual.PromotionPiece}.");
+            }
+
+        }
 
         [TestCase("4r2k/5P2/8/8/8/8/8/6K1 w - - 0 1", "fxe8=Q+", (ushort)53, (ushort)60, MoveType.Promotion, PromotionPiece.Queen)]
         [TestCase("4r2k/3P4/8/8/8/8/8/6K1 w - - 0 1", "dxe8=N", (ushort)51, (ushort)60, MoveType.Promotion, PromotionPiece.Knight)]
@@ -62,7 +51,7 @@ namespace ChessLib.Data.Tests
             _moveTranslatorService.InitializeBoard(fen);
             var expectedMove = MoveHelpers.GenerateMove(src, dst, mt, pp);
             var actual = _moveTranslatorService.GetMoveFromSAN(move);
-            Assert.AreEqual(expectedMove, actual);
+            AssertMovesAreEqual(expectedMove, actual);
         }
 
         [TestCase("rnbqkbnr/p1p1pppp/1p6/3p4/2P1P3/8/PP1P1PPP/RNBQKBNR w KQkq - 0 3", "e8=Q", (ushort)52, (ushort)60, PromotionPiece.Queen)]
@@ -74,7 +63,7 @@ namespace ChessLib.Data.Tests
             _moveTranslatorService.InitializeBoard(fen);
             var expectedMove = MoveHelpers.GenerateMove(src, dst, MoveType.Promotion, pp);
             var actual = _moveTranslatorService.GetMoveFromSAN(move);
-            Assert.AreEqual(expectedMove, actual);
+            AssertMovesAreEqual(expectedMove, actual);
         }
 
         [TestCase("8/4P3/8/k7/7K/8/3p4/8 w - - 0 1", "exd5", (ushort)28, (ushort)35)]
@@ -86,7 +75,7 @@ namespace ChessLib.Data.Tests
             _moveTranslatorService.InitializeBoard(fen);
             var expectedMove = MoveHelpers.GenerateMove(src, dst);
             var actual = _moveTranslatorService.GetMoveFromSAN(move);
-            Assert.AreEqual(expectedMove, actual);
+            AssertMovesAreEqual(expectedMove, actual);
         }
 
         [TestCase("r3k2r/8/8/8/8/8/8/R3K2R w - - 0 1", "O-O", (ushort)4, (ushort)6)]
@@ -98,48 +87,24 @@ namespace ChessLib.Data.Tests
             _moveTranslatorService.InitializeBoard(fen);
             var expectedMove = MoveHelpers.GenerateMove(src, dst, MoveType.Castle);
             var actualMove = _moveTranslatorService.GetMoveFromSAN(move);
-            Assert.AreEqual(expectedMove, actualMove);
+            AssertMovesAreEqual(expectedMove, actualMove);
         }
         [TestCase("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3", "Nxe5", 21, 36)]
         [TestCase("r1bqkbnr/pppp1ppp/2n5/4N3/4P3/8/PPPP1PPP/RNBQKB1R b KQkq - 0 3", "Nxe5", 42, 36)]
         [TestCase("r1bqkbnr/pppp1ppp/2n5/4p3/2N1P3/5N2/PPPP1PPP/R1BQKB1R w KQkq - 2 3", "Nfxe5", 21, 36)]
         [TestCase("r1bqkbnr/pppp1ppp/2n5/4p3/2N1P3/5N2/PPPP1PPP/R1BQKB1R w KQkq - 2 3", "Ncxe5", 26, 36)]
-        [TestCase("r1bqkbnr/pppp1ppp/2n5/1R2p2R/4P3/8/PPPP1PPP/R1BQKB1R w KQkq - 2 3", "Rbxe5",33, 36  )]
+        [TestCase("r1bqkbnr/pppp1ppp/2n5/1R2p2R/4P3/8/PPPP1PPP/R1BQKB1R w KQkq - 2 3", "Rbxe5", 33, 36)]
         [TestCase("r1bqkbnr/pppp1ppp/2n5/1R2p2R/4P3/8/PPPP1PPP/R1BQKB1R w KQkq - 2 3", "Rhxe5", 39, 36)]
         [TestCase("1k6/8/8/3Q3Q/K7/8/8/7Q w - - 0 1", "Qh5d1", 39, 3)]
         public void SANTranslator_PieceTakes(string fen, string move, int src, int dst)
         {
             _moveTranslatorService.InitializeBoard(fen);
-            var expectedMove = MoveHelpers.GenerateMove((ushort) src, (ushort) dst);
+            var expectedMove = MoveHelpers.GenerateMove((ushort)src, (ushort)dst);
             var actualMove = _moveTranslatorService.GetMoveFromSAN(move);
-            Assert.AreEqual(expectedMove,actualMove);
+            AssertMovesAreEqual(expectedMove, actualMove);
         }
 
-        public void SANTranslator_PieceMoves(string fen, int src, int dst)
-        {
 
-        }
-        //[Test]
-        //public static void ShouldReturnCorrectPiece_Pawn()
-        //{
-        //    var moveFormat = new[] { "{0}xe4", "{0}4" };
-        //    foreach (var fmt in moveFormat)
-        //    {
-        //        for (char i = 'a'; i <= 'h'; i++)
-        //        {
-        //            var move = string.Format(fmt, i);
-        //            var actual = _moveTranslatorService.GetMoveFromSAN(move, Color.White);
-        //            Assert.AreEqual(Piece.Pawn, actual.Piece);
-        //            ValidateHasDestInfo(actual, move);
-        //            if (fmt.Contains("x"))
-        //            {
-        //                Assert.IsTrue(actual.IsCapture, $"Capture flag should be set on pawn capture for move {move}");
-        //                Assert.IsNotNull(actual.SourceFile, $"Source file should be set on pawn capture for move {move}");
-        //                Assert.IsNotNull(actual.SourceRank, $"Source rank should be set on pawn capture for move {move}");
-        //            }
-        //        }
-        //    }
-        //}
 
         [Test]
         public void GetMoveFromSAN_ShouldThrowException_IfMoveIsLessThan2Chars()
@@ -161,9 +126,6 @@ namespace ChessLib.Data.Tests
 
         }
 
-       
-
-  
         [TestCase("rnbqkbnr/pppppppp/8/8/8/PPPPPPPP/8/RNBQKBNR w KQkq - 0 1", (ushort)16, (ushort)23, (ushort)1, "All white pawns on the third rank, moving to the 4th.")]
         [TestCase(FENHelpers.FENInitial, (ushort)8, (ushort)15, (ushort)1, "All white pawns in the starting position, moving up one square.")]
         [TestCase(FENHelpers.FENInitial, (ushort)8, (ushort)15, (ushort)2, "All white pawns in the starting position, moving up two squares.")]

@@ -18,7 +18,7 @@ namespace ChessLib.Data
     /// </summary>
     public class MoveTranslatorService : MoveDisplayService
     {
-        
+
         protected readonly string CastleKingSide = "O-O";
         protected readonly string CastleQueenSide = "O-O-O";
         /// <summary>
@@ -26,7 +26,7 @@ namespace ChessLib.Data
         /// </summary>
         public MoveTranslatorService()
         {
-            
+
             InitializeBoard();
         }
 
@@ -158,7 +158,6 @@ namespace ChessLib.Data
 
         public MoveExt GetMoveFromSAN(string sanMove)
         {
-            
             MoveExt moveExt = null;
             var move = StripNonMoveInfoFromMove(sanMove);
             if (move.Length < 2)
@@ -166,7 +165,7 @@ namespace ChessLib.Data
                 throw new MoveException("Invalid move. Must have at least 2 characters.");
             }
             var colorMoving = Board.ActivePlayer;
-           
+
             if (char.IsLower(move[0]))
             {
                 moveExt = GetPawnMoveDetails(move);
@@ -280,7 +279,7 @@ namespace ChessLib.Data
                         narrowedSquares.Add(square);
                     }
                 }
-                if (narrowedSquares.Count!= 1)
+                if (narrowedSquares.Count != 1)
                 { throw new MoveException($"Problem finding only one attacking piece from move {move}."); }
 
                 source = narrowedSquares[0];
@@ -311,6 +310,9 @@ namespace ChessLib.Data
             {
                 startingFile = (ushort)(move[0] - 'a');
                 move = move.Substring(2, moveLength - 2);
+                if (Board.EnPassantSquare.HasValue)
+                {
+                }
             }
             if (isPromotion)
             {
@@ -346,6 +348,11 @@ namespace ChessLib.Data
                     //no, it was from the starting position
                     sourceIndex = colorMoving == Color.White ? (ushort)(sourceIndex - 8) : (ushort)(sourceIndex + 8);
                 }
+            }
+
+            if (isCapture && Board.EnPassantSquare.HasValue && destIndex.Value == Board.EnPassantSquare.Value)
+            {
+                moveType = MoveType.EnPassant;
             }
             return MoveHelpers.GenerateMove(sourceIndex, destIndex.Value, moveType, promotionPiece);
         }

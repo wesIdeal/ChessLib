@@ -5,7 +5,7 @@ using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Interfaces;
 using NUnit.Framework;
 
-namespace ChessLib.Data.Tests.Helpers
+namespace ChessLib.Data.Helpers.Tests
 {
     [TestFixture]
     public static class BitHelpersTests
