@@ -62,7 +62,7 @@ namespace ChessLib.Parse.PGN.Parser
 
         public override void EnterComment(PGNParser.CommentContext context)
         {
-            _currentMove.MoveData.Comment = context.GetText().Replace("\r\n", "");
+            _currentMove.MoveData.Comment = context.GetText().Replace("\r\n", " ").TrimEnd('}').TrimStart('{').Trim();
         }
 
         public override void EnterNag(PGNParser.NagContext context)

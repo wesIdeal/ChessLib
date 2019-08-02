@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Antlr4.Runtime;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Interfaces;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
 
 namespace ChessLib.Parse.Tests
@@ -27,22 +29,25 @@ namespace ChessLib.Parse.Tests
         string _pgnDb;
         private string _gameWithNag;
         private ParsePgn _parser = new ParsePgn();
-        private Game<MoveText> _largeDb;
+        private Game<IMoveText>[] _largeDb;
         Tags expectedTags;
-        readonly AutoResetEvent _finishedWithLargeDb = new AutoResetEvent(false);
+        private Task _finishedWithLargeDb;
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             _columnStylePgn = PGNResources.ColumnStyle;
             _gameWithNag = PGNResources.GameWithNAG;
-            _pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
+            _finishedWithLargeDb = ParseLargeGame();
         }
 
-        private void ParseLargeGame()
+        private async Task ParseLargeGame()
         {
-            Task.Factory.StartNew(() => _parser.GetGameTexts(new AntlrInputStream(_pgnDb)))
-                .ContinueWith(
-                    (t) => { _finishedWithLargeDb.Set(); });
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            _pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
+            await Task.Factory.StartNew(() => _largeDb = _parser.GetGameTexts(new AntlrInputStream(_pgnDb)).ToArray());
+            sw.Stop();
+            Debug.WriteLine($"Finished parsing {_largeDb.Length} games in {sw.ElapsedMilliseconds / 1000} seconds.");
         }
 
         [Test]
@@ -56,18 +61,37 @@ namespace ChessLib.Parse.Tests
         [Test]
         public void TestNAGParsing()
         {
+            const string expected = "$1";
+            const int moveIndex = 15; //Black's move 9...Qc7
             var game = _parser.GetGameTexts(new AntlrInputStream(_gameWithNag)).First();
-
+            var move = game.MoveSection.ElementAt(moveIndex);
+            Assert.AreEqual(expected, move.NAG, $"Expected NAG to be '{expected}' at move {MoveDisplay(moveIndex, move.SAN)}.");
         }
 
         [Test]
-        public void TestParsingLargeDb()
+        public void TestCommentParsing()
         {
-            _finishedWithLargeDb.WaitOne();
+            const string expected = "Qc7 is a great move, here.";
+            const int movePosition = 17; //Black's move 9...Qc7
+            var game = _parser.GetGameTexts(new AntlrInputStream(_gameWithNag)).First();
+            var move = game.MoveSection.ElementAt(movePosition);
+            Assert.AreEqual(expected, move.Comment, $"Expected comment '{expected}' at move {MoveDisplay(movePosition, move.SAN)}.");
+        }
+
+        [Test]
+        public void LongWait_TestParsingLargeDb()
+        {
+            _finishedWithLargeDb.Wait();
             const int expectedGameCount = 2971;
-            var parser = new ChessLib.Parse.PGN.ParsePgn();
-            var games = parser.GetGameTexts(new AntlrInputStream(_pgnDb)).ToArray();
-            Assert.AreEqual(expectedGameCount, games.Length, $"Expected {expectedGameCount} games, but found {games.Length}.");
+            Assert.AreEqual(expectedGameCount, _largeDb.Length, $"Expected {expectedGameCount} games, but found {_largeDb.Length}.");
+        }
+
+        private string MoveDisplay(int moveNumber, string SAN)
+        {
+            var str = ((moveNumber / 2) + 1).ToString();
+            str += moveNumber % 2 == 1 ? "... " : ". ";
+            str += SAN;
+            return str;
         }
         //[Test]
         //public void ShouldRetrieveTagsWithNoNewLines()
