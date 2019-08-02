@@ -28,6 +28,7 @@ namespace ChessLib.Parse.Tests
         string _columnStylePgn;
         string _pgnDb;
         private string _gameWithNag;
+        private Game<IMoveText> _withVariation;
         private ParsePgn _parser = new ParsePgn();
         private Game<IMoveText>[] _largeDb;
         Tags expectedTags;
@@ -38,6 +39,7 @@ namespace ChessLib.Parse.Tests
             _columnStylePgn = PGNResources.ColumnStyle;
             _gameWithNag = PGNResources.GameWithNAG;
             _finishedWithLargeDb = ParseLargeGame();
+            _withVariation = _parser.GetGameTexts(new AntlrInputStream(PGNResources.GameWithVariation)).First();
         }
 
         private async Task ParseLargeGame()
@@ -48,6 +50,29 @@ namespace ChessLib.Parse.Tests
             await Task.Factory.StartNew(() => _largeDb = _parser.GetGameTexts(new AntlrInputStream(_pgnDb)).ToArray());
             sw.Stop();
             Debug.WriteLine($"Finished parsing {_largeDb.Length} games in {sw.ElapsedMilliseconds / 1000} seconds.");
+        }
+
+        [Test]
+        public void TestVariationParsing()
+        {
+            const int variationOnMovePosition = 0;
+            const int expectedVariationCount = 1;
+            const string variationSAN = "c4";
+            var variationMove = GetNodeAt(variationOnMovePosition, _withVariation.MoveSection);
+            Assert.AreEqual(expectedVariationCount, variationMove.Variations.Count);
+        }
+
+        private MoveNode<IMoveText> GetNodeAt(int index, MoveTree<IMoveText> tree)
+        {
+            var count = 0;
+            var rv = tree.HeadMove;
+            while (count < index)
+            {
+                rv = rv.Next;
+                count++;
+            }
+
+            return rv;
         }
 
         [Test]

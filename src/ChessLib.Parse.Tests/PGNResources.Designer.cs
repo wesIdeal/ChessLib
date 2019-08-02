@@ -121,6 +121,28 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;exhibition&quot;]
+        ///[Site &quot;exhibition&quot;]
+        ///[Date &quot;1949.??.??&quot;]
+        ///[Round &quot;1&quot;]
+        ///[White &quot;Tal, Mikhail&quot;]
+        ///[Black &quot;Gulko, Boris F&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[ECO &quot;B82&quot;]
+        ///
+        ///1. e4 ( 1. c4)1... c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 e6 6. f4 Nc6 7.
+        ///Be3 Be7 8. Qf3 a6 $1 9. O-O-O Qc7 { Qc7 is a great move, here.}  10. g4 Nxd4
+        ///11. Bxd4 e5 12. fxe5 dxe5 13. Qg3 Nxg4 14. Be2 Qa5 15. Bxg4 exd4 16. Nd5 Qxa2
+        ///17. Qe5 Qa1+ 18. Kd2 Qa5+ 19. b4 Qd8 20. Rhg1 f6 21. Bh5+ Kf8 22. Rxg7 fxe5 23.
+        ///Rf7+ Ke8 24. Rxe7+ Kf8 25. Rf1+ Kg8 2 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string GameWithVariation {
+            get {
+                return ResourceManager.GetString("GameWithVariation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] talLarge {
