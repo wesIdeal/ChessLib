@@ -1,54 +1,74 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using ChessLib.Data;
 using ChessLib.Parse.PGN;
 using NUnit.Framework;
+using System.Resources;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Antlr4.Runtime;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Parse.PGN.Parser.BaseClasses;
 
 namespace ChessLib.Parse.Tests
 {
     [TestFixture]
     public class TestParsingFunctionality
     {
-        string commentedPgn;
-        string unCommentedPgn;
-        string variationPgn;
-        string fullGame01Pgn;
-        //string tagsNewLines = @"
-        //        [Event ""The Big Test Event""]
-        //        [Site ""My City, NY""]
-        //        [Date ""2019.01.04""]
-        //        [Round ""3""]
-        //        [White ""Me""]
-        //        [Black ""The other guy""]
-        //        [Result ""1-0""]
-        //        ";
-        //string tagsNoNewLines = @"[Event ""The Big Test Event""][Site ""My City, NY""][Date ""2019.01.04""][Round ""3""][White ""Me""][Black ""The other guy""][Result ""1-0""]";
-        //string tagsRandomWhiteSpace = "[Event  \"The Big Test Event\"]\t\t[Site \"My City, NY  \"]\r\n\r\n[Date \"2019.01.04\"][Round \"3\"][White              \"Me\"][Black\"The other guy\"][Result \t\t   \"1-0\"]";
-        Tags expectedTags;
+        ~TestParsingFunctionality()
+        {
+            _finishedWithLargeDb.Dispose();
+        }
 
+        string _columnStylePgn;
+        string _pgnDb;
+        private string _gameWithNag;
+        private ParsePgn _parser = new ParsePgn();
+        private Game<MoveText> _largeDb;
+        Tags expectedTags;
+        readonly AutoResetEvent _finishedWithLargeDb = new AutoResetEvent(false);
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            commentedPgn = File.ReadAllText(".\\PGN\\commented.pgn");
-            unCommentedPgn = File.ReadAllText(".\\PGN\\uncommented.pgn");
-            variationPgn = File.ReadAllText(".\\PGN\\withvariations.pgn");
-            fullGame01Pgn = File.ReadAllText(".\\PGN\\fullgame01.pgn");
-            expectedTags = new Tags
-            {
-                { "Event", "The Big Test Event" },
-                { "Site", "My City, NY" },
-                { "Date", "2019.01.04" },
-                { "Round", "3" },
-                { "White", "Me" },
-                { "Black", "The other guy" },
-                { "Result", "1-0" }
-            };
+            _columnStylePgn = PGNResources.ColumnStyle;
+            _gameWithNag = PGNResources.GameWithNAG;
+            _pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
         }
-        //[Test]
-        //public void ShouldRetrieveTagsWithNewLines()
-        //{
-        //    var actualTags = GetTagValues(tagsNewLines);
-        //    Assert.AreEqual(expectedTags, actualTags);
-        //}
+
+        private void ParseLargeGame()
+        {
+            Task.Factory.StartNew(() => _parser.GetGameTexts(new AntlrInputStream(_pgnDb)))
+                .ContinueWith(
+                    (t) => { _finishedWithLargeDb.Set(); });
+        }
+
+        [Test]
+        public void TestColumnStylePGN()
+        {
+            var games = _parser.GetGameTexts(new AntlrInputStream(_columnStylePgn)).ToArray();
+            Assert.AreEqual(1, games.Length, $"Expected only one game, but found {games.Length}.");
+            Assert.AreEqual(50, games[0].MoveSection.AsEnumerable().Count(), "Game should have 50 moves.");
+        }
+
+        [Test]
+        public void TestNAGParsing()
+        {
+            var game = _parser.GetGameTexts(new AntlrInputStream(_gameWithNag)).First();
+
+        }
+
+        [Test]
+        public void TestParsingLargeDb()
+        {
+            _finishedWithLargeDb.WaitOne();
+            const int expectedGameCount = 2971;
+            var parser = new ChessLib.Parse.PGN.ParsePgn();
+            var games = parser.GetGameTexts(new AntlrInputStream(_pgnDb)).ToArray();
+            Assert.AreEqual(expectedGameCount, games.Length, $"Expected {expectedGameCount} games, but found {games.Length}.");
+        }
         //[Test]
         //public void ShouldRetrieveTagsWithNoNewLines()
         //{

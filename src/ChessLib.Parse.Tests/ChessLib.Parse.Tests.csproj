@@ -15,6 +15,19 @@
     <ProjectReference Include="..\ChessLib.Parse\ChessLib.Parse.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="PGNResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PGNResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="PGNResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>PGNResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <None Update="PGN\commented.pgn">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

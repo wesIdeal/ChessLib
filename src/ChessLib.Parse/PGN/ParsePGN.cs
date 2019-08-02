@@ -3,6 +3,7 @@ using Antlr4.Runtime.Tree;
 using ChessLib.Data;
 using ChessLib.Data.Boards;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.Types.Interfaces;
 using ChessLib.Parse.PGN.Parser;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
 using System;
@@ -11,8 +12,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Parse.PGN
 {
