@@ -121,7 +121,7 @@ namespace ChessLib.Data.Boards
                 var hmClock = previousMove.BoardState.GetHalfmoveClock();
                 var castlingAvailability = previousMove.BoardState.GetCastlingAvailability();
                 var epSquare = previousMove.BoardState.GetEnPassantSquare();
-                var pieces = UnApplyPiecesFromMove(CurrentMove);
+                var pieces = UnApplyPiecesFromMove(previousMoveNode);
                 var fullMove = ActivePlayer == Color.White ? FullmoveCounter - 1 : FullmoveCounter;
                 var board = new BoardInfo(pieces, ActivePlayer.Toggle(), castlingAvailability, epSquare, hmClock,
                     (ushort)fullMove, false);

@@ -1,7 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using ChessLib.Data.Annotations;
 using ChessLib.Data.Helpers;
+using ChessLib.Data.Magic;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
@@ -78,7 +81,9 @@ namespace ChessLib.Data.Boards
                 OnPropertyChanged(nameof(ActivePlayer));
             }
         }
-
+        public bool IsActiveColorInCheck => PiecePlacement.IsPlayerInCheck((int)ActivePlayer);
+        public Color OpponentColor => _activePlayer.Toggle();
+        public object GetPseudoLegalMoves(ushort sqIndex, out List<MoveExt> legalMoves) => Bitboard.GetPseudoLegalMoves(this, sqIndex, out legalMoves);
         public CastlingAvailability CastlingAvailability { get; set; }
         public ushort? EnPassantSquare { get; set; }
         public ushort HalfmoveClock { get; set; }

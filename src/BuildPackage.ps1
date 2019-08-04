@@ -1,13 +1,18 @@
 param (
-    [string]$version)
+    [Parameter(Mandatory=$false)]
+    [Alias("d")]
+    [Switch]
+    $debugOutput,
+    [Parameter(Mandatory=$false)]
+    [string]
+    $version)
 
 function Get-Version
 {
     param(
     [Parameter(Position=0, Mandatory=$true)]
     [ValidateNotNullOrEmpty()]
-    [string]
-    $version
+    [string] $version
         )
     $versionArr = $version.Split('.')
     $versionMajor = $versionArr[0] -as [int]
@@ -55,9 +60,19 @@ if(!$version)
  [xml]$nuXML = Get-Content $nuspecFile
  $nuXML.package.metadata.version = $version
  $myXML.Project.PropertyGroup.Version = $version
-
+ $config = "Release"
+ $packCommand = "nuget pack -Build -Properties"
+ $symbols = ""
+ if($debugOutput)
+{
+    $config = "Debug"
+    $symbols = " -Symbols"
+}
 dotnet build -c Release
-nuget pack -Build -Properties Configuration=Release -Version ${version}
+$packCommand += " Configuration=" + $config + " -Version " + $version + " " + $symbols
+
+Write-Output $packCommand
+Invoke-Expression -Command $packCommand
 $command = "nuget add $package.${version}.nupkg -Source $installDir"
 Write-Output $command
 Invoke-Expression -Command $command

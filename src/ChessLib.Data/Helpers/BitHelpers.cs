@@ -6,7 +6,7 @@ namespace ChessLib.Data.Helpers
 {
     using BoardRepresentation = UInt64;
     using PieceIndex = UInt16;
-    internal static class BitHelpers
+    public static class BitHelpers
     {
         private static readonly ushort[] Index64 = {
                                     0, 47,  1, 56, 48, 27,  2, 60,
