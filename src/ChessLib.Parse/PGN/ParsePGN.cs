@@ -72,7 +72,7 @@ namespace ChessLib.Parse.PGN
         {
             var rv = new List<Game<MoveStorage>>();
             var sw = new Stopwatch();
-            
+
             sw.Start();
             var gameArray = games as Game<IMoveText>[] ?? games.ToArray();
             Parallel.ForEach(gameArray, (game) =>
@@ -87,24 +87,25 @@ namespace ChessLib.Parse.PGN
             return rv;
         }
 
-        private MoveTree<MoveStorage> ValidateGame(MoveTree<IMoveText> sanGame, string initialFEN)
+        private MoveTree<MoveStorage> ValidateGame(MoveTree<IMoveText> sanGame, string initialFEN, MoveNode<MoveStorage> parent = null)
         {
             var boardInfo = new BoardInfo(initialFEN);
+            var moveTree = new MoveTree<MoveStorage>(parent);
             foreach (var move in sanGame.GetNodeEnumerator())
             {
                 var currentFen = boardInfo.CurrentFEN;
-                boardInfo.ApplySANMove(move.MoveData.SAN);
+                var moveNode = boardInfo.ApplySANMove(move.MoveData.SAN);
+                moveTree.AddMove(moveNode.MoveData);
                 if (move.Variations.Any())
                 {
-                    var node = boardInfo.MoveTree.LastMove;
                     foreach (var variation in move.Variations)
                     {
-                        var validatedVariation = ValidateGame(variation, currentFen);
-                        node.AddVariation(validatedVariation);
+                        var variationMoveTree = ValidateGame(variation, currentFen, moveTree.LastMove);
+                        moveTree.LastMove.AddVariation(variationMoveTree);
                     }
                 }
             }
-            return boardInfo.MoveTree;
+            return moveTree;
         }
 
     }

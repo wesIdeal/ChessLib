@@ -127,7 +127,10 @@ namespace ChessLib.Data.Types.Enums
         [Description("Mate")]
         Checkmate = 65536,
         [Description("Only Kings left - material draw")]
-        MaterialDraw = 65536 << 1
+        MaterialDraw = 65536 << 1,
+        [Description("No moves exist.")]
+        NoMovesExist = 65536 << 2
+
     }
 
     [Flags]

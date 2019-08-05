@@ -50,28 +50,15 @@ namespace ChessLib.Data.Boards
         }
 
 
-        public void ApplySANMove(string moveText)
+        public MoveNode<MoveStorage> ApplySANMove(string moveText)
         {
             var moveTranslatorService = new MoveTranslatorService(this);
             var move = moveTranslatorService.GetMoveFromSAN(moveText);
-            ApplyMove(move);
-        }
-
-        /// <summary>
-        /// Applies a move from source and destination indexes
-        /// </summary>
-        /// <param name="sourceIndex"></param>
-        /// <param name="destinationIndex"></param>
-        /// <param name="promotionPiece"></param>
-        /// <returns></returns>
-        public MoveError ApplyMove(ushort sourceIndex, ushort destinationIndex, PromotionPiece? promotionPiece)
-        {
-            var moveTranslatorService = new MoveTranslatorService(this);
-            var move = moveTranslatorService.GenerateMoveFromIndexes(sourceIndex, destinationIndex, promotionPiece);
             return ApplyMove(move);
         }
 
-        public MoveError ApplyMove(MoveExt move)
+
+        public MoveNode<MoveStorage> ApplyMove(MoveExt move)
         {
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
             if (pocSource == null) throw new ArgumentException("No piece at source.");
@@ -82,11 +69,10 @@ namespace ChessLib.Data.Boards
                 throw new MoveException("Error with move.", validationError, move, ActivePlayer);
             }
 
-            ApplyValidatedMove(move);
-            return MoveError.NoneSet;
+            return ApplyValidatedMove(move);
         }
 
-        public void ApplyValidatedMove(MoveExt move)
+        public MoveNode<MoveStorage> ApplyValidatedMove(MoveExt move)
         {
             Debug.WriteLine($"Before applying move {move}, FEN is:\t{CurrentFEN}");
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
@@ -108,27 +94,44 @@ namespace ChessLib.Data.Boards
             CurrentMove = (MoveNode<MoveStorage>)MoveTree.LastMove;
             Debug.WriteLine($"Move {move} was applied.");
             Debug.WriteLine($"After applying move {move}, FEN is:\t{CurrentFEN}");
+            return CurrentMove;
         }
 
-        public void UnapplyMove()
+        public MoveStorage UnapplyMove()
         {
             Debug.WriteLine($"Before unapply, FEN is:\t{CurrentFEN}");
             var previousBoardState = FindPreviousBoardState();
+            MoveStorage rv;
             if (previousBoardState != null)
             {
-                var currentMove = CurrentMove.MoveData;
-                var hmClock = previousBoardState.GetHalfmoveClock();
-                var castlingAvailability = previousBoardState.GetCastlingAvailability();
-                var epSquare = previousBoardState.GetEnPassantSquare();
-                var pieces = UnApplyPiecesFromMove(CurrentMove);
-                var fullMove = ActivePlayer == Color.White ? FullmoveCounter - 1 : FullmoveCounter;
-                var board = new BoardInfo(pieces, ActivePlayer.Toggle(), castlingAvailability, epSquare, hmClock,
-                    (ushort)fullMove, false);
-                ApplyNewBoard(board);
+                rv = CurrentMove.MoveData;
+                UnapplyMove(previousBoardState, CurrentMove);
                 CurrentMove = CurrentMove.Previous ?? CurrentMove.Parent;
-
+            }
+            else
+            {
+                rv = null;
             }
             Debug.WriteLine($"After unapply, FEN is:\t{CurrentFEN}");
+            return rv;
+        }
+
+        private void UnapplyMove(BoardState previousBoardState, MoveNode<MoveStorage> move)
+        {
+            var board = GetBoardFromBoardState(previousBoardState, move);
+            ApplyNewBoard(board);
+        }
+
+        private IBoard GetBoardFromBoardState(BoardState previousBoardState, MoveNode<MoveStorage> move)
+        {
+            var hmClock = previousBoardState.GetHalfmoveClock();
+            var castlingAvailability = previousBoardState.GetCastlingAvailability();
+            var epSquare = previousBoardState.GetEnPassantSquare();
+            var pieces = UnApplyPiecesFromMove(CurrentMove);
+            var fullMove = ActivePlayer == Color.White ? FullmoveCounter - 1 : FullmoveCounter;
+            var board = new BoardInfo(pieces, ActivePlayer.Toggle(), castlingAvailability, epSquare, hmClock,
+                (ushort)fullMove, false);
+            return board;
         }
 
         private ulong[][] UnApplyPiecesFromMove(MoveNode<MoveStorage> currentMoveNode)
@@ -185,10 +188,6 @@ namespace ChessLib.Data.Boards
 
         public MoveNode<MoveStorage> CurrentMove { get; set; } = null;
 
-        public MoveStorage GetPreviousMove()
-        {
-            return CurrentMove.Previous.MoveData ?? CurrentMove.Parent.MoveData ?? null;
-        }
 
         /// <summary>
         /// Gets a list of moves to choose from for traversing forward
@@ -196,7 +195,8 @@ namespace ChessLib.Data.Boards
         /// <returns></returns>
         public MoveStorage[] GetNextMoves()
         {
-            return GetNextMoveNodes().Select(x => x.MoveData).ToArray();
+            var nextMoveNodes = GetNextMoveNodes();
+            return nextMoveNodes.Select(x => x.MoveData).ToArray();
         }
 
         private MoveNode<MoveStorage>[] GetNextMoveNodes()
@@ -219,39 +219,45 @@ namespace ChessLib.Data.Boards
             return lMoves.ToArray();
         }
 
-        public void TraverseForward(MoveStorage move)
+        public MoveStorage TraverseForward(MoveStorage move)
         {
             var foundMove = FindNextNode(move);
             if (foundMove != null)
             {
                 BoardInfo board;
-                board = new BoardInfo(CurrentMove.MoveData.PostmoveFEN);
-                ApplyNewBoard(board);
+                var newBoard = this.ApplyMoveToBoard(move);
+                ApplyNewBoard(newBoard);
                 CurrentMove = foundMove;
-                ApplyNewBoard(board);
-
+                return foundMove.MoveData;
             }
+            return null;
         }
 
-        public void TraverseBackward()
+        public MoveStorage TraverseBackward()
         {
-            UnapplyMove();
+            return UnapplyMove();
         }
 
-        private BoardState FindPreviousBoardState()
+        private BoardState FindPreviousBoardState(MoveNode<MoveStorage> move)
         {
-            if (CurrentMove.IsNullNode)
+            if (move.IsNullNode)
             {
                 return null;
             }
-            if (CurrentMove.Previous.IsNullNode)
+            if (move.Previous.IsNullNode)
             {
                 return InitialBoardState;
             }
             else
             {
-                return CurrentMove.Previous.MoveData.BoardState;
+                return move.Previous.MoveData.BoardState;
             }
+
+        }
+
+        private BoardState FindPreviousBoardState()
+        {
+            return FindPreviousBoardState(CurrentMove);
         }
 
         /// <summary>
@@ -262,7 +268,7 @@ namespace ChessLib.Data.Boards
         private MoveNode<MoveStorage> FindNextNode(MoveStorage move)
         {
             var nextMoves = GetNextMoveNodes();
-            return nextMoves.FirstOrDefault(x => x.MoveData == move);
+            return nextMoves.FirstOrDefault(x => x.MoveData.Move == move.Move);
         }
 
 
@@ -307,5 +313,21 @@ namespace ChessLib.Data.Boards
             FullmoveCounter = newBoard.FullmoveCounter;
         }
 
+        public void GoToInitialState()
+        {
+            var bi = new BoardInfo(InitialFEN);
+            ApplyNewBoard(bi);
+            CurrentMove = MoveTree.HeadMove;
+        }
+
+        public void GoToLastMove()
+        {
+            MoveNode<MoveStorage> node = CurrentMove.Next;
+            while (node != null)
+            {
+                TraverseForward(node.MoveData);
+                node = CurrentMove.Next;
+            }
+        }
     }
 }

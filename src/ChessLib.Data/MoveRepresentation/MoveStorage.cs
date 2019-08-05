@@ -14,22 +14,24 @@ namespace ChessLib.Data.MoveRepresentation
     /// </summary>
     public class MoveStorage : MoveExt, IEquatable<MoveStorage>, IContainsSAN
     {
-       
-        public MoveStorage(string premoveFen, IMoveExt move, Piece pieceMoving, Color colorMoving, string textRepresentation)
-        : this(move, pieceMoving, colorMoving)
+
+        public MoveStorage(IMoveExt move, string textRepresentation)
+        : this(move.Move)
         {
-            PremoveFEN = premoveFen;
             SAN = textRepresentation;
-            BoardStateHash = GetHashString(premoveFen);
         }
-        protected MoveStorage(ushort move, Piece pieceMoving, Color colorMoving)
+        public MoveStorage(IMoveExt move)
+           : base(move.Move)
+        {
+            SAN = null;
+        }
+        public MoveStorage(ushort move)
             : base(move)
         {
-            PieceMoving = pieceMoving;
-            ColorMoving = colorMoving;
+            SAN = null;
         }
 
-        protected MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move, pieceMoving, colorMoving) { }
+        protected MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move) { }
 
         public MoveStorage(BoardInfo boardInfo, IMoveExt move, Piece? capturedPiece) : base(move.Move)
         {

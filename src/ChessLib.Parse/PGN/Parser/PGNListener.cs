@@ -48,7 +48,7 @@ namespace ChessLib.Parse.PGN.Parser
         {
             CurrentGame = new Game<IMoveText>();
             _moveCount = 0;
-            _currentList = (MoveTree<IMoveText>)CurrentGame.MoveSection;
+            _currentList = CurrentGame.MoveSection;
             _stopwatch.Start();
         }
         public override void ExitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
@@ -89,12 +89,12 @@ namespace ChessLib.Parse.PGN.Parser
         {
             var moveText = context.GetText();
             _moveCount++;
-            _currentMove = _currentList.AddMove((IMoveText)new MoveText(moveText));
+            _currentMove = _currentList.AddMove(new MoveText(moveText));
         }
         public override void EnterRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
         {
             _moveTreeStack.Push(_currentList);
-            _currentList = (MoveTree<IMoveText>)_currentMove.AddVariation();
+            _currentList = _currentMove.AddVariation();
         }
 
         public override void ExitRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)

@@ -6,6 +6,11 @@ using System.Text;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Boards;
 using ChessLib.Data.Magic;
+using ChessLib.Parse.PGN.Parser.BaseClasses;
+using ChessLib.Parse.PGN;
+using System.Linq;
+using ChessLib.Data.MoveRepresentation;
+using System.Diagnostics;
 
 // ReSharper disable once CheckNamespace
 namespace ChessLib.Data.Tests
@@ -64,6 +69,8 @@ namespace ChessLib.Data.Tests
                     Assert.AreEqual(expected, _bi.CastlingAvailability,
                         "Expected castling availability to equal qKQ after h8 Rook moves.");
                 }
+
+
 
                 [Test]
                 public void UnsetCastlingAvailability_ShouldUnsetBlackQueenside_When_a8RookMoves()
@@ -200,7 +207,131 @@ namespace ChessLib.Data.Tests
                 Assert.AreEqual(expectedFEN, _bInitial.ToFEN());
             }
 
-           
+            [Test]
+            public void TraversePGN()
+            {
+                var sb = new StringBuilder();
+                var pgn = PGN.Fischer01;
+                var parser = new ParsePgn();
+                var game = parser.ParseAndValidateGames(pgn).First();
+                var moves = game.MoveSection;
+                var stateStack = new Stack<string>();
+                var bi = new BoardInfo(game.TagSection.FENStart);
+                bi.MoveTree = moves;
+                sb.AppendLine($"****APPLYING {moves.Count()} MOVES****");
+                foreach (var move in moves)
+                {
+                    var beforeFEN = bi.CurrentFEN;
+                    stateStack.Push(bi.CurrentFEN);
+                    bi.TraverseForward(move);
+                    var afterFEN = bi.CurrentFEN;
+                    sb.AppendLine($"\t{move}\t{beforeFEN}->{afterFEN}");
+                }
+                MoveStorage moveUnapplied;
+                sb.AppendLine("****UNAPPLYING MOVES****");
+                while ((moveUnapplied = bi.TraverseBackward()) != null)
+                {
+                    var expectedState = stateStack.Pop();
+                    sb.AppendLine($"\t{moveUnapplied}\tExpected:{expectedState}\tCurrent:{bi.CurrentFEN}");
+                    try
+                    {
+                        Assert.AreEqual(expectedState, bi.CurrentFEN, $"Current state not equal to the expected state after undoing move {moveUnapplied}.\r\nExpected:\t{expectedState}\r\nReturned:\t{bi.CurrentFEN}");
+                    }
+                    catch
+                    {
+                        Console.WriteLine(sb.ToString());
+                        throw;
+                    }
+                    Debug.WriteLine($"Unapplied {moveUnapplied} successfully.");
+                }
+                Console.WriteLine(sb.ToString());
+            }
+
+            [Test]
+            public void TraversingBackwardOnFirstMoveShouldReturnNull()
+            {
+                var bi = new BoardInfo();
+                bi.ApplySANMove("e4");
+                bi.TraverseBackward();
+                for (int i = 0; i < 25; i++)
+                {
+                    var rv = bi.TraverseBackward();
+                    Assert.IsNull(rv);
+                }
+            }
+
+            [Test]
+            public void TraversingForwardOnFirstMoveShouldReturnNull()
+            {
+                var bi = new BoardInfo();
+
+                for (int i = 0; i < 25; i++)
+                {
+                    var rv = bi.TraverseForward(new MoveStorage(new MoveExt(405), "Nf3"));
+                    Assert.IsNull(rv);
+                }
+            }
+
+            [TestCase(nameof(PGN.Puzzle), "r1b1Rk2/pp1p2p1/1b1p2B1/n1q3p1/8/5N2/P4PPP/6K1 b - - 1 4")]
+            [TestCase(nameof(PGN.Fischer01), "8/2b5/8/p5R1/P1p1P2p/4kP2/1P4K1/8 b - - 0 52")]
+            public void GoToLastMove_ShouldApplyLastMove(string nameOfPgn, string expected)
+            {
+                var bi = LoadGameIntoBoardByName(nameOfPgn);
+                bi.GoToLastMove();
+                Assert.AreEqual(bi.MoveTree.LastMove, bi.CurrentMove);
+                Assert.AreEqual(expected, bi.CurrentFEN);
+            }
+
+            [TestCase(nameof(PGN.Puzzle), "r1b2rk1/pp1p1pp1/1b1p2B1/n1qQ2p1/8/5N2/P3RPPP/4R1K1 w - - 0 1")]
+            [TestCase(nameof(PGN.Fischer01), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")]
+            public void GoToInitialState_ShouldApplyInitialState(string nameOfPgn, string expected)
+            {
+                var bi = LoadGameIntoBoardByName(nameOfPgn);
+                bi.GoToLastMove();
+                bi.GoToInitialState();
+                Assert.AreEqual(bi.MoveTree.HeadMove, bi.CurrentMove);
+                Assert.AreEqual(expected, bi.CurrentFEN);
+            }
+
+            [Test]
+            public void FindNextMoves_ShouldReturnEmptyCollectionIfTheEndIsReached()
+            {
+                var bi = LoadGameIntoBoard(PGN.Fischer01);
+                bi.GoToLastMove();
+                var moves = bi.GetNextMoves();
+                Assert.IsEmpty(moves);
+            }
+
+            [Test]
+            public void FindNextMoves_ShouldReturnVariationsInOrder()
+            {
+                var bi = LoadGameIntoBoard(PGN.WithVariations);
+                var appliedMove = bi.TraverseForward(new MoveStorage(666));
+                var moves = bi.GetNextMoves();
+                Assert.AreEqual(4, moves.Count());
+                Assert.AreEqual(4013, moves[0].Move);
+                Assert.AreEqual(3364, moves[1].Move);
+                Assert.AreEqual(3372, moves[2].Move);
+                Assert.AreEqual(3234, moves[3].Move);
+            }
+
+            private BoardInfo LoadGameIntoBoard(string pgn)
+            {
+                var parser = new ParsePgn();
+                var game = parser.ParseAndValidateGames(pgn).First();
+                var moves = game.MoveSection;
+                var stateStack = new Stack<string>();
+                var bi = new BoardInfo(game.TagSection.FENStart);
+                bi.MoveTree = moves;
+                bi.GoToInitialState();
+                return bi;
+            }
+
+            private BoardInfo LoadGameIntoBoardByName(string name)
+            {
+                var data = PGN.ResourceManager.GetString(name);
+                return LoadGameIntoBoard(data);
+            }
 
             [Test, TestCaseSource(nameof(UnApplyTestCases))]
             public void UnapplyMove(string fenStart, string[] moves, string description)
@@ -223,7 +354,7 @@ namespace ChessLib.Data.Tests
                     expectedState = stateStack.Pop();
                     Assert.AreNotEqual(board.ToFEN(), expectedState, $"{description}: expected state should not equal current state.");
                     board.TraverseBackward();
-                        Assert.AreEqual(expectedState, board.ToFEN(), $"{description}: current state not equal to the expected state after undoing move.");
+                    Assert.AreEqual(expectedState, board.ToFEN(), $"{description}: current state not equal to the expected state after undoing move.");
                 }
 
             }
