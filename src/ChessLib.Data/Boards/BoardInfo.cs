@@ -209,7 +209,7 @@ namespace ChessLib.Data.Boards
             }
             else
             {
-                lMoves.Add(CurrentMove);
+                lMoves.Add(CurrentMove.Next);
                 if (CurrentMove.Next.Variations.Any())
                 {
                     lMoves.AddRange(CurrentMove.Next.Variations.Select(x => x.HeadMove));
