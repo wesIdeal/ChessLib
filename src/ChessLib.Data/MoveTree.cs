@@ -4,21 +4,29 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using ChessLib.Data.Annotations;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
 {
-    public class MoveTree<T> : IEnumerable<T>, IMove
+    public class MoveTree<T> : IEnumerable<T>
         where T : IMove
     {
         private MoveNode<T> _last;
         private MoveNode<T> _head;
 
         public MoveNode<T> VariationParent { get; internal set; }
-        public MoveTree(MoveNode<T> parentMove)
+
+
+        public MoveTree([ItemNotNull]MoveNode<T> parentMove)
         {
             VariationParent = parentMove;
+            if (VariationParent == null)
+            {
+                _head = MoveNode<T>.MakeNullNode;
+                _last = _head;
+            }
         }
 
         public IMoveNode<T> AddMove(T move)
@@ -107,7 +115,7 @@ namespace ChessLib.Data
         public IEnumerable<T> GetItemsInReverse()
         {
             var current = _last;
-            while (current != null)
+            while (current != null && !current.IsNullNode)
             {
                 yield return current.MoveData;
                 current = current.Previous ?? current.Parent;

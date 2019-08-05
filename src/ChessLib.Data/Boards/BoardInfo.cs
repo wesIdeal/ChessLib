@@ -88,6 +88,7 @@ namespace ChessLib.Data.Boards
 
         public void ApplyValidatedMove(MoveExt move)
         {
+            Debug.WriteLine($"Before applying move {move}, FEN is:\t{CurrentFEN}");
             var pocSource = this.GetPieceOfColorAtIndex(move.SourceIndex);
             var capturedPiece = this.GetPieceOfColorAtIndex(move.DestinationIndex);
             if (capturedPiece == null && move.MoveType == MoveType.EnPassant)
@@ -106,35 +107,32 @@ namespace ChessLib.Data.Boards
             node.MoveData.SetPostMoveFEN(this.ToFEN());
             CurrentMove = (MoveNode<MoveStorage>)MoveTree.LastMove;
             Debug.WriteLine($"Move {move} was applied.");
+            Debug.WriteLine($"After applying move {move}, FEN is:\t{CurrentFEN}");
         }
 
         public void UnapplyMove()
         {
-            var previousMoveNode = FindPreviousNode();
-            if (previousMoveNode == null)
-            {
-                var initialState = new BoardInfo(InitialFEN);
-                ApplyNewBoard(initialState);
-                CurrentMove = MoveTree.HeadMove;
-            }
-            else
+            Debug.WriteLine($"Before unapply, FEN is:\t{CurrentFEN}");
+            var previousBoardState = FindPreviousBoardState();
+            if (previousBoardState != null)
             {
                 var currentMove = CurrentMove.MoveData;
-                var hmClock = CurrentMove.MoveData.BoardState.GetHalfmoveClock();
-                var castlingAvailability = CurrentMove.MoveData.BoardState.GetCastlingAvailability();
-                var epSquare = CurrentMove.MoveData.BoardState.GetEnPassantSquare();
+                var hmClock = previousBoardState.GetHalfmoveClock();
+                var castlingAvailability = previousBoardState.GetCastlingAvailability();
+                var epSquare = previousBoardState.GetEnPassantSquare();
                 var pieces = UnApplyPiecesFromMove(CurrentMove);
                 var fullMove = ActivePlayer == Color.White ? FullmoveCounter - 1 : FullmoveCounter;
                 var board = new BoardInfo(pieces, ActivePlayer.Toggle(), castlingAvailability, epSquare, hmClock,
                     (ushort)fullMove, false);
                 ApplyNewBoard(board);
-                CurrentMove = previousMoveNode;
+                CurrentMove = CurrentMove.Previous ?? CurrentMove.Parent;
+
             }
+            Debug.WriteLine($"After unapply, FEN is:\t{CurrentFEN}");
         }
 
         private ulong[][] UnApplyPiecesFromMove(MoveNode<MoveStorage> currentMoveNode)
         {
-            Debug.WriteLine($"Current FEN:\t{CurrentFEN}");
 
             var currentMove = currentMoveNode.MoveData;
             var piece = currentMove.MoveType == MoveType.Promotion ? Piece.Pawn :
@@ -148,15 +146,12 @@ namespace ChessLib.Data.Boards
             var opp = active ^ 1;
             var piecePlacement = board.GetPiecePlacement();
             var capturedPiece = currentMove.BoardState.GetPieceCaptured();
-            Debug.WriteLine($"Unapplying {board.ActivePlayer.Toggle()}'s move {currentMoveNode.MoveData}.");
-            Debug.WriteLine($"Piece that moved was a {piece}.");
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Before unapplying, {board.ActivePlayer.Toggle()}'s {piece}'s ulong is {piecePlacement[active][(int)piece.Value]}.\r\nAdding piece to {currentMove.SourceIndex}...");
+
+
             piecePlacement[active][(int)piece.Value] = piecePlacement[active][(int)piece] | dst;
-            sb.AppendLine($"Before unapplying, {board.ActivePlayer.Toggle()}'s {piece}'s ulong is now {piecePlacement[active][(int)piece.Value]}.\r\nRemoving piece from {currentMove.DestinationIndex}...");
             piecePlacement[active][(int)piece.Value] = piecePlacement[active][(int)piece] & ~(src);
-            sb.AppendLine($"After moving piece, the {piece} ulong is {piecePlacement[active][(int)piece]}.");
-            Debug.WriteLine(sb.ToString());
+
+
             if (capturedPiece.HasValue)
             {
                 var capturedPieceSrc = src;
@@ -167,7 +162,7 @@ namespace ChessLib.Data.Boards
                         : ((ushort)(src.GetSetBits()[0] + 8)).ToBoardValue();
                 }
                 Debug.WriteLine($"{board.ActivePlayer}'s captured {capturedPiece} is being replaced. ulong={piecePlacement[opp][(int)capturedPiece]}");
-                piecePlacement[opp][(int)capturedPiece] ^= src;
+                piecePlacement[opp][(int)capturedPiece] ^= capturedPieceSrc;
                 Debug.WriteLine($"{board.ActivePlayer}'s captured {capturedPiece} was replaced. ulong={piecePlacement[opp][(int)capturedPiece]}");
 
             }
@@ -243,18 +238,20 @@ namespace ChessLib.Data.Boards
             UnapplyMove();
         }
 
-        private MoveNode<MoveStorage> FindPreviousNode()
+        private BoardState FindPreviousBoardState()
         {
-            if (CurrentMove == null)
-            {
-                return MoveTree.LastMove;
-            }
-
-            if (CurrentMove == MoveTree.HeadMove)
+            if (CurrentMove.IsNullNode)
             {
                 return null;
             }
-            return CurrentMove.Previous ?? CurrentMove.Parent ?? null;
+            if (CurrentMove.Previous.IsNullNode)
+            {
+                return InitialBoardState;
+            }
+            else
+            {
+                return CurrentMove.Previous.MoveData.BoardState;
+            }
         }
 
         /// <summary>

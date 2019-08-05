@@ -22,6 +22,14 @@ namespace ChessLib.Data.Boards
     }
     public class BoardState : IBoardState
     {
+       
+
+        public static BoardState FromFEN(string initialFEN)
+        {
+            var bi = new BoardInfo(initialFEN);
+            return new BoardState(bi.HalfmoveClock, bi.EnPassantSquare, null, bi.CastlingAvailability, bi.ValidateBoard());
+        }
+
         /// <summary>
         /// Makes an archival board state
         /// </summary>

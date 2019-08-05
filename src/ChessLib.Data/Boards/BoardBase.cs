@@ -90,7 +90,15 @@ namespace ChessLib.Data.Boards
         public ushort FullmoveCounter { get; set; }
         public bool Chess960 { get; protected set; }
         public string InitialFEN { get; protected set; }
+        private BoardState _initialBoardState = null;
+        public BoardState InitialBoardState
+        {
+            get
+            {
+                return _initialBoardState ?? (_initialBoardState = BoardState.FromFEN(InitialFEN));
 
+            }
+        }
         public ulong ActiveOccupancy => GetPiecePlacement().Occupancy(ActivePlayer);
         public ulong OpponentOccupancy => GetPiecePlacement().Occupancy(this.OpponentColor());
         public ulong TotalOccupancy => GetPiecePlacement().Occupancy();

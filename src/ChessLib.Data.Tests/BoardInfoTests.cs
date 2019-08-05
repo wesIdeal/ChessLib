@@ -200,32 +200,7 @@ namespace ChessLib.Data.Tests
                 Assert.AreEqual(expectedFEN, _bInitial.ToFEN());
             }
 
-            [Test]
-            public void TraverseMoves(string fenStart, string[] moves, string description)
-            {
-                var board = new BoardInfo(fenStart);
-               
-                var stateStack = new Stack<string>();
-                var index = 0;
-                for (index = 0; index < moves.Length; index++)
-                {
-                    var move = moves[index];
-                    var moveTranslator = new MoveTranslatorService(board);
-                    var moveExt = moveTranslator.GetMoveFromSAN(move);
-                    stateStack.Push(board.ToFEN());
-                    board.ApplyMove(moveExt);
-                }
-
-                string expectedState;
-                for (; index > 0; index--)
-                {
-                    expectedState = stateStack.Pop();
-                    Assert.AreNotEqual(board.ToFEN(), expectedState, $"{description}: expected state should not equal current state.");
-                    board.UnapplyMove();
-                    Assert.AreEqual(expectedState, board.ToFEN(), $"{description}: current state not equal to the expected state after undoing move.");
-                }
-
-            }
+           
 
             [Test, TestCaseSource(nameof(UnApplyTestCases))]
             public void UnapplyMove(string fenStart, string[] moves, string description)
@@ -247,8 +222,8 @@ namespace ChessLib.Data.Tests
                 {
                     expectedState = stateStack.Pop();
                     Assert.AreNotEqual(board.ToFEN(), expectedState, $"{description}: expected state should not equal current state.");
-                    board.UnapplyMove();
-                    Assert.AreEqual(expectedState, board.ToFEN(), $"{description}: current state not equal to the expected state after undoing move.");
+                    board.TraverseBackward();
+                        Assert.AreEqual(expectedState, board.ToFEN(), $"{description}: current state not equal to the expected state after undoing move.");
                 }
 
             }

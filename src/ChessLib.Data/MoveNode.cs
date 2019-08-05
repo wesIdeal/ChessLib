@@ -11,7 +11,7 @@ namespace ChessLib.Data
         public MoveNode<T> Parent { get; set; }
         public MoveNode<T> Previous { get; set; }
         public MoveNode<T> Next { get; set; }
-
+        private bool _isNullNode = false;
         private MoveNode()
         {
             Variations = new List<MoveTree<T>>();
@@ -28,6 +28,9 @@ namespace ChessLib.Data
             MoveData = move;
             Parent = parent;
         }
+        public bool IsNullNode => _isNullNode;
+
+        public static MoveNode<T> MakeNullNode => new MoveNode<T>() { _isNullNode = true };
 
         public MoveTree<T> AddVariation()
         {
