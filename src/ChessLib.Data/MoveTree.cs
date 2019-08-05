@@ -94,7 +94,7 @@ namespace ChessLib.Data
 
         public IEnumerable<MoveNode<T>> GetNodeEnumerator()
         {
-            var node = _head;
+            var node = _head.IsNullNode ? _head.Next : _head;
             while (node != null)
             {
                 yield return node;
