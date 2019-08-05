@@ -636,8 +636,84 @@ namespace ChessLib.Data.Helpers
         public static bool CanEvadeThroughBlockOrCapture(in IBoard board, Color? c = null)
         {
             if (c.HasValue)
+            {
                 board.ActivePlayer = c.Value;
-            return GetEvasions(board).Any();
+            }
+            var hasEvasions = GetEvasions(board).Any();
+            if(hasEvasions)
+            {
+                return true;
+            }
+            if (CanCheckingPieceBeCaptured(board))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static ushort[] GetPiecesAttackingSquare(IBoard board, ushort idx, Color attackerColor, ushort? blockerToRemove = null)
+        {
+            var pieces = board.GetPiecePlacement();
+
+            pieces = blockerToRemove.HasValue ? RemovePotentialBlocker(pieces, blockerToRemove.Value) : pieces;
+            var piecesAttacking = PiecesAttackingSquare(pieces, idx) &
+                                 board.GetPiecePlacement().Occupancy(attackerColor);
+            var attackerIndexes = piecesAttacking.GetSetBits();
+            return attackerIndexes;
+        }
+
+        private static ulong[][] RemovePotentialBlocker(ulong[][] pieces, ushort blocker)
+        {
+            var notPieceVal = ~(blocker.GetBoardValueOfIndex());
+            var pieceArrayRv = new ulong[2][];
+            for (int i = 0; i < pieces.Length; i++)
+            {
+                ulong[] colorSet = pieces[i];
+                pieceArrayRv[i] = new ulong[6];
+                for (int pieceIdx = 0; pieceIdx < colorSet.Length; pieceIdx++)
+                {
+                    ulong piece = colorSet[pieceIdx];
+                    pieceArrayRv[i][pieceIdx] = piece & notPieceVal;
+                }
+            }
+            return pieceArrayRv;
+        }
+
+        private static bool CanActiveKingCaptureOnSquare(IBoard board, ushort square)
+        {
+            var kingAttacks = Magic.Bitboard.GetAttackedSquares(Piece.King, board.ActiveKingIndex(), board.TotalOccupancy(), board.ActivePlayer);
+            var sqValue = square.ToBoardValue();
+            if ((kingAttacks & sqValue) == 0)
+            {
+                return false;
+            }
+            var checkerSquareAttackedBySameColor = GetPiecesAttackingSquare(board, square, board.OpponentColor(), board.ActiveKingIndex()).Any();
+            return !checkerSquareAttackedBySameColor;
+        }
+
+
+        private static bool CanCheckingPieceBeCaptured(IBoard board)
+        {
+            var checkingPieceArray = GetPiecesAttackingSquare(board, board.ActiveKingIndex(), board.OpponentColor());
+            var isDoubleCheck = checkingPieceArray.Count() > 1;
+            var kingCanCapturePiece = false;
+            foreach (var checkingPiece in checkingPieceArray)
+            {
+                kingCanCapturePiece |= CanActiveKingCaptureOnSquare(board, checkingPiece);
+            }
+            if (kingCanCapturePiece)
+            {
+                return true;
+            }
+            else if (isDoubleCheck)
+            {
+                return false;
+            }
+            var checkerIndex = checkingPieceArray.First();
+            var activePiecesAttackingChecker =
+                GetPiecesAttackingSquare(board, checkerIndex, board.ActivePlayer).ToList();
+            activePiecesAttackingChecker.RemoveAll(x => x == board.ActiveKingIndex());
+            return activePiecesAttackingChecker.Any();
         }
 
         /// <summary>
@@ -713,7 +789,12 @@ namespace ChessLib.Data.Helpers
         public static ulong PiecesAttackingSquare(this IBoard board, in ushort squareIndex)
         {
             var piecesOnBoard = board.GetPiecePlacement();
-            var total = board.TotalOccupancy();
+            return PiecesAttackingSquare(piecesOnBoard, squareIndex);
+        }
+
+        private static ulong PiecesAttackingSquare(in ulong[][] piecesOnBoard, in ushort squareIndex)
+        {
+            var total = piecesOnBoard.Occupancy();
             var pawnWhite = piecesOnBoard[WHITE][PAWN];
             var pawnBlack = piecesOnBoard[BLACK][PAWN];
             var knight = piecesOnBoard[BLACK][KNIGHT] | piecesOnBoard[WHITE][KNIGHT];
@@ -729,7 +810,6 @@ namespace ChessLib.Data.Helpers
                    | (Bitboard.GetAttackedSquares(Piece.Queen, squareIndex, total, Color.White) & queen)
                    | (Bitboard.GetAttackedSquares(Piece.King, squareIndex, total, Color.White) & king);
         }
-
 
         #region Constant Piece and Color Values for Indexing arrays
 

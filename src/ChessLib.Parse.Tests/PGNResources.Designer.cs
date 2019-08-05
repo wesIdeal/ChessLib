@@ -143,6 +143,35 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;2019 US Open&quot;]
+        ///[Site &quot;Orlando, FL USA&quot;]
+        ///[Date &quot;2019.08.03&quot;]
+        ///[Round &quot;1&quot;]
+        ///[White &quot;Biernacki, Mark&quot;]
+        ///[Black &quot;Yan, Henry&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[WhiteElo &quot;2159&quot;]
+        ///[BlackElo &quot;1650&quot;]
+        ///[ECO &quot;A00v&quot;]
+        ///[EventDate &quot;2019.08.04&quot;]
+        ///[UTCDate &quot;2019.08.04&quot;]
+        ///[UTCTime &quot;16:33:57&quot;]
+        ///[Variant &quot;Standard&quot;]
+        ///[Opening &quot;Hungarian Opening: Indian Defense&quot;]
+        ///[Annotator &quot;https://lichess.org/@/liquormark&quot;]
+        ///
+        ///1.g3 Nf6 2.Bg2 d5 3.Na3 
+        ///    {Obviously a bad move, but wanted to make the game interesting.}
+        ///3...Bf5 
+        ///    ( 3...e5 4 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string GameWithVars {
+            get {
+                return ResourceManager.GetString("GameWithVars", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] talLarge {

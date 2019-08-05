@@ -221,7 +221,7 @@ namespace ChessLib.Data.Tests
                     expectedState = stateStack.Pop();
                     Assert.AreNotEqual(board.ToFEN(), expectedState, $"{description}: expected state should not equal current state.");
                     board.UnapplyMove();
-                    Assert.AreEqual(expectedState, board.ToFEN(), $"{description}: current state not equal to the expected state after Unapply()");
+                    Assert.AreEqual(expectedState, board.ToFEN(), $"{description}: current state not equal to the expected state after undoing move.");
                 }
 
             }

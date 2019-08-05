@@ -19,6 +19,8 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
         [TestCase("3qk3/5Q1p/8/p1p1N3/Pp2bP1P/1P1r4/8/4RnK1 b - - 6 38", BoardExceptionType.Checkmate)]
         [TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55", BoardExceptionType.Checkmate)]
         [TestCase("4R3/2p3pk/pp3p2/5n1p/2P2P1P/P5r1/1P4q1/3QR2K w - - 6 41", BoardExceptionType.Checkmate)]
+        [TestCase("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23", BoardExceptionType.None)]
+        [TestCase("2bq1rk1/3p1Bpp/p1p3N1/1rb2Pp1/1pQ5/P5N1/1PP3PP/R3R2K b - - 0 23", BoardExceptionType.None)]
         public static void ValidateEndOfGame(string fen, BoardExceptionType expectedException)
         {
 

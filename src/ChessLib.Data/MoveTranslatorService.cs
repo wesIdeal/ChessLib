@@ -244,7 +244,7 @@ namespace ChessLib.Data
                 ushort[] sourceSquares = null;
                 if (char.IsDigit(mv[0]))
                 {
-                    var sourceRank = ushort.Parse(mv).GetRank();
+                    var sourceRank = ushort.Parse(mv) - 1;
                     sourceSquares = possibleAttackersOfType.Where(s => s.GetRank() == sourceRank).ToArray();
 
                 }

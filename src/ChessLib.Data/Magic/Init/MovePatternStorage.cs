@@ -31,7 +31,6 @@ namespace ChessLib.Data.Magic.Init
             //Parallel.For(0, 64, (index) =>
             for (int index = 0; index < 64; index++)
             {
-                Debug.WriteLine($"\t\t{mi.GetType().Name}: index {index}");
                 var attackBoard = moves[index];
                 var setBitCount = ArraySize;//= attackBoard.CountSetBits();
                 AttackPatterns[index] = moves[index];

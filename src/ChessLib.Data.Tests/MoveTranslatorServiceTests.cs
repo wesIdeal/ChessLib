@@ -104,7 +104,14 @@ namespace ChessLib.Data.Tests
             AssertMovesAreEqual(expectedMove, actualMove);
         }
 
-
+        [TestCase("1b1r2k1/ppqr2pb/2p2p2/4pP2/2N1Q2B/2P5/PPN4P/R4B1K w - - 2 25", "N4e3", (ushort)26, (ushort)20)]
+        public void TestAmbiguousMoves(string fen, string move, ushort source, ushort dst)
+        {
+            _moveTranslatorService.InitializeBoard(fen);
+            var actual = _moveTranslatorService.GetMoveFromSAN(move);
+            var expected = MoveHelpers.GenerateMove(source, dst);
+            Assert.AreEqual(expected, actual);
+        }
 
         [Test]
         public void GetMoveFromSAN_ShouldThrowException_IfMoveIsLessThan2Chars()
@@ -156,6 +163,7 @@ namespace ChessLib.Data.Tests
         [TestCase("rnb1kbnr/pp3ppp/4p3/2pq4/3P4/8/PPPN1PPP/R1BQKBNR w KQkq - 0 5", null, 21, Piece.Knight, Color.White, "Ngf3", 6)]
         [TestCase("4r1k1/1p1qrb2/p5p1/3p1p2/P1pb1P2/4N2R/1PBN1KP1/3QR3 w - - 4 31", null, 5, Piece.Knight, Color.White, "Nf1", 11)]
         [TestCase("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2", null, 26, Piece.Bishop, Color.White, "Bc4", 5)]
+       
         public static void ShouldMoveSource(string fen, int? sourceIdx, int destIdx, Piece p, Color c, string moveText, int expected)
         {
             var moveTranslatorService = new MoveTranslatorService(new BoardInfo(fen) { ActivePlayer = c });

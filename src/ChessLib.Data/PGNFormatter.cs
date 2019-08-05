@@ -44,6 +44,7 @@ namespace ChessLib.Data
             return sb.ToString();
         }
 
+       
 
         private string BuildMoveTree(in MoveTree<TS> tree, string fen, uint indentLevel = 0)
         {
@@ -106,8 +107,12 @@ namespace ChessLib.Data
 
         private string IndentText(uint depth) => depth == 0 ? " " : new string(' ', (int)depth * 4);
 
-        private char FullMoveEndingCharacter(Color activeColor) =>
-            _options.ExportFormat ? ' ' : _options.NewlineEachMove ? NewLine : ' ';
+        private char FullMoveEndingCharacter(Color activeColor)
+        {
+
+            return _options.ExportFormat ? ' ' : (_options.NewlineEachMove && activeColor == Color.Black) ? NewLine : ' ';
+        }
+
         private bool ShouldWriteMoveNumber(int iterations, Color activeColor) =>
             UseEllipses(iterations, activeColor) || activeColor == Color.White;
         private bool UseEllipses(int iterations, Color activeColor) => iterations == 0 && activeColor == Color.Black;

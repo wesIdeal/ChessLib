@@ -60,6 +60,15 @@ namespace ChessLib.Data.Tests
             Assert.AreEqual(expected, _moveDisplayService.MoveToSAN(move));
         }
 
+        [TestCase("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23", "d5f7", "Bxf7+")]
+        public void TestCheckDisplay(string fen, string lan, string expected)
+        {
+            BoardInfo bi = new BoardInfo(fen);
+            MoveTranslatorService mts = new MoveTranslatorService(bi);
+            MoveDisplayService mds = new MoveDisplayService(bi);
+            var actual = mds.MoveToSAN(mts.FromLongAlgebraicNotation(lan));
+            Assert.AreEqual(expected, actual);
+        }
 
 
         [Test]

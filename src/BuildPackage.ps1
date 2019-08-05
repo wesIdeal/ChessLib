@@ -1,18 +1,12 @@
 param (
     [Parameter(Mandatory=$false)]
-    [Alias("d")]
-    [Switch]
-    $debugOutput,
-    [Parameter(Mandatory=$false)]
-    [string]
-    $version)
+    [string]$version)
 
 function Get-Version
 {
     param(
-    [Parameter(Position=0, Mandatory=$true)]
-    [ValidateNotNullOrEmpty()]
-    [string] $version
+    [string]
+    $version
         )
     $versionArr = $version.Split('.')
     $versionMajor = $versionArr[0] -as [int]
@@ -48,10 +42,11 @@ $package="ChessLib"
 $installDir = "C:\Users\Wes\nuget"
 $projFile = $base + "\ChessLib.Data\ChessLib.Data.csproj"
 $nuspecFile = $base + "\ChessLib.nuspec"
+[xml]$myXML = Get-Content $projFile
 if(!$version)
 {
-    [xml]$myXML = Get-Content $projFile
-    $version = Get-Version -version $myXML.Project.PropertyGroup.Version
+    $versionFromProj = $myXML.Project.PropertyGroup.Version
+    $version = Get-Version -version $versionFromProj
     Write-Output $version
 }
  
@@ -60,17 +55,11 @@ if(!$version)
  [xml]$nuXML = Get-Content $nuspecFile
  $nuXML.package.metadata.version = $version
  $myXML.Project.PropertyGroup.Version = $version
- $config = "Release"
- $packCommand = "nuget pack -Build -Properties"
- $symbols = ""
- if($debugOutput)
-{
-    $config = "Debug"
-    $symbols = " -Symbols"
-}
-dotnet build -c Release
-$packCommand += " Configuration=" + $config + " -Version " + $version + " " + $symbols
 
+$buildCommand ="dotnet build -c Release"
+Write-Output $buildCommand
+Invoke-Expression -Command $buildCommand
+$packCommand = "nuget pack -Build -Properties Configuration=Release -Version ${version}"
 Write-Output $packCommand
 Invoke-Expression -Command $packCommand
 $command = "nuget add $package.${version}.nupkg -Source $installDir"

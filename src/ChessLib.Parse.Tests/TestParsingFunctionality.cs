@@ -74,7 +74,13 @@ namespace ChessLib.Parse.Tests
 
             return rv;
         }
-
+        [Test]
+        public void TestRealGameParsing()
+        {
+            var pgn = PGNResources.GameWithVars;
+            var game = _parser.GetGameTexts(new AntlrInputStream(pgn)).ToArray();
+            Assert.AreEqual(1, game.Length, $"Expected only one game, but found {game.Length}.");
+        }
         [Test]
         public void TestColumnStylePGN()
         {

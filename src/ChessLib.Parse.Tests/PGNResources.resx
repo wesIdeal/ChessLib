@@ -189,6 +189,56 @@ Be3 Be7 8. Qf3 a6 $1 9. O-O-O Qc7 { Qc7 is a great move, here.}  10. g4 Nxd4
 17. Qe5 Qa1+ 18. Kd2 Qa5+ 19. b4 Qd8 20. Rhg1 f6 21. Bh5+ Kf8 22. Rxg7 fxe5 23.
 Rf7+ Ke8 24. Rxe7+ Kf8 25. Rf1+ Kg8 26. Rff7  1-0</value>
   </data>
+  <data name="GameWithVars" xml:space="preserve">
+    <value>[Event "2019 US Open"]
+[Site "Orlando, FL USA"]
+[Date "2019.08.03"]
+[Round "1"]
+[White "Biernacki, Mark"]
+[Black "Yan, Henry"]
+[Result "1-0"]
+[WhiteElo "2159"]
+[BlackElo "1650"]
+[ECO "A00v"]
+[EventDate "2019.08.04"]
+[UTCDate "2019.08.04"]
+[UTCTime "16:33:57"]
+[Variant "Standard"]
+[Opening "Hungarian Opening: Indian Defense"]
+[Annotator "https://lichess.org/@/liquormark"]
+
+1.g3 Nf6 2.Bg2 d5 3.Na3 
+    {Obviously a bad move, but wanted to make the game interesting.}
+3...Bf5 
+    ( 3...e5 4.c3 Bxa3 5.Qa4+ {Bishop pair and imbalanced position} )
+4.d3 h6 5.c3 c6 6.Nc2 Nbd7 7.Nf3 e6 $2 
+    {Black didn't get any piece of the center, which was a bad decision by them...Na3 should be punished!}
+8.O-O Bd6 9.Re1 Qc7 10.Nd2 O-O 11.e4 Bh7 
+    ( 11...Bg4 12.Bf3 {This was best} )
+12.f4 Qb6+ $2 
+    {A pointless check, he should have saved the check for later on}
+13.Kh1 $2 
+    ( 13.Ne3 {self-pinning was best here} )
+13...e5 14.f5 
+    ( 14.fxe5 Nxe5 15.d4 Nd3 {[%csl Ge1,Gf2]} )
+14...Rad8 15.g4 
+    {[%cal Gg4g5]}
+15...Nc5 16.Bf1 $1 
+    {I actually really liked that move, the Bishop did it's job on g2.}
+    ( 16.Qe2 $2 Nxd3 17.Qxd3 Nxg4 $13 )
+16...dxe4 17.dxe4 Bb8 18.Qf3 Rd7 
+    ( 18...Rxd2 )
+19.Nc4 Qc7 20.g5 hxg5 21.Bxg5 Nfxe4 
+    {Desperation!}
+22.Rxe4 Nxe4 23.Qxe4 
+    ( 23.Qf4 )
+23...f6 24.Bh4 Rfd8 25.N4e3 a5 26.a4 Qb6 27.Bc4+ Kh8 28.b3 Ba7 29.Rg1 Rd2 30.Qg4 R8d7 31.Be6 Re7 32.Rg3 Qc7 
+    ( 32...Rxe6 )
+    ( 32...Rxc2 33.Nxc2 Qf2 {apparently i really underestimated this! He was low on time so playing fast} )
+33.Rh3 Rxe6 
+    {(Saw this one coming)}
+34.fxe6 Bxc2 35.Bxf6+ Kg8 36.e7 $1 1-0</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="talLarge" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>PGN\talLarge.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

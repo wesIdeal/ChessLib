@@ -383,7 +383,7 @@ namespace ChessLib.Data.Magic
                 {
                     legalMoves &= ~(moveSq1 | moveSq2);
                 }
-                else if((moveSq2 & occ) != 0)
+                else if ((moveSq2 & occ) != 0)
                 {
                     legalMoves &= ~(moveSq2);
                 }
@@ -401,10 +401,6 @@ namespace ChessLib.Data.Magic
         /// <returns>true if <paramref name="squareIndex"/> is attacked by any piece of <paramref name="color"/></returns>
         public static bool IsSquareAttackedByColor(this ushort squareIndex, Color color, ulong[][] piecesOnBoard)
         {
-            StackTrace stackTrace = new StackTrace();
-            MethodBase methodBase = stackTrace.GetFrame(1).GetMethod();
-            Debug.WriteLine(methodBase.Name);
-
             var nColor = (int)color;
             var notNColor = nColor ^ 1;
             var r = squareIndex / 8;
