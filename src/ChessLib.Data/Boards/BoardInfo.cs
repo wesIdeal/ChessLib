@@ -120,9 +120,9 @@ namespace ChessLib.Data.Boards
             else
             {
                 var currentMove = CurrentMove.MoveData;
-                var hmClock = previousMoveNode.MoveData.BoardState.GetHalfmoveClock();
-                var castlingAvailability = previousMoveNode.MoveData.BoardState.GetCastlingAvailability();
-                var epSquare = previousMoveNode.MoveData.BoardState.GetEnPassantSquare();
+                var hmClock = CurrentMove.MoveData.BoardState.GetHalfmoveClock();
+                var castlingAvailability = CurrentMove.MoveData.BoardState.GetCastlingAvailability();
+                var epSquare = CurrentMove.MoveData.BoardState.GetEnPassantSquare();
                 var pieces = UnApplyPiecesFromMove(CurrentMove);
                 var fullMove = ActivePlayer == Color.White ? FullmoveCounter - 1 : FullmoveCounter;
                 var board = new BoardInfo(pieces, ActivePlayer.Toggle(), castlingAvailability, epSquare, hmClock,
@@ -135,11 +135,11 @@ namespace ChessLib.Data.Boards
         private ulong[][] UnApplyPiecesFromMove(MoveNode<MoveStorage> currentMoveNode)
         {
             Debug.WriteLine($"Current FEN:\t{CurrentFEN}");
-           
+
             var currentMove = currentMoveNode.MoveData;
             var piece = currentMove.MoveType == MoveType.Promotion ? Piece.Pawn :
                 this.GetPieceAtIndex(currentMove.DestinationIndex);
-            
+
             Debug.Assert(piece.HasValue, "Piece for unapply() has no value.");
             var src = currentMove.DestinationValue;
             var dst = currentMove.SourceValue;
@@ -201,18 +201,23 @@ namespace ChessLib.Data.Boards
         /// <returns></returns>
         public MoveStorage[] GetNextMoves()
         {
-            var lMoves = new List<MoveStorage>();
-            if (CurrentMove == null)
+            return GetNextMoveNodes().Select(x => x.MoveData).ToArray();
+        }
+
+        private MoveNode<MoveStorage>[] GetNextMoveNodes()
+        {
+            var lMoves = new List<MoveNode<MoveStorage>>();
+            if (CurrentMove.Next == null)
             {
                 return lMoves.ToArray();
 
             }
             else
             {
-                lMoves.Add(CurrentMove.MoveData);
-                if (CurrentMove.Variations.Any())
+                lMoves.Add(CurrentMove);
+                if (CurrentMove.Next.Variations.Any())
                 {
-                    lMoves.AddRange(CurrentMove.Variations.Select(x => x.HeadMove.MoveData));
+                    lMoves.AddRange(CurrentMove.Next.Variations.Select(x => x.HeadMove));
                 }
             }
 
@@ -227,7 +232,7 @@ namespace ChessLib.Data.Boards
                 BoardInfo board;
                 board = new BoardInfo(CurrentMove.MoveData.PostmoveFEN);
                 ApplyNewBoard(board);
-                CurrentMove = foundMove.Next;
+                CurrentMove = foundMove;
                 ApplyNewBoard(board);
 
             }
@@ -259,20 +264,8 @@ namespace ChessLib.Data.Boards
         /// <returns></returns>
         private MoveNode<MoveStorage> FindNextNode(MoveStorage move)
         {
-            if (CurrentMove.MoveData == move)
-            {
-                return CurrentMove;
-            }
-
-            foreach (var variation in CurrentMove.Variations)
-            {
-                if (variation.HeadMove.MoveData == move)
-                {
-                    return variation.HeadMove;
-                }
-            }
-
-            return null;
+            var nextMoves = GetNextMoveNodes();
+            return nextMoves.FirstOrDefault(x => x.MoveData == move);
         }
 
 

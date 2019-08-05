@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>ChessLib</id>
-    <version>0.2.24</version>
+    <version>0.2.30</version>
     <authors>Wes Idell</authors>
     <owners>Wes Idell</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -25,13 +25,13 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Data\bin\x64\Release\net472\ChessLib.Data.dll" target="lib\net472\ChessLib.Data.dll" />
-    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Data\bin\x64\Release\netstandard2.0\ChessLib.Data.dll" target="lib\netstandard2.0\ChessLib.Data.dll" />
-    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Graphics\bin\x64\Release\net472\ChessLib.Graphics.dll" target="lib\net472\ChessLib.Graphics.dll" />
-    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Graphics\bin\x64\Release\netstandard2.0\ChessLib.Graphics.dll" target="lib\netstandard2.0\ChessLib.Graphics.dll" />
-    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Parse\bin\x64\Release\net472\ChessLib.Parse.dll" target="lib\net472\ChessLib.Parse.dll" />
-    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Parse\bin\x64\Release\netstandard2.0\ChessLib.Parse.dll" target="lib\netstandard2.0\ChessLib.Parse.dll" />
-    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.EngineInterface\bin\x64\Release\net472\ChessLib.EngineInterface.dll" target="lib\net472\ChessLib.EngineInterface.dll" />
-    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.EngineInterface\bin\x64\Release\netstandard2.0\ChessLib.EngineInterface.dll" target="lib\netstandard2.0\ChessLib.EngineInterface.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Data\bin\x64\Debug\net472\ChessLib.Data.dll" target="lib\net472\ChessLib.Data.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Data\bin\x64\Debug\netstandard2.0\ChessLib.Data.dll" target="lib\netstandard2.0\ChessLib.Data.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Graphics\bin\x64\Debug\net472\ChessLib.Graphics.dll" target="lib\net472\ChessLib.Graphics.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Graphics\bin\x64\Debug\netstandard2.0\ChessLib.Graphics.dll" target="lib\netstandard2.0\ChessLib.Graphics.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Parse\bin\x64\Debug\net472\ChessLib.Parse.dll" target="lib\net472\ChessLib.Parse.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.Parse\bin\x64\Debug\netstandard2.0\ChessLib.Parse.dll" target="lib\netstandard2.0\ChessLib.Parse.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.EngineInterface\bin\x64\Debug\net472\ChessLib.EngineInterface.dll" target="lib\net472\ChessLib.EngineInterface.dll" />
+    <file src="C:\Users\Wes\Source\Repos\ChessLib\src\ChessLib.EngineInterface\bin\x64\Debug\netstandard2.0\ChessLib.EngineInterface.dll" target="lib\netstandard2.0\ChessLib.EngineInterface.dll" />
   </files>
 </package>
