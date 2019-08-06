@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>ChessLib</id>
-    <version>0.2.32</version>
+    <version>0.2.36</version>
     <authors>Wes Idell</authors>
     <owners>Wes Idell</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -15,12 +15,12 @@
       <group targetFramework=".NETFramework4.7.2">
         <dependency id="Enums.NET" version="2.3.2" exclude="Build,Analyzers" />
         <dependency id="Antlr4.Runtime.Standard" version="4.7.2" exclude="Build,Analyzers" />
-        <dependency id="Magick.NET-Q8-AnyCPU" version="7.13.0" exclude="Build,Analyzers" />
+        <dependency id="Magick.NET-Q8-AnyCPU" version="7.14.1" exclude="Build,Analyzers" />
       </group>
       <group targetFramework=".NETStandard2.0">
         <dependency id="Enums.NET" version="2.3.2" exclude="Build,Analyzers" />
         <dependency id="Antlr4.Runtime.Standard" version="4.7.2" exclude="Build,Analyzers" />
-        <dependency id="Magick.NET-Q8-AnyCPU" version="7.13.0" exclude="Build,Analyzers" />
+        <dependency id="Magick.NET-Q8-AnyCPU" version="7.14.1" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

@@ -289,7 +289,7 @@ namespace ChessLib.Graphics
             }
         }
 
-        protected IMagickImage MakeBoardFromFen(string fen, IMagickImage image, Tags tags, ushort? emptySquareIndex)
+        public IMagickImage MakeBoardFromFen(string fen, IMagickImage image, Tags tags, ushort? emptySquareIndex)
         {
             tags = tags ?? new Tags();
             using (var board = image.Clone())
@@ -328,6 +328,8 @@ namespace ChessLib.Graphics
                 return board.Clone();
             }
         }
+
+
 
         public void MakeBoardFromFen(Stream writeTo, string fen, ImageOptions imageOptions = null, Tags tags = null, ImageFormat imageFormat = ImageFormat.PNG)
         {
