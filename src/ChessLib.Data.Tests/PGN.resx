@@ -151,6 +151,19 @@
     2.Qd3 )
 1...Rxf7 2.Re8+ Rf8 3.Rxf8+ Kxf8 4.Re8# 1-0</value>
   </data>
+  <data name="ShortVariation" xml:space="preserve">
+    <value>[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1.c4 Nf6 
+    ( 1...d5 )
+*</value>
+  </data>
   <data name="WithVariations" xml:space="preserve">
     <value>[Event "?"]
 [Site "?"]

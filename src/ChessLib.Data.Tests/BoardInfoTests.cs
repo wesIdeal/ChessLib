@@ -272,6 +272,23 @@ namespace ChessLib.Data.Tests
                 }
             }
 
+            [Test]
+            public void TraverseBackward_OutOfVariation_ShouldReturnCorrectMove()
+            {
+                var board = LoadGameIntoBoard(PGN.ShortVariation);
+                MoveStorage[] moves;
+                MoveStorage move = null;
+                while ((moves = board.GetNextMoves()).Count() == 1)
+                {
+                    move = moves[0];
+                    board.TraverseForward(move);
+                }
+                board.TraverseForward(moves[1]);
+                board.TraverseBackward();
+                Assert.AreEqual(move, board.CurrentMove.MoveData);
+
+            }
+
             [TestCase(nameof(PGN.Puzzle), "r1b1Rk2/pp1p2p1/1b1p2B1/n1q3p1/8/5N2/P4PPP/6K1 b - - 1 4")]
             [TestCase(nameof(PGN.Fischer01), "8/2b5/8/p5R1/P1p1P2p/4kP2/1P4K1/8 b - - 0 52")]
             public void GoToLastMove_ShouldApplyLastMove(string nameOfPgn, string expected)
@@ -354,7 +371,7 @@ namespace ChessLib.Data.Tests
                     expectedState = stateStack.Pop();
                     Assert.AreNotEqual(board.ToFEN(), expectedState, $"{description}: expected state should not equal current state.");
                     board.TraverseBackward();
-                    Assert.AreEqual(expectedState, board.ToFEN(), $"{description}: current state not equal to the expected state after undoing move.");
+                    Assert.AreEqual(expectedState, board.ToFEN(), $"{description}: current state not equal to the expected state after undoing move {index}.");
                 }
 
             }

@@ -100,29 +100,30 @@ namespace ChessLib.Data.Boards
         public MoveStorage UnapplyMove()
         {
             Debug.WriteLine($"Before unapply, FEN is:\t{CurrentFEN}");
-            var previousBoardState = FindPreviousBoardState();
+            var previousMoveNode = FindPreviousMove();
             MoveStorage rv;
-            if (previousBoardState != null)
+            if (previousMoveNode != null)
             {
                 rv = CurrentMove.MoveData;
-                UnapplyMove(previousBoardState, CurrentMove);
-                CurrentMove = CurrentMove.Previous ?? CurrentMove.Parent;
+                UnapplyMove(previousMoveNode.MoveData.BoardState);
+                CurrentMove = previousMoveNode;
             }
             else
             {
+                UnapplyMove(InitialBoardState);
                 rv = null;
             }
             Debug.WriteLine($"After unapply, FEN is:\t{CurrentFEN}");
             return rv;
         }
 
-        private void UnapplyMove(BoardState previousBoardState, MoveNode<MoveStorage> move)
+        private void UnapplyMove(BoardState previousBoardState)
         {
-            var board = GetBoardFromBoardState(previousBoardState, move);
+            var board = GetBoardFromBoardState(previousBoardState);
             ApplyNewBoard(board);
         }
 
-        private IBoard GetBoardFromBoardState(BoardState previousBoardState, MoveNode<MoveStorage> move)
+        private IBoard GetBoardFromBoardState(BoardState previousBoardState)
         {
             var hmClock = previousBoardState.GetHalfmoveClock();
             var castlingAvailability = previousBoardState.GetCastlingAvailability();
@@ -238,26 +239,41 @@ namespace ChessLib.Data.Boards
             return UnapplyMove();
         }
 
-        private BoardState FindPreviousBoardState(MoveNode<MoveStorage> move)
+        private MoveNode<MoveStorage> FindPreviousMove(MoveNode<MoveStorage> move)
         {
             if (move.IsNullNode)
             {
                 return null;
             }
-            if (move.Previous.IsNullNode)
+
+            if (move.Previous == null)
             {
-                return InitialBoardState;
+                var moveParent = move.Parent; 
+                if(moveParent == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return FindPreviousMove(moveParent);
+                }
             }
+
+            else if (move.Previous.IsNullNode)
+            {
+                return null;
+            }
+
             else
             {
-                return move.Previous.MoveData.BoardState;
+                return move.Previous;
             }
 
         }
 
-        private BoardState FindPreviousBoardState()
+        private MoveNode<MoveStorage> FindPreviousMove()
         {
-            return FindPreviousBoardState(CurrentMove);
+            return FindPreviousMove(CurrentMove);
         }
 
         /// <summary>
