@@ -29,7 +29,7 @@ namespace ChessLib.Data
             }
         }
 
-        public IMoveNode<T> AddMove(T move)
+        public MoveNode<T> AddMove(T move)
         {
             return InsertLast(move);
         }
@@ -48,7 +48,7 @@ namespace ChessLib.Data
             return _head;
         }
 
-        public IMoveNode<T> InsertLast(T move)
+        public MoveNode<T> InsertLast(T move)
         {
             var moveNode = new MoveNode<T>(move);
             if (_head == null)

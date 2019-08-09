@@ -16,7 +16,6 @@ namespace ChessLib.Data.Boards
     {
         protected ulong[][] PiecePlacement;
         private Color _activePlayer;
-
         protected BoardBase() { }
 
         protected BoardBase(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIdx, ushort halfMoveClock, ushort fullMoveCount)
@@ -70,6 +69,11 @@ namespace ChessLib.Data.Boards
         public ulong[][] GetPiecePlacement()
         {
             return PiecePlacement;
+        }
+
+        public void SetPiecePlacement(ulong[][] piecePlacement)
+        {
+            PiecePlacement = piecePlacement;
         }
 
         public Color ActivePlayer

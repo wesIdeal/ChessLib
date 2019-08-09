@@ -46,16 +46,6 @@ namespace ChessLib.Data.MoveRepresentation
 
         public BoardState BoardState { get; private set; }
 
-        public virtual Color ColorMoving { get; }
-
-        public virtual Piece PieceMoving { get; }
-
-        public void SetPostMoveFEN(string fen)
-        {
-            PostmoveFEN = fen;
-        }
-        public string PremoveFEN { get; protected set; }
-        public string PostmoveFEN { get; private set; }
         public string BoardStateHash { get; }
 
 
@@ -77,9 +67,8 @@ namespace ChessLib.Data.MoveRepresentation
         public bool Equals(MoveStorage other)
         {
             return other != null &&
-                   ColorMoving == other.ColorMoving &&
                    Move == other.Move &&
-                   PieceMoving == other.PieceMoving;
+                  BoardState == other.BoardState;
         }
 
 

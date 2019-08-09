@@ -50,6 +50,7 @@ namespace ChessLib.Data
         {
             StringBuilder sb = new StringBuilder();
             var bi = new BoardInfo(fen);
+            
             MoveDisplayService displayService = new MoveDisplayService();
             var iterations = 0;
             foreach (var node in tree.GetNodeEnumerator())
