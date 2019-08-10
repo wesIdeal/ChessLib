@@ -135,6 +135,7 @@ namespace ChessLib.Data.Tests
             _svc = new MoveTraversalService();
             for (var i = 0; i < moves.Length; i++)
             {
+                Debug.WriteLine($"Applying move {moves[i]}");
                 var expected = expectedFEN[i];
                 _svc.ApplyMove(moves[i]);
                 Assert.AreEqual(expected, _svc.CurrentFEN);
@@ -229,7 +230,7 @@ namespace ChessLib.Data.Tests
         public void FindNextMoves_ShouldReturnEmptyCollectionIfTheEndIsReached()
         {
             var game = LoadGameByPGN(PGN.Fischer01);
-            _svc = new MoveTraversalService(game);
+            _svc = new MoveTraversalService(game.TagSection.FENStart, ref game.MoveSection);
             _svc.GoToLastMove();
             var moves = _svc.GetNextMoves();
             Assert.IsEmpty(moves);
@@ -251,7 +252,7 @@ namespace ChessLib.Data.Tests
         public void TraversingForwardWithEmptyTreeShouldReturnInitialBoard()
         {
             var game = new Game<MoveStorage>();
-            var _svc = new MoveTraversalService(game);
+            var _svc = new MoveTraversalService(game.TagSection.FENStart, ref game.MoveSection);
             for (int i = 0; i < 25; i++)
             {
                 var rv = _svc.TraverseForward(new MoveStorage(new MoveExt(405), "Nf3"));
@@ -263,7 +264,7 @@ namespace ChessLib.Data.Tests
         public void TraverseBackward_OutOfVariation_ShouldReturnCorrectMove()
         {
             var game = LoadGameByPGN(PGN.ShortVariation);
-            _svc = new MoveTraversalService(game);
+            _svc = new MoveTraversalService(game.TagSection.FENStart, ref game.MoveSection);
             MoveStorage[] moves;
             MoveStorage move = null;
             while ((moves = _svc.GetNextMoves()).Count() == 1)
@@ -281,7 +282,7 @@ namespace ChessLib.Data.Tests
         public void GoToInitialState_ShouldApplyInitialState(string nameOfPgn, string expected)
         {
             var game = LoadGameIntoBoardByName(nameOfPgn);
-            _svc = new MoveTraversalService(game);
+            _svc = new MoveTraversalService(game.TagSection.FENStart, ref game.MoveSection);
             _svc.GoToLastMove();
             _svc.GoToInitialState();
             Assert.AreEqual(_svc.MoveTree.HeadMove, _svc.CurrentMove);
@@ -293,7 +294,7 @@ namespace ChessLib.Data.Tests
         public void GoToLastMove_ShouldApplyLastMove(string nameOfPgn, string expected)
         {
             var game = LoadGameIntoBoardByName(nameOfPgn);
-            _svc = new MoveTraversalService(game);
+            _svc = new MoveTraversalService(game.TagSection.FENStart, ref game.MoveSection);
             _svc.GoToLastMove();
             Assert.AreEqual(_svc.MoveTree.LastMove, _svc.CurrentMove);
             Assert.AreEqual(expected, _svc.CurrentFEN);

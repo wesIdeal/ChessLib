@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ChessLib.Data
@@ -21,8 +22,6 @@ namespace ChessLib.Data
         public MoveTree<MoveStorage> MoveTree { get; private set; }
         public MoveNode<MoveStorage> CurrentMove { get; set; }
 
-        public MoveTraversalService(Game<MoveStorage> game) : this(game.TagSection.FENStart, ref game.MoveSection) { }
-
         public MoveTraversalService(string initialFEN, ref MoveTree<MoveStorage> moveTree)
         {
             MoveTree = moveTree;
@@ -32,13 +31,23 @@ namespace ChessLib.Data
             InitialBoard = (BoardInfo)Board.Clone();
         }
 
-        public MoveTraversalService() : this(new Game<MoveStorage>())
+        public MoveTraversalService()
         {
+            Board = new BoardInfo();
+            MoveTree = new MoveTree<MoveStorage>(null);
+            CurrentMove = MoveTree.HeadMove;
         }
 
         public string CurrentFEN => Board.CurrentFEN;
 
-        public static ushort[] GetSquaresUpdated(MoveExt move)
+        public event EventHandler<MoveMadeEventArgs> MoveMade;
+        protected void OnMoveMade(MoveExt moveMade, IBoard currentBoard)
+        {
+            var eventArgs = new MoveMadeEventArgs(moveMade, Board, GetNextMoves(), GetSquaresUpdated(moveMade));
+            Volatile.Read(ref MoveMade)?.Invoke(this, eventArgs);
+        }
+
+        public static ushort[] GetSquaresUpdated(IMoveExt move)
         {
             if (move.MoveType == MoveType.Castle)
             {
@@ -110,19 +119,79 @@ namespace ChessLib.Data
                 CurrentMove = foundMove[0];
                 return Board;
             }
-            return Board;
+            return null;
         }
 
         public IBoard TraverseForward(out ushort[] indexesUpdated)
         {
-            throw new NotImplementedException();
+            var foundMove = GetNextMoveNodes();
+            if (foundMove != null && foundMove.Any())
+            {
+                ApplyMoveToBoard(foundMove[0].MoveData);
+                CurrentMove = foundMove[0];
+                indexesUpdated = GetSquaresUpdated(foundMove[0].MoveData);
+                return Board;
+            }
+            indexesUpdated = new ushort[] { };
+            return null;
         }
 
 
         public IBoard TraverseBackward()
         {
-            Debug.WriteLine($"Before unapply, FEN is:\t{CurrentFEN}");
             var previousMoveNode = FindPreviousMove(CurrentMove);
+            MoveStorage rv;
+            if (previousMoveNode != null)
+            {
+                rv = CurrentMove.MoveData;
+                UnapplyMove();
+                CurrentMove = previousMoveNode;
+                return Board;
+            }
+
+            return null;
+        }
+        private MoveNode<MoveStorage> FindPreviousMove(MoveNode<MoveStorage> move)
+        {
+            if (move.IsNullNode)
+            {
+                return null;
+            }
+
+            if (move.Previous == null)
+            {
+                var moveParent = move.Parent;
+                if (moveParent == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return FindPreviousMove(moveParent);
+                }
+            }
+
+            else if (move.Previous.IsNullNode)
+            {
+                return null;
+            }
+
+            else
+            {
+                return move.Previous;
+            }
+
+        }
+
+        private MoveNode<MoveStorage> FindPreviousMove()
+        {
+            return FindPreviousMove(CurrentMove);
+        }
+
+        public MoveStorage UnapplyMove()
+        {
+            Debug.WriteLine($"Before unapply, FEN is:\t{CurrentFEN}");
+            var previousMoveNode = FindPreviousMove();
             MoveStorage rv;
             if (previousMoveNode != null)
             {
@@ -132,35 +201,39 @@ namespace ChessLib.Data
             }
             else
             {
-                Board = (BoardInfo)InitialBoard.Clone();
-                return InitialBoard;
+                Board = new BoardInfo(InitialFEN);
+                rv = null;
             }
             Debug.WriteLine($"After unapply, FEN is:\t{CurrentFEN}");
-            return Board;
+            return rv;
         }
 
-        public IBoard TraverseBackward(out ushort[] indexesUpdated)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Traverse the tree to the next move.
+        /// </summary>
+        /// <param name="move">The move that should be set to current.</param>
+        /// <returns>Board state for the resulting board. null if the end of the tree was reached.
+        /// <exception cref="MoveTraversalException">Thrown when the given move is not in the 'next moves' list.</exception>
         public IBoard TraverseForward(MoveStorage move)
         {
             var foundMove = FindNextNode(move);
             if (foundMove != null)
             {
-                BoardInfo board;
                 ApplyMoveToBoard(move);
                 CurrentMove = foundMove;
                 return Board;
             }
-            return Board;
+            return null;
         }
 
-        public IBoard TraverseForward(MoveStorage move, out ushort[] indexesUpdated)
-        {
-            throw new NotImplementedException();
-        }
+        /// <summary>
+        /// Traverse the tree to the next move.
+        /// </summary>
+        /// <param name="move">The move that should be set to current.</param>
+        /// <param name="indexesUpdated">An array of board indexes for squares affected by move. Handy for a UI to call an update for these squares.</param>
+        /// <returns>Board state for the resulting board. null if the end of the tree was reached.
+        /// <exception cref="MoveTraversalException">Thrown when the given move is not in the 'next moves' list.</exception>
+
 
         private MoveNode<MoveStorage> FindPreviousMove(in MoveNode<MoveStorage> move)
         {
@@ -235,10 +308,11 @@ namespace ChessLib.Data
             {
                 throw new MoveException("Error with move.", validationError, move, Board.ActivePlayer);
             }
+            OnMoveMade(move, Board);
             return ApplyValidatedMove(move);
         }
 
-        public MoveNode<MoveStorage> ApplyValidatedMove(MoveExt move)
+        protected MoveNode<MoveStorage> ApplyValidatedMove(MoveExt move)
         {
             Debug.WriteLine($"Before applying move {move}, FEN is:\t{Board.CurrentFEN}");
             var pocSource = Board.GetPieceOfColorAtIndex(move.SourceIndex);
