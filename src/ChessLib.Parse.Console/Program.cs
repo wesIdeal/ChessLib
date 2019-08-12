@@ -17,7 +17,7 @@ namespace ChessLib.Parse.Console
     {
         static void Main(string[] args)
         {
-            var games = new List<Game<MoveText>>();
+            var games = new List<Game<MoveStorage>>();
             var listener = new PGNListener();
             using (var fStream = File.OpenRead(".\\PGN\\tal.pgn"))
             {
@@ -30,7 +30,7 @@ namespace ChessLib.Parse.Console
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
                 walker.Walk(listener, parseTree);
-                games = listener.Games.Cast<Game<MoveText>>().ToList();
+                games = listener.Games.Cast<Game<MoveStorage>>().ToList();
                 stopwatch.Stop();
                 System.Console.WriteLine($"Completed in {stopwatch.ElapsedMilliseconds}ms.");
                 var g = games[0];

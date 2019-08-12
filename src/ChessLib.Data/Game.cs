@@ -1,53 +1,49 @@
 ﻿using ChessLib.Data.Boards;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Interfaces;
 using System;
+using System.Diagnostics;
 
 namespace ChessLib.Data
 {
-    public class Game<TMove> where TMove : IMove
+    public class Game<TMove> : MoveTraversalService
+        where TMove : MoveExt, IEquatable<TMove>
     {
         public Tags TagSection;
-        public MoveTree<TMove> MoveSection;
+        public MoveTree<MoveStorage> MoveSection => base.MoveTree;
 
         public Game()
         {
             TagSection = new Tags();
-            MoveSection = new MoveTree<TMove>(null);
+            TagSection.FENChanged += OnFenChanged;
+            TagSection.SetFen(FENHelpers.FENInitial);
         }
 
-        public Game(string fen) : this()
+        private void OnFenChanged(object sender, string fen)
         {
+            this.InitialFEN = fen;
+
+        }
+
+        public Game(string fen)
+        {
+            TagSection = new Tags();
+            TagSection.FENChanged += OnFenChanged;
             TagSection.SetFen(fen);
         }
-    }
 
-    public class UIGame : Game<MoveStorage>
-
-    {
-        public UIGame(Game<MoveStorage> game)
-           : base(game.TagSection.FENStart)
+        public new MoveNode<MoveStorage> ExitVariation()
         {
-            MoveSvc = new MoveTraversalService(game.TagSection.FENStart, ref MoveSection);
-        }
-
-        public string CurrentFEN => MoveSvc.CurrentFEN;
-
-        public event EventHandler<MoveMadeEventArgs> MoveMade
-        {
-            add { MoveSvc.MoveMade += value; }
-            remove { MoveSvc.MoveMade -= value; }
+            var pgnFormatter = new PGNFormatter<TMove>(new PGNFormatterOptions() { IndentVariations = true, NewlineEachMove = true });
+            Debug.WriteLine(pgnFormatter.BuildPGN(this));
+            return base.ExitVariation();
         }
 
         protected IMoveTraversalService MoveSvc { get; private set; }
 
-        public MoveStorage[] GetNextMoves() => MoveSvc.GetNextMoves();
 
-        public IBoard TraverseForward(MoveStorage move) => MoveSvc.TraverseForward(move);
 
-        public IBoard TraverseForward() => MoveSvc.TraverseForward();
-
-        public IBoard TraverseBackward() => MoveSvc.TraverseBackward();
 
     }
 

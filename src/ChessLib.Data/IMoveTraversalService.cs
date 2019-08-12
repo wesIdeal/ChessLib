@@ -23,7 +23,11 @@ namespace ChessLib.Data
 
         event EventHandler<MoveMadeEventArgs> MoveMade;
 
-        MoveNode<MoveStorage> ApplyMove(MoveExt move);
+        MoveNode<MoveStorage> ExitVariation();
+
+        MoveNode<MoveStorage> ApplyMove(MoveExt move, MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine);
+
+        MoveNode<MoveStorage> ApplySANMove(string moveText, MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine);
 
         /// <summary>
         /// Traverse the tree to the next move.
@@ -47,6 +51,7 @@ namespace ChessLib.Data
         /// <exception cref="MoveTraversalException">Thrown when the given move is not in the 'next moves' list.</exception>
         IBoard TraverseBackward();
 
-      
+        void GoToInitialState();
+        void GoToLastMove();
     }
 }

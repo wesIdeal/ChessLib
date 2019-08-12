@@ -41,6 +41,15 @@ namespace ChessLib.Graphics
             SetBoardBaseImage();
         }
 
+        public Imaging(ImageOptions imageOptions)
+        {
+
+            _imageOptions = imageOptions;
+            var assembly = Assembly.GetExecutingAssembly();
+            var names = assembly.GetManifestResourceNames();
+            SetBoardBaseImage();
+        }
+
         private void SetBoardBaseImage()
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -334,12 +343,12 @@ namespace ChessLib.Graphics
 
         public void MakeBoardFromFen(Stream writeTo, string fen, ImageOptions imageOptions = null, Tags tags = null, ImageFormat imageFormat = ImageFormat.PNG)
         {
-            imageOptions = imageOptions ?? new ImageOptions();
+            imageOptions = imageOptions ?? _imageOptions;
             _imageOptions = imageOptions;
             _squareSize = imageOptions.SquareSize;
             _offset = _squareSize;
 
-            using (var boardImage = MakeBoardInstance(imageOptions, tags))
+            using (var boardImage = MakeBoardInstance(imageOptions ?? _imageOptions, tags))
             {
                 using (var board = MakeBoardFromFen(fen, boardImage, tags, null))
                 {
@@ -388,12 +397,15 @@ namespace ChessLib.Graphics
             {
                 _boardBase.Dispose();
             }
-            foreach (var p in _pieceMap)
+            if (_pieceMap != null)
             {
-                if (!p.Value.IsDisposed)
+                foreach (var p in _pieceMap)
                 {
-                    p.Value.Dispose();
-                }
+                    if (!p.Value.IsDisposed)
+                    {
+                        p.Value.Dispose();
+                    }
+                } 
             }
             IsDisposed = true;
         }

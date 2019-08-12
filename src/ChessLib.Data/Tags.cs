@@ -1,11 +1,14 @@
 ﻿using ChessLib.Data.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace ChessLib.Data
 {
     public class Tags : Dictionary<string, string>
     {
+        public event EventHandler<string> FENChanged;
         public readonly string[] RequiredTagKeys = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
         public Tags()
         {
@@ -13,6 +16,7 @@ namespace ChessLib.Data
             {
                 Add(requiredTag, requiredTag);
             }
+            OnFENChanged(FENStart);
         }
 
 
@@ -67,11 +71,22 @@ namespace ChessLib.Data
                 this[key] = value;
             }
             else { base.Add(key, value); }
+            if(key.ToLower() == "fen")
+            {
+                SetFen(value);
+            }
         }
+
 
         internal void SetFen(string fen)
         {
             this["PremoveFEN"] = fen;
+            OnFENChanged(fen);
+        }
+
+        private void OnFENChanged(string fen)
+        {
+            Volatile.Read(ref FENChanged)?.Invoke(this, fen);
         }
     }
 }

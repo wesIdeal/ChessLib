@@ -4,16 +4,21 @@ using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.MoveRepresentation
 {
-    public class MoveExt : IMoveExt, ICloneable, IEquatable<MoveExt>
+    public class MoveExt : MoveBase, IMoveExt, ICloneable, IEquatable<MoveExt>
     {
-        public MoveExt(ushort move) { Move = move; }
-        public string SAN { get; set; }
-        private ushort _move;
-        public ushort Move
+        private MoveExt move;
+
+        public MoveExt() : base() { }
+
+        public MoveExt(ushort move) : base(move) { }
+
+        public MoveExt(MoveExt move) : base(move.Move)
         {
-            get => _move; protected set => _move = value;
+            this.SAN = move.SAN;
         }
 
+        public string SAN { get; set; }
+        
         public ushort SourceIndex => (ushort)((_move >> 6) & 63);
 
         public ulong SourceValue => 1ul << SourceIndex;
@@ -34,7 +39,7 @@ namespace ChessLib.Data.MoveRepresentation
         }
 
         public PromotionPiece PromotionPiece => (PromotionPiece)((_move >> 12) & 3);
-
+        
         public bool Equals(ushort other)
         {
             return _move == other;
@@ -42,6 +47,10 @@ namespace ChessLib.Data.MoveRepresentation
 
         public override string ToString()
         {
+            if(IsNullMove)
+            {
+                return "NULL_MOVE";
+            }
             return !string.IsNullOrEmpty(SAN) ? SAN : $"{SourceIndex.IndexToSquareDisplay()}->{DestinationIndex.IndexToSquareDisplay()}";
         }
 
@@ -67,6 +76,20 @@ namespace ChessLib.Data.MoveRepresentation
                 return false;
             }
             return Move == other.Move;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

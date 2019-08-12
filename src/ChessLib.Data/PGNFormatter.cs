@@ -9,7 +9,7 @@ using ChessLib.Data.Boards;
 
 namespace ChessLib.Data
 {
-    public class PGNFormatter<TS> where TS : MoveExt, IContainsSAN
+    public class PGNFormatter<TS> where TS : MoveExt, IEquatable<TS>
     {
         private Game<TS> _game;
         private string _initialFEN;
@@ -25,7 +25,8 @@ namespace ChessLib.Data
             _game = game;
             _initialFEN = game.TagSection.FENStart;
             var tagSection = BuildTags(_game.TagSection);
-            var moveSection = BuildMoveTree(_game.MoveSection, _initialFEN);
+            var tree = _game.MoveTree as MoveTree<TS>;
+            var moveSection = BuildMoveTree(tree, _initialFEN);
             return tagSection + NewLine + moveSection + NewLine;
         }
 
@@ -44,13 +45,13 @@ namespace ChessLib.Data
             return sb.ToString();
         }
 
-       
+
 
         private string BuildMoveTree(in MoveTree<TS> tree, string fen, uint indentLevel = 0)
         {
             StringBuilder sb = new StringBuilder();
             var bi = new BoardInfo(fen);
-            
+
             MoveDisplayService displayService = new MoveDisplayService();
             var iterations = 0;
             foreach (var node in tree.GetNodeEnumerator())

@@ -28,9 +28,9 @@ namespace ChessLib.Parse.Tests
         string _columnStylePgn;
         string _pgnDb;
         private string _gameWithNag;
-        private Game<IMoveText> _withVariation;
+        private Game<MoveStorage> _withVariation;
         private ParsePgn _parser = new ParsePgn();
-        private Game<IMoveText>[] _largeDb;
+        private Game<MoveStorage>[] _largeDb;
         Tags expectedTags;
         private Task _finishedWithLargeDb;
         [OneTimeSetUp]
@@ -38,8 +38,8 @@ namespace ChessLib.Parse.Tests
         {
             _columnStylePgn = PGNResources.ColumnStyle;
             _gameWithNag = PGNResources.GameWithNAG;
-            _finishedWithLargeDb = ParseLargeGame();
-            _withVariation = _parser.GetGameTexts(new AntlrInputStream(PGNResources.GameWithVariation)).First();
+            //  _finishedWithLargeDb = ParseLargeGame();
+            //_withVariation = _parser.GetGamesFromPGN(PGNResources.GameWithVariation).First();
         }
 
         private async Task ParseLargeGame()
@@ -47,7 +47,7 @@ namespace ChessLib.Parse.Tests
             Stopwatch sw = new Stopwatch();
             sw.Start();
             _pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
-            await Task.Factory.StartNew(() => _largeDb = _parser.GetGameTexts(new AntlrInputStream(_pgnDb)).ToArray());
+            await Task.Factory.StartNew(() => _largeDb = _parser.GetGamesFromPGN(_pgnDb).ToArray());
             sw.Stop();
             Debug.WriteLine($"Finished parsing {_largeDb.Length} games in {sw.ElapsedMilliseconds / 1000} seconds.");
         }
@@ -62,7 +62,7 @@ namespace ChessLib.Parse.Tests
             Assert.AreEqual(expectedVariationCount, variationMove.Variations.Count);
         }
 
-        private MoveNode<IMoveText> GetNodeAt(int index, MoveTree<IMoveText> tree)
+        private MoveNode<MoveStorage> GetNodeAt(int index, MoveTree<MoveStorage> tree)
         {
             var count = 0;
             var rv = tree.HeadMove;
@@ -74,17 +74,25 @@ namespace ChessLib.Parse.Tests
 
             return rv;
         }
+
+        [Test]
+        public void TestSimpleGameParsing()
+        {
+            var pgn = PGNResources.Simple;
+            var game = _parser.GetGamesFromPGN(pgn).ToArray();
+            Assert.AreEqual(1, game.Length, $"Expected only one game, but found {game.Length}.");
+        }
         [Test]
         public void TestRealGameParsing()
         {
             var pgn = PGNResources.GameWithVars;
-            var game = _parser.GetGameTexts(new AntlrInputStream(pgn)).ToArray();
+            var game = _parser.GetGamesFromPGN(pgn).ToArray();
             Assert.AreEqual(1, game.Length, $"Expected only one game, but found {game.Length}.");
         }
         [Test]
         public void TestColumnStylePGN()
         {
-            var games = _parser.GetGameTexts(new AntlrInputStream(_columnStylePgn)).ToArray();
+            var games = _parser.GetGamesFromPGN(_columnStylePgn).ToArray();
             Assert.AreEqual(1, games.Length, $"Expected only one game, but found {games.Length}.");
             Assert.AreEqual(50, games[0].MoveSection.AsEnumerable().Count(), "Game should have 50 moves.");
         }
@@ -94,9 +102,9 @@ namespace ChessLib.Parse.Tests
         {
             const string expected = "$1";
             const int moveIndex = 15; //Black's move 9...Qc7
-            var game = _parser.GetGameTexts(new AntlrInputStream(_gameWithNag)).First();
+            var game = _parser.GetGamesFromPGN(_gameWithNag).First();
             var move = game.MoveSection.ElementAt(moveIndex);
-            Assert.AreEqual(expected, move.NAG, $"Expected NAG to be '{expected}' at move {MoveDisplay(moveIndex, move.SAN)}.");
+            Assert.AreEqual(expected, move.Annotation, $"Expected NAG to be '{expected}' at move {MoveDisplay(moveIndex, move.SAN)}.");
         }
 
         [Test]
@@ -104,7 +112,7 @@ namespace ChessLib.Parse.Tests
         {
             const string expected = "Qc7 is a great move, here.";
             const int movePosition = 17; //Black's move 9...Qc7
-            var game = _parser.GetGameTexts(new AntlrInputStream(_gameWithNag)).First();
+            var game = _parser.GetGamesFromPGN(_gameWithNag).First();
             var move = game.MoveSection.ElementAt(movePosition);
             Assert.AreEqual(expected, move.Comment, $"Expected comment '{expected}' at move {MoveDisplay(movePosition, move.SAN)}.");
         }

@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Boards;
+using ChessLib.Data.MoveRepresentation.NAG;
 
 namespace ChessLib.Parse.PGN.Parser
 {
@@ -17,10 +18,10 @@ namespace ChessLib.Parse.PGN.Parser
         private readonly List<Tuple<uint, long>> _gamePerformance;
         private readonly Stopwatch _stopwatch;
         private uint _moveCount;
+        public List<Game<MoveStorage>> Games;
         public PGNListener()
         {
-
-            Games = new List<Game<IMoveText>>();
+            Games = new List<Game<MoveStorage>>();
             _gamePerformance = new List<Tuple<uint, long>>();
             _stopwatch = new Stopwatch();
         }
@@ -32,12 +33,13 @@ namespace ChessLib.Parse.PGN.Parser
         public double TotalTime { get; private set; }
 
 
-        private readonly Stack<MoveTree<IMoveText>> _moveTreeStack = new Stack<MoveTree<IMoveText>>();
-        public List<Game<IMoveText>> Games;
 
-        private Game<IMoveText> CurrentGame { get; set; }
-        private IMoveNode<IMoveText> _currentMove;
-        private MoveTree<IMoveText> _currentList;
+
+        private Game<MoveStorage> CurrentGame { get; set; }
+        private MoveNode<MoveStorage> _currentMove;
+        private bool _nextMoveIsVariation;
+
+        private MoveTree<MoveStorage> _currentList;
 
         public override void EnterPgn_database(PGNParser.Pgn_databaseContext context)
         {
@@ -46,7 +48,7 @@ namespace ChessLib.Parse.PGN.Parser
 
         public override void EnterPgn_game([NotNull] PGNParser.Pgn_gameContext context)
         {
-            CurrentGame = new Game<IMoveText>();
+            CurrentGame = new Game<MoveStorage>();
             _moveCount = 0;
             _currentList = CurrentGame.MoveSection;
             _stopwatch.Start();
@@ -67,7 +69,7 @@ namespace ChessLib.Parse.PGN.Parser
 
         public override void EnterNag(PGNParser.NagContext context)
         {
-            _currentMove.MoveData.NAG = context.GetText();
+            _currentMove.MoveData.Annotation = new NumericAnnotation(context.GetText());
         }
 
         public override void EnterTag_name([NotNull] PGNParser.Tag_nameContext context)
@@ -88,19 +90,19 @@ namespace ChessLib.Parse.PGN.Parser
         public override void EnterSan_move([NotNull] PGNParser.San_moveContext context)
         {
             var moveText = context.GetText();
-            _moveCount++;
-            _currentMove = _currentList.AddMove(new MoveText(moveText));
+            Console.WriteLine($"Applying {moveText}" + (_nextMoveIsVariation ? " as variation." : ""));
+            var strategy = _nextMoveIsVariation ? MoveApplicationStrategy.Variation : MoveApplicationStrategy.ContinueMainLine;
+            _currentMove = CurrentGame.ApplySANMove(moveText, strategy);
+            _nextMoveIsVariation = false;
         }
         public override void EnterRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
         {
-            _moveTreeStack.Push(_currentList);
-            _currentList = _currentMove.AddVariation();
+            _nextMoveIsVariation = true;
         }
 
         public override void ExitRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
         {
-            _currentList = _moveTreeStack.Pop();
-            _currentMove = _currentList.LastMove;
+            CurrentGame.ExitVariation();
         }
     }
 }

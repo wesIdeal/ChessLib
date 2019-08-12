@@ -186,7 +186,7 @@ namespace ChessLib.Data
                 var squaresAttackingTarget = Board.PiecesAttackingSquare(destinationSquare.Value);
                 if (squaresAttackingTarget == 0)
                 {
-                    throw new MoveException($"No pieces on any squares are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}");
+                    throw new MoveException($"No pieces on any squares are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}", Board);
                 }
 
                 var possibleAttackersOfType = new List<ushort>();
@@ -201,7 +201,7 @@ namespace ChessLib.Data
 
                 if (possibleAttackersOfType.Count == 0)
                 {
-                    throw new MoveException($"No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}");
+                    throw new MoveException($"Error with move {sanMove}:No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}",Board );
                 }
                 else if (possibleAttackersOfType.Count == 1)
                 {
@@ -314,6 +314,7 @@ namespace ChessLib.Data
                 {
                 }
             }
+            
             if (isPromotion)
             {
                 moveType = MoveType.Promotion;
@@ -324,29 +325,43 @@ namespace ChessLib.Data
             }
 
             destIndex = move.SquareTextToIndex();
+            var likelyStartingSq = (ushort)(colorMoving == Color.White ? (ushort)destIndex.Value - 8 : (ushort)destIndex.Value + 8);
+            sourceIndex = likelyStartingSq;
             Debug.Assert(destIndex.HasValue);
 
             bool isPossibleInitialMove =
                 (destIndex.Value.IsIndexOnRank(3) && colorMoving == Color.White) ||
                 (destIndex.Value.IsIndexOnRank(4) && colorMoving == Color.Black);
-            var destinationFile = destIndex.Value.FileFromIdx();
-            var countBack = isCapture ?
-                colorMoving.Equals(Color.White) ? startingFile - destinationFile - 8
-                    : destinationFile - startingFile - 8 : -8;
-            if (colorMoving == Color.Black)
+            
+            var destRank = destIndex.Value.RankFromIdx();
+            var sourceIdx = 0;
+            if (isCapture)
             {
-                countBack = Math.Abs(countBack);
+                var destinationFile = destIndex.Value.FileFromIdx();
+                if (colorMoving == Color.White)
+                {
+                    var modifier = ((destinationFile - startingFile) + 8);
+                    sourceIndex = (ushort)(destIndex.Value - modifier);
+                }
+                else
+                {
+                    var modifier = ((startingFile - destinationFile) + 8);
+                    sourceIndex = (ushort)(destIndex.Value + modifier);
+                }
             }
-            sourceIndex = (ushort)(destIndex.Value + countBack);
-            if (isPossibleInitialMove && !isCapture)
+            else if (isPossibleInitialMove && !isCapture)
             {
-
-                var srcValue = (sourceIndex).ToBoardValue();
+                var possibleStartingIndex = colorMoving == Color.White ? destIndex.Value - 8 : destIndex + 8;
+                var srcValue = ((ushort)possibleStartingIndex).ToBoardValue();
                 //first check rank 2
                 if ((pawnBB & srcValue) == 0)
                 {
                     //no, it was from the starting position
-                    sourceIndex = colorMoving == Color.White ? (ushort)(sourceIndex - 8) : (ushort)(sourceIndex + 8);
+                    sourceIndex = colorMoving == Color.White ? (ushort)(possibleStartingIndex - 8) : (ushort)(possibleStartingIndex + 8);
+                }
+                else
+                {
+                    sourceIndex = (ushort)possibleStartingIndex.Value;
                 }
             }
 

@@ -7,7 +7,7 @@ using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.Boards
 {
-    public interface IBoardState
+    public interface IBoardState:IEquatable<IBoardState>
     {
         /// <summary>
         /// FIELD               [bit index, from smallest]
@@ -20,14 +20,48 @@ namespace ChessLib.Data.Boards
         /// </summary>
         uint BoardStateStorage { get; }
     }
-    public class BoardState : IBoardState
+    public class BoardState : IBoardState, IEquatable<BoardState>
     {
-       
-
         public static BoardState FromFEN(string initialFEN)
         {
             var bi = new BoardInfo(initialFEN);
             return new BoardState(bi.HalfmoveClock, bi.EnPassantSquare, null, bi.CastlingAvailability, bi.ValidateBoard());
+        }
+
+        public bool Equals(IBoardState other)
+        {
+            if (other == null) return false;
+            return BoardStateStorage == other.BoardStateStorage;
+        }
+
+        public bool Equals(BoardState other)
+        {
+            if(other == null) { return false; }
+            return this.BoardStateStorage == other.BoardStateStorage;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as BoardState;
+            return obj != null &&
+                 other != null &&
+                 BoardStateStorage == other.BoardStateStorage;
+
+        }
+
+        public override int GetHashCode()
+        {
+            return BoardStateStorage.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Halfmove Clock: {this.GetHalfmoveClock()}");
+            sb.AppendLine($"Castling: {this.GetCastlingAvailability()}");
+            sb.AppendLine($"En Passant: {this.GetEnPassantSquare()}");
+            sb.AppendLine($"Captured Piece: {this.GetPieceCaptured()}");
+            return sb.ToString();
         }
 
         /// <summary>

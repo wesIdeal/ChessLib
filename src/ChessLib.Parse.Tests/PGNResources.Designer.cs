@@ -172,6 +172,24 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;London&quot;]
+        ///[Site &quot;London ENG&quot;]
+        ///[Date &quot;1826.??.??&quot;]
+        ///[Round &quot;1&quot;]
+        ///[White &quot;Evans, William&quot;]
+        ///[Black &quot;MacDonnell, Alexander&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[ECO &quot;C52&quot;]
+        ///
+        ///1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.O-O d6 5.b4 Bxb4 6.c3 Ba5 7.d4 Bg4 8.Qb3 Qd7 9.Ng5 Nd8 10.dxe5 dxe5 11.Ba3 Nh6 12.f3 Bb6+ 13.Kh1 Bh5 14.Rd1 Qc8 15.Rxd8+ Qxd8 16.Nxf7 Qh4 17.Qb5+ c6 18.Qxe5+ Kd7 19.Qe6+ Kc7 20.Bd6# 1-0.
+        /// </summary>
+        internal static string Simple {
+            get {
+                return ResourceManager.GetString("Simple", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] talLarge {

@@ -31,6 +31,13 @@ namespace ChessLib.Data.MoveRepresentation.NAG
             NonStandardNAGs = new List<NonStandardNAG>();
         }
 
+        public NumericAnnotation(string nag) : this()
+        {
+            AnnotationText = nag;
+        }
+
+        public string AnnotationText { get; set; }
+
         public MoveNAG MoveNAG { get; set; }
         public List<PositionalNAG> PositionalNAGs { get; set; }
         public List<NonStandardNAG> NonStandardNAGs { get; set; }

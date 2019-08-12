@@ -11,7 +11,7 @@ using ChessLib.Data.Types.Interfaces;
 namespace ChessLib.Data
 {
     public class MoveTree<T> : IEnumerable<T>
-        where T : IMove
+        where T : MoveExt
     {
         private MoveNode<T> _last;
         private MoveNode<T> _head;
@@ -24,19 +24,33 @@ namespace ChessLib.Data
             VariationParent = parentMove;
             if (VariationParent == null)
             {
-                _head = MoveNode<T>.MakeNullNode;
+
+                _head = MoveNode<T>.GetNullNode();
                 _last = _head;
             }
         }
 
+        /// <summary>
+        /// Adds a move at the end of the tree.
+        /// </summary>
+        /// <param name="move"></param>
+        /// <returns>the added move's node</returns>
         public MoveNode<T> AddMove(T move)
         {
             return InsertLast(move);
         }
 
-        public IMoveNode<T> InsertFirst(T move)
+        public MoveNode<T> AddVariation(MoveNode<T> variationOfNode, T move)
         {
-            var node = new MoveNode<T>(move);
+            variationOfNode.Variations.Add(new MoveTree<T>(variationOfNode));
+            return variationOfNode.Variations.Last().AddMove(move);
+        }
+
+        public MoveNode<T> InsertFirst(T move)
+        {
+            var currentFirst = _head;
+            var node = new MoveNode<T>(move, currentFirst.ParentTreeMove);
+            _head.ParentTreeMove = null;
             node.Next = _head;
             node.Previous = null;
             if (_head != null)
@@ -48,25 +62,30 @@ namespace ChessLib.Data
             return _head;
         }
 
+        /// <summary>
+        /// Adds a move at the end of the tree.
+        /// </summary>
+        /// <param name="move"></param>
+        /// <returns>the added move's node</returns>
         public MoveNode<T> InsertLast(T move)
         {
-            var moveNode = new MoveNode<T>(move);
-            if (_head == null)
+            if (_last == null)
             {
-                moveNode.Previous = null;
-                _head = moveNode;
+                _head = new MoveNode<T>(move, VariationParent);
+                _head.ParentTreeMove = VariationParent;
+                _head.Previous = null;
                 _last = _head;
-                return moveNode;
-            }
 
-            var lastNode = _last;
-            lastNode.Next = moveNode;
-            moveNode.Previous = lastNode;
-            _last = moveNode;
-            return moveNode;
+            }
+            else
+            {
+                var nextMove = _last.AddNextMove(move, VariationParent);
+                _last = nextMove;
+            }
+            return _last;
         }
 
-        private void GetLastNode(out IMoveNode<T> lastNode)
+        private void GetLastNode(out MoveNode<T> lastNode)
         {
             var temp = HeadMove;
             while (temp.Next != null)
@@ -83,7 +102,7 @@ namespace ChessLib.Data
         public override string ToString()
         {
             var sb = new StringBuilder();
-            IMoveNode<T> current = _head;
+            MoveNode<T> current = _head;
             while (current != null)
             {
                 sb.AppendLine(current.MoveData.ToString());
@@ -102,6 +121,19 @@ namespace ChessLib.Data
             }
         }
 
+        public static MoveNode<T> FindVariationParentNode(in MoveNode<T> fromNode)
+        {
+            var currentNode = fromNode;
+            while (currentNode.Previous != null && !currentNode.IsNullNode)
+            {
+                currentNode = currentNode.Previous;
+            }
+            var rvNode = currentNode.ParentTreeMove;
+            if (rvNode == null) { return null; }
+            if (rvNode.Previous.IsNullNode) return null;
+            return rvNode?.Previous;
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             return GetItemsInReverse().Reverse().GetEnumerator();
@@ -118,7 +150,7 @@ namespace ChessLib.Data
             while (current != null && !current.IsNullNode)
             {
                 yield return current.MoveData;
-                current = current.Previous ?? current.Parent;
+                current = current.Previous ?? current.ParentTreeMove;
             }
         }
 

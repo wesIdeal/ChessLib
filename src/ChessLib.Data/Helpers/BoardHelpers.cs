@@ -422,12 +422,12 @@ namespace ChessLib.Data.Helpers
             var piece = board.GetPieceOfColorAtIndex(move.SourceIndex);
             if (piece == null)
             {
-                throw new MoveException($"No piece is present at the source indicated: {move.SourceIndex.IndexToSquareDisplay()}");
+                throw new MoveException($"No piece is present at the source indicated: {move.SourceIndex.IndexToSquareDisplay()}", boardInfo);
             }
 
             if (piece.Value.Color != board.ActivePlayer)
             {
-                throw new MoveException($"Piece found was {piece.Value.Color.ToString()} when it is {board.ActivePlayer}'s move.");
+                throw new MoveException($"Piece found was {piece.Value.Color.ToString()} when it is {board.ActivePlayer}'s move.", boardInfo);
             }
 
             var nPiece = (int)piece.Value.Piece;

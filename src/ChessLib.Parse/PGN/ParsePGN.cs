@@ -25,8 +25,17 @@ namespace ChessLib.Parse.PGN
 
         public TimeSpan TotalValidationTime;
 
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(string pgn)
+        {
+            return GetGameTexts(new AntlrInputStream(pgn));
+        }
 
-        public IEnumerable<Game<IMoveText>> GetGameTexts(AntlrInputStream inputStream)
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(Stream stream)
+        {
+            return GetGameTexts(new AntlrInputStream(stream));
+        }
+
+        protected IEnumerable<Game<MoveStorage>> GetGameTexts(AntlrInputStream inputStream)
         {
             var listener = new PGNListener();
             PGNLexer lexer = new PGNLexer(inputStream);
@@ -39,19 +48,23 @@ namespace ChessLib.Parse.PGN
             walker.Walk(listener, parseTree);
             sw.Stop();
             Debug.WriteLine($"Parsed {listener.Games.Count()} games in {sw.ElapsedMilliseconds} ms, ({sw.ElapsedMilliseconds / 1000} seconds.)");
+            foreach(var game in listener.Games)
+            {
+                game.GoToInitialState();
+            }
             return listener.Games;
         }
 
-        /// <summary>
-        /// Gets MoveExt objects from PGN and validates moves while parsing.
-        /// </summary>
-        /// <returns>Validated Moves</returns>
-        public List<Game<MoveStorage>> ParseAndValidateGames(string strGameDatabase, int? MaxGames = null)
-        {
-            AntlrInputStream stream = new AntlrInputStream(strGameDatabase);
-            var games = GetGameTexts(stream);
-            return ValidateGames(games);
-        }
+        ///// <summary>
+        ///// Gets MoveExt objects from PGN and validates moves while parsing.
+        ///// </summary>
+        ///// <returns>Validated Moves</returns>
+        //public List<Game<MoveStorage>> ParseAndValidateGames(string strGameDatabase, int? MaxGames = null)
+        //{
+        //    AntlrInputStream stream = new AntlrInputStream(strGameDatabase);
+        //    var games = GetGameTexts(stream);
+        //    return ValidateGames(games);
+        //}
 
         /// <summary>
         /// Gets MoveExt objects from PGN and validates moves while parsing.
@@ -61,52 +74,33 @@ namespace ChessLib.Parse.PGN
         {
             AntlrInputStream stream = new AntlrInputStream(fs);
             var games = GetGameTexts(stream);
-            return ValidateGames(games);
+            return games.ToList();
         }
 
-        /// <summary>
-        /// Gets MoveExt objects from PGN and validates moves while parsing.
-        /// </summary>
-        /// <returns>Validated Moves</returns>
-        private List<Game<MoveStorage>> ValidateGames(IEnumerable<Game<IMoveText>> games)
-        {
-            var rv = new List<Game<MoveStorage>>();
-            var sw = new Stopwatch();
+        ///// <summary>
+        ///// Gets MoveExt objects from PGN and validates moves while parsing.
+        ///// </summary>
+        ///// <returns>Validated Moves</returns>
+        //private List<Game<MoveStorage>> ValidateGames(IEnumerable<Game<IMoveText>> games)
+        //{
+        //    var rv = new List<Game<MoveStorage>>();
+        //    var sw = new Stopwatch();
 
-            sw.Start();
-            var gameArray = games as Game<IMoveText>[] ?? games.ToArray();
-            Parallel.ForEach(gameArray, (game) =>
-             {
-                 var fen = game.TagSection.FENStart;
-                 var moveTree = ValidateGame(game.MoveSection, fen);
-                 rv.Add(new Game<MoveStorage>() { TagSection = game.TagSection, MoveSection = moveTree });
-             });
-            sw.Stop();
-            TotalValidationTime = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
-            Debug.WriteLine($"Validated {gameArray.Count()} games in {sw.ElapsedMilliseconds} ms, ({sw.ElapsedMilliseconds / 1000} seconds.)");
-            return rv;
-        }
+        //    sw.Start();
+        //    var gameArray = games as Game<IMoveText>[] ?? games.ToArray();
+        //    Parallel.ForEach(gameArray, (game) =>
+        //     {
+        //         var fen = game.TagSection.FENStart;
+        //         var moveTree = ValidateGame(game.MoveSection, fen);
+        //         rv.Add(new Game<MoveStorage>() { TagSection = game.TagSection, MoveSection = moveTree });
+        //     });
+        //    sw.Stop();
+        //    TotalValidationTime = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
+        //    Debug.WriteLine($"Validated {gameArray.Count()} games in {sw.ElapsedMilliseconds} ms, ({sw.ElapsedMilliseconds / 1000} seconds.)");
+        //    return rv;
+        //}
 
-        private MoveTree<MoveStorage> ValidateGame(MoveTree<IMoveText> sanGame, string initialFEN, MoveNode<MoveStorage> parent = null)
-        {
-            var boardInfo = new BoardInfo(initialFEN);
-            var moveTree = new MoveTree<MoveStorage>(parent);
-            foreach (var move in sanGame.GetNodeEnumerator())
-            {
-                var currentFen = boardInfo.CurrentFEN;
-                var moveNode = boardInfo.ApplySANMove(move.MoveData.SAN);
-                moveTree.AddMove(moveNode.MoveData);
-                if (move.Variations.Any())
-                {
-                    foreach (var variation in move.Variations)
-                    {
-                        var variationMoveTree = ValidateGame(variation, currentFen, moveTree.LastMove);
-                        moveTree.LastMove.AddVariation(variationMoveTree);
-                    }
-                }
-            }
-            return moveTree;
-        }
+        
 
     }
 }
