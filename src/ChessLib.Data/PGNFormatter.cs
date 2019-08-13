@@ -25,7 +25,7 @@ namespace ChessLib.Data
             _game = game;
             _initialFEN = game.TagSection.FENStart;
             var tagSection = BuildTags(_game.TagSection);
-            var tree = _game.MoveTree as MoveTree<TS>;
+            var tree = _game.MainMoveTree as MoveTree;
             var moveSection = BuildMoveTree(tree, _initialFEN);
             return tagSection + NewLine + moveSection + NewLine;
         }
@@ -47,14 +47,14 @@ namespace ChessLib.Data
 
 
 
-        private string BuildMoveTree(in MoveTree<TS> tree, string fen, uint indentLevel = 0)
+        private string BuildMoveTree(in MoveTree tree, string fen, uint indentLevel = 0)
         {
             StringBuilder sb = new StringBuilder();
-            var bi = new BoardInfo(fen);
-
+            var game = new Game<MoveStorage>(fen);
+            var bi = game.Board;
             MoveDisplayService displayService = new MoveDisplayService();
             var iterations = 0;
-            foreach (var node in tree.GetNodeEnumerator())
+            foreach (var node in tree)
             {
                 displayService.Initialize(bi);
                 string strMoveNumber = "";
@@ -64,7 +64,7 @@ namespace ChessLib.Data
                          UseEllipses(iterations, bi.ActivePlayer));
                 }
 
-                string strMoveText = displayService.MoveToSAN(node.MoveData);
+                string strMoveText = displayService.MoveToSAN(node);
                 var moveEndingCharacter = FullMoveEndingCharacter(bi.ActivePlayer);
                 var moveText = $"{strMoveNumber}{strMoveText}{moveEndingCharacter}";
                 sb.Append(moveText);
@@ -73,10 +73,10 @@ namespace ChessLib.Data
                     var lstVariations = new List<string>();
                     foreach (var variation in node.Variations)
                     {
-                        lstVariations.Add(BuildMoveTree(variation, bi.ToFEN()));
+                        lstVariations.Add(BuildMoveTree(variation, bi.ToFEN(), indentLevel++));
                     }
 
-                    sb.Append(GetFormattedVariations(lstVariations, node.Depth + 1));
+                    sb.Append(GetFormattedVariations(lstVariations, indentLevel++));
                     iterations = 0;
                 }
 
@@ -85,7 +85,7 @@ namespace ChessLib.Data
                 {
                     iterations++;
                 }
-                bi.ApplyValidatedMove(node.MoveData);
+                game.ApplyMove(node);
 
             }
 

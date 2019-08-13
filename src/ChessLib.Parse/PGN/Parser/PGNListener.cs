@@ -36,10 +36,10 @@ namespace ChessLib.Parse.PGN.Parser
 
 
         private Game<MoveStorage> CurrentGame { get; set; }
-        private MoveNode<MoveStorage> _currentMove;
+        private LinkedListNode<MoveStorage> _currentMove;
         private bool _nextMoveIsVariation;
 
-        private MoveTree<MoveStorage> _currentList;
+        private MoveTree _currentList;
 
         public override void EnterPgn_database(PGNParser.Pgn_databaseContext context)
         {
@@ -50,7 +50,7 @@ namespace ChessLib.Parse.PGN.Parser
         {
             CurrentGame = new Game<MoveStorage>();
             _moveCount = 0;
-            _currentList = CurrentGame.MoveSection;
+            _currentList = CurrentGame.MainMoveTree;
             _stopwatch.Start();
         }
         public override void ExitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
@@ -64,12 +64,12 @@ namespace ChessLib.Parse.PGN.Parser
 
         public override void EnterComment(PGNParser.CommentContext context)
         {
-            _currentMove.MoveData.Comment = context.GetText().Replace("\r\n", " ").TrimEnd('}').TrimStart('{').Trim();
+            _currentMove.Value.Comment = context.GetText().Replace("\r\n", " ").TrimEnd('}').TrimStart('{').Trim();
         }
 
         public override void EnterNag(PGNParser.NagContext context)
         {
-            _currentMove.MoveData.Annotation = new NumericAnnotation(context.GetText());
+            _currentMove.Value.Annotation = new NumericAnnotation(context.GetText());
         }
 
         public override void EnterTag_name([NotNull] PGNParser.Tag_nameContext context)

@@ -214,10 +214,10 @@ namespace ChessLib.Data.Tests
         {
             for (ushort i = 8; i < 16; i++)
             {
-                var bi = new BoardInfo(InitialFEN);
+                var bi = new MoveTraversalService(InitialFEN);
                 var move = MoveHelpers.GenerateMove(i, (ushort)(i + 16));
                 bi.ApplyMove(move);
-                Assert.AreEqual(i + 8, bi.EnPassantSquare);
+                Assert.AreEqual(i + 8, bi.Board.EnPassantSquare);
             }
         }
 
@@ -357,10 +357,10 @@ namespace ChessLib.Data.Tests
         [TestCase("6K1/4k1P1/8/6q1/8/8/8/8 b - - 9 56", 38, 39)]
         public static void IsStalemateAfterMove(string fen, int f, int t, PromotionPiece p = PromotionPiece.Knight, MoveType type = MoveType.Normal)
         {
-            var board = new BoardInfo(fen);
+            var board = new MoveTraversalService(fen);
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
             var result = board.ApplyMove(move);
-            Assert.AreEqual(true, board.IsStalemate());
+            Assert.AreEqual(true, board.Board.IsStalemate());
         }
 
         [TestCase("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62", true)]

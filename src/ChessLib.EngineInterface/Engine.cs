@@ -248,14 +248,14 @@ namespace ChessLib.EngineInterface
         #endregion
 
         #region Non-Serialized Fields/Properties
-        protected BoardInfo StartingBoard => new BoardInfo(StartingPositionFEN);
+        protected MoveTraversalService StartingBoard => new MoveTraversalService(StartingPositionFEN);
         protected BoardInfo CurrentBoard
         {
             get
             {
                 var board = StartingBoard;
                 Moves.ForEach(mv => { board.ApplyMove(mv); });
-                return (BoardInfo)board.Clone();
+                return (BoardInfo)(StartingBoard.Board.Clone());
             }
         }
 
@@ -264,7 +264,7 @@ namespace ChessLib.EngineInterface
         [NonSerialized] private bool _isDisposed;
         [NonSerialized] public int ProcessId = -1;
         protected IEngineProcess Process { get; set; }
-       
+
         /// <summary>
         /// Invoked when a response object was received from the underlying engine process
         /// </summary>

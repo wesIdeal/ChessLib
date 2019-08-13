@@ -11,9 +11,8 @@ namespace ChessLib.Data
         where TMove : MoveExt, IEquatable<TMove>
     {
         public Tags TagSection;
-        public MoveTree<MoveStorage> MoveSection => base.MoveTree;
 
-        public Game()
+        public Game() :base(FENHelpers.FENInitial)
         {
             TagSection = new Tags();
             TagSection.FENChanged += OnFenChanged;
@@ -22,28 +21,16 @@ namespace ChessLib.Data
 
         private void OnFenChanged(object sender, string fen)
         {
-            this.InitialFEN = fen;
+            MainMoveTree = new MoveTree(null, fen);
 
         }
 
-        public Game(string fen)
+        public Game(string fen) : base(fen)
         {
             TagSection = new Tags();
             TagSection.FENChanged += OnFenChanged;
             TagSection.SetFen(fen);
         }
-
-        public new MoveNode<MoveStorage> ExitVariation()
-        {
-            var pgnFormatter = new PGNFormatter<TMove>(new PGNFormatterOptions() { IndentVariations = true, NewlineEachMove = true });
-            Debug.WriteLine(pgnFormatter.BuildPGN(this));
-            return base.ExitVariation();
-        }
-
-        protected IMoveTraversalService MoveSvc { get; private set; }
-
-
-
 
     }
 

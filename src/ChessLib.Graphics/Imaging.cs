@@ -160,7 +160,7 @@ namespace ChessLib.Graphics
         {
             MagickFormat format = MagickFormat.Gif;
             var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FENHelpers.FENInitial;
-            var moves = game.MoveSection;
+            var moves = game.MainMoveTree;
             _imageOptions = imageOpts = imageOpts ?? new ImageOptions();
             _squareSize = imageOpts.SquareSize;
             _offset = _squareSize;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -15,6 +16,9 @@ namespace ChessLib.Data.MoveRepresentation
     /// </summary>
     public class MoveStorage : MoveExt, IEquatable<MoveStorage>, IContainsSAN
     {
+        /// <summary>
+        /// Makes a NULL move node for head of move list
+        /// </summary>
         public MoveStorage() : base()
         {
 
@@ -37,6 +41,8 @@ namespace ChessLib.Data.MoveRepresentation
 
         protected MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move) { }
 
+        
+
         public MoveStorage(BoardInfo boardInfo, MoveExt move, Piece? capturedPiece) : base(move)
         {
             
@@ -54,9 +60,14 @@ namespace ChessLib.Data.MoveRepresentation
         public string BoardStateHash { get; }
 
         public string Comment { get; set; }
+        public bool Validated { get; internal set; }
+
 
         public NumericAnnotation Annotation;
 
+        public List<MoveTree> Variations = new List<MoveTree>();
+
+        
         public static byte[] GetHash(string inputString)
         {
             HashAlgorithm algorithm = SHA256.Create();
@@ -84,13 +95,23 @@ namespace ChessLib.Data.MoveRepresentation
             if (obj == null) return false;
             var other = obj as MoveStorage;
             return other != null && BoardState.Equals(other.BoardState) && Move.Equals(other.Move);
-
         }
+
+
 
 
         public override int GetHashCode()
         {
             return base.GetHashCode() ^ BoardState.GetHashCode();
+        }
+
+        internal LinkedListNode<MoveStorage> AddVariation(LinkedListNode<MoveStorage> currentMoveNode, MoveStorage move, string variationParentFEN)
+        {
+            var variation = new MoveTree(currentMoveNode, variationParentFEN);
+            variation.AddFirst(move);
+            Variations.Add(variation);
+            var addedVariationIdx = Variations.IndexOf(variation);
+            return Variations.ElementAt(addedVariationIdx).First;
         }
     }
 
