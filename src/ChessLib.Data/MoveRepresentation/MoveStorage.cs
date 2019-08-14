@@ -87,7 +87,7 @@ namespace ChessLib.Data.MoveRepresentation
         {
             return other != null &&
                   base.Equals(other) &&
-            BoardState.Equals(other);
+            BoardState.Equals(other.BoardState);
         }
 
         public override bool Equals(object obj)

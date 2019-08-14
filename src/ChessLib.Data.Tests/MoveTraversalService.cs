@@ -242,8 +242,8 @@ namespace ChessLib.Data.Tests
         [Test]
         public void FindNextMoves_ShouldReturnEmptyCollectionIfTheEndIsReached()
         {
-           game = LoadGameByPGN(PGN.Fischer01);
-           
+            game = LoadGameByPGN(PGN.Fischer01);
+
             game.GoToLastMove();
             var moves = game.GetNextMoves();
             Assert.IsEmpty(moves);
@@ -265,7 +265,7 @@ namespace ChessLib.Data.Tests
         public void TraversingForwardWithEmptyTreeShouldReturnInitialBoard()
         {
             var game = new Game<MoveStorage>();
-           
+
             for (int i = 0; i < 25; i++)
             {
                 var rv = game.TraverseForward(new MoveStorage(new MoveExt(405), "Nf3"));
@@ -276,7 +276,7 @@ namespace ChessLib.Data.Tests
         [Test]
         public void TraverseBackward_OutOfVariation_ShouldReturnCorrectMove()
         {
-            game = LoadGameByPGN(PGN.ShortVariation);
+            var game = LoadGameByPGN(PGN.ShortVariation);
             MoveStorage[] moves;
             MoveStorage move = null;
             while ((moves = game.GetNextMoves()).Count() == 1)

@@ -17,8 +17,31 @@ namespace ChessLib.Data
     public class MoveTraversalService
     {
         private string _initialFEN;
-        public string InitialFEN => MainMoveTree.StartingFEN;
-
+        public string InitialFEN
+        {
+            get => _initialFEN;
+            protected set
+            {
+                _initialFEN = value;
+                MainMoveTree = new MoveTree(null, _initialFEN);
+                InitialBoard = new BoardInfo(_initialFEN);
+                Board = (BoardInfo)InitialBoard.Clone();
+            }
+        }
+        private int _depth
+        {
+            get
+            {
+                var count = 0;
+                var currNode = (MoveTree)CurrentTree?.VariationParentNode?.List;
+                while (currNode != null)
+                {
+                    currNode = (MoveTree)currNode?.VariationParentNode?.List;
+                    count++;
+                }
+                return count;
+            }
+        }
         public IBoard InitialBoard { get; private set; }
         public BoardInfo Board { get; private set; }
         public string CurrentFEN => Board.CurrentFEN;
@@ -106,6 +129,7 @@ namespace ChessLib.Data
         }
 
         public bool HasNextMove => NextMoveNode != null;
+        protected MoveTree CurrentTree => (MoveTree)CurrentMoveNode.List;
         public LinkedListNode<MoveStorage> NextMoveNode => CurrentMoveNode.Next;
         public LinkedListNode<MoveStorage> PreviousMoveNode
         {
@@ -113,7 +137,7 @@ namespace ChessLib.Data
             {
                 var currentList = CurrentMoveNode.List as MoveTree;
                 return CurrentMoveNode.Previous ??
-                    currentList?.VariationParentNode?.Previous;
+                    currentList?.VariationParentNode;
             }
         }
 
@@ -153,7 +177,7 @@ namespace ChessLib.Data
         protected LinkedListNode<MoveStorage> UnapplyMove()
         {
             //Debug.WriteLine($"Before unapply, FEN is:\t{CurrentFEN}");
-            Console.WriteLine($"{new string('*', 20)}\r\nUnapplying {CurrentMoveNode}");
+            WriteDebugInfo($"{new string('*', 20)}\r\nUnapplying {CurrentMoveNode.Value}");
             if (!PreviousMoveNode.Value.IsNullMove)
             {
                 UnapplyMove(PreviousMoveNode);
@@ -166,6 +190,12 @@ namespace ChessLib.Data
             Console.WriteLine($"It is now {Board.ActivePlayer}'s move.");
             Console.WriteLine($"FEN is now:\t{CurrentFEN}\r\n{new string('*', 20)}");
             return CurrentMoveNode;
+        }
+
+        private void WriteDebugInfo(string message)
+        {
+            var msg = message.Replace("\r\n", $"\r\n{new string(' ', _depth * 2)}");
+            Console.WriteLine(new string(' ', _depth * 2), message);
         }
 
         /// <summary>
@@ -210,25 +240,29 @@ namespace ChessLib.Data
         {
             var bi = new BoardInfo(InitialFEN);
             ApplyNewBoard(bi);
-            CurrentMoveNode = MainMoveTree.First;
+            while (CurrentTree.VariationParentNode != null)
+            {
+                CurrentMoveNode = CurrentTree.VariationParentNode;
+            }
+            CurrentMoveNode = CurrentTree.First;
         }
 
         public void GoToLastMove()
         {
-            LinkedListNode<MoveStorage> node = CurrentMoveNode.Next;
+            LinkedListNode<MoveStorage> node = NextMoveNode;
             while (node != null)
             {
                 TraverseForward();
+                node = NextMoveNode;
             }
         }
         #endregion
 
         #region Move Application
         protected bool _variationPremoveHandled = false;
-
-
         public LinkedListNode<MoveStorage> ApplySANMove(string moveText, MoveApplicationStrategy moveApplicationStrategy)
         {
+            Console.WriteLine($"Applying move {moveText}");
             if (moveApplicationStrategy == MoveApplicationStrategy.Variation)
             {
                 return ApplySANVariationMove(moveText);
@@ -238,11 +272,8 @@ namespace ChessLib.Data
             return ApplyMove(move);
         }
 
-
-
         protected LinkedListNode<MoveStorage> ApplySANVariationMove(string moveText)
         {
-            Console.WriteLine($"Applying variation {moveText}");
             TraverseBackward();
             var move = TranslateSANMove(moveText);
             move.SAN = moveText;
@@ -261,15 +292,18 @@ namespace ChessLib.Data
         {
             try
             {
+
                 var capturedPiece = GetCapturedPiece(move);
                 var moveStorageObj = new MoveStorage(Board, move, capturedPiece) { Validated = true };
                 if (string.IsNullOrEmpty(move.SAN))
                 {
                     move.SAN = GetMoveText(move);
                 }
+
                 var variationParentFEN = CurrentFEN;
                 ApplyMoveToBoard(move);
-                CurrentMoveNode.Value.AddVariation(CurrentMoveNode, moveStorageObj, variationParentFEN);
+                CurrentMoveNode = CurrentMoveNode.Next.Value.AddVariation(CurrentMoveNode, moveStorageObj, variationParentFEN);
+                WriteDebugInfo($"Applying variation {move}");
                 return CurrentMoveNode;
             }
             catch (Exception e)
@@ -289,7 +323,7 @@ namespace ChessLib.Data
         {
             if (move is MoveStorage)
             {
-                if((move as MoveStorage).Validated) { return; }
+                if ((move as MoveStorage).Validated) { return; }
             }
             var moveValidator = new MoveValidator(Board, move);
             var validationError = moveValidator.Validate();
@@ -298,8 +332,6 @@ namespace ChessLib.Data
                 throw new MoveException("Error with move.", validationError, move, Board.ActivePlayer);
             }
         }
-
-
 
         private string GetMoveText(MoveExt move)
         {
@@ -325,9 +357,10 @@ namespace ChessLib.Data
             {
                 move.SAN = GetMoveText(move);
             }
+            WriteDebugInfo($"Applying move {move}");
             ApplyMoveToBoard(move);
             var moveStorageObject = new MoveStorage(Board, move, capturedPiece) { Validated = true };
-            CurrentMoveNode = ((MoveTree)CurrentMoveNode.List).AddLast(moveStorageObject);
+            CurrentMoveNode = CurrentTree.AddMove(moveStorageObject);
             Debug.WriteLine($"After applying move {move}, FEN is:\t{Board.CurrentFEN}");
             return CurrentMoveNode;
         }
@@ -438,6 +471,8 @@ namespace ChessLib.Data
             var parentMove = currentTree.VariationParentNode;
             var parentFEN = currentTree.StartingFEN;
             Board = new BoardInfo(parentFEN);
+            CurrentMoveNode = parentMove;
+            TraverseForward();
             return parentMove;
         }
 

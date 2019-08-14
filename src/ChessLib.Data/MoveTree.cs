@@ -12,11 +12,17 @@ namespace ChessLib.Data
 {
     public class MoveTree : LinkedList<MoveStorage>
     {
+        private string _startingFEN;
+
         //public MoveNode<T> VariationParent { get; internal set; }
         public LinkedListNode<MoveStorage> VariationParentNode { get; private set; }
-        public string StartingFEN { get; private set; }
+        public string StartingFEN
+        {
+            get => _startingFEN;
+            set => _startingFEN = value;
+        }
 
-       
+
         public MoveTree(LinkedListNode<MoveStorage> parentVariation, string fen)
         {
             StartingFEN = fen;
@@ -37,14 +43,14 @@ namespace ChessLib.Data
             return AddLast(move);
         }
 
-       
+
 
 
         public override string ToString()
         {
             var parent = VariationParentNode;
             var depth = 0;
-            while(parent != null)
+            while (parent != null)
             {
                 depth++;
                 parent = ((MoveTree)parent.List).VariationParentNode;
@@ -53,6 +59,6 @@ namespace ChessLib.Data
             return rv;
         }
 
-       
+
     }
 }

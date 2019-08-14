@@ -9,11 +9,13 @@ using System.Linq;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Boards;
 using ChessLib.Data.MoveRepresentation.NAG;
+using ChessLib.Data.Helpers;
 
 namespace ChessLib.Parse.PGN.Parser
 {
     public sealed class PGNListener : PGNBaseListener
     {
+        private Tags _currentTags;
         private string _tagName;
         private readonly List<Tuple<uint, long>> _gamePerformance;
         private readonly Stopwatch _stopwatch;
@@ -51,15 +53,24 @@ namespace ChessLib.Parse.PGN.Parser
             CurrentGame = new Game<MoveStorage>();
             _moveCount = 0;
             _currentList = CurrentGame.MainMoveTree;
-            _stopwatch.Start();
+            Console.WriteLine($"{new string('*', 15)}{Environment.NewLine}Start of Game");
         }
+        public override void EnterMovetext_section([NotNull] PGNParser.Movetext_sectionContext context)
+        {
+            _moveCount = 0;
+            _currentList = CurrentGame.MainMoveTree;
+        }
+
         public override void ExitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
         {
             _stopwatch.Stop();
             _gamePerformance.Add(new Tuple<uint, long>(_moveCount, _stopwatch.ElapsedMilliseconds));
             TotalTime += _stopwatch.Elapsed.TotalSeconds;
             _stopwatch.Reset();
+            CurrentGame.GoToInitialState();
             Games.Add(CurrentGame);
+            _currentTags = null;
+            Console.WriteLine($"End of Game{Environment.NewLine}{new string('*', 15)}");
         }
 
         public override void EnterComment(PGNParser.CommentContext context)
@@ -90,7 +101,6 @@ namespace ChessLib.Parse.PGN.Parser
         public override void EnterSan_move([NotNull] PGNParser.San_moveContext context)
         {
             var moveText = context.GetText();
-            Console.WriteLine($"Applying {moveText}" + (_nextMoveIsVariation ? " as variation." : ""));
             var strategy = _nextMoveIsVariation ? MoveApplicationStrategy.Variation : MoveApplicationStrategy.ContinueMainLine;
             _currentMove = CurrentGame.ApplySANMove(moveText, strategy);
             _nextMoveIsVariation = false;

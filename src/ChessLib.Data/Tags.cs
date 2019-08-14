@@ -6,12 +6,16 @@ using System.Threading;
 
 namespace ChessLib.Data
 {
+    public delegate void OnFenChangedCallback(string fen);
     public class Tags : Dictionary<string, string>
     {
-        public event EventHandler<string> FENChanged;
+
         public readonly string[] RequiredTagKeys = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
-        public Tags()
+        public OnFenChangedCallback OnFenChanged;
+
+        public Tags(OnFenChangedCallback onFenChanged = null)
         {
+            OnFenChanged = onFenChanged;
             foreach (var requiredTag in RequiredTagKeys)
             {
                 Add(requiredTag, requiredTag);
@@ -71,7 +75,7 @@ namespace ChessLib.Data
                 this[key] = value;
             }
             else { base.Add(key, value); }
-            if(key.ToLower() == "fen")
+            if (key.ToLower() == "fen")
             {
                 SetFen(value);
             }
@@ -86,7 +90,10 @@ namespace ChessLib.Data
 
         private void OnFENChanged(string fen)
         {
-            Volatile.Read(ref FENChanged)?.Invoke(this, fen);
+            if (OnFenChanged != null)
+            {
+                OnFenChanged(fen);
+            }
         }
     }
 }

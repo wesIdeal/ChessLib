@@ -12,24 +12,26 @@ namespace ChessLib.Data
     {
         public Tags TagSection;
 
-        public Game() :base(FENHelpers.FENInitial)
+        public Game() : base(FENHelpers.FENInitial)
         {
-            TagSection = new Tags();
-            TagSection.FENChanged += OnFenChanged;
+            TagSection = new Tags(OnFenChanged);
             TagSection.SetFen(FENHelpers.FENInitial);
         }
 
-        private void OnFenChanged(object sender, string fen)
+        private void OnFenChanged(string fen)
         {
-            MainMoveTree = new MoveTree(null, fen);
-
+            InitialFEN = fen;
         }
 
         public Game(string fen) : base(fen)
         {
-            TagSection = new Tags();
-            TagSection.FENChanged += OnFenChanged;
+            TagSection = new Tags(OnFenChanged);
             TagSection.SetFen(fen);
+        }
+
+        public void SetFEN(string fen)
+        {
+            OnFenChanged(fen);
         }
 
     }
