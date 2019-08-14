@@ -129,7 +129,7 @@ namespace ChessLib.Data
         }
 
         public bool HasNextMove => NextMoveNode != null;
-        protected MoveTree CurrentTree => (MoveTree)CurrentMoveNode.List;
+        public MoveTree CurrentTree => (MoveTree)CurrentMoveNode.List;
         public LinkedListNode<MoveStorage> NextMoveNode => CurrentMoveNode.Next;
         public LinkedListNode<MoveStorage> PreviousMoveNode
         {

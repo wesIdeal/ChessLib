@@ -188,8 +188,8 @@ namespace ChessLib.Data.Tests
         public void FindNextMoves_ShouldReturnVariationsInOrder()
         {
             var game = LoadGameByPGN(PGN.WithVariations);
-
-            var appliedMove = game.TraverseForward(new MoveStorage(666));
+            var move = game.GetNextMoves().FirstOrDefault();
+            var appliedMove = game.TraverseForward(move);
             var moves = game.GetNextMoves();
             Assert.AreEqual(4, moves.Count());
             Assert.AreEqual(4013, moves[0].Move);
@@ -207,7 +207,7 @@ namespace ChessLib.Data.Tests
             var stateStack = new Stack<(MoveStorage moveApplied, string premoveFEN)>();
             var moves = game.MainMoveTree;
             sb.AppendLine($"****APPLYING {game.MainMoveTree.Count()} MOVES****");
-            foreach (var move in moves)
+            foreach (var move in moves.Skip(1))
             {
                 var premoveFEN = game.Board.CurrentFEN;
                 stateStack.Push((moveApplied: move, premoveFEN: premoveFEN));
@@ -268,7 +268,7 @@ namespace ChessLib.Data.Tests
 
             for (int i = 0; i < 25; i++)
             {
-                var rv = game.TraverseForward(new MoveStorage(new MoveExt(405), "Nf3"));
+                var rv = game.TraverseForward();
                 Assert.AreEqual(game.InitialFEN, game.CurrentFEN);
             }
         }
@@ -304,7 +304,8 @@ namespace ChessLib.Data.Tests
                 HandleMoveException(moveExc);
                 throw;
             }
-            Assert.AreEqual(game.MainMoveTree.First, game.CurrentMoveNode);
+            Assert.IsTrue(game.CurrentMoveNode.Value.IsNullMove, "Current move should be null move");
+            Assert.IsNull(game.CurrentTree.VariationParentNode, "Should be on top tree after initial applied.");
             Assert.AreEqual(expected, game.CurrentFEN);
         }
 
