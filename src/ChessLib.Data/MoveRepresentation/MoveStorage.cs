@@ -41,11 +41,11 @@ namespace ChessLib.Data.MoveRepresentation
 
         protected MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move) { }
 
-        
 
-        public MoveStorage(BoardInfo boardInfo, MoveExt move, Piece? capturedPiece) : base(move)
+
+        public MoveStorage(BoardInfo boardInfo, MoveExt move, Piece? capturedPiece)
+            : base(move)
         {
-            
             var gameState = boardInfo.ValidateBoard();
             var boardState = new BoardState(boardInfo.HalfmoveClock, boardInfo.EnPassantSquare, capturedPiece,
                 boardInfo.CastlingAvailability, gameState);
@@ -67,7 +67,7 @@ namespace ChessLib.Data.MoveRepresentation
 
         public List<MoveTree> Variations = new List<MoveTree>();
 
-        
+
         public static byte[] GetHash(string inputString)
         {
             HashAlgorithm algorithm = SHA256.Create();

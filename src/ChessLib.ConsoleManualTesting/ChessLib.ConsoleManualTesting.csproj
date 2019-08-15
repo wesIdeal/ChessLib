@@ -9,7 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\ChessLib.Parse.Tests\PGNResources.resx" Link="PGNResources.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ChessLib.Graphics\ChessLib.Graphics.csproj" />
+    <ProjectReference Include="..\ChessLib.Parse.Tests\ChessLib.Parse.Tests.csproj" />
     <ProjectReference Include="..\ChessLib.Parse\ChessLib.Parse.csproj" />
     <ProjectReference Include="..\ChessLib.EngineInterface\ChessLib.EngineInterface.csproj" />
   </ItemGroup>

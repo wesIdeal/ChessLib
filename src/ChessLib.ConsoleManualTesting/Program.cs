@@ -10,8 +10,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using ChessLib.Parse;
+using ChessLib.Parse.Tests;
 
-namespace Bitboard.Tests.ConsoleApp
+namespace ChessLib.ConsoleManualTesting
 {
     class Program
     {
@@ -21,13 +23,13 @@ namespace Bitboard.Tests.ConsoleApp
         {
             var parsePgn = new ParsePgn();
 
-            using (var fs = new FileStream(".\\PGN\\validGames.pgn", FileMode.Open, FileAccess.Read))
-            {
-                var games = parsePgn.ParseAndValidateGames(fs);
-                Console.WriteLine($"Parsed {games.Count} games in {parsePgn.TotalValidationTime.TotalMilliseconds} ms, ({parsePgn.TotalValidationTime.TotalMilliseconds / 1000} seconds.)");
-                EvalPosition(games[0]);
-            }
-            // Console.ReadKey();
+            Stopwatch sw = new Stopwatch();
+            var pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
+            sw.Start();
+            var games = parsePgn.GetGamesFromPGN(pgnDb);
+            sw.Stop();
+            Console.WriteLine($"Parsed {games.Count()} games in {sw.ElapsedMilliseconds} ms, ({parsePgn.TotalValidationTime.TotalMilliseconds / 1000} seconds.)");
+            //Console.ReadKey();
         }
 
         private static void EvalPosition(Game<MoveStorage> game)

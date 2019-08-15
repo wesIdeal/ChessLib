@@ -255,4 +255,42 @@ Rf7+ Ke8 24. Rxe7+ Kf8 25. Rf1+ Kg8 26. Rff7  1-0</value>
   <data name="talLarge" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>PGN\talLarge.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="VariationsAndComments" xml:space="preserve">
+    <value>[Event "FIDE (23) 1958-1960"]
+[Site "Portoroz izt"]
+[Date "1958.??.??"]
+[Round "17"]
+[White "Tal, Mikhail"]
+[Black "Panno, Oscar"]
+[Result "1-0"]
+[ECO "C92e"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 d6 8.c3 O-O 
+9.h3 Nd7 {A popular variation at that time -Kasparov} 10.d4 Nb6 ( 10...Bf6
+11.a4 $14 ( 11.Be3 $2 Na5 12.Bc2 Nc4 $10 {Spassky-Petrosian, Moscow 21st 
+matchgame 1969} ) ) 11.Be3 {Fashionable at the time. } ( {"A harmless 
+alternative is..."
+--Kasparov} 11.dxe5 Nxe5 12.Nxe5 dxe5 13.Qh5 Bf6 ( 13...Qd6 14.Nd2 Be6 {
+with more or less equality. Fischer-Tal, 12th round} ) 14.Nd2 Qe7 15.Nf1 
+Be6 16.Ne3 g6 {Fischer-Keller, Zurich 1959} ) ( 11.Nbd2 $1 {later became 
+the main line stemming from this variation} ) 11...exd4 ( {
+Fischer-Bronstein 1958 Portotoz Interzonal Tournament, rd 6 varied as such
+} 11...Rb8 12.Nbd2 ( 12.dxe5 Nxe5 $2 ( {better was} 12...dxe5 $1 ) 13.Nxe5
+dxe5 14.Qh5 Qd6 15.Nd2 Bf6 16.Nf3 Nc4 17.Rad1 Qe7 18.Bg5 {Tal-Darga, 
+Munich Olympiad 1958 rd 2} ) 12...Bf6 13.d5 ( 13.Nf1 Re8 $1 ) 13...Na5 14.
+Bc2 Nac4 15.Nxc4 Nxc4 16.Bc1 c6 $10 ) 12.cxd4 Na5 ( {White gained a 
+dangerous initiative with} 12...d5 13.Nc3 dxe4 14.Nxe4 Bf5 15.d5 Na5 16.d6
+$16 {Tal-Antoshin 24th USSR Ch. Moscow 1957} ) 13.Bc2 c5 {Critical 
+position in the opening} 14.e5 $6 dxe5 ( 14...cxd4 15.Bxd4 ) ( 14...Nac4 
+$6 15.exd6 Qxd6 16.Bg5 ( 16.Qd3 ) 16...Bxg5 17.Nxg5 h6 ) 15.Nxe5 Nbc4 ( 
+15...Bf6 16.Nc3 Nbc4 ) 16.Qd3 f5 17.Bb3 f4 18.Bd2 ( 18.Nc6 Nxc6 19.Bxc4+ 
+bxc4 20.Qxc4+ Kh8 21.Bd2 ) 18...Nxb3 19.Nc6 Nxa1 20.Nxd8 Bf5 21.Qf3 Raxd8 
+22.Rxe7 Bxb1 23.Bxf4 Rxd4 24.Qg4 Bg6 25.Qe6+ Bf7 26.Qf5 Nc2 27.b3 Bg6 28.
+Rxg7+ Kxg7 29.Bh6+ Kxh6 30.Qxf8+ Kg5 31.bxc4 bxc4 32.g3 ( 32.Qxc5+ ) ( 32.
+Kh2 ) 32...Be4 33.h4+ Kg4 34.Kh2 Bf5 35.Qf6 h6 36.Qe5 Re4 37.Qg7+ Kf3 ( 
+37...Kh5 38.Qf7+ Kg4 ) 38.Qc3+ Ne3 39.Kg1 Bg4 40.fxe3 h5 41.Qe1 Rxe3 42.
+Qf1+ Ke4 43.Qxc4+ Kf3 44.Qf1+ Ke4 45.Qxa6 Kd4 46.Qd6+ Kc4 47.a4 Re1+ 48.
+Kf2 Re2+ 49.Kf1 Ra2 50.Qa6+ Kd4 51.a5 c4 52.Qb6+ Kd5 53.a6 Ra1+ 54.Kf2 c3 
+55.a7 c2 56.Qb3+ Kd6 57.Qd3+ 1-0</value>
+  </data>
 </root>

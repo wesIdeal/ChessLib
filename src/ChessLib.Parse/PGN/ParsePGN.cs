@@ -39,6 +39,7 @@ namespace ChessLib.Parse.PGN
         {
             var listener = new PGNListener();
             PGNLexer lexer = new PGNLexer(inputStream);
+            lexer.RemoveErrorListeners();
             var tokens = new CommonTokenStream(lexer);
             var parser = new PGNParser(tokens);
             var parseTree = parser.parse();

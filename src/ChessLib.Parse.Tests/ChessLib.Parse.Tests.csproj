@@ -19,11 +19,12 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>PGNResources.resx</DependentUpon>
+      <CustomToolNamespace>ChessLib</CustomToolNamespace>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="PGNResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>PGNResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>

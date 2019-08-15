@@ -76,6 +76,15 @@ namespace ChessLib.Parse.Tests
             var pgn = PGNResources.GameWithVars;
             var game = _parser.GetGamesFromPGN(pgn).ToArray();
             Assert.AreEqual(1, game.Length, $"Expected only one game, but found {game.Length}.");
+
+        }
+        [Test]
+        public void TestRealGameParsingVarsAndComments()
+        {
+            var pgn = PGNResources.VariationsAndComments;
+            var game = _parser.GetGamesFromPGN(pgn).ToArray();
+            Assert.AreEqual(1, game.Length, $"Expected only one game, but found {game.Length}.");
+
         }
         [Test]
         public void TestColumnStylePGN()
@@ -109,7 +118,11 @@ namespace ChessLib.Parse.Tests
         public void LongWait_TestParsingLargeDb()
         {
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             var largeDb = _parser.GetGamesFromPGN(pgnDb).ToArray();
+            sw.Stop();
+            Debug.WriteLine($"Finished parsing {largeDb.Count()} games in {sw.ElapsedMilliseconds / 1000} seconds");
             const int expectedGameCount = 2971;
             Assert.AreEqual(expectedGameCount, largeDb.Length, $"Expected {expectedGameCount} games, but found {_largeDb.Length}.");
         }

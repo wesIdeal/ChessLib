@@ -22,7 +22,7 @@ namespace ChessLib.Parse.Tests {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class PGNResources {
+    public class PGNResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace ChessLib.Parse.Tests {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ChessLib.Parse.Tests.PGNResources", typeof(PGNResources).Assembly);
@@ -51,7 +51,7 @@ namespace ChessLib.Parse.Tests {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -92,7 +92,7 @@ namespace ChessLib.Parse.Tests {
         ///	  18.	Bxe6+ 	Kg7 
         ///	  19 [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string ColumnStyle {
+        public static string ColumnStyle {
             get {
                 return ResourceManager.GetString("ColumnStyle", resourceCulture);
             }
@@ -114,7 +114,7 @@ namespace ChessLib.Parse.Tests {
         ///Kd2 Qa5+ 19. b4 Qd8 20. Rhg1 f6 21. Bh5+ Kf8 22. Rxg7 fxe5 23. Rf7+ Ke8 24.
         ///Rxe7+ Kf8 25. Rf1+ Kg8 26. Rff7  1-0.
         /// </summary>
-        internal static string GameWithNAG {
+        public static string GameWithNAG {
             get {
                 return ResourceManager.GetString("GameWithNAG", resourceCulture);
             }
@@ -136,7 +136,7 @@ namespace ChessLib.Parse.Tests {
         ///17. Qe5 Qa1+ 18. Kd2 Qa5+ 19. b4 Qd8 20. Rhg1 f6 21. Bh5+ Kf8 22. Rxg7 fxe5 23.
         ///Rf7+ Ke8 24. Rxe7+ Kf8 25. Rf1+ Kg8 2 [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string GameWithVariation {
+        public static string GameWithVariation {
             get {
                 return ResourceManager.GetString("GameWithVariation", resourceCulture);
             }
@@ -165,7 +165,7 @@ namespace ChessLib.Parse.Tests {
         ///3...Bf5 
         ///    ( 3...e5 4 [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string GameWithVars {
+        public static string GameWithVars {
             get {
                 return ResourceManager.GetString("GameWithVars", resourceCulture);
             }
@@ -183,7 +183,7 @@ namespace ChessLib.Parse.Tests {
         ///
         ///1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.O-O d6 5.b4 Bxb4 6.c3 Ba5 7.d4 Bg4 8.Qb3 Qd7 9.Ng5 Nd8 10.dxe5 dxe5 11.Ba3 Nh6 12.f3 Bb6+ 13.Kh1 Bh5 14.Rd1 Qc8 15.Rxd8+ Qxd8 16.Nxf7 Qh4 17.Qb5+ c6 18.Qxe5+ Kd7 19.Qe6+ Kc7 20.Bd6# 1-0.
         /// </summary>
-        internal static string Simple {
+        public static string Simple {
             get {
                 return ResourceManager.GetString("Simple", resourceCulture);
             }
@@ -192,10 +192,33 @@ namespace ChessLib.Parse.Tests {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] talLarge {
+        public static byte[] talLarge {
             get {
                 object obj = ResourceManager.GetObject("talLarge", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;FIDE (23) 1958-1960&quot;]
+        ///[Site &quot;Portoroz izt&quot;]
+        ///[Date &quot;1958.??.??&quot;]
+        ///[Round &quot;17&quot;]
+        ///[White &quot;Tal, Mikhail&quot;]
+        ///[Black &quot;Panno, Oscar&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[ECO &quot;C92e&quot;]
+        ///
+        ///1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 d6 8.c3 O-O 
+        ///9.h3 Nd7 {A popular variation at that time -Kasparov} 10.d4 Nb6 ( 10...Bf6
+        ///11.a4 $14 ( 11.Be3 $2 Na5 12.Bc2 Nc4 $10 {Spassky-Petrosian, Moscow 21st 
+        ///matchgame 1969} ) ) 11.Be3 {Fashionable at the time. } ( {&quot;A harmless 
+        ///alternative is...&quot;
+        ///--Kasparov} 11.dxe5 Nxe5 [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string VariationsAndComments {
+            get {
+                return ResourceManager.GetString("VariationsAndComments", resourceCulture);
             }
         }
     }

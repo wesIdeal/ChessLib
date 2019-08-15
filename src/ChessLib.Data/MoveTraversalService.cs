@@ -8,6 +8,7 @@ using ChessLib.Data.Validators.MoveValidation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,7 +48,7 @@ namespace ChessLib.Data
         public string CurrentFEN => Board.CurrentFEN;
         public MoveTree MainMoveTree { get; protected set; }
         public LinkedListNode<MoveStorage> CurrentMoveNode { get; set; }
-
+        
         public MoveTraversalService(string fen)
         {
             Board = new BoardInfo(fen);
@@ -187,15 +188,15 @@ namespace ChessLib.Data
             {
                 GoToInitialState();
             }
-            Console.WriteLine($"It is now {Board.ActivePlayer}'s move.");
-            Console.WriteLine($"FEN is now:\t{CurrentFEN}\r\n{new string('*', 20)}");
+            Debug.WriteLine($"It is now {Board.ActivePlayer}'s move.");
+            Debug.WriteLine($"FEN is now:\t{CurrentFEN}\r\n{new string('*', 20)}");
             return CurrentMoveNode;
         }
 
         private void WriteDebugInfo(string message)
         {
             var msg = message.Replace("\r\n", $"\r\n{new string(' ', _depth * 2)}");
-            Console.WriteLine(new string(' ', _depth * 2), message);
+            Debug.WriteLine(new string(' ', _depth * 2), message);
         }
 
         /// <summary>
@@ -259,26 +260,15 @@ namespace ChessLib.Data
         #endregion
 
         #region Move Application
-        protected bool _variationPremoveHandled = false;
-        public LinkedListNode<MoveStorage> ApplySANMove(string moveText, MoveApplicationStrategy moveApplicationStrategy)
-        {
-            Console.WriteLine($"Applying move {moveText}");
-            if (moveApplicationStrategy == MoveApplicationStrategy.Variation)
-            {
-                return ApplySANVariationMove(moveText);
-            }
-            MoveExt move = TranslateSANMove(moveText);
-            move.SAN = moveText;
-            return ApplyMove(move);
-        }
 
+        #region Variations
         protected LinkedListNode<MoveStorage> ApplySANVariationMove(string moveText)
         {
             TraverseBackward();
             var move = TranslateSANMove(moveText);
             move.SAN = moveText;
-            TraverseForward();
-            return ApplyMoveVariation(move);
+            ValidateMove(move);
+            return ApplyValidatedMoveVariation(move);
         }
 
         protected LinkedListNode<MoveStorage> ApplyMoveVariation(MoveExt move)
@@ -292,16 +282,14 @@ namespace ChessLib.Data
         {
             try
             {
-
                 var capturedPiece = GetCapturedPiece(move);
-                var moveStorageObj = new MoveStorage(Board, move, capturedPiece) { Validated = true };
                 if (string.IsNullOrEmpty(move.SAN))
                 {
                     move.SAN = GetMoveText(move);
                 }
-
                 var variationParentFEN = CurrentFEN;
                 ApplyMoveToBoard(move);
+                var moveStorageObj = new MoveStorage(Board, move, capturedPiece) { Validated = true };
                 CurrentMoveNode = CurrentMoveNode.Next.Value.AddVariation(CurrentMoveNode, moveStorageObj, variationParentFEN);
                 WriteDebugInfo($"Applying variation {move}");
                 return CurrentMoveNode;
@@ -311,6 +299,20 @@ namespace ChessLib.Data
                 throw new MoveException($"Issue while applying move {move}.", e);
             }
         }
+        #endregion
+
+        #region Regular Moves
+        public LinkedListNode<MoveStorage> ApplySANMove(string moveText, MoveApplicationStrategy moveApplicationStrategy)
+        {
+            Debug.WriteLine($"Applying move {moveText}");
+            if (moveApplicationStrategy == MoveApplicationStrategy.Variation)
+            {
+                return ApplySANVariationMove(moveText);
+            }
+            MoveExt move = TranslateSANMove(moveText);
+            move.SAN = moveText;
+            return ApplyMove(move);
+        }
 
         public LinkedListNode<MoveStorage> ApplyMove(MoveExt move, MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine)
         {
@@ -319,6 +321,22 @@ namespace ChessLib.Data
             return ApplyValidatedMove(move);
         }
 
+        protected LinkedListNode<MoveStorage> ApplyValidatedMove(MoveExt move, MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine)
+        {
+            Debug.WriteLine($"Before applying move {move}, FEN is:\t{Board.CurrentFEN}");
+            var capturedPiece = GetCapturedPiece(move);
+            if (string.IsNullOrEmpty(move.SAN))
+            {
+                move.SAN = GetMoveText(move);
+            }
+            WriteDebugInfo($"Applying move {move}");
+            ApplyMoveToBoard(move);
+            var moveStorageObject = new MoveStorage(Board, move, capturedPiece) { Validated = true };
+            CurrentMoveNode = CurrentTree.AddMove(moveStorageObject);
+            Debug.WriteLine($"After applying move {move}, FEN is:\t{Board.CurrentFEN}");
+            return CurrentMoveNode;
+        }
+        #endregion
         protected void ValidateMove(MoveExt move)
         {
             if (move is MoveStorage)
@@ -349,21 +367,7 @@ namespace ChessLib.Data
             return capturedPiece?.Piece;
         }
 
-        protected LinkedListNode<MoveStorage> ApplyValidatedMove(MoveExt move, MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine)
-        {
-            Debug.WriteLine($"Before applying move {move}, FEN is:\t{Board.CurrentFEN}");
-            var capturedPiece = GetCapturedPiece(move);
-            if (string.IsNullOrEmpty(move.SAN))
-            {
-                move.SAN = GetMoveText(move);
-            }
-            WriteDebugInfo($"Applying move {move}");
-            ApplyMoveToBoard(move);
-            var moveStorageObject = new MoveStorage(Board, move, capturedPiece) { Validated = true };
-            CurrentMoveNode = CurrentTree.AddMove(moveStorageObject);
-            Debug.WriteLine($"After applying move {move}, FEN is:\t{Board.CurrentFEN}");
-            return CurrentMoveNode;
-        }
+       
 
         protected void ApplyMoveToBoard(MoveExt move)
         {

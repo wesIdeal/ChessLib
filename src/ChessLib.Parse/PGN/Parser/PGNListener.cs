@@ -53,7 +53,6 @@ namespace ChessLib.Parse.PGN.Parser
             CurrentGame = new Game<MoveStorage>();
             _moveCount = 0;
             _currentList = CurrentGame.MainMoveTree;
-            Console.WriteLine($"{new string('*', 15)}{Environment.NewLine}Start of Game");
         }
         public override void EnterMovetext_section([NotNull] PGNParser.Movetext_sectionContext context)
         {
@@ -70,7 +69,6 @@ namespace ChessLib.Parse.PGN.Parser
             CurrentGame.GoToInitialState();
             Games.Add(CurrentGame);
             _currentTags = null;
-            Console.WriteLine($"End of Game{Environment.NewLine}{new string('*', 15)}");
         }
 
         public override void EnterComment(PGNParser.CommentContext context)
