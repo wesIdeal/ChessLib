@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChessLib.Data;
+using ChessLib.Data.Boards;
 using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
@@ -26,35 +27,42 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
         [TestCase("bestmove e7e8q", 32060, null, "6k1/3RP3/8/8/8/8/8/4K3 w - - 0 60")]
         public void TestBestMove(string engineResponse, int bm, int? pm, string fen)
         {
-            var translator = new MoveTranslatorService(fen);
+           
             var bestMove = new MoveExt((ushort)bm);
             var ponderMove = pm.HasValue ? new MoveExt((ushort)pm) : null;
             var iResp = _infoObj.GetInfoResponse(engineResponse);
             Assert.IsTrue(iResp is BestMoveResponse);
-            var obj = iResp as BestMoveResponse;
-            var ponderMoveFromResponse = string.IsNullOrWhiteSpace(obj.PonderMoveLong)
-                ? null
-                : translator.FromLongAlgebraicNotation(obj.PonderMoveLong);
-
-            Assert.AreEqual(bestMove, translator.FromLongAlgebraicNotation(obj.BestMoveLong));
+            TranslateBestMoveResponse(fen, iResp as BestMoveResponse, out var bestMoveFromResponse, out var ponderMoveFromResponse);
+            Assert.AreEqual(bestMove, bestMoveFromResponse);
             Assert.AreEqual(ponderMove, ponderMoveFromResponse);
-
         }
+
+        private static void  TranslateBestMoveResponse(string fen, BestMoveResponse response,
+            out MoveExt bestMoveFromResponse,
+            out MoveExt ponderMoveFromResponse)
+        {
+            var board = new BoardInfo(fen);
+            var traversalSvc = new MoveTraversalService(fen);
+            var translator = new MoveTranslatorService(fen);
+            bestMoveFromResponse = translator.FromLongAlgebraicNotation(response.BestMoveLong);
+            traversalSvc.ApplyMove(bestMoveFromResponse);
+            translator.InitializeBoard(traversalSvc.Board);
+            ponderMoveFromResponse = string.IsNullOrWhiteSpace(response.PonderMoveLong)
+                ? null
+                : translator.FromLongAlgebraicNotation(response.PonderMoveLong);
+        }
+
         [TestCase("bestmove e7e8q", "e8=Q# 1-0", null, "6k1/3RP3/8/8/8/8/8/4K3 w - - 0 60")]
         [TestCase("bestmove e2e4 ponder e7e6", "e4", "e6", FENHelpers.FENInitial)]
         [TestCase("bestmove e7e5 ponder g2g3", "e5", "g3", "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1")]
-        //[TestCase("bestmove d5f7 ponder f8f7", 2293, 3957, "r1b2rk1/pp1p1pp1/1b1p2B1/n1qQ2p1/8/5N2/P3RPPP/4R1K1 w - - 0 1")]
+        [TestCase("bestmove d5f7 ponder f8f7", "Qxf7+", "Rxf7", "r1b2rk1/pp1p1pp1/1b1p2B1/n1qQ2p1/8/5N2/P3RPPP/4R1K1 w - - 0 1")]
         public void TestBestMoveSAN(string engineResponse, string bmSAN, string pmSAN, string fen)
         {
             var trans = new MoveTranslatorService(fen);
             var iResp = _infoObj.GetInfoResponse(engineResponse);
             Assert.IsTrue(iResp is BestMoveResponse);
-            var obj = iResp as BestMoveResponse;
-            var tBm = trans.FromLongAlgebraicNotation(obj.BestMoveLong);
-            var ponderMoveFromResponse = string.IsNullOrWhiteSpace(obj.PonderMoveLong)
-                ? null
-                : trans.FromLongAlgebraicNotation(obj.PonderMoveLong);
-            Assert.AreEqual(bmSAN, tBm.SAN);
+            TranslateBestMoveResponse(fen, iResp as BestMoveResponse, out var bestMoveFromResponse, out var ponderMoveFromResponse);
+            Assert.AreEqual(bmSAN, bestMoveFromResponse.SAN);
             Assert.AreEqual(pmSAN, ponderMoveFromResponse?.SAN);
             //Assert.AreEqual(bmSAN + " " + pmSAN, obj.ToString());
         }
@@ -88,7 +96,7 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
             var resp = _infoObj.GetInfoResponse(info);
             Assert.IsTrue(resp is PrincipalVariationResponse);
             var obj = resp as PrincipalVariationResponse;
-            Assert.AreEqual(pvCount, obj.Variation.Count());
+            Assert.AreEqual(pvCount, obj.VariationLong.Count());
             Assert.AreEqual(mateIn, obj.Score.MateInXMoves);
             Console.Write($"({obj.ToString()})\t");
         }
@@ -104,7 +112,7 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
             var obj = resp as InfoCalculationResponse;
             var mv = new MoveExt((ushort)move);
             Assert.AreEqual(depth, obj.Depth);
-            Assert.AreEqual(mv, obj.CurrentMove);
+            Assert.AreEqual(mv, MoveTranslatorService.BasicMoveFromLAN(obj.CurrentMoveLong));
             Assert.AreEqual(moveNumber, obj.CurrentMoveNumber);
             Console.Write($"({obj.ToString()})\t");
         }
@@ -116,7 +124,7 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
             var resp = _infoObj.GetInfoResponse(info);
             Assert.IsTrue(resp is PrincipalVariationResponse);
             var obj = resp as PrincipalVariationResponse;
-            Assert.AreEqual(pvCount, obj.Variation.Count());
+            Assert.AreEqual(pvCount, obj.VariationLong.Count());
             Assert.AreEqual(centipawn, obj.Score.CentipawnScore);
             Assert.AreEqual(scoreBound, obj.Score.Bound);
             Console.Write($"({obj.ToString()})\t");

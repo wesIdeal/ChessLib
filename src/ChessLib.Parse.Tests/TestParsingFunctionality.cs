@@ -15,23 +15,15 @@ using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
 using System.Collections.Generic;
+using ChessLib.Data.MoveRepresentation.NAG;
 
 namespace ChessLib.Parse.Tests
 {
     [TestFixture]
     public class TestParsingFunctionality
     {
-        ~TestParsingFunctionality()
-        {
-            _finishedWithLargeDb.Dispose();
-        }
-
-
-        private Game<MoveStorage> _withVariation;
+       
         private PGNParser _parser = new PGNParser();
-        private Game<MoveStorage>[] _largeDb;
-        Tags expectedTags;
-        private Task _finishedWithLargeDb;
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
@@ -43,11 +35,13 @@ namespace ChessLib.Parse.Tests
         [Test]
         public void TestVariationParsing()
         {
-            const int variationOnMovePosition = 0;
+            const int variationOnMovePosition = 1;
             const int expectedVariationCount = 1;
             const string variationSAN = "c4";
-            var variationMove = GetNodeAt(variationOnMovePosition, _withVariation.MainMoveTree);
-            Assert.AreEqual(expectedVariationCount, variationMove.Value.Variations.Count);
+            var withVarDb = _parser.GetGamesFromPGN(PGNResources.GameWithVariation).First();
+            var variationMove = withVarDb.MainMoveTree.ElementAt(variationOnMovePosition);
+            Assert.AreEqual(expectedVariationCount, variationMove.Variations.Count);
+            Assert.AreEqual(variationSAN, variationMove.Variations[0].ElementAt(0).SAN);
         }
 
         private LinkedListNode<MoveStorage> GetNodeAt(int index, MoveTree tree)
@@ -91,29 +85,32 @@ namespace ChessLib.Parse.Tests
         {
             var games = _parser.GetGamesFromPGN(PGNResources.ColumnStyle).ToArray();
             Assert.AreEqual(1, games.Length, $"Expected only one game, but found {games.Length}.");
-            Assert.AreEqual(50, games[0].MainMoveTree.Count(), "Game should have 50 moves.");
+            Assert.AreEqual(51, games[0].MainMoveTree.Count(), "Game should have 50 moves.");
         }
 
         [Test]
         public void TestNAGParsing()
         {
             const string expected = "$1";
-            const int moveIndex = 15; //Black's move 9...Qc7
+            const int moveIndex = 16; 
             var game = _parser.GetGamesFromPGN(PGNResources.GameWithNAG).First();
             var move = game.MainMoveTree.ElementAt(moveIndex);
-            Assert.AreEqual(expected, move.Annotation, $"Expected NAG to be '{expected}' at move {MoveDisplay(moveIndex, move.SAN)}.");
+            Assert.AreEqual(MoveNAG.GoodMove, move.Annotation.MoveNAG, $"Expected NAG to be '{expected}' at move {MoveDisplay(moveIndex, move.SAN)}.");
         }
 
         [Test]
         public void TestCommentParsing()
         {
             const string expected = "Qc7 is a great move, here.";
-            const int movePosition = 17; //Black's move 9...Qc7
+            const int movePosition = 18; //Black's move 9...Qc7
             var game = _parser.GetGamesFromPGN(PGNResources.GameWithNAG).First();
             var move = game.MainMoveTree.ElementAt(movePosition);
             Assert.AreEqual(expected, move.Comment, $"Expected comment '{expected}' at move {MoveDisplay(movePosition, move.SAN)}.");
         }
 
+        /// <summary>
+        /// An extensive test for comments, variations and nags in a real db scenario
+        /// </summary>
         [Test]
         public void LongWait_TestParsingLargeDb()
         {
@@ -124,7 +121,7 @@ namespace ChessLib.Parse.Tests
             sw.Stop();
             Debug.WriteLine($"Finished parsing {largeDb.Count()} games in {sw.ElapsedMilliseconds / 1000} seconds");
             const int expectedGameCount = 2971;
-            Assert.AreEqual(expectedGameCount, largeDb.Length, $"Expected {expectedGameCount} games, but found {_largeDb.Length}.");
+            Assert.AreEqual(expectedGameCount, largeDb.Length, $"Expected {expectedGameCount} games, but found {largeDb.Length}.");
         }
 
         private string MoveDisplay(int moveNumber, string SAN)

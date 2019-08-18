@@ -33,7 +33,7 @@ namespace ChessLib.Data.MoveRepresentation.NAG
 
         public NumericAnnotation(string nag) : this()
         {
-            AnnotationText = nag;
+           ApplyNag(nag);
         }
 
         public string AnnotationText { get; set; }

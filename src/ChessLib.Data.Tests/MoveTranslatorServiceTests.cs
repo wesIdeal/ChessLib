@@ -96,6 +96,8 @@ namespace ChessLib.Data.Tests
         [TestCase("r1bqkbnr/pppp1ppp/2n5/1R2p2R/4P3/8/PPPP1PPP/R1BQKB1R w KQkq - 2 3", "Rbxe5", 33, 36)]
         [TestCase("r1bqkbnr/pppp1ppp/2n5/1R2p2R/4P3/8/PPPP1PPP/R1BQKB1R w KQkq - 2 3", "Rhxe5", 39, 36)]
         [TestCase("1k6/8/8/3Q3Q/K7/8/8/7Q w - - 0 1", "Qh5d1", 39, 3)]
+        [TestCase("r1b2rk1/pp1p1Qp1/1b1p2B1/n1q3p1/8/5N2/P3RPPP/4R1K1 b - - 0 1", "Rxf7", 61, 53 )]
+
         public void SANTranslator_PieceTakes(string fen, string move, int src, int dst)
         {
             _moveTranslatorService.InitializeBoard(fen);
@@ -111,6 +113,13 @@ namespace ChessLib.Data.Tests
             var actual = _moveTranslatorService.GetMoveFromSAN(move);
             var expected = MoveHelpers.GenerateMove(source, dst);
             Assert.AreEqual(expected, actual);
+        }
+        [TestCase("r1b2r1k/pp1p2p1/1b1p2B1/n1qQ2p1/8/5N2/P3RPPP/4R1K1 b - - 0 1", "f8f7", "Rf7")]
+        public void LANTranslator_PieceMoves(string fen, string lanMove, string expectedSAN)
+        {
+            _moveTranslatorService.InitializeBoard(fen);
+            var actualMove = _moveTranslatorService.FromLongAlgebraicNotation(lanMove);
+            Assert.AreEqual(expectedSAN, actualMove.SAN);
         }
 
         [Test]

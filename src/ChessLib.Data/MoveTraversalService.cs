@@ -246,6 +246,7 @@ namespace ChessLib.Data
                 CurrentMoveNode = CurrentTree.VariationParentNode;
             }
             CurrentMoveNode = CurrentTree.First;
+            MainMoveTree = CurrentTree;
         }
 
         public void GoToLastMove()

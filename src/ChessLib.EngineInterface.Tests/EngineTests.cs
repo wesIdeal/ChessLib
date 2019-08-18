@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using ChessLib.EngineInterface;
 using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands;
-using ChessLib.EngineInterface.UCI.Commands.FromEngine;
-using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 using Moq;
 using NUnit.Framework;
 
@@ -116,46 +114,46 @@ namespace ChessLib.UCI.Tests
             Assert.AreEqual("uci", LastCommand);
         }
 
-        [Test]
-        public void TestRunOfRealEngine()
-        {
-            var startupArgs = new UCIEngineStartupArgs(Guid.NewGuid(), "StockFish", "stockfish_10_x64.exe");
-            using (var engine = new UCIEngine(startupArgs))
-            {
-                //engine.DebugEventExecuted += (s, o) => { Console.WriteLine(o.ToString()); };
-                EngineTask = engine.StartAsync();
-                engine.SetOption("Debug Log File", "c:\\temp\\sf.log.txt");
-                engine.DebugEventExecuted += (o, d) =>
-                {
-                    Console.WriteLine($"{d.DebugText}");
-                };
-                engine.EngineCalculationReceived += (s, o) =>
-                {
-                    var message = "";
-                    if (o.ResponseObject == null)
-                    {
-                        Debug.WriteLine("****Calc Result Was Null****");
-                    }
-                    else if (o.ResponseObject.ResponseType == CalculationResponseTypes.BestMove)
-                    {
-                        var bm = o.ResponseObject as BestMoveResponse;
-                        message = ($"Bestmove found: {bm.BestMove}. Pondering: {bm.PonderMove}");
-                        engine.SendQuit();
+        //[Test]
+        //public void TestRunOfRealEngine()
+        //{
+        //    var startupArgs = new UCIEngineStartupArgs(Guid.NewGuid(), "StockFish", "stockfish_10_x64.exe");
+        //    using (var engine = new UCIEngine(startupArgs))
+        //    {
+        //        //engine.DebugEventExecuted += (s, o) => { Console.WriteLine(o.ToString()); };
+        //        EngineTask = engine.StartAsync();
+        //        engine.SetOption("Debug Log File", "c:\\temp\\sf.log.txt");
+        //        engine.DebugEventExecuted += (o, d) =>
+        //        {
+        //            Console.WriteLine($"{d.DebugText}");
+        //        };
+        //        engine.EngineCalculationReceived += (s, o) =>
+        //        {
+        //            var message = "";
+        //            if (o.ResponseObject == null)
+        //            {
+        //                Debug.WriteLine("****Calc Result Was Null****");
+        //            }
+        //            else if (o.ResponseObject.ResponseType == CalculationResponseTypes.BestMove)
+        //            {
+        //                var bm = o.ResponseObject as BestMoveResponse;
+        //                message = ($"Bestmove found: {bm.BestMove}. Pondering: {bm.PonderMove}");
+        //                engine.SendQuit();
 
-                    }
-                    else if (o.ResponseObject.ResponseType == CalculationResponseTypes.PrincipalVariation)
-                    {
-                        var pv = o.ResponseObject as PrincipalVariationResponse;
-                        message = ($"Principal variation {pv.PVOrdinal} found, starting with {pv.Variation[0].SAN}.");
-                    }
-                    //Console.WriteLine(message);
-                };
-                engine.SetOption("MultiPV", "3");
-                engine.SendPosition("rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1");
-                engine.SendGo(TimeSpan.FromSeconds(20));
-                EngineTask.Wait();
-            }
-        }
+        //            }
+        //            else if (o.ResponseObject.ResponseType == CalculationResponseTypes.PrincipalVariation)
+        //            {
+        //                var pv = o.ResponseObject as PrincipalVariationResponse;
+        //                message = ($"Principal variation {pv.PVOrdinal} found, starting with {pv.Variation[0].SAN}.");
+        //            }
+        //            //Console.WriteLine(message);
+        //        };
+        //        engine.SetOption("MultiPV", "3");
+        //        engine.SendPosition("rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1");
+        //        engine.SendGo(TimeSpan.FromSeconds(20));
+        //        EngineTask.Wait();
+        //    }
+        //}
 
         [Test]
         public void TestStopDuringCalculationsOfRealEngine()
@@ -307,28 +305,28 @@ namespace ChessLib.UCI.Tests
         //    finished.WaitOne();
         //}
 
-        [Test]
-        public void SendPosition_NewGame()
-        {
-            AutoResetEvent finished = new AutoResetEvent(false);
-            EventHandler<DebugEventArgs> handler = (s, args) =>
-            {
-                if (args.DebugText.StartsWith("ucinewgame"))
-                {
-                    try
-                    {
-                        Assert.AreEqual("ucinewgame", LastCommand);
-                    }
-                    finally
-                    {
-                        finished.Set();
-                    }
-                }
-            };
+        //[Test]
+        //public void SendPosition_NewGame()
+        //{
+        //    AutoResetEvent finished = new AutoResetEvent(false);
+        //    EventHandler<DebugEventArgs> handler = (s, args) =>
+        //    {
+        //        if (args.DebugText.StartsWith("ucinewgame"))
+        //        {
+        //            try
+        //            {
+        //                Assert.AreEqual("ucinewgame", LastCommand);
+        //            }
+        //            finally
+        //            {
+        //                finished.Set();
+        //            }
+        //        }
+        //    };
 
-            Eng.SendPosition();
-            finished.WaitOne();
-        }
+        //    Eng.SendPosition();
+        //    finished.WaitOne();
+        //}
 
 
 

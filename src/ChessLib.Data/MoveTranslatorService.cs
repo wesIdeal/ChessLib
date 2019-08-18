@@ -98,22 +98,8 @@ namespace ChessLib.Data
         ///<exception cref="MoveException">If <param name="lanMove">lanMove</param> is less than 4 characters or greater than 5, or the source and/or destination strings did not translate to a board index.</exception>
         public MoveExt FromLongAlgebraicNotation(string lanMove)
         {
-            if (lanMove.Length < 4 || lanMove.Length > 5)
-            {
-                throw new MoveException($"Failed to parse LAN move {lanMove}. LAN must be 4-5 characters. Ex: e2e4 (e4) or e7e8q (e8=Q)");
-            }
-            var sourceString = lanMove.Substring(0, 2);
-            var destString = lanMove.Substring(2, 2);
-            var source = sourceString.SquareTextToIndex();
-            var dest = destString.SquareTextToIndex();
-            if (source == null || dest == null)
-            {
-                throw new MoveException($"Unexpected value when converting LAN move to source and destination index: {lanMove}");
-            }
-
-            var promotionChar = lanMove.Length == 5 ? lanMove[4] : (char?)null;
-            var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionChar);
-            return GenerateMoveFromIndexes(source.Value, dest.Value, promotionPiece);
+            var basicMove = BasicMoveFromLAN(lanMove);
+            return GenerateMoveFromIndexes(basicMove.SourceIndex, basicMove.DestinationIndex, basicMove.PromotionPiece);
         }
 
         public MoveExt GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex, PromotionPiece? promotionPiece)
@@ -121,6 +107,31 @@ namespace ChessLib.Data
             var rv = Bitboard.GetMove(Board, sourceIndex, destinationIndex, promotionPiece ?? PromotionPiece.Knight);
             rv.SAN = MoveToSAN(rv);
             return rv;
+        }
+
+        /// <summary>
+        /// Gets a basic move with no SAN and no en passant information
+        /// </summary>
+        /// <param name="lan"></param>
+        /// <returns></returns>
+        public static MoveExt BasicMoveFromLAN(string lan)
+        {
+            var length = lan.Length;
+            if(length < 4 || length > 5) { throw new MoveException($"LAN move {lan} has invalid length.");}
+            var sourceString = lan.Substring(0, 2);
+            var destString = lan.Substring(2, 2);
+            var source = sourceString.SquareTextToIndex();
+            var dest = destString.SquareTextToIndex();
+            if (source == null || dest == null)
+            {
+                throw new MoveException($"Unexpected value when converting LAN move to source and destination index: {lan}");
+            }
+
+            var promotionChar = lan.Length == 5 ? lan[4] : (char?)null;
+            var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionChar);
+            var isPromotion = length == 5;
+            return MoveHelpers.GenerateMove(source.Value, dest.Value,
+                isPromotion ? MoveType.Promotion : MoveType.Normal, promotionPiece);
         }
 
         /// <summary>
