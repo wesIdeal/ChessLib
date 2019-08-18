@@ -220,6 +220,16 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] tiny {
+            get {
+                object obj = ResourceManager.GetObject("tiny", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;FIDE (23) 1958-1960&quot;]
         ///[Site &quot;Portoroz izt&quot;]
         ///[Date &quot;1958.??.??&quot;]

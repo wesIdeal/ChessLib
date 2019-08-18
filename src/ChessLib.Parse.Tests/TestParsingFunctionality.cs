@@ -28,7 +28,7 @@ namespace ChessLib.Parse.Tests
 
 
         private Game<MoveStorage> _withVariation;
-        private ParsePgn _parser = new ParsePgn();
+        private PGNParser _parser = new PGNParser();
         private Game<MoveStorage>[] _largeDb;
         Tags expectedTags;
         private Task _finishedWithLargeDb;

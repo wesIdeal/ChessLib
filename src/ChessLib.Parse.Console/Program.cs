@@ -20,8 +20,7 @@ namespace ChessLib.Parse.Console
 
             using (var fStream = File.OpenRead(".\\PGN\\tal.pgn"))
             {
-                var parsePGN = new ParsePgn();
-
+                var parsePGN = new PGNParser();
                 var games = parsePGN.GetGamesFromPGN(fStream);
                 System.Console.WriteLine($@"Found {games.Count()} games.");
             }

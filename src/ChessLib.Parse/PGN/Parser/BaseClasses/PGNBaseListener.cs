@@ -34,16 +34,13 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 /// </summary>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.7.2")]
 [System.CLSCompliant(false)]
-#pragma warning disable CS3021 // Type or member does not need a CLSCompliant attribute because the assembly does not have a CLSCompliant attribute
-    public partial class PGNBaseListener : IPGNListener
-    {
-#pragma warning restore CS3021 // Type or member does not need a CLSCompliant attribute because the assembly does not have a CLSCompliant attribute
-                              /// <summary>
-                              /// Enter a parse tree produced by <see cref="PGNParser.parse"/>.
-                              /// <para>The default implementation does nothing.</para>
-                              /// </summary>
-                              /// <param name="context">The parse tree.</param>
-        public virtual void EnterParse([NotNull] PGNParser.ParseContext context) { }
+internal partial class PGNBaseListener : IPGNListener {
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="PGNParser.parse"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterParse([NotNull] PGNParser.ParseContext context) { }
 	/// <summary>
 	/// Exit a parse tree produced by <see cref="PGNParser.parse"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -245,3 +242,4 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 	public virtual void VisitErrorNode([NotNull] IErrorNode node) { }
 }
 } // namespace ChessLib.Parse.PGN.Parser.BaseClasses
+

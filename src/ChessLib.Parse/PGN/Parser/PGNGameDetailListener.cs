@@ -1,4 +1,4 @@
-﻿using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Misc;
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Antlr4.Runtime;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Boards;
@@ -39,6 +40,7 @@ namespace ChessLib.Parse.PGN.Parser
 
 
         private Game<MoveStorage> CurrentGame { get; set; }
+        public event EventHandler GameProcessed;
         private LinkedListNode<MoveStorage> _currentMove;
         private bool _nextMoveIsVariation;
 
@@ -49,24 +51,24 @@ namespace ChessLib.Parse.PGN.Parser
             throw new NotImplementedException();
         }
 
-        public override void EnterPgn_database(PGNParser.Pgn_databaseContext context)
+        public override void EnterPgn_database(BaseClasses.PGNParser.Pgn_databaseContext context)
         {
             TotalTime = 0;
         }
 
-        public override void EnterPgn_game([NotNull] PGNParser.Pgn_gameContext context)
+        public override void EnterPgn_game([NotNull] BaseClasses.PGNParser.Pgn_gameContext context)
         {
             CurrentGame = new Game<MoveStorage>();
             _moveCount = 0;
             _currentList = CurrentGame.MainMoveTree;
         }
-        public override void EnterMovetext_section([NotNull] PGNParser.Movetext_sectionContext context)
+        public override void EnterMovetext_section([NotNull] BaseClasses.PGNParser.Movetext_sectionContext context)
         {
             _moveCount = 0;
             _currentList = CurrentGame.MainMoveTree;
         }
 
-        public override void ExitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
+        public override void ExitPgn_game([NotNull] BaseClasses.PGNParser.Pgn_gameContext context)
         {
             _stopwatch.Stop();
             _gamePerformance.Add(new Tuple<uint, long>(_moveCount, _stopwatch.ElapsedMilliseconds));
@@ -75,24 +77,25 @@ namespace ChessLib.Parse.PGN.Parser
             CurrentGame.GoToInitialState();
             Games.Add(CurrentGame);
             _currentTags = null;
+            GameProcessed?.Invoke(this, EventArgs.Empty);
         }
 
-        public override void EnterComment(PGNParser.CommentContext context)
+        public override void EnterComment(BaseClasses.PGNParser.CommentContext context)
         {
             _currentMove.Value.Comment = context.GetText().Replace("\r\n", " ").TrimEnd('}').TrimStart('{').Trim();
         }
 
-        public override void EnterNag(PGNParser.NagContext context)
+        public override void EnterNag(BaseClasses.PGNParser.NagContext context)
         {
             _currentMove.Value.Annotation = new NumericAnnotation(context.GetText());
         }
 
-        public override void EnterTag_name([NotNull] PGNParser.Tag_nameContext context)
+        public override void EnterTag_name([NotNull] BaseClasses.PGNParser.Tag_nameContext context)
         {
             _tagName = context.GetText().Replace("\"", "");
         }
 
-        public override void EnterTag_value([NotNull] PGNParser.Tag_valueContext context)
+        public override void EnterTag_value([NotNull] BaseClasses.PGNParser.Tag_valueContext context)
         {
             var tagVal = context.GetText().Replace("\"", "");
             if (!string.IsNullOrWhiteSpace(_tagName))
@@ -102,21 +105,26 @@ namespace ChessLib.Parse.PGN.Parser
             _tagName = "";
         }
 
-        public override void EnterSan_move([NotNull] PGNParser.San_moveContext context)
+        public override void EnterSan_move([NotNull] BaseClasses.PGNParser.San_moveContext context)
         {
             var moveText = context.GetText();
             var strategy = _nextMoveIsVariation ? MoveApplicationStrategy.Variation : MoveApplicationStrategy.ContinueMainLine;
             _currentMove = CurrentGame.ApplySANMove(moveText, strategy);
             _nextMoveIsVariation = false;
         }
-        public override void EnterRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
+        public override void EnterRecursive_variation([NotNull] BaseClasses.PGNParser.Recursive_variationContext context)
         {
             _nextMoveIsVariation = true;
         }
 
-        public override void ExitRecursive_variation([NotNull] PGNParser.Recursive_variationContext context)
+        public override void ExitRecursive_variation([NotNull] BaseClasses.PGNParser.Recursive_variationContext context)
         {
             CurrentGame.ExitVariation();
         }
     }
 }
+
+
+
+
+

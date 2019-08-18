@@ -299,4 +299,7 @@ Kf2 Re2+ 49.Kf1 Ra2 50.Qa6+ Kd4 51.a5 c4 52.Qb6+ Kd5 53.a6 Ra1+ 54.Kf2 c3
   <data name="small" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>PGN\small.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="tiny" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>PGN\tiny.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

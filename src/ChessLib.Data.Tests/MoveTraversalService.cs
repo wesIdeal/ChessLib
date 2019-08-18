@@ -338,7 +338,7 @@ namespace ChessLib.Data.Tests
 
         private Game<MoveStorage> LoadGameByPGN(string pgn)
         {
-            var parser = new ParsePgn();
+            var parser = new PGNParser();
             var game = parser.GetGamesFromPGN(pgn).First();
             return game;
         }

@@ -17,15 +17,20 @@ namespace ChessLib.ConsoleManualTesting
     {
         static void Main(string[] args)
         {
-            var parsePgn = new ParsePgn();
-
+            var parsePgn = new PGNParser();
+            parsePgn.ProgressUpdate += OnProgressUpdated;
             Stopwatch sw = new Stopwatch();
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
             sw.Start();
             var games = parsePgn.GetGamesFromPGN(pgnDb);
             sw.Stop();
             Console.WriteLine($"Parsed {games.Count()} games in {sw.ElapsedMilliseconds} ms, ({parsePgn.TotalValidationTime.TotalMilliseconds / 1000} seconds.)");
-            Console.ReadKey();
+        }
+
+        private static void OnProgressUpdated(object sender, double e)
+        {
+            Console.SetCursorPosition(0, Console.CursorTop);
+            Console.Write($@"Progress {e*100}%                ");
         }
 
         private static void EvalPosition(Game<MoveStorage> game)

@@ -33,11 +33,8 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.7.2")]
 [System.CLSCompliant(false)]
-#pragma warning disable CS3021 // Type or member does not need a CLSCompliant attribute because the assembly does not have a CLSCompliant attribute
-    public partial class PGNParser : Parser
-    {
-#pragma warning restore CS3021 // Type or member does not need a CLSCompliant attribute because the assembly does not have a CLSCompliant attribute
-        protected static DFA[] decisionToDFA;
+internal partial class PGNParser : Parser {
+	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
 		WHITE_WINS=1, BLACK_WINS=2, DRAWN_GAME=3, SECTION_MARKER=4, REST_OF_LINE_COMMENT=5, 
@@ -101,7 +98,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		Interpreter = new ParserATNSimulator(this, _ATN, decisionToDFA, sharedContextCache);
 	}
 
-	public partial class ParseContext : ParserRuleContext {
+	internal partial class ParseContext : ParserRuleContext {
 		public Pgn_databaseContext pgn_database() {
 			return GetRuleContext<Pgn_databaseContext>(0);
 		}
@@ -118,11 +115,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitParse(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitParse(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -148,7 +140,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Pgn_databaseContext : ParserRuleContext {
+	internal partial class Pgn_databaseContext : ParserRuleContext {
 		public Pgn_gameContext[] pgn_game() {
 			return GetRuleContexts<Pgn_gameContext>();
 		}
@@ -167,11 +159,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitPgn_database(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitPgn_database(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -209,7 +196,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Pgn_gameContext : ParserRuleContext {
+	internal partial class Pgn_gameContext : ParserRuleContext {
 		public Tag_sectionContext tag_section() {
 			return GetRuleContext<Tag_sectionContext>(0);
 		}
@@ -228,11 +215,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitPgn_game(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitPgn_game(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -258,7 +240,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Tag_sectionContext : ParserRuleContext {
+	internal partial class Tag_sectionContext : ParserRuleContext {
 		public ITerminalNode SECTION_MARKER() { return GetToken(PGNParser.SECTION_MARKER, 0); }
 		public Tag_pairContext[] tag_pair() {
 			return GetRuleContexts<Tag_pairContext>();
@@ -278,11 +260,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitTag_section(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitTag_section(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -321,7 +298,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Tag_pairContext : ParserRuleContext {
+	internal partial class Tag_pairContext : ParserRuleContext {
 		public ITerminalNode LEFT_BRACKET() { return GetToken(PGNParser.LEFT_BRACKET, 0); }
 		public Tag_nameContext tag_name() {
 			return GetRuleContext<Tag_nameContext>(0);
@@ -342,11 +319,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitTag_pair(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitTag_pair(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -374,7 +346,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Tag_nameContext : ParserRuleContext {
+	internal partial class Tag_nameContext : ParserRuleContext {
 		public ITerminalNode SYMBOL() { return GetToken(PGNParser.SYMBOL, 0); }
 		public Tag_nameContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -388,11 +360,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitTag_name(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitTag_name(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -417,7 +384,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Tag_valueContext : ParserRuleContext {
+	internal partial class Tag_valueContext : ParserRuleContext {
 		public ITerminalNode STRING() { return GetToken(PGNParser.STRING, 0); }
 		public Tag_valueContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -431,11 +398,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitTag_value(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitTag_value(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -460,7 +422,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Movetext_sectionContext : ParserRuleContext {
+	internal partial class Movetext_sectionContext : ParserRuleContext {
 		public Element_sequenceContext element_sequence() {
 			return GetRuleContext<Element_sequenceContext>(0);
 		}
@@ -480,11 +442,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitMovetext_section(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitMovetext_section(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -511,7 +468,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Element_sequenceContext : ParserRuleContext {
+	internal partial class Element_sequenceContext : ParserRuleContext {
 		public ElementContext[] element() {
 			return GetRuleContexts<ElementContext>();
 		}
@@ -536,11 +493,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitElement_sequence(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitElement_sequence(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -594,7 +546,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class ElementContext : ParserRuleContext {
+	internal partial class ElementContext : ParserRuleContext {
 		public Move_number_indicationContext move_number_indication() {
 			return GetRuleContext<Move_number_indicationContext>(0);
 		}
@@ -619,11 +571,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitElement(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitElement(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -674,7 +621,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Move_number_indicationContext : ParserRuleContext {
+	internal partial class Move_number_indicationContext : ParserRuleContext {
 		public ITerminalNode INTEGER() { return GetToken(PGNParser.INTEGER, 0); }
 		public ITerminalNode PERIOD() { return GetToken(PGNParser.PERIOD, 0); }
 		public ITerminalNode TRIP_PERIOD() { return GetToken(PGNParser.TRIP_PERIOD, 0); }
@@ -690,11 +637,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitMove_number_indication(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitMove_number_indication(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -746,7 +688,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class NagContext : ParserRuleContext {
+	internal partial class NagContext : ParserRuleContext {
 		public ITerminalNode NUMERIC_ANNOTATION_GLYPH() { return GetToken(PGNParser.NUMERIC_ANNOTATION_GLYPH, 0); }
 		public NagContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -760,11 +702,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitNag(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitNag(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -789,7 +726,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class CommentContext : ParserRuleContext {
+	internal partial class CommentContext : ParserRuleContext {
 		public ITerminalNode BRACE_COMMENT() { return GetToken(PGNParser.BRACE_COMMENT, 0); }
 		public CommentContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -803,11 +740,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitComment(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitComment(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -832,7 +764,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class San_moveContext : ParserRuleContext {
+	internal partial class San_moveContext : ParserRuleContext {
 		public ITerminalNode SYMBOL() { return GetToken(PGNParser.SYMBOL, 0); }
 		public San_moveContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -846,11 +778,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitSan_move(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitSan_move(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -875,7 +802,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Recursive_variationContext : ParserRuleContext {
+	internal partial class Recursive_variationContext : ParserRuleContext {
 		public ITerminalNode LEFT_PARENTHESIS() { return GetToken(PGNParser.LEFT_PARENTHESIS, 0); }
 		public Element_sequenceContext element_sequence() {
 			return GetRuleContext<Element_sequenceContext>(0);
@@ -893,11 +820,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitRecursive_variation(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitRecursive_variation(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -924,7 +846,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		return _localctx;
 	}
 
-	public partial class Game_terminationContext : ParserRuleContext {
+	internal partial class Game_terminationContext : ParserRuleContext {
 		public ITerminalNode WHITE_WINS() { return GetToken(PGNParser.WHITE_WINS, 0); }
 		public ITerminalNode BLACK_WINS() { return GetToken(PGNParser.BLACK_WINS, 0); }
 		public ITerminalNode DRAWN_GAME() { return GetToken(PGNParser.DRAWN_GAME, 0); }
@@ -941,11 +863,6 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitGame_termination(this);
-		}
-		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitGame_termination(this);
-			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -1062,3 +979,4 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 
 }
 } // namespace ChessLib.Parse.PGN.Parser.BaseClasses
+

@@ -30,11 +30,8 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.7.2")]
 [System.CLSCompliant(false)]
-#pragma warning disable CS3021 // Type or member does not need a CLSCompliant attribute because the assembly does not have a CLSCompliant attribute
-    public partial class PGNLexer : Lexer
-    {
-#pragma warning restore CS3021 // Type or member does not need a CLSCompliant attribute because the assembly does not have a CLSCompliant attribute
-        protected static DFA[] decisionToDFA;
+internal partial class PGNLexer : Lexer {
+	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
 		WHITE_WINS=1, BLACK_WINS=2, DRAWN_GAME=3, SECTION_MARKER=4, REST_OF_LINE_COMMENT=5, 
@@ -268,3 +265,4 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 
 }
 } // namespace ChessLib.Parse.PGN.Parser.BaseClasses
+

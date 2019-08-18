@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -28,7 +28,7 @@ namespace ChessLib.Parse.PGN.Parser
             _input = stream;
         }
 
-        public override void EnterPgn_game([NotNull] PGNParser.Pgn_gameContext ctx)
+        public override void EnterPgn_game([NotNull] BaseClasses.PGNParser.Pgn_gameContext ctx)
         {
 
             int a = ctx.Start.StartIndex;
@@ -40,10 +40,15 @@ namespace ChessLib.Parse.PGN.Parser
             Games.Add(game);
         }
 
-        public override void ExitPgn_game([NotNull] PGNParser.Pgn_gameContext context)
+        public override void ExitPgn_game([NotNull] BaseClasses.PGNParser.Pgn_gameContext context)
         {
 
         }
 
     }
 }
+
+
+
+
+

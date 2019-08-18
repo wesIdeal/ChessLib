@@ -30,7 +30,7 @@ using IToken = Antlr4.Runtime.IToken;
 /// </summary>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.7.2")]
 [System.CLSCompliant(false)]
-public interface IPGNListener : IParseTreeListener {
+internal interface IPGNListener : IParseTreeListener {
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="PGNParser.parse"/>.
 	/// </summary>
@@ -193,3 +193,4 @@ public interface IPGNListener : IParseTreeListener {
 	void ExitGame_termination([NotNull] PGNParser.Game_terminationContext context);
 }
 } // namespace ChessLib.Parse.PGN.Parser.BaseClasses
+
