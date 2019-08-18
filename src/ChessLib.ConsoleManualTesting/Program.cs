@@ -1,24 +1,20 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Boards;
-using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Graphics;
 using ChessLib.Parse.PGN;
+using ChessLib.Parse.Tests;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ChessLib.Parse;
-using ChessLib.Parse.Tests;
 
 namespace ChessLib.ConsoleManualTesting
 {
     class Program
     {
-
-
         static void Main(string[] args)
         {
             var parsePgn = new ParsePgn();
@@ -29,7 +25,7 @@ namespace ChessLib.ConsoleManualTesting
             var games = parsePgn.GetGamesFromPGN(pgnDb);
             sw.Stop();
             Console.WriteLine($"Parsed {games.Count()} games in {sw.ElapsedMilliseconds} ms, ({parsePgn.TotalValidationTime.TotalMilliseconds / 1000} seconds.)");
-            //Console.ReadKey();
+            Console.ReadKey();
         }
 
         private static void EvalPosition(Game<MoveStorage> game)

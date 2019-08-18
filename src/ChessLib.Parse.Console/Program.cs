@@ -17,26 +17,13 @@ namespace ChessLib.Parse.Console
     {
         static void Main(string[] args)
         {
-            var games = new List<Game<MoveStorage>>();
-            var listener = new PGNListener();
+
             using (var fStream = File.OpenRead(".\\PGN\\tal.pgn"))
             {
-                var inputStream = new AntlrInputStream(fStream);
-                PGNLexer lexer = new PGNLexer(inputStream);
-                var tokens = new CommonTokenStream(lexer);
-                var parser = new PGNParser(tokens);
-                var parseTree = parser.parse();
-                var walker = new ParseTreeWalker();
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-                walker.Walk(listener, parseTree);
-                games = listener.Games.Cast<Game<MoveStorage>>().ToList();
-                stopwatch.Stop();
-                System.Console.WriteLine($"Completed in {stopwatch.ElapsedMilliseconds}ms.");
-                var g = games[0];
-                var e = games[games.Count - 1];
-                var withVariations = games.Where(x => x.TagSection["Black"].Contains("Averbakh"));
-                System.Console.WriteLine($"Found {games.Count} games.");
+                var parsePGN = new ParsePgn();
+
+                var games = parsePGN.GetGamesFromPGN(fStream);
+                System.Console.WriteLine($@"Found {games.Count()} games.");
             }
         }
     }

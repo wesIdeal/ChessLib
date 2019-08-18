@@ -172,6 +172,16 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] medium {
+            get {
+                object obj = ResourceManager.GetObject("medium", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;London&quot;]
         ///[Site &quot;London ENG&quot;]
         ///[Date &quot;1826.??.??&quot;]
@@ -186,6 +196,16 @@ namespace ChessLib.Parse.Tests {
         public static string Simple {
             get {
                 return ResourceManager.GetString("Simple", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] small {
+            get {
+                object obj = ResourceManager.GetObject("small", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

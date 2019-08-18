@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Antlr4.Runtime;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Boards;
 using ChessLib.Data.MoveRepresentation.NAG;
@@ -13,7 +14,7 @@ using ChessLib.Data.Helpers;
 
 namespace ChessLib.Parse.PGN.Parser
 {
-    public sealed class PGNListener : PGNBaseListener
+    internal sealed class PGNGameDetailListener : PGNBaseListener
     {
         private Tags _currentTags;
         private string _tagName;
@@ -21,7 +22,7 @@ namespace ChessLib.Parse.PGN.Parser
         private readonly Stopwatch _stopwatch;
         private uint _moveCount;
         public List<Game<MoveStorage>> Games;
-        public PGNListener()
+        public PGNGameDetailListener()
         {
             Games = new List<Game<MoveStorage>>();
             _gamePerformance = new List<Tuple<uint, long>>();
@@ -42,6 +43,11 @@ namespace ChessLib.Parse.PGN.Parser
         private bool _nextMoveIsVariation;
 
         private MoveTree _currentList;
+
+        public PGNGameDetailListener(CommonTokenStream tokens)
+        {
+            throw new NotImplementedException();
+        }
 
         public override void EnterPgn_database(PGNParser.Pgn_databaseContext context)
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using ChessLib.Data.Boards;
 using ChessLib.Data.Magic;
 using ChessLib.Data.MoveRepresentation;
@@ -602,17 +603,42 @@ namespace ChessLib.Data.Helpers
         {
             if (board.IsActivePlayerInCheck()) return false;
             var canAnyPieceMove = false;
-            var myPieceLocations = board.GetPiecePlacement().Occupancy(board.ActivePlayer).GetSetBits();
-            foreach (var square in myPieceLocations)
+            var activeColor = (int)board.ActivePlayer;
+            var activeOcc = board.ActiveOccupancy();
+            var oppOcc = board.OpponentOccupancy();
+            var totalOcc = board.TotalOccupancy();
+            //foreach (var square in myPieceLocations)
+            //{
+            //    var pieceType = GetPieceAtIndex(board.GetPiecePlacement(), square);
+            //    Debug.Assert(pieceType.HasValue);
+            //    if (board.CanPieceMove(square))
+            //    {
+            //        canAnyPieceMove = true;
+            //        break;
+            //    }
+            //}
+
+            foreach (var sq in activeOcc.GetSetBits())
             {
-                var pieceType = GetPieceAtIndex(board.GetPiecePlacement(), square);
-                Debug.Assert(pieceType.HasValue);
-                if (board.CanPieceMove(square))
+                var piece = board.GetPieceAtIndex(sq);
+                Bitboard.GetPseudoLegalMoves(piece.Value, sq, activeOcc, oppOcc, board.ActivePlayer,
+                     board.EnPassantSquare, board.CastlingAvailability, out var moves);
+                Parallel.ForEach(moves, (move, mvState) =>
                 {
-                    canAnyPieceMove = true;
+                    var validator = new MoveValidator(board, move);
+                    if (validator.Validate() == MoveError.NoneSet)
+                    {
+                        canAnyPieceMove = true;
+                        mvState.Stop();
+                    }
+                });
+                if (canAnyPieceMove)
+                {
                     break;
                 }
             }
+
+
 
             return !canAnyPieceMove;
         }
@@ -640,7 +666,7 @@ namespace ChessLib.Data.Helpers
                 board.ActivePlayer = c.Value;
             }
             var hasEvasions = GetEvasions(board).Any();
-            if(hasEvasions)
+            if (hasEvasions)
             {
                 return true;
             }

@@ -7,101 +7,69 @@ using ChessLib.Data.Types.Interfaces;
 using ChessLib.Parse.PGN.Parser;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ChessLib.Parse.PGN
 {
     public class ParsePgn
     {
-
-
-        public ParsePgn()
-        {
-        }
-
         public TimeSpan TotalValidationTime;
 
-        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(string pgn)
-        {
-            return GetGameTexts(new AntlrInputStream(pgn));
-        }
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(string pgn) => GetGamesFromPGNAsync(pgn).Result;
 
-        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(Stream stream)
-        {
-            return GetGameTexts(new AntlrInputStream(stream));
-        }
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(Stream stream) => GetGamesFromPGNAsync(stream).Result;
 
-        protected IEnumerable<Game<MoveStorage>> GetGameTexts(AntlrInputStream inputStream)
+        public async Task<IEnumerable<Game<MoveStorage>>> GetGamesFromPGNAsync(string pgn) => await GetValidatedGames(new AntlrInputStream(pgn));
+
+        public async Task<IEnumerable<Game<MoveStorage>>> GetGamesFromPGNAsync(Stream stream) => await GetValidatedGames(new AntlrInputStream(stream));
+
+        private IEnumerable<string> GetIndividualGames(AntlrInputStream inputStream, int groupSize = 100)
         {
-            var listener = new PGNListener();
-            PGNLexer lexer = new PGNLexer(inputStream);
+            var lexer = new PGNLexer(inputStream);
             lexer.RemoveErrorListeners();
-            var tokens = new CommonTokenStream(lexer);
-            var parser = new PGNParser(tokens);
+            var parser = new PGNParser(new CommonTokenStream(lexer));
             var parseTree = parser.parse();
             var walker = new ParseTreeWalker();
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+            var listener = new PGNGameListener(inputStream);
             walker.Walk(listener, parseTree);
-            sw.Stop();
-            Debug.WriteLine($"Parsed {listener.Games.Count()} games in {sw.ElapsedMilliseconds} ms, ({sw.ElapsedMilliseconds / 1000} seconds.)");
-            foreach(var game in listener.Games)
-            {
-                game.GoToInitialState();
-            }
-            return listener.Games;
+            var games = listener.Games;
+            var grouped = games
+                .Select((x, i) => new { Item = x, Index = i })
+                .GroupBy(x => x.Index / groupSize, x => x.Item);
+            return grouped.Select(x => string.Join("", x));
         }
 
-        ///// <summary>
-        ///// Gets MoveExt objects from PGN and validates moves while parsing.
-        ///// </summary>
-        ///// <returns>Validated Moves</returns>
-        //public List<Game<MoveStorage>> ParseAndValidateGames(string strGameDatabase, int? MaxGames = null)
-        //{
-        //    AntlrInputStream stream = new AntlrInputStream(strGameDatabase);
-        //    var games = GetGameTexts(stream);
-        //    return ValidateGames(games);
-        //}
-
-        /// <summary>
-        /// Gets MoveExt objects from PGN and validates moves while parsing.
-        /// </summary>
-        /// <returns>Validated Moves</returns>
-        public List<Game<MoveStorage>> ParseAndValidateGames(FileStream fs)
+        protected async Task<List<Game<MoveStorage>>> GetValidatedGames(AntlrInputStream inputStream)
         {
-            AntlrInputStream stream = new AntlrInputStream(fs);
-            var games = GetGameTexts(stream);
-            return games.ToList();
+            var gameGroups = GetIndividualGames(inputStream);
+            var tasks = gameGroups.Select(ProcessGames);
+            var rv = await Task.WhenAll(tasks);
+            return rv.SelectMany(x => x).ToList();
         }
 
-        ///// <summary>
-        ///// Gets MoveExt objects from PGN and validates moves while parsing.
-        ///// </summary>
-        ///// <returns>Validated Moves</returns>
-        //private List<Game<MoveStorage>> ValidateGames(IEnumerable<Game<IMoveText>> games)
-        //{
-        //    var rv = new List<Game<MoveStorage>>();
-        //    var sw = new Stopwatch();
+        protected async Task<List<Game<MoveStorage>>> ProcessGames(string gameGroup)
+        {
+            var lexer = new PGNLexer(new AntlrInputStream(gameGroup));
+            lexer.RemoveErrorListeners();
+            var parser = new PGNParser(new CommonTokenStream(lexer));
+            var parseTree = parser.parse();
+            var walker = new ParseTreeWalker();
+            var listener = new PGNGameDetailListener();
+            return await Task.Run(() => { walker.Walk(listener, parseTree); })
+                .ContinueWith((state) =>
+                {
+                    listener.Games.ForEach(game => game.GoToInitialState());
+                    return listener.Games;
+                });
+        }
 
-        //    sw.Start();
-        //    var gameArray = games as Game<IMoveText>[] ?? games.ToArray();
-        //    Parallel.ForEach(gameArray, (game) =>
-        //     {
-        //         var fen = game.TagSection.FENStart;
-        //         var moveTree = ValidateGame(game.MoveSection, fen);
-        //         rv.Add(new Game<MoveStorage>() { TagSection = game.TagSection, MoveSection = moveTree });
-        //     });
-        //    sw.Stop();
-        //    TotalValidationTime = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
-        //    Debug.WriteLine($"Validated {gameArray.Count()} games in {sw.ElapsedMilliseconds} ms, ({sw.ElapsedMilliseconds / 1000} seconds.)");
-        //    return rv;
-        //}
-
-        
+       
 
     }
 }
