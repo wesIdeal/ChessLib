@@ -12,6 +12,8 @@
     <AssemblyVersion>1.0.0.1</AssemblyVersion>
     <Description>A library to facilitate chess user interfaces.</Description>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/wesIdeal/ChessLib</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/wesIdeal/ChessLib</RepositoryUrl>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|x64'">

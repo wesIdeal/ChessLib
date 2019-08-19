@@ -10,6 +10,8 @@
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<Platforms>AnyCPU;x64</Platforms>
 	<PackageLicenseFile>License.txt</PackageLicenseFile>
+	<PackageProjectUrl>https://github.com/wesIdeal/ChessLib</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/wesIdeal/ChessLib</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
