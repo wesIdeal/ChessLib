@@ -6,9 +6,10 @@
 	<LangVersion>7.3</LangVersion>
 	<Product>ChessLib</Product>
 	<Authors>Wes Idell</Authors>
-	<Version>0.2.0</Version>
+	<Version>1.0.0.1-beta</Version>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<Platforms>AnyCPU;x64</Platforms>
+	<PackageLicenseFile>License.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -22,11 +23,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="..\License.txt" Link="License.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\License.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

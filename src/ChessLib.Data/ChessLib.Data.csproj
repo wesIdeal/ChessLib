@@ -1,22 +1,26 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <LangVersion>7.3</LangVersion>
-    <Version>0.2.36</Version>
+    <Version>1.0.0.1-beta</Version>
     <Company />
     <Authors>Wes Idell</Authors>
     <Product>ChessLib</Product>
     <Copyright>2019</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Platforms>AnyCPU;x64</Platforms>
-    <AssemblyVersion>0.2.36.0</AssemblyVersion>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <Description>A library to facilitate chess user interfaces.</Description>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
   </PropertyGroup>
+  
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|x64'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
+ 
   <ItemGroup>
     <Compile Remove="Exceptions\**" />
     <Compile Remove="SlidingPieces\**" />
@@ -24,6 +28,14 @@
     <EmbeddedResource Remove="SlidingPieces\**" />
     <None Remove="Exceptions\**" />
     <None Remove="SlidingPieces\**" />
+    <None Include="..\License.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <Content Include="..\License.txt" Link="License.txt" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Enums.NET" Version="2.3.2" />
