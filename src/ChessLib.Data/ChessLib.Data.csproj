@@ -2,24 +2,28 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <LangVersion>7.3</LangVersion>
-    <Version>1.0.0.1-beta</Version>
+    <Version>1.0.0.2-beta</Version>
     <Company />
     <Authors>Wes Idell</Authors>
     <Product>ChessLib</Product>
     <Copyright>2019</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Platforms>AnyCPU;x64</Platforms>
-    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
     <Description>A library to facilitate chess user interfaces.</Description>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/wesIdeal/ChessLib</PackageProjectUrl>
     <RepositoryUrl>https://github.com/wesIdeal/ChessLib</RepositoryUrl>
+    <FileVersion>1.0.0.2</FileVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|x64'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|x86'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
  

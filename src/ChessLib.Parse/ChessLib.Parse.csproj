@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
@@ -6,12 +6,14 @@
 	<LangVersion>7.3</LangVersion>
 	<Product>ChessLib</Product>
 	<Authors>Wes Idell</Authors>
-	<Version>1.0.0.1-beta</Version>
+	<Version>1.0.0.2-beta</Version>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<Platforms>AnyCPU;x64</Platforms>
+	<Platforms>AnyCPU;x64;x86</Platforms>
 	<PackageLicenseFile>License.txt</PackageLicenseFile>
 	<PackageProjectUrl>https://github.com/wesIdeal/ChessLib</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/wesIdeal/ChessLib</RepositoryUrl>
+	<AssemblyVersion>1.0.0.2</AssemblyVersion>
+	<FileVersion>1.0.0.2</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -19,9 +21,22 @@
     <NoWarn>1701;1702;CS3021</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <WarningsAsErrors>NU1605</WarningsAsErrors>
+    <NoWarn>1701;1702;CS3021</NoWarn>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <WarningsAsErrors>NU1605</WarningsAsErrors>
     <NoWarn>1701;1702;CS3021</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|x86'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

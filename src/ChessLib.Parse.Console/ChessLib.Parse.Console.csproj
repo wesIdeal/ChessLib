@@ -2,7 +2,7 @@
 <PropertyGroup>
     <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
     <Configurations>Debug;Release;</Configurations>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU;x64;x86</Platforms>
 </PropertyGroup>
   <PropertyGroup>
     <OutputType>Exe</OutputType>
