@@ -48,7 +48,12 @@ namespace ChessLib.Data
         public string CurrentFEN => Board.CurrentFEN;
         public MoveTree MainMoveTree { get; protected set; }
         public LinkedListNode<MoveStorage> CurrentMoveNode { get; set; }
-        
+
+        public void SetBoardInterface(BoardInfo board)
+        {
+            Board = board;
+        }
+
         public MoveTraversalService(string fen)
         {
             Board = new BoardInfo(fen);
@@ -147,6 +152,7 @@ namespace ChessLib.Data
             if (!HasNextMove) return Board;
             ApplyMoveToBoard(NextMoveNode.Value);
             CurrentMoveNode = NextMoveNode;
+
             return Board;
         }
 
@@ -368,12 +374,13 @@ namespace ChessLib.Data
             return capturedPiece?.Piece;
         }
 
-       
+
 
         protected void ApplyMoveToBoard(MoveExt move)
         {
             var newBoard = BoardHelpers.ApplyMoveToBoard(Board, move);
             ApplyNewBoard(newBoard);
+            OnMoveMade(move, Board);
         }
 
         /// <summary>
