@@ -210,6 +210,15 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;] [Site &quot;?&quot;] [Date &quot;????.??.??&quot;] [Round &quot;?&quot;] [White &quot;?&quot;] [Black &quot;?&quot;] [Result &quot;*&quot;] 1.c4 Nf6 ( 1...e5 ) ( 1...e6 ) ( 1...c5 ) 2.Nc3 *.
+        /// </summary>
+        public static string smallPgn {
+            get {
+                return ResourceManager.GetString("smallPgn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         public static byte[] talLarge {

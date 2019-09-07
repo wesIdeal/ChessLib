@@ -56,6 +56,10 @@ namespace ChessLib.Data
             var iterations = 0;
             foreach (var node in tree)
             {
+                if (node.IsNullMove)
+                {
+                    continue;
+                }
                 displayService.Initialize(bi);
                 string strMoveNumber = "";
                 if (ShouldWriteMoveNumber(iterations, bi.ActivePlayer))

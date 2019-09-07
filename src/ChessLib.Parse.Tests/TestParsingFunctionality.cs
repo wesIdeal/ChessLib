@@ -89,6 +89,14 @@ namespace ChessLib.Parse.Tests
         }
 
         [Test]
+        public void TestSmallPgnGame()
+        {
+            var games = _parser.GetGamesFromPGNAsync(PGNResources.smallPgn).ToArray();
+            Assert.AreEqual(1, games.Length, $"Expected only one game, but found {games.Length}.");
+            //Assert.AreEqual(51, games[0].MainMoveTree.Count(), "Game should have 50 moves.");
+        }
+
+        [Test]
         public void TestNAGParsing()
         {
             const string expected = "$1";

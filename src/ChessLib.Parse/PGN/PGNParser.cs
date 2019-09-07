@@ -24,15 +24,15 @@ namespace ChessLib.Parse.PGN
         private int _processed;
         private double _percentProcessed;
 
-        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(string pgn) => GetGamesFromPGNAsync(pgn).Result;
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(string pgn) => ProcessGames(pgn, 1);
 
-        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(Stream stream) => GetGamesFromPGNAsync(stream).Result;
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(Stream stream) => GetGamesFromPGNAsync(stream);
 
-        public async Task<IEnumerable<Game<MoveStorage>>> GetGamesFromPGNAsync(string pgn) => await GetValidatedGames(new AntlrInputStream(pgn));
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGNAsync(string pgn) => GetValidatedGames(new AntlrInputStream(pgn));
 
-        public async Task<IEnumerable<Game<MoveStorage>>> GetGamesFromPGNAsync(Stream stream) => await GetValidatedGames(new AntlrInputStream(stream));
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGNAsync(Stream stream) => GetValidatedGames(new AntlrInputStream(stream));
 
-        private IEnumerable<string> GetIndividualGames(AntlrInputStream inputStream, int groupSize =50)
+        private IEnumerable<string> GetIndividualGames(AntlrInputStream inputStream, int groupSize = 50)
         {
             var lexer = new PGNLexer(inputStream);
             lexer.RemoveErrorListeners();
@@ -57,21 +57,26 @@ namespace ChessLib.Parse.PGN
             return grouped.Select(x => string.Join("", x));
         }
 
-        protected async Task<List<Game<MoveStorage>>> GetValidatedGames(AntlrInputStream inputStream)
+        protected List<Game<MoveStorage>> GetValidatedGames(AntlrInputStream inputStream)
         {
+            List<Game<MoveStorage>> rv = new List<Game<MoveStorage>>();
             var gameGroups = GetIndividualGames(inputStream);
-            var tasks = gameGroups.Select((x,i)=>ProcessGames(x,i));
-            var rv = await Task.WhenAll(tasks);
-            return rv.SelectMany(x => x).ToList();
+            //var tasks = gameGroups.Select((x, i) => ProcessGames(x, i)).ToArray();
+            Parallel.ForEach(gameGroups, group =>
+            {
+                var games = ProcessGames(group);
+                rv.AddRange(games);
+            });
+            return rv;
         }
 
 
 
-        protected async Task<List<Game<MoveStorage>>> ProcessGames(string gameGroup, int? index = null)
+        protected List<Game<MoveStorage>> ProcessGames(string gameGroup, int? index = null)
         {
             if (index.HasValue)
             {
-                Debug.WriteLine($"Starting group index {index}"); 
+                Debug.WriteLine($"Starting group index {index}");
             }
             var lexer = new PGNLexer(new AntlrInputStream(gameGroup));
             lexer.RemoveErrorListeners();
@@ -80,16 +85,14 @@ namespace ChessLib.Parse.PGN
             var walker = new ParseTreeWalker();
             var listener = new PGNGameDetailListener();
             listener.GameProcessed += OnGameProcessed;
-            return await Task.Run(() => { walker.Walk(listener, parseTree); })
-                .ContinueWith((state) =>
-                {
-                    listener.Games.ForEach(game => game.GoToInitialState());
-                    if (index.HasValue)
-                    {
-                        Debug.WriteLine($"Finished group index {index}");
-                    }
-                    return listener.Games;
-                });
+            walker.Walk(listener, parseTree);
+            listener.Games.ForEach(game => game.GoToInitialState());
+            if (index.HasValue)
+            {
+                Debug.WriteLine($"Finished group index {index}");
+            }
+            return listener.Games;
+
         }
 
         private void OnGameProcessed(object sender, EventArgs e)

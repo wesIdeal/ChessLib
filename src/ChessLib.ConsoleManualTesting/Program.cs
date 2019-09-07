@@ -22,7 +22,7 @@ namespace ChessLib.ConsoleManualTesting
             Stopwatch sw = new Stopwatch();
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
             sw.Start();
-            var games = parsePgn.GetGamesFromPGNAsync(pgnDb).Result;
+            var games = parsePgn.GetGamesFromPGNAsync(pgnDb);
             sw.Stop();
             Console.WriteLine($"Parsed {games.Count()} games in {sw.ElapsedMilliseconds} ms, ({parsePgn.TotalValidationTime.TotalMilliseconds / 1000} seconds.)");
         }
