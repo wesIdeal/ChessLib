@@ -1,114 +1,168 @@
-﻿using Antlr4.Runtime;
-using Antlr4.Runtime.Tree;
-using ChessLib.Data;
-using ChessLib.Data.Boards;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types.Interfaces;
-using ChessLib.Parse.PGN.Parser;
-using ChessLib.Parse.PGN.Parser.BaseClasses;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
+using ChessLib.Data;
+using ChessLib.Data.MoveRepresentation;
+using ChessLib.Parse.PGN.Parser;
+using ChessLib.Parse.PGN.Parser.BaseClasses;
 
 namespace ChessLib.Parse.PGN
 {
     public class PGNParser
     {
+        private int _gamesProcessedSoFar;
+
+        private ParsingUpdateEventArgs _parsingUpdateArgs;
+        private int _totalGamesProcessed;
         public TimeSpan TotalValidationTime;
-        private int _total;
-        private int _processed;
-        private double _percentProcessed;
+        public event EventHandler<ParsingUpdateEventArgs> ProgressUpdate;
 
-        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(string pgn) => ProcessGames(pgn, 1);
 
-        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(Stream stream) => GetGamesFromPGNAsync(stream);
-
-        public IEnumerable<Game<MoveStorage>> GetGamesFromPGNAsync(string pgn) => GetValidatedGames(new AntlrInputStream(pgn));
-
-        public IEnumerable<Game<MoveStorage>> GetGamesFromPGNAsync(Stream stream) => GetValidatedGames(new AntlrInputStream(stream));
-
-        private IEnumerable<string> GetIndividualGames(AntlrInputStream inputStream, int groupSize = 50)
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(string pgn)
         {
-            var lexer = new PGNLexer(inputStream);
-            lexer.RemoveErrorListeners();
-            var parser = new Parser.BaseClasses.PGNParser(new CommonTokenStream(lexer));
-            var parseTree = parser.parse();
-            var walker = new ParseTreeWalker();
-            var listener = new PGNGameListener(inputStream);
+            return ParseAndValidateGames(pgn, CancellationToken.None, 1);
+        }
+
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(Stream stream)
+        {
+            return GetGamesFromPGNAsync(stream);
+        }
+
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGNAsync(string pgn)
+        {
+            return GetValidatedGames(new AntlrInputStream(pgn), CancellationToken.None);
+        }
+
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGNAsync(Stream stream)
+        {
+            return GetValidatedGames(new AntlrInputStream(stream), CancellationToken.None);
+        }
+
+        public IEnumerable<Game<MoveStorage>> GetGamesFromPGNAsync(string pgnText, CancellationToken cancelParseToken)
+        {
+            return GetValidatedGames(new AntlrInputStream(pgnText), cancelParseToken);
+        }
+
+        protected List<Game<MoveStorage>> ParseAndValidateGames(string gameGroup, CancellationToken cancellationToken,
+            int? index = null)
+        {
+            var parseTree = InitializeParsing(new AntlrFileStream(gameGroup), out var walker);
+            var listener = new PGNGameDetailListener(cancellationToken);
+            listener.BatchParsed += OnDetailBatchProcessed;
+            walker.Walk(listener, parseTree);
+            listener.Games.ForEach(game => game.GoToInitialState());
+            return listener.Games;
+        }
+
+        private IEnumerable<string> SplitGamesFromDatabase(AntlrInputStream inputStream,
+            CancellationToken cancellationToken, int groupSize = 50)
+        {
+            var parseTree = InitializeParsing(inputStream, out var walker);
+            var listener = new PGNGameListener(inputStream, cancellationToken);
+            _parsingUpdateArgs = SendInitialUpdate("Splitting Games From Db", true);
+            listener.BatchProcessed += OnGeneralBatchProcessed;
             walker.Walk(listener, parseTree);
             var games = listener.Games;
-            _total = games.Count;
-            var tmpGroupSize = _total / 20;
+            _totalGamesProcessed = games.Count;
+            var tmpGroupSize = _totalGamesProcessed / 20;
             groupSize = tmpGroupSize < 1 ? 1 : tmpGroupSize;
-            _processed = 0;
-            _percentProcessed = 0;
             var grouped = games
                 .Select((x, i) => new { Item = x, Index = i })
                 .GroupBy(x => x.Index / groupSize, x => x.Item).ToList();
             Debug.WriteLine($"Made {grouped} groups");
             var lines = grouped.Select((x, i) => $"[{i}].Count is {x.Count()}").ToList();
             Debug.WriteLine(string.Join(Environment.NewLine, lines));
-
             return grouped.Select(x => string.Join("", x));
         }
 
-        protected List<Game<MoveStorage>> GetValidatedGames(AntlrInputStream inputStream)
+        private ParsingUpdateEventArgs SendInitialUpdate(string description, bool isIndeterminate, int maxItems = 0)
         {
-            List<Game<MoveStorage>> rv = new List<Game<MoveStorage>>();
-            var gameGroups = GetIndividualGames(inputStream);
-            //var tasks = gameGroups.Select((x, i) => ProcessGames(x, i)).ToArray();
-            Parallel.ForEach(gameGroups, group =>
-            {
-                var games = ProcessGames(group);
-                rv.AddRange(games);
-            });
-            return rv;
+            var progress = new ParsingUpdateEventArgs
+            { IsIndeterminate = isIndeterminate, Label = description, Maximum = maxItems, NumberComplete = 0 };
+            SendUpdate(progress);
+            _gamesProcessedSoFar = 0;
+            return progress;
         }
 
-
-
-        protected List<Game<MoveStorage>> ProcessGames(string gameGroup, int? index = null)
+        private void SendUpdate(ParsingUpdateEventArgs progress)
         {
-            if (index.HasValue)
-            {
-                Debug.WriteLine($"Starting group index {index}");
-            }
-            var lexer = new PGNLexer(new AntlrInputStream(gameGroup));
+            ProgressUpdate?.Invoke(this, progress);
+        }
+
+        private static Parser.BaseClasses.PGNParser.ParseContext InitializeParsing(AntlrInputStream inputStream,
+            out ParseTreeWalker walker)
+        {
+            var lexer = new PGNLexer(inputStream);
             lexer.RemoveErrorListeners();
             var parser = new Parser.BaseClasses.PGNParser(new CommonTokenStream(lexer));
             var parseTree = parser.parse();
-            var walker = new ParseTreeWalker();
-            var listener = new PGNGameDetailListener();
-            listener.GameProcessed += OnGameProcessed;
-            walker.Walk(listener, parseTree);
-            listener.Games.ForEach(game => game.GoToInitialState());
-            if (index.HasValue)
-            {
-                Debug.WriteLine($"Finished group index {index}");
-            }
-            return listener.Games;
-
+            walker = new ParseTreeWalker();
+            return parseTree;
         }
 
-        private void OnGameProcessed(object sender, EventArgs e)
+
+        protected List<Game<MoveStorage>> GetValidatedGames(AntlrInputStream inputStream,
+            CancellationToken cancellationToken)
         {
-            _processed++;
-            var percentProcessed = Math.Round((float)_processed / _total, 4);
-            if (percentProcessed > _percentProcessed)
+            var rv = new List<Game<MoveStorage>>();
+            try
             {
-                _percentProcessed = percentProcessed;
-                if (ProgressUpdate != null)
-                {
-                    ProgressUpdate.Invoke(this, _percentProcessed);
-                }
+                var gameGroups = SplitGamesFromDatabase(inputStream, cancellationToken);
+                _parsingUpdateArgs = SendInitialUpdate($"Parsing / Validating {_totalGamesProcessed} games", false,
+                    _totalGamesProcessed);
+                var parallelLoopOptions = new ParallelOptions
+                { CancellationToken = cancellationToken, MaxDegreeOfParallelism = 5 };
+                parallelLoopOptions.CancellationToken.ThrowIfCancellationRequested();
+                Parallel.ForEach(gameGroups, parallelLoopOptions,
+                    (group, state) =>
+                    {
+                        try
+                        {
+                            var games = ParseAndValidateGames(group, cancellationToken);
+                            rv.AddRange(games);
+                        }
+                        catch (ParseCanceledException)
+                        {
+                            rv.Clear();
+                            state.Stop();
+                        }
+                    });
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.WriteLine("Operation cancelled.");
+                rv.Clear();
+                throw;
+            }
+
+            return rv;
+        }
+
+        private void OnGeneralBatchProcessed(object sender, int batchSize)
+        {
+            _gamesProcessedSoFar += batchSize;
+            if (ProgressUpdate != null)
+            {
+                _parsingUpdateArgs.NumberComplete = _gamesProcessedSoFar;
+                SendUpdate(_parsingUpdateArgs);
             }
         }
 
-        public event EventHandler<double> ProgressUpdate;
+        private void OnDetailBatchProcessed(object sender, int batchSize)
+        {
+            _gamesProcessedSoFar += batchSize;
+            if (ProgressUpdate != null)
+            {
+                _parsingUpdateArgs.NumberComplete = _gamesProcessedSoFar;
+                SendUpdate(_parsingUpdateArgs);
+            }
+        }
     }
 }

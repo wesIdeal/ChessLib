@@ -23,8 +23,9 @@ namespace ChessLib.Parse.PGN.Parser
         private readonly Stopwatch _stopwatch;
         private uint _moveCount;
         public List<Game<MoveStorage>> Games;
-        public PGNGameDetailListener()
+        public PGNGameDetailListener(CancellationToken cancellationToken)
         {
+            _cancellationToken = cancellationToken;
             Games = new List<Game<MoveStorage>>();
             _gamePerformance = new List<Tuple<uint, long>>();
             _stopwatch = new Stopwatch();
@@ -40,16 +41,16 @@ namespace ChessLib.Parse.PGN.Parser
 
 
         private Game<MoveStorage> CurrentGame { get; set; }
-        public event EventHandler GameProcessed;
+        public event EventHandler<int> BatchParsed;
+        private readonly int _gamesToProcessBeforeUpdate = 10;
+        private int _gamesProcessed = 0;
         private LinkedListNode<MoveStorage> _currentMove;
         private bool _nextMoveIsVariation;
 
         private MoveTree _currentList;
+        private CancellationToken _cancellationToken;
 
-        public PGNGameDetailListener(CommonTokenStream tokens)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public override void EnterPgn_database(BaseClasses.PGNParser.Pgn_databaseContext context)
         {
@@ -58,6 +59,10 @@ namespace ChessLib.Parse.PGN.Parser
 
         public override void EnterPgn_game([NotNull] BaseClasses.PGNParser.Pgn_gameContext context)
         {
+            if (_cancellationToken.IsCancellationRequested)
+            {
+                throw new ParseCanceledException("Cancellation Requested.");
+            }
             CurrentGame = new Game<MoveStorage>();
             _moveCount = 0;
             _currentList = CurrentGame.MainMoveTree;
@@ -77,7 +82,12 @@ namespace ChessLib.Parse.PGN.Parser
             CurrentGame.GoToInitialState();
             Games.Add(CurrentGame);
             _currentTags = null;
-            GameProcessed?.Invoke(this, EventArgs.Empty);
+            _gamesProcessed++;
+            if (BatchParsed != null && _gamesProcessed >= _gamesToProcessBeforeUpdate)
+            {
+                BatchParsed?.Invoke(this, _gamesProcessed);
+                _gamesProcessed = 0;
+            }
         }
 
         public override void EnterComment(BaseClasses.PGNParser.CommentContext context)
