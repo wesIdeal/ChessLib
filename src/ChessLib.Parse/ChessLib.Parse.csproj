@@ -45,7 +45,6 @@
 
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
-    <PackageReference Include="ChessLib.Data" Version="1.0.0.2-beta" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,6 +52,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
   </ItemGroup>
 
 </Project>
