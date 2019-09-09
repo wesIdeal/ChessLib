@@ -52,6 +52,7 @@ namespace ChessLib.Data
         public void SetBoardInterface(BoardInfo board)
         {
             Board = board;
+            GoToInitialState();
         }
 
         public MoveTraversalService(string fen)

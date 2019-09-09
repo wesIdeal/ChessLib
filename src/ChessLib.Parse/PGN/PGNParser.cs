@@ -53,7 +53,7 @@ namespace ChessLib.Parse.PGN
         protected List<Game<MoveStorage>> ParseAndValidateGames(string gameGroup, CancellationToken cancellationToken,
             int? index = null)
         {
-            var parseTree = InitializeParsing(new AntlrFileStream(gameGroup), out var walker);
+            var parseTree = InitializeParsing(new AntlrInputStream(gameGroup), out var walker);
             var listener = new PGNGameDetailListener(cancellationToken);
             listener.BatchParsed += OnDetailBatchProcessed;
             walker.Walk(listener, parseTree);
@@ -119,7 +119,6 @@ namespace ChessLib.Parse.PGN
                     _totalGamesProcessed);
                 var parallelLoopOptions = new ParallelOptions
                 { CancellationToken = cancellationToken, MaxDegreeOfParallelism = 5 };
-                parallelLoopOptions.CancellationToken.ThrowIfCancellationRequested();
                 Parallel.ForEach(gameGroups, parallelLoopOptions,
                     (group, state) =>
                     {
@@ -132,6 +131,7 @@ namespace ChessLib.Parse.PGN
                         {
                             rv.Clear();
                             state.Stop();
+                            
                         }
                     });
             }
