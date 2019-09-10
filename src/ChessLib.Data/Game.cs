@@ -20,7 +20,7 @@ namespace ChessLib.Data
 
         private void OnFenChanged(string fen)
         {
-            InitialFEN = fen;
+            InitialFen = fen;
         }
 
         public Game(string fen) : base(fen)

@@ -94,22 +94,7 @@ namespace ChessLib.Data.Tests
             }));
         }
 
-        [Test]
-        [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "e4", new ushort[] { 12, 28 })]
-        [TestCase("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", "d5", new ushort[] { 51, 35 })]
-        [TestCase("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2", "exd5", new ushort[] { 35, 28 })]
-        [TestCase("rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2", "e5", new ushort[] { 52, 36 })]
-        [TestCase("rnbqkbnr/ppp2ppp/8/3Pp3/8/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 3", "dxe6", new ushort[] { 35, 44, 36 })]
-        [TestCase("rnbqkbnr/ppp2ppp/4P3/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3", "Bxe6", new ushort[] { 58, 44 })]
-        [TestCase("r3kbnr/ppp1qppp/2n1b3/8/8/5N2/PPPPBPPP/RNBQK2R w KQkq - 4 6", "O-O", new ushort[] { 4, 5, 6, 7 })]
-        [TestCase("r3kbnr/ppp1qppp/2n1b3/8/8/5N2/PPPPBPPP/RNBQ1RK1 b kq - 5 6", "O-O-O", new ushort[] { 56, 58, 59, 60 })]
-        public void GetSquaresUpdated(string f1, string san, ushort[] expected)
-        {
-            var translator = new MoveTranslatorService(f1);
-            var move = translator.GetMoveFromSAN(san);
-            var actual = MoveTraversalService.GetSquaresUpdated(move);
-            Assert.That(actual, Is.EquivalentTo(expected));
-        }
+        
 
         [Test(Description = "1. e4 test")]
         public void ApplyMove_ShouldReflectCorrectBoardStatusAfter_e4()
@@ -269,7 +254,7 @@ namespace ChessLib.Data.Tests
             for (int i = 0; i < 25; i++)
             {
                 var rv = game.TraverseForward();
-                Assert.AreEqual(game.InitialFEN, game.CurrentFEN);
+                Assert.AreEqual(game.InitialFen, game.CurrentFEN);
             }
         }
 

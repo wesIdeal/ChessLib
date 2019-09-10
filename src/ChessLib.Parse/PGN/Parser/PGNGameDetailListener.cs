@@ -119,7 +119,7 @@ namespace ChessLib.Parse.PGN.Parser
         {
             var moveText = context.GetText();
             var strategy = _nextMoveIsVariation ? MoveApplicationStrategy.Variation : MoveApplicationStrategy.ContinueMainLine;
-            _currentMove = CurrentGame.ApplySANMove(moveText, strategy);
+            _currentMove = CurrentGame.ApplySanMove(moveText, strategy);
             _nextMoveIsVariation = false;
         }
         public override void EnterRecursive_variation([NotNull] BaseClasses.PGNParser.Recursive_variationContext context)
