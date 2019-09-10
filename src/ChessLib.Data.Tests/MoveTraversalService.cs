@@ -1,5 +1,4 @@
-﻿using ChessLib.Data.Boards;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
@@ -12,8 +11,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+// ReSharper disable StringLiteralTypo
 
 namespace ChessLib.Data.Tests
 {
@@ -21,8 +20,8 @@ namespace ChessLib.Data.Tests
     [TestFixture]
     class MoveTraversalServiceTest
     {
-        private Game<MoveStorage> game;
-        private Task _imageWait;
+        private Game<MoveStorage> _game;
+        private readonly Task _imageWait;
         private Imaging _imaging;
         private static readonly object[] UnApplyTestCases = new object[]
            {
@@ -30,56 +29,56 @@ namespace ChessLib.Data.Tests
                 new object[]
                 {
                     FENHelpers.FENInitial,
-                    new string[] {"e4", "e5", "Nf3", "Nc6", "Bb5", "a6", "Bxc6"},
+                    new[] {"e4", "e5", "Nf3", "Nc6", "Bb5", "a6", "Bxc6"},
                     "Ruy Lopez"
 
                 },
                 new object[]
                 {
                     "rnbqkbnr/1pp1pppp/8/p2pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3",
-                    new string[]{"exd6"},
+                    new[]{"exd6"},
                     "En Passant"
                 },
                 new object[]
                 {
                 "r3k2r/qpp1pppp/2nP1n2/pb3b2/2BQ4/B1N2N2/PPPP1PPP/R3K2R w KQkq - 0 3",
-                new string[]{"O-O", "O-O"},
+                new[]{"O-O", "O-O"},
                 "Castling Kingside"
                 },
                 new object[]
                 {
                     "r3k2r/qpp1pppp/2nP1n2/pb3b2/2BQ4/B1N2N2/PPPP1PPP/R3K2R w KQkq - 0 3",
-                    new string[]{"O-O-O", "O-O-O"},
+                    new[]{"O-O-O", "O-O-O"},
                     "Castling Queenside"
                 },
                 new object[]
                 {
                     "1q6/2P5/8/8/5k1K/8/4p3/3Q4 w - - 0 1",
-                    new string[]{"c8=N", "e1=N"},
+                    new[]{"c8=N", "e1=N"},
                     "Promotion to Knight"
                 },
                 new object[]
                 {
                     "1q6/2P5/8/8/5k1K/8/4p3/3Q4 w - - 0 1",
-                    new string[]{"c8=N", "e1=N"},
+                    new[]{"c8=N", "e1=N"},
                     "Promotion to Bishop"
                 },
                 new object[]
                 {
                     "1q6/2P5/8/8/5k1K/8/4p3/3Q4 w - - 0 1",
-                    new string[]{"c8=R", "e1=R"},
+                    new[]{"c8=R", "e1=R"},
                     "Promotion to Rook"
                 },
                 new object[]
                 {
                     "1q6/2P5/8/8/5k1K/8/4p3/3Q4 w - - 0 1",
-                    new string[]{"c8=Q", "e1=Q"},
+                    new[]{"c8=Q", "e1=Q"},
                     "Promotion to Queen"
                 },
                 new object[]
                 {
                 "1q6/2P5/6k1/8/7K/8/4p3/3Q4 w - - 0 1",
-                new string[]{"cxb8=Q", "exd1=Q"},
+                new[]{"cxb8=Q", "exd1=Q"},
                 "Promotion to Queen after capture"
                 }
            };
@@ -99,11 +98,11 @@ namespace ChessLib.Data.Tests
         [Test(Description = "1. e4 test")]
         public void ApplyMove_ShouldReflectCorrectBoardStatusAfter_e4()
         {
-            game = new Game<MoveStorage>();
+            _game = new Game<MoveStorage>();
             var move = MoveHelpers.GenerateMove(12, 28);
             var expectedFEN = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
-            game.ApplyMove(move);
-            Assert.AreEqual(expectedFEN, game.CurrentFEN);
+            _game.ApplyMove(move);
+            Assert.AreEqual(expectedFEN, _game.CurrentFEN);
         }
 
         [Test(Description = "Ruy - applying series of moves")]
@@ -134,13 +133,13 @@ namespace ChessLib.Data.Tests
                     MoveHelpers.GenerateMove(4, 6, MoveType.Castle)
                 };
             Assert.AreEqual(expectedFEN.Length, moves.Length);
-            game = new Game<MoveStorage>();
+            _game = new Game<MoveStorage>();
             for (var i = 0; i < moves.Length; i++)
             {
                 Debug.WriteLine($"Applying move {moves[i]}");
                 var expected = expectedFEN[i];
-                game.ApplyMove(moves[i]);
-                Assert.AreEqual(expected, game.CurrentFEN);
+                _game.ApplyMove(moves[i]);
+                Assert.AreEqual(expected, _game.CurrentFEN);
             }
         }
 
@@ -159,10 +158,9 @@ namespace ChessLib.Data.Tests
                 game.ApplyMove(moveExt);
             }
 
-            string expectedState;
             for (; index > 0; index--)
             {
-                expectedState = stateStack.Pop();
+                var expectedState = stateStack.Pop();
                 Assert.AreNotEqual(game.CurrentFEN, expectedState, $"{description}: expected state should not equal current state.");
                 game.TraverseBackward();
                 Assert.AreEqual(expectedState, game.CurrentFEN, $"{description}: current state not equal to the expected state after undoing move {index}.");
@@ -174,9 +172,9 @@ namespace ChessLib.Data.Tests
         {
             var game = LoadGameByPGN(PGN.WithVariations);
             var move = game.GetNextMoves().FirstOrDefault();
-            var appliedMove = game.TraverseForward(move);
+            game.TraverseForward(move);
             var moves = game.GetNextMoves();
-            Assert.AreEqual(4, moves.Count());
+            Assert.AreEqual(4, moves.Length);
             Assert.AreEqual(4013, moves[0].Move);
             Assert.AreEqual(3364, moves[1].Move);
             Assert.AreEqual(3372, moves[2].Move);
@@ -187,22 +185,21 @@ namespace ChessLib.Data.Tests
         public void TraversePGN()
         {
             var sb = new StringBuilder();
-            (MoveStorage moveApplied, string premoveFEN) expectedState;
             var game = LoadGameByPGN(PGN.Fischer01);
             var stateStack = new Stack<(MoveStorage moveApplied, string premoveFEN)>();
             var moves = game.MainMoveTree;
-            sb.AppendLine($"****APPLYING {game.MainMoveTree.Count()} MOVES****");
+            sb.AppendLine($"****APPLYING {game.MainMoveTree.Count} MOVES****");
             foreach (var move in moves.Skip(1))
             {
                 var premoveFEN = game.Board.CurrentFEN;
                 stateStack.Push((moveApplied: move, premoveFEN: premoveFEN));
                 game.TraverseForward(move);
-                var postmoveFEN = game.Board.CurrentFEN;
-                sb.AppendLine($"\t{move}\t{premoveFEN}->{postmoveFEN}");
+                var postMoveFEN = game.Board.CurrentFEN;
+                sb.AppendLine($"\t{move}\t{premoveFEN}->{postMoveFEN}");
             }
 
             sb.AppendLine("****UNAPPLYING MOVES****");
-            while (stateStack.TryPop(out expectedState))
+            while (stateStack.TryPop(out var expectedState))
             {
                 var moveUnapplied = expectedState.moveApplied;
                 game.TraverseBackward();
@@ -227,22 +224,22 @@ namespace ChessLib.Data.Tests
         [Test]
         public void FindNextMoves_ShouldReturnEmptyCollectionIfTheEndIsReached()
         {
-            game = LoadGameByPGN(PGN.Fischer01);
+            _game = LoadGameByPGN(PGN.Fischer01);
 
-            game.GoToLastMove();
-            var moves = game.GetNextMoves();
+            _game.GoToLastMove();
+            var moves = _game.GetNextMoves();
             Assert.IsEmpty(moves);
         }
 
         [Test]
         public void TraversingBackwardOnFirstMoveShouldReturnInitialBoard()
         {
-            game = new Game<MoveStorage>();
-            game.TraverseBackward();
+            _game = new Game<MoveStorage>();
+            _game.TraverseBackward();
             for (int i = 0; i < 25; i++)
             {
-                var rv = game.TraverseBackward();
-                Assert.AreEqual(FENHelpers.FENInitial, game.CurrentFEN);
+                _game.TraverseBackward();
+                Assert.AreEqual(FENHelpers.FENInitial, _game.CurrentFEN);
             }
         }
 
@@ -253,7 +250,7 @@ namespace ChessLib.Data.Tests
 
             for (int i = 0; i < 25; i++)
             {
-                var rv = game.TraverseForward();
+                game.TraverseForward();
                 Assert.AreEqual(game.InitialFen, game.CurrentFEN);
             }
         }
@@ -264,7 +261,7 @@ namespace ChessLib.Data.Tests
             var game = LoadGameByPGN(PGN.ShortVariation);
             MoveStorage[] moves;
             MoveStorage move = null;
-            while ((moves = game.GetNextMoves()).Count() == 1)
+            while ((moves = game.GetNextMoves()).Length == 1)
             {
                 move = moves[0];
                 game.TraverseForward(move);
@@ -280,18 +277,18 @@ namespace ChessLib.Data.Tests
         {
             try
             {
-                game = LoadGameIntoBoardByName(nameOfPgn);
-                game.GoToLastMove();
-                game.GoToInitialState();
+                _game = LoadGameIntoBoardByName(nameOfPgn);
+                _game.GoToLastMove();
+                _game.GoToInitialState();
             }
             catch (MoveException moveExc)
             {
                 HandleMoveException(moveExc);
                 throw;
             }
-            Assert.IsTrue(game.CurrentMoveNode.Value.IsNullMove, "Current move should be null move");
-            Assert.IsNull(game.CurrentTree.VariationParentNode, "Should be on top tree after initial applied.");
-            Assert.AreEqual(expected, game.CurrentFEN);
+            Assert.IsTrue(_game.CurrentMoveNode.Value.IsNullMove, "Current move should be null move");
+            Assert.IsNull(_game.CurrentTree.VariationParentNode, "Should be on top tree after initial applied.");
+            Assert.AreEqual(expected, _game.CurrentFEN);
         }
 
         private void HandleMoveException(MoveException moveExc)
