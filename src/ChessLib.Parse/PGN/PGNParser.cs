@@ -62,7 +62,7 @@ namespace ChessLib.Parse.PGN
         }
 
         private IEnumerable<string> SplitGamesFromDatabase(AntlrInputStream inputStream,
-            CancellationToken cancellationToken, int groupSize = 50)
+            CancellationToken cancellationToken, int groupSize)
         {
             var parseTree = InitializeParsing(inputStream, out var walker);
             var listener = new PGNGameListener(inputStream, cancellationToken);
@@ -70,15 +70,16 @@ namespace ChessLib.Parse.PGN
             listener.BatchProcessed += OnGeneralBatchProcessed;
             walker.Walk(listener, parseTree);
             var games = listener.Games;
+            listener.BatchProcessed -= OnGeneralBatchProcessed;
             _totalGamesProcessed = games.Count;
-            var tmpGroupSize = _totalGamesProcessed / 20;
-            groupSize = tmpGroupSize < 1 ? 1 : tmpGroupSize;
-            var grouped = games
+            return SplitListOfGameData(games, groupSize);
+        }
+
+        private IEnumerable<string> SplitListOfGameData(IEnumerable<string> gameData, int groupSize)
+        {
+            var grouped = gameData
                 .Select((x, i) => new { Item = x, Index = i })
                 .GroupBy(x => x.Index / groupSize, x => x.Item).ToList();
-            Debug.WriteLine($"Made {grouped} groups");
-            var lines = grouped.Select((x, i) => $"[{i}].Count is {x.Count()}").ToList();
-            Debug.WriteLine(string.Join(Environment.NewLine, lines));
             return grouped.Select(x => string.Join("", x));
         }
 
@@ -114,7 +115,7 @@ namespace ChessLib.Parse.PGN
             var rv = new List<Game<MoveStorage>>();
             try
             {
-                var gameGroups = SplitGamesFromDatabase(inputStream, cancellationToken);
+                var gameGroups = SplitGamesFromDatabase(inputStream, cancellationToken, 100);
                 _parsingUpdateArgs = SendInitialUpdate($"Parsing / Validating {_totalGamesProcessed} games", false,
                     _totalGamesProcessed);
                 var parallelLoopOptions = new ParallelOptions
@@ -131,7 +132,7 @@ namespace ChessLib.Parse.PGN
                         {
                             rv.Clear();
                             state.Stop();
-                            
+
                         }
                     });
             }
