@@ -17,7 +17,7 @@ using System.Text;
 
 namespace ChessLib.Data.Boards
 {
-    public class BoardInfo : BoardBase, INotifyPropertyChanged
+    public class BoardInfo : BoardBase
     {
        
         public BoardInfo() : this(FENHelpers.FENInitial)

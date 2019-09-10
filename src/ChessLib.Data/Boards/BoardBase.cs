@@ -12,7 +12,7 @@ using ChessLib.Data.Validators.BoardValidation;
 
 namespace ChessLib.Data.Boards
 {
-    public abstract class BoardBase : INotifyPropertyChanged, IBoard
+    public abstract class BoardBase : IBoard
     {
         protected ulong[][] PiecePlacement;
         private Color _activePlayer;
@@ -76,14 +76,10 @@ namespace ChessLib.Data.Boards
             PiecePlacement = piecePlacement;
         }
 
-        public Color ActivePlayer
+        public virtual Color ActivePlayer
         {
             get => _activePlayer;
-            set
-            {
-                _activePlayer = value;
-                OnPropertyChanged(nameof(ActivePlayer));
-            }
+            set => _activePlayer = value;
         }
         public bool IsActiveColorInCheck => PiecePlacement.IsPlayerInCheck((int)ActivePlayer);
         public Color OpponentColor => _activePlayer.Toggle();
@@ -110,13 +106,7 @@ namespace ChessLib.Data.Boards
         public ushort ActivePlayerKingIndex => GetPiecePlacement().Occupancy(ActivePlayer, Piece.King).GetSetBits()[0];
         public ulong ActivePlayerOccupancy(Piece p) => GetPiecePlacement().Occupancy(ActivePlayer, p);
 
-        public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         public abstract object Clone();
     }

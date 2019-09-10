@@ -18,7 +18,7 @@ namespace ChessLib.ConsoleManualTesting
         static void Main(string[] args)
         {
             var parsePgn = new PGNParser();
-            parsePgn.ProgressUpdate += OnProgressUpdated;
+            //parsePgn.ProgressUpdate += OnProgressUpdated;
             Stopwatch sw = new Stopwatch();
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
             sw.Start();
