@@ -41,8 +41,6 @@ namespace ChessLib.Data.MoveRepresentation
 
         protected MoveStorage(IMoveExt move, Piece pieceMoving, Color colorMoving) : this(move.Move) { }
 
-
-
         public MoveStorage(BoardInfo boardInfo, MoveExt move, Piece? capturedPiece)
             : base(move)
         {
@@ -50,7 +48,10 @@ namespace ChessLib.Data.MoveRepresentation
             var boardState = new BoardState(boardInfo.HalfmoveClock, boardInfo.EnPassantSquare, capturedPiece,
                 boardInfo.CastlingAvailability, gameState);
             BoardState = boardState;
+            Id = Guid.NewGuid();
         }
+
+        public Guid Id { get; private set; }
 
         public bool IsEndOfGame =>
             new GameState[] { GameState.Checkmate, GameState.StaleMate }.Contains(BoardState.GetGameState());
