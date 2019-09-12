@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Boards;
+using EnumsNET;
 
 namespace ChessLib.Data
 {
@@ -15,8 +17,17 @@ namespace ChessLib.Data
         private string _initialFEN;
         private PGNFormatterOptions _options;
         private const char NewLine = '\n';
+        private List<string> _tagsToKeep = new List<string>();
         public PGNFormatter(PGNFormatterOptions options)
         {
+            if (!options.KeepAllTags)
+            {
+                foreach (var tag in options.TagsToKeep.GetFlags())
+                {
+                    _tagsToKeep.Add(tag.AsString());
+                }
+                _tagsToKeep.AddRange(options.OtherTagsToKeep);
+            }
             _options = options;
         }
 
@@ -30,18 +41,40 @@ namespace ChessLib.Data
             return tagSection + NewLine + moveSection + NewLine;
         }
 
+        private bool KeepTag(in KeyValuePair<string, string> tag)
+        {
+            if (_options.KeepAllTags)
+            {
+                return true;
+            }
+            if (!_options.KeepTagsWithUnknownValues && IsTagUnknown(tag))
+            {
+                return false;
+            }
+
+            return _tagsToKeep.Contains(tag.Key);
+        }
+
+        private bool IsTagUnknown(KeyValuePair<string, string> tag) => 
+            tag.Value.StartsWith("?") || (tag.Key == "Result" && tag.Value == "*");
+
         private string BuildTags(in Tags tags)
         {
             StringBuilder sb = new StringBuilder();
             foreach (var requiredTag in tags.RequiredTags)
             {
-                sb.Append($"[{requiredTag.Key} \"{requiredTag.Value}\"]{NewLine}");
+                if (KeepTag(requiredTag))
+                {
+                    sb.Append($"[{requiredTag.Key} \"{requiredTag.Value}\"]{NewLine}");
+                }
             }
-            foreach (var requiredTag in tags.SupplementalTags)
+            foreach (var supplementalTag in tags.SupplementalTags)
             {
-                sb.Append($"[{requiredTag.Key} \"{requiredTag.Value}\"]{NewLine}");
+                if (KeepTag(supplementalTag))
+                {
+                    sb.Append($"[{supplementalTag.Key} \"{supplementalTag.Value}\"]{NewLine}");
+                }
             }
-
             return sb.ToString();
         }
 

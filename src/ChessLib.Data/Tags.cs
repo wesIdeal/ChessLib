@@ -1,5 +1,4 @@
 ﻿using ChessLib.Data.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,9 +6,9 @@ using System.Threading;
 namespace ChessLib.Data
 {
     public delegate void OnFenChangedCallback(string fen);
+
     public class Tags : Dictionary<string, string>
     {
-
         public readonly string[] RequiredTagKeys = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
         public OnFenChangedCallback OnFenChanged;
 
