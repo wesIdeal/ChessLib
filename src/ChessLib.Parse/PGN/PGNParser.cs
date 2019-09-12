@@ -27,7 +27,8 @@ namespace ChessLib.Parse.PGN
 
         public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(string pgn)
         {
-            return ParseAndValidateGames(pgn, CancellationToken.None, 1);
+            return ParseAndValidateGames(new PGNGroup(0, pgn), CancellationToken.None)?.Games ??
+                   new List<Game<MoveStorage>>();
         }
 
         public IEnumerable<Game<MoveStorage>> GetGamesFromPGN(Stream stream)
@@ -50,18 +51,17 @@ namespace ChessLib.Parse.PGN
             return GetValidatedGames(new AntlrInputStream(pgnText), cancelParseToken);
         }
 
-        protected List<Game<MoveStorage>> ParseAndValidateGames(string gameGroup, CancellationToken cancellationToken,
-            int? index = null)
+        private PGNGroup ParseAndValidateGames(PGNGroup gameGroup, CancellationToken cancellationToken)
         {
-            var parseTree = InitializeParsing(new AntlrInputStream(gameGroup), out var walker);
+            var parseTree = InitializeParsing(new AntlrInputStream(gameGroup.PGNData), out var walker);
             var listener = new PGNGameDetailListener(cancellationToken);
             listener.BatchParsed += OnDetailBatchProcessed;
             walker.Walk(listener, parseTree);
             listener.Games.ForEach(game => game.GoToInitialState());
-            return listener.Games;
+            return new PGNGroup(gameGroup.Index, gameGroup.PGNData) { Games = listener.Games };
         }
 
-        private IEnumerable<string> SplitGamesFromDatabase(AntlrInputStream inputStream,
+        private IEnumerable<PGNGroup> SplitGamesFromDatabase(AntlrInputStream inputStream,
             CancellationToken cancellationToken, int groupSize)
         {
             var parseTree = InitializeParsing(inputStream, out var walker);
@@ -75,12 +75,12 @@ namespace ChessLib.Parse.PGN
             return SplitListOfGameData(games, groupSize);
         }
 
-        private IEnumerable<string> SplitListOfGameData(IEnumerable<string> gameData, int groupSize)
+        private IEnumerable<PGNGroup> SplitListOfGameData(IEnumerable<string> gameData, int groupSize)
         {
             var grouped = gameData
                 .Select((x, i) => new { Item = x, Index = i })
                 .GroupBy(x => x.Index / groupSize, x => x.Item).ToList();
-            return grouped.Select(x => string.Join("", x));
+            return grouped.Select((x, i) => new PGNGroup(i, string.Join("", x)));
         }
 
         private ParsingUpdateEventArgs SendInitialUpdate(string description, bool isIndeterminate, int maxItems = 0)
@@ -112,10 +112,9 @@ namespace ChessLib.Parse.PGN
         protected List<Game<MoveStorage>> GetValidatedGames(AntlrInputStream inputStream,
             CancellationToken cancellationToken)
         {
-            var rv = new List<Game<MoveStorage>>();
             try
             {
-                var gameGroups = SplitGamesFromDatabase(inputStream, cancellationToken, 100);
+                var gameGroups = SplitGamesFromDatabase(inputStream, cancellationToken, 100).ToArray();
                 _parsingUpdateArgs = SendInitialUpdate($"Parsing / Validating {_totalGamesProcessed} games", false,
                     _totalGamesProcessed);
                 var parallelLoopOptions = new ParallelOptions
@@ -126,24 +125,21 @@ namespace ChessLib.Parse.PGN
                         try
                         {
                             var games = ParseAndValidateGames(group, cancellationToken);
-                            rv.AddRange(games);
+                            group.Games = games.Games;
                         }
                         catch (ParseCanceledException)
                         {
-                            rv.Clear();
                             state.Stop();
-
                         }
                     });
+                return gameGroups.OrderBy(x => x.Index).SelectMany(x => x.Games).ToList();
             }
             catch (OperationCanceledException)
             {
                 Debug.WriteLine("Operation cancelled.");
-                rv.Clear();
                 throw;
             }
 
-            return rv;
         }
 
         private void OnGeneralBatchProcessed(object sender, int batchSize)
