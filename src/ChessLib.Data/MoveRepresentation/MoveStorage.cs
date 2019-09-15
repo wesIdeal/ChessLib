@@ -103,7 +103,8 @@ namespace ChessLib.Data.MoveRepresentation
 
         public override int GetHashCode()
         {
-            return base.GetHashCode() ^ BoardState.GetHashCode();
+            if (BoardState != null) { return base.GetHashCode() ^ BoardState.GetHashCode(); }
+            return -1;
         }
 
         internal LinkedListNode<MoveStorage> AddVariation(LinkedListNode<MoveStorage> currentMoveNode, MoveStorage move, string variationParentFEN)

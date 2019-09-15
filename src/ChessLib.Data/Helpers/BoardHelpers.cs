@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using ChessLib.Data.Boards;
 using ChessLib.Data.Magic;
+using ChessLib.Data.Magic.Init;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
@@ -341,6 +342,20 @@ namespace ChessLib.Data.Helpers
             return ca;
         }
 
+        public static bool IsEnPassantCaptureAvailable(this BoardInfo board)
+        {
+            var epSquare = board.EnPassantSquare;
+            if (epSquare == null)
+            {
+                return false;
+            }
+
+            var epAttackFromSquares =
+                PieceAttackPatterns.Instance.PawnAttackMask[(int) board.OpponentColor][epSquare.Value];
+            return (epAttackFromSquares & board.GetPiecePlacement()[(int) board.ActivePlayer][(int) Piece.Pawn]) != 0;
+
+        }
+        
         /// <summary>
         ///     Sets EnPassant flag appropriately, clearing it if no En Passant is available
         /// </summary>

@@ -38,5 +38,21 @@ namespace ChessLib.Data.Helpers
         {
             return !(left == right);
         }
+
+        public static ulong GetPieceHashValue(Color c, Piece p)
+        {
+            var nPiece = (int)p * 2;
+            if (c == Color.White)
+            {
+                nPiece += 1;
+            }
+
+            return (ulong)nPiece;
+        }
+
+        public ulong GetPieceHashValue()
+        {
+            return GetPieceHashValue(this.Color, this.Piece);
+        }
     }
 }

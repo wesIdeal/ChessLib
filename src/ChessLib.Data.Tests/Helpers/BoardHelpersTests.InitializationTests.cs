@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Text;
+using ChessLib.Data.Boards;
 using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Data.Tests.Helpers
@@ -9,6 +10,23 @@ namespace ChessLib.Data.Tests.Helpers
     [TestFixture]
     public partial class BoardHelpersTests
     {
+        [TestCase("rnbqkbnr/p1pppppp/8/8/Pp6/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1", true)]
+        [TestCase("rnbqkbnr/p1pppppp/8/1p6/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1",false)]
+        [TestCase("rnbqkbnr/pppppp1p/8/8/6pP/8/PPPPPPP1/RNBQKBNR b KQkq h3 0 1",true)]
+        [TestCase("rnbqkbnr/pppppp1p/6p1/8/7P/8/PPPPPPP1/RNBQKBNR b KQkq h3 0 1", false)]
+        [TestCase("rnbqkbnr/1ppp1ppp/8/pP2p3/8/8/P1PPPPPP/RNBQKBNR w KQkq a6 0 3",true)]
+        [TestCase("rnbqkbnr/1ppp1ppp/8/p3p3/1PP5/8/P2PPPPP/RNBQKBNR w KQkq - 0 3", false)]
+        [TestCase("rnbqkbnr/ppp2ppp/8/2Ppp3/8/8/PP1PPPPP/RNBQKBNR w KQkq d6 0 3", true)]
+        [TestCase("rnbqkbnr/ppp2ppp/8/3pp3/2P1P3/8/PP1P1PPP/RNBQKBNR w KQkq - 0 3", false)]
+        [TestCase("rnbqkbnr/pppp1pp1/8/6Pp/2P1p3/8/PP1PPP1P/RNBQKBNR w KQkq h6 0 4", true)]
+        [TestCase("rnbqkbnr/pppp1pp1/8/7p/2P1p1P1/1P6/P2PPP1P/RNBQKBNR w KQkq - 0 4", false)]
+        [TestCase("rnbqkbnr/pppp1ppp/8/8/2PPp1P1/8/PP2PP1P/RNBQKBNR b KQkq d3 0 3", true)]
+        [TestCase("rnbqkbnr/ppp2ppp/3p4/4p3/2PP2P1/8/PP2PP1P/RNBQKBNR b KQkq - 0 3", false)]
+        public static void TestEnPassantIsAvailable(string fen, bool expected)
+        {
+            var board = new BoardInfo(fen);
+            Assert.AreEqual(expected, board.IsEnPassantCaptureAvailable());
+        }
         [TestFixture]
         public static class InitializationTests
         {
