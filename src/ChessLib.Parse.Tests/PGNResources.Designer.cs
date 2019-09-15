@@ -221,6 +221,16 @@ namespace ChessLib.Parse.Tests {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] tal {
+            get {
+                object obj = ResourceManager.GetObject("tal", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] talLarge {
             get {
                 object obj = ResourceManager.GetObject("talLarge", resourceCulture);

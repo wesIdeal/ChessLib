@@ -21,27 +21,36 @@
       <DependentUpon>PGNResources.resx</DependentUpon>
       <CustomToolNamespace>ChessLib</CustomToolNamespace>
     </Compile>
+    <Compile Update="PolyglotResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PolyglotResources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="PGNResources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>PGNResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Update="PolyglotResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>PolyglotResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Update="PGN\commented.pgn">
+    <None Update="SourceFiles\commented.pgn">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="PGN\fullgame01.pgn">
+    <None Update="SourceFiles\fullgame01.pgn">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="PGN\uncommented.pgn">
+    <None Update="SourceFiles\uncommented.pgn">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="PGN\withnag.pgn">
+    <None Update="SourceFiles\withnag.pgn">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="PGN\withvariations.pgn">
+    <None Update="SourceFiles\withvariations.pgn">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

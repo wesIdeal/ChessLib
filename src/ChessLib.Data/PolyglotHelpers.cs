@@ -262,74 +262,6 @@ namespace ChessLib.Data
             return pieceValue ^ castleValue ^ epValue ^ turnValue;
         }
 
-        /// <summary>
-        ///     Gets an encoded move that is standard to polyglot specifications
-        /// </summary>
-        /// <param name="move">The ushort-based move.</param>
-        /// <returns>A polyglot encoded move</returns>
-        public static ushort GetEncodedMove(IMoveExt move)
-        {
-            ushort toFile;
-            ushort toRank;
-            ushort fromFile;
-            ushort fromRank;
-            if (move.MoveType != MoveType.Castle)
-            {
-                toFile = move.DestinationIndex.GetFile();
-                toRank = move.DestinationIndex.GetRank();
-                fromFile = move.SourceIndex.GetFile();
-                fromRank = move.SourceIndex.GetRank();
-            }
-            else
-            {
-                GetCastlingMoveSrcAndDestValues(move, out toFile, out toRank, out fromRank, out fromFile);
-            }
-
-            var promotionPiece = GetEncodedPromotionPiece(move);
-            var rv = (ushort) 0;
-            rv |= (ushort) (promotionPiece << 12);
-            rv |= (ushort) (fromRank << 9);
-            rv |= (ushort) (fromFile << 6);
-            rv |= (ushort) (toRank << 3);
-            rv |= toFile;
-            return rv;
-        }
-
-        private static void GetCastlingMoveSrcAndDestValues(IMoveExt move, out ushort toFile, out ushort toRank,
-            out ushort fromRank, out ushort fromFile)
-        {
-            fromFile = 4;
-            if (move.DestinationIndex.IsIndexOnRank(7))
-            {
-                toRank = fromRank = 7;
-            }
-            else
-            {
-                toRank = fromRank = 0;
-            }
-
-            if (move.Move == MoveHelpers.WhiteCastleKingSide.Move ||
-                move.Move == MoveHelpers.BlackCastleKingSide.Move)
-            {
-                toFile = 7;
-            }
-            else
-            {
-                toFile = 0;
-            }
-        }
-
-        private static ushort GetEncodedPromotionPiece(IMoveExt move)
-        {
-            if (move.MoveType != MoveType.Promotion)
-            {
-                return 0;
-            }
-
-            var promotionPiece = (int) move.PromotionPiece;
-            return (ushort) (promotionPiece + 1);
-        }
-
         private static ulong GetTurnValue(BoardInfo board)
         {
             return board.ActivePlayer == Color.White ? Turn[0] : 0;
@@ -398,7 +330,7 @@ namespace ChessLib.Data
                     {
                         foreach (var index in piecePlacement.GetSetBits())
                         {
-                            var poc = new PieceOfColor {Color = (Color) color, Piece = (Piece) piece};
+                            var poc = new PieceOfColor { Color = (Color)color, Piece = (Piece)piece };
                             acc ^= GetPieceValue(poc, index);
                         }
                     }
@@ -416,5 +348,101 @@ namespace ChessLib.Data
             var pieceOffset = 64 * kindOfPiece + boardIndexOfPiece;
             return Piece[pieceOffset];
         }
+    }
+
+    public class PolyglotMove
+    {
+        private ushort _move;
+        public ushort Move => _move;
+
+        public ushort SourceIndex => (ushort)((((_move >> 9) & 255) * 8) + ((_move >> 6) & 255));
+        public ushort DestIndex => (ushort)((((_move >> 6) & 255) * 8) + (_move & 255));
+
+        public PolyglotMove(ushort polyglotMove)
+        {
+            _move = polyglotMove;
+        }
+
+        public PolyglotMove(IMoveExt move)
+        {
+            _move = GetEncodedMove(move);
+        }
+
+        public PolyglotMove FromUshortMove(ushort move)
+        {
+            var mv = new MoveExt(move);
+            return new PolyglotMove(mv);
+        }
+
+        /// <summary>
+        ///     Gets an encoded move that is standard to polyglot specifications
+        /// </summary>
+        /// <param name="move">The ushort-based move.</param>
+        /// <returns>A polyglot encoded move</returns>
+        public static ushort GetEncodedMove(IMoveExt move)
+        {
+            ushort toFile;
+            ushort toRank;
+            ushort fromFile;
+            ushort fromRank;
+            if (move.MoveType != MoveType.Castle)
+            {
+                toFile = move.DestinationIndex.GetFile();
+                toRank = move.DestinationIndex.GetRank();
+                fromFile = move.SourceIndex.GetFile();
+                fromRank = move.SourceIndex.GetRank();
+            }
+            else
+            {
+                GetCastlingMoveSrcAndDestValues(move, out toFile, out toRank, out fromRank, out fromFile);
+            }
+
+            var promotionPiece = GetEncodedPromotionPiece(move);
+            var rv = (ushort)0;
+            rv |= (ushort)(promotionPiece << 12);
+            rv |= (ushort)(fromRank << 9);
+            rv |= (ushort)(fromFile << 6);
+            rv |= (ushort)(toRank << 3);
+            rv |= toFile;
+            return rv;
+        }
+
+        private static void GetCastlingMoveSrcAndDestValues(IMoveExt move, out ushort toFile, out ushort toRank,
+            out ushort fromRank, out ushort fromFile)
+        {
+            fromFile = 4;
+            if (move.DestinationIndex.IsIndexOnRank(7))
+            {
+                toRank = fromRank = 7;
+            }
+            else
+            {
+                toRank = fromRank = 0;
+            }
+
+            if (move.Move == MoveHelpers.WhiteCastleKingSide.Move ||
+                move.Move == MoveHelpers.BlackCastleKingSide.Move)
+            {
+                toFile = 7;
+            }
+            else
+            {
+                toFile = 0;
+            }
+        }
+
+        private static ushort GetEncodedPromotionPiece(IMoveExt move)
+        {
+            if (move.MoveType != MoveType.Promotion)
+            {
+                return 0;
+            }
+
+            var promotionPiece = (int)move.PromotionPiece;
+            return (ushort)(promotionPiece + 1);
+        }
+
+        public override string ToString() =>
+            $"{SourceIndex.IndexToSquareDisplay()}->{DestIndex.IndexToSquareDisplay()}";
     }
 }

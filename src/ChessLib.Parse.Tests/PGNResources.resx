@@ -251,10 +251,6 @@ Rf7+ Ke8 24. Rxe7+ Kf8 25. Rf1+ Kg8 26. Rff7  1-0</value>
 
 1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.O-O d6 5.b4 Bxb4 6.c3 Ba5 7.d4 Bg4 8.Qb3 Qd7 9.Ng5 Nd8 10.dxe5 dxe5 11.Ba3 Nh6 12.f3 Bb6+ 13.Kh1 Bh5 14.Rd1 Qc8 15.Rxd8+ Qxd8 16.Nxf7 Qh4 17.Qb5+ c6 18.Qxe5+ Kd7 19.Qe6+ Kc7 20.Bd6# 1-0</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="talLarge" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>PGN\talLarge.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="VariationsAndComments" xml:space="preserve">
     <value>[Event "FIDE (23) 1958-1960"]
 [Site "Portoroz izt"]
@@ -293,16 +289,23 @@ Qf1+ Ke4 43.Qxc4+ Kf3 44.Qf1+ Ke4 45.Qxa6 Kd4 46.Qd6+ Kc4 47.a4 Re1+ 48.
 Kf2 Re2+ 49.Kf1 Ra2 50.Qa6+ Kd4 51.a5 c4 52.Qb6+ Kd5 53.a6 Ra1+ 54.Kf2 c3 
 55.a7 c2 56.Qb3+ Kd6 57.Qd3+ 1-0</value>
   </data>
-  <data name="medium" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>PGN\medium.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="small" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>PGN\small.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="tiny" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>PGN\tiny.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="smallPgn" xml:space="preserve">
     <value>[Event "?"] [Site "?"] [Date "????.??.??"] [Round "?"] [White "?"] [Black "?"] [Result "*"] 1.c4 Nf6 ( 1...e5 ) ( 1...e6 ) ( 1...c5 ) 2.Nc3 *</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="medium" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SourceFiles\medium.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="small" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SourceFiles\small.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="tal" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SourceFiles\tal.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="talLarge" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SourceFiles\talLarge.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="tiny" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SourceFiles\tiny.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>
