@@ -1,7 +1,6 @@
-﻿using ChessLib.Data.Helpers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using ChessLib.Data.Helpers;
 
 namespace ChessLib.Data
 {
@@ -9,7 +8,7 @@ namespace ChessLib.Data
 
     public class Tags : Dictionary<string, string>
     {
-        public readonly string[] RequiredTagKeys = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
+        public readonly string[] RequiredTagKeys = {"Event", "Site", "Date", "Round", "White", "Black", "Result"};
         public OnFenChangedCallback OnFenChanged;
 
         public Tags(OnFenChangedCallback onFenChanged = null)
@@ -19,7 +18,32 @@ namespace ChessLib.Data
             {
                 Add(requiredTag, requiredTag);
             }
+
             OnFENChanged(FENStart);
+        }
+
+        public string Event
+        {
+            get => ContainsKey("Event") ? this["Event"] : "";
+            set => Add("Event", value);
+        }
+
+        public string Date
+        {
+            get => ContainsKey("Date") ? this["Date"] : "";
+            set => Add("Date", value);
+        }
+
+        public string Round
+        {
+            get => ContainsKey("Round") ? this["Round"] : "";
+            set => Add("Round", value);
+        }
+
+        public string Result
+        {
+            get => ContainsKey("Result") ? this["Result"] : "";
+            set => Add("Result", value);
         }
 
 
@@ -27,7 +51,7 @@ namespace ChessLib.Data
         {
             get
             {
-                var requiredTagKeys = this.RequiredTagKeys;
+                var requiredTagKeys = RequiredTagKeys;
                 return requiredTagKeys.Select(t => new KeyValuePair<string, string>(t, Get(t)));
             }
         }
@@ -37,7 +61,7 @@ namespace ChessLib.Data
         {
             get
             {
-                var suppTags = this.Keys.Where(k => !RequiredTagKeys.Contains(k));
+                var suppTags = Keys.Where(k => !RequiredTagKeys.Contains(k));
                 return suppTags.Select(t => new KeyValuePair<string, string>(t, Get(t)));
             }
         }
@@ -59,7 +83,7 @@ namespace ChessLib.Data
 
         public string Get(string key)
         {
-            if (this.ContainsKey(key))
+            if (ContainsKey(key))
             {
                 return this[key];
             }
@@ -73,7 +97,11 @@ namespace ChessLib.Data
             {
                 this[key] = value;
             }
-            else { base.Add(key, value); }
+            else
+            {
+                base.Add(key, value);
+            }
+
             if (key.ToLower() == "fen")
             {
                 SetFen(value);
@@ -89,10 +117,7 @@ namespace ChessLib.Data
 
         private void OnFENChanged(string fen)
         {
-            if (OnFenChanged != null)
-            {
-                OnFenChanged(fen);
-            }
+            OnFenChanged?.Invoke(fen);
         }
     }
 }
