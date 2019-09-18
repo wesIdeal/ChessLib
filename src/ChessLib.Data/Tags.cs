@@ -28,6 +28,12 @@ namespace ChessLib.Data
             set => Add("Event", value);
         }
 
+        public string Site
+        {
+            get => ContainsKey("Site") ? this["Site"] : "";
+            set => Add("Site", value);
+        }
+
         public string Date
         {
             get => ContainsKey("Date") ? this["Date"] : "";
