@@ -84,6 +84,7 @@ namespace ChessLib.Data
         {
             StringBuilder sb = new StringBuilder();
             var game = new Game<MoveStorage>(fen);
+            game.BeginGameInitialization();
             var bi = game.Board;
             MoveDisplayService displayService = new MoveDisplayService();
             var iterations = 0;
@@ -125,7 +126,7 @@ namespace ChessLib.Data
                 game.ApplyMove(node);
 
             }
-
+            game.EndGameInitialization();
             var strPgn = sb.ToString().Trim();
             return strPgn;
         }

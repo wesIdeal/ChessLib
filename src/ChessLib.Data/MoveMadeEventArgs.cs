@@ -6,14 +6,14 @@ namespace ChessLib.Data
 {
     public class MoveMadeEventArgs : EventArgs
     {
-        public MoveMadeEventArgs(MoveExt moveMade, IBoard currentBoard, MoveExt[] nextMoves, ushort[] squaresUpdated)
+        public MoveMadeEventArgs(MoveExt[] previousMoves, string fen)
         {
-            NextMoves = nextMoves;
-            SquaresUpdated = squaresUpdated;
+            CurrentFen = fen;
+            PreviousMoves = previousMoves;
         }
 
-        public MoveExt[] NextMoves { get; private set; }
-        public ushort[] SquaresUpdated { get; private set; }
+        public string CurrentFen { get; }
+        public MoveExt[] PreviousMoves { get; }
     }
 
 }

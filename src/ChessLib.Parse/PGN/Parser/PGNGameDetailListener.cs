@@ -64,6 +64,7 @@ namespace ChessLib.Parse.PGN.Parser
                 throw new ParseCanceledException("Cancellation Requested.");
             }
             CurrentGame = new Game<MoveStorage>();
+            CurrentGame.BeginGameInitialization();
             _moveCount = 0;
             _currentList = CurrentGame.MainMoveTree;
         }
@@ -79,7 +80,7 @@ namespace ChessLib.Parse.PGN.Parser
             _gamePerformance.Add(new Tuple<uint, long>(_moveCount, _stopwatch.ElapsedMilliseconds));
             TotalTime += _stopwatch.Elapsed.TotalSeconds;
             _stopwatch.Reset();
-            CurrentGame.GoToInitialState();
+            CurrentGame.EndGameInitialization();
             Games.Add(CurrentGame);
             _currentTags = null;
             _gamesProcessed++;

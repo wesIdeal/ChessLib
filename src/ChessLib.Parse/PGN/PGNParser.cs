@@ -57,7 +57,7 @@ namespace ChessLib.Parse.PGN
             var listener = new PGNGameDetailListener(cancellationToken);
             listener.BatchParsed += OnDetailBatchProcessed;
             walker.Walk(listener, parseTree);
-            listener.Games.ForEach(game => game.GoToInitialState());
+            listener.Games.ForEach(game => game.EndGameInitialization());
             return new PGNGroup(gameGroup.Index, gameGroup.PGNData) { Games = listener.Games };
         }
 

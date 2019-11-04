@@ -35,6 +35,7 @@ namespace ChessLib.EngineInterface.UCI
         short? CentipawnScore { get; set; }
         short? MateInXMoves { get; set; }
         Bound Bound { get; set; }
+        string ToString();
     }
 
     public interface IPrincipalVariationResponse : IInfoResponse
@@ -120,6 +121,8 @@ namespace ChessLib.EngineInterface.UCI
                 ? string.Join(" ", Variation.Select(x => x.SAN))
                 : string.Join(" ", VariationLong);
         }
+
+        public string ScoreText => (Score as PrincipalVariationScore)?.ToString();
     }
 
     public class BestMoveResponse : IBestMoveResponse

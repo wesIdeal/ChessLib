@@ -15,10 +15,17 @@ namespace ChessLib.Data
 {
     public class MoveTraversalService
     {
+        /// <summary>
+        /// Gets a value that determines if a game is being loaded. Used to determine if MoveMade event is fired.
+        /// </summary>
+        public bool IsLoaded { get; private set; }
         private string _initialFen;
         private bool _pauseMoveEvents;
+        private LinkedListNode<MoveStorage> _currentMoveNode;
+        public bool ShouldSendMoveEvents => !_pauseMoveEvents && IsLoaded;
         public MoveTraversalService(string fen)
         {
+            IsLoaded = true;
             Board = new BoardInfo(fen);
             MainMoveTree = new MoveTree(null, fen);
             CurrentMoveNode = MainMoveTree.First;
@@ -40,22 +47,40 @@ namespace ChessLib.Data
         public BoardInfo Board { get; private set; }
         public string CurrentFEN => Board.CurrentFEN;
         public MoveTree MainMoveTree { get; protected set; }
-        public LinkedListNode<MoveStorage> CurrentMoveNode { get; set; }
+
+        public LinkedListNode<MoveStorage> CurrentMoveNode
+        {
+            get => _currentMoveNode;
+            set
+            {
+                _currentMoveNode = value;
+                OnMoveMade();
+            }
+        }
 
         public bool HasNextMove => NextMoveNode != null;
         public MoveTree CurrentTree => (MoveTree)CurrentMoveNode.List;
         public LinkedListNode<MoveStorage> NextMoveNode => CurrentMoveNode.Next;
 
-        public LinkedListNode<MoveStorage> PreviousMoveNode
+        public LinkedListNode<MoveStorage> PreviousMoveNode => GetPreviousNode(CurrentMoveNode);
+
+        private LinkedListNode<MoveStorage> GetPreviousNode(LinkedListNode<MoveStorage> current)
         {
-            get
-            {
-                var currentList = CurrentMoveNode.List as MoveTree;
-                return CurrentMoveNode.Previous ??
-                       currentList?.VariationParentNode;
-            }
+            var currentList = current.List as MoveTree;
+            return current.Previous ??
+                   currentList?.VariationParentNode;
         }
 
+        public void BeginGameInitialization()
+        {
+            IsLoaded = false;
+        }
+
+        public void EndGameInitialization()
+        {
+            GoToInitialState();
+            IsLoaded = true;
+        }
         /// <summary>
         /// Sets the board, in case the user would like to pass in an inherited version to add functionality.
         /// </summary>
@@ -67,14 +92,25 @@ namespace ChessLib.Data
         }
 
 
-        public event EventHandler MoveMade;
+        public virtual event EventHandler<MoveMadeEventArgs> MoveMade;
 
         private void OnMoveMade()
         {
-            if (!_pauseMoveEvents)
+            if (!ShouldSendMoveEvents)
             {
-                Volatile.Read(ref MoveMade)?.Invoke(this, EventArgs.Empty);
+                return;
             }
+
+            var moves = new List<MoveExt>();
+            var currentMoveNode = CurrentMoveNode;
+            while (!currentMoveNode.Value.IsNullMove && currentMoveNode.Value != null)
+            {
+                moves.Add(currentMoveNode.Value);
+                currentMoveNode = GetPreviousNode(currentMoveNode);
+            }
+
+            moves.Reverse();
+            Volatile.Read(ref MoveMade)?.Invoke(this, new MoveMadeEventArgs(moves.ToArray(), CurrentFEN));
         }
 
         //public static ushort[] GetSquaresUpdated(IMoveExt move)
@@ -149,7 +185,6 @@ namespace ChessLib.Data
             if (!HasNextMove) return Board;
             ApplyMoveToBoard(NextMoveNode.Value);
             CurrentMoveNode = NextMoveNode;
-
             return Board;
         }
 
@@ -295,7 +330,6 @@ namespace ChessLib.Data
                 Debug.Assert(CurrentMoveNode.Next != null, "Cannot apply a variation if there is not a move to apply it to.");
                 CurrentMoveNode =
                     CurrentMoveNode.Next.Value.AddVariation(CurrentMoveNode, moveStorageObj, variationParentFen);
-               
                 return CurrentMoveNode;
             }
             catch (Exception e)
@@ -405,7 +439,6 @@ namespace ChessLib.Data
             Board.EnPassantSquare = newBoard.EnPassantSquare;
             Board.HalfmoveClock = newBoard.HalfmoveClock;
             Board.FullmoveCounter = newBoard.FullmoveCounter;
-            OnMoveMade();
         }
 
         private void UnApplyMove(LinkedListNode<MoveStorage> previousNode)

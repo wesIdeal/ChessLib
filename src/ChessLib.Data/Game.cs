@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 
@@ -9,8 +10,10 @@ namespace ChessLib.Data
     {
         public Game() : base(FENHelpers.FENInitial)
         {
+
             TagSection = new Tags(OnFenChanged);
             TagSection.SetFen(FENHelpers.FENInitial);
+
         }
 
         public Game(string fen) : base(fen)
@@ -25,6 +28,10 @@ namespace ChessLib.Data
         {
             InitialFen = fen;
         }
+
+
+
+
 
         public void SetFEN(string fen)
         {
