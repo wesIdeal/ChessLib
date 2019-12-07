@@ -116,6 +116,11 @@ internal partial class PGNParser : Parser {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitParse(this);
 		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitParse(this);
+			else return visitor.VisitChildren(this);
+		}
 	}
 
 	[RuleVersion(0)]
@@ -159,6 +164,11 @@ internal partial class PGNParser : Parser {
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitPgn_database(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitPgn_database(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -216,6 +226,11 @@ internal partial class PGNParser : Parser {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitPgn_game(this);
 		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitPgn_game(this);
+			else return visitor.VisitChildren(this);
+		}
 	}
 
 	[RuleVersion(0)]
@@ -260,6 +275,11 @@ internal partial class PGNParser : Parser {
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitTag_section(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitTag_section(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -320,6 +340,11 @@ internal partial class PGNParser : Parser {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitTag_pair(this);
 		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitTag_pair(this);
+			else return visitor.VisitChildren(this);
+		}
 	}
 
 	[RuleVersion(0)]
@@ -361,6 +386,11 @@ internal partial class PGNParser : Parser {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitTag_name(this);
 		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitTag_name(this);
+			else return visitor.VisitChildren(this);
+		}
 	}
 
 	[RuleVersion(0)]
@@ -398,6 +428,11 @@ internal partial class PGNParser : Parser {
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitTag_value(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitTag_value(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -442,6 +477,11 @@ internal partial class PGNParser : Parser {
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitMovetext_section(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitMovetext_section(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -493,6 +533,11 @@ internal partial class PGNParser : Parser {
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitElement_sequence(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitElement_sequence(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -572,6 +617,11 @@ internal partial class PGNParser : Parser {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitElement(this);
 		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitElement(this);
+			else return visitor.VisitChildren(this);
+		}
 	}
 
 	[RuleVersion(0)]
@@ -638,6 +688,11 @@ internal partial class PGNParser : Parser {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitMove_number_indication(this);
 		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitMove_number_indication(this);
+			else return visitor.VisitChildren(this);
+		}
 	}
 
 	[RuleVersion(0)]
@@ -703,6 +758,11 @@ internal partial class PGNParser : Parser {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitNag(this);
 		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitNag(this);
+			else return visitor.VisitChildren(this);
+		}
 	}
 
 	[RuleVersion(0)]
@@ -741,6 +801,11 @@ internal partial class PGNParser : Parser {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitComment(this);
 		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitComment(this);
+			else return visitor.VisitChildren(this);
+		}
 	}
 
 	[RuleVersion(0)]
@@ -778,6 +843,11 @@ internal partial class PGNParser : Parser {
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitSan_move(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitSan_move(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 
@@ -821,6 +891,11 @@ internal partial class PGNParser : Parser {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitRecursive_variation(this);
 		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitRecursive_variation(this);
+			else return visitor.VisitChildren(this);
+		}
 	}
 
 	[RuleVersion(0)]
@@ -863,6 +938,11 @@ internal partial class PGNParser : Parser {
 		public override void ExitRule(IParseTreeListener listener) {
 			IPGNListener typedListener = listener as IPGNListener;
 			if (typedListener != null) typedListener.ExitGame_termination(this);
+		}
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitGame_termination(this);
+			else return visitor.VisitChildren(this);
 		}
 	}
 

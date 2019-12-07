@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using ChessLib.Data;
@@ -19,7 +20,7 @@ namespace ChessLib.Parse.PGN
     {
         private int _gamesProcessedSoFar;
 
-        private ParsingUpdateEventArgs _parsingUpdateArgs;
+        private ParsingUpdateEventArgs _parsingUpdateArgs = new ParsingUpdateEventArgs();
         private int _totalGamesProcessed;
         public TimeSpan TotalValidationTime;
         public event EventHandler<ParsingUpdateEventArgs> ProgressUpdate;
@@ -103,6 +104,7 @@ namespace ChessLib.Parse.PGN
             var lexer = new PGNLexer(inputStream);
             lexer.RemoveErrorListeners();
             var parser = new Parser.BaseClasses.PGNParser(new CommonTokenStream(lexer));
+            parser.Interpreter.PredictionMode = PredictionMode.SLL;
             var parseTree = parser.parse();
             walker = new ParseTreeWalker();
             return parseTree;
@@ -155,6 +157,7 @@ namespace ChessLib.Parse.PGN
         private void OnDetailBatchProcessed(object sender, int batchSize)
         {
             _gamesProcessedSoFar += batchSize;
+            _parsingUpdateArgs = new ParsingUpdateEventArgs();
             if (ProgressUpdate != null)
             {
                 _parsingUpdateArgs.NumberComplete = _gamesProcessedSoFar;

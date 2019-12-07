@@ -226,9 +226,6 @@ namespace ChessLib.Data
             {
                 GoToInitialState();
             }
-
-            Debug.WriteLine($"It is now {Board.ActivePlayer}'s move.");
-            Debug.WriteLine($"FEN is now:\t{CurrentFEN}\r\n{new string('*', 20)}");
             return CurrentMoveNode;
         }
 
@@ -345,7 +342,7 @@ namespace ChessLib.Data
         public LinkedListNode<MoveStorage> ApplySanMove(string moveText,
             MoveApplicationStrategy moveApplicationStrategy)
         {
-            Debug.WriteLine($"Applying move {moveText}");
+            //Debug.WriteLine($"Applying move {moveText}");
             if (moveApplicationStrategy == MoveApplicationStrategy.Variation)
             {
                 return ApplySanVariationMove(moveText);
@@ -370,13 +367,13 @@ namespace ChessLib.Data
         protected LinkedListNode<MoveStorage> ApplyValidatedMove(MoveExt move,
             MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine)
         {
-            Debug.WriteLine($"Before applying move {move}, FEN is:\t{Board.CurrentFEN}");
+            //Uncomment to debug move application
+            //Debug.WriteLine($"Before applying move {move}, FEN is:\t{Board.CurrentFEN}");
             var capturedPiece = GetCapturedPiece(move);
             if (string.IsNullOrEmpty(move.SAN))
             {
                 move.SAN = GetMoveText(move);
             }
-
             ApplyMoveToBoard(move);
             var moveStorageObject = new MoveStorage(Board, move, capturedPiece) { Validated = true };
             CurrentMoveNode = CurrentTree.AddMove(moveStorageObject);
@@ -423,7 +420,7 @@ namespace ChessLib.Data
 
         protected void ApplyMoveToBoard(MoveExt move)
         {
-            var newBoard = Board.ApplyMoveToBoard(move);
+            var newBoard = Board.ApplyMoveToBoard(move, true);
             ApplyNewBoard(newBoard);
         }
 
@@ -461,7 +458,7 @@ namespace ChessLib.Data
             var pieces = UnApplyPiecesFromMove(CurrentMoveNode.Value);
             var fullMove = Board.ActivePlayer == Color.White ? Board.FullmoveCounter - 1 : Board.FullmoveCounter;
             var board = new BoardInfo(pieces, Board.ActivePlayer.Toggle(), castlingAvailability, epSquare, hmClock,
-                (ushort)fullMove, false);
+                (ushort)fullMove);
             return board;
         }
 
@@ -495,21 +492,21 @@ namespace ChessLib.Data
                         : ((ushort)(src.GetSetBits()[0] + 8)).ToBoardValue();
                 }
 
-                Debug.WriteLine(
-                    $"{board.ActivePlayer}'s captured {capturedPiece} is being replaced. ulong={piecePlacement[opp][(int)capturedPiece]}");
+                //    Debug.WriteLine(
+                //        $"{board.ActivePlayer}'s captured {capturedPiece} is being replaced. ulong={piecePlacement[opp][(int)capturedPiece]}");
                 piecePlacement[opp][(int)capturedPiece] ^= capturedPieceSrc;
-                Debug.WriteLine(
-                    $"{board.ActivePlayer}'s captured {capturedPiece} was replaced. ulong={piecePlacement[opp][(int)capturedPiece]}");
+                //    Debug.WriteLine(
+                //        $"{board.ActivePlayer}'s captured {capturedPiece} was replaced. ulong={piecePlacement[opp][(int)capturedPiece]}");
             }
 
             if (currentMove.MoveType == MoveType.Promotion)
             {
                 var promotionPiece = (Piece)(currentMove.PromotionPiece + 1);
-                Debug.WriteLine($"Un-applying promotion to {promotionPiece}.");
-                Debug.WriteLine($"{promotionPiece} ulong is {piecePlacement[active][(int)promotionPiece].ToString()}");
+                //Debug.WriteLine($"Un-applying promotion to {promotionPiece}.");
+                //Debug.WriteLine($"{promotionPiece} ulong is {piecePlacement[active][(int)promotionPiece].ToString()}");
                 piecePlacement[active][(int)promotionPiece] &= ~src;
-                Debug.WriteLine(
-                    $"{promotionPiece} ulong is now {piecePlacement[active][(int)promotionPiece].ToString()}");
+                //Debug.WriteLine(
+                //    $"{promotionPiece} ulong is now {piecePlacement[active][(int)promotionPiece].ToString()}");
             }
             else if (currentMove.MoveType == MoveType.Castle)
             {

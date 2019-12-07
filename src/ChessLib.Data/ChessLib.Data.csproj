@@ -44,6 +44,6 @@
     <Content Include="..\License.txt" Link="License.txt" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Enums.NET" Version="2.3.2" />
+    <PackageReference Include="Enums.NET" Version="3.0.2" />
   </ItemGroup>
 </Project>

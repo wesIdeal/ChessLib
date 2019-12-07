@@ -16,6 +16,13 @@ namespace ChessLib.Data
 
         }
 
+        public Game(Tags tags) : base(tags.FENStart)
+        {
+            TagSection = tags;
+            InitialFen = tags.FENStart;
+            TagSection.OnFenChanged += OnFenChanged;
+        }
+
         public Game(string fen) : base(fen)
         {
             TagSection = new Tags(OnFenChanged);

@@ -219,7 +219,7 @@ namespace ChessLib.Data.Tests.Helpers
             {
                 var expected = (ulong)0x00;
                 var actual = BoardHelpers.InBetween(3, 4);
-                Assert.AreEqual(expected, actual, "Should not be any squares between squares E+W of ona another (d1-e1)");
+                Assert.AreEqual(expected, actual, "Should not be any squares between squares E+W of one another (d1-e1)");
             }
 
             [Test]

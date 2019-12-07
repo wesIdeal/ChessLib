@@ -18,7 +18,8 @@ namespace ChessLib.Data.Boards
         private Color _activePlayer;
         protected BoardBase() { }
 
-        protected BoardBase(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability, ushort? enPassantIdx, ushort halfMoveClock, ushort fullMoveCount)
+        protected BoardBase(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability,
+            ushort? enPassantIdx, ushort halfMoveClock, ushort fullMoveCount)
         {
             PiecePlacement = occupancy;
             ActivePlayer = activePlayer;
@@ -28,10 +29,10 @@ namespace ChessLib.Data.Boards
             FullmoveCounter = fullMoveCount;
         }
 
-        protected BoardBase(string fen, bool is960)
+        protected BoardBase(string fen, bool is960, bool validateFen = true)
         {
             InitialFEN = fen;
-            PiecePlacement = fen.BoardFromFen(out Color active, out CastlingAvailability ca, out ushort? enPassantSquare, out ushort hmClock, out ushort fmClock);
+            PiecePlacement = fen.BoardFromFen(out Color active, out CastlingAvailability ca, out ushort? enPassantSquare, out ushort hmClock, out ushort fmClock, validateFen);
             ActivePlayer = active;
             CastlingAvailability = ca;
             EnPassantSquare = enPassantSquare;
@@ -40,6 +41,8 @@ namespace ChessLib.Data.Boards
             Chess960 = is960;
 
         }
+
+       
 
         public GameState ValidateBoard()
         {

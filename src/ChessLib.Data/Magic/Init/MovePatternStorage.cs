@@ -21,6 +21,30 @@ namespace ChessLib.Data.Magic.Init
             InitializeFromOneDimensionalArray(board.Board, moveInitializer);
         }
 
+        public void InitializePawns(MoveBoard board, PawnMovesInitializer initializer)
+        {
+            var moves = board.Board;
+            if (moves.Length > MaxArraySize) throw new ArgumentException($"Cannot hold more than {MaxArraySize} elements in Move Storage array.");
+            for (int index = 8; index < 56; index++)
+            {
+                var attackBoard = moves[index];
+                ulong[] attackArray = new ulong[0];
+                if (attackBoard != 0)
+                {
+                    var setBitCount = ArraySize; //= attackBoard.CountSetBits();
+                    AttackPatterns[index] = moves[index];
+                    var occupancyPermutations = MoveInitializer.GetAllPermutations(attackBoard);
+                    var permutations = initializer.GetAllPermutationsForAttackMask(index, attackBoard, occupancyPermutations)
+                        .ToArray();
+                    OccupancyAndMoveBoards[index] = permutations;
+                    MagicKey[index] = initializer.GenerateMagicKey(OccupancyAndMoveBoards[index], setBitCount,
+                        out attackArray);
+                }
+                AttackArray[index] = attackArray;
+            }
+            //);
+        }
+
         private const int ArraySize = 12;
         public void InitializeFromOneDimensionalArray(ulong[] moves, MoveInitializer mi)
         {
@@ -32,12 +56,18 @@ namespace ChessLib.Data.Magic.Init
             for (int index = 0; index < 64; index++)
             {
                 var attackBoard = moves[index];
-                var setBitCount = ArraySize;//= attackBoard.CountSetBits();
-                AttackPatterns[index] = moves[index];
-                var occupancyPermutations = MoveInitializer.GetAllPermutations(attackBoard);
-                var permutations = mi.GetAllPermutationsForAttackMask(index, attackBoard, occupancyPermutations).ToArray();
-                OccupancyAndMoveBoards[index] = permutations;
-                MagicKey[index] = mi.GenerateMagicKey(OccupancyAndMoveBoards[index], setBitCount, out ulong[] attackArray);
+                ulong[] attackArray = new ulong[0];
+                if (attackBoard != 0)
+                {
+                    var setBitCount = ArraySize; //= attackBoard.CountSetBits();
+                    AttackPatterns[index] = moves[index];
+                    var occupancyPermutations = MoveInitializer.GetAllPermutations(attackBoard);
+                    var permutations = mi.GetAllPermutationsForAttackMask(index, attackBoard, occupancyPermutations)
+                        .ToArray();
+                    OccupancyAndMoveBoards[index] = permutations;
+                    MagicKey[index] = mi.GenerateMagicKey(OccupancyAndMoveBoards[index], setBitCount,
+                        out attackArray);
+                }
                 AttackArray[index] = attackArray;
             }
             //);

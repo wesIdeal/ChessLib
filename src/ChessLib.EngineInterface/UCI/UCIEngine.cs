@@ -38,7 +38,7 @@ namespace ChessLib.EngineInterface.UCI
                 OnDebugEventExecuted(new DebugEventArgs("Received null object from engine."));
                 return;
             }
-            else if (engineResponse is EngineCalculationResponseArgs calcResponse)
+            else if (engineResponse is EngineCalculationResponseArgs calcResponse && !PauseEngineMessageHandling)
             {
                 engineResponse.ResponseObject = FillCalculationResponseWithMoveObjects(calcResponse.ResponseObject);
             }
@@ -51,6 +51,7 @@ namespace ChessLib.EngineInterface.UCI
 
         public override ManualResetEvent SendIsReadyAsync()
         {
+            PauseEngineMessageHandling = true;
             var commandInfo = new AwaitableCommandInfo(AppToUCICommand.IsReady);
             QueueCommand(commandInfo);
             return commandInfo.ResetEvent;
@@ -150,6 +151,13 @@ namespace ChessLib.EngineInterface.UCI
             EngineInformation != null
                 ? EngineInformation.ToString()
                 : $"[uninitialized] {UserAssignedId} {UserAssignedId}";
+
+        public override void SendStop()
+        {
+            base.SendStop();
+            SendIsReadyAsync().WaitOne();
+            PauseEngineMessageHandling = false;
+        }
 
         public override Task StartAsync()
         {

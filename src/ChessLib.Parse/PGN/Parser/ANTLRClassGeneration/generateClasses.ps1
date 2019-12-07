@@ -1,6 +1,6 @@
 ﻿# requires java runtime
 # found at https://www.java.com/en/download/
-java -jar .\antlr-4.7.2-complete.jar -package ChessLib.Parse.PGN.Parser.BaseClasses -o ..\BaseClasses -Dlanguage=CSharp .\PGN.g4 
+java -jar .\antlr-4.7.2-complete.jar -visitor -package ChessLib.Parse.PGN.Parser.BaseClasses -o ..\BaseClasses -Dlanguage=CSharp .\PGN.g4 
 $csharpFiles =  $csharpFiles = Get-ChildItem ..\ -Recurse | where {$_.extension -eq ".cs"} | % {
      $content = Get-Content $_.FullName -Raw
      $orig = $content | select -First 10

@@ -19,22 +19,22 @@ namespace ChessLib.Data.Boards
 {
     public class BoardInfo : BoardBase
     {
-       
+
         public BoardInfo() : this(FENHelpers.FENInitial)
         {
-           
+
         }
 
         public BoardInfo(ulong[][] occupancy, Color activePlayer, CastlingAvailability castlingAvailability,
-            ushort? enPassantIdx, ushort halfMoveClock, ushort fullMoveCount, bool validationException = true)
+            ushort? enPassantIdx, ushort halfMoveClock, ushort fullMoveCount)
             : base(occupancy, activePlayer, castlingAvailability, enPassantIdx, halfMoveClock, fullMoveCount)
         {
-            
+
         }
 
         public BoardInfo(string fen, bool is960 = false) : base(fen, is960)
         {
-           
+
         }
 
 
@@ -44,19 +44,14 @@ namespace ChessLib.Data.Boards
         /// <returns></returns>
         public override object Clone()
         {
-            var b = new BoardInfo
-            {
-                ActivePlayer = this.ActivePlayer,
-                CastlingAvailability = this.CastlingAvailability,
-                EnPassantSquare = this.EnPassantSquare,
-                FullmoveCounter = this.FullmoveCounter,
-                HalfmoveClock = this.HalfmoveClock,
-                PiecePlacement = new ulong[2][]
-            };
+
+            var piecePlacement = new ulong[2][];
             for (int i = 0; i < 2; i++)
             {
-                b.PiecePlacement[i] = (ulong[])PiecePlacement[i].Clone();
+                piecePlacement[i] = (ulong[])PiecePlacement[i].Clone();
             }
+            var b = new BoardInfo(piecePlacement, ActivePlayer, CastlingAvailability, EnPassantSquare, HalfmoveClock,
+                FullmoveCounter);
             return b;
         }
 
@@ -79,6 +74,6 @@ namespace ChessLib.Data.Boards
             FullmoveCounter = newBoard.FullmoveCounter;
         }
 
-      
+
     }
 }

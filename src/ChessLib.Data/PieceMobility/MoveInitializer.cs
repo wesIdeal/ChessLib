@@ -10,11 +10,11 @@ namespace ChessLib.Data.PieceMobility
     internal abstract class MoveInitializer
     {
 
-        private readonly MoveDirection _moveDirectionFlags;
+        protected MoveDirection MoveDirectionFlags;
 
         protected MoveInitializer(MoveDirection moveDirectionFlags)
         {
-            _moveDirectionFlags = moveDirectionFlags;
+            MoveDirectionFlags = moveDirectionFlags;
         }
 
         protected MoveInitializer()
@@ -32,7 +32,7 @@ namespace ChessLib.Data.PieceMobility
             return leftPart | rightPart;
         }
 
-        private ulong GetRandomKey()
+        protected ulong GetRandomKey()
         {
             return NextRandom() & NextRandom() & NextRandom();
         }
@@ -54,6 +54,8 @@ namespace ChessLib.Data.PieceMobility
             }
             return boardCombos;
         }
+
+        
 
         /// <summary>
         /// Generates magic multiplier to retrieve moves for a given piece on a square
@@ -90,6 +92,8 @@ namespace ChessLib.Data.PieceMobility
             }
             return key;
         }
+
+
 
         /// <summary>
         /// Gets a board representing the squares a piece on a square can move to.
@@ -245,7 +249,8 @@ namespace ChessLib.Data.PieceMobility
         /// <param name="positionIndex">The board index position of the piece</param>
         /// <param name="occupancyBoard">A bitboard representation of occupied squares</param>
         /// <returns>A bitboard representation of legal moves from given position</returns>        
-        private ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard) => CalculateMovesFromPosition(positionIndex, occupancyBoard, _moveDirectionFlags);
+        private ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard) => CalculateMovesFromPosition(positionIndex, occupancyBoard, MoveDirectionFlags);
+
 
     }
 }

@@ -308,4 +308,24 @@ Kf2 Re2+ 49.Kf1 Ra2 50.Qa6+ Kd4 51.a5 c4 52.Qb6+ Kd5 53.a6 Ra1+ 54.Kf2 c3
   <data name="tiny" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>SourceFiles\tiny.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="talMedium" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SourceFiles\talMedium.pgn;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="WithFENSetup" xml:space="preserve">
+    <value>[Event " White to move."]
+[Site "?"]
+[Date "1998.??.??"]
+[Round "029"]
+[White "Chapter 1"]
+[Black "?"]
+[Result "1-0"]
+[Annotator "Magne,Alf"]
+[EventDate "1998.??.??"]
+[FEN "2qrr1n1/3b1kp1/2pBpn1p/1p2PP2/p2P4/1BP5/P3Q1PP/4RRK1 w - - 0 1"]
+[PlyCount "19"]
+[SetUp "1"]
+
+1. Qh5+ Nxh5 2. fxe6+ Kg6 3. Bc2+ Kg5 4. Rf5+ Kg6 5. Rf6+ Kg5 6. Rg6+ Kh4 ( 6...
+Kf4 7. Re4+ Kf5 8. Rh4# )7. Re4+ Nf4 8. Rxf4+ Kh5 9. Rg3 g5 10. Rh3#  1-0</value>
+  </data>
 </root>

@@ -47,6 +47,12 @@ namespace ChessLib.Data.Helpers.Tests
         }
 
         [Test]
+        public static void GetSetBits_ShouldReturnEmptyArrayGivenZero()
+        {
+            Assert.IsEmpty((0ul).GetSetBits());
+        }
+
+        [Test]
         public static void GetSetBits_ShouldReturnASquareIndex_GivenOneSquareOfInput()
         {
             var count = 0;

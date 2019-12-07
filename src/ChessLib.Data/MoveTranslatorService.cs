@@ -117,7 +117,7 @@ namespace ChessLib.Data
         public static MoveExt BasicMoveFromLAN(string lan)
         {
             var length = lan.Length;
-            if(length < 4 || length > 5) { throw new MoveException($"LAN move {lan} has invalid length.");}
+            if (length < 4 || length > 5) { throw new MoveException($"LAN move {lan} has invalid length."); }
             var sourceString = lan.Substring(0, 2);
             var destString = lan.Substring(2, 2);
             var source = sourceString.SquareTextToIndex();
@@ -148,7 +148,7 @@ namespace ChessLib.Data
             foreach (var lanMove in lanMoves)
             {
                 var move = FromLongAlgebraicNotation(lanMove);
-                Board = Board.ApplyMoveToBoard(move);
+                Board = Board.ApplyMoveToBoard(move, true);
                 moves.Add(move);
             }
             InitializeBoard(savedBoard);
@@ -212,7 +212,7 @@ namespace ChessLib.Data
 
                 if (possibleAttackersOfType.Count == 0)
                 {
-                    throw new MoveException($"Error with move {sanMove}:No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}",Board );
+                    throw new MoveException($"Error with move {sanMove}:No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}", Board);
                 }
                 else if (possibleAttackersOfType.Count == 1)
                 {
@@ -325,7 +325,7 @@ namespace ChessLib.Data
                 {
                 }
             }
-            
+
             if (isPromotion)
             {
                 moveType = MoveType.Promotion;
@@ -343,7 +343,7 @@ namespace ChessLib.Data
             bool isPossibleInitialMove =
                 (destIndex.Value.IsIndexOnRank(3) && colorMoving == Color.White) ||
                 (destIndex.Value.IsIndexOnRank(4) && colorMoving == Color.Black);
-            
+
             var destRank = destIndex.Value.RankFromIdx();
             var sourceIdx = 0;
             if (isCapture)

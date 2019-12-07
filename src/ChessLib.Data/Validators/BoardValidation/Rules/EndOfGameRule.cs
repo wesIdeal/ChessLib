@@ -25,10 +25,12 @@ namespace ChessLib.Data.Validators.BoardValidation.Rules
             {
                 return BoardExceptionType.MaterialDraw;
             }
-
-            if (boardInfo.IsCheckmate())
+            if (boardInfo.IsActivePlayerInCheck())
             {
-                return BoardExceptionType.Checkmate;
+                if (boardInfo.IsCheckmate())
+                {
+                    return BoardExceptionType.Checkmate;
+                }
             }
 
             if (boardInfo.IsStalemate())

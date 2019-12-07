@@ -42,7 +42,7 @@ namespace ChessLib.Parse.PGN.Parser
 
         private Game<MoveStorage> CurrentGame { get; set; }
         public event EventHandler<int> BatchParsed;
-        private readonly int _gamesToProcessBeforeUpdate = 10;
+        private readonly int _gamesToProcessBeforeUpdate = 50;
         private int _gamesProcessed = 0;
         private LinkedListNode<MoveStorage> _currentMove;
         private bool _nextMoveIsVariation;
@@ -134,6 +134,8 @@ namespace ChessLib.Parse.PGN.Parser
         }
     }
 }
+
+
 
 
 

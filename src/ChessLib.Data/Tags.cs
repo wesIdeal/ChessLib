@@ -72,7 +72,7 @@ namespace ChessLib.Data
             }
         }
 
-        public bool HasSetup => ContainsKey("SetUp") && this["SetUp"] == "1";
+        public bool HasSetup => ContainsKey("FEN") ||( ContainsKey("SetUp") && this["SetUp"] == "1");
         public string FENStart => HasSetup ? this["FEN"] : FENHelpers.FENInitial;
 
         public string White
@@ -117,7 +117,7 @@ namespace ChessLib.Data
 
         internal void SetFen(string fen)
         {
-            this["PremoveFEN"] = fen;
+            this["FEN"] = fen;
             OnFENChanged(fen);
         }
 

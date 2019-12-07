@@ -170,8 +170,9 @@ namespace ChessLib.EngineInterface
         /// <summary>
         /// Sends a 'stop' command to the engine to halt calculation/other operations
         /// </summary>
-        public void SendStop()
+        public virtual void SendStop()
         {
+            PauseEngineMessageHandling = true;
             Process.Send(StopCommand);
         }
 
@@ -263,6 +264,7 @@ namespace ChessLib.EngineInterface
         [NonSerialized] protected string StartingPositionFEN;
         [NonSerialized] private bool _isDisposed;
         [NonSerialized] public int ProcessId = -1;
+        protected bool PauseEngineMessageHandling;
         protected IEngineProcess Process { get; set; }
 
         /// <summary>
@@ -297,9 +299,14 @@ namespace ChessLib.EngineInterface
         protected void OnEngineObjectReceived(EngineResponseArgs response)
         {
             response.Id = UserAssignedId;
-            if (response is EngineCalculationResponseArgs engineCalculationResponseArgs)
+            if (response is EngineCalculationResponseArgs engineCalculationResponseArgs && !PauseEngineMessageHandling)
             {
                 Volatile.Read(ref EngineCalculationReceived)?.Invoke(this, engineCalculationResponseArgs);
+            }
+
+            if (response is ReadyOkResponseArgs)
+            {
+                PauseEngineMessageHandling = false;
             }
             Volatile.Read(ref EngineResponseObjectReceived)?.Invoke(this, response);
         }

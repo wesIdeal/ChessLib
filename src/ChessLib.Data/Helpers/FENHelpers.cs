@@ -168,6 +168,10 @@ namespace ChessLib.Data.Helpers
         /// <returns>Board representation corresponding to PremoveFEN</returns>
         internal static ulong[][] BoardFromFen(in string fen)
         {
+            if (fen == FENInitial)
+            {
+                return BoardHelpers.InitialBoard;
+            }
             uint pieceIndex = 0;
             var pieces = new ulong[2][];
             pieces[(int)Color.White] = new ulong[6];
@@ -176,7 +180,9 @@ namespace ChessLib.Data.Helpers
             var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
             var ranks = piecePlacement.Split('/').Reverse();
             foreach (var rank in ranks)
+            {
                 foreach (var f in rank)
+                {
                     switch (char.IsDigit(f))
                     {
                         case true:
@@ -189,6 +195,9 @@ namespace ChessLib.Data.Helpers
                             pieceIndex++;
                             break;
                     }
+                }
+            }
+           
             return pieces;
         }
 

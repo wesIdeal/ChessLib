@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using ChessLib.Data.Boards;
 using ChessLib.Data.Magic;
 using ChessLib.Data.Magic.Init;
@@ -12,12 +11,12 @@ using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.BoardValidation;
-using ChessLib.Data.Validators.MoveValidation;
 
 namespace ChessLib.Data.Helpers
 {
     public static class BoardHelpers
     {
+        public static readonly ulong[][] InitialBoard;
         /// <summary>
         ///     Contains boardIndex values for a boardIndex index
         /// </summary>
@@ -71,6 +70,23 @@ namespace ChessLib.Data.Helpers
 
         static BoardHelpers()
         {
+
+            InitialBoard = new ulong[2][];
+            InitialBoard[0] = new ulong[6];
+            InitialBoard[0][0] = 65280;
+            InitialBoard[0][1] = 66;
+            InitialBoard[0][2] = 36;
+            InitialBoard[0][3] = 129;
+            InitialBoard[0][4] = 8;
+            InitialBoard[0][5] = 16;
+            InitialBoard[1] = new ulong[6];
+            InitialBoard[1][0] = 71776119061217280;
+            InitialBoard[1][1] = 4755801206503243776;
+            InitialBoard[1][2] = 2594073385365405696;
+            InitialBoard[1][3] = 9295429630892703744;
+            InitialBoard[1][4] = 576460752303423488;
+            InitialBoard[1][5] = 1152921504606846976;
+
             InitializeInBetween();
         }
 
@@ -192,12 +208,8 @@ namespace ChessLib.Data.Helpers
         public static Piece? GetPieceAtIndex(in ulong[][] occupancy, in ushort boardIndex)
         {
             boardIndex.ValidateIndex();
-            var val = 1ul << boardIndex;
-            foreach (var color in Enum.GetValues(typeof(Color)))
-                foreach (var piece in (Piece[])Enum.GetValues(typeof(Piece)))
-                    if ((val & occupancy[(int)color][(int)piece]) != 0)
-                        return piece;
-            return null;
+            var pocAtIndex = GetPieceOfColorAtIndex(occupancy, boardIndex);
+            return pocAtIndex?.Piece;
         }
 
         /// <summary>
@@ -229,10 +241,23 @@ namespace ChessLib.Data.Helpers
         {
             boardIndex.ValidateIndex();
             var val = 1ul << boardIndex;
-            foreach (var color in Enum.GetValues(typeof(Color)))
-                foreach (var piece in (Piece[])Enum.GetValues(typeof(Piece)))
-                    if ((val & occupancy[(int)color][(int)piece]) != 0)
-                        return new PieceOfColor { Color = (Color)color, Piece = piece };
+            for (var c = 0; c < 2; c++)
+            {
+                var color = (Color)c;
+                var piecePosition = occupancy[c]
+                    .Select((placementValue, arrIdx) => new { Color = color, PlacementValue = placementValue, Piece = (Piece)arrIdx })
+                    .FirstOrDefault(p => (p.PlacementValue & val) != 0);
+
+                if (piecePosition != null)
+                {
+                    return new PieceOfColor()
+                    {
+                        Piece = piecePosition.Piece,
+                        Color = piecePosition.Color
+                    };
+                }
+            }
+
             return null;
         }
 
@@ -351,11 +376,11 @@ namespace ChessLib.Data.Helpers
             }
 
             var epAttackFromSquares =
-                PieceAttackPatterns.Instance.PawnAttackMask[(int) board.OpponentColor][epSquare.Value];
-            return (epAttackFromSquares & board.GetPiecePlacement()[(int) board.ActivePlayer][(int) Piece.Pawn]) != 0;
+                PieceAttackPatterns.Instance.PawnAttackMask[(int)board.OpponentColor][epSquare.Value];
+            return (epAttackFromSquares & board.GetPiecePlacement()[(int)board.ActivePlayer][(int)Piece.Pawn]) != 0;
 
         }
-        
+
         /// <summary>
         ///     Sets EnPassant flag appropriately, clearing it if no En Passant is available
         /// </summary>
@@ -381,14 +406,15 @@ namespace ChessLib.Data.Helpers
         /// <summary>
         ///     Applies a move to a pieceLayout
         /// </summary>
-        /// <param name="board"></param>
+        /// <param name="currentBoard">Board to which move will be applied.</param>
         /// <param name="move"></param>
+        /// <param name="bypassMoveValidation">Bypass validation; useful when move was previously validated</param>
         /// <returns>The board after the move has been applied.</returns>
         /// <exception cref="MoveException">If no piece exists at source.</exception>
-        public static IBoard ApplyMoveToBoard(this IBoard currentBoard, in MoveExt move, bool bypassValid = true)
+        public static IBoard ApplyMoveToBoard(this IBoard currentBoard, in MoveExt move, bool bypassMoveValidation = false)
         {
             var board = (IBoard)currentBoard.Clone();
-            if (!bypassValid)
+            if (!bypassMoveValidation)
             {
                 var boardValidator = new BoardValidator(board);
                 boardValidator.Validate(true);
@@ -410,7 +436,7 @@ namespace ChessLib.Data.Helpers
             var enPassantSquare = GetEnPassantIndex(move, pieceMoving.Value);
             var activePlayer = board.ActivePlayer.Toggle();
             return new BoardInfo(piecePlacement, activePlayer, castlingAvailability, enPassantSquare, (ushort)halfMoveClock,
-                (ushort)fullMoveCounter, false);
+                (ushort)fullMoveCounter);
         }
 
         private static bool IsPawnMoving(in IBoard board, in MoveExt move)
@@ -418,15 +444,15 @@ namespace ChessLib.Data.Helpers
             return (board.GetPiecePlacement()[(int)board.ActivePlayer][PAWN] & move.SourceValue) != 0;
         }
 
-        private static bool IsMoveCapture(ulong opponentBB, MoveExt move)
+        private static bool IsMoveCapture(ulong opponentOccupancy, MoveExt move)
         {
-            return (move.DestinationValue & opponentBB) != 0;
+            return (move.DestinationValue & opponentOccupancy) != 0;
         }
 
         /// <summary>
         ///     Gets the piece setup post-move
         /// </summary>
-        /// <param name="board"></param>
+        /// <param name="boardInfo"></param>
         /// <param name="move"></param>
         /// <returns></returns>
         public static ulong[][] GetBoardPostMove(in IBoard boardInfo, in MoveExt move)
@@ -617,45 +643,20 @@ namespace ChessLib.Data.Helpers
         public static bool IsStalemate(this IBoard board)
         {
             if (board.IsActivePlayerInCheck()) return false;
-            var canAnyPieceMove = false;
             var activeColor = (int)board.ActivePlayer;
-            var activeOcc = board.ActiveOccupancy();
-            var oppOcc = board.OpponentOccupancy();
-            var totalOcc = board.TotalOccupancy();
-            //foreach (var square in myPieceLocations)
-            //{
-            //    var pieceType = GetPieceAtIndex(board.GetPiecePlacement(), square);
-            //    Debug.Assert(pieceType.HasValue);
-            //    if (board.CanPieceMove(square))
-            //    {
-            //        canAnyPieceMove = true;
-            //        break;
-            //    }
-            //}
-
-            foreach (var sq in activeOcc.GetSetBits())
+            foreach (var pieceSet in board.GetPiecePlacement()[activeColor].Where(x => x != 0))
             {
-                var piece = board.GetPieceAtIndex(sq);
-                Bitboard.GetPseudoLegalMoves(piece.Value, sq, activeOcc, oppOcc, board.ActivePlayer,
-                     board.EnPassantSquare, board.CastlingAvailability, out var moves);
-                Parallel.ForEach(moves, (move, mvState) =>
+                foreach (var pieceIdx in pieceSet.GetSetBits())
                 {
-                    var validator = new MoveValidator(board, move);
-                    if (validator.Validate() == MoveError.NoneSet)
+                    var piece = board.GetPieceAtIndex(pieceIdx);
+                    Debug.Assert(piece.HasValue);
+                    if (board.CanPieceMove(pieceIdx))
                     {
-                        canAnyPieceMove = true;
-                        mvState.Stop();
+                        return false;
                     }
-                });
-                if (canAnyPieceMove)
-                {
-                    break;
                 }
             }
-
-
-
-            return !canAnyPieceMove;
+            return true;
         }
 
         /// <summary>
@@ -722,7 +723,7 @@ namespace ChessLib.Data.Helpers
 
         private static bool CanActiveKingCaptureOnSquare(IBoard board, ushort square)
         {
-            var kingAttacks = Magic.Bitboard.GetAttackedSquares(Piece.King, board.ActiveKingIndex(), board.TotalOccupancy(), board.ActivePlayer);
+            var kingAttacks = Bitboard.GetAttackedSquares(Piece.King, board.ActiveKingIndex(), board.TotalOccupancy(), board.ActivePlayer);
             var sqValue = square.ToBoardValue();
             if ((kingAttacks & sqValue) == 0)
             {

@@ -76,7 +76,7 @@ namespace ChessLib.Data
                 promotionInfo = $"={PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)}";
             }
 
-            var board = Board.ApplyMoveToBoard(move);
+            var board = Board.ApplyMoveToBoard(move, true);
             if (board.IsActivePlayerInCheck())
             {
                 checkInfo = "+";

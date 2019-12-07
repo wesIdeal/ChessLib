@@ -18,7 +18,7 @@ namespace ChessLib.Parse.PGN.Parser
         public List<string> Games;
         private CancellationToken _cancellationToken = CancellationToken.None;
         public event EventHandler<int> BatchProcessed;
-        private int _gamesToProcessBeforeUpdate = 20;
+        private int _gamesToProcessBeforeUpdate = 100;
         private int _gamesProcessed = 0;
         public PGNGameListener()
         {
@@ -62,6 +62,8 @@ namespace ChessLib.Parse.PGN.Parser
 
     }
 }
+
+
 
 
 

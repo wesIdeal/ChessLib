@@ -241,6 +241,16 @@ namespace ChessLib.Parse.Tests {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] talMedium {
+            get {
+                object obj = ResourceManager.GetObject("talMedium", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] tiny {
             get {
                 object obj = ResourceManager.GetObject("tiny", resourceCulture);
@@ -268,6 +278,29 @@ namespace ChessLib.Parse.Tests {
         public static string VariationsAndComments {
             get {
                 return ResourceManager.GetString("VariationsAndComments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot; White to move.&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;1998.??.??&quot;]
+        ///[Round &quot;029&quot;]
+        ///[White &quot;Chapter 1&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[Annotator &quot;Magne,Alf&quot;]
+        ///[EventDate &quot;1998.??.??&quot;]
+        ///[FEN &quot;2qrr1n1/3b1kp1/2pBpn1p/1p2PP2/p2P4/1BP5/P3Q1PP/4RRK1 w - - 0 1&quot;]
+        ///[PlyCount &quot;19&quot;]
+        ///[SetUp &quot;1&quot;]
+        ///
+        ///1. Qh5+ Nxh5 2. fxe6+ Kg6 3. Bc2+ Kg5 4. Rf5+ Kg6 5. Rf6+ Kg5 6. Rg6+ Kh4 ( 6...
+        ///Kf4 7. Re4+ Kf5 8. Rh4# )7. Re4+ Nf4 8. Rxf4+ Kh5 9. Rg3 g5 10. Rh3#  1-0.
+        /// </summary>
+        public static string WithFENSetup {
+            get {
+                return ResourceManager.GetString("WithFENSetup", resourceCulture);
             }
         }
     }

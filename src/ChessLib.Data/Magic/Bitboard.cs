@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
@@ -20,8 +18,11 @@ namespace ChessLib.Data.Magic
 
         private static readonly MovePatternStorage Bishop = new BishopPatterns();
         private static readonly MovePatternStorage Rook = new RookPatterns();
+        private static readonly MovePatternStorage WhitePawn = new WhitePawnPatterns();
+        private static readonly MovePatternStorage BlackPawn = new BlackPawnPatterns();
         static Bitboard()
         {
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -139,7 +140,7 @@ namespace ChessLib.Data.Magic
         /// <param name="board">Current board information</param>
         /// <param name="source">Source index for move</param>
         /// <param name="dest">Destination index for move</param>
-        /// <param name="promotionPieceChar">Character for promotion</param>
+        /// <param name="promotionPiece">Character representing promotion piece</param>
         /// <returns>A move object</returns>
         /// <exception cref="MoveException">if promotion character is not [n|b|r|q|null], insensitive of case</exception>
         public static MoveExt GetMove(IBoard board, ushort source, ushort dest, PromotionPiece promotionPiece)
@@ -150,14 +151,12 @@ namespace ChessLib.Data.Magic
 
         public static IEnumerable<MoveExt> BoardValueToMoves(Piece p, ushort source, ulong destinations, ushort? enPassantSq, CastlingAvailability ca)
         {
-            var rv = new List<MoveExt>();
             foreach (var destination in destinations.GetSetBits())
             {
                 var moveType = IsCastlingMove(p, source, destination) ? MoveType.Castle :
                     IsEnPassantCapture(p, source, destination, enPassantSq) ? MoveType.EnPassant :
                     IsPromotion(p, source, destination) ? MoveType.Promotion : MoveType.Normal;
                 yield return MoveHelpers.GenerateMove(source, destination, moveType);
-
             }
         }
 
@@ -197,14 +196,14 @@ namespace ChessLib.Data.Magic
         /// <returns></returns>
         public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex, CastlingAvailability ca, out List<MoveExt> unvalidatedMoves)
         {
-            var lMoves = new List<MoveExt>();
             var totalOccupancy = activeOcc | oppOcc;
             ulong possibleMoves;
 
             switch (piece)
             {
                 case Piece.Pawn:
-                    possibleMoves = GetPawnPseudoLegalMoves(pieceSquare, activeOcc, oppOcc, color, enPassantIndex);
+                    var pawn = color == Color.White ? WhitePawn : BlackPawn;
+                    possibleMoves = pawn.GetLegalMoves(pieceSquare, totalOccupancy) & ~(activeOcc);
                     break;
                 case Piece.Knight:
                     var totalAttacks = PieceAttackPatterns.Instance.KnightAttackMask[pieceSquare];
@@ -255,31 +254,7 @@ namespace ChessLib.Data.Magic
             unvalidatedMoves = BoardValueToMoves(piece, pieceSquare, possibleMoves, enPassantIndex, ca).ToList();
             return possibleMoves;
         }
-
-        public static ulong GetPawnPseudoLegalMoves(ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex)
-        {
-            var pieceValue = 1ul << pieceSquare;
-            var enPassantValue = (1ul << enPassantIndex) ?? 0;
-            var opponentOccupancyWithEnPassant = oppOcc | enPassantValue;
-            var pMoves = PieceAttackPatterns.Instance.PawnMoveMask[(int)color][pieceSquare];
-            var attacks = PieceAttackPatterns.Instance.PawnAttackMask[(int)color][pieceSquare] & opponentOccupancyWithEnPassant;
-            var pawnMoves = pMoves & ~((activeOcc | oppOcc));
-            var pawnAttacks = attacks & opponentOccupancyWithEnPassant;
-            var isInitialPawnMove = ((pieceValue & BoardHelpers.RankMasks[1]) != 0 && color == Color.White) ||
-                                    ((pieceValue & BoardHelpers.RankMasks[6]) != 0 && color == Color.Black);
-            if (isInitialPawnMove)
-            {
-                var singleMoveSquare = (color == Color.White ? pieceValue << 8 : pieceValue >> 8);
-                var doubleMoveSquare = (color == Color.White ? pieceValue << 16 : pieceValue >> 16);
-                if ((pawnMoves & singleMoveSquare) == 0)
-                {
-                    // if the pawn can't move to the single-move square, it cannot go double
-                    pawnMoves &= ~(doubleMoveSquare);
-                }
-            }
-            return pawnMoves | pawnAttacks;
-        }
-
+        
         public static ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color color)
         {
             var r = Rank(pieceIndex);
@@ -326,7 +301,8 @@ namespace ChessLib.Data.Magic
             foreach (var mv in moves)
             {
                 var postMove = BoardHelpers.GetBoardPostMove(board, mv);
-                if (!postMove.IsPlayerInCheck((int)board.ActivePlayer))
+                var moveLeftPlayerInCheck = postMove.IsPlayerInCheck((int)board.ActivePlayer);
+                if (!moveLeftPlayerInCheck)
                 {
                     return true;
                 }
@@ -334,9 +310,11 @@ namespace ChessLib.Data.Magic
             return false;
         }
 
-        public static bool CanPieceMoveToDestination(this IBoard boardInfo, ushort src, ushort dst) =>
-        CanPieceMoveToDestination(boardInfo.GetPiecePlacement(), boardInfo.ActivePlayer, src, dst,
-            boardInfo.EnPassantSquare, boardInfo.CastlingAvailability);
+        public static bool CanPieceMoveToDestination(this IBoard boardInfo, ushort src, ushort dst)
+        {
+            return CanPieceMoveToDestination(boardInfo.GetPiecePlacement(), boardInfo.ActivePlayer, src, dst,
+                boardInfo.EnPassantSquare, boardInfo.CastlingAvailability);
+        }
 
         /// <summary>
         /// Determines if piece can move to the supplied <param name="destinationIndex">destination</param>
@@ -365,30 +343,35 @@ namespace ChessLib.Data.Magic
             var legalMoves = GetPseudoLegalMoves(piece.Value, sourceIndex, activeOccupancy,
                oppOccupancy, activeColor, enPassantIndex, castlingAvailability,
                 out List<MoveExt> pseudoMoves);
+
             if (piece == Piece.Pawn)
             {
-                ulong moveSq1, moveSq2;
-                var occ = activeOccupancy | oppOccupancy;
-                if (activeColor == Color.White)
-                {
-                    moveSq1 = ((ushort)(sourceIndex + 8)).GetBoardValueOfIndex();
-                    moveSq2 = ((ushort)(sourceIndex + 16)).GetBoardValueOfIndex();
-                }
-                else
-                {
-                    moveSq1 = ((ushort)(sourceIndex - 8)).GetBoardValueOfIndex();
-                    moveSq2 = ((ushort)(sourceIndex - 16)).GetBoardValueOfIndex();
-                }
-                if ((moveSq1 & occ) != 0)
-                {
-                    legalMoves &= ~(moveSq1 | moveSq2);
-                }
-                else if ((moveSq2 & occ) != 0)
-                {
-                    legalMoves &= ~(moveSq2);
-                }
+                legalMoves = GetLegalPawnMoves(activeColor, sourceIndex, activeOccupancy, oppOccupancy, legalMoves);
             }
             return ((legalMoves & dstValue) != 0);
+        }
+
+        private static ulong GetLegalPawnMoves(Color activeColor, ushort sourceIndex, ulong activeOccupancy, ulong oppOccupancy,
+            ulong legalMoves)
+        {
+            var occ = activeOccupancy | oppOccupancy;
+            var pseudoPawnMoveValue = PieceAttackPatterns.Instance.PawnMoveMask[(int)activeColor][sourceIndex];
+            var pseudoPawnMoves = pseudoPawnMoveValue
+                .GetSetBits()
+                .Select(x => x.GetBoardValueOfIndex()).ToArray();
+            pseudoPawnMoves = (activeColor == Color.White
+                ? pseudoPawnMoves.OrderBy(x => x)
+                : pseudoPawnMoves.OrderByDescending(x => x)).ToArray();
+            if ((pseudoPawnMoves[0] & occ) != 0)
+            {
+                legalMoves &= ~(pseudoPawnMoveValue);
+            }
+            else if (pseudoPawnMoves.Count() > 1 && (pseudoPawnMoves[1] & occ) != 0)
+            {
+                legalMoves &= ~(pseudoPawnMoves[1]);
+            }
+
+            return legalMoves;
         }
 
 
@@ -409,11 +392,12 @@ namespace ChessLib.Data.Magic
             var activeOccupancy = piecesOnBoard[(int)color].Aggregate((x, y) => x | y);
             var totalOcc = oppositeOccupancy | activeOccupancy;
             var bishopAttack = GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc, Color.White);
+            if ((bishopAttack & (piecesOnBoard[nColor][Piece.Bishop.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
             var rookAttack = GetAttackedSquares(Piece.Rook, squareIndex, totalOcc, Color.White);
+            if ((rookAttack & (piecesOnBoard[nColor][Piece.Rook.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
+
             if ((PieceAttackPatterns.Instance.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
             if ((PieceAttackPatterns.Instance.KnightAttackMask[r, f] & piecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
-            if ((bishopAttack & (piecesOnBoard[nColor][Piece.Bishop.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
-            if ((rookAttack & (piecesOnBoard[nColor][Piece.Rook.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
             if ((PieceAttackPatterns.Instance.KingMoveMask[r, f] & piecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
             return false;
         }
