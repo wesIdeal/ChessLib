@@ -203,7 +203,7 @@ namespace ChessLib.Data.Magic
             {
                 case Piece.Pawn:
                     var pawn = color == Color.White ? WhitePawn : BlackPawn;
-                    possibleMoves = pawn.GetLegalMoves(pieceSquare, totalOccupancy) & ~(activeOcc);
+                    possibleMoves = pawn.GetLegalMoves(pieceSquare, totalOccupancy, enPassantIndex) & ~(activeOcc);
                     break;
                 case Piece.Knight:
                     var totalAttacks = PieceAttackPatterns.Instance.KnightAttackMask[pieceSquare];
@@ -346,32 +346,16 @@ namespace ChessLib.Data.Magic
 
             if (piece == Piece.Pawn)
             {
-                legalMoves = GetLegalPawnMoves(activeColor, sourceIndex, activeOccupancy, oppOccupancy, legalMoves);
+                legalMoves = GetLegalPawnMoves(activeColor, sourceIndex, activeOccupancy, oppOccupancy, enPassantIndex);
             }
             return ((legalMoves & dstValue) != 0);
         }
 
         private static ulong GetLegalPawnMoves(Color activeColor, ushort sourceIndex, ulong activeOccupancy, ulong oppOccupancy,
-            ulong legalMoves)
+           ushort? enPassantIdx)
         {
-            var occ = activeOccupancy | oppOccupancy;
-            var pseudoPawnMoveValue = PieceAttackPatterns.Instance.PawnMoveMask[(int)activeColor][sourceIndex];
-            var pseudoPawnMoves = pseudoPawnMoveValue
-                .GetSetBits()
-                .Select(x => x.GetBoardValueOfIndex()).ToArray();
-            pseudoPawnMoves = (activeColor == Color.White
-                ? pseudoPawnMoves.OrderBy(x => x)
-                : pseudoPawnMoves.OrderByDescending(x => x)).ToArray();
-            if ((pseudoPawnMoves[0] & occ) != 0)
-            {
-                legalMoves &= ~(pseudoPawnMoveValue);
-            }
-            else if (pseudoPawnMoves.Count() > 1 && (pseudoPawnMoves[1] & occ) != 0)
-            {
-                legalMoves &= ~(pseudoPawnMoves[1]);
-            }
-
-            return legalMoves;
+            var pawn = activeColor == Color.White ? WhitePawn : BlackPawn;
+            return pawn.GetLegalMoves(sourceIndex, (activeOccupancy | oppOccupancy),enPassantIdx) & ~(activeOccupancy);
         }
 
 

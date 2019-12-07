@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Data.Helpers;
 
 namespace ChessLib.Data.Magic.Init
 {
@@ -92,11 +93,15 @@ namespace ChessLib.Data.Magic.Init
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public ulong GetLegalMoves(uint positionIndex, ulong occupancyBoard)
+        public ulong GetLegalMoves(uint positionIndex, ulong occupancyBoard, ushort? enPassantIdx = null)
         {
             var relevantOccupancy = occupancyBoard & AttackPatterns[positionIndex];
             var magicMoveIndex = relevantOccupancy * MagicKey[positionIndex] >> 64 - ArraySize;
             var board = AttackArray[positionIndex][magicMoveIndex];
+            if (enPassantIdx.HasValue)
+            {
+                board |= enPassantIdx.Value.GetBoardValueOfIndex();
+            }
             return board;
         }
     }
