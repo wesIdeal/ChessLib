@@ -1,19 +1,15 @@
-using Antlr4.Runtime.Misc;
-using ChessLib.Data;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Parse.PGN.Parser.BaseClasses;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using Antlr4.Runtime;
-using ChessLib.Data.Types.Interfaces;
-using ChessLib.Data.Boards;
+using Antlr4.Runtime.Misc;
+using ChessLib.Data;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.MoveRepresentation.NAG;
-using ChessLib.Data.Helpers;
+using ChessLib.Parse.PGN.Parser.BaseClasses;
 
-namespace ChessLib.Parse.PGN.Parser
+namespace ChessLib.Parse.PGN.Parser.Listener
 {
     internal sealed class PGNGameDetailListener : PGNBaseListener
     {

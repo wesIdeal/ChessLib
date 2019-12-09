@@ -93,7 +93,7 @@ namespace ChessLib.Data.Tests
             }));
         }
 
-        
+
 
         [Test(Description = "1. e4 test")]
         public void ApplyMove_ShouldReflectCorrectBoardStatusAfter_e4()
@@ -321,7 +321,7 @@ namespace ChessLib.Data.Tests
         private Game<MoveStorage> LoadGameByPGN(string pgn)
         {
             var parser = new PGNParser();
-            var game = parser.GetGamesFromPGN(pgn).First();
+            var game = parser.GetGamesFromPGNAsync(pgn).Result.First();
             return game;
         }
 
