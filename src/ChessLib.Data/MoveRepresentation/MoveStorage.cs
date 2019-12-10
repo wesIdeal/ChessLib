@@ -59,7 +59,6 @@ namespace ChessLib.Data.MoveRepresentation
         public BoardState BoardState { get; private set; }
 
         public string BoardStateHash { get; }
-
         public string Comment { get; set; }
         public bool Validated { get; internal set; }
 

@@ -6,6 +6,8 @@ using ChessLib.Parse.PGN.Parser.BaseClasses;
 
 namespace ChessLib.Parse.PGN.Parser.Visitor
 {
+    using ElementSequenceContext = Parser.BaseClasses.PGNParser.Element_sequenceContext;
+    using TerminationContext = BaseClasses.PGNParser.Game_terminationContext;
     internal class MoveVisitor : PGNBaseVisitor<Game<MoveStorage>>
     {
         private bool _nextMoveVariation;
@@ -15,9 +17,17 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
 
             foreach (var child in context.children)
             {
-                if (child is Parser.BaseClasses.PGNParser.Element_sequenceContext sequenceContext)
+                if (child is ElementSequenceContext sequenceContext)
                 {
                     VisitMoveSequence(sequenceContext, ref game);
+                }
+                else if (child is TerminationContext terminationContext)
+                {
+                    var terminationString = terminationContext.GetText();
+                    if (!string.IsNullOrWhiteSpace(terminationString))
+                    {
+                        game.Result = terminationString;
+                    }
                 }
             }
 
@@ -61,7 +71,7 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
 
             if (context.comment() != null)
             {
-                game.CurrentMoveNode.Value.Comment = context.comment().GetText();
+                game.AddComment(context.comment().GetText().Trim('{', '}'));
             }
         }
     }

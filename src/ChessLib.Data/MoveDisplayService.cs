@@ -56,6 +56,16 @@ namespace ChessLib.Data
         /// <param name="recordResult">if true, the game result is included with the SAN (ie. 1-0, 1/2-1/2, 0-1)</param>
         public string MoveToSAN(MoveExt move, bool recordResult = true)
         {
+            if (move.MoveType == MoveType.Castle)
+            {
+                var destinationFile = move.DestinationIndex;
+                if (destinationFile.IsIndexOnFile(2))
+                {
+                    return "O-O-O";
+                }
+
+                return "O-O";
+            }
             var activePlayer = Board.ActivePlayer;
             var preMoveBoard = Board.GetPiecePlacement();
             var postMoveBoard = BoardHelpers.GetBoardPostMove(Board, move);
@@ -75,6 +85,7 @@ namespace ChessLib.Data
             {
                 promotionInfo = $"={PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)}";
             }
+
 
             var board = Board.ApplyMoveToBoard(move, true);
             if (board.IsActivePlayerInCheck())

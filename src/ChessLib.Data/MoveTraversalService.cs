@@ -71,6 +71,27 @@ namespace ChessLib.Data
                    currentList?.VariationParentNode;
         }
 
+        public void AddComment(string comment)
+        {
+            //if the current tree has any moves that aren't null
+            // (otherwise the comment belongs at the beginning of game or variation)
+            if (CurrentTree.Any(x=>!x.IsNullMove))
+            {
+                if (!string.IsNullOrEmpty(CurrentMoveNode.Value.Comment))
+                {
+                    CurrentMoveNode.Value.Comment += $" {comment}";
+                }
+                else
+                {
+                    CurrentMoveNode.Value.Comment = comment;
+                }
+            }
+            else
+            {
+                CurrentTree.GameComment = comment;
+            }
+        }
+
         public void BeginGameInitialization()
         {
             IsLoaded = false;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using ChessLib.Data;
@@ -18,16 +19,17 @@ namespace ChessLib.Parse.Console
             TalSmall,
             TalLarge,
             TalMedium,
-            GameWithVariation
+            GameWithVariation,
+            PregameComment,
         }
 
         private static int _cursorTop = System.Console.CursorTop;
         private static void Main(string[] args)
         {
-            var database = GameDatabases.TalLarge;
+            var database = GameDatabases.PregameComment;
             var vGames = TestParsingVisitor(database);
             var listenerGames = TestParsing(database);
-            WriteGame(listenerGames, 0);
+            WriteGame(vGames, 0);
         }
 
         private static void WriteGame(Game<MoveStorage>[] games, int i)
@@ -43,7 +45,9 @@ namespace ChessLib.Parse.Console
             {
                 ExportFormat = true
             });
-            System.Console.WriteLine(pgnFormatter.BuildPGN(game));
+            var pgn = pgnFormatter.BuildPGN(game);
+            System.Console.WriteLine(pgn);
+            File.WriteAllText("C:\\temp\\test.pgn", pgn);
         }
 
         public const string DebugCategory = "Game Parsing/Validation";
@@ -95,6 +99,8 @@ namespace ChessLib.Parse.Console
                 case GameDatabases.WithFENSetup:
                     return PGNResources.WithFENSetup;
                     break;
+                case GameDatabases.PregameComment:
+                    return PGNResources.PregameComment;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(db), db, null);
             }

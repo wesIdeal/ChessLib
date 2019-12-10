@@ -30,6 +30,7 @@ namespace ChessLib.Data
         }
 
         public Tags TagSection { get; set; }
+        public string Result { get; set; }
 
         private void OnFenChanged(string fen)
         {

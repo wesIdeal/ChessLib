@@ -2,14 +2,17 @@
 
 namespace ChessLib.Data
 {
+    public enum AnnotationStyle { PGNSpec, Symbolic }
     public class PGNFormatterOptions
     {
         public PGNFormatterOptions()
         {
             IndentVariations = true;
+            KeepComments = true;
             TagsToKeep = TagKeys.All;
             OtherTagsToKeep = new List<string>();
             KeepTagsWithUnknownValues = true;
+            AnnotationStyle = AnnotationStyle.PGNSpec;
         }
 
         /// <summary>
@@ -17,6 +20,8 @@ namespace ChessLib.Data
         /// <remarks>This should be left untouched if exporting PGN for other applications.</remarks>
         /// </summary>
         public bool KeepTagsWithUnknownValues { get; set; }
+
+        public AnnotationStyle AnnotationStyle { get; set; }
 
         /// <summary>
         /// Sets the option for the Export Format Standard for PGN. Overrides all other options.
@@ -35,5 +40,6 @@ namespace ChessLib.Data
         /// </summary>
         public List<string> OtherTagsToKeep { get; set; }
         public bool KeepAllTags => TagsToKeep.HasFlag(TagKeys.All);
+        public bool KeepComments { get; set; }
     }
 }

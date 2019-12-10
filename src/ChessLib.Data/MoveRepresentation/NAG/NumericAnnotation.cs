@@ -33,7 +33,7 @@ namespace ChessLib.Data.MoveRepresentation.NAG
 
         public NumericAnnotation(string nag) : this()
         {
-           ApplyNag(nag);
+            ApplyNag(nag);
         }
 
         public string AnnotationText { get; set; }
@@ -60,13 +60,25 @@ namespace ChessLib.Data.MoveRepresentation.NAG
         public string ToNAGString()
         {
             var sb = new StringBuilder();
-            sb.Append("$" + MoveNAG + " ");
-            foreach (var positionalNAG in PositionalNAGs) sb.Append("$" + positionalNAG + " ");
+            if (MoveNAG != MoveNAG.Null)
+            {
+                sb.Append(" $" + (int)MoveNAG);
+            }
+            foreach (var positionalNAG in PositionalNAGs)
+            {
+                sb.Append(" $" + (int)positionalNAG);
+            }
 
-            sb.Append("$" + TimeTroubleNAG + " ");
-            foreach (var nonStandardNAG in NonStandardNAGs) sb.Append("$" + nonStandardNAG + " ");
+            if (TimeTroubleNAG != TimeTroubleNAG.Null)
+            {
+                sb.Append(" $" + (int)TimeTroubleNAG);
+            }
+            foreach (var nonStandardNAG in NonStandardNAGs)
+            {
+                sb.Append(" $" + (int)nonStandardNAG);
+            }
 
-            return sb.ToString().Replace("  ", " ").Trim();
+            return sb.ToString().Trim();
         }
 
         /// <summary>

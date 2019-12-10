@@ -91,6 +91,13 @@ namespace ChessLib.Parse.Tests
         }
 
         [Test]
+        public void ShouldParsePreGameComment()
+        {
+            var game = _parser.GetGamesFromPGNAsync(PGNResources.PregameComment).Result.First();
+            Assert.IsNotEmpty(game.MainMoveTree.First.Value.Comment);
+        }
+
+        [Test]
         public void TestRealGameParsing()
         {
             var pgn = PGNResources.GameWithVars;

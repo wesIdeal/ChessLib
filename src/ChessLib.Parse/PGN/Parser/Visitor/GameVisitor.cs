@@ -4,9 +4,10 @@ using ChessLib.Parse.PGN.Parser.BaseClasses;
 
 namespace ChessLib.Parse.PGN.Parser.Visitor
 {
+    using GameContext = BaseClasses.PGNParser.Pgn_gameContext;
     internal class GameVisitor : PGNBaseVisitor<Game<MoveStorage>>
     {
-        public Game<MoveStorage> VisitGame(BaseClasses.PGNParser.Pgn_gameContext context)
+        public Game<MoveStorage> VisitGame(GameContext context)
         {
             var tagVisitor = new TagVisitor();
             var moveVisitor = new MoveVisitor();

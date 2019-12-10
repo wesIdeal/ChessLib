@@ -182,6 +182,32 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;Riga Junior Ch Semi-final&quot;]
+        ///[Site &quot;Riga LAT&quot;]
+        ///[Date &quot;1949.??.??&quot;]
+        ///[Round &quot;1&quot;]
+        ///[White &quot;Tal, Mikhail&quot;]
+        ///[Black &quot;Leonov&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[ECO &quot;B13e&quot;]
+        ///
+        ///{In book The Life and Games of Mikhail Tal} 
+        ///1.e4 
+        ///    {A great move.}
+        ///1...c6 2.d4 d5 3.exd5 cxd5 4.Bd3 Nf6 5.h3 h6 $6 
+        ///    {Unnecessary here.}
+        ///6.Bf4 e6 7.Nf3 Bd6 8.Bxd6 Qxd6 9.c3 Nc6 10.O-O O-O 11.Qe2 Re8 12.Ne5 Qc7 13.f4 Nxe5 $4 14.fxe5 Nh7 15.Qh5 Re7 16.Na3 $6 a6 17.Nc2 
+        ///    {wasted move}
+        ///17...Qd7 18.Ne3 Qe8 19.Rf6 $1 
+        ///    {&quot;A blockadi [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string PregameComment {
+            get {
+                return ResourceManager.GetString("PregameComment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;London&quot;]
         ///[Site &quot;London ENG&quot;]
         ///[Date &quot;1826.??.??&quot;]
