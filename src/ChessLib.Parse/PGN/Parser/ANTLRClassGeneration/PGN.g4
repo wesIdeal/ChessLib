@@ -37,7 +37,12 @@
 // copy-pastes from the PGN reference linked above.
 //
 grammar PGN;
-
+options {
+	language = CSharp2;
+}
+@header {
+	#pragma warning disable 3021
+}
 // The entry point of the grammar.
 parse
  : pgn_database EOF

@@ -58,4 +58,8 @@
     <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="PGN\Parser\BaseClasses\" />
+  </ItemGroup>
+
 </Project>

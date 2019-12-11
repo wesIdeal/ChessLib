@@ -1,37 +1,35 @@
-﻿using ChessLib.Data.Helpers;
+﻿using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.MoveValidation;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace ChessLib.Data
 {
     /// <summary>
-    /// Used to translate moves from text format (SAN | LAN) into a ushort-based move object <see cref="MoveExt"/>
+    ///     Used to translate moves from text format (SAN | LAN) into a ushort-based move object <see cref="MoveExt" />
     /// </summary>
     public class MoveTranslatorService : MoveDisplayService
     {
-
         protected readonly string CastleKingSide = "O-O";
         protected readonly string CastleQueenSide = "O-O-O";
+
         /// <summary>
-        /// Constructs the service based on the normal starting position
+        ///     Constructs the service based on the normal starting position
         /// </summary>
         public MoveTranslatorService()
         {
-
             InitializeBoard();
         }
 
         /// <summary>
-        /// Constructs the service based on an existing board configuration
+        ///     Constructs the service based on an existing board configuration
         /// </summary>
         /// <param name="board">The configuration/state of the current board.</param>
         public MoveTranslatorService(in IBoard board) : this()
@@ -40,7 +38,7 @@ namespace ChessLib.Data
         }
 
         /// <summary>
-        /// Constructs the service based on an existing board configuration supplied via a PremoveFEN string
+        ///     Constructs the service based on an existing board configuration supplied via a PremoveFEN string
         /// </summary>
         /// <param name="fen">A PremoveFEN string detailing the board config</param>
         public MoveTranslatorService(string fen) : this()
@@ -48,21 +46,8 @@ namespace ChessLib.Data
             InitializeBoard(fen);
         }
 
-        #region RegEx strings
-        private const string RegExPieces = "[NBRQK]";
-        private const string RegExFiles = "[a-h]";
-        private const string RegExRanks = "[1-8]";
-        private static readonly string RegExMoveDetails = $"((?<piece>{RegExPieces})((?<sourceFile>{RegExFiles})|(?<sourceRank>{RegExRanks}))?|(?<pawnFile>{RegExFiles}))(?<capture>x)?(?<destinationFile>{RegExFiles})(?<destinationRank>{RegExRanks})|((?<pawnFile>{RegExFiles})(?<destinationRank>{RegExRanks}))";
-        private const string RegExCastleLongGroup = "castleLong";
-        private const string RegExPromotion = "(?<sourceFile>[a-h])(((?<capture>x)(?<destinationFile>[a-h])(?<destinationRank>[1-8]))|(?<destinationRank>[1-8]))=(?<promotionPiece>[NBRQK])";
-        private const string RegExCastleShortGroup = "castleShort";
-        private static readonly string RegExCastle = $"(?<{RegExCastleLongGroup}>O-O-O)|(?<{RegExCastleShortGroup}>O-O)";
-
-
-        #endregion
-
         /// <summary>
-        /// Used to initialize the underlying board object based on the initial starting position
+        ///     Used to initialize the underlying board object based on the initial starting position
         /// </summary>
         public void InitializeBoard()
         {
@@ -71,15 +56,16 @@ namespace ChessLib.Data
         }
 
         /// <summary>
-        /// Used to initialize the underlying board object based on PremoveFEN
+        ///     Used to initialize the underlying board object based on PremoveFEN
         /// </summary>
         /// <param name="fen">PremoveFEN string detailing the board configuration</param>
         public void InitializeBoard(string fen)
         {
             Initialize(fen);
         }
+
         /// <summary>
-        /// Used to initialize the underlying board object based on an existing board.
+        ///     Used to initialize the underlying board object based on an existing board.
         /// </summary>
         /// <remarks>Is non-destructive to the board passed to the method by using the board's Clone() method.</remarks>
         /// <param name="board">An existing board to base the service's board from.</param>
@@ -90,19 +76,25 @@ namespace ChessLib.Data
 
 
         /// <summary>
-        /// Create move from long alg. notation
-        ///  </summary>
+        ///     Create move from long alg. notation
+        /// </summary>
         /// <example>e2e4 from initial position is 1. e4. e7e8q would be e8=Q</example>
         /// <param name="lanMove"></param>
         /// <returns>A basic move object, applicable to the current board.</returns>
-        ///<exception cref="MoveException">If <param name="lanMove">lanMove</param> is less than 4 characters or greater than 5, or the source and/or destination strings did not translate to a board index.</exception>
+        /// <exception cref="MoveException">
+        ///     If
+        ///     <param name="lanMove">lanMove</param>
+        ///     is less than 4 characters or greater than 5, or the source and/or destination strings did not translate to a board
+        ///     index.
+        /// </exception>
         public MoveExt FromLongAlgebraicNotation(string lanMove)
         {
             var basicMove = BasicMoveFromLAN(lanMove);
             return GenerateMoveFromIndexes(basicMove.SourceIndex, basicMove.DestinationIndex, basicMove.PromotionPiece);
         }
 
-        public MoveExt GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex, PromotionPiece? promotionPiece)
+        public MoveExt GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex,
+            PromotionPiece? promotionPiece)
         {
             var rv = Bitboard.GetMove(Board, sourceIndex, destinationIndex, promotionPiece ?? PromotionPiece.Knight);
             rv.SAN = MoveToSAN(rv);
@@ -110,21 +102,26 @@ namespace ChessLib.Data
         }
 
         /// <summary>
-        /// Gets a basic move with no SAN and no en passant information
+        ///     Gets a basic move with no SAN and no en passant information
         /// </summary>
         /// <param name="lan"></param>
         /// <returns></returns>
         public static MoveExt BasicMoveFromLAN(string lan)
         {
             var length = lan.Length;
-            if (length < 4 || length > 5) { throw new MoveException($"LAN move {lan} has invalid length."); }
+            if (length < 4 || length > 5)
+            {
+                throw new MoveException($"LAN move {lan} has invalid length.");
+            }
+
             var sourceString = lan.Substring(0, 2);
             var destString = lan.Substring(2, 2);
             var source = sourceString.SquareTextToIndex();
             var dest = destString.SquareTextToIndex();
             if (source == null || dest == null)
             {
-                throw new MoveException($"Unexpected value when converting LAN move to source and destination index: {lan}");
+                throw new MoveException(
+                    $"Unexpected value when converting LAN move to source and destination index: {lan}");
             }
 
             var promotionChar = lan.Length == 5 ? lan[4] : (char?)null;
@@ -135,12 +132,17 @@ namespace ChessLib.Data
         }
 
         /// <summary>
-        /// Creates moves from long algebraic notation (LAN) sequential move array
-        ///  </summary>
+        ///     Creates moves from long algebraic notation (LAN) sequential move array
+        /// </summary>
         /// <remarks>Does not alter board state from the initialized state.</remarks>
         /// <param name="lanMoves">Sequential set of moves in string format.</param>
         /// <returns>A collection of moves based on the current board.</returns>
-        ///<exception cref="MoveException">If an element of <param name="lanMoves">lanMoves</param> is less than 4 characters or greater than 5, or the source and/or destination strings did not translate to a board index.</exception>
+        /// <exception cref="MoveException">
+        ///     If an element of
+        ///     <param name="lanMoves">lanMoves</param>
+        ///     is less than 4 characters or greater than 5, or the source and/or destination strings did not translate to a board
+        ///     index.
+        /// </exception>
         public IEnumerable<MoveExt> FromLongAlgebraicNotation(IEnumerable<string> lanMoves)
         {
             var savedBoard = (IBoard)Board.Clone();
@@ -151,6 +153,7 @@ namespace ChessLib.Data
                 Board = Board.ApplyMoveToBoard(move, true);
                 moves.Add(move);
             }
+
             InitializeBoard(savedBoard);
             return moves;
         }
@@ -169,12 +172,13 @@ namespace ChessLib.Data
 
         public MoveExt GetMoveFromSAN(string sanMove)
         {
-            MoveExt moveExt = null;
+            MoveExt moveExt;
             var move = StripNonMoveInfoFromMove(sanMove);
             if (move.Length < 2)
             {
                 throw new MoveException("Invalid move. Must have at least 2 characters.");
             }
+
             var colorMoving = Board.ActivePlayer;
 
             if (char.IsLower(move[0]))
@@ -187,6 +191,7 @@ namespace ChessLib.Data
                 {
                     return move == CastleKingSide ? MoveHelpers.WhiteCastleKingSide : MoveHelpers.WhiteCastleQueenSide;
                 }
+
                 return move == CastleKingSide ? MoveHelpers.BlackCastleKingSide : MoveHelpers.BlackCastleQueenSide;
             }
             else
@@ -197,14 +202,16 @@ namespace ChessLib.Data
                 var squaresAttackingTarget = Board.PiecesAttackingSquare(destinationSquare.Value);
                 if (squaresAttackingTarget == 0)
                 {
-                    throw new MoveException($"No pieces on any squares are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}", Board);
+                    throw new MoveException(
+                        $"No pieces on any squares are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}",
+                        Board);
                 }
 
                 var possibleAttackersOfType = new List<ushort>();
-                var applicableBB = Board.GetPiecePlacement()[(int)colorMoving][(int)pieceMoving];
+                var applicableBlockerBoard = Board.GetPiecePlacement()[(int)colorMoving][(int)pieceMoving];
                 foreach (var possAttacker in squaresAttackingTarget.GetSetBits())
                 {
-                    if ((possAttacker.GetBoardValueOfIndex() & applicableBB) != 0)
+                    if ((possAttacker.GetBoardValueOfIndex() & applicableBlockerBoard) != 0)
                     {
                         possibleAttackersOfType.Add(possAttacker);
                     }
@@ -212,37 +219,41 @@ namespace ChessLib.Data
 
                 if (possibleAttackersOfType.Count == 0)
                 {
-                    throw new MoveException($"Error with move {sanMove}:No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}", Board);
+                    throw new MoveException(
+                        $"Error with move {sanMove}:No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}",
+                        Board);
                 }
-                else if (possibleAttackersOfType.Count == 1)
+
+                if (possibleAttackersOfType.Count == 1)
                 {
                     moveExt = MoveHelpers.GenerateMove(possibleAttackersOfType[0], destinationSquare.Value);
                 }
                 else
                 {
-                    moveExt = DetermineWhichPieceMovesToSquare(move, possibleAttackersOfType, applicableBB,
+                    moveExt = DetermineWhichPieceMovesToSquare(move, possibleAttackersOfType, applicableBlockerBoard,
                         destinationSquare.Value);
                 }
             }
+
             if (moveExt == null)
             {
-                throw new NotImplementedException("Move from san not implemented for this piece.");
+                throw new NoNullAllowedException($"MoveTranslatorService: Move should not be null after translation. Error in PGN or application for move {sanMove}.");
             }
 
             return moveExt;
         }
 
-        private MoveExt DetermineWhichPieceMovesToSquare(in string move, IEnumerable<ushort> possibleAttackersOfType, ulong applicableBb, ushort destinationSquare)
+        private MoveExt DetermineWhichPieceMovesToSquare(in string move, IEnumerable<ushort> possibleAttackersOfType,
+            ulong applicableBb, ushort destinationSquare)
         {
             var mv = (string)move.Clone();
             mv = mv.Substring(1);
             mv = mv.Substring(0, mv.Length - 2);
             mv = mv.Replace("x", "");
-            ushort source = 0;
-            ushort? sourceIdx = null;
+            ushort source;
             if (mv.Length == 2)
             {
-                sourceIdx = mv.SquareTextToIndex();
+                var sourceIdx = mv.SquareTextToIndex();
                 if (sourceIdx == null)
                 {
                     throw new MoveException($"Error parsing source disambiguating square from {move}");
@@ -252,12 +263,11 @@ namespace ChessLib.Data
             }
             else if (mv.Length == 1)
             {
-                ushort[] sourceSquares = null;
+                ushort[] sourceSquares;
                 if (char.IsDigit(mv[0]))
                 {
                     var sourceRank = ushort.Parse(mv) - 1;
                     sourceSquares = possibleAttackersOfType.Where(s => s.GetRank() == sourceRank).ToArray();
-
                 }
                 else
                 {
@@ -270,7 +280,7 @@ namespace ChessLib.Data
                     throw new MoveException($"Problem finding attacking piece from move {move}.");
                 }
 
-                if (sourceSquares.Count() > 1)
+                if (sourceSquares.Length > 1)
                 {
                     throw new MoveException($"Problem finding only one attacking piece from move {move}.");
                 }
@@ -284,22 +294,28 @@ namespace ChessLib.Data
                 foreach (var square in possibleAttackersOfType)
                 {
                     var testMove = MoveHelpers.GenerateMove(square, destinationSquare);
-                    MoveValidator moveValidator = new MoveValidator(Board, testMove);
+                    var moveValidator = new MoveValidator(Board, testMove);
                     if (moveValidator.Validate() == MoveError.NoneSet)
                     {
                         narrowedSquares.Add(square);
                     }
                 }
+
                 if (narrowedSquares.Count != 1)
-                { throw new MoveException($"Problem finding only one attacking piece from move {move}."); }
+                {
+                    throw new MoveException($"Problem finding only one attacking piece from move {move}.");
+                }
 
                 source = narrowedSquares[0];
             }
+
             var sourceVal = source.ToBoardValue();
             if ((sourceVal & applicableBb) == 0)
             {
-                throw new MoveException($"No pieces attack {destinationSquare.IndexToSquareDisplay()} from move {move}.");
+                throw new MoveException(
+                    $"No pieces attack {destinationSquare.IndexToSquareDisplay()} from move {move}.");
             }
+
             return MoveHelpers.GenerateMove(source, destinationSquare);
         }
 
@@ -307,16 +323,15 @@ namespace ChessLib.Data
         {
             var colorMoving = Board.ActivePlayer;
             var promotionPiece = PromotionPiece.Knight;
-            var pawnBB = Board.GetPiecePlacement()[(int)colorMoving][(int)Piece.Pawn];
+            var pawnBitBoard = Board.GetPiecePlacement()[(int)colorMoving][(int)Piece.Pawn];
 
             var moveLength = move.Length;
-            bool isCapture = move.Contains("x");
+            var isCapture = move.Contains("x");
 
-            bool isPromotion = move.Contains("=");
-            ushort sourceIndex = 0;
-            ushort? destIndex = 0;
+            var isPromotion = move.Contains("=");
+            ushort? destIndex;
             ushort startingFile = 0;
-            MoveType moveType = MoveType.Normal;
+            var moveType = MoveType.Normal;
             if (isCapture)
             {
                 startingFile = (ushort)(move[0] - 'a');
@@ -336,39 +351,42 @@ namespace ChessLib.Data
             }
 
             destIndex = move.SquareTextToIndex();
-            var likelyStartingSq = (ushort)(colorMoving == Color.White ? (ushort)destIndex.Value - 8 : (ushort)destIndex.Value + 8);
-            sourceIndex = likelyStartingSq;
+            if (!destIndex.HasValue)
+            {
+                throw new NoNullAllowedException("MoveTranslatorService: destIndex should not be null.");
+            }
+            var likelyStartingSq = (ushort)(colorMoving == Color.White ? destIndex.Value - 8 : destIndex.Value + 8);
+            var sourceIndex = likelyStartingSq;
             Debug.Assert(destIndex.HasValue);
 
-            bool isPossibleInitialMove =
-                (destIndex.Value.IsIndexOnRank(3) && colorMoving == Color.White) ||
-                (destIndex.Value.IsIndexOnRank(4) && colorMoving == Color.Black);
-
-            var destRank = destIndex.Value.RankFromIdx();
-            var sourceIdx = 0;
+            var isPossibleInitialMove =
+                destIndex.Value.IsIndexOnRank(3) && colorMoving == Color.White ||
+                destIndex.Value.IsIndexOnRank(4) && colorMoving == Color.Black;
             if (isCapture)
             {
                 var destinationFile = destIndex.Value.FileFromIdx();
                 if (colorMoving == Color.White)
                 {
-                    var modifier = ((destinationFile - startingFile) + 8);
+                    var modifier = destinationFile - startingFile + 8;
                     sourceIndex = (ushort)(destIndex.Value - modifier);
                 }
                 else
                 {
-                    var modifier = ((startingFile - destinationFile) + 8);
+                    var modifier = startingFile - destinationFile + 8;
                     sourceIndex = (ushort)(destIndex.Value + modifier);
                 }
             }
-            else if (isPossibleInitialMove && !isCapture)
+            else if (isPossibleInitialMove)
             {
                 var possibleStartingIndex = colorMoving == Color.White ? destIndex.Value - 8 : destIndex + 8;
                 var srcValue = ((ushort)possibleStartingIndex).ToBoardValue();
                 //first check rank 2
-                if ((pawnBB & srcValue) == 0)
+                if ((pawnBitBoard & srcValue) == 0)
                 {
                     //no, it was from the starting position
-                    sourceIndex = colorMoving == Color.White ? (ushort)(possibleStartingIndex - 8) : (ushort)(possibleStartingIndex + 8);
+                    sourceIndex = colorMoving == Color.White
+                        ? (ushort)(possibleStartingIndex - 8)
+                        : (ushort)(possibleStartingIndex + 8);
                 }
                 else
                 {
@@ -380,72 +398,8 @@ namespace ChessLib.Data
             {
                 moveType = MoveType.EnPassant;
             }
+
             return MoveHelpers.GenerateMove(sourceIndex, destIndex.Value, moveType, promotionPiece);
         }
-
-        /// <summary>
-        ///     Used by the Find[piece]MoveSourceIndex to find the source of a piece moving parsed from SAN text.
-        /// </summary>
-        /// <param name="md">Available Move details</param>
-        /// <param name="pieceMoveMask">The move mask for the piece</param>
-        /// <param name="pieceOccupancy">The occupancy for the piece in question</param>
-        /// <returns></returns>
-        private ushort? FindPieceMoveSourceIndex(MoveDetail md, ulong pieceMoveMask, ulong pieceOccupancy)
-        {
-            ulong sourceSquares = pieceMoveMask & pieceOccupancy;
-            if (sourceSquares == 0)
-            {
-                return null;
-            }
-
-            if (md.SourceFile != null)
-            {
-                sourceSquares &= BoardHelpers.FileMasks[md.SourceFile.Value];
-            }
-
-            if (md.SourceRank != null)
-            {
-                sourceSquares &= BoardHelpers.RankMasks[md.SourceRank.Value];
-            }
-            var sourceIndices = sourceSquares.GetSetBits();
-
-            if (sourceIndices.Length == 0) return null;
-            if (sourceIndices.Length > 1)
-            {
-                var possibleSources = new List<ushort>();
-
-                foreach (var sourceIndex in sourceIndices)
-                {
-                    if (!md.DestinationIndex.HasValue) throw new MoveException("No destination value provided.");
-                    var proposedMove = MoveHelpers.GenerateMove(sourceIndex, md.DestinationIndex.Value, md.MoveType, md.PromotionPiece ?? PromotionPiece.Knight);
-                    var moveValidator = new MoveValidator(Board, proposedMove);
-                    var validationResult = moveValidator.Validate();
-                    if (validationResult != MoveError.NoneSet)
-                        possibleSources.Add(sourceIndex);
-                }
-                if (possibleSources.Count > 1) throw new MoveException("More than one piece can reach destination square.");
-                if (possibleSources.Count == 0) return null;
-                return possibleSources[0];
-            }
-            return sourceIndices[0];
-        }
-
-        /// <summary>
-        ///     Find's a piece's source index, given some textual clues, such as piece type, color, and destination
-        /// </summary>
-        /// <param name="moveDetail">Details of move, gathered from text description (SAN)</param>
-        /// <returns>The index from which the move was made.</returns>
-        /// <exception cref="MoveException">
-        ///     Thrown when the source can't be determined, piece on square cannot be determined, more
-        ///     than one piece of type could reach destination, or piece cannot reach destination.
-        /// </exception>
-        private ushort? FindPieceSourceIndex(MoveDetail moveDetail)
-        {
-            var activePlayer = Board.ActivePlayer;
-            var pieceOccupancy = Board.GetPiecePlacement().Occupancy(activePlayer, moveDetail.Piece);
-            var totalBoardOccupancy = Board.TotalOccupancy();
-            return FindPieceMoveSourceIndex(moveDetail, pieceOccupancy, totalBoardOccupancy);
-        }
-
     }
 }

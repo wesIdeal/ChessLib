@@ -21,7 +21,7 @@ namespace ChessLib.EngineInterface
 
         public static EngineToAppCommand GetResponseType(string engineResponse)
         {
-            var success = Enums.TryParse<EngineToAppCommand>(engineResponse, out var matchingFlag, CommandAttribute.UciCommandFormat);
+            var success = Enums.TryParse<EngineToAppCommand>(engineResponse, true, out var matchingFlag, CommandAttribute.UciCommandFormat);
             return success ? matchingFlag : EngineToAppCommand.None;
         }
 

@@ -6,7 +6,7 @@ namespace ChessLib.Parse.PGN
     {
         public int NumberComplete { get; set; }
         public int Maximum { get; set; }
-        public string Label { get; set; }
+        public string Label => $"Finished {NumberComplete} games of {Maximum}.";
         public bool IsIndeterminate { get; set; }
     }
 }

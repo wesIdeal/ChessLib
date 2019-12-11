@@ -2,7 +2,7 @@
 using ChessLib.Data.Types.Enums;
 using NUnit.Framework;
 
-namespace ChessLib.Data.Boards.Tests
+namespace ChessLib.Data.Tests.Boards
 {
     [TestFixture]
     public class BoardStateTests

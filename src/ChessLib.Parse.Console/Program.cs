@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ using ChessLib.Parse.Tests;
 
 namespace ChessLib.Parse.Console
 {
+    [SuppressMessage("ReSharper", "LocalizableElement")]
     internal class Program
     {
         public enum GameDatabases
@@ -20,16 +22,74 @@ namespace ChessLib.Parse.Console
             TalLarge,
             TalMedium,
             GameWithVariation,
-            PregameComment,
+            PregameComment
         }
 
-        private static int _cursorTop = System.Console.CursorTop;
+        private static int CursorTop => System.Console.CursorTop;
+
         private static void Main(string[] args)
         {
-            var database = GameDatabases.PregameComment;
-            var vGames = TestParsingVisitor(database);
-            var listenerGames = TestParsing(database);
-            WriteGame(vGames, 0);
+            var database = GetDatabaseToParse(args);
+           var listenerGames = TestParsing(database);
+            WriteGame(listenerGames, 0);
+        }
+
+        public static Game<MoveStorage>[] TestParsing(GameDatabases db)
+        {
+            var parser = new PGNParser();
+            parser.UpdateProgress += UpdateProgress;
+            var dbToUse = GetDbFromEnum(db);
+            var timer = new Stopwatch();
+            timer.Start();
+            var games = parser.GetGamesFromPGNAsync(dbToUse).Result.ToArray();
+            timer.Stop();
+            System.Console.WriteLine($"Listener: Finished {games.Length} games in {timer.ElapsedMilliseconds} ms.");
+            return games;
+        }
+
+       private static GameDatabases GetDatabaseToParse(string[] args)
+        {
+            GameDatabases database;
+            database = args.Length != 0 ? GetDatabaseFromArg(args[0]) : GetDatabaseFromUser();
+            System.Console.WriteLine($"Using {database}");
+            return database;
+        }
+
+        private static GameDatabases GetDatabaseFromUser()
+        {
+            var answer = -1;
+            var max = 10;
+            var min = 0;
+            while (answer > max || answer < min)
+            {
+                System.Console.Clear();
+                System.Console.WriteLine("Choose database:");
+                var count = 0;
+                foreach (var db in (GameDatabases[]) Enum.GetValues(typeof(GameDatabases)))
+                {
+                    System.Console.WriteLine($"{count}\t{db}");
+                    max = count++;
+                }
+                var response = System.Console.ReadLine();
+                if (!int.TryParse(response?.Trim(), out answer))
+                {
+                    answer = -1;
+                }
+            }
+
+            return (GameDatabases) answer;
+        }
+
+        private static GameDatabases GetDatabaseFromArg(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s) ||
+                !Enum.TryParse(typeof(GameDatabases), s, true, out var rv))
+            {
+                System.Console.WriteLine($"Cannot match {s}. Using {GameDatabases.TalSmall}");
+                return GameDatabases.TalSmall;
+            }
+
+            return (GameDatabases) rv;
         }
 
         private static void WriteGame(Game<MoveStorage>[] games, int i)
@@ -50,39 +110,15 @@ namespace ChessLib.Parse.Console
             File.WriteAllText("C:\\temp\\test.pgn", pgn);
         }
 
-        public const string DebugCategory = "Game Parsing/Validation";
-
-        public static Game<MoveStorage>[] TestParsing(GameDatabases db)
-        {
-            var _parser = new PGNParser();
-            var dbToUse = GetDbFromEnum(db);
-            var timer = new Stopwatch();
-            timer.Start();
-            var games = _parser.GetGamesFromPGNAsync(dbToUse).Result.ToArray();
-            timer.Stop();
-            System.Console.WriteLine($"Listener: Finished {games.Length} games in {timer.ElapsedMilliseconds} ms.");
-            return games;
-        }
-        public static Game<MoveStorage>[] TestParsingVisitor(GameDatabases db)
-        {
-            var dbToUse = GetDbFromEnum(db);
-            var dbVisitor = new GameDatabaseVisitor(dbToUse);
-            var timer = new Stopwatch();
-            timer.Start();
-            var games = dbVisitor.GetAllGames().Result.ToArray();
-            timer.Stop();
-            System.Console.WriteLine($"Visitor: Finished {games.Length} games in {timer.ElapsedMilliseconds} ms.");
-            return games;
-        }
         private static void UpdateProgress(object sender, ParsingUpdateEventArgs e)
         {
-            System.Console.SetCursorPosition(0, _cursorTop);
+            System.Console.SetCursorPosition(0, CursorTop);
             System.Console.Write(e.Label);
         }
 
         private static string GetDbFromEnum(GameDatabases db)
         {
-            byte[] byteArray = null;
+            byte[] byteArray;
             switch (db)
             {
                 case GameDatabases.TalLarge:
@@ -98,7 +134,6 @@ namespace ChessLib.Parse.Console
                     return PGNResources.GameWithVars;
                 case GameDatabases.WithFENSetup:
                     return PGNResources.WithFENSetup;
-                    break;
                 case GameDatabases.PregameComment:
                     return PGNResources.PregameComment;
                 default:

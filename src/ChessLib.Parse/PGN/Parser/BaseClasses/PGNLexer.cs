@@ -20,6 +20,9 @@
 #pragma warning disable 419
 
 namespace ChessLib.Parse.PGN.Parser.BaseClasses {
+
+	#pragma warning disable 3021
+
 using System;
 using System.IO;
 using System.Text;

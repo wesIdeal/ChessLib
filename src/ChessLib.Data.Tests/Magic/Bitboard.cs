@@ -6,7 +6,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace ChessLib.Data.Magic.Tests
+namespace ChessLib.Data.Tests.Magic
 {
     [TestFixture]
     public class Bitboard

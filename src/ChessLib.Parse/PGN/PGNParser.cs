@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -41,15 +42,15 @@ namespace ChessLib.Parse.PGN
             return await GetAllGamesAsync(context);
         }
 
+        public EventHandler<ParsingUpdateEventArgs> UpdateProgress;
+
+
         private async Task<Game<MoveStorage>[]> GetAllGamesAsync(DatabaseContext context)
         {
             var taskList = new List<Task>();
-            var sw = new Stopwatch();
             var gameCount = context.pgn_game().Length;
             var rv = new Game<MoveStorage>[gameCount];
-            sw.Start();
             var count = 0;
-            var message = "Processed {0} games after {1} ms.";
 
             var tasks = context.pgn_game().Select((gameCtx, idx) =>
                 Task.Factory.StartNew(() =>
@@ -57,36 +58,17 @@ namespace ChessLib.Parse.PGN
                     var game = ParseGame(gameCtx);
                     rv[idx] = game;
                     count++;
+                }).ContinueWith((t) =>
+                {
                     if (count % _parserOptions.UpdateFrequency == 0)
                     {
-                        var updateText = string.Format(message, count, sw.ElapsedMilliseconds);
-                        Debug.WriteLine(updateText, "Parsing and Validation");
-                        //SendUpdate(updateText, count, gameCount);
+                        var args = new ParsingUpdateEventArgs() { Maximum = gameCount, NumberComplete = count };
+                        UpdateProgress?.Invoke(this, args);
                     }
                 }));
             taskList.AddRange(tasks);
             await Task.WhenAll(taskList.ToArray());
-            sw.Stop();
-            //SendUpdate($"Parsing/Validation Complete in {sw.ElapsedMilliseconds} ms.", count, gameCount);
-           
             return rv;
-        }
-
-        private void SendUpdate(string updateText, int completedCount, int max)
-        {
-            var updateMessage = new ParsingUpdateEventArgs
-            {
-                NumberComplete = completedCount,
-                IsIndeterminate = false,
-                Label = updateText,
-                Maximum = max
-            };
-            SendUpdate(updateMessage);
-        }
-
-        private void SendUpdate(ParsingUpdateEventArgs progress)
-        {
-            //ProgressUpdate?.Invoke(this, progress);
         }
 
         private Game<MoveStorage> ParseGame(GameContext gameCtx)
@@ -104,7 +86,7 @@ namespace ChessLib.Parse.PGN
             var commonTokenStream = new CommonTokenStream(lexer);
             var parser = new Parser.BaseClasses.PGNParser(commonTokenStream);
             sw.Stop();
-            Debug.WriteLine($"Parsed games in {sw.ElapsedMilliseconds} ms.");
+            Console.WriteLine($"Parsed games in {sw.ElapsedMilliseconds} ms.");
             return parser.pgn_database();
         }
     }

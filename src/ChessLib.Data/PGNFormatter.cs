@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Boards;
 using EnumsNET;
 
 namespace ChessLib.Data
 {
     public class PGNFormatter<TS> where TS : MoveExt, IEquatable<TS>
     {
+        private const char NewLine = '\n';
         private Game<TS> _game;
         private string _initialFEN;
-        private PGNFormatterOptions _options;
-        private const char NewLine = '\n';
-        private List<string> _tagsToKeep = new List<string>();
+        private readonly PGNFormatterOptions _options;
+        private readonly List<string> _tagsToKeep = new List<string>();
+
         public PGNFormatter(PGNFormatterOptions options)
         {
             if (!options.KeepAllTags)
@@ -26,8 +26,10 @@ namespace ChessLib.Data
                 {
                     _tagsToKeep.Add(tag.AsString());
                 }
+
                 _tagsToKeep.AddRange(options.OtherTagsToKeep);
             }
+
             _options = options;
         }
 
@@ -36,7 +38,7 @@ namespace ChessLib.Data
             _game = game;
             _initialFEN = game.TagSection.FENStart;
             var tagSection = BuildTags(_game.TagSection);
-            var tree = _game.MainMoveTree as MoveTree;
+            var tree = _game.MainMoveTree;
             var moveSection = BuildMoveTree(tree, _initialFEN);
             return tagSection + NewLine + moveSection + NewLine + game.Result + NewLine;
         }
@@ -47,6 +49,7 @@ namespace ChessLib.Data
             {
                 return true;
             }
+
             if (!_options.KeepTagsWithUnknownValues && IsTagUnknown(tag))
             {
                 return false;
@@ -55,12 +58,14 @@ namespace ChessLib.Data
             return _tagsToKeep.Contains(tag.Key);
         }
 
-        private bool IsTagUnknown(KeyValuePair<string, string> tag) =>
-            tag.Value.StartsWith("?") || (tag.Key == "Result" && tag.Value == "*");
+        private bool IsTagUnknown(KeyValuePair<string, string> tag)
+        {
+            return tag.Value.StartsWith("?") || tag.Key == "Result" && tag.Value == "*";
+        }
 
         private string BuildTags(in Tags tags)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             foreach (var requiredTag in tags.RequiredTags)
             {
                 if (KeepTag(requiredTag))
@@ -68,6 +73,7 @@ namespace ChessLib.Data
                     sb.Append($"[{requiredTag.Key} \"{requiredTag.Value}\"]{NewLine}");
                 }
             }
+
             foreach (var supplementalTag in tags.SupplementalTags)
             {
                 if (KeepTag(supplementalTag))
@@ -75,18 +81,17 @@ namespace ChessLib.Data
                     sb.Append($"[{supplementalTag.Key} \"{supplementalTag.Value}\"]{NewLine}");
                 }
             }
+
             return sb.ToString();
         }
 
 
-        private bool _lastMoveHadComment = false;
         private string BuildMoveTree(in MoveTree tree, string fen, uint indentLevel = 0)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             var game = new Game<MoveStorage>(fen);
             game.BeginGameInitialization();
             var bi = game.Board;
-            MoveDisplayService displayService = new MoveDisplayService();
             if (tree.HasGameComment)
             {
                 sb.Append(IndentText(indentLevel) + GetFormattedComment(tree.GameComment));
@@ -97,6 +102,7 @@ namespace ChessLib.Data
             {
                 currentNode = currentNode.Next;
             }
+
             while (currentNode != null)
             {
                 var previousMove = currentNode.Previous?.Value;
@@ -147,10 +153,8 @@ namespace ChessLib.Data
                 {
                     return $"{move.Annotation.ToNAGString()} ";
                 }
-                else
-                {
-                    return $"{move.Annotation.ToString()} ";
-                }
+
+                return $"{move.Annotation} ";
             }
 
             return "";
@@ -163,6 +167,7 @@ namespace ChessLib.Data
                 return FormatMoveNumber(bi.FullmoveCounter,
                     UseEllipses(previousMove, bi.ActivePlayer));
             }
+
             return "";
         }
 
@@ -172,6 +177,7 @@ namespace ChessLib.Data
             {
                 return $"{Environment.NewLine}    {{{comment.Trim()}}}{Environment.NewLine}";
             }
+
             return "";
         }
 
@@ -185,15 +191,16 @@ namespace ChessLib.Data
             }
 
             return string.Join("", lstVariations.Select(v => $"( {v} ) "));
-
-
         }
 
-        private string IndentText(uint depth) => depth == 0 ? " " : new string(' ', (int)depth * 4);
+        private string IndentText(uint depth)
+        {
+            return depth == 0 ? " " : new string(' ', (int)depth * 4);
+        }
 
         private char GetEndOfMoveWhitespace(Color activeColor)
         {
-            return _options.ExportFormat ? ' ' : (_options.NewlineEachMove && activeColor == Color.Black) ? NewLine : ' ';
+            return _options.ExportFormat ? ' ' : _options.NewlineEachMove && activeColor == Color.Black ? NewLine : ' ';
         }
 
         private bool ShouldWriteMoveNumber(Color activeColor, MoveStorage previousMove)
@@ -218,7 +225,8 @@ namespace ChessLib.Data
 
         private bool UseEllipses(MoveStorage previousMove, Color activeColor)
         {
-            return (previousMove == null || !string.IsNullOrWhiteSpace(previousMove.Comment)) && activeColor == Color.Black;
+            return (previousMove == null || !string.IsNullOrWhiteSpace(previousMove.Comment)) &&
+                   activeColor == Color.Black;
         }
 
         private string FormatMoveNumber(uint moveNumber, bool threePeriods)

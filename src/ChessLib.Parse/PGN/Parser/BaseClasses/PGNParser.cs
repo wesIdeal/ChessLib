@@ -20,6 +20,9 @@
 #pragma warning disable 419
 
 namespace ChessLib.Parse.PGN.Parser.BaseClasses {
+
+	#pragma warning disable 3021
+
 using System;
 using System.IO;
 using System.Text;
@@ -108,14 +111,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_parse; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterParse(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitParse(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitParse(this);
@@ -157,14 +152,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_pgn_database; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterPgn_database(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitPgn_database(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitPgn_database(this);
@@ -218,14 +205,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_pgn_game; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterPgn_game(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitPgn_game(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitPgn_game(this);
@@ -268,14 +247,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_tag_section; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterTag_section(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitTag_section(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitTag_section(this);
@@ -332,14 +303,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_tag_pair; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterTag_pair(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitTag_pair(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitTag_pair(this);
@@ -378,14 +341,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_tag_name; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterTag_name(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitTag_name(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitTag_name(this);
@@ -421,14 +376,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_tag_value; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterTag_value(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitTag_value(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitTag_value(this);
@@ -470,14 +417,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_movetext_section; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterMovetext_section(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitMovetext_section(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitMovetext_section(this);
@@ -526,14 +465,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_element_sequence; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterElement_sequence(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitElement_sequence(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitElement_sequence(this);
@@ -609,14 +540,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_element; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterElement(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitElement(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitElement(this);
@@ -680,14 +603,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_move_number_indication; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterMove_number_indication(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitMove_number_indication(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitMove_number_indication(this);
@@ -750,14 +665,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_nag; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterNag(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitNag(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitNag(this);
@@ -793,14 +700,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_comment; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterComment(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitComment(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitComment(this);
@@ -836,14 +735,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_san_move; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterSan_move(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitSan_move(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitSan_move(this);
@@ -883,14 +774,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_recursive_variation; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterRecursive_variation(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitRecursive_variation(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitRecursive_variation(this);
@@ -931,14 +814,6 @@ internal partial class PGNParser : Parser {
 		{
 		}
 		public override int RuleIndex { get { return RULE_game_termination; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.EnterGame_termination(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IPGNListener typedListener = listener as IPGNListener;
-			if (typedListener != null) typedListener.ExitGame_termination(this);
-		}
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitGame_termination(this);

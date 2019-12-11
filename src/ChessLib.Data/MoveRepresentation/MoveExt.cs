@@ -6,8 +6,6 @@ namespace ChessLib.Data.MoveRepresentation
 {
     public class MoveExt : MoveBase, IMoveExt, ICloneable, IEquatable<MoveExt>
     {
-        private MoveExt move;
-
         public MoveExt() : base() { }
 
         public MoveExt(ushort move) : base(move) { }

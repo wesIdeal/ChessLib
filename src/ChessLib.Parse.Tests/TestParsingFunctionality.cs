@@ -49,13 +49,13 @@ namespace ChessLib.Parse.Tests
         [Test]
         public void LongWait_TestParsingLargeDb()
         {
-            var pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
+            var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
             var sw = new Stopwatch();
             sw.Start();
             var largeDb = _parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             sw.Stop();
             Debug.WriteLine($"Finished parsing {largeDb.Count()} games in {sw.ElapsedMilliseconds / 1000} seconds");
-            const int expectedGameCount = 2971;
+            const int expectedGameCount = 1000;
             Assert.AreEqual(expectedGameCount, largeDb.Length,
                 $"Expected {expectedGameCount} games, but found {largeDb.Length}.");
         }

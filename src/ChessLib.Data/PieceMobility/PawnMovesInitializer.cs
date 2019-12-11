@@ -53,52 +53,12 @@ namespace ChessLib.Data.PieceMobility
         public ulong CalculateMovesFromPosition(int positionIndex, ulong occupancyBoard,
              bool attackArrayGen = false)
         {
-            return CalculateMovesFromPositionAlt(positionIndex, occupancyBoard);
-            var rv = (ulong)0;
-            var startingValue = (ulong)1 << positionIndex;
-            var positionValue = startingValue;
-
-            var moveOnce = _color == Color.White ? positionValue.ShiftN() : positionValue.ShiftS();
-            var moveTwice = _color == Color.White ? moveOnce.ShiftN() : moveOnce.ShiftS();
-            var captureQ = _color == Color.White ? positionValue.ShiftNW() : positionValue.ShiftSW();
-            var captureK = _color == Color.White ? positionValue.ShiftNE() : positionValue.ShiftSE();
-            var startingRank = _color == Color.White ? Rank.R2 : Rank.R7;
-
-                var lAttackVal = captureQ & occupancyBoard;
-                var rAttackVal = captureK & occupancyBoard;
-                rv |= lAttackVal | rAttackVal;
-                if (moveOnce != 0)
-                {
-                    if ((occupancyBoard & moveOnce) != positionValue)
-                    {
-                        rv |= moveOnce;
-                        if (positionIndex.GetRank() == startingRank)
-                        {
-                            
-                            if ((occupancyBoard & moveTwice) != positionValue)
-                                rv |= moveTwice;
-                        }
-                    }
-                }
-
-                if ((occupancyBoard & captureK) != 0)
-                {
-                    rv |= captureK;
-                }
-                if ((occupancyBoard & captureQ) != 0)
-                {
-                    rv |= captureQ;
-                }
-            return rv;
-        }
-
-        private ulong CalculateMovesFromPositionAlt(int positionIndex, ulong occupancyBoard)
-        {
             var moves = GetPawnMovesFromPosition(positionIndex, occupancyBoard);
             var attacks = GetPawnAttacksFromPosition(positionIndex, occupancyBoard);
             return moves | attacks;
         }
 
+       
         private ulong GetPawnAttacksFromPosition(int positionIndex, ulong occupancyBoard)
         {
             var attacks = PieceAttackPatterns.Instance.PawnAttackMask[(int) _color][positionIndex];

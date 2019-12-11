@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.MoveRepresentation.NAG;
@@ -71,7 +71,7 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
 
             if (context.comment() != null)
             {
-                game.AddComment(context.comment().GetText().Trim('{', '}'));
+                game.AddComment(context.comment().GetText().Trim('{', '}').Trim());
             }
         }
     }

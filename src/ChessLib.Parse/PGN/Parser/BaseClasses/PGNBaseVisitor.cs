@@ -20,6 +20,9 @@
 #pragma warning disable 419
 
 namespace ChessLib.Parse.PGN.Parser.BaseClasses {
+
+	#pragma warning disable 3021
+
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using IToken = Antlr4.Runtime.IToken;

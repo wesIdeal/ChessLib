@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using ChessLib.Data;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
-
 namespace ChessLib.Parse.PGN.Parser.Visitor
 {
     internal class TagVisitor : PGNBaseVisitor<Tags>
