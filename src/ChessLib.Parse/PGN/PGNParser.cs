@@ -17,16 +17,16 @@ namespace ChessLib.Parse.PGN
 
     public class PGNParser
     {
-        private readonly PGNParserOptions _parserOptions;
+        public PGNParserOptions ParserOptions;
 
         public PGNParser()
         {
-            _parserOptions = new PGNParserOptions();
+            ParserOptions = new PGNParserOptions();
         }
 
         public PGNParser(PGNParserOptions options)
         {
-            _parserOptions = options;
+            ParserOptions = options;
         }
 
 
@@ -48,11 +48,14 @@ namespace ChessLib.Parse.PGN
         private async Task<Game<MoveStorage>[]> GetAllGamesAsync(DatabaseContext context)
         {
             var taskList = new List<Task>();
-            var gameCount = context.pgn_game().Length;
-            var rv = new Game<MoveStorage>[gameCount];
+            
             var count = 0;
-
-            var tasks = context.pgn_game().Select((gameCtx, idx) =>
+            var gameContexts = ParserOptions.LimitGameCount
+                ? context.pgn_game().Take(ParserOptions.GameCountToParse).ToArray()
+                : context.pgn_game().ToArray();
+            var gameCount = gameContexts.Count();
+            var rv = new Game<MoveStorage>[gameCount];
+            var tasks = gameContexts.Select((gameCtx, idx) =>
                 Task.Factory.StartNew(() =>
                 {
                     var game = ParseGame(gameCtx);
@@ -60,7 +63,7 @@ namespace ChessLib.Parse.PGN
                     count++;
                 }).ContinueWith((t) =>
                 {
-                    if (count % _parserOptions.UpdateFrequency == 0)
+                    if (count % ParserOptions.UpdateFrequency == 0)
                     {
                         var args = new ParsingUpdateEventArgs() { Maximum = gameCount, NumberComplete = count };
                         UpdateProgress?.Invoke(this, args);
@@ -74,7 +77,7 @@ namespace ChessLib.Parse.PGN
         private Game<MoveStorage> ParseGame(GameContext gameCtx)
         {
             var gameVisitor = new GameVisitor();
-            var game = gameVisitor.VisitGame(gameCtx);
+            var game = gameVisitor.VisitGame(gameCtx, ParserOptions);
             return game;
         }
 

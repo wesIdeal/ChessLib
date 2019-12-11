@@ -80,6 +80,60 @@ namespace ChessLib.Parse.Tests
         }
 
         [Test]
+        public void ShouldRespectMaxGameCount()
+        {
+            const int gamesToParse = 2;
+            var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
+            var parserOptions = new PGNParserOptions() { GameCountToParse = 2 };
+            var parser = new PGNParser(parserOptions);
+            var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
+            Assert.AreEqual(gamesToParse, largeDb.Length,
+                $"Expected {gamesToParse} games, but found {largeDb.Length}.");
+        }
+
+        [Test]
+        public void ShouldRespectMaxPlyCount()
+        {
+            const int maxPliesToParse = 10;
+            var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
+            var parserOptions = new PGNParserOptions() { GameCountToParse = 5, MaximumPlyPerGame = maxPliesToParse };
+            var parser = new PGNParser(parserOptions);
+            var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
+            foreach (var game in largeDb)
+            {
+                Assert.IsTrue(game.PlyCount <= maxPliesToParse, $"Expected ply count of {maxPliesToParse} but was {game.MainMoveTree.Count}.");
+            }
+        }
+
+        [Test]
+        public void ShouldNotParseVarsWhenMaxPlyCountIsSet()
+        {
+            const int maxPliesToParse = 10;
+            var pgnDb = PGNResources.GameWithVars;
+            var parserOptions = new PGNParserOptions() { GameCountToParse = PGNParserOptions.MaximumParseValue, MaximumPlyPerGame = maxPliesToParse };
+            var parser = new PGNParser(parserOptions);
+            var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
+            foreach (var move in largeDb.First().MainMoveTree)
+            {
+                Assert.IsEmpty(move.Variations, $"Found a variation on move {move.SAN} and shouldn't have any.");
+            }
+        }
+
+        [Test]
+        public void ShouldIgnoreVariationsWhenSetToTrue()
+        {
+            const int maxPliesToParse = 10;
+            var pgnDb = PGNResources.GameWithVars;
+            var parserOptions = new PGNParserOptions() { IgnoreVariations = true};
+            var parser = new PGNParser(parserOptions);
+            var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
+            foreach (var move in largeDb.First().MainMoveTree)
+            {
+                Assert.IsEmpty(move.Variations, $"Found a variation on move {move.SAN} and shouldn't have any.");
+            }
+        }
+
+        [Test]
         public void TestNAGParsing()
         {
             const string expected = "$1";

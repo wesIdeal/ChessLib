@@ -8,10 +8,15 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
 {
     using ElementSequenceContext = Parser.BaseClasses.PGNParser.Element_sequenceContext;
     using TerminationContext = BaseClasses.PGNParser.Game_terminationContext;
+    using VariationContext = BaseClasses.PGNParser.Recursive_variationContext;
     internal class MoveVisitor : PGNBaseVisitor<Game<MoveStorage>>
     {
         private bool _nextMoveVariation;
-        public void Visit(Parser.BaseClasses.PGNParser.Movetext_sectionContext context, ref Game<MoveStorage> game)
+        private int _moveCount;
+        private int _plyCount;
+
+        public void Visit(BaseClasses.PGNParser.Movetext_sectionContext context, PGNParserOptions parserOptions,
+            ref Game<MoveStorage> game)
         {
             if (game == null) { throw new ArgumentNullException("Must pass in non-null game to MoveVisitor"); }
 
@@ -19,7 +24,7 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
             {
                 if (child is ElementSequenceContext sequenceContext)
                 {
-                    VisitMoveSequence(sequenceContext, ref game);
+                    VisitMoveSequence(sequenceContext, parserOptions, ref game);
                 }
                 else if (child is TerminationContext terminationContext)
                 {
@@ -29,10 +34,15 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
                         game.Result = terminationString;
                     }
                 }
+                if (parserOptions.LimitPlyCount && _plyCount >= parserOptions.MaximumPlyPerGame)
+                {
+                    break;
+                }
             }
 
         }
-        protected void VisitMoveSequence(Parser.BaseClasses.PGNParser.Element_sequenceContext ctx, ref Game<MoveStorage> game)
+        protected void VisitMoveSequence(ElementSequenceContext ctx, in PGNParserOptions parserOptions,
+            ref Game<MoveStorage> game)
         {
             foreach (var child in ctx.children)
             {
@@ -40,17 +50,21 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
                 {
                     VisitElement(elementContext, ref game);
                 }
-                if (child is Parser.BaseClasses.PGNParser.Recursive_variationContext variationContext)
+                if (child is VariationContext variationContext && !parserOptions.IgnoreVariations)
                 {
                     _nextMoveVariation = true;
-                    VisitMoveSequence(variationContext.element_sequence(), ref game);
+                    VisitMoveSequence(variationContext.element_sequence(), parserOptions, ref game);
                     game.ExitVariation();
                 }
 
+                if (parserOptions.LimitPlyCount && _plyCount >= parserOptions.MaximumPlyPerGame)
+                {
+                    break;
+                }
             }
         }
 
-        protected void VisitElement(Parser.BaseClasses.PGNParser.ElementContext context, ref Game<MoveStorage> game)
+        protected void VisitElement(BaseClasses.PGNParser.ElementContext context, ref Game<MoveStorage> game)
         {
             if (context.san_move() != null)
             {
@@ -62,6 +76,7 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
                 }
                 game.ApplySanMove(context.san_move().GetText(),
                     applicationStrategy);
+                _plyCount++;
             }
 
             if (context.nag() != null)

@@ -47,7 +47,7 @@ namespace ChessLib.Data
         public BoardInfo Board { get; private set; }
         public string CurrentFEN => Board.CurrentFEN;
         public MoveTree MainMoveTree { get; protected set; }
-
+        public int PlyCount => MainMoveTree.Count(x => !x.IsNullMove);
         public LinkedListNode<MoveStorage> CurrentMoveNode
         {
             get => _currentMoveNode;
@@ -75,7 +75,7 @@ namespace ChessLib.Data
         {
             //if the current tree has any moves that aren't null
             // (otherwise the comment belongs at the beginning of game or variation)
-            if (CurrentTree.Any(x=>!x.IsNullMove))
+            if (CurrentTree.Any(x => !x.IsNullMove))
             {
                 if (!string.IsNullOrEmpty(CurrentMoveNode.Value.Comment))
                 {
