@@ -341,6 +341,7 @@ namespace ChessLib.Data
         }
 
 
+
         private static ulong GetPieceValue(PieceOfColor poc, ushort boardIndexOfPiece)
         {
             Debug.Assert(boardIndexOfPiece < 64);

@@ -64,7 +64,7 @@ namespace ChessLib.Data
 
         public LinkedListNode<MoveStorage> PreviousMoveNode => GetPreviousNode(CurrentMoveNode);
 
-        private LinkedListNode<MoveStorage> GetPreviousNode(LinkedListNode<MoveStorage> current)
+        internal LinkedListNode<MoveStorage> GetPreviousNode(LinkedListNode<MoveStorage> current)
         {
             var currentList = current.List as MoveTree;
             return current.Previous ??
@@ -385,7 +385,7 @@ namespace ChessLib.Data
             return ApplyValidatedMove(move);
         }
 
-        protected LinkedListNode<MoveStorage> ApplyValidatedMove(MoveExt move,
+        internal LinkedListNode<MoveStorage> ApplyValidatedMove(MoveExt move,
             MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine)
         {
             //Uncomment to debug move application

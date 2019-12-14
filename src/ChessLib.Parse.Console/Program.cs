@@ -30,8 +30,34 @@ namespace ChessLib.Parse.Console
         private static void Main(string[] args)
         {
             var database = GetDatabaseToParse(args);
-           var listenerGames = TestParsing(database);
-            WriteGame(listenerGames, 0);
+            var listenerGames = TestParsing(database);
+            WritePolyglotInfo(listenerGames, 0);
+            //WriteGame(listenerGames, 0);
+        }
+
+        private static void WritePolyglotInfo(Game<MoveStorage>[] games, int i)
+        {
+            if (i >= games.Length)
+            {
+                System.Console.WriteLine($"Requested game at index {i} not found. Length is {games.Length}.");
+                return;
+            }
+            var game = games[0];
+            
+            System.Console.WriteLine("Starting Position");
+
+            
+            foreach (var move in game.MainMoveTree.Skip(1).Take(5))
+            {
+                var hash = Convert.ToString((long)PolyglotHelpers.GetBoardStateHash(game.Board), 16);
+                System.Console.WriteLine($"\tHash:{hash}");
+                game.TraverseForward();
+                var pgMove = Convert.ToString(PolyglotMove.GetEncodedMove(move), 16).PadLeft(4, '0');
+                System.Console.WriteLine(move.SAN);
+
+                System.Console.WriteLine($"\tHash:{hash}");
+                System.Console.WriteLine($"\tMove:{pgMove}");
+            }
         }
 
         public static Game<MoveStorage>[] TestParsing(GameDatabases db)
@@ -47,7 +73,7 @@ namespace ChessLib.Parse.Console
             return games;
         }
 
-       private static GameDatabases GetDatabaseToParse(string[] args)
+        private static GameDatabases GetDatabaseToParse(string[] args)
         {
             GameDatabases database;
             database = args.Length != 0 ? GetDatabaseFromArg(args[0]) : GetDatabaseFromUser();
@@ -65,7 +91,7 @@ namespace ChessLib.Parse.Console
                 System.Console.Clear();
                 System.Console.WriteLine("Choose database:");
                 var count = 0;
-                foreach (var db in (GameDatabases[]) Enum.GetValues(typeof(GameDatabases)))
+                foreach (var db in (GameDatabases[])Enum.GetValues(typeof(GameDatabases)))
                 {
                     System.Console.WriteLine($"{count}\t{db}");
                     max = count++;
@@ -77,7 +103,7 @@ namespace ChessLib.Parse.Console
                 }
             }
 
-            return (GameDatabases) answer;
+            return (GameDatabases)answer;
         }
 
         private static GameDatabases GetDatabaseFromArg(string s)
@@ -89,7 +115,7 @@ namespace ChessLib.Parse.Console
                 return GameDatabases.TalSmall;
             }
 
-            return (GameDatabases) rv;
+            return (GameDatabases)rv;
         }
 
         private static void WriteGame(Game<MoveStorage>[] games, int i)

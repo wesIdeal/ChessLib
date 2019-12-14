@@ -19,7 +19,7 @@ namespace ChessLib.Data.Tests {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class PGN {
@@ -79,6 +79,62 @@ namespace ChessLib.Data.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1.c4 Nf6 2.d4 e6.
+        /// </summary>
+        internal static string g1 {
+            get {
+                return ResourceManager.GetString("g1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1.c4 Nf6 2.d4 e6 
+        ///    ( 2...g6 3.f3 )
+        ///    ( 2...Nc6 )
+        ///*.
+        /// </summary>
+        internal static string g1Variation {
+            get {
+                return ResourceManager.GetString("g1Variation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1.c4 Nf6 2.d4 e6 
+        ///    ( 2...g6 3.f3 )
+        ///*.
+        /// </summary>
+        internal static string g1VariationNotEqual {
+            get {
+                return ResourceManager.GetString("g1VariationNotEqual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot; White to move.&quot;]
         ///[Site &quot;?&quot;]
         ///[Date &quot;1998.??.??&quot;]
@@ -103,6 +159,40 @@ namespace ChessLib.Data.Tests {
         internal static string Puzzle {
             get {
                 return ResourceManager.GetString("Puzzle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1.c4 Nf6 2.d4 e6 3.Nf3 d5 *.
+        /// </summary>
+        internal static string s1 {
+            get {
+                return ResourceManager.GetString("s1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1.c4 Nf6 2.d4 e6 .
+        /// </summary>
+        internal static string s2 {
+            get {
+                return ResourceManager.GetString("s2", resourceCulture);
             }
         }
         
