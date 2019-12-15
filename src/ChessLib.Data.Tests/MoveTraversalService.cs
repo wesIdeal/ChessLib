@@ -330,5 +330,40 @@ namespace ChessLib.Data.Tests
             var data = PGN.ResourceManager.GetString(name);
             return LoadGameByPGN(data);
         }
+
+        [Test]
+        public void GoToLastMoveShouldReturnLastMove()
+        {
+            var pgn = PGN.WithVariations;
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(pgn).Result.First();
+            game.GoToLastMove();
+            Assert.AreEqual("Nc3", game.CurrentMoveNode.Value.SAN);
+        }
+        [Test]
+        public void GoToInitialStateShouldGoToFirstMoveFromMainLine()
+        {
+            var pgn = PGN.WithVariations;
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(pgn).Result.First();
+            game.GoToLastMove();
+            game.GoToInitialState();
+            Assert.IsTrue(game.CurrentMoveNode.Value.IsNullMove);
+        }
+
+        [Test]
+        public void ExitVariationShouldGoToMainMove()
+        {
+            const string variationParentMove = "e5";
+            var mSvc = new MoveTraversalService(FENHelpers.FENInitial);
+            mSvc.ApplySanMove("c4", MoveApplicationStrategy.ContinueMainLine);
+            mSvc.ApplySanMove(variationParentMove, MoveApplicationStrategy.ContinueMainLine);
+            mSvc.ApplySanMove("Nf6", MoveApplicationStrategy.Variation);
+            mSvc.ExitVariation();
+            var currentMoveSan = mSvc.CurrentMoveNode.Value.SAN;
+            Assert.AreEqual(variationParentMove, currentMoveSan,
+                $"Expected e5, but current node was {currentMoveSan}.");
+        }
     }
+
 }

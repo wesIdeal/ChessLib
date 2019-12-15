@@ -96,6 +96,23 @@ namespace ChessLib.Data.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;&quot;]
+        ///[Site &quot;&quot;]
+        ///[Date &quot;&quot;]
+        ///[Round &quot;&quot;]
+        ///[White &quot;&quot;]
+        ///[Black &quot;&quot;]
+        ///[Result &quot;&quot;]
+        ///
+        ///1. c4 Nf6 2. d4 Nc6.
+        /// </summary>
+        internal static string g1SplitFromVariation {
+            get {
+                return ResourceManager.GetString("g1SplitFromVariation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;?&quot;]
         ///[Site &quot;?&quot;]
         ///[Date &quot;????.??.??&quot;]

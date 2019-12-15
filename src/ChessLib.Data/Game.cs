@@ -1,42 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 
 namespace ChessLib.Data
 {
-    public class Game<TMove> : MoveTraversalService
+    public class Game<TMove> : MoveTraversalService, ICloneable
         where TMove : MoveExt, IEquatable<TMove>
     {
         public Game() : base(FENHelpers.FENInitial)
         {
-
-            TagSection = new Tags(OnFenChanged);
+            TagSection = new Tags();
             TagSection.SetFen(FENHelpers.FENInitial);
-
         }
 
         public Game(Tags tags) : base(tags.FENStart)
         {
             TagSection = tags;
-            InitialFen = tags.FENStart;
-            TagSection.OnFenChanged += OnFenChanged;
         }
 
         public Game(string fen) : base(fen)
         {
-            TagSection = new Tags(OnFenChanged);
+            TagSection = new Tags();
             TagSection.SetFen(fen);
         }
 
         public Tags TagSection { get; set; }
         public string Result { get; set; }
 
-        private void OnFenChanged(string fen)
+        public bool IsEqualTo(Game<MoveStorage> otherGame, bool includeVariations = false)
         {
-            InitialFen = fen;
+            if (otherGame.PlyCount != PlyCount)
+            {
+                return false;
+            }
+
+            if (otherGame.InitialFen != InitialFen)
+            {
+                return false;
+            }
+
+            return ParseTreesForEquality(MainMoveTree.First, otherGame.MainMoveTree.First, includeVariations);
         }
+
 
         public Game<MoveStorage> SplitFromCurrentPosition(bool copyVariations = false)
         {
@@ -47,88 +53,92 @@ namespace ChessLib.Data
         {
             var currentFen = CurrentFEN;
             var moveStack = new Stack<MoveStorage>();
-            LinkedListNode<MoveStorage> currentMove = move;
+            var currentMove = move;
             moveStack.Push(currentMove.Value);
             while (!(currentMove = GetPreviousNode(currentMove)).Value.IsNullMove)
             {
                 moveStack.Push(currentMove.Value);
             }
-            var g = new Game<MoveStorage>(this.InitialFen);
+
+            var g = new Game<MoveStorage>(InitialFen);
 
             while (moveStack.Count > 0)
             {
                 var moveStorage = moveStack.Pop();
                 g.ApplyValidatedMove(moveStorage);
             }
+
             g.GoToInitialState();
             return g;
         }
 
-        public bool IsEqualTo(Game<MoveStorage> otherGame, bool includeVariations = false)
+        public override string ToString()
         {
-            if (otherGame.PlyCount != PlyCount)
-            {
-                return false;
-            }
-
-            return ParseTreesForEquality(this.MainMoveTree.First, otherGame.MainMoveTree.First, includeVariations);
-
+            var formatter = new PGNFormatter<TMove>(PGNFormatterOptions.ExportFormatOptions);
+            return formatter.BuildPGN(this);
         }
 
-        private bool ParseTreesForEquality(LinkedListNode<MoveStorage> gNode, LinkedListNode<MoveStorage> otherNode, bool includeVariations)
+        public object Clone()
+        {
+            var clonedGame = new Game<TMove>(TagSection);
+            foreach (var node in MainMoveTree)
+            {
+                clonedGame.MainMoveTree.AddLast(node);
+            }
+
+            return clonedGame;
+        }
+
+        private bool ParseTreesForEquality(LinkedListNode<MoveStorage> gNode, LinkedListNode<MoveStorage> otherNode,
+            bool includeVariations)
         {
             var areEqual = true;
             if (gNode.Value.Move != otherNode.Value.Move)
             {
                 return false;
             }
-            else
+
+            var moveNode = gNode.Next;
+            var otherMoveNode = otherNode.Next;
+            while (moveNode != null)
             {
-                LinkedListNode<MoveStorage> moveNode = gNode.Next;
-                LinkedListNode<MoveStorage> otherMoveNode = otherNode.Next;
-                while ((moveNode != null))
+                if (otherMoveNode == null)
                 {
-                    if (otherMoveNode == null)
+                    areEqual = false;
+                }
+                else
+                {
+                    areEqual &= moveNode.Value.Move == otherMoveNode.Value.Move;
+                }
+
+                if (!areEqual)
+                {
+                    break;
+                }
+
+                if (includeVariations)
+                {
+                    if (moveNode.Value.Variations.Count != otherMoveNode.Value.Variations.Count)
                     {
                         areEqual = false;
                     }
                     else
                     {
-                        areEqual &= moveNode.Value.Move == otherMoveNode.Value.Move;
-                    }
-
-                    if (!areEqual)
-                    {
-                        break;
-                    }
-
-                    if (includeVariations)
-                    {
-                        if (moveNode.Value.Variations.Count != otherMoveNode.Value.Variations.Count)
+                        for (var variationIndex = 0; variationIndex < moveNode.Value.Variations.Count; variationIndex++)
                         {
-                            areEqual = false;
-                        }
-                        else
-                        {
-                            for (var variationIndex = 0; variationIndex < moveNode.Value.Variations.Count; variationIndex++)
-                            {
-                                var variation = moveNode.Value.Variations[variationIndex];
-                                var otherVariation = otherMoveNode.Value.Variations[variationIndex];
-                                areEqual &= ParseTreesForEquality(variation.First, otherVariation.First,
-                                    true);
-                            }
+                            var variation = moveNode.Value.Variations[variationIndex];
+                            var otherVariation = otherMoveNode.Value.Variations[variationIndex];
+                            areEqual &= ParseTreesForEquality(variation.First, otherVariation.First,
+                                true);
                         }
                     }
-                    moveNode = moveNode.Next;
-                    otherMoveNode = otherMoveNode.Next;
                 }
-            }
-            return areEqual;
-        }
 
-        public void SetFEN(string fen)
-        {
-            OnFenChanged(fen);
+                moveNode = moveNode.Next;
+                otherMoveNode = otherMoveNode.Next;
+            }
+
+            return areEqual;
         }
     }
 }

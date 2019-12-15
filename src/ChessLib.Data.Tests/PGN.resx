@@ -140,6 +140,17 @@
 
 1.c4 Nf6 2.d4 e6</value>
   </data>
+  <data name="g1SplitFromVariation" xml:space="preserve">
+    <value>[Event ""]
+[Site ""]
+[Date ""]
+[Round ""]
+[White ""]
+[Black ""]
+[Result ""]
+
+1. c4 Nf6 2. d4 Nc6</value>
+  </data>
   <data name="g1Variation" xml:space="preserve">
     <value>[Event "?"]
 [Site "?"]

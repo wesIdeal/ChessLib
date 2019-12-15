@@ -15,6 +15,8 @@ namespace ChessLib.Data
             AnnotationStyle = AnnotationStyle.PGNSpec;
         }
 
+        public static PGNFormatterOptions ExportFormatOptions => new PGNFormatterOptions() { ExportFormat = true };
+
         /// <summary>
         /// Keeps tags with values equal to '?' if set to true. Otherwise discard them.
         /// <remarks>This should be left untouched if exporting PGN for other applications.</remarks>

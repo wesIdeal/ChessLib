@@ -12,17 +12,12 @@ namespace ChessLib.Data
 {
     public class MoveTree : LinkedList<MoveStorage>
     {
-        private string _startingFEN;
         public bool HasGameComment => !string.IsNullOrEmpty(GameComment);
         public string GameComment { get; set; }
 
         //public MoveNode<T> VariationParent { get; internal set; }
         public LinkedListNode<MoveStorage> VariationParentNode { get; private set; }
-        public string StartingFEN
-        {
-            get => _startingFEN;
-            set => _startingFEN = value;
-        }
+        public string StartingFEN { get; set; }
 
 
         public MoveTree(LinkedListNode<MoveStorage> parentVariation, string fen)
