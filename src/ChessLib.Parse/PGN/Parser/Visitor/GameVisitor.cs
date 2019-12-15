@@ -13,8 +13,8 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
             var moveVisitor = new MoveVisitor();
             var tags = tagVisitor.VisitTagSection(context.tag_section());
             var game = new Game<MoveStorage>(tags);
-            moveVisitor.Visit(context.movetext_section(), parserOptions, ref game);
-            game.GoToInitialState();
+            moveVisitor.VisitMoveSections(context.movetext_section(), parserOptions, ref game);
+            game?.GoToInitialState();
             return game;
         }
     }

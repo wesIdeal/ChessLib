@@ -6,19 +6,23 @@ using ChessLib.Parse.PGN.Parser.BaseClasses;
 
 namespace ChessLib.Parse.PGN.Parser.Visitor
 {
-    using ElementSequenceContext = Parser.BaseClasses.PGNParser.Element_sequenceContext;
+    using ElementSequenceContext = BaseClasses.PGNParser.Element_sequenceContext;
     using TerminationContext = BaseClasses.PGNParser.Game_terminationContext;
     using VariationContext = BaseClasses.PGNParser.Recursive_variationContext;
+
     internal class MoveVisitor : PGNBaseVisitor<Game<MoveStorage>>
     {
+        private bool _foundGame;
         private bool _nextMoveVariation;
-        private int _moveCount;
         private int _plyCount;
 
-        public void Visit(BaseClasses.PGNParser.Movetext_sectionContext context, PGNParserOptions parserOptions,
+        public void VisitMoveSections(BaseClasses.PGNParser.Movetext_sectionContext context, PGNParserOptions parserOptions,
             ref Game<MoveStorage> game)
         {
-            if (game == null) { throw new ArgumentNullException("Must pass in non-null game to MoveVisitor"); }
+            if (game == null)
+            {
+                throw new ArgumentNullException(nameof(game));
+            }
 
             foreach (var child in context.children)
             {
@@ -26,7 +30,7 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
                 {
                     VisitMoveSequence(sequenceContext, parserOptions, ref game);
                 }
-                else if (child is TerminationContext terminationContext)
+                else if (child is TerminationContext terminationContext && game != null)
                 {
                     var terminationString = terminationContext.GetText();
                     if (!string.IsNullOrWhiteSpace(terminationString))
@@ -34,22 +38,70 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
                         game.Result = terminationString;
                     }
                 }
-                if (parserOptions.LimitPlyCount && _plyCount >= parserOptions.MaximumPlyPerGame)
-                {
-                    break;
-                }
             }
 
+            if (parserOptions.UseFenFilter && !_foundGame)
+            {
+                game = null;
+            }
         }
-        protected void VisitMoveSequence(ElementSequenceContext ctx, in PGNParserOptions parserOptions,
+
+        protected MoveStorage VisitElement(BaseClasses.PGNParser.ElementContext context, PGNParserOptions parserOptions,
             ref Game<MoveStorage> game)
         {
+            if (context.san_move() != null)
+            {
+                var applicationStrategy = MoveApplicationStrategy.ContinueMainLine;
+                if (_nextMoveVariation)
+                {
+                    _nextMoveVariation = false;
+                    applicationStrategy = MoveApplicationStrategy.Variation;
+                }
+                _plyCount++;
+                return game.ApplySanMove(context.san_move().GetText(),
+                    applicationStrategy).Value;
+            }
+
+            if (context.nag() != null)
+            {
+                game.CurrentMoveNode.Value.Annotation = new NumericAnnotation(context.nag().GetText());
+            }
+
+            if (context.comment() != null)
+            {
+                game.AddComment(context.comment().GetText().Trim('{', '}').Trim());
+            }
+
+            return null;
+        }
+
+        protected MoveStorage VisitMoveSequence(ElementSequenceContext ctx, in PGNParserOptions parserOptions,
+            ref Game<MoveStorage> game)
+        {
+            MoveStorage move = null;
             foreach (var child in ctx.children)
             {
-                if (child is Parser.BaseClasses.PGNParser.ElementContext elementContext)
+                if (child is BaseClasses.PGNParser.ElementContext elementContext)
                 {
-                    VisitElement(elementContext, ref game);
+                    move = VisitElement(elementContext, parserOptions, ref game);
+                    if (move != null && parserOptions.FilteringApplied)
+                    {
+                        if (parserOptions.UseFenFilter && !ValidatePositionFilter(parserOptions, move))
+                        {
+                            game = null;
+                            break;
+                        }
+
+                        if (parserOptions.LimitPlyCount)
+                        {
+                            if (!ValidatePlyCountLimit(parserOptions))
+                            {
+                                break;
+                            }
+                        }
+                    }
                 }
+
                 if (child is VariationContext variationContext && !parserOptions.IgnoreVariations)
                 {
                     _nextMoveVariation = true;
@@ -62,32 +114,35 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
                     break;
                 }
             }
+
+            return move;
         }
 
-        protected void VisitElement(BaseClasses.PGNParser.ElementContext context, ref Game<MoveStorage> game)
+        /// <summary>
+        /// Validates ply-count limit for parsing
+        /// </summary>
+        /// <param name="parserOptions"></param>
+        /// <returns>true if count hasn't been exceeded</returns>
+        private bool ValidatePlyCountLimit(in PGNParserOptions parserOptions)
         {
-            if (context.san_move() != null)
+            return !(_plyCount >= parserOptions.MaximumPlyPerGame);
+        }
+
+        private bool ValidatePositionFilter(PGNParserOptions parserOptions, MoveStorage move)
+        {
+            if (!_foundGame)
             {
-                var applicationStrategy = MoveApplicationStrategy.ContinueMainLine;
-                if (_nextMoveVariation)
+                if (move.BoardStateHash == parserOptions.BoardStateSearchHash)
                 {
-                    _nextMoveVariation = false;
-                    applicationStrategy = MoveApplicationStrategy.Variation;
+                    _foundGame = true;
                 }
-                game.ApplySanMove(context.san_move().GetText(),
-                    applicationStrategy);
-                _plyCount++;
+                else if (_plyCount >= parserOptions.FenPlyMoveLimit)
+                {
+                    return false;
+                }
             }
 
-            if (context.nag() != null)
-            {
-                game.CurrentMoveNode.Value.Annotation = new NumericAnnotation(context.nag().GetText());
-            }
-
-            if (context.comment() != null)
-            {
-                game.AddComment(context.comment().GetText().Trim('{', '}').Trim());
-            }
+            return true;
         }
     }
 }

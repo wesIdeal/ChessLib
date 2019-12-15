@@ -17,18 +17,17 @@ namespace ChessLib.Parse.PGN
 
     public class PGNParser
     {
-        public PGNParserOptions ParserOptions;
+        public readonly PGNParserOptions ParserOptions;
 
-        public PGNParser()
+        public PGNParser() : this(new PGNParserOptions())
         {
-            ParserOptions = new PGNParserOptions();
+
         }
 
         public PGNParser(PGNParserOptions options)
         {
             ParserOptions = options;
         }
-
 
         public async Task<IEnumerable<Game<MoveStorage>>> GetGamesFromPGNAsync(string pgn)
         {
@@ -48,7 +47,7 @@ namespace ChessLib.Parse.PGN
         private async Task<Game<MoveStorage>[]> GetAllGamesAsync(DatabaseContext context)
         {
             var taskList = new List<Task>();
-            
+
             var count = 0;
             var gameContexts = ParserOptions.LimitGameCount
                 ? context.pgn_game().Take(ParserOptions.GameCountToParse).ToArray()
@@ -71,7 +70,7 @@ namespace ChessLib.Parse.PGN
                 }));
             taskList.AddRange(tasks);
             await Task.WhenAll(taskList.ToArray());
-            return rv;
+            return rv.Where(x => x != null).ToArray();
         }
 
         private Game<MoveStorage> ParseGame(GameContext gameCtx)

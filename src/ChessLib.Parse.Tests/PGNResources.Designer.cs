@@ -99,6 +99,63 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;3rd Vergani Cup 2019&quot;]
+        ///[Site &quot;Villorba ITA&quot;]
+        ///[Date &quot;2019.01.03&quot;]
+        ///[Round &quot;4.6&quot;]
+        ///[White &quot;Blohberger, Felix&quot;]
+        ///[Black &quot;Ter Sahakyan, S&quot;]
+        ///[Result &quot;0-1&quot;]
+        ///[WhiteElo &quot;2450&quot;]
+        ///[BlackElo &quot;2574&quot;]
+        ///[ECO &quot;A28&quot;]
+        ///
+        ///1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.e3 Bb4 5.Qc2 O-O 6.Nd5 Re8 7.Ng5 g6 8.h4 Bf8
+        ///9.Nxf6+ Qxf6 10.Be2 Qe7 11.g4 e4 12.b3 d5 13.cxd5 Nb4 14.Qc4 b5 15.d6 Qf6 
+        ///16.Bb2 bxc4 17.Bxf6 h6 18.Bxc4 hxg5 19.hxg5 Bg7 20.O-O-O Bxg4 21.Rdg1 Bf3 
+        ///22.Rh6 Bxh6 23.gxh6 Nd3+ 24.Kc2 Ne5 25.d7 Nxd7 26.Rxg6+ Kh7 27.Rg7+  [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string EnglishRevSic {
+            get {
+                return ResourceManager.GetString("EnglishRevSic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1.c4 e5 2.g3 Nf6 3.Nc3 *.
+        /// </summary>
+        public static string FilterOut {
+            get {
+                return ResourceManager.GetString("FilterOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1.c4 e5.
+        /// </summary>
+        public static string FilterTooShort {
+            get {
+                return ResourceManager.GetString("FilterTooShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;exhibition&quot;]
         ///[Site &quot;exhibition&quot;]
         ///[Date &quot;1949.??.??&quot;]
@@ -281,6 +338,23 @@ namespace ChessLib.Parse.Tests {
             get {
                 object obj = ResourceManager.GetObject("tiny", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1.c4 Nf6 2.Nc3 Ng8 3.Nb1 e5 4.Nc3 *.
+        /// </summary>
+        public static string TranspositionToFilter {
+            get {
+                return ResourceManager.GetString("TranspositionToFilter", resourceCulture);
             }
         }
         

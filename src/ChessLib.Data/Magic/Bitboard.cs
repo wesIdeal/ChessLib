@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using ChessLib.Data.Boards;
+﻿using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic.Init;
 using ChessLib.Data.MoveRepresentation;
@@ -10,6 +6,10 @@ using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.MoveValidation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace ChessLib.Data.Magic
 {
@@ -254,11 +254,12 @@ namespace ChessLib.Data.Magic
             unvalidatedMoves = BoardValueToMoves(piece, pieceSquare, possibleMoves, enPassantIndex, ca).ToList();
             return possibleMoves;
         }
-        
+
         public static ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color color)
         {
             var r = Rank(pieceIndex);
             var f = File(pieceIndex);
+
             switch (piece)
             {
                 case Piece.Bishop:
@@ -355,7 +356,7 @@ namespace ChessLib.Data.Magic
            ushort? enPassantIdx)
         {
             var pawn = activeColor == Color.White ? WhitePawn : BlackPawn;
-            return pawn.GetLegalMoves(sourceIndex, (activeOccupancy | oppOccupancy),enPassantIdx) & ~(activeOccupancy);
+            return pawn.GetLegalMoves(sourceIndex, (activeOccupancy | oppOccupancy), enPassantIdx) & ~(activeOccupancy);
         }
 
 
@@ -370,22 +371,30 @@ namespace ChessLib.Data.Magic
         {
             var nColor = (int)color;
             var notNColor = nColor ^ 1;
-            var r = squareIndex / 8;
-            var f = squareIndex % 8;
             var oppositeOccupancy = piecesOnBoard[(int)color.Toggle()].Aggregate((x, y) => x | y);
             var activeOccupancy = piecesOnBoard[(int)color].Aggregate((x, y) => x | y);
             var totalOcc = oppositeOccupancy | activeOccupancy;
-            var bishopAttack = GetAttackedSquares(Piece.Bishop, squareIndex, totalOcc, Color.White);
-            if ((bishopAttack & (piecesOnBoard[nColor][Piece.Bishop.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
-            var rookAttack = GetAttackedSquares(Piece.Rook, squareIndex, totalOcc, Color.White);
-            if ((rookAttack & (piecesOnBoard[nColor][Piece.Rook.ToInt()] | piecesOnBoard[nColor][Piece.Queen.ToInt()])) != 0) return true;
-
-            if ((PieceAttackPatterns.Instance.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][Piece.Pawn.ToInt()]) != 0) return true;
-            if ((PieceAttackPatterns.Instance.KnightAttackMask[r, f] & piecesOnBoard[nColor][Piece.Knight.ToInt()]) != 0) return true;
-            if ((PieceAttackPatterns.Instance.KingMoveMask[r, f] & piecesOnBoard[nColor][Piece.King.ToInt()]) != 0) return true;
+            if (IsSquareAttackedBySlidingPiece(squareIndex, nColor, piecesOnBoard, totalOcc))
+            {
+                return true;
+            }
+            if ((PieceAttackPatterns.Instance.PawnAttackMask[notNColor][squareIndex] & piecesOnBoard[nColor][PieceHelpers.Pawn]) != 0) return true;
+            if ((PieceAttackPatterns.Instance.KnightAttackMask[squareIndex] & piecesOnBoard[nColor][PieceHelpers.Knight]) != 0) return true;
+            if ((PieceAttackPatterns.Instance.KingMoveMask[squareIndex] & piecesOnBoard[nColor][PieceHelpers.King]) != 0) return true;
             return false;
         }
 
+        private static bool IsSquareAttackedBySlidingPiece(ushort attackedSquare, int attackerColor, ulong[][] piecesOnBoard, ulong totalOcc)
+        {
+            var bishopAttackSquares = GetAttackedSquares(Piece.Bishop, attackedSquare, totalOcc, Color.White);
+            var rookAttackSquares = GetAttackedSquares(Piece.Rook, attackedSquare, totalOcc, Color.White);
+            return
+                ((rookAttackSquares & (piecesOnBoard[attackerColor][PieceHelpers.Rook] |
+                                       piecesOnBoard[attackerColor][PieceHelpers.Queen])) != 0)
+                ||
+                ((bishopAttackSquares & (piecesOnBoard[attackerColor][PieceHelpers.Bishop] |
+                                         piecesOnBoard[attackerColor][PieceHelpers.Queen])) != 0);
+        }
         /// <summary>
         /// Determines if piece on <paramref name="squareIndex"/> is attacked by <paramref name="attackingColor"/>
         /// </summary>

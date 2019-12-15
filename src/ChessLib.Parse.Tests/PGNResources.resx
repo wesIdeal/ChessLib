@@ -362,4 +362,230 @@ Kf4 7. Re4+ Kf5 8. Rh4# )7. Re4+ Nf4 8. Rxf4+ Kh5 9. Rg3 g5 10. Rh3#  1-0</value
     {And White wins as mate will soon follow.}
 1-0</value>
   </data>
+  <data name="EnglishRevSic" xml:space="preserve">
+    <value>[Event "3rd Vergani Cup 2019"]
+[Site "Villorba ITA"]
+[Date "2019.01.03"]
+[Round "4.6"]
+[White "Blohberger, Felix"]
+[Black "Ter Sahakyan, S"]
+[Result "0-1"]
+[WhiteElo "2450"]
+[BlackElo "2574"]
+[ECO "A28"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.e3 Bb4 5.Qc2 O-O 6.Nd5 Re8 7.Ng5 g6 8.h4 Bf8
+9.Nxf6+ Qxf6 10.Be2 Qe7 11.g4 e4 12.b3 d5 13.cxd5 Nb4 14.Qc4 b5 15.d6 Qf6 
+16.Bb2 bxc4 17.Bxf6 h6 18.Bxc4 hxg5 19.hxg5 Bg7 20.O-O-O Bxg4 21.Rdg1 Bf3 
+22.Rh6 Bxh6 23.gxh6 Nd3+ 24.Kc2 Ne5 25.d7 Nxd7 26.Rxg6+ Kh7 27.Rg7+ Kxh6 
+28.Rxf7 Nb6 29.Bd4 c5 30.Bxc5 Nxc4 31.bxc4 Rac8 32.Rf5 Kg6 33.Rd5 Red8 0-1
+
+[Event "24th Bosnjaci Open"]
+[Site "Bosnjaci CRO"]
+[Date "2019.01.04"]
+[Round "3.4"]
+[White "Sale, S"]
+[Black "Sipic, H"]
+[Result "1-0"]
+[WhiteElo "2446"]
+[BlackElo "2213"]
+[ECO "A28"]
+
+1.c4 e5 2.Nc3 Nc6 3.Nf3 Nf6 4.e4 Bc5 5.Nxe5 Bxf2+ 6.Kxf2 Nxe5 7.d4 Neg4+ 
+8.Kg1 d6 9.h3 Nh6 10.Bg5 Nhg8 11.e5 dxe5 12.dxe5 h6 13.Bh4 g5 14.Qxd8+ 
+Kxd8 15.Rd1+ Nd7 16.Bg3 c6 17.Ne4 Ke7 18.h4 gxh4 19.Rxh4 Nf8 20.Nd6 Ng6 
+21.Rhd4 Be6 22.Nxb7 Rb8 23.Na5 Rxb2 24.Nxc6+ Kf8 25.R4d2 Rxd2 26.Rxd2 N8e7
+27.Rd8+ Kg7 28.Rxh8 Kxh8 29.Nd4 Kg7 30.Kf2 Kf8 31.Bd3 Ke8 32.a3 Kd7 33.Ke3
+h5 34.c5 h4 35.Bh2 Nd5+ 36.Kd2 Nge7 37.Bb5+ Kc7 38.Be8 Kd8 39.Ba4 Kc7 40.
+Nb5+ Kb7 41.Nd6+ Kc7 42.Nxf7 Nf5 43.Ng5 Bg8 44.e6+ Kd8 45.Bd6 Ng7 46.Bb3 
+Ne7 47.Ke3 a5 48.Kf4 a4 49.Bc4 Ngf5 50.Ke5 Ne3 51.Bxe7+ Kxe7 52.Bd5 Ng4+ 
+53.Kd4 Nf6 54.Bc4 Ne8 55.Ke5 Nc7 56.c6 Ne8 57.Nf3 Nd6 58.Bd5 Nb5 59.Nxh4 
+1-0
+
+[Event "4th IIFL Wealth Mumbai Op"]
+[Site "Mumbai IND"]
+[Date "2019.01.04"]
+[Round "6.15"]
+[White "Varga, Kl"]
+[Black "Mosadeghpour, Masoud"]
+[Result "0-1"]
+[WhiteElo "2242"]
+[BlackElo "2520"]
+[ECO "A28"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.e3 Bb4 5.Qc2 Bxc3 6.bxc3 d6 7.e4 O-O 8.d3 a6
+9.Rb1 Rb8 10.a4 b6 11.g3 Bd7 12.Bg2 Na5 13.O-O Qe8 14.Ra1 Bc6 15.Nd2 Nd7 
+16.d4 Bb7 17.f4 c5 18.fxe5 dxe5 19.d5 Qe7 20.Qd3 Bc8 21.Nf3 Nb3 22.Rb1 
+Nxc1 23.Rbxc1 Nf6 24.a5 Bd7 25.axb6 Rxb6 26.Rb1 Rbb8 27.Ra1 Rb6 28.Rfb1 
+Rfb8 29.Rxb6 Rxb6 30.Rb1 Qd6 31.Rxb6 Qxb6 32.Nxe5 Qb2 33.d6 a5 34.Nxd7 
+Nxd7 35.Bh3 Qc1+ 36.Kg2 Qb2+ 37.Kf1 Qc1+ 38.Ke2 Qb2+ 39.Qd2 Qxd2+ 40.Kxd2 
+Ne5 41.Kc2 Kf8 42.Kb3 Ke8 43.Bf5 g6 44.Bc8 Kd8 45.Bh3 h5 46.Ka4 Nxc4 47.e5
+g5 48.e6 f6 49.d7 Ne3 50.e7+ Kxe7 51.Be6 Kd8 52.Kb5 Nf1 53.Kxc5 Kc7 54.Kd5
+Nxh2 55.Bf5 a4 56.Ke6 Kd8 57.Kxf6 a3 58.Be6 Nf3 59.Kf5 h4 60.Kg4 Ne5+ 61.
+Kh3 hxg3 62.Kxg3 Ke7 63.Kh3 Nxd7 64.Ba2 Ne5 65.c4 Kd6 66.Kg3 Kc5 67.Kh3 
+Kb4 68.Kg3 Nxc4 69.Kg4 Kc3 70.Kxg5 Nd2 0-1
+
+[Event "31st Staufer-Open 2019"]
+[Site "Schwaebisch Gmuend GER"]
+[Date "2019.01.04"]
+[Round "5"]
+[White "Herbrig, Alexander"]
+[Black "Skembris, S"]
+[Result "1-0"]
+[WhiteElo "2271"]
+[BlackElo "2386"]
+[ECO "A28"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.e4 d6 5.h3 g6 6.d3 Bg7 7.Bg5 h6 8.Be3 Nd7 9.
+g3 Nc5 10.a3 Nd4 11.Bxd4 exd4 12.Ne2 Bd7 13.Rb1 Ne6 14.Bg2 a5 15.b3 O-O 
+16.O-O c6 17.Nd2 f5 18.f4 Nc5 19.exf5 Bxf5 20.Ne4 Bxe4 21.dxe4 Re8 22.Nxd4
+Nxe4 23.Bxe4 Rxe4 24.Nf3 Qe7 25.Qd3 Kh7 26.Rbe1 Re8 27.Rxe4 Qxe4 28.Qxe4 
+Rxe4 29.Re1 Rxe1+ 30.Nxe1 Bd4+ 31.Kg2 Kg7 32.Kf3 Kf6 33.Nc2 Bc5 34.Ke4 h5 
+35.g4 hxg4 36.hxg4 Ke6 37.Nd4+ Kf6 38.a4 Bxd4 39.Kxd4 g5 40.Ke4 Kg6 41.Kf3
+Kf6 42.fxg5+ Kxg5 43.Kg3 Kg6 44.Kf4 Kf6 45.g5+ Kg6 46.Kg4 d5 47.cxd5 cxd5 
+48.Kf4 d4 49.Ke4 Kxg5 50.Kxd4 Kf4 51.Kc5 Ke4 52.Kb6 Kd4 53.Kxb7 Kc3 54.Ka6
+Kb4 55.Kb6 Kxb3 56.Kxa5 Kc4 57.Kb6 1-0
+
+[Event "George Trundle Masters"]
+[Site "Auckland NZL"]
+[Date "2019.01.05"]
+[Round "2.4"]
+[White "Watson, B"]
+[Black "Hague, B"]
+[Result "1/2-1/2"]
+[WhiteElo "2278"]
+[BlackElo "2411"]
+[ECO "A29"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.g3 Bb4 5.Bg2 O-O 6.O-O e4 7.Ng5 Bxc3 8.bxc3 
+Re8 9.f3 e3 10.dxe3 Qe7 11.Nh3 Qc5 12.Nf4 Qxc4 13.Qd3 Ne5 14.Qxc4 Nxc4 15.
+e4 b6 16.Rd1 a5 17.h4 h6 18.g4 d6 19.g5 hxg5 20.hxg5 Nd7 21.Nd5 Ra7 22.Bh3
+Kf8 23.Bxd7 Bxd7 24.Kf2 Bc6 25.Ne3 Nxe3 26.Bxe3 Ke7 27.Bd4 g6 28.Rh1 Bb5 
+29.a3 1/2-1/2
+
+[Event "Bay Area Int Open 2019"]
+[Site "Burlingame USA"]
+[Date "2019.01.05"]
+[Round "6.29"]
+[White "Gauri, S"]
+[Black "Kung, Thomas"]
+[Result "1-0"]
+[WhiteElo "2359"]
+[BlackElo "2133"]
+[ECO "A28"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.e4 Bc5 5.Nxe5 Nxe5 6.d4 Bb4 7.dxe5 Nxe4 8.
+Qf3 Nxc3 9.bxc3 Ba5 10.Ba3 d6 11.exd6 cxd6 12.Be2 O-O 13.O-O Re8 14.Rfd1 
+Bxc3 15.Rac1 Be5 16.c5 d5 17.Bb5 Qh4 18.g3 Bg4 19.Qxd5 Qh5 20.Bxe8 Bxd1 
+21.Rxd1 Rxe8 22.Re1 Qf5 23.Bb2 Kh8 24.Rxe5 1-0
+
+[Event "31st Staufer-Open 2019"]
+[Site "Schwaebisch Gmuend GER"]
+[Date "2019.01.05"]
+[Round "7"]
+[White "Krassowizkij, J"]
+[Black "Roseneck, Jonas"]
+[Result "1-0"]
+[WhiteElo "2474"]
+[BlackElo "2278"]
+[ECO "A28"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.e3 Bb4 5.Qc2 O-O 6.Nd5 Be7 7.a3 a5 8.d4 d6 
+9.Bd3 h6 10.h3 Nb8 11.O-O c6 12.Nc3 Qc7 13.b3 Nbd7 14.Bb2 Re8 15.Rfd1 Bf8 
+16.Rac1 g6 17.c5 exd4 18.cxd6 Qxd6 19.Bc4 Bg7 20.Rxd4 Qf8 21.e4 Nb6 22.e5 
+Bf5 23.exf6 Bxc2 24.fxg7 Qxg7 25.Rxc2 Nxc4 26.Rxc4 b5 27.Rf4 f5 28.Nd5 Qf7
+29.Nf6+ Kf8 30.Nxe8 Qxb3 31.Nd4 Qf7 32.Nd6 Qe7 33.N4xf5 gxf5 34.Nxf5 Qe1+ 
+35.Kh2 Rd8 36.Nd6+ Kg8 37.Rg4+ 1-0
+
+[Event "48th Rilton Cup 2018-19"]
+[Site "Stockholm SWE"]
+[Date "2019.01.05"]
+[Round "9.50"]
+[White "Jaksland, T"]
+[Black "Vestby-Ellingsen, Mads"]
+[Result "0-1"]
+[WhiteElo "2252"]
+[BlackElo "2358"]
+[ECO "A28"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.e3 Bb4 5.Qc2 Bxc3 6.bxc3 O-O 7.e4 d6 8.Nh4 
+Ne7 9.g3 Ne8 10.d3 f5 11.exf5 Nxf5 12.Nxf5 Bxf5 13.Bg2 Nf6 14.O-O Qd7 15.
+Bg5 Rae8 16.Rae1 h6 17.Bxf6 Rxf6 18.Re3 b6 19.Qb3 Kh8 20.Qb5 Qd8 21.Qa6 
+Qb8 22.Qb7 Qxb7 23.Bxb7 Be6 24.Kg2 g5 25.Bc6 Ref8 26.f3 Kg7 27.a3 h5 28.
+Rfe1 Kg6 29.R1e2 g4 30.Rf2 Kg5 31.Rf1 h4 32.gxh4+ Kxh4 33.Rfe1 gxf3+ 34.
+Rxf3 Rxf3 35.Bxf3 Bh3+ 36.Kf2 Bg4 37.Re3 Kh3 38.Ke2 Rxf3 39.Rxf3+ Kg2 0-1
+
+[Event "4th IIFL Wealth Mumbai Op"]
+[Site "Mumbai IND"]
+[Date "2019.01.06"]
+[Round "8.57"]
+[White "Aleksandrov, A"]
+[Black "Aditya, Mittal"]
+[Result "1/2-1/2"]
+[WhiteElo "2590"]
+[BlackElo "2251"]
+[ECO "A28"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.e4 d6 5.d4 Bg4 6.d5 Nd4 7.Be3 Nxf3+ 8.gxf3 
+Bd7 9.Rg1 Nh5 10.c5 g6 11.cxd6 Bxd6 12.Qb3 O-O 13.O-O-O a5 14.Bb5 Bxb5 15.
+Nxb5 a4 16.Qc4 Qf6 17.Qe2 Nf4 18.Qd2 Nh5 19.Bh6 Rfc8 20.Qe3 Bb4 21.Kb1 Ra5
+22.Na3 Bc5 23.Qc3 b6 24.Bg5 Qg7 25.Nc4 Bd4 26.Qb4 Bc5 27.Qd2 Rb5 28.d6 
+Bxd6 29.Nxd6 cxd6 30.Qxd6 Qf8 31.Qd7 Rxb2+ 32.Kxb2 Qb4+ 33.Ka1 Qc3+ 34.Kb1
+Qc2+ 35.Ka1 Qc3+ 36.Kb1 Qb4+ 37.Ka1 Qc3+ 38.Kb1 Qb4+ 39.Ka1 Qc3+ 40.Kb1 
+Qb4+ 41.Ka1 1/2-1/2
+
+[Event "31st Staufer-Open 2019"]
+[Site "Schwaebisch Gmuend GER"]
+[Date "2019.01.06"]
+[Round "9"]
+[White "Zwirs, Nico"]
+[Black "Biastoch, Bennet"]
+[Result "1-0"]
+[WhiteElo "2419"]
+[BlackElo "2202"]
+[ECO "A28"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 4.e3 Bb4 5.Qc2 O-O 6.Nd5 Re8 7.Ng5 g6 8.h4 e4 
+9.a3 Bf8 10.Nxf6+ Qxf6 11.Nxe4 Qf5 12.d3 b6 13.Bd2 Bb7 14.h5 Ne5 15.hxg6 
+fxg6 16.Rh4 Bg7 17.Rf4 Qh5 18.d4 Nf7 19.Bc3 g5 20.Nf6+ Bxf6 21.Rxf6 Be4 
+22.Qe2 Qxe2+ 23.Bxe2 Kg7 24.d5 Ne5 25.Rf3 Bxf3 26.gxf3 Kg6 27.Kd2 h5 28.f4
+gxf4 29.exf4 Ng4 30.Rg1 Kf7 31.Rh1 Nf6 32.Bxh5+ Nxh5 33.Rxh5 Re4 34.Rf5+ 
+Kg6 35.Rf6+ Kh5 36.Kd3 Re7 37.d6 cxd6 38.Rxd6 Rc8 39.f5 Rc6 40.Rd5 Rf7 41.
+b4 Kg5 42.Bd4 Rxf5 43.Rxd7 a6 44.a4 Rf3+ 45.Be3+ Kg6 46.Ra7 b5 47.axb5 
+axb5 48.cxb5 Rc8 49.b6 Rb8 50.Kc4 Kf6 51.Bc5 Ke6 52.Re7+ Kf6 53.Re2 Rh3 
+54.Kb5 Rh7 55.Bd6 Rbb7 56.Ka6 Rbd7 57.Bc7 1-0</value>
+  </data>
+  <data name="FilterOut" xml:space="preserve">
+    <value>[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1.c4 e5 2.g3 Nf6 3.Nc3 *</value>
+  </data>
+  <data name="FilterTooShort" xml:space="preserve">
+    <value>[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1.c4 e5</value>
+  </data>
+  <data name="TranspositionToFilter" xml:space="preserve">
+    <value>[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1.c4 Nf6 2.Nc3 Ng8 3.Nb1 e5 4.Nc3 *</value>
+  </data>
 </root>
