@@ -74,7 +74,7 @@ namespace ChessLib.Data
 
         public bool HasSetup => ContainsKey("FEN") ||( ContainsKey("SetUp") && this["SetUp"] == "1");
         public string FENStart => HasSetup ? this["FEN"] : FENHelpers.FENInitial;
-
+        
         public string White
         {
             get => ContainsKey("White") ? this["White"] : "";

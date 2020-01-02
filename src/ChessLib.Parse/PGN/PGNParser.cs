@@ -19,9 +19,12 @@ namespace ChessLib.Parse.PGN
     {
         public readonly PGNParserOptions ParserOptions;
 
+        protected Stopwatch Stopwatch = new Stopwatch();
+
+        public EventHandler<ParsingUpdateEventArgs> UpdateProgress;
+
         public PGNParser() : this(new PGNParserOptions())
         {
-
         }
 
         public PGNParser(PGNParserOptions options)
@@ -38,16 +41,16 @@ namespace ChessLib.Parse.PGN
         public async Task<IEnumerable<Game<MoveStorage>>> GetGamesFromPGNAsync(Stream chessDatabaseStream)
         {
             var context = GetContext(new AntlrInputStream(chessDatabaseStream));
-            return await GetAllGamesAsync(context);
+            var rv = await GetAllGamesAsync(context);
+            UpdateProgress?.Invoke(this,
+                new ParsingUpdateEventArgs(Stopwatch.Elapsed) {Maximum = rv.Length, NumberComplete = rv.Length});
+            return rv;
         }
-
-        public EventHandler<ParsingUpdateEventArgs> UpdateProgress;
-
 
         private async Task<Game<MoveStorage>[]> GetAllGamesAsync(DatabaseContext context)
         {
             var taskList = new List<Task>();
-
+            Stopwatch.Restart();
             var count = 0;
             var gameContexts = ParserOptions.LimitGameCount
                 ? context.pgn_game().Take(ParserOptions.GameCountToParse).ToArray()
@@ -60,11 +63,12 @@ namespace ChessLib.Parse.PGN
                     var game = ParseGame(gameCtx);
                     rv[idx] = game;
                     count++;
-                }).ContinueWith((t) =>
+                }).ContinueWith(t =>
                 {
                     if (count % ParserOptions.UpdateFrequency == 0)
                     {
-                        var args = new ParsingUpdateEventArgs() { Maximum = gameCount, NumberComplete = count };
+                        var args = new ParsingUpdateEventArgs(Stopwatch.Elapsed)
+                            {Maximum = gameCount, NumberComplete = count};
                         UpdateProgress?.Invoke(this, args);
                     }
                 }));
@@ -73,23 +77,25 @@ namespace ChessLib.Parse.PGN
             return rv.Where(x => x != null).ToArray();
         }
 
+        private DatabaseContext GetContext(AntlrInputStream gameStream)
+        {
+            Stopwatch.Restart();
+            var lexer = new PGNLexer(gameStream);
+            var commonTokenStream = new CommonTokenStream(lexer);
+            var parser = new Parser.BaseClasses.PGNParser(commonTokenStream);
+            var context = parser.pgn_database();
+            Stopwatch.Stop();
+            UpdateProgress?.Invoke(this,
+                new ParsingUpdateEventArgs($"Completed getting context in {Stopwatch.ElapsedMilliseconds} ms.")
+                    {NumberComplete = 1, Maximum = 1});
+            return context;
+        }
+
         private Game<MoveStorage> ParseGame(GameContext gameCtx)
         {
             var gameVisitor = new GameVisitor();
             var game = gameVisitor.VisitGame(gameCtx, ParserOptions);
             return game;
-        }
-
-        private DatabaseContext GetContext(AntlrInputStream gameStream)
-        {
-            var sw = new Stopwatch();
-            sw.Start();
-            var lexer = new PGNLexer(gameStream);
-            var commonTokenStream = new CommonTokenStream(lexer);
-            var parser = new Parser.BaseClasses.PGNParser(commonTokenStream);
-            sw.Stop();
-            Console.WriteLine($"Parsed games in {sw.ElapsedMilliseconds} ms.");
-            return parser.pgn_database();
         }
     }
 }

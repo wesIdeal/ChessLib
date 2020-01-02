@@ -5,9 +5,12 @@ using ChessLib.Data.MoveRepresentation;
 
 namespace ChessLib.Data
 {
+    public enum GameResult { None, WhiteWins, BlackWins, Draw }
     public class Game<TMove> : MoveTraversalService, ICloneable
         where TMove : MoveExt, IEquatable<TMove>
     {
+        private string _result;
+
         public Game() : base(FENHelpers.FENInitial)
         {
             TagSection = new Tags();
@@ -26,7 +29,46 @@ namespace ChessLib.Data
         }
 
         public Tags TagSection { get; set; }
-        public string Result { get; set; }
+
+        public string Result
+        {
+            get
+            {
+                switch (GameResult)
+                {
+                    case GameResult.None:
+                        return "*";
+                    case GameResult.WhiteWins:
+                        return "1-0";
+                    case GameResult.BlackWins:
+                        return "0-1";
+                    case GameResult.Draw:
+                        return "1/2-1/2";
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            set
+            {
+                switch (value.Replace(" ", ""))
+                {
+                    case "0-1":
+                        GameResult = GameResult.BlackWins;
+                        break;
+                    case "1-0":
+                        GameResult = GameResult.WhiteWins;
+                        break;
+                    case "1/2-1/2":
+                        GameResult = GameResult.Draw;
+                        break;
+                    default:
+                        GameResult = GameResult.None;
+                        break;
+                }
+            }
+        }
+
+        public GameResult GameResult { get; set; }
 
         public bool IsEqualTo(Game<MoveStorage> otherGame, bool includeVariations = false)
         {
