@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <LangVersion>7.3</LangVersion>
-    <Version>1.0.0.4</Version>
+    <Version>1.0.0.5</Version>
     <Company />
     <Authors>Wes Idell</Authors>
     <Product>ChessLib</Product>
