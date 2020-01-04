@@ -46,15 +46,15 @@ internal partial class PGNParser : Parser {
 		RIGHT_PARENTHESIS=17, LEFT_ANGLE_BRACKET=18, RIGHT_ANGLE_BRACKET=19, NUMERIC_ANNOTATION_GLYPH=20, 
 		SYMBOL=21, SUFFIX_ANNOTATION=22, UNEXPECTED_CHAR=23;
 	public const int
-		RULE_parse = 0, RULE_pgn_database = 1, RULE_pgn_game = 2, RULE_tag_section = 3, 
-		RULE_tag_pair = 4, RULE_tag_name = 5, RULE_tag_value = 6, RULE_movetext_section = 7, 
-		RULE_element_sequence = 8, RULE_element = 9, RULE_move_number_indication = 10, 
-		RULE_nag = 11, RULE_comment = 12, RULE_san_move = 13, RULE_recursive_variation = 14, 
-		RULE_game_termination = 15;
+		RULE_parse = 0, RULE_pgnDatabase = 1, RULE_pgnGame = 2, RULE_tagSection = 3, 
+		RULE_tagPair = 4, RULE_tagName = 5, RULE_tagValue = 6, RULE_moveSection = 7, 
+		RULE_elementSequence = 8, RULE_element = 9, RULE_moveNumberIndication = 10, 
+		RULE_nag = 11, RULE_comment = 12, RULE_sanMove = 13, RULE_recursiveVariation = 14, 
+		RULE_gameTermination = 15;
 	public static readonly string[] ruleNames = {
-		"parse", "pgn_database", "pgn_game", "tag_section", "tag_pair", "tag_name", 
-		"tag_value", "movetext_section", "element_sequence", "element", "move_number_indication", 
-		"nag", "comment", "san_move", "recursive_variation", "game_termination"
+		"parse", "pgnDatabase", "pgnGame", "tagSection", "tagPair", "tagName", 
+		"tagValue", "moveSection", "elementSequence", "element", "moveNumberIndication", 
+		"nag", "comment", "sanMove", "recursiveVariation", "gameTermination"
 	};
 
 	private static readonly string[] _LiteralNames = {
@@ -102,8 +102,8 @@ internal partial class PGNParser : Parser {
 	}
 
 	internal partial class ParseContext : ParserRuleContext {
-		public Pgn_databaseContext pgn_database() {
-			return GetRuleContext<Pgn_databaseContext>(0);
+		public PgnDatabaseContext pgnDatabase() {
+			return GetRuleContext<PgnDatabaseContext>(0);
 		}
 		public ITerminalNode Eof() { return GetToken(PGNParser.Eof, 0); }
 		public ParseContext(ParserRuleContext parent, int invokingState)
@@ -125,7 +125,7 @@ internal partial class PGNParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 32; pgn_database();
+			State = 32; pgnDatabase();
 			State = 33; Match(Eof);
 			}
 		}
@@ -140,29 +140,29 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Pgn_databaseContext : ParserRuleContext {
-		public Pgn_gameContext[] pgn_game() {
-			return GetRuleContexts<Pgn_gameContext>();
+	internal partial class PgnDatabaseContext : ParserRuleContext {
+		public PgnGameContext[] pgnGame() {
+			return GetRuleContexts<PgnGameContext>();
 		}
-		public Pgn_gameContext pgn_game(int i) {
-			return GetRuleContext<Pgn_gameContext>(i);
+		public PgnGameContext pgnGame(int i) {
+			return GetRuleContext<PgnGameContext>(i);
 		}
-		public Pgn_databaseContext(ParserRuleContext parent, int invokingState)
+		public PgnDatabaseContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_pgn_database; } }
+		public override int RuleIndex { get { return RULE_pgnDatabase; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitPgn_database(this);
+			if (typedVisitor != null) return typedVisitor.VisitPgnDatabase(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Pgn_databaseContext pgn_database() {
-		Pgn_databaseContext _localctx = new Pgn_databaseContext(Context, State);
-		EnterRule(_localctx, 2, RULE_pgn_database);
+	public PgnDatabaseContext pgnDatabase() {
+		PgnDatabaseContext _localctx = new PgnDatabaseContext(Context, State);
+		EnterRule(_localctx, 2, RULE_pgnDatabase);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
@@ -173,7 +173,7 @@ internal partial class PGNParser : Parser {
 			while (_la==SECTION_MARKER || _la==LEFT_BRACKET) {
 				{
 				{
-				State = 35; pgn_game();
+				State = 35; pgnGame();
 				}
 				}
 				State = 40;
@@ -193,34 +193,34 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Pgn_gameContext : ParserRuleContext {
-		public Tag_sectionContext tag_section() {
-			return GetRuleContext<Tag_sectionContext>(0);
+	internal partial class PgnGameContext : ParserRuleContext {
+		public TagSectionContext tagSection() {
+			return GetRuleContext<TagSectionContext>(0);
 		}
-		public Movetext_sectionContext movetext_section() {
-			return GetRuleContext<Movetext_sectionContext>(0);
+		public MoveSectionContext moveSection() {
+			return GetRuleContext<MoveSectionContext>(0);
 		}
-		public Pgn_gameContext(ParserRuleContext parent, int invokingState)
+		public PgnGameContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_pgn_game; } }
+		public override int RuleIndex { get { return RULE_pgnGame; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitPgn_game(this);
+			if (typedVisitor != null) return typedVisitor.VisitPgnGame(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Pgn_gameContext pgn_game() {
-		Pgn_gameContext _localctx = new Pgn_gameContext(Context, State);
-		EnterRule(_localctx, 4, RULE_pgn_game);
+	public PgnGameContext pgnGame() {
+		PgnGameContext _localctx = new PgnGameContext(Context, State);
+		EnterRule(_localctx, 4, RULE_pgnGame);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 41; tag_section();
-			State = 42; movetext_section();
+			State = 41; tagSection();
+			State = 42; moveSection();
 			}
 		}
 		catch (RecognitionException re) {
@@ -234,30 +234,30 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Tag_sectionContext : ParserRuleContext {
+	internal partial class TagSectionContext : ParserRuleContext {
 		public ITerminalNode SECTION_MARKER() { return GetToken(PGNParser.SECTION_MARKER, 0); }
-		public Tag_pairContext[] tag_pair() {
-			return GetRuleContexts<Tag_pairContext>();
+		public TagPairContext[] tagPair() {
+			return GetRuleContexts<TagPairContext>();
 		}
-		public Tag_pairContext tag_pair(int i) {
-			return GetRuleContext<Tag_pairContext>(i);
+		public TagPairContext tagPair(int i) {
+			return GetRuleContext<TagPairContext>(i);
 		}
-		public Tag_sectionContext(ParserRuleContext parent, int invokingState)
+		public TagSectionContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_tag_section; } }
+		public override int RuleIndex { get { return RULE_tagSection; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitTag_section(this);
+			if (typedVisitor != null) return typedVisitor.VisitTagSection(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Tag_sectionContext tag_section() {
-		Tag_sectionContext _localctx = new Tag_sectionContext(Context, State);
-		EnterRule(_localctx, 6, RULE_tag_section);
+	public TagSectionContext tagSection() {
+		TagSectionContext _localctx = new TagSectionContext(Context, State);
+		EnterRule(_localctx, 6, RULE_tagSection);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
@@ -268,7 +268,7 @@ internal partial class PGNParser : Parser {
 			while (_la==LEFT_BRACKET) {
 				{
 				{
-				State = 44; tag_pair();
+				State = 44; tagPair();
 				}
 				}
 				State = 49;
@@ -289,37 +289,37 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Tag_pairContext : ParserRuleContext {
+	internal partial class TagPairContext : ParserRuleContext {
 		public ITerminalNode LEFT_BRACKET() { return GetToken(PGNParser.LEFT_BRACKET, 0); }
-		public Tag_nameContext tag_name() {
-			return GetRuleContext<Tag_nameContext>(0);
+		public TagNameContext tagName() {
+			return GetRuleContext<TagNameContext>(0);
 		}
-		public Tag_valueContext tag_value() {
-			return GetRuleContext<Tag_valueContext>(0);
+		public TagValueContext tagValue() {
+			return GetRuleContext<TagValueContext>(0);
 		}
 		public ITerminalNode RIGHT_BRACKET() { return GetToken(PGNParser.RIGHT_BRACKET, 0); }
-		public Tag_pairContext(ParserRuleContext parent, int invokingState)
+		public TagPairContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_tag_pair; } }
+		public override int RuleIndex { get { return RULE_tagPair; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitTag_pair(this);
+			if (typedVisitor != null) return typedVisitor.VisitTagPair(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Tag_pairContext tag_pair() {
-		Tag_pairContext _localctx = new Tag_pairContext(Context, State);
-		EnterRule(_localctx, 8, RULE_tag_pair);
+	public TagPairContext tagPair() {
+		TagPairContext _localctx = new TagPairContext(Context, State);
+		EnterRule(_localctx, 8, RULE_tagPair);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 52; Match(LEFT_BRACKET);
-			State = 53; tag_name();
-			State = 54; tag_value();
+			State = 53; tagName();
+			State = 54; tagValue();
 			State = 55; Match(RIGHT_BRACKET);
 			}
 		}
@@ -334,24 +334,24 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Tag_nameContext : ParserRuleContext {
+	internal partial class TagNameContext : ParserRuleContext {
 		public ITerminalNode SYMBOL() { return GetToken(PGNParser.SYMBOL, 0); }
-		public Tag_nameContext(ParserRuleContext parent, int invokingState)
+		public TagNameContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_tag_name; } }
+		public override int RuleIndex { get { return RULE_tagName; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitTag_name(this);
+			if (typedVisitor != null) return typedVisitor.VisitTagName(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Tag_nameContext tag_name() {
-		Tag_nameContext _localctx = new Tag_nameContext(Context, State);
-		EnterRule(_localctx, 10, RULE_tag_name);
+	public TagNameContext tagName() {
+		TagNameContext _localctx = new TagNameContext(Context, State);
+		EnterRule(_localctx, 10, RULE_tagName);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
@@ -369,24 +369,24 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Tag_valueContext : ParserRuleContext {
+	internal partial class TagValueContext : ParserRuleContext {
 		public ITerminalNode STRING() { return GetToken(PGNParser.STRING, 0); }
-		public Tag_valueContext(ParserRuleContext parent, int invokingState)
+		public TagValueContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_tag_value; } }
+		public override int RuleIndex { get { return RULE_tagValue; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitTag_value(this);
+			if (typedVisitor != null) return typedVisitor.VisitTagValue(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Tag_valueContext tag_value() {
-		Tag_valueContext _localctx = new Tag_valueContext(Context, State);
-		EnterRule(_localctx, 12, RULE_tag_value);
+	public TagValueContext tagValue() {
+		TagValueContext _localctx = new TagValueContext(Context, State);
+		EnterRule(_localctx, 12, RULE_tagValue);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
@@ -404,35 +404,35 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Movetext_sectionContext : ParserRuleContext {
-		public Element_sequenceContext element_sequence() {
-			return GetRuleContext<Element_sequenceContext>(0);
+	internal partial class MoveSectionContext : ParserRuleContext {
+		public ElementSequenceContext elementSequence() {
+			return GetRuleContext<ElementSequenceContext>(0);
 		}
-		public Game_terminationContext game_termination() {
-			return GetRuleContext<Game_terminationContext>(0);
+		public GameTerminationContext gameTermination() {
+			return GetRuleContext<GameTerminationContext>(0);
 		}
 		public ITerminalNode SECTION_MARKER() { return GetToken(PGNParser.SECTION_MARKER, 0); }
-		public Movetext_sectionContext(ParserRuleContext parent, int invokingState)
+		public MoveSectionContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_movetext_section; } }
+		public override int RuleIndex { get { return RULE_moveSection; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitMovetext_section(this);
+			if (typedVisitor != null) return typedVisitor.VisitMoveSection(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Movetext_sectionContext movetext_section() {
-		Movetext_sectionContext _localctx = new Movetext_sectionContext(Context, State);
-		EnterRule(_localctx, 14, RULE_movetext_section);
+	public MoveSectionContext moveSection() {
+		MoveSectionContext _localctx = new MoveSectionContext(Context, State);
+		EnterRule(_localctx, 14, RULE_moveSection);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 61; element_sequence();
-			State = 62; game_termination();
+			State = 61; elementSequence();
+			State = 62; gameTermination();
 			State = 63; Match(SECTION_MARKER);
 			}
 		}
@@ -447,35 +447,35 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Element_sequenceContext : ParserRuleContext {
+	internal partial class ElementSequenceContext : ParserRuleContext {
 		public ElementContext[] element() {
 			return GetRuleContexts<ElementContext>();
 		}
 		public ElementContext element(int i) {
 			return GetRuleContext<ElementContext>(i);
 		}
-		public Recursive_variationContext[] recursive_variation() {
-			return GetRuleContexts<Recursive_variationContext>();
+		public RecursiveVariationContext[] recursiveVariation() {
+			return GetRuleContexts<RecursiveVariationContext>();
 		}
-		public Recursive_variationContext recursive_variation(int i) {
-			return GetRuleContext<Recursive_variationContext>(i);
+		public RecursiveVariationContext recursiveVariation(int i) {
+			return GetRuleContext<RecursiveVariationContext>(i);
 		}
-		public Element_sequenceContext(ParserRuleContext parent, int invokingState)
+		public ElementSequenceContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_element_sequence; } }
+		public override int RuleIndex { get { return RULE_elementSequence; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitElement_sequence(this);
+			if (typedVisitor != null) return typedVisitor.VisitElementSequence(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Element_sequenceContext element_sequence() {
-		Element_sequenceContext _localctx = new Element_sequenceContext(Context, State);
-		EnterRule(_localctx, 16, RULE_element_sequence);
+	public ElementSequenceContext elementSequence() {
+		ElementSequenceContext _localctx = new ElementSequenceContext(Context, State);
+		EnterRule(_localctx, 16, RULE_elementSequence);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
@@ -498,7 +498,7 @@ internal partial class PGNParser : Parser {
 					break;
 				case LEFT_PARENTHESIS:
 					{
-					State = 66; recursive_variation();
+					State = 66; recursiveVariation();
 					}
 					break;
 				default:
@@ -523,11 +523,11 @@ internal partial class PGNParser : Parser {
 	}
 
 	internal partial class ElementContext : ParserRuleContext {
-		public Move_number_indicationContext move_number_indication() {
-			return GetRuleContext<Move_number_indicationContext>(0);
+		public MoveNumberIndicationContext moveNumberIndication() {
+			return GetRuleContext<MoveNumberIndicationContext>(0);
 		}
-		public San_moveContext san_move() {
-			return GetRuleContext<San_moveContext>(0);
+		public SanMoveContext sanMove() {
+			return GetRuleContext<SanMoveContext>(0);
 		}
 		public NagContext nag() {
 			return GetRuleContext<NagContext>(0);
@@ -558,13 +558,13 @@ internal partial class PGNParser : Parser {
 			case INTEGER:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 72; move_number_indication();
+				State = 72; moveNumberIndication();
 				}
 				break;
 			case SYMBOL:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 73; san_move();
+				State = 73; sanMove();
 				}
 				break;
 			case NUMERIC_ANNOTATION_GLYPH:
@@ -594,26 +594,26 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Move_number_indicationContext : ParserRuleContext {
+	internal partial class MoveNumberIndicationContext : ParserRuleContext {
 		public ITerminalNode INTEGER() { return GetToken(PGNParser.INTEGER, 0); }
 		public ITerminalNode PERIOD() { return GetToken(PGNParser.PERIOD, 0); }
 		public ITerminalNode TRIP_PERIOD() { return GetToken(PGNParser.TRIP_PERIOD, 0); }
-		public Move_number_indicationContext(ParserRuleContext parent, int invokingState)
+		public MoveNumberIndicationContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_move_number_indication; } }
+		public override int RuleIndex { get { return RULE_moveNumberIndication; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitMove_number_indication(this);
+			if (typedVisitor != null) return typedVisitor.VisitMoveNumberIndication(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Move_number_indicationContext move_number_indication() {
-		Move_number_indicationContext _localctx = new Move_number_indicationContext(Context, State);
-		EnterRule(_localctx, 20, RULE_move_number_indication);
+	public MoveNumberIndicationContext moveNumberIndication() {
+		MoveNumberIndicationContext _localctx = new MoveNumberIndicationContext(Context, State);
+		EnterRule(_localctx, 20, RULE_moveNumberIndication);
 		int _la;
 		try {
 			State = 84;
@@ -728,24 +728,24 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class San_moveContext : ParserRuleContext {
+	internal partial class SanMoveContext : ParserRuleContext {
 		public ITerminalNode SYMBOL() { return GetToken(PGNParser.SYMBOL, 0); }
-		public San_moveContext(ParserRuleContext parent, int invokingState)
+		public SanMoveContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_san_move; } }
+		public override int RuleIndex { get { return RULE_sanMove; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitSan_move(this);
+			if (typedVisitor != null) return typedVisitor.VisitSanMove(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public San_moveContext san_move() {
-		San_moveContext _localctx = new San_moveContext(Context, State);
-		EnterRule(_localctx, 26, RULE_san_move);
+	public SanMoveContext sanMove() {
+		SanMoveContext _localctx = new SanMoveContext(Context, State);
+		EnterRule(_localctx, 26, RULE_sanMove);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
@@ -763,33 +763,33 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Recursive_variationContext : ParserRuleContext {
+	internal partial class RecursiveVariationContext : ParserRuleContext {
 		public ITerminalNode LEFT_PARENTHESIS() { return GetToken(PGNParser.LEFT_PARENTHESIS, 0); }
-		public Element_sequenceContext element_sequence() {
-			return GetRuleContext<Element_sequenceContext>(0);
+		public ElementSequenceContext elementSequence() {
+			return GetRuleContext<ElementSequenceContext>(0);
 		}
 		public ITerminalNode RIGHT_PARENTHESIS() { return GetToken(PGNParser.RIGHT_PARENTHESIS, 0); }
-		public Recursive_variationContext(ParserRuleContext parent, int invokingState)
+		public RecursiveVariationContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_recursive_variation; } }
+		public override int RuleIndex { get { return RULE_recursiveVariation; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitRecursive_variation(this);
+			if (typedVisitor != null) return typedVisitor.VisitRecursiveVariation(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Recursive_variationContext recursive_variation() {
-		Recursive_variationContext _localctx = new Recursive_variationContext(Context, State);
-		EnterRule(_localctx, 28, RULE_recursive_variation);
+	public RecursiveVariationContext recursiveVariation() {
+		RecursiveVariationContext _localctx = new RecursiveVariationContext(Context, State);
+		EnterRule(_localctx, 28, RULE_recursiveVariation);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 92; Match(LEFT_PARENTHESIS);
-			State = 93; element_sequence();
+			State = 93; elementSequence();
 			State = 94; Match(RIGHT_PARENTHESIS);
 			}
 		}
@@ -804,27 +804,27 @@ internal partial class PGNParser : Parser {
 		return _localctx;
 	}
 
-	internal partial class Game_terminationContext : ParserRuleContext {
+	internal partial class GameTerminationContext : ParserRuleContext {
 		public ITerminalNode WHITE_WINS() { return GetToken(PGNParser.WHITE_WINS, 0); }
 		public ITerminalNode BLACK_WINS() { return GetToken(PGNParser.BLACK_WINS, 0); }
 		public ITerminalNode DRAWN_GAME() { return GetToken(PGNParser.DRAWN_GAME, 0); }
 		public ITerminalNode ASTERISK() { return GetToken(PGNParser.ASTERISK, 0); }
-		public Game_terminationContext(ParserRuleContext parent, int invokingState)
+		public GameTerminationContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_game_termination; } }
+		public override int RuleIndex { get { return RULE_gameTermination; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IPGNVisitor<TResult> typedVisitor = visitor as IPGNVisitor<TResult>;
-			if (typedVisitor != null) return typedVisitor.VisitGame_termination(this);
+			if (typedVisitor != null) return typedVisitor.VisitGameTermination(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public Game_terminationContext game_termination() {
-		Game_terminationContext _localctx = new Game_terminationContext(Context, State);
-		EnterRule(_localctx, 30, RULE_game_termination);
+	public GameTerminationContext gameTermination() {
+		GameTerminationContext _localctx = new GameTerminationContext(Context, State);
+		EnterRule(_localctx, 30, RULE_gameTermination);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);

@@ -156,6 +156,34 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;New York&quot;]
+        ///[Site &quot;New York, NY USA&quot;]
+        ///[Date &quot;1857.??.??&quot;]
+        ///[Round &quot;1&quot;]
+        ///[White &quot;Morphy, Paul&quot;]
+        ///[Black &quot;Meek, Alexander Beaufort&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[ECO &quot;A43g&quot;]
+        ///
+        ///
+        ///	   1.	e4          	e6          
+        ///	   2.	d4          	c5          
+        ///	   3.	d5          	e5          
+        ///	   4.	f4          	d6          
+        ///	   5.	Nf3         	Bg4         
+        ///	   6.	fxe5        	Bxf3        
+        ///	   7.	Qxf3        	dxe5        
+        ///	   8.	Bb5+        	Nd7         
+        ///	   9.	Nc3         	Nf6         
+        ///	  10.	Bg5         	Be7         [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string FiveGames {
+            get {
+                return ResourceManager.GetString("FiveGames", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;exhibition&quot;]
         ///[Site &quot;exhibition&quot;]
         ///[Date &quot;1949.??.??&quot;]

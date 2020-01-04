@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Atn;
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN.Parser.BaseClasses;
@@ -12,12 +13,17 @@ using ChessLib.Parse.PGN.Parser.Visitor;
 
 namespace ChessLib.Parse.PGN
 {
-    using GameContext = Parser.BaseClasses.PGNParser.Pgn_gameContext;
-    using DatabaseContext = Parser.BaseClasses.PGNParser.Pgn_databaseContext;
+    using GameContext = Parser.BaseClasses.PGNParser.PgnGameContext;
+    using DatabaseContext = Parser.BaseClasses.PGNParser.PgnDatabaseContext;
+
+   
 
     public class PGNParser
     {
         public readonly PGNParserOptions ParserOptions;
+        private int _count;
+
+        private int _gameCount;
 
         protected Stopwatch Stopwatch = new Stopwatch();
 
@@ -43,7 +49,7 @@ namespace ChessLib.Parse.PGN
             var context = GetContext(new AntlrInputStream(chessDatabaseStream));
             var rv = await GetAllGamesAsync(context);
             UpdateProgress?.Invoke(this,
-                new ParsingUpdateEventArgs(Stopwatch.Elapsed) {Maximum = rv.Length, NumberComplete = rv.Length});
+                new ParsingUpdateEventArgs(Stopwatch.Elapsed) {Maximum = _gameCount, NumberComplete = _count});
             return rv;
         }
 
@@ -51,24 +57,25 @@ namespace ChessLib.Parse.PGN
         {
             var taskList = new List<Task>();
             Stopwatch.Restart();
-            var count = 0;
+
+            _count = 0;
             var gameContexts = ParserOptions.LimitGameCount
-                ? context.pgn_game().Take(ParserOptions.GameCountToParse).ToArray()
-                : context.pgn_game().ToArray();
-            var gameCount = gameContexts.Count();
-            var rv = new Game<MoveStorage>[gameCount];
+                ? context.pgnGame().Take(ParserOptions.GameCountToParse).ToArray()
+                : context.pgnGame().ToArray();
+            _gameCount = gameContexts.Count();
+            var rv = new Game<MoveStorage>[_gameCount];
             var tasks = gameContexts.Select((gameCtx, idx) =>
                 Task.Factory.StartNew(() =>
                 {
                     var game = ParseGame(gameCtx);
                     rv[idx] = game;
-                    count++;
+                    _count++;
                 }).ContinueWith(t =>
                 {
-                    if (count % ParserOptions.UpdateFrequency == 0)
+                    if (_count % ParserOptions.UpdateFrequency == 0)
                     {
                         var args = new ParsingUpdateEventArgs(Stopwatch.Elapsed)
-                            {Maximum = gameCount, NumberComplete = count};
+                            {Maximum = _gameCount, NumberComplete = _count};
                         UpdateProgress?.Invoke(this, args);
                     }
                 }));
@@ -82,11 +89,15 @@ namespace ChessLib.Parse.PGN
             Stopwatch.Restart();
             var lexer = new PGNLexer(gameStream);
             var commonTokenStream = new CommonTokenStream(lexer);
-            var parser = new Parser.BaseClasses.PGNParser(commonTokenStream);
-            var context = parser.pgn_database();
+            var parser = new Parser.BaseClasses.PGNParser(commonTokenStream)
+            {
+                Interpreter = {PredictionMode = PredictionMode.SLL}
+            };
+            var context = parser.pgnDatabase();
             Stopwatch.Stop();
             UpdateProgress?.Invoke(this,
-                new ParsingUpdateEventArgs($"Completed getting context in {Stopwatch.ElapsedMilliseconds} ms.")
+                new ParsingUpdateEventArgs(
+                        $"Completed getting context in {Stopwatch.ElapsedMilliseconds} ms.{Environment.NewLine}")
                     {NumberComplete = 1, Maximum = 1});
             return context;
         }

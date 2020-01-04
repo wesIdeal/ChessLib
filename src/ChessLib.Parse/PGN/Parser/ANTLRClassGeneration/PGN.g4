@@ -43,66 +43,55 @@ options {
 @header {
 	#pragma warning disable 3021
 }
+// Parser
 // The entry point of the grammar.
 parse
- : pgn_database EOF
+ : pgnDatabase EOF
  ;
-
-/// <PGN-database> ::= <PGN-game> <PGN-database>
-///                    <empty>
-pgn_database
- : pgn_game*
+ 
+pgnDatabase
+ : pgnGame*
  ;
 
 /// <PGN-game> ::= <tag-section> <movetext-section>
-pgn_game
- : tag_section movetext_section 
+pgnGame
+ : tagSection moveSection 
  ;
 
 /// <tag-section> ::= <tag-pair> <tag-section>
 ///                   <empty>
-tag_section
- : tag_pair* SECTION_MARKER
+tagSection
+ : tagPair* SECTION_MARKER
  ;
 
-/// <tag-pair> ::= [ <tag-name> <tag-value> ]
-tag_pair
- : LEFT_BRACKET tag_name tag_value RIGHT_BRACKET
+tagPair
+ : LEFT_BRACKET tagName tagValue RIGHT_BRACKET
  ;
 
-/// <tag-name> ::= <identifier>
-tag_name
+tagName
  : SYMBOL
  ;
 
-/// <tag-value> ::= <string>
-tag_value
+tagValue
  : STRING
  ;
  
-/// <movetext-section> ::= <element-sequence> <game-termination>
-movetext_section
- : element_sequence game_termination SECTION_MARKER
+moveSection
+ : elementSequence gameTermination SECTION_MARKER
  ;
 
-/// <element-sequence> ::= <element> <element-sequence>
-///                        <recursive-variation> <element-sequence>
-///                        <empty>
-element_sequence
- : (element | recursive_variation)*
+elementSequence
+ : (element | recursiveVariation)*
  ;
 
-/// <element> ::= <move-number-indication>
-///               <SAN-move>
-///               <numeric-annotation-glyph>
 element
- : move_number_indication
- | san_move
+ : moveNumberIndication
+ | sanMove
  | nag 
  | comment
  ;
 
-move_number_indication
+moveNumberIndication
  : (INTEGER PERIOD?) | (INTEGER TRIP_PERIOD)
  ;
 
@@ -111,26 +100,22 @@ nag
 
 comment : BRACE_COMMENT;
 
-san_move
+sanMove
  : SYMBOL
  ;
 
-/// <recursive-variation> ::= ( <element-sequence> )
-recursive_variation
- : LEFT_PARENTHESIS element_sequence RIGHT_PARENTHESIS
+recursiveVariation
+ : LEFT_PARENTHESIS elementSequence RIGHT_PARENTHESIS
  ;
 
-/// <game-termination> ::= 1-0
-///                        0-1
-///                        1/2-1/2
-///                        *
-game_termination
+gameTermination
  : WHITE_WINS
  | BLACK_WINS
  | DRAWN_GAME
  | ASTERISK
  ;
 
+// Lexer Rules
 WHITE_WINS
  : '1-0'
  ;

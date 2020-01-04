@@ -36,101 +36,101 @@ using IToken = Antlr4.Runtime.IToken;
 [System.CLSCompliant(false)]
 internal interface IPGNVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.parse"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.parse"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitParse([NotNull] PGNParser.ParseContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.pgn_database"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.pgnDatabase"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitPgn_database([NotNull] PGNParser.Pgn_databaseContext context);
+	Result VisitPgnDatabase([NotNull] PGNParser.PgnDatabaseContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.pgn_game"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.pgnGame"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitPgn_game([NotNull] PGNParser.Pgn_gameContext context);
+	Result VisitPgnGame([NotNull] PGNParser.PgnGameContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.tag_section"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.tagSection"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitTag_section([NotNull] PGNParser.Tag_sectionContext context);
+	Result VisitTagSection([NotNull] PGNParser.TagSectionContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.tag_pair"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.tagPair"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitTag_pair([NotNull] PGNParser.Tag_pairContext context);
+	Result VisitTagPair([NotNull] PGNParser.TagPairContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.tag_name"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.tagName"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitTag_name([NotNull] PGNParser.Tag_nameContext context);
+	Result VisitTagName([NotNull] PGNParser.TagNameContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.tag_value"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.tagValue"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitTag_value([NotNull] PGNParser.Tag_valueContext context);
+	Result VisitTagValue([NotNull] PGNParser.TagValueContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.movetext_section"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.moveSection"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitMovetext_section([NotNull] PGNParser.Movetext_sectionContext context);
+	Result VisitMoveSection([NotNull] PGNParser.MoveSectionContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.element_sequence"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.elementSequence"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitElement_sequence([NotNull] PGNParser.Element_sequenceContext context);
+	Result VisitElementSequence([NotNull] PGNParser.ElementSequenceContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.element"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.element"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitElement([NotNull] PGNParser.ElementContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.move_number_indication"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.moveNumberIndication"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitMove_number_indication([NotNull] PGNParser.Move_number_indicationContext context);
+	Result VisitMoveNumberIndication([NotNull] PGNParser.MoveNumberIndicationContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.nag"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.nag"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitNag([NotNull] PGNParser.NagContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.comment"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.comment"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitComment([NotNull] PGNParser.CommentContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.san_move"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.sanMove"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitSan_move([NotNull] PGNParser.San_moveContext context);
+	Result VisitSanMove([NotNull] PGNParser.SanMoveContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.recursive_variation"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.recursiveVariation"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitRecursive_variation([NotNull] PGNParser.Recursive_variationContext context);
+	Result VisitRecursiveVariation([NotNull] PGNParser.RecursiveVariationContext context);
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.game_termination"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.gameTermination"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitGame_termination([NotNull] PGNParser.Game_terminationContext context);
+	Result VisitGameTermination([NotNull] PGNParser.GameTerminationContext context);
 }
 } // namespace ChessLib.Parse.PGN.Parser.BaseClasses
 

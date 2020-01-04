@@ -5,31 +5,31 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
 {
     internal class TagVisitor : PGNBaseVisitor<Tags>
     {
-        public Tags VisitTagSection(Parser.BaseClasses.PGNParser.Tag_sectionContext ctx)
+        public Tags GetTagSection(Parser.BaseClasses.PGNParser.TagSectionContext ctx)
         {
             var tagSection = new Tags();
-            var tagPairCtxs = ctx.tag_pair();
-            foreach (var tagPairContext in tagPairCtxs)
+            var tagPairContexts = ctx.tagPair();
+            foreach (var tagPairContext in tagPairContexts)
             {
-                var tagPair = VisitTagPair(tagPairContext);
+                var tagPair = GetTagPair(tagPairContext);
                 tagSection.Add(tagPair.Key, tagPair.Value);
             }
             return tagSection;
         }
 
-        private KeyValuePair<string, string> VisitTagPair(Parser.BaseClasses.PGNParser.Tag_pairContext context)
+        private KeyValuePair<string, string> GetTagPair(Parser.BaseClasses.PGNParser.TagPairContext context)
         {
-            var tagKey = VisitTagKey(context.tag_name());
-            var tagVal = VisitTagValue(context.tag_value());
+            var tagKey = GetTagKey(context.tagName());
+            var tagVal = GetTagValue(context.tagValue());
             return new KeyValuePair<string, string>(tagKey, tagVal);
         }
 
-        private string VisitTagKey(Parser.BaseClasses.PGNParser.Tag_nameContext context)
+        private string GetTagKey(Parser.BaseClasses.PGNParser.TagNameContext context)
         {
             return context.GetText().Replace("\"", "");
         }
 
-        private string VisitTagValue(Parser.BaseClasses.PGNParser.Tag_valueContext context)
+        private string GetTagValue(Parser.BaseClasses.PGNParser.TagValueContext context)
         {
             return context.GetText().Replace("\"", "");
         }

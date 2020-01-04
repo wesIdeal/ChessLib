@@ -6,9 +6,9 @@ using ChessLib.Parse.PGN.Parser.BaseClasses;
 
 namespace ChessLib.Parse.PGN.Parser.Visitor
 {
-    using ElementSequenceContext = BaseClasses.PGNParser.Element_sequenceContext;
-    using TerminationContext = BaseClasses.PGNParser.Game_terminationContext;
-    using VariationContext = BaseClasses.PGNParser.Recursive_variationContext;
+    using ElementSequenceContext = BaseClasses.PGNParser.ElementSequenceContext;
+    using TerminationContext = BaseClasses.PGNParser.GameTerminationContext;
+    using VariationContext = BaseClasses.PGNParser.RecursiveVariationContext;
 
     internal class MoveVisitor : PGNBaseVisitor<Game<MoveStorage>>
     {
@@ -16,7 +16,7 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
         private bool _nextMoveVariation;
         private int _plyCount;
 
-        public void VisitMoveSections(BaseClasses.PGNParser.Movetext_sectionContext context, PGNParserOptions parserOptions,
+        public void VisitMoveSections(BaseClasses.PGNParser.MoveSectionContext context, PGNParserOptions parserOptions,
             ref Game<MoveStorage> game)
         {
             if (game == null)
@@ -49,7 +49,7 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
         protected MoveStorage VisitElement(BaseClasses.PGNParser.ElementContext context, PGNParserOptions parserOptions,
             ref Game<MoveStorage> game)
         {
-            if (context.san_move() != null)
+            if (context.sanMove() != null)
             {
                 var applicationStrategy = MoveApplicationStrategy.ContinueMainLine;
                 if (_nextMoveVariation)
@@ -58,7 +58,7 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
                     applicationStrategy = MoveApplicationStrategy.Variation;
                 }
                 _plyCount++;
-                return game.ApplySanMove(context.san_move().GetText(),
+                return game.ApplySanMove(context.sanMove().GetText(),
                     applicationStrategy).Value;
             }
 
@@ -105,7 +105,7 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
                 if (child is VariationContext variationContext && !parserOptions.IgnoreVariations)
                 {
                     _nextMoveVariation = true;
-                    VisitMoveSequence(variationContext.element_sequence(), parserOptions, ref game);
+                    VisitMoveSequence(variationContext.elementSequence(), parserOptions, ref game);
                     game.ExitVariation();
                 }
 

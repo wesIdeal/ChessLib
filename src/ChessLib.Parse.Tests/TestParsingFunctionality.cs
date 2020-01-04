@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using ChessLib.Data;
@@ -12,13 +13,52 @@ using NUnit.Framework;
 namespace ChessLib.Parse.Tests
 {
     [TestFixture]
+    public class TestPgnReader
+    {
+
+        [Test]
+        public void TestSimpleGameParsing_OneGame()
+        {
+            var pgnReader = GetReader(PGNResources.Simple);
+            var game = pgnReader.Parse();
+            var gameCount = pgnReader.GameCount;
+            Assert.AreEqual(1, gameCount, $"Expected only one game, but found {gameCount}.");
+        }
+
+        [Test]
+        public void TestSimpleGameParsing_FiveGames()
+        {
+            var pgnReader = GetReader(PGNResources.FiveGames);
+            var game = pgnReader.Parse();
+            var gameCount = pgnReader.GameCount;
+            Assert.AreEqual(5, gameCount, $"Expected five games, but found {gameCount}.");
+        }
+
+        [TestCase("[Event \"New York\"]\r\n", "Event", "New York")]
+        public void TestParsingTagPair(string tagPair, string expectedKey, string expectedValue)
+        {
+            var pgnParser = new PgnParser();
+            using (var reader = new StringReader(tagPair))
+            {
+                pgnParser.VisitTagPair(reader);
+                Assert.IsTrue(pgnParser.Game.TagSection.ContainsKey(expectedKey));
+                Assert.AreEqual(expectedValue, pgnParser.Game.TagSection[expectedKey]);
+            }
+        }
+
+        private PgnReader GetReader(string strPgn)
+        {
+            return new PgnReader(strPgn);
+        }
+    }
+    [TestFixture]
     public class TestParsingFunctionality
     {
         private readonly PGNParser _parser = new PGNParser();
 
-       
 
-      
+
+
         private string MoveDisplay(int moveNumber, string SAN)
         {
             var str = (moveNumber / 2 + 1).ToString();
@@ -132,7 +172,7 @@ namespace ChessLib.Parse.Tests
             const int expectedGameCount = 10;
             Assert.AreEqual(expectedGameCount, filteredGames.Length,
                 $"Expected {expectedGameCount} games from filter database, but found {filteredGames.Length}.");
-            Assert.IsTrue(filteredGames.All(x=>x.PlyCount == options.MaximumPlyPerGame));
+            Assert.IsTrue(filteredGames.All(x => x.PlyCount == options.MaximumPlyPerGame));
 
         }
 
@@ -199,7 +239,7 @@ namespace ChessLib.Parse.Tests
         {
             const int maxPliesToParse = 10;
             var pgnDb = PGNResources.GameWithVars;
-            var parserOptions = new PGNParserOptions {IgnoreVariations = true};
+            var parserOptions = new PGNParserOptions { IgnoreVariations = true };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             foreach (var move in largeDb.First().MainMoveTree)
@@ -220,7 +260,7 @@ namespace ChessLib.Parse.Tests
         {
             const int gamesToParse = 2;
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
-            var parserOptions = new PGNParserOptions {GameCountToParse = 2};
+            var parserOptions = new PGNParserOptions { GameCountToParse = 2 };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             Assert.AreEqual(gamesToParse, largeDb.Length,
@@ -232,7 +272,7 @@ namespace ChessLib.Parse.Tests
         {
             const int maxPliesToParse = 10;
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
-            var parserOptions = new PGNParserOptions {GameCountToParse = 5, MaximumPlyPerGame = maxPliesToParse};
+            var parserOptions = new PGNParserOptions { GameCountToParse = 5, MaximumPlyPerGame = maxPliesToParse };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             WritePgn(largeDb.First());

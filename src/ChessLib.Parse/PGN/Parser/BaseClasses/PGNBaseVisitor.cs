@@ -38,7 +38,7 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 [System.CLSCompliant(false)]
 internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>, IPGNVisitor<Result> {
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.parse"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.parse"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -48,7 +48,7 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// <return>The visitor result.</return>
 	public virtual Result VisitParse([NotNull] PGNParser.ParseContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.pgn_database"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.pgnDatabase"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -56,9 +56,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitPgn_database([NotNull] PGNParser.Pgn_databaseContext context) { return VisitChildren(context); }
+	public virtual Result VisitPgnDatabase([NotNull] PGNParser.PgnDatabaseContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.pgn_game"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.pgnGame"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -66,9 +66,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitPgn_game([NotNull] PGNParser.Pgn_gameContext context) { return VisitChildren(context); }
+	public virtual Result VisitPgnGame([NotNull] PGNParser.PgnGameContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.tag_section"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.tagSection"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -76,9 +76,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitTag_section([NotNull] PGNParser.Tag_sectionContext context) { return VisitChildren(context); }
+	public virtual Result VisitTagSection([NotNull] PGNParser.TagSectionContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.tag_pair"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.tagPair"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -86,9 +86,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitTag_pair([NotNull] PGNParser.Tag_pairContext context) { return VisitChildren(context); }
+	public virtual Result VisitTagPair([NotNull] PGNParser.TagPairContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.tag_name"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.tagName"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -96,9 +96,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitTag_name([NotNull] PGNParser.Tag_nameContext context) { return VisitChildren(context); }
+	public virtual Result VisitTagName([NotNull] PGNParser.TagNameContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.tag_value"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.tagValue"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -106,9 +106,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitTag_value([NotNull] PGNParser.Tag_valueContext context) { return VisitChildren(context); }
+	public virtual Result VisitTagValue([NotNull] PGNParser.TagValueContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.movetext_section"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.moveSection"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -116,9 +116,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitMovetext_section([NotNull] PGNParser.Movetext_sectionContext context) { return VisitChildren(context); }
+	public virtual Result VisitMoveSection([NotNull] PGNParser.MoveSectionContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.element_sequence"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.elementSequence"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -126,9 +126,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitElement_sequence([NotNull] PGNParser.Element_sequenceContext context) { return VisitChildren(context); }
+	public virtual Result VisitElementSequence([NotNull] PGNParser.ElementSequenceContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.element"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.element"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -138,7 +138,7 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// <return>The visitor result.</return>
 	public virtual Result VisitElement([NotNull] PGNParser.ElementContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.move_number_indication"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.moveNumberIndication"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -146,9 +146,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitMove_number_indication([NotNull] PGNParser.Move_number_indicationContext context) { return VisitChildren(context); }
+	public virtual Result VisitMoveNumberIndication([NotNull] PGNParser.MoveNumberIndicationContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.nag"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.nag"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -158,7 +158,7 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// <return>The visitor result.</return>
 	public virtual Result VisitNag([NotNull] PGNParser.NagContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.comment"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.comment"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -168,7 +168,7 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// <return>The visitor result.</return>
 	public virtual Result VisitComment([NotNull] PGNParser.CommentContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.san_move"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.sanMove"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -176,9 +176,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitSan_move([NotNull] PGNParser.San_moveContext context) { return VisitChildren(context); }
+	public virtual Result VisitSanMove([NotNull] PGNParser.SanMoveContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.recursive_variation"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.recursiveVariation"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -186,9 +186,9 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitRecursive_variation([NotNull] PGNParser.Recursive_variationContext context) { return VisitChildren(context); }
+	public virtual Result VisitRecursiveVariation([NotNull] PGNParser.RecursiveVariationContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// VisitMoveSections a parse tree produced by <see cref="PGNParser.game_termination"/>.
+	/// Visit a parse tree produced by <see cref="PGNParser.gameTermination"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -196,7 +196,7 @@ internal partial class PGNBaseVisitor<Result> : AbstractParseTreeVisitor<Result>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitGame_termination([NotNull] PGNParser.Game_terminationContext context) { return VisitChildren(context); }
+	public virtual Result VisitGameTermination([NotNull] PGNParser.GameTerminationContext context) { return VisitChildren(context); }
 }
 } // namespace ChessLib.Parse.PGN.Parser.BaseClasses
 

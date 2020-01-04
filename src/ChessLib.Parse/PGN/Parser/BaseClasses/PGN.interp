@@ -52,21 +52,21 @@ UNEXPECTED_CHAR
 
 rule names:
 parse
-pgn_database
-pgn_game
-tag_section
-tag_pair
-tag_name
-tag_value
-movetext_section
-element_sequence
+pgnDatabase
+pgnGame
+tagSection
+tagPair
+tagName
+tagValue
+moveSection
+elementSequence
 element
-move_number_indication
+moveNumberIndication
 nag
 comment
-san_move
-recursive_variation
-game_termination
+sanMove
+recursiveVariation
+gameTermination
 
 
 atn:
