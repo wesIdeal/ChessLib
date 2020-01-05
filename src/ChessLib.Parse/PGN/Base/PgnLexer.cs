@@ -18,9 +18,9 @@ namespace ChessLib.Parse.PGN.Base
 
         public static (string tagSection, string moveSection) GetSectionsFromPGN(string pgn)
         {
-            const string moveSectionKey = "moveSection", tagSectionKey = "tagSection";
+            const string tagSectionKey = "tagSection";
             const string sectionSeperatingRegEx =
-                "(?<tagSection>[\\s]*[\\[[\\s\\S]*\\\"(\\s)*\\])(\\r\\n){2}";
+                "(?<" + tagSectionKey + ">[\\s]*[\\[[\\s\\S]*\\\"(\\s)*\\])(\\r\\n){2}";
             Regex regex = new Regex(sectionSeperatingRegEx);
             var matches = regex.Match(pgn);
             var tagGroup = matches.Groups[tagSectionKey];
@@ -99,13 +99,6 @@ namespace ChessLib.Parse.PGN.Base
                 default: return true;
             }
         }
-
-
-
-
-
-      
-
         private bool IsWhiteSpaceToken(char token) => _whiteSpaceTokens.Contains(token);
     }
 }

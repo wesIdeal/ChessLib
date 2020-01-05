@@ -9,8 +9,6 @@ namespace ChessLib.Data
     public class Game<TMove> : MoveTraversalService, ICloneable
         where TMove : MoveExt, IEquatable<TMove>
     {
-        private string _result;
-
         public Game() : base(FENHelpers.FENInitial)
         {
             TagSection = new Tags();

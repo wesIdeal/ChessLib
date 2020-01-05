@@ -8,10 +8,7 @@ using System.Text;
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN;
-using ChessLib.Parse.PGN.Base;
-using ChessLib.Parse.PGN.Parser.Visitor;
 using ChessLib.Parse.Tests;
-using NUnit.Framework;
 
 namespace ChessLib.Parse.Console
 {
@@ -27,83 +24,8 @@ namespace ChessLib.Parse.Console
             GameWithVariation,
             PregameComment
         }
-        public static void TestSpeed()
-        {
-            Stopwatch sw = new Stopwatch();
-            var pgn = GetDbFromEnum(GameDatabases.TalLarge);
-            var oldParsingTimes = new List<long>();
-            var newParsingTimes = new List<long>();
-            var numberOfTimes = 1;
-            
-            System.Console.WriteLine($"OLD PARSING{Environment.NewLine}");
-            for (int i = 0; i < numberOfTimes; i++)
-            {
-                sw.Restart();
-                ParseOldWay(pgn);
-                sw.Stop();
-                oldParsingTimes.Add(sw.ElapsedMilliseconds);
-                System.Console.Write($"\r{i}  /  {numberOfTimes}\t{sw.ElapsedMilliseconds} ms       ");
-            }
-            System.Console.WriteLine($"{Environment.NewLine}Old:\tTotal:{Math.Round((double)(oldParsingTimes.Sum() / 1000), 2)} secs\t{oldParsingTimes.Average()} avg ms");
-            System.Console.WriteLine($"NEW PARSING{Environment.NewLine}");
-            for (int i = 0; i < numberOfTimes; i++)
-            {
-                sw.Restart();
-                ParseNewWay(pgn);
-                sw.Stop();
-                newParsingTimes.Add(sw.ElapsedMilliseconds);
-                System.Console.Write($"\r{i}  /  {numberOfTimes}\t{sw.ElapsedMilliseconds} ms       ");
-            }
-            System.Console.WriteLine($"{Environment.NewLine}New:\tTotal:{Math.Round((double)(newParsingTimes.Sum() / 1000), 2)} secs\t{newParsingTimes.Average()} avg ms");
-
-        }
-        private static void ParseNewWay(string pgn)
-        {
-            var parser = new PgnReader(pgn);
-            var games = parser.Parse().Result.ToArray();
-            System.Console.WriteLine($"Parsed {games.Length} games.");
-
-        }
-        private static void ParseOldWay(string pgn)
-        {
-
-            var parser = new PGNParser();
-            var game = parser.GetGamesFromPGNAsync(pgn).Result.ToArray();
-            System.Console.WriteLine($"Parsed {game.Length} games.");
-        }
 
         private static int CursorTop => System.Console.CursorTop;
-
-        private static void Main(string[] args)
-        {
-            TestSpeed();
-            //WriteGame(listenerGames, 0);
-        }
-
-        private static void WritePolyglotInfo(Game<MoveStorage>[] games, int i)
-        {
-            if (i >= games.Length)
-            {
-                System.Console.WriteLine($"Requested game at index {i} not found. Length is {games.Length}.");
-                return;
-            }
-            var game = games[0];
-
-            System.Console.WriteLine("Starting Position");
-
-
-            foreach (var move in game.MainMoveTree.Skip(1).Take(5))
-            {
-                var hash = Convert.ToString((long)PolyglotHelpers.GetBoardStateHash(game.Board), 16);
-                System.Console.WriteLine($"\tHash:{hash}");
-                game.TraverseForward();
-                var pgMove = Convert.ToString(PolyglotMove.GetEncodedMove(move), 16).PadLeft(4, '0');
-                System.Console.WriteLine(move.SAN);
-
-                System.Console.WriteLine($"\tHash:{hash}");
-                System.Console.WriteLine($"\tMove:{pgMove}");
-            }
-        }
 
         public static Game<MoveStorage>[] TestParsing(GameDatabases db)
         {
@@ -118,12 +40,37 @@ namespace ChessLib.Parse.Console
             return games;
         }
 
-        private static GameDatabases GetDatabaseToParse(string[] args)
+        public static void TestSpeed()
         {
-            GameDatabases database;
-            database = args.Length != 0 ? GetDatabaseFromArg(args[0]) : GetDatabaseFromUser();
-            System.Console.WriteLine($"Using {database}");
-            return database;
+            var sw = new Stopwatch();
+            var pgn = GetDbFromEnum(GameDatabases.TalLarge);
+            var oldParsingTimes = new List<long>();
+            var numberOfTimes = 1;
+
+            System.Console.WriteLine($"OLD PARSING{Environment.NewLine}");
+            for (var i = 0; i < numberOfTimes; i++)
+            {
+                sw.Restart();
+                ParseOldWay(pgn);
+                sw.Stop();
+                oldParsingTimes.Add(sw.ElapsedMilliseconds);
+                System.Console.Write($"\r{i}  /  {numberOfTimes}\t{sw.ElapsedMilliseconds} ms       ");
+            }
+
+            System.Console.WriteLine(
+                $"{Environment.NewLine}Old:\tTotal:{Math.Round((double) (oldParsingTimes.Sum() / 1000), 2)} secs\t{oldParsingTimes.Average()} avg ms");
+        }
+
+        private static GameDatabases GetDatabaseFromArg(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s) ||
+                !Enum.TryParse(typeof(GameDatabases), s, true, out var rv))
+            {
+                System.Console.WriteLine($"Cannot match {s}. Using {GameDatabases.TalSmall}");
+                return GameDatabases.TalSmall;
+            }
+
+            return (GameDatabases) rv;
         }
 
         private static GameDatabases GetDatabaseFromUser()
@@ -136,11 +83,12 @@ namespace ChessLib.Parse.Console
                 System.Console.Clear();
                 System.Console.WriteLine("Choose database:");
                 var count = 0;
-                foreach (var db in (GameDatabases[])Enum.GetValues(typeof(GameDatabases)))
+                foreach (var db in (GameDatabases[]) Enum.GetValues(typeof(GameDatabases)))
                 {
                     System.Console.WriteLine($"{count}\t{db}");
                     max = count++;
                 }
+
                 var response = System.Console.ReadLine();
                 if (!int.TryParse(response?.Trim(), out answer))
                 {
@@ -148,43 +96,15 @@ namespace ChessLib.Parse.Console
                 }
             }
 
-            return (GameDatabases)answer;
+            return (GameDatabases) answer;
         }
 
-        private static GameDatabases GetDatabaseFromArg(string s)
+        private static GameDatabases GetDatabaseToParse(string[] args)
         {
-            if (string.IsNullOrWhiteSpace(s) ||
-                !Enum.TryParse(typeof(GameDatabases), s, true, out var rv))
-            {
-                System.Console.WriteLine($"Cannot match {s}. Using {GameDatabases.TalSmall}");
-                return GameDatabases.TalSmall;
-            }
-
-            return (GameDatabases)rv;
-        }
-
-        private static void WriteGame(Game<MoveStorage>[] games, int i)
-        {
-            if (i >= games.Length)
-            {
-                System.Console.WriteLine($"Requested game at index {i} not found. Length is {games.Length}.");
-                return;
-            }
-
-            var game = games[i];
-            var pgnFormatter = new PGNFormatter<MoveStorage>(new PGNFormatterOptions
-            {
-                ExportFormat = true
-            });
-            var pgn = pgnFormatter.BuildPGN(game);
-            System.Console.WriteLine(pgn);
-            File.WriteAllText("C:\\temp\\test.pgn", pgn);
-        }
-
-        private static void UpdateProgress(object sender, ParsingUpdateEventArgs e)
-        {
-            System.Console.SetCursorPosition(0, CursorTop);
-            System.Console.Write(e.Label);
+            GameDatabases database;
+            database = args.Length != 0 ? GetDatabaseFromArg(args[0]) : GetDatabaseFromUser();
+            System.Console.WriteLine($"Using {database}");
+            return database;
         }
 
         private static string GetDbFromEnum(GameDatabases db)
@@ -212,6 +132,69 @@ namespace ChessLib.Parse.Console
             }
 
             return Encoding.UTF8.GetString(byteArray);
+        }
+
+        private static void Main(string[] args)
+        {
+            TestSpeed();
+            //WriteGame(listenerGames, 0);
+        }
+
+        private static void ParseOldWay(string pgn)
+        {
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(pgn).Result.ToArray();
+            System.Console.WriteLine($"Parsed {game.Length} games.");
+        }
+
+        private static void UpdateProgress(object sender, ParsingUpdateEventArgs e)
+        {
+            System.Console.SetCursorPosition(0, CursorTop);
+            System.Console.Write(e.Label);
+        }
+
+        private static void WriteGame(Game<MoveStorage>[] games, int i)
+        {
+            if (i >= games.Length)
+            {
+                System.Console.WriteLine($"Requested game at index {i} not found. Length is {games.Length}.");
+                return;
+            }
+
+            var game = games[i];
+            var pgnFormatter = new PGNFormatter<MoveStorage>(new PGNFormatterOptions
+            {
+                ExportFormat = true
+            });
+            var pgn = pgnFormatter.BuildPGN(game);
+            System.Console.WriteLine(pgn);
+            File.WriteAllText("C:\\temp\\test.pgn", pgn);
+        }
+
+        private static void WritePolyglotInfo(Game<MoveStorage>[] games, int i)
+        {
+            if (i >= games.Length)
+            {
+                System.Console.WriteLine($"Requested game at index {i} not found. Length is {games.Length}.");
+                return;
+            }
+
+            var game = games[0];
+
+            System.Console.WriteLine("Starting Position");
+
+
+            foreach (var move in game.MainMoveTree.Skip(1).Take(5))
+            {
+                var hash = Convert.ToString((long) PolyglotHelpers.GetBoardStateHash(game.Board), 16);
+                System.Console.WriteLine($"\tHash:{hash}");
+                game.TraverseForward();
+                var pgMove = Convert.ToString(PolyglotMove.GetEncodedMove(move), 16).PadLeft(4, '0');
+                System.Console.WriteLine(move.SAN);
+
+                System.Console.WriteLine($"\tHash:{hash}");
+                System.Console.WriteLine($"\tMove:{pgMove}");
+            }
         }
     }
 }

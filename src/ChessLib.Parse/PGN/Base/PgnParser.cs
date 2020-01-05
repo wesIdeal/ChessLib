@@ -9,15 +9,15 @@ namespace ChessLib.Parse.PGN.Base
 {
     public class PgnParser
     {
-        private bool _nextMoveIsVariation;
         protected const char TokenVariationStart = '(';
         protected const char TokenVariationEnd = ')';
         protected const char TokenCommentStart = '{';
         protected const char TokenCommentEnd = '}';
+        private bool _foundGame;
+        private bool _nextMoveIsVariation;
+        private int _plyCount;
         public Game<MoveStorage> Game;
         public List<PgnParsingLog> LogMessages = new List<PgnParsingLog>();
-        private bool _foundGame;
-        private int _plyCount;
 
         public PgnParser()
         {
@@ -38,14 +38,13 @@ namespace ChessLib.Parse.PGN.Base
             int nReadChar;
             while ((nReadChar = reader.Peek()) != -1)
             {
-                var readChar = (char)nReadChar;
-                if (Char.IsLetter(readChar))
+                var readChar = (char) nReadChar;
+                if (char.IsLetter(readChar))
                 {
                     if (!VisitSanMove(reader, options))
                     {
                         break;
                     }
-
                 }
                 else if (readChar == TokenVariationStart)
                 {
@@ -65,43 +64,7 @@ namespace ChessLib.Parse.PGN.Base
                 {
                     reader.Read();
                 }
-
             }
-        }
-
-        private bool ValidatePositionFilter(PGNParserOptions options, MoveStorage move)
-        {
-            if (!_foundGame)
-            {
-                if (move.BoardStateHash == options.BoardStateSearchHash)
-                {
-                    _foundGame = true;
-                }
-                else if (_plyCount >= options.FenPlyMoveLimit)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private void VisitComment(StringReader reader)
-        {
-            var comment = ReadUntil(reader, TokenCommentEnd);
-            comment = comment.Trim(TokenCommentStart, TokenCommentEnd).Trim();
-            Game.AddComment(comment);
-        }
-
-        internal static string ReadUntil(in StringReader reader, in char c)
-        {
-            var buffer = "";
-            char readChar;
-            while ((readChar = (char)reader.Read()) != -1 && readChar != c)
-            {
-                buffer += readChar;
-            }
-
-            return buffer;
         }
 
         public bool VisitResult(char c)
@@ -179,13 +142,59 @@ namespace ChessLib.Parse.PGN.Base
             return true;
         }
 
+        internal static string ReadUntil(in StringReader reader, in char c)
+        {
+            var buffer = "";
+            char readChar;
+            while ((readChar = (char) reader.Read()) != -1 && readChar != c)
+            {
+                buffer += readChar;
+            }
+
+            return buffer;
+        }
+
+        /// <summary>
+        ///     Validates ply-count limit for parsing
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns>true if count hasn't been exceeded</returns>
+        private bool ValidatePlyCountLimit(in PGNParserOptions options)
+        {
+            return !(_plyCount >= options.MaximumPlyPerGame);
+        }
+
+        private bool ValidatePositionFilter(PGNParserOptions options, MoveStorage move)
+        {
+            if (!_foundGame)
+            {
+                if (move.BoardStateHash == options.BoardStateSearchHash)
+                {
+                    _foundGame = true;
+                }
+                else if (_plyCount >= options.FenPlyMoveLimit)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void VisitComment(StringReader reader)
+        {
+            var comment = ReadUntil(reader, TokenCommentEnd);
+            comment = comment.Trim(TokenCommentStart, TokenCommentEnd).Trim();
+            Game.AddComment(comment);
+        }
+
         private bool VisitSanMove(in StringReader reader, PGNParserOptions options)
         {
-            var buffer = String.Empty;
+            var buffer = string.Empty;
             char c;
-            while ((c = (char)reader.Read()) != -1)
+            while ((c = (char) reader.Read()) != -1)
             {
-                if (Char.IsWhiteSpace(c))
+                if (char.IsWhiteSpace(c))
                 {
                     break;
                 }
@@ -198,7 +207,7 @@ namespace ChessLib.Parse.PGN.Base
                 : MoveApplicationStrategy.ContinueMainLine;
             _nextMoveIsVariation = false;
             var move = Game.ApplySanMove(buffer, strategy);
-            _plyCount = Game.MainMoveTree.Count;
+            _plyCount = Game.PlyCount;
             if (move != null && options.FilteringApplied)
             {
                 if (options.UseFenFilter && !ValidatePositionFilter(options, move.Value))
@@ -206,10 +215,8 @@ namespace ChessLib.Parse.PGN.Base
                     Game = null;
                     return false;
                 }
-
-                
             }
-            
+
 
             if (options.LimitPlyCount && _plyCount >= options.MaximumPlyPerGame)
             {
@@ -218,15 +225,5 @@ namespace ChessLib.Parse.PGN.Base
 
             return true;
         }
-        /// <summary>
-        /// Validates ply-count limit for parsing
-        /// </summary>
-        /// <param name="options"></param>
-        /// <returns>true if count hasn't been exceeded</returns>
-        private bool ValidatePlyCountLimit(in PGNParserOptions options)
-        {
-            return !(_plyCount >= options.MaximumPlyPerGame);
-        }
-
     }
 }
