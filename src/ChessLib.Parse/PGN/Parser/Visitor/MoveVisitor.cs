@@ -141,7 +141,6 @@ namespace ChessLib.Parse.PGN.Parser.Visitor
                     return false;
                 }
             }
-
             return true;
         }
     }

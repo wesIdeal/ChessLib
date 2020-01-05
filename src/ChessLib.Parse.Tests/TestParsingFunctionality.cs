@@ -75,7 +75,7 @@ namespace ChessLib.Parse.Tests
         {
             var pgn = PGNResources.GameWithNAG;
             var parser = new PgnReader(PGNResources.Simple);
-            var games = parser.Parse().ToArray();
+            var games = parser.Parse().Result.ToArray();
             Assert.IsNotEmpty(games);
             Assert.IsTrue(games.First().MainMoveTree.Count == 40);
         }
@@ -85,7 +85,7 @@ namespace ChessLib.Parse.Tests
         {
             var pgn = PGNResources.GameWithNAG;
             var parser = new PgnReader(PGNResources.VariationsAndComments);
-            var games = parser.Parse().ToArray();
+            var games = parser.Parse().Result.ToArray();
             Assert.IsNotEmpty(games);
             Assert.AreEqual(114, games.First().MainMoveTree.Count);
         }

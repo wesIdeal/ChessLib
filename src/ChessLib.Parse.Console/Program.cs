@@ -60,8 +60,8 @@ namespace ChessLib.Parse.Console
         private static void ParseNewWay(string pgn)
         {
             var parser = new PgnReader(pgn);
-            var games = parser.Parse();
-            System.Console.Write($"Parsed {games.Count()} games.");
+            var games = parser.Parse().Result.ToArray();
+            System.Console.WriteLine($"Parsed {games.Length} games.");
 
         }
         private static void ParseOldWay(string pgn)
@@ -69,7 +69,7 @@ namespace ChessLib.Parse.Console
 
             var parser = new PGNParser();
             var game = parser.GetGamesFromPGNAsync(pgn).Result.ToArray();
-            System.Console.Write($"Parsed {game.Count()} games.");
+            System.Console.WriteLine($"Parsed {game.Length} games.");
         }
 
         private static int CursorTop => System.Console.CursorTop;

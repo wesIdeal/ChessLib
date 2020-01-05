@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
 
@@ -13,13 +15,16 @@ namespace ChessLib.Parse.PGN.Base
         private readonly string _pgn;
         private MemoryStream _stream;
         protected char TokenTagBegin = '[';
+        private PGNParserOptions _options;
+        private int _gameCount;
+        public int Completed;
 
-        public PgnReader(string pgnString) : this()
+        public PgnReader(string pgnString, PGNParserOptions options = null) : this(options)
         {
             _pgn = pgnString;
         }
 
-        public PgnReader(Stream pgnFileStream) : this()
+        public PgnReader(Stream pgnFileStream, PGNParserOptions options = null) : this(options)
         {
             InitStream(pgnFileStream);
             using (var sr = new StreamReader(_stream))
@@ -30,27 +35,46 @@ namespace ChessLib.Parse.PGN.Base
             }
         }
 
-        private PgnReader()
+        private PgnReader(PGNParserOptions pgnParseOptions)
         {
+            _options = pgnParseOptions ?? new PGNParserOptions();
         }
 
         public int GameCount { get; private set; }
 
-        public string[] SectionSeparatorToken { get; } = {TokenSectionEnd};
+        public string[] SectionSeparatorToken { get; } = { TokenSectionEnd };
 
-        public IEnumerable<Game<MoveStorage>> Parse()
+        protected Stopwatch Stopwatch = new Stopwatch();
+        public EventHandler<ParsingUpdateEventArgs> UpdateProgress;
+
+        public async Task<IEnumerable<Game<MoveStorage>>> Parse()
         {
-            var rv = new List<Game<MoveStorage>>();
             var strGames = SplitPgnIntoGames();
             GameCount = strGames.Count();
-            var lexer = new PgnLexer();
-            foreach (var strGame in strGames)
-            {
-                var game = lexer.ParseGame(strGame, out var logs);
-                rv.Add(game);
-            }
+            _gameCount = strGames.Count;
+            var take = _options.LimitGameCount ? _options.GameCountToParse : _gameCount;
+            var rv = new Game<MoveStorage>[take];
 
-            return rv;
+            var parseTasks = strGames.Take(take)
+                .Select((g, idx) => Task.Factory.StartNew(() =>
+                {
+                    var lexer = new PgnLexer();
+                    var game = lexer.ParseGame(g, _options, out var logs);
+                    rv[idx] = game;
+                    Completed++;
+                }).ContinueWith(t =>
+                {
+                    if (Completed % _options.UpdateFrequency == 0)
+                    {
+                        var args = new ParsingUpdateEventArgs(Stopwatch.Elapsed)
+                        { Maximum = _gameCount, NumberComplete = Completed };
+                        UpdateProgress?.Invoke(this, args);
+                    }
+                }));
+            var taskList = new List<Task>();
+            taskList.AddRange(parseTasks);
+            await Task.WhenAll(taskList.ToArray());
+            return rv.Where(x => x != null);
         }
 
         private void InitStream(Stream pgnFileStream)
