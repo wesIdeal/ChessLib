@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -7,8 +8,10 @@ using System.Text;
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN;
+using ChessLib.Parse.PGN.Base;
 using ChessLib.Parse.PGN.Parser.Visitor;
 using ChessLib.Parse.Tests;
+using NUnit.Framework;
 
 namespace ChessLib.Parse.Console
 {
@@ -24,14 +27,56 @@ namespace ChessLib.Parse.Console
             GameWithVariation,
             PregameComment
         }
+        public static void TestSpeed()
+        {
+            Stopwatch sw = new Stopwatch();
+            var pgn = GetDbFromEnum(GameDatabases.TalLarge);
+            var oldParsingTimes = new List<long>();
+            var newParsingTimes = new List<long>();
+            var numberOfTimes = 1;
+            
+            System.Console.WriteLine($"OLD PARSING{Environment.NewLine}");
+            for (int i = 0; i < numberOfTimes; i++)
+            {
+                sw.Restart();
+                ParseOldWay(pgn);
+                sw.Stop();
+                oldParsingTimes.Add(sw.ElapsedMilliseconds);
+                System.Console.Write($"\r{i}  /  {numberOfTimes}\t{sw.ElapsedMilliseconds} ms       ");
+            }
+            System.Console.WriteLine($"{Environment.NewLine}Old:\tTotal:{Math.Round((double)(oldParsingTimes.Sum() / 1000), 2)} secs\t{oldParsingTimes.Average()} avg ms");
+            System.Console.WriteLine($"NEW PARSING{Environment.NewLine}");
+            for (int i = 0; i < numberOfTimes; i++)
+            {
+                sw.Restart();
+                ParseNewWay(pgn);
+                sw.Stop();
+                newParsingTimes.Add(sw.ElapsedMilliseconds);
+                System.Console.Write($"\r{i}  /  {numberOfTimes}\t{sw.ElapsedMilliseconds} ms       ");
+            }
+            System.Console.WriteLine($"{Environment.NewLine}New:\tTotal:{Math.Round((double)(newParsingTimes.Sum() / 1000), 2)} secs\t{newParsingTimes.Average()} avg ms");
+
+        }
+        private static void ParseNewWay(string pgn)
+        {
+            var parser = new PgnReader(pgn);
+            var games = parser.Parse();
+            System.Console.Write($"Parsed {games.Count()} games.");
+
+        }
+        private static void ParseOldWay(string pgn)
+        {
+
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(pgn).Result.ToArray();
+            System.Console.Write($"Parsed {game.Count()} games.");
+        }
 
         private static int CursorTop => System.Console.CursorTop;
 
         private static void Main(string[] args)
         {
-            var database = GetDatabaseToParse(args);
-            var listenerGames = TestParsing(database);
-            WritePolyglotInfo(listenerGames, 0);
+            TestSpeed();
             //WriteGame(listenerGames, 0);
         }
 
@@ -43,10 +88,10 @@ namespace ChessLib.Parse.Console
                 return;
             }
             var game = games[0];
-            
+
             System.Console.WriteLine("Starting Position");
 
-            
+
             foreach (var move in game.MainMoveTree.Skip(1).Take(5))
             {
                 var hash = Convert.ToString((long)PolyglotHelpers.GetBoardStateHash(game.Board), 16);

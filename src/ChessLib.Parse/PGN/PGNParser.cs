@@ -88,11 +88,13 @@ namespace ChessLib.Parse.PGN
         {
             Stopwatch.Restart();
             var lexer = new PGNLexer(gameStream);
+            lexer.RemoveErrorListeners();
             var commonTokenStream = new CommonTokenStream(lexer);
             var parser = new Parser.BaseClasses.PGNParser(commonTokenStream)
             {
                 Interpreter = {PredictionMode = PredictionMode.SLL}
             };
+            parser.RemoveErrorListeners();
             var context = parser.pgnDatabase();
             Stopwatch.Stop();
             UpdateProgress?.Invoke(this,

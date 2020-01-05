@@ -18,7 +18,7 @@ namespace ChessLib.Data
         public readonly BoardInfo Board;
         private LinkedListNode<MoveStorage> _currentMoveNode;
         private bool _pauseMoveEvents;
-
+        
         public MoveTraversalService(string fen, BoardInfo boardExt = null)
         {
             IsLoaded = true;
@@ -33,7 +33,7 @@ namespace ChessLib.Data
         /// </summary>
         public bool IsLoaded { get; private set; }
 
-        public bool ShouldSendMoveEvents => !_pauseMoveEvents && IsLoaded;
+        public bool ShouldSendMoveEvents => MoveMade != null && !_pauseMoveEvents && IsLoaded;
 
         public string InitialFen { get; }
 
@@ -312,7 +312,6 @@ namespace ChessLib.Data
             {
                 return ApplySanVariationMove(moveText);
             }
-
             var move = TranslateSanMove(moveText);
             move.SAN = moveText;
             return ApplyMove(move);
