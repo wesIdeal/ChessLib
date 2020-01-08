@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.MoveRepresentation.NAG;
+using EnumsNET;
 
 namespace ChessLib.Parse.PGN.Base
 {
@@ -14,14 +17,22 @@ namespace ChessLib.Parse.PGN.Base
         protected const char TokenCommentStart = '{';
         protected const char TokenCommentEnd = '}';
         private bool _foundGame;
+
+        private char[] _nagStartSymbols;
         private bool _nextMoveIsVariation;
         private int _plyCount;
         public Game<MoveStorage> Game;
         public List<PgnParsingLog> LogMessages = new List<PgnParsingLog>();
+        protected (string, MoveNAG)[] MoveNags;
+        protected (string, NonStandardNAG)[] NonStandardNags;
+        protected (string, PositionalNAG)[] PositionalNags;
+        protected (string, TimeTroubleNAG)[] TimeTroubleNags;
+        private int _variationDepth;
 
         public PgnParser()
         {
             Game = new Game<MoveStorage>();
+            InitNagInfo();
         }
 
         public void AddTagPair(string key, string value)
@@ -31,39 +42,85 @@ namespace ChessLib.Parse.PGN.Base
 
         public void VisitMoveSection(string moveSection, PGNParserOptions options)
         {
-            const string moveNumbersRegEx = "[\\d]+[.]+";
+            const string moveNumbersRegEx = "([\\d]+[.]+)|[(\\r\\n)|(\\n)]";
             var regEx = new Regex(moveNumbersRegEx);
             var movesOnly = regEx.Replace(moveSection, " ");
             var reader = new StringReader(movesOnly);
-            int nReadChar;
-            while ((nReadChar = reader.Peek()) != -1)
+            int nNextCharacter;
+            string parsedThusFar = "";
+            while ((nNextCharacter = reader.Peek()) != -1)
             {
-                var readChar = (char) nReadChar;
-                if (char.IsLetter(readChar))
+                var nextChar = (char)nNextCharacter;
+                parsedThusFar += nextChar;
+                if (char.IsLetter(nextChar))
                 {
                     if (!VisitSanMove(reader, options))
                     {
                         break;
                     }
                 }
-                else if (readChar == TokenVariationStart)
+                else if (nextChar == TokenVariationStart)
                 {
-                    VisitVariationStart();
+                    VisitVariationStart(options);
                     reader.Read();
                 }
-                else if (readChar == TokenVariationEnd)
+                else if (nextChar == TokenVariationEnd)
                 {
-                    VisitVariationEnd();
+                    VisitVariationEnd(options);
                     reader.Read();
                 }
-                else if (readChar == TokenCommentStart)
+                else if (nextChar == TokenCommentStart)
                 {
                     VisitComment(reader);
+                }
+                else if (IsPossiblyNag(nextChar))
+                {
+                    VisitNAGSymbol(reader);
+                }
+                else if (nextChar == '$')
+                {
+                    VisitNumericNag(reader);
                 }
                 else
                 {
                     reader.Read();
                 }
+            }
+        }
+
+        private void VisitNumericNag(StringReader reader)
+        {
+            var nagBuffer = ReadUntil(reader, ' ');
+            nagBuffer = nagBuffer.TrimStart('$');
+            Game.ApplyNAG(Convert.ToInt32(nagBuffer));
+        }
+
+        private void VisitNAGSymbol(StringReader reader)
+        {
+            var nagBuffer = ReadUntil(reader, ' ');
+            var nags = GetNAGSybolMatches(nagBuffer);
+            if (nags.Any())
+            {
+                if (nags.Length == 1)
+                {
+                    Game.ApplyNAG(nags[0]);
+                }
+                else
+                {
+                    LogMessages.Add(new PgnParsingLog
+                    {
+                        ErrorLevel = ErrorLevel.Warning,
+                        Message = $"Found multiple symbol matches for {nagBuffer}"
+                    });
+                }
+            }
+            else
+            {
+                LogMessages.Add(new PgnParsingLog
+                {
+                    ErrorLevel = ErrorLevel.Warning,
+                    Message = $"Could not find symbol match for {nagBuffer}"
+                });
             }
         }
 
@@ -129,29 +186,87 @@ namespace ChessLib.Parse.PGN.Base
             return true;
         }
 
-        public bool VisitVariationEnd()
+        public bool VisitVariationEnd(PGNParserOptions options)
         {
             _nextMoveIsVariation = false;
-            Game.ExitVariation();
+            _variationDepth--;
+            if (!options.IgnoreVariations)
+            {
+                Game.ExitVariation();
+            }
             return true;
         }
 
-        public bool VisitVariationStart()
+        public bool VisitVariationStart(PGNParserOptions options)
         {
             _nextMoveIsVariation = true;
+            _variationDepth++;
             return true;
+        }
+
+        protected int[] GetNAGSybolMatches(string possibleNagStart)
+        {
+            var rv = new List<int>();
+            rv.AddRange(MoveNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
+            rv.AddRange(PositionalNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
+            rv.AddRange(TimeTroubleNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
+            rv.AddRange(NonStandardNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
+            return rv.ToArray();
         }
 
         internal static string ReadUntil(in StringReader reader, in char c)
         {
             var buffer = "";
-            char readChar;
-            while ((readChar = (char) reader.Read()) != -1 && readChar != c)
+            var nNextChar = -1;
+            while ((nNextChar = reader.Peek()) != -1)
             {
+                var readChar = (char)nNextChar;
+                if (readChar == c)
+                {
+                    break;
+                }
                 buffer += readChar;
+                reader.Read();
             }
 
             return buffer;
+        }
+
+        private static IEnumerable<(string, TEnum)> EnumerateNagSymbols<TEnum>()
+            where TEnum : struct, Enum
+        {
+            var symbolFormat = Enums.RegisterCustomEnumFormat(member => member.Attributes.Get<SymbolAttribute>()?.Symbol);
+            foreach (var moveNag in Enums.GetValues<TEnum>(EnumMemberSelection.Distinct))
+            {
+                var symbol = moveNag.AsString(symbolFormat);
+                if (!string.IsNullOrWhiteSpace(symbol))
+                {
+                    yield return (symbol, moveNag);
+                }
+            }
+        }
+
+        private void InitNagInfo()
+        {
+            MoveNags = EnumerateNagSymbols<MoveNAG>().ToArray();
+            PositionalNags = EnumerateNagSymbols<PositionalNAG>().ToArray();
+            TimeTroubleNags = EnumerateNagSymbols<TimeTroubleNAG>().ToArray();
+            NonStandardNags = EnumerateNagSymbols<NonStandardNAG>().ToArray();
+            var firstChars = MoveNags.Select(x => x.Item1[0]).ToList();
+            firstChars.AddRange(PositionalNags.Select(x => x.Item1[0]));
+            firstChars.AddRange(TimeTroubleNags.Select(x => x.Item1[0]));
+            firstChars.AddRange(NonStandardNags.Select(x => x.Item1[0]));
+            _nagStartSymbols = firstChars.ToArray();
+        }
+
+        private bool IsCharLegalForMove(char c)
+        {
+            return char.IsLetterOrDigit(c) || c == '-' || c == '=';
+        }
+
+        private bool IsPossiblyNag(char c)
+        {
+            return _nagStartSymbols.Contains(c);
         }
 
         /// <summary>
@@ -168,11 +283,11 @@ namespace ChessLib.Parse.PGN.Base
         {
             if (!_foundGame)
             {
-                if (move.BoardStateHash == options.BoardStateSearchHash)
+                if (move.BoardStateHash == options.BoardStateHash)
                 {
                     _foundGame = true;
                 }
-                else if (_plyCount >= options.FenPlyMoveLimit)
+                else if (_plyCount >= options.FilterPlyLimit)
                 {
                     return false;
                 }
@@ -191,36 +306,45 @@ namespace ChessLib.Parse.PGN.Base
         private bool VisitSanMove(in StringReader reader, PGNParserOptions options)
         {
             var buffer = string.Empty;
-            char c;
-            while ((c = (char) reader.Read()) != -1)
+            int nChar;
+            while ((nChar = reader.Peek()) != -1)
             {
-                if (char.IsWhiteSpace(c))
+                var c = (char)nChar;
+                if (!IsCharLegalForMove(c))
                 {
                     break;
                 }
 
                 buffer += c;
+                reader.Read();
             }
 
             var strategy = _nextMoveIsVariation
                 ? MoveApplicationStrategy.Variation
                 : MoveApplicationStrategy.ContinueMainLine;
             _nextMoveIsVariation = false;
+            if (options.IgnoreVariations && _variationDepth != 0)
+            {
+                return true;
+            }
             var move = Game.ApplySanMove(buffer, strategy);
             _plyCount = Game.PlyCount;
-            if (move != null && options.FilteringApplied)
+
+            if (move != null && options.ShouldFilterDuringParsing)
             {
-                if (options.UseFenFilter && !ValidatePositionFilter(options, move.Value))
+                if (options.ShouldUseFenFilter)
                 {
-                    Game = null;
+                    if (!ValidatePositionFilter(options, move.Value))
+                    {
+                        Game = null;
+                        return false;
+                    }
+                }
+
+                if (options.ShouldLimitPlyCount && _plyCount >= options.MaximumPlyPerGame)
+                {
                     return false;
                 }
-            }
-
-
-            if (options.LimitPlyCount && _plyCount >= options.MaximumPlyPerGame)
-            {
-                return false;
             }
 
             return true;

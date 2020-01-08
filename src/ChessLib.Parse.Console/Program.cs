@@ -22,7 +22,8 @@ namespace ChessLib.Parse.Console
             TalLarge,
             TalMedium,
             GameWithVariation,
-            PregameComment
+            PregameComment,
+            SymbolNag
         }
 
         private static int CursorTop => System.Console.CursorTop;
@@ -59,6 +60,14 @@ namespace ChessLib.Parse.Console
 
             System.Console.WriteLine(
                 $"{Environment.NewLine}Old:\tTotal:{Math.Round((double) (oldParsingTimes.Sum() / 1000), 2)} secs\t{oldParsingTimes.Average()} avg ms");
+        }
+
+        public static void TestParsingNagSymbols()
+        {
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagSymbol).Result;
+            PGNFormatter<MoveStorage> formatter = new PGNFormatter<MoveStorage>(new PGNFormatterOptions());
+            formatter.BuildPGN(game.First());
         }
 
         private static GameDatabases GetDatabaseFromArg(string s)
@@ -136,7 +145,7 @@ namespace ChessLib.Parse.Console
 
         private static void Main(string[] args)
         {
-            TestSpeed();
+            TestParsingNagSymbols();
             //WriteGame(listenerGames, 0);
         }
 

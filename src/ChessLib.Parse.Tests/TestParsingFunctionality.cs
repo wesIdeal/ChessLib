@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
 using ChessLib.Data;
@@ -17,130 +15,43 @@ namespace ChessLib.Parse.Tests
     //public class TestPgnReader
     //{
 
-    //    [Test]
-    //    public void TestSimpleGameParsing_OneGame()
-    //    {
-    //        var pgnReader = GetReader(PGNResources.Simple);
-    //        var game = pgnReader.Parse();
-    //        var gameCount = pgnReader.GameCount;
-    //        Assert.AreEqual(1, gameCount, $"Expected only one game, but found {gameCount}.");
-    //    }
 
-    //    [Test]
-    //    public void TestSimpleGameParsing_FiveGames()
-    //    {
-    //        var pgnReader = GetReader(PGNResources.FiveGames);
-    //        var game = pgnReader.Parse();
-    //        var gameCount = pgnReader.GameCount;
-    //        Assert.AreEqual(5, gameCount, $"Expected five games, but found {gameCount}.");
-    //    }
-
-    //    [TestCase("[Event \"New York\"]\r\n", "Event", "New York")]
-    //    public void TestParsingTagPair(string tagPair, string expectedKey, string expectedValue)
-    //    {
-    //        var pgnParser = new PgnParser();
-
-    //        pgnParser.VisitTagPair(tagPair);
-    //        Assert.IsTrue(pgnParser.Game.TagSection.ContainsKey(expectedKey));
-    //        Assert.AreEqual(expectedValue, pgnParser.Game.TagSection[expectedKey]);
-
-    //    }
-
-    //    [Test]
-    //    public void TestSplittingSections()
-    //    {
-    //        var pgn = PGNResources.GameWithNAG;
-    //        var sections = PgnLexer.GetSectionsFromPGN(pgn);
-    //        Assert.IsFalse(string.IsNullOrWhiteSpace(sections.tagSection));
-    //        Assert.IsFalse(string.IsNullOrWhiteSpace(sections.moveSection));
-    //    }
-
-    //    [TestCase("[Event \"New York\"]\r\n[Site \"New York, NY USA\"]\r\n[Date \"1857.??.??\"]\r\n[Round \"1\"]\r\n[White \"Morphy, Paul\"]\r\n[Black \"Meek, Alexander Beaufort\"]\r\n[Result \"1-0\"]\r\n[ECO \"A43g\"]")]
-    //    public void TestVisitingTags(string section)
-    //    {
-    //        var parser = new PgnParser();
-    //        parser.VisitTagPairSection(section);
-    //        var tags = parser.Game.TagSection;
-    //        Assert.AreEqual("New York", tags.Event);
-    //        Assert.AreEqual("New York, NY USA", tags.Site);
-    //        Assert.AreEqual("1857.??.??", tags.Date);
-    //        Assert.AreEqual("1", tags.Round);
-    //        Assert.AreEqual("Morphy, Paul", tags.White);
-    //        Assert.AreEqual("Meek, Alexander Beaufort", tags.Black);
-    //        Assert.AreEqual("1-0", tags.Result);
-    //        Assert.AreEqual("A43g", tags["ECO"]);
-    //    }
-    //    [Test]
-    //    public void TestMoveParsing_NoVariations()
-    //    {
-    //        var pgn = PGNResources.GameWithNAG;
-    //        var parser = new PgnReader(PGNResources.Simple);
-    //        var games = parser.Parse().Result.ToArray();
-    //        Assert.IsNotEmpty(games);
-    //        Assert.IsTrue(games.First().MainMoveTree.Count == 40);
-    //    }
-
-    //    [Test]
-    //    public void TestMoveParsing_WithCommentsAndVariations()
-    //    {
-    //        var pgn = PGNResources.GameWithNAG;
-    //        var parser = new PgnReader(PGNResources.VariationsAndComments);
-    //        var games = parser.Parse().Result.ToArray();
-    //        Assert.IsNotEmpty(games);
-    //        Assert.AreEqual(114, games.First().MainMoveTree.Count);
-    //    }
-
-    //    [Test]
-    //    public void TestSpeed()
-    //    {
-    //        Stopwatch sw = new Stopwatch();
-    //        var pgn = PGNResources.VariationsAndComments;
-    //        var oldParsingTimes = new List<long>();
-    //        var newParsingTimes = new List<long>();
-    //        var numberOfTimes = 4000;
-
-    //        for (int i = 0; i < numberOfTimes; i++)
-    //        {
-    //            sw.Restart();
-    //            ParseOldWay(pgn);
-    //            sw.Stop();
-    //            oldParsingTimes.Add(sw.ElapsedMilliseconds);
-
-    //        }
-
-    //        for (int i = 0; i < numberOfTimes; i++)
-    //        {
-    //            sw.Restart();
-    //            ParseNewWay(pgn);
-    //            sw.Stop();
-    //            newParsingTimes.Add(sw.ElapsedMilliseconds);
-    //        }
-    //        Console.WriteLine($"Old:\tTotal:{Math.Round((double) (oldParsingTimes.Sum() / 1000),2)} secs\t{oldParsingTimes.Average()} avg ms");
-    //        Console.WriteLine($"New:\tTotal:{Math.Round((double)(newParsingTimes.Sum() / 1000), 2)} secs\t{newParsingTimes.Average()} avg ms");
-
-    //    }
-
-    //    private void ParseNewWay(string pgn)
-    //    {
-    //        var parser = new PgnReader(pgn);
-    //        var games = parser.Parse();
-    //    }
-    //    private void ParseOldWay(string pgn)
-    //    {
-
-    //        var parser = new PGNParser();
-    //        var game = parser.GetGamesFromPGNAsync(pgn).Result.ToArray();
-    //    }
-
-      
     //}
     [TestFixture]
     public class TestParsingFunctionality
     {
+        private string AddGame(string originalDatabase, string game)
+        {
+            return originalDatabase + Environment.NewLine + Environment.NewLine + game;
+        }
+        [TestCase("[Event \"New York\"]\r\n", "Event", "New York")]
+        public void TestParsingTagPair(string tagPair, string expectedKey, string expectedValue)
+        {
+            var pgnParser = new PgnParser();
+
+            pgnParser.VisitTagPair(tagPair);
+            Assert.IsTrue(pgnParser.Game.TagSection.ContainsKey(expectedKey));
+            Assert.AreEqual(expectedValue, pgnParser.Game.TagSection[expectedKey]);
+        }
+
+        [TestCase(
+            "[Event \"New York\"]\r\n[Site \"New York, NY USA\"]\r\n[Date \"1857.??.??\"]\r\n[Round \"1\"]\r\n[White \"Morphy, Paul\"]\r\n[Black \"Meek, Alexander Beaufort\"]\r\n[Result \"1-0\"]\r\n[ECO \"A43g\"]")]
+        public void TestVisitingTags(string section)
+        {
+            var parser = new PgnParser();
+            parser.VisitTagPairSection(section);
+            var tags = parser.Game.TagSection;
+            Assert.AreEqual("New York", tags.Event);
+            Assert.AreEqual("New York, NY USA", tags.Site);
+            Assert.AreEqual("1857.??.??", tags.Date);
+            Assert.AreEqual("1", tags.Round);
+            Assert.AreEqual("Morphy, Paul", tags.White);
+            Assert.AreEqual("Meek, Alexander Beaufort", tags.Black);
+            Assert.AreEqual("1-0", tags.Result);
+            Assert.AreEqual("A43g", tags["ECO"]);
+        }
+
         private readonly PGNParser _parser = new PGNParser();
-
-
-
 
         private string MoveDisplay(int moveNumber, string SAN)
         {
@@ -154,26 +65,24 @@ namespace ChessLib.Parse.Tests
         {
             get
             {
-                var opts = new PGNParserOptions();
-                opts.SetFenFiltering("rnbqkbnr/pp2pppp/2p5/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3");
+                var opts = new PGNParserOptions("rnbqkbnr/pp2pppp/2p5/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3");
                 return opts;
             }
         }
 
-        private PGNParserOptions DefaultFilterOptions
+        private PGNParserOptions FilterByFENOptions
         {
             get
             {
-                var opts = new PGNParserOptions();
-                opts.SetFenFiltering("rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 1 2");
+                var opts = new PGNParserOptions("rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 1 2");
                 return opts;
             }
         }
 
+        public const string EnglishReverseSicilian = "rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 1 2";
         private PGNParserOptions MoveCountFilterOptions(int moveCount)
         {
-            var opts = new PGNParserOptions();
-            opts.SetFenFiltering("rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 1 2", moveCount);
+            var opts = new PGNParserOptions(EnglishReverseSicilian, moveCount);
             return opts;
         }
 
@@ -186,20 +95,38 @@ namespace ChessLib.Parse.Tests
             Console.WriteLine(new string('*', 20));
         }
 
-        [Test]
-        public void Filter_IncreasingFilterPlyShouldIncludeExtraGame()
+        [Test(Description = "Filters out a game that meets filter, but in too many plies.")]
+        public void ShouldFilterTranspositionalGame()
         {
-            var parser = new PGNParser();
-            var filterParser = new PGNParser(MoveCountFilterOptions(4));
-            var pgnDb = PGNResources.EnglishRevSic;
-            pgnDb += Environment.NewLine + PGNResources.TranspositionToFilter;
-            var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
-            var nonFilterCount = parser.GetGamesFromPGNAsync(pgnDb).Result.Count();
-            Assert.AreEqual(11, nonFilterCount, "Expected 11 total games to be parsed.");
+            var pgnDatabase = FilterDb;
+            Filter_SanityCheck(pgnDatabase, 11);
+            var filterParser = new PGNParser(MoveCountFilterOptions(3));
+            var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDatabase).Result.ToArray();
+            const int expectedGameCount = 10;
+            Assert.AreEqual(expectedGameCount, filteredGames.Length,
+                $"Expected {expectedGameCount} games from filter database, but found {filteredGames.Length}.");
+        }
+
+        [Test(Description = "Includes game that meets filter by transposition.")]
+        public void ShouldNotFilterTranspositionalGame()
+        {
+            var pgnDatabase = FilterDb;
+            Filter_SanityCheck(pgnDatabase, 11);
+            var filterParser = new PGNParser(MoveCountFilterOptions(7));
+            var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDatabase).Result.ToArray();
             const int expectedGameCount = 11;
             Assert.AreEqual(expectedGameCount, filteredGames.Length,
                 $"Expected {expectedGameCount} games from filter database, but found {filteredGames.Length}.");
         }
+
+        public void Filter_SanityCheck(string filterDb, int expectedGameCount)
+        {
+            var parser = new PGNParser();
+            var games = parser.GetGamesFromPGNAsync(filterDb).Result.ToArray();
+            Assert.AreEqual(expectedGameCount, games.Length, "Failed Sanity Check for Filter Games");
+        }
+
+        protected string FilterDb => AddGame(PGNResources.EnglishRevSic, PGNResources.TranspositionToFilter);
 
         [Test]
         public void Filter_IsValidFilterDatabase()
@@ -216,12 +143,30 @@ namespace ChessLib.Parse.Tests
         }
 
         [Test]
-        public void Filter_ShouldFilterGameIfShorterThanFenPlyLimit()
+        public void Filter_ShouldBeAbleToCombineFenAndMaxPlyFilter()
         {
-            var filterParser = new PGNParser(DefaultFilterOptions);
-            var pgnDb = PGNResources.FilterTooShort;
+            var options = FilterByFENOptions;
+            options.MaximumPlyPerGame = 6;
+            var filterParser = new PGNParser(options);
+            var pgnDb = PGNResources.EnglishRevSic;
+            pgnDb += Environment.NewLine + Environment.NewLine + PGNResources.FilterOut;
             var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             var nonFilterCount = _parser.GetGamesFromPGNAsync(pgnDb).Result.Count();
+            Assert.AreEqual(11, nonFilterCount, "Expected 11 total games to be parsed.");
+            const int expectedGameCount = 10;
+            Assert.AreEqual(expectedGameCount, filteredGames.Length,
+                $"Expected {expectedGameCount} games from filter database, but found {filteredGames.Length}.");
+            Assert.IsTrue(filteredGames.All(x => x.PlyCount == options.MaximumPlyPerGame));
+        }
+
+        [Test]
+        public void Filter_ShouldFilterGameIfShorterThanFenPlyLimit()
+        {
+            var filterParser = new PGNParser(MoveCountFilterOptions(2));
+            var nonFilterParser = new PGNParser();
+            var pgnDb = PGNResources.FilterTooShort;
+            var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
+            var nonFilterCount = nonFilterParser.GetGamesFromPGNAsync(pgnDb).Result.Count();
             Assert.AreEqual(1, nonFilterCount, "Expected 1 total games to be parsed.");
             const int expectedGameCount = 0;
             Assert.AreEqual(expectedGameCount, filteredGames.Length,
@@ -231,41 +176,8 @@ namespace ChessLib.Parse.Tests
         [Test]
         public void Filter_ShouldFilterOneGame()
         {
-            var filterParser = new PGNParser(DefaultFilterOptions);
-            var pgnDb = PGNResources.EnglishRevSic;
-            pgnDb += Environment.NewLine + PGNResources.FilterOut;
-            var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
-            var nonFilterCount = _parser.GetGamesFromPGNAsync(pgnDb).Result.Count();
-            Assert.AreEqual(11, nonFilterCount, "Expected 11 total games to be parsed.");
-            const int expectedGameCount = 10;
-            Assert.AreEqual(expectedGameCount, filteredGames.Length,
-                $"Expected {expectedGameCount} games from filter database, but found {filteredGames.Length}.");
-        }
-
-        [Test]
-        public void Filter_ShouldBeAbleToCombineFenAndMaxPlyFilter()
-        {
-            var options = DefaultFilterOptions;
-            options.MaximumPlyPerGame = 6;
-            var filterParser = new PGNParser(options);
-            var pgnDb = PGNResources.EnglishRevSic;
-            pgnDb += Environment.NewLine + PGNResources.FilterOut;
-            var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
-            var nonFilterCount = _parser.GetGamesFromPGNAsync(pgnDb).Result.Count();
-            Assert.AreEqual(11, nonFilterCount, "Expected 11 total games to be parsed.");
-            const int expectedGameCount = 10;
-            Assert.AreEqual(expectedGameCount, filteredGames.Length,
-                $"Expected {expectedGameCount} games from filter database, but found {filteredGames.Length}.");
-            Assert.IsTrue(filteredGames.All(x => x.PlyCount == options.MaximumPlyPerGame));
-
-        }
-
-        [Test]
-        public void Filter_ShouldFilterOneGameThatTransposesTooLate()
-        {
-            var filterParser = new PGNParser(DefaultFilterOptions);
-            var pgnDb = PGNResources.EnglishRevSic;
-            pgnDb += Environment.NewLine + PGNResources.TranspositionToFilter;
+            var filterParser = new PGNParser(FilterByFENOptions);
+            var pgnDb = AddGame(PGNResources.EnglishRevSic, PGNResources.FilterOut);
             var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             var nonFilterCount = _parser.GetGamesFromPGNAsync(pgnDb).Result.Count();
             Assert.AreEqual(11, nonFilterCount, "Expected 11 total games to be parsed.");
@@ -288,7 +200,7 @@ namespace ChessLib.Parse.Tests
         [Test]
         public void Filter_ShouldReturnAllGames()
         {
-            var parser = new PGNParser(DefaultFilterOptions);
+            var parser = new PGNParser(FilterByFENOptions);
             var pgnDb = PGNResources.EnglishRevSic;
             var sw = new Stopwatch();
             sw.Start();
@@ -298,6 +210,16 @@ namespace ChessLib.Parse.Tests
             const int expectedGameCount = 10;
             Assert.AreEqual(expectedGameCount, largeDb.Length,
                 $"Expected {expectedGameCount} games from filter database, but found {largeDb.Length}.");
+        }
+
+        [Test]
+        public void ShouldParsePromotion()
+        {
+            var pgnWithPromotion = PGNResources.GameWithPromotion;
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(pgnWithPromotion).Result.ToArray();
+            Assert.AreEqual(1, game.Count());
+            Assert.AreEqual(80, game.First().PlyCount);
         }
 
         /// <summary>
@@ -343,7 +265,7 @@ namespace ChessLib.Parse.Tests
         {
             const int gamesToParse = 2;
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
-            var parserOptions = new PGNParserOptions { GameCountToParse = 2 };
+            var parserOptions = new PGNParserOptions { MaxGameCount = 2 };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             Assert.AreEqual(gamesToParse, largeDb.Length,
@@ -355,7 +277,7 @@ namespace ChessLib.Parse.Tests
         {
             const int maxPliesToParse = 10;
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
-            var parserOptions = new PGNParserOptions { GameCountToParse = 5, MaximumPlyPerGame = maxPliesToParse };
+            var parserOptions = new PGNParserOptions { MaxGameCount = 5, MaximumPlyPerGame = maxPliesToParse };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             WritePgn(largeDb.First());
@@ -386,6 +308,25 @@ namespace ChessLib.Parse.Tests
         }
 
         [Test]
+        public void TestMoveParsing_NoVariations()
+        {
+            var pgn = PGNResources.Simple;
+            var parser = new PGNParser();
+            var games = parser.GetGamesFromPGNAsync(pgn).Result.ToArray();
+            Assert.IsNotEmpty(games);
+            Assert.IsTrue(games.First().MainMoveTree.Count == 40);
+        }
+
+        [Test]
+        public void TestMoveParsing_WithCommentsAndVariations()
+        {
+            var parser = new PGNParser();
+            var games = parser.GetGamesFromPGNAsync(PGNResources.VariationsAndComments).Result.ToArray();
+            Assert.IsNotEmpty(games);
+            Assert.AreEqual(114, games.First().MainMoveTree.Count);
+        }
+
+        [Test]
         public void TestNAGParsing()
         {
             const string expected = "$1";
@@ -395,6 +336,25 @@ namespace ChessLib.Parse.Tests
             Assert.AreEqual(MoveNAG.GoodMove, move.Annotation.MoveNAG,
                 $"Expected NAG to be '{expected}' at move {MoveDisplay(moveIndex, move.SAN)}.");
         }
+
+        [Test]
+        public void ShouldParseNAGSymbols()
+        {
+            const MoveNAG expected = MoveNAG.VeryGoodMove;
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagSymbol).Result;
+            Assert.AreEqual(expected, game.First().MainMoveTree.Last.Value.Annotation.MoveNAG);
+        }
+
+        [Test]
+        public void ShouldParseNAGNumbers()
+        {
+            const MoveNAG expected = MoveNAG.VeryGoodMove;
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagNumber).Result;
+            Assert.AreEqual(expected, game.First().MainMoveTree.Last.Value.Annotation.MoveNAG);
+        }
+
 
         [Test]
         public void TestRealGameParsing()
@@ -421,11 +381,38 @@ namespace ChessLib.Parse.Tests
         }
 
         [Test]
+        public void TestSimpleGameParsing_FiveGames()
+        {
+            var parser = new PGNParser();
+            var games = parser.GetGamesFromPGNAsync(PGNResources.FiveGames).Result;
+            var gameCount = games.Count();
+            Assert.AreEqual(5, gameCount, $"Expected five games, but found {gameCount}.");
+        }
+
+        [Test]
+        public void TestSimpleGameParsing_OneGame()
+        {
+            var parser = new PGNParser();
+            var games = parser.GetGamesFromPGNAsync(PGNResources.Simple).Result;
+            var gameCount = games.Count();
+            Assert.AreEqual(1, gameCount, $"Expected only one game, but found {gameCount}.");
+        }
+
+        [Test]
         public void TestSmallPgnGame()
         {
             var games = _parser.GetGamesFromPGNAsync(PGNResources.smallPgn).Result.ToArray();
             Assert.AreEqual(1, games.Length, $"Expected only one game, but found {games.Length}.");
             //Assert.AreEqual(51, games[0].MainMoveTree.Count(), "Game should have 50 moves.");
+        }
+
+        [Test]
+        public void TestSplittingSections()
+        {
+            var pgn = PGNResources.GameWithNAG;
+            var sections = PgnLexer.GetSectionsFromPGN(pgn);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(sections.tagSection));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(sections.moveSection));
         }
 
 

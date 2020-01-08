@@ -206,6 +206,21 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. f4 e5 7. Nf3 Nbd7 8. Bd3
+        ///Be7 9. O-O O-O 10. Kh1 b5 11. a3 Qc7 12. fxe5 dxe5 13. Nh4 Nc5 14. Bg5 Qd8 15.
+        ///Nf5 Bxf5 16. Rxf5 Nfd7 17. Bxe7 Qxe7 18. Nd5 Qd6 19. Qg4 g6 20. Raf1 f6 21. h4
+        ///Kh8 22. R5f3 f5 23. exf5 Qxd5 24. fxg6 Rxf3 25. g7+ Kg8 26. Bxh7+ Kxh7 27. Rxf3
+        ///Ne4 28. h5 Ndf6 29. Qg6+ Kg8 30. h6 Ra7 31. Kh2 Re7 32. Rh3 Nh7 33. Rd3 Qa8 34.
+        ///Qxe4 Qxe4 35. Rd8+ Kf7 36. g8=Q+ Kf6 37. Rd6+ Kf5 38. Qg6+ Kf4 39. g3+ Ke3 40.
+        ///Rd3+ Qxd3  1-0.
+        /// </summary>
+        public static string GameWithPromotion {
+            get {
+                return ResourceManager.GetString("GameWithPromotion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;exhibition&quot;]
         ///[Site &quot;exhibition&quot;]
         ///[Date &quot;1949.??.??&quot;]
@@ -263,6 +278,40 @@ namespace ChessLib.Parse.Tests {
             get {
                 object obj = ResourceManager.GetObject("medium", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1. c4 e5 2. Nc3 $3 *.
+        /// </summary>
+        public static string MoveNagNumber {
+            get {
+                return ResourceManager.GetString("MoveNagNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1. c4 e5 2. Nc3!! *.
+        /// </summary>
+        public static string MoveNagSymbol {
+            get {
+                return ResourceManager.GetString("MoveNagSymbol", resourceCulture);
             }
         }
         

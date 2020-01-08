@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChessLib.Data;
 using ChessLib.Data.MoveRepresentation;
@@ -14,6 +15,9 @@ namespace ChessLib.Parse.PGN
     public class PGNParser
     {
         protected static string TokenSectionEnd = $"{Environment.NewLine}{Environment.NewLine}";
+
+        protected static string EmptyTagSection =
+            "[Event \"\"]\r\n[Site \"\"]\r\n[Date \"\"]\r\n[Round \"\"]\r\n[White \"\"]\r\n[Black \"\"]\r\n[Result \"*\"]" + TokenSectionEnd;
         public readonly PGNParserOptions ParserOptions;
 
         private string _pgn;
@@ -73,8 +77,7 @@ namespace ChessLib.Parse.PGN
             Stopwatch.Restart();
             var strGames = SplitPgnIntoGames();
             GameCount = strGames.Count;
-            GameCount = strGames.Count;
-            var take = ParserOptions.LimitGameCount ? ParserOptions.GameCountToParse : GameCount;
+            var take = ParserOptions.MaxGameCount ?? GameCount;
             var rv = new Game<MoveStorage>[take];
 
             var parseTasks = strGames.Take(take)
@@ -95,9 +98,8 @@ namespace ChessLib.Parse.PGN
                         SendUpdate();
                     }
                 }));
-            var taskList = new List<Task>();
-            taskList.AddRange(parseTasks);
-            await Task.WhenAll(taskList.ToArray())
+
+            await Task.WhenAll(parseTasks.ToArray())
                 .ContinueWith(task =>
                 {
                     Stopwatch.Stop();
@@ -151,22 +153,32 @@ namespace ChessLib.Parse.PGN
         /// <returns>List of found games</returns>
         private List<string> SplitPgnIntoGames()
         {
+            const string RegExSplitGames = "(\\r\\n\\r\\n)[\\s]*";
             SendUpdate("Splitting PGN file." + Environment.NewLine);
             Stopwatch.Restart();
             var rv = new List<string>();
             var tmp = NormalizeNewLines();
-            var split = tmp.Split(SectionSeparatorToken, StringSplitOptions.RemoveEmptyEntries);
-            var dbIndex = -1;
-            foreach (var section in split.Select(x => x.Trim()))
+            var rxSplitter = new Regex(RegExSplitGames);
+            var split = rxSplitter.Split(tmp);
+            var tagSectionFound = false;
+            foreach (var piece in split.Where(x => !String.IsNullOrWhiteSpace(x)).Select(x => x.Trim()))
             {
-                if (section.StartsWith(TokenTagBegin.ToString()))
+                if (piece[0] == TokenTagBegin)
                 {
-                    rv.Add(section);
-                    dbIndex++;
+                    tagSectionFound = true;
+                    rv.Add(piece);
                 }
                 else
                 {
-                    rv[dbIndex] += TokenSectionEnd + section;
+                    if (tagSectionFound)
+                    {
+                        tagSectionFound = false;
+                        rv[rv.Count - 1] += TokenSectionEnd + piece;
+                    }
+                    else
+                    {
+                        rv.Add(EmptyTagSection + piece);
+                    }
                 }
             }
             SendUpdate($"Finished splitting PGN file in {Stopwatch.ElapsedMilliseconds} ms." + Environment.NewLine);

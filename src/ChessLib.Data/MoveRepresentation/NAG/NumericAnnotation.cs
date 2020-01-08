@@ -8,7 +8,7 @@ using EnumsNET;
 namespace ChessLib.Data.MoveRepresentation.NAG
 {
     [AttributeUsage(AttributeTargets.Field)]
-    internal sealed class SymbolAttribute : Attribute
+    public sealed class SymbolAttribute : Attribute
     {
         public SymbolAttribute(string symbol)
         {
@@ -32,6 +32,11 @@ namespace ChessLib.Data.MoveRepresentation.NAG
         }
 
         public NumericAnnotation(string nag) : this()
+        {
+            ApplyNag(nag);
+        }
+
+        public NumericAnnotation(int nag) : this()
         {
             ApplyNag(nag);
         }

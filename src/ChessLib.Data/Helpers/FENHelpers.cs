@@ -16,6 +16,7 @@ namespace ChessLib.Data.Helpers
         public ushort? EnPassantIndex;
         public int HalfmoveClock;
         public int FullmoveClock;
+        public int TotalPlies => (2 * FullmoveClock) - (ActiveColor == Color.White ? 2 : 1);
     }
 
     public static class FENHelpers
@@ -33,6 +34,8 @@ namespace ChessLib.Data.Helpers
         public static FEN GetFenObject(string fen)
         {
             var fenPieces = fen.Split(' ');
+            FENValidator fenValidator = new FENValidator(fen);
+            fenValidator.Validate(true);
             var pp = BoardFromFen(fen, out var ac, out var ca, out var ep, out var hm, out var fm);
             return new FEN
             {

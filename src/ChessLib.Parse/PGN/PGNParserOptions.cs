@@ -7,57 +7,72 @@ namespace ChessLib.Parse.PGN
 {
     public class PGNParserOptions
     {
-        public const int MaximumParseValue = -1;
-        private string _fenPositionFilter;
+        private string _fenFilter;
+        private FEN _fenObject;
         private bool _ignoreVariations;
 
-        public PGNParserOptions()
+        /// <summary>
+        ///     Constructs new PGNParserOptions class
+        /// </summary>
+        /// <param name="updateProgressFrequency">Parse this number of games before calling update event</param>
+        /// <param name="maxGameCount">Parse at the maximum this many games</param>
+        /// <param name="maxPlyCountPerGame">Only parse this many ply (half-moves) of each game</param>
+        /// <param name="ignoreVariations">true to not parse variations</param>
+        public PGNParserOptions(int updateProgressFrequency = 100, int? maxGameCount = null,
+            int? maxPlyCountPerGame = null,
+            bool ignoreVariations = false)
         {
-            UpdateFrequency = 100;
-            GameCountToParse = MaximumParseValue;
-            MaximumPlyPerGame = MaximumParseValue;
-            IgnoreVariations = false;
-            FenPositionFilter = "";
-            FenPositionMoveCount = 0;
+            UpdateFrequency = updateProgressFrequency;
+            MaxGameCount = maxGameCount;
+            MaximumPlyPerGame = maxPlyCountPerGame;
+            IgnoreVariations = ignoreVariations;
         }
 
-        public FEN FENObject { get; protected set; }
+        /// <summary>
+        ///     To construct options to filter games by FEN.
+        /// </summary>
+        /// <param name="fenPositionFilter">Complete FEN to filter on</param>
+        /// <param name="plySearchLimit">
+        ///     Number of ply (half-moves) to search before determining game does not meet filter
+        ///     specifications. If null, this will be set using the full-move count in the FEN
+        /// </param>
+        /// <param name="updateProgressFrequency">Parse this number of games before calling update event</param>
+        /// <param name="maxGameCount">Parse at the maximum this many games</param>
+        /// <param name="maxPlyCount">Only parse this many ply (half-moves) of each game</param>
+        /// <param name="ignoreVariations">true to not parse variations</param>
+        public PGNParserOptions(string fenPositionFilter, int? plySearchLimit = null, int updateProgressFrequency = 100,
+            int? maxGameCount = null, int? maxPlyCount = null, bool ignoreVariations = false)
+            : this(updateProgressFrequency, maxGameCount, maxPlyCount, ignoreVariations)
+        {
+            FenFilter = fenPositionFilter;
+            FilterPlyLimit = plySearchLimit ?? _fenObject.TotalPlies;
+            BoardStateHash = PolyglotHelpers.GetBoardStateHash(fenPositionFilter);
+        }
 
-        public bool FilteringApplied => UseFenFilter || LimitPlyCount;
+        public int? FilterPlyLimit { get; protected set; }
 
-        public int FenPlyMoveLimit =>
-            UseFenFilter
-                ? FenFilterFullMoveLimit * 2 - (FENObject.ActiveColor == Color.Black ? 1 : 0)
-                : 0;
-
-        private int FenFilterFullMoveLimit =>
-            UseFenFilter && FenPositionMoveCount == 0 ? FENObject.FullmoveClock : FenPositionMoveCount;
-
-        public bool UseFenFilter => !string.IsNullOrEmpty(FenPositionFilter);
-
-        public ulong? BoardStateSearchHash { get; private set; }
+        public ulong? BoardStateHash { get; protected set; }
 
         /// <summary>
         ///     Return only games that reach this position
         /// </summary>
-        public string FenPositionFilter
+        public string FenFilter
         {
-            get => _fenPositionFilter;
-            protected set
+            get => _fenFilter;
+            set
             {
-                _fenPositionFilter = value.Trim();
-                if (!string.IsNullOrWhiteSpace(_fenPositionFilter))
+                _fenFilter = value.Trim();
+                if (!string.IsNullOrWhiteSpace(_fenFilter))
                 {
-                    FENObject = FENHelpers.GetFenObject(_fenPositionFilter);
-                    Debug.Assert(UseFenFilter);
+                    _fenObject = FENHelpers.GetFenObject(_fenFilter);
+                    Debug.Assert(ShouldUseFenFilter);
                 }
             }
         }
 
-        /// <summary>
-        ///     Expands the moves in which to search <see cref="FenPositionFilter" />
-        /// </summary>
-        protected int FenPositionMoveCount { get; set; }
+        public bool ShouldFilterDuringParsing => ShouldUseFenFilter || ShouldLimitPlyCount;
+
+        public bool ShouldUseFenFilter => _fenObject != null;
 
         /// <summary>
         ///     How many rows to process before an update event is sent. Higher numbers should give marginally better performance.
@@ -67,35 +82,31 @@ namespace ChessLib.Parse.PGN
         /// <summary>
         ///     Sets maximum games to parse. Set to MaximumParseValue to parse all available games.
         /// </summary>
-        public int GameCountToParse { get; set; }
+        public int? MaxGameCount { get; set; }
 
         /// <summary>
         ///     Returns true if game count should be limited.
         /// </summary>
-        public bool LimitGameCount => GameCountToParse != MaximumParseValue;
+        public bool ShouldLimitGameCount => MaxGameCount.HasValue;
 
         /// <summary>
         ///     Limit ply parsing to number. Set to MaximumParseValue to parse all available moves. Setting this as 0 will get tags
-        ///     only. Will ignore variations.
+        ///     only. Will ignore variations if true.
         /// </summary>
-        public int MaximumPlyPerGame { get; set; }
+        public int? MaximumPlyPerGame { get; set; }
 
-        public bool LimitPlyCount => MaximumPlyPerGame != MaximumParseValue;
+        /// <summary>
+        ///     Returns true if total ply parsed from game is limited
+        /// </summary>
+        public bool ShouldLimitPlyCount => MaximumPlyPerGame.HasValue;
 
         /// <summary>
         ///     If true, does not parse Recursive Annotation Variations in game.
         /// </summary>
         public bool IgnoreVariations
         {
-            get => _ignoreVariations || LimitPlyCount;
+            get => _ignoreVariations || ShouldLimitPlyCount;
             set => _ignoreVariations = value;
-        }
-
-        public void SetFenFiltering(string fen, int fullMovesToMatch = 0)
-        {
-            FenPositionFilter = fen;
-            FenPositionMoveCount = fullMovesToMatch == 0 ? FENObject.FullmoveClock : fullMovesToMatch;
-            BoardStateSearchHash = PolyglotHelpers.GetBoardStateHash(fen);
         }
     }
 }

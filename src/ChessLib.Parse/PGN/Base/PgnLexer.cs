@@ -74,31 +74,5 @@ namespace ChessLib.Parse.PGN.Base
 
         private PgnParser _pgnParser;
 
-        private bool ParseNextToken(in StringReader reader)
-        {
-            char token = (char)reader.Peek();
-            if (token == -1)
-            {
-                return false;
-            }
-
-            if (IsWhiteSpaceToken(token))
-            {
-                return true;
-            }
-
-            switch (token)
-            {
-                case '*':
-                    return _pgnParser.VisitResult('*');
-                case '(':
-                    return _pgnParser.VisitVariationStart();
-                case ')':
-                    return _pgnParser.VisitVariationEnd();
-
-                default: return true;
-            }
-        }
-        private bool IsWhiteSpaceToken(char token) => _whiteSpaceTokens.Contains(token);
     }
 }

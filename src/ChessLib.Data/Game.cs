@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
+using ChessLib.Data.MoveRepresentation.NAG;
 
 namespace ChessLib.Data
 {
@@ -179,6 +180,11 @@ namespace ChessLib.Data
             }
 
             return areEqual;
+        }
+
+        public void ApplyNAG(int nag)
+        {
+            CurrentTree.Last.Value.Annotation = new NumericAnnotation(nag);
         }
     }
 }
