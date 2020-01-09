@@ -10,6 +10,8 @@ namespace ChessLib.Data
     public class Game<TMove> : MoveTraversalService, ICloneable
         where TMove : MoveExt, IEquatable<TMove>
     {
+        private GameResult _gameResult;
+
         public Game() : base(FENHelpers.FENInitial)
         {
             TagSection = new Tags();
@@ -72,7 +74,16 @@ namespace ChessLib.Data
             var formatter = new PGNFormatter<TMove>(new PGNFormatterOptions());
             return formatter.BuildPGN(this);
         }
-        public GameResult GameResult { get; set; }
+
+        public GameResult GameResult
+        {
+            get => _gameResult;
+            set
+            {
+                _gameResult = value;
+                TagSection["Result"] = Result;
+            }
+        }
 
         public bool IsEqualTo(Game<MoveStorage> otherGame, bool includeVariations = false)
         {

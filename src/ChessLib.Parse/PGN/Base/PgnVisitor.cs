@@ -10,20 +10,21 @@ using EnumsNET;
 
 namespace ChessLib.Parse.PGN.Base
 {
-    public class PgnParser
+    public class PgnVisitor
     {
         protected const char TokenVariationStart = '(';
         protected const char TokenVariationEnd = ')';
         protected const char TokenCommentStart = '{';
         protected const char TokenCommentEnd = '}';
-        private const string moveRegEx = "[a-h]|[x]|[O-O]|[O-O-O]|[KNBQR]|[1-8]|[=Q|=R|=B|=N]|[+|#]";
+        private const string MoveRegEx = "[a-h]|[x]|[O-O]|[O-O-O]|[KNBQR]|[1-8]|[=Q|=R|=B|=N]|[+|#]";
+
+        private static readonly char[] TokensChars = {' ', ')', '(', '{', '}'};
+        private readonly Regex _moveRegex = new Regex(MoveRegEx);
         private bool _foundGame;
-        private readonly Regex _moveRegex = new Regex(moveRegEx);
 
         private char[] _nagStartSymbols;
         private bool _nextMoveIsVariation;
         private int _plyCount;
-        private string _previousMove;
         private int _variationDepth;
         public Game<MoveStorage> Game;
         public List<PgnParsingLog> LogMessages = new List<PgnParsingLog>();
@@ -32,7 +33,7 @@ namespace ChessLib.Parse.PGN.Base
         protected (string, PositionalNAG)[] PositionalNags;
         protected (string, TimeTroubleNAG)[] TimeTroubleNags;
 
-        public PgnParser()
+        public PgnVisitor()
         {
             Game = new Game<MoveStorage>();
             InitNagInfo();
@@ -45,13 +46,12 @@ namespace ChessLib.Parse.PGN.Base
 
         public void VisitMoveSection(string moveSection, PGNParserOptions options)
         {
+            moveSection = ParseResult(moveSection);
             var reader = new StringReader(moveSection);
             int nNextCharacter;
-            var parsedThusFar = "";
             while ((nNextCharacter = reader.Peek()) != -1)
             {
                 var nextChar = (char) nNextCharacter;
-                parsedThusFar += nextChar;
                 if (char.IsLetter(nextChar))
                 {
                     if (!VisitSanMove(reader, options))
@@ -86,16 +86,6 @@ namespace ChessLib.Parse.PGN.Base
                     reader.Read();
                 }
             }
-        }
-
-        public bool VisitResult(char c)
-        {
-            if (c == '*')
-            {
-                Game.GameResult = GameResult.None;
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -169,7 +159,7 @@ namespace ChessLib.Parse.PGN.Base
             return true;
         }
 
-        protected int[] GetNAGSybolMatches(string possibleNagStart)
+        protected int[] GetNAGSymbolMatches(string possibleNagStart)
         {
             var rv = new List<int>();
             rv.AddRange(MoveNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
@@ -182,7 +172,7 @@ namespace ChessLib.Parse.PGN.Base
         internal static string ReadUntil(in StringReader reader, params char[] c)
         {
             var buffer = "";
-            var nNextChar = -1;
+            int nNextChar;
             while ((nNextChar = reader.Peek()) != -1)
             {
                 var readChar = (char) nNextChar;
@@ -226,24 +216,28 @@ namespace ChessLib.Parse.PGN.Base
             _nagStartSymbols = firstChars.ToArray();
         }
 
-        private bool IsCharLegalForMove(char c)
-        {
-            return char.IsLetterOrDigit(c) || c == '-' || c == '=';
-        }
-
         private bool IsPossiblyNag(char c)
         {
             return _nagStartSymbols.Contains(c);
         }
 
-        /// <summary>
-        ///     Validates ply-count limit for parsing
-        /// </summary>
-        /// <param name="options"></param>
-        /// <returns>true if count hasn't been exceeded</returns>
-        private bool ValidatePlyCountLimit(in PGNParserOptions options)
+        private string ParseResult(string moveSection)
         {
-            return !(_plyCount >= options.MaximumPlyPerGame);
+            const string resultMatchRegEx = "(?<result>(1-0)|(1/2-1/2)|(0-1)|(\\*))(\\s)*$";
+            var regEx = new Regex(resultMatchRegEx);
+            var match = regEx.Match(moveSection);
+            if (match.Success && match.Groups["result"].Success)
+            {
+                var result = match.Groups["result"].Value;
+                Game.Result = result;
+                regEx.Replace(moveSection, "");
+            }
+            else
+            {
+                Game.GameResult = GameResult.None;
+            }
+
+            return moveSection;
         }
 
         private bool ValidatePositionFilter(PGNParserOptions options, MoveStorage move)
@@ -263,8 +257,6 @@ namespace ChessLib.Parse.PGN.Base
             return true;
         }
 
-        private static readonly char[] TokensChars = new[] {' ', ')', '(', '{', '}'};
-
         private void VisitComment(StringReader reader)
         {
             var comment = ReadUntil(reader, TokenCommentEnd);
@@ -275,7 +267,7 @@ namespace ChessLib.Parse.PGN.Base
         private void VisitNAGSymbol(StringReader reader)
         {
             var nagBuffer = ReadUntil(reader, TokensChars);
-            var nags = GetNAGSybolMatches(nagBuffer);
+            var nags = GetNAGSymbolMatches(nagBuffer);
             if (nags.Any())
             {
                 if (nags.Length == 1)
@@ -334,7 +326,6 @@ namespace ChessLib.Parse.PGN.Base
             }
 
             var move = Game.ApplySanMove(buffer, strategy);
-            _previousMove = buffer;
             _plyCount = Game.PlyCount;
 
             if (move != null && options.ShouldFilterDuringParsing)

@@ -28,7 +28,7 @@ namespace ChessLib.Parse.Tests
         [TestCase("[Event \"New York\"]\r\n", "Event", "New York")]
         public void TestParsingTagPair(string tagPair, string expectedKey, string expectedValue)
         {
-            var pgnParser = new PgnParser();
+            var pgnParser = new PgnVisitor();
 
             pgnParser.VisitTagPair(tagPair);
             Assert.IsTrue(pgnParser.Game.TagSection.ContainsKey(expectedKey));
@@ -39,7 +39,7 @@ namespace ChessLib.Parse.Tests
             "[Event \"New York\"]\r\n[Site \"New York, NY USA\"]\r\n[Date \"1857.??.??\"]\r\n[Round \"1\"]\r\n[White \"Morphy, Paul\"]\r\n[Black \"Meek, Alexander Beaufort\"]\r\n[Result \"1-0\"]\r\n[ECO \"A43g\"]")]
         public void TestVisitingTags(string section)
         {
-            var parser = new PgnParser();
+            var parser = new PgnVisitor();
             parser.VisitTagPairSection(section);
             var tags = parser.Game.TagSection;
             Assert.AreEqual("New York", tags.Event);
@@ -306,6 +306,24 @@ namespace ChessLib.Parse.Tests
                 Assert.IsTrue(game.PlyCount <= maxPliesToParse,
                     $"Expected ply count of {maxPliesToParse} but was {game.MainMoveTree.Count}.");
             }
+        }
+
+        [Test]
+        public void ShouldSetResult()
+        {
+            var parser = new PGNParser();
+            var games = parser.GetGamesFromPGNAsync(PGNResources.AllResults).Result.ToArray();
+            Assert.AreEqual(4, games.Length);
+            Assert.AreEqual(GameResult.WhiteWins, games[0].GameResult);
+            Assert.AreEqual(GameResult.Draw, games[1].GameResult);
+            Assert.AreEqual(GameResult.BlackWins, games[2].GameResult);
+            Assert.AreEqual(GameResult.None, games[3].GameResult);
+
+            Assert.AreEqual("1-0", games[0].TagSection["Result"]);
+            Assert.AreEqual("1/2-1/2", games[1].TagSection["Result"]);
+            Assert.AreEqual("0-1", games[2].TagSection["Result"]);
+            Assert.AreEqual("*", games[3].TagSection["Result"]);
+
         }
 
         [Test]

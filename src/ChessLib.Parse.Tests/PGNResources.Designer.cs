@@ -61,6 +61,35 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;Birmingham sim&quot;]
+        ///[Site &quot;Birmingham ENG&quot;]
+        ///[Date &quot;1858.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;Morphy, Paul&quot;]
+        ///[Black &quot;Carr, J.&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[ECO &quot;B00a&quot;]
+        ///
+        ///
+        ///	   1.	e4          	h6          
+        ///	   2.	d4          	a5          
+        ///	   3.	Bd3         	b6          
+        ///	   4.	Ne2         	e6          
+        ///	   5.	O-O         	Ba6         
+        ///	   6.	c4          	Nf6         
+        ///	   7.	e5          	Nh7         
+        ///	   8.	f4          	Be7         
+        ///	   9.	Ng3         	d5          
+        ///	  10.	Qg4         	O-O         
+        ///	  11.	Nh [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string AllResults {
+            get {
+                return ResourceManager.GetString("AllResults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;6. Soviet Team Cup&quot;]
         ///[Site &quot;Riga LAT&quot;]
         ///[Date &quot;1968.12.14&quot;]

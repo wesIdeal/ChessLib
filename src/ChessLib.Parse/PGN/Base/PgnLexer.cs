@@ -36,20 +36,20 @@ namespace ChessLib.Parse.PGN.Base
 
         public Game<MoveStorage> ParseGame(in string game, PGNParserOptions options, out List<PgnParsingLog> parseLogs)
         {
-            _pgnParser = new PgnParser();
+            _pgnVisitor = new PgnVisitor();
             parseLogs = new List<PgnParsingLog>();
             var sections = GetSectionsFromPGN(game);
             ParseTagSection(sections.tagSection, parseLogs);
             ParseMoveSection(sections.moveSection.Replace("\r\n", " "), options, parseLogs);
-            parseLogs.AddRange(_pgnParser.LogMessages);
-            return _pgnParser.Game;
+            parseLogs.AddRange(_pgnVisitor.LogMessages);
+            return _pgnVisitor.Game;
         }
 
         private void ParseTagSection(string tagSection, List<PgnParsingLog> parseLogs)
         {
             if (!string.IsNullOrWhiteSpace(tagSection))
             {
-                _pgnParser.VisitTagPairSection(tagSection);
+                _pgnVisitor.VisitTagPairSection(tagSection);
             }
             else
             {
@@ -62,7 +62,7 @@ namespace ChessLib.Parse.PGN.Base
         {
             if (!string.IsNullOrWhiteSpace(moveSection))
             {
-                _pgnParser.VisitMoveSection(moveSection, options);
+                _pgnVisitor.VisitMoveSection(moveSection, options);
             }
             else
             {
@@ -72,7 +72,7 @@ namespace ChessLib.Parse.PGN.Base
         }
 
 
-        private PgnParser _pgnParser;
+        private PgnVisitor _pgnVisitor;
 
     }
 }
