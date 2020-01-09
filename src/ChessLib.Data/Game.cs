@@ -67,6 +67,11 @@ namespace ChessLib.Data
             }
         }
 
+        public string GetPGN()
+        {
+            var formatter = new PGNFormatter<TMove>(new PGNFormatterOptions());
+            return formatter.BuildPGN(this);
+        }
         public GameResult GameResult { get; set; }
 
         public bool IsEqualTo(Game<MoveStorage> otherGame, bool includeVariations = false)

@@ -436,6 +436,29 @@ namespace ChessLib.Parse.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;2. Soviet Team Cup&quot;]
+        ///[Site &quot;Riga URS&quot;]
+        ///[Date &quot;1954.09.04&quot;]
+        ///[Round &quot;1&quot;]
+        ///[White &quot;Tal, Mikhail&quot;]
+        ///[Black &quot;Averbakh, Yuri L&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[ECO &quot;C47&quot;]
+        ///[PlyCount &quot;80&quot;]
+        ///
+        ///1. e4 e5 2. Nf3 Nc6 3. Nc3 Nf6 4. d4 exd4 5. Nd5 Nb4 6. Nxd4 Nxe4 7. Nf5 c6 (
+        ///7... Nxd5)8. Nxb4 Bxb4+ 9. c3 Qf6 10. Qf3 Nxc3 11. a3 Ba5 12. Bd2 d5 13. Ng3
+        ///Qe6+ 14. Qe3 d4 15. Qxe6+ Bxe6 16. f3 O-O-O 17. Kf2 Bb6 18. bxc3 dxc3+ 19. Be3
+        ///Bxe3+ 20. Kxe3 Rhe8 21. Ne4 Bd5 ( 21... Bb3 22. g4 $10 )22. g4 $1 { preventing
+        ///...f5}  ( 22 [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string Variation02 {
+            get {
+                return ResourceManager.GetString("Variation02", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;FIDE (23) 1958-1960&quot;]
         ///[Site &quot;Portoroz izt&quot;]
         ///[Date &quot;1958.??.??&quot;]

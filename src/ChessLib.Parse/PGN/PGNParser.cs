@@ -140,11 +140,24 @@ namespace ChessLib.Parse.PGN
             pgnFileStream.CopyTo(_stream);
         }
 
-        private string NormalizeNewLines()
+        private static string SanitizeInput(string pgn)
         {
-            var tmp = _pgn.Replace("\r", "");
-            tmp = tmp.Replace("\n", Environment.NewLine);
-            return tmp;
+            pgn = SanitizeNewLines(pgn);
+            pgn = SanitizeResult(pgn);
+            return pgn;
+        }
+
+        private static string SanitizeNewLines(string pgn)
+        {
+            pgn = Regex.Replace(pgn, "((\\r?)(\\n)){2,}", TokenSectionEnd);
+            return pgn;
+        }
+
+        private static string SanitizeResult(string tmp)
+        {
+            var pattern = "(\\r\\n\\r\\n){1,}(?<result>(\\*)|(0-1)|(1-0)|(1/2-1/2))";
+            var replacement = $"{Environment.NewLine}${{result}}";
+            return Regex.Replace(tmp, pattern, replacement);
         }
 
         /// <summary>
@@ -157,11 +170,12 @@ namespace ChessLib.Parse.PGN
             SendUpdate("Splitting PGN file." + Environment.NewLine);
             Stopwatch.Restart();
             var rv = new List<string>();
-            var tmp = NormalizeNewLines();
+            var tmp = SanitizeInput(_pgn);
             var rxSplitter = new Regex(RegExSplitGames);
-            var split = rxSplitter.Split(tmp);
+            var split = rxSplitter.Split(tmp).Select(x => x.Trim()).Where(x => !String.IsNullOrWhiteSpace(x)).ToArray();
+
             var tagSectionFound = false;
-            foreach (var piece in split.Where(x => !String.IsNullOrWhiteSpace(x)).Select(x => x.Trim()))
+            foreach (var piece in split.Select(x => x.Trim()))
             {
                 if (piece[0] == TokenTagBegin)
                 {

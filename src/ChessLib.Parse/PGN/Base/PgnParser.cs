@@ -16,18 +16,21 @@ namespace ChessLib.Parse.PGN.Base
         protected const char TokenVariationEnd = ')';
         protected const char TokenCommentStart = '{';
         protected const char TokenCommentEnd = '}';
+        private const string moveRegEx = "[a-h]|[x]|[O-O]|[O-O-O]|[KNBQR]|[1-8]|[=Q|=R|=B|=N]|[+|#]";
         private bool _foundGame;
+        private readonly Regex _moveRegex = new Regex(moveRegEx);
 
         private char[] _nagStartSymbols;
         private bool _nextMoveIsVariation;
         private int _plyCount;
+        private string _previousMove;
+        private int _variationDepth;
         public Game<MoveStorage> Game;
         public List<PgnParsingLog> LogMessages = new List<PgnParsingLog>();
         protected (string, MoveNAG)[] MoveNags;
         protected (string, NonStandardNAG)[] NonStandardNags;
         protected (string, PositionalNAG)[] PositionalNags;
         protected (string, TimeTroubleNAG)[] TimeTroubleNags;
-        private int _variationDepth;
 
         public PgnParser()
         {
@@ -42,15 +45,12 @@ namespace ChessLib.Parse.PGN.Base
 
         public void VisitMoveSection(string moveSection, PGNParserOptions options)
         {
-            const string moveNumbersRegEx = "([\\d]+[.]+)|[(\\r\\n)|(\\n)]";
-            var regEx = new Regex(moveNumbersRegEx);
-            var movesOnly = regEx.Replace(moveSection, " ");
-            var reader = new StringReader(movesOnly);
+            var reader = new StringReader(moveSection);
             int nNextCharacter;
-            string parsedThusFar = "";
+            var parsedThusFar = "";
             while ((nNextCharacter = reader.Peek()) != -1)
             {
-                var nextChar = (char)nNextCharacter;
+                var nextChar = (char) nNextCharacter;
                 parsedThusFar += nextChar;
                 if (char.IsLetter(nextChar))
                 {
@@ -85,42 +85,6 @@ namespace ChessLib.Parse.PGN.Base
                 {
                     reader.Read();
                 }
-            }
-        }
-
-        private void VisitNumericNag(StringReader reader)
-        {
-            var nagBuffer = ReadUntil(reader, ' ');
-            nagBuffer = nagBuffer.TrimStart('$');
-            Game.ApplyNAG(Convert.ToInt32(nagBuffer));
-        }
-
-        private void VisitNAGSymbol(StringReader reader)
-        {
-            var nagBuffer = ReadUntil(reader, ' ');
-            var nags = GetNAGSybolMatches(nagBuffer);
-            if (nags.Any())
-            {
-                if (nags.Length == 1)
-                {
-                    Game.ApplyNAG(nags[0]);
-                }
-                else
-                {
-                    LogMessages.Add(new PgnParsingLog
-                    {
-                        ErrorLevel = ErrorLevel.Warning,
-                        Message = $"Found multiple symbol matches for {nagBuffer}"
-                    });
-                }
-            }
-            else
-            {
-                LogMessages.Add(new PgnParsingLog
-                {
-                    ErrorLevel = ErrorLevel.Warning,
-                    Message = $"Could not find symbol match for {nagBuffer}"
-                });
             }
         }
 
@@ -194,6 +158,7 @@ namespace ChessLib.Parse.PGN.Base
             {
                 Game.ExitVariation();
             }
+
             return true;
         }
 
@@ -207,24 +172,25 @@ namespace ChessLib.Parse.PGN.Base
         protected int[] GetNAGSybolMatches(string possibleNagStart)
         {
             var rv = new List<int>();
-            rv.AddRange(MoveNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
-            rv.AddRange(PositionalNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
-            rv.AddRange(TimeTroubleNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
-            rv.AddRange(NonStandardNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
+            rv.AddRange(MoveNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
+            rv.AddRange(PositionalNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
+            rv.AddRange(TimeTroubleNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
+            rv.AddRange(NonStandardNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
             return rv.ToArray();
         }
 
-        internal static string ReadUntil(in StringReader reader, in char c)
+        internal static string ReadUntil(in StringReader reader, params char[] c)
         {
             var buffer = "";
             var nNextChar = -1;
             while ((nNextChar = reader.Peek()) != -1)
             {
-                var readChar = (char)nNextChar;
-                if (readChar == c)
+                var readChar = (char) nNextChar;
+                if (c.Contains(readChar))
                 {
                     break;
                 }
+
                 buffer += readChar;
                 reader.Read();
             }
@@ -235,7 +201,8 @@ namespace ChessLib.Parse.PGN.Base
         private static IEnumerable<(string, TEnum)> EnumerateNagSymbols<TEnum>()
             where TEnum : struct, Enum
         {
-            var symbolFormat = Enums.RegisterCustomEnumFormat(member => member.Attributes.Get<SymbolAttribute>()?.Symbol);
+            var symbolFormat =
+                Enums.RegisterCustomEnumFormat(member => member.Attributes.Get<SymbolAttribute>()?.Symbol);
             foreach (var moveNag in Enums.GetValues<TEnum>(EnumMemberSelection.Distinct))
             {
                 var symbol = moveNag.AsString(symbolFormat);
@@ -296,6 +263,8 @@ namespace ChessLib.Parse.PGN.Base
             return true;
         }
 
+        private static readonly char[] TokensChars = new[] {' ', ')', '(', '{', '}'};
+
         private void VisitComment(StringReader reader)
         {
             var comment = ReadUntil(reader, TokenCommentEnd);
@@ -303,14 +272,50 @@ namespace ChessLib.Parse.PGN.Base
             Game.AddComment(comment);
         }
 
+        private void VisitNAGSymbol(StringReader reader)
+        {
+            var nagBuffer = ReadUntil(reader, TokensChars);
+            var nags = GetNAGSybolMatches(nagBuffer);
+            if (nags.Any())
+            {
+                if (nags.Length == 1)
+                {
+                    Game.ApplyNAG(nags[0]);
+                }
+                else
+                {
+                    LogMessages.Add(new PgnParsingLog
+                    {
+                        ErrorLevel = ErrorLevel.Warning,
+                        Message = $"Found multiple symbol matches for {nagBuffer}"
+                    });
+                }
+            }
+            else
+            {
+                LogMessages.Add(new PgnParsingLog
+                {
+                    ErrorLevel = ErrorLevel.Warning,
+                    Message = $"Could not find symbol match for {nagBuffer}"
+                });
+            }
+        }
+
+        private void VisitNumericNag(StringReader reader)
+        {
+            var nagBuffer = ReadUntil(reader, TokensChars);
+            nagBuffer = nagBuffer.TrimStart('$');
+            Game.ApplyNAG(Convert.ToInt32(nagBuffer));
+        }
+
         private bool VisitSanMove(in StringReader reader, PGNParserOptions options)
         {
-            var buffer = string.Empty;
-            int nChar;
-            while ((nChar = reader.Peek()) != -1)
+            var buffer = "";
+            int nReadChar;
+            while ((nReadChar = reader.Peek()) != -1)
             {
-                var c = (char)nChar;
-                if (!IsCharLegalForMove(c))
+                var c = (char) nReadChar;
+                if (!_moveRegex.IsMatch(c.ToString()))
                 {
                     break;
                 }
@@ -327,7 +332,9 @@ namespace ChessLib.Parse.PGN.Base
             {
                 return true;
             }
+
             var move = Game.ApplySanMove(buffer, strategy);
+            _previousMove = buffer;
             _plyCount = Game.PlyCount;
 
             if (move != null && options.ShouldFilterDuringParsing)

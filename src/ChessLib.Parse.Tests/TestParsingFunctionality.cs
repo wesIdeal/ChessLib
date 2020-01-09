@@ -24,6 +24,7 @@ namespace ChessLib.Parse.Tests
         {
             return originalDatabase + Environment.NewLine + Environment.NewLine + game;
         }
+
         [TestCase("[Event \"New York\"]\r\n", "Event", "New York")]
         public void TestParsingTagPair(string tagPair, string expectedKey, string expectedValue)
         {
@@ -80,6 +81,7 @@ namespace ChessLib.Parse.Tests
         }
 
         public const string EnglishReverseSicilian = "rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 1 2";
+
         private PGNParserOptions MoveCountFilterOptions(int moveCount)
         {
             var opts = new PGNParserOptions(EnglishReverseSicilian, moveCount);
@@ -93,30 +95,6 @@ namespace ChessLib.Parse.Tests
             Console.WriteLine(new string('*', 20));
             Console.WriteLine(parser.BuildPGN(game));
             Console.WriteLine(new string('*', 20));
-        }
-
-        [Test(Description = "Filters out a game that meets filter, but in too many plies.")]
-        public void ShouldFilterTranspositionalGame()
-        {
-            var pgnDatabase = FilterDb;
-            Filter_SanityCheck(pgnDatabase, 11);
-            var filterParser = new PGNParser(MoveCountFilterOptions(3));
-            var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDatabase).Result.ToArray();
-            const int expectedGameCount = 10;
-            Assert.AreEqual(expectedGameCount, filteredGames.Length,
-                $"Expected {expectedGameCount} games from filter database, but found {filteredGames.Length}.");
-        }
-
-        [Test(Description = "Includes game that meets filter by transposition.")]
-        public void ShouldNotFilterTranspositionalGame()
-        {
-            var pgnDatabase = FilterDb;
-            Filter_SanityCheck(pgnDatabase, 11);
-            var filterParser = new PGNParser(MoveCountFilterOptions(7));
-            var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDatabase).Result.ToArray();
-            const int expectedGameCount = 11;
-            Assert.AreEqual(expectedGameCount, filteredGames.Length,
-                $"Expected {expectedGameCount} games from filter database, but found {filteredGames.Length}.");
         }
 
         public void Filter_SanityCheck(string filterDb, int expectedGameCount)
@@ -212,16 +190,6 @@ namespace ChessLib.Parse.Tests
                 $"Expected {expectedGameCount} games from filter database, but found {largeDb.Length}.");
         }
 
-        [Test]
-        public void ShouldParsePromotion()
-        {
-            var pgnWithPromotion = PGNResources.GameWithPromotion;
-            var parser = new PGNParser();
-            var game = parser.GetGamesFromPGNAsync(pgnWithPromotion).Result.ToArray();
-            Assert.AreEqual(1, game.Count());
-            Assert.AreEqual(80, game.First().PlyCount);
-        }
-
         /// <summary>
         ///     An extensive test for comments, variations and nags in a real db scenario
         /// </summary>
@@ -239,18 +207,60 @@ namespace ChessLib.Parse.Tests
                 $"Expected {expectedGameCount} games, but found {largeDb.Length}.");
         }
 
+        [Test(Description = "Filters out a game that meets filter, but in too many plies.")]
+        public void ShouldFilterTranspositionalGame()
+        {
+            var pgnDatabase = FilterDb;
+            Filter_SanityCheck(pgnDatabase, 11);
+            var filterParser = new PGNParser(MoveCountFilterOptions(3));
+            var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDatabase).Result.ToArray();
+            const int expectedGameCount = 10;
+            Assert.AreEqual(expectedGameCount, filteredGames.Length,
+                $"Expected {expectedGameCount} games from filter database, but found {filteredGames.Length}.");
+        }
+
 
         [Test]
         public void ShouldIgnoreVariationsWhenSetToTrue()
         {
             var pgnDb = PGNResources.GameWithVars;
-            var parserOptions = new PGNParserOptions { IgnoreVariations = true };
+            var parserOptions = new PGNParserOptions {IgnoreVariations = true};
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             foreach (var move in largeDb.First().MainMoveTree)
             {
                 Assert.IsEmpty(move.Variations, $"Found a variation on move {move.SAN} and shouldn't have any.");
             }
+        }
+
+        [Test(Description = "Includes game that meets filter by transposition.")]
+        public void ShouldNotFilterTranspositionalGame()
+        {
+            var pgnDatabase = FilterDb;
+            Filter_SanityCheck(pgnDatabase, 11);
+            var filterParser = new PGNParser(MoveCountFilterOptions(7));
+            var filteredGames = filterParser.GetGamesFromPGNAsync(pgnDatabase).Result.ToArray();
+            const int expectedGameCount = 11;
+            Assert.AreEqual(expectedGameCount, filteredGames.Length,
+                $"Expected {expectedGameCount} games from filter database, but found {filteredGames.Length}.");
+        }
+
+        [Test]
+        public void ShouldParseNAGNumbers()
+        {
+            const MoveNAG expected = MoveNAG.VeryGoodMove;
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagNumber).Result;
+            Assert.AreEqual(expected, game.First().MainMoveTree.Last.Value.Annotation.MoveNAG);
+        }
+
+        [Test]
+        public void ShouldParseNAGSymbols()
+        {
+            const MoveNAG expected = MoveNAG.VeryGoodMove;
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagSymbol).Result;
+            Assert.AreEqual(expected, game.First().MainMoveTree.Last.Value.Annotation.MoveNAG);
         }
 
         [Test]
@@ -261,11 +271,21 @@ namespace ChessLib.Parse.Tests
         }
 
         [Test]
+        public void ShouldParsePromotion()
+        {
+            var pgnWithPromotion = PGNResources.GameWithPromotion;
+            var parser = new PGNParser();
+            var game = parser.GetGamesFromPGNAsync(pgnWithPromotion).Result.ToArray();
+            Assert.AreEqual(1, game.Count());
+            Assert.AreEqual(80, game.First().PlyCount);
+        }
+
+        [Test]
         public void ShouldRespectMaxGameCount()
         {
             const int gamesToParse = 2;
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
-            var parserOptions = new PGNParserOptions { MaxGameCount = 2 };
+            var parserOptions = new PGNParserOptions {MaxGameCount = 2};
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             Assert.AreEqual(gamesToParse, largeDb.Length,
@@ -277,7 +297,7 @@ namespace ChessLib.Parse.Tests
         {
             const int maxPliesToParse = 10;
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
-            var parserOptions = new PGNParserOptions { MaxGameCount = 5, MaximumPlyPerGame = maxPliesToParse };
+            var parserOptions = new PGNParserOptions {MaxGameCount = 5, MaximumPlyPerGame = maxPliesToParse};
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             WritePgn(largeDb.First());
@@ -323,7 +343,16 @@ namespace ChessLib.Parse.Tests
             var parser = new PGNParser();
             var games = parser.GetGamesFromPGNAsync(PGNResources.VariationsAndComments).Result.ToArray();
             Assert.IsNotEmpty(games);
-            Assert.AreEqual(114, games.First().MainMoveTree.Count);
+            Assert.AreEqual(113, games.First().PlyCount);
+        }
+
+        [Test]
+        public void TestMoveParsing_WithCommentsAndVariations02()
+        {
+            var parser = new PGNParser();
+            var games = parser.GetGamesFromPGNAsync(PGNResources.Variation02).Result.ToArray();
+            Assert.IsNotEmpty(games);
+            Assert.AreEqual(80, games.First().PlyCount);
         }
 
         [Test]
@@ -335,24 +364,6 @@ namespace ChessLib.Parse.Tests
             var move = game.MainMoveTree.ElementAt(moveIndex);
             Assert.AreEqual(MoveNAG.GoodMove, move.Annotation.MoveNAG,
                 $"Expected NAG to be '{expected}' at move {MoveDisplay(moveIndex, move.SAN)}.");
-        }
-
-        [Test]
-        public void ShouldParseNAGSymbols()
-        {
-            const MoveNAG expected = MoveNAG.VeryGoodMove;
-            var parser = new PGNParser();
-            var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagSymbol).Result;
-            Assert.AreEqual(expected, game.First().MainMoveTree.Last.Value.Annotation.MoveNAG);
-        }
-
-        [Test]
-        public void ShouldParseNAGNumbers()
-        {
-            const MoveNAG expected = MoveNAG.VeryGoodMove;
-            var parser = new PGNParser();
-            var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagNumber).Result;
-            Assert.AreEqual(expected, game.First().MainMoveTree.Last.Value.Annotation.MoveNAG);
         }
 
 

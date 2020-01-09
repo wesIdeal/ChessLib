@@ -836,4 +836,25 @@ Rd3+ Qxd3  1-0</value>
 
 1. c4 e5 2. Nc3!! *</value>
   </data>
+  <data name="Variation02" xml:space="preserve">
+    <value>[Event "2. Soviet Team Cup"]
+[Site "Riga URS"]
+[Date "1954.09.04"]
+[Round "1"]
+[White "Tal, Mikhail"]
+[Black "Averbakh, Yuri L"]
+[Result "1-0"]
+[ECO "C47"]
+[PlyCount "80"]
+
+1. e4 e5 2. Nf3 Nc6 3. Nc3 Nf6 4. d4 exd4 5. Nd5 Nb4 6. Nxd4 Nxe4 7. Nf5 c6 (
+7... Nxd5)8. Nxb4 Bxb4+ 9. c3 Qf6 10. Qf3 Nxc3 11. a3 Ba5 12. Bd2 d5 13. Ng3
+Qe6+ 14. Qe3 d4 15. Qxe6+ Bxe6 16. f3 O-O-O 17. Kf2 Bb6 18. bxc3 dxc3+ 19. Be3
+Bxe3+ 20. Kxe3 Rhe8 21. Ne4 Bd5 ( 21... Bb3 22. g4 $10 )22. g4 $1 { preventing
+...f5}  ( 22. Bd3)22... Bxe4 23. fxe4 Rd5 24. Rc1 g6 ( 24... h5 25. h3 { Again,
+to not allow ...f5}  25... Rde5 26. Bg2 $16 )25. Bg2 f5 26. gxf5 gxf5 27. Rhf1
+fxe4 ( 27... Rde5 $4 28. Rxf5 )( 27... Rd2)28. Rxc3 Rh5 29. Rh1 Rh4 30. Rc4 Kc7
+31. Rxe4 Rexe4+ 32. Bxe4 Rh3+ 33. Bf3 c5 34. Rg1 b5 35. Rg7+ Kb6 36. Rb7+ Ka6
+37. Rb8 Rxh2 38. Be2 Rh3+ 39. Ke4 c4 40. a4 Rh4+  1-0</value>
+  </data>
 </root>

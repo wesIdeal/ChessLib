@@ -40,7 +40,7 @@ namespace ChessLib.Parse.PGN.Base
             parseLogs = new List<PgnParsingLog>();
             var sections = GetSectionsFromPGN(game);
             ParseTagSection(sections.tagSection, parseLogs);
-            ParseMoveSection(sections.moveSection, options, parseLogs);
+            ParseMoveSection(sections.moveSection.Replace("\r\n", " "), options, parseLogs);
             parseLogs.AddRange(_pgnParser.LogMessages);
             return _pgnParser.Game;
         }

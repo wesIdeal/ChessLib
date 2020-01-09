@@ -40,7 +40,7 @@ namespace ChessLib.Data
         public IBoard InitialBoard { get; private set; }
         public string CurrentFEN => Board.CurrentFEN;
         public MoveTree MainMoveTree { get; protected set; }
-        public int PlyCount => MainMoveTree.Count(x => !x.IsNullMove);
+        public int PlyCount => MainMoveTree.Skip(1).Count();
 
         public LinkedListNode<MoveStorage> CurrentMoveNode
         {
@@ -495,9 +495,9 @@ namespace ChessLib.Data
         {
             var currentTree = (MoveTree) CurrentMoveNode.List;
             var variationParentMove = currentTree.VariationParentNode;
+            CurrentMoveNode = variationParentMove;
             var parentFen = currentTree.StartingFEN;
             ApplyNewBoard(new BoardInfo(parentFen));
-            CurrentMoveNode = variationParentMove;
             TraverseForward();
             return variationParentMove;
         }
