@@ -15,20 +15,14 @@ namespace ChessLib.Parse.Console
     [SuppressMessage("ReSharper", "LocalizableElement")]
     internal class Program
     {
-        public enum GameDatabases
+        private static void Main(string[] args)
         {
-            WithFENSetup,
-            TalSmall,
-            TalLarge,
-            TalMedium,
-            GameWithVariation,
-            PregameComment,
-            SymbolNag
+            var games = TestParsing(GameDatabase.TalLarge);
+            games.First().MainMoveTree.Count();
+            //WriteGame(listenerGames, 0);
         }
 
-        private static int CursorTop => System.Console.CursorTop;
-
-        public static Game<MoveStorage>[] TestParsing(GameDatabases db)
+        public static Game<MoveStorage>[] TestParsing(GameDatabase db)
         {
             var parser = new PGNParser();
             parser.UpdateProgress += UpdateProgress;
@@ -37,14 +31,14 @@ namespace ChessLib.Parse.Console
             timer.Start();
             var games = parser.GetGamesFromPGNAsync(dbToUse).Result.ToArray();
             timer.Stop();
-            System.Console.WriteLine($"Listener: Finished {games.Length} games in {timer.ElapsedMilliseconds} ms.");
+            System.Console.WriteLine($"Parsing Finished {games.Length} games in {timer.ElapsedMilliseconds} ms.");
             return games;
         }
 
         public static void TestSpeed()
         {
             var sw = new Stopwatch();
-            var pgn = GetDbFromEnum(GameDatabases.TalLarge);
+            var pgn = GetDbFromEnum(GameDatabase.TalLarge);
             var oldParsingTimes = new List<long>();
             var numberOfTimes = 1;
 
@@ -66,23 +60,23 @@ namespace ChessLib.Parse.Console
         {
             var parser = new PGNParser();
             var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagSymbol).Result;
-            PGNFormatter<MoveStorage> formatter = new PGNFormatter<MoveStorage>(new PGNFormatterOptions());
+            var formatter = new PGNFormatter<MoveStorage>(new PGNFormatterOptions());
             formatter.BuildPGN(game.First());
         }
 
-        private static GameDatabases GetDatabaseFromArg(string s)
+        private static GameDatabase GetDatabaseFromArg(string s)
         {
             if (string.IsNullOrWhiteSpace(s) ||
-                !Enum.TryParse(typeof(GameDatabases), s, true, out var rv))
+                !Enum.TryParse(typeof(GameDatabase), s, true, out var rv))
             {
-                System.Console.WriteLine($"Cannot match {s}. Using {GameDatabases.TalSmall}");
-                return GameDatabases.TalSmall;
+                System.Console.WriteLine($"Cannot match {s}. Using {GameDatabase.TalSmall}");
+                return GameDatabase.TalSmall;
             }
 
-            return (GameDatabases) rv;
+            return (GameDatabase) rv;
         }
 
-        private static GameDatabases GetDatabaseFromUser()
+        private static GameDatabase GetDatabaseFromUser()
         {
             var answer = -1;
             var max = 10;
@@ -92,7 +86,7 @@ namespace ChessLib.Parse.Console
                 System.Console.Clear();
                 System.Console.WriteLine("Choose database:");
                 var count = 0;
-                foreach (var db in (GameDatabases[]) Enum.GetValues(typeof(GameDatabases)))
+                foreach (var db in (GameDatabase[]) Enum.GetValues(typeof(GameDatabase)))
                 {
                     System.Console.WriteLine($"{count}\t{db}");
                     max = count++;
@@ -105,48 +99,42 @@ namespace ChessLib.Parse.Console
                 }
             }
 
-            return (GameDatabases) answer;
+            return (GameDatabase) answer;
         }
 
-        private static GameDatabases GetDatabaseToParse(string[] args)
+        private static GameDatabase GetDatabaseToParse(string[] args)
         {
-            GameDatabases database;
+            GameDatabase database;
             database = args.Length != 0 ? GetDatabaseFromArg(args[0]) : GetDatabaseFromUser();
             System.Console.WriteLine($"Using {database}");
             return database;
         }
 
-        private static string GetDbFromEnum(GameDatabases db)
+        private static string GetDbFromEnum(GameDatabase db)
         {
             byte[] byteArray;
             switch (db)
             {
-                case GameDatabases.TalLarge:
+                case GameDatabase.TalLarge:
                     byteArray = PGNResources.talLarge;
                     break;
-                case GameDatabases.TalSmall:
+                case GameDatabase.TalSmall:
                     byteArray = PGNResources.tal;
                     break;
-                case GameDatabases.TalMedium:
+                case GameDatabase.TalMedium:
                     byteArray = PGNResources.talMedium;
                     break;
-                case GameDatabases.GameWithVariation:
+                case GameDatabase.GameWithVariation:
                     return PGNResources.GameWithVars;
-                case GameDatabases.WithFENSetup:
+                case GameDatabase.WithFENSetup:
                     return PGNResources.WithFENSetup;
-                case GameDatabases.PregameComment:
+                case GameDatabase.PregameComment:
                     return PGNResources.PregameComment;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(db), db, null);
             }
 
             return Encoding.UTF8.GetString(byteArray);
-        }
-
-        private static void Main(string[] args)
-        {
-            TestParsingNagSymbols();
-            //WriteGame(listenerGames, 0);
         }
 
         private static void ParseOldWay(string pgn)
@@ -205,5 +193,18 @@ namespace ChessLib.Parse.Console
                 System.Console.WriteLine($"\tMove:{pgMove}");
             }
         }
+
+        public enum GameDatabase
+        {
+            WithFENSetup,
+            TalSmall,
+            TalLarge,
+            TalMedium,
+            GameWithVariation,
+            PregameComment,
+            SymbolNag
+        }
+
+        private static int CursorTop => System.Console.CursorTop;
     }
 }

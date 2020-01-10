@@ -33,19 +33,24 @@ namespace ChessLib.Parse.PGN.Base
 
             return ("", "");
         }
+        List<PgnParsingLog> _parsingLogs = new List<PgnParsingLog>();
 
-        public Game<MoveStorage> ParseGame(in string game, PGNParserOptions options, out List<PgnParsingLog> parseLogs)
+        public Game<MoveStorage> ParseGame(in string game, PGNParserOptions options)
         {
             _pgnVisitor = new PgnVisitor();
-            parseLogs = new List<PgnParsingLog>();
             var sections = GetSectionsFromPGN(game);
-            ParseTagSection(sections.tagSection, parseLogs);
-            ParseMoveSection(sections.moveSection.Replace("\r\n", " "), options, parseLogs);
-            parseLogs.AddRange(_pgnVisitor.LogMessages);
+            ParseTagSection(sections.tagSection);
+            ParseMoveSection(sections.moveSection.Replace("\r\n", " "), options);
+            AddParsingLogsToGame();
             return _pgnVisitor.Game;
         }
 
-        private void ParseTagSection(string tagSection, List<PgnParsingLog> parseLogs)
+        private void AddParsingLogsToGame()
+        {
+            foreach (var log in _parsingLogs) { _pgnVisitor.Game.AddParsingLogItem(log); }
+        }
+
+        private void ParseTagSection(string tagSection)
         {
             if (!string.IsNullOrWhiteSpace(tagSection))
             {
@@ -53,12 +58,12 @@ namespace ChessLib.Parse.PGN.Base
             }
             else
             {
-                parseLogs.Add(new PgnParsingLog()
-                { ErrorLevel = ErrorLevel.Warning, Message = "Warning: No tag section found for game." });
+                _parsingLogs.Add(new PgnParsingLog(ParsingErrorLevel.Warning, "Warning: No tag section found for game.",
+                    tagSection));
             }
         }
 
-        private void ParseMoveSection(string moveSection, PGNParserOptions options, List<PgnParsingLog> parseLogs)
+        private void ParseMoveSection(string moveSection, PGNParserOptions options)
         {
             if (!string.IsNullOrWhiteSpace(moveSection))
             {
@@ -66,8 +71,8 @@ namespace ChessLib.Parse.PGN.Base
             }
             else
             {
-                parseLogs.Add(new PgnParsingLog()
-                { ErrorLevel = ErrorLevel.Warning, Message = "Warning: No move section found for game." });
+                _parsingLogs.Add(new PgnParsingLog(ParsingErrorLevel.Warning, "Warning: No move section found for game.",
+                    moveSection));
             }
         }
 

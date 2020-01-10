@@ -12,10 +12,23 @@ namespace ChessLib.Data
     {
         private GameResult _gameResult;
 
+
         public Game() : base(FENHelpers.FENInitial)
         {
             TagSection = new Tags();
             TagSection.SetFen(FENHelpers.FENInitial);
+        }
+
+        public List<PgnParsingLog> ParsingLog { get; protected set; }
+
+        public void AddParsingLogItem(ParsingErrorLevel errorLevel, string message, string parseInput = "")
+        {
+            ParsingLog.Add(new PgnParsingLog(errorLevel, message, parseInput));
+        }
+
+        public void AddParsingLogItem(PgnParsingLog logItem)
+        {
+            ParsingLog.Add(logItem);
         }
 
         public Game(Tags tags) : base(tags.FENStart)
@@ -27,6 +40,7 @@ namespace ChessLib.Data
         {
             TagSection = new Tags();
             TagSection.SetFen(fen);
+            ParsingLog = new List<PgnParsingLog>();
         }
 
         public Tags TagSection { get; set; }

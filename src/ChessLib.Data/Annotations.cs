@@ -238,18 +238,18 @@ namespace ChessLib.Data.Annotations
   }
 
   /// <summary>
-  /// Describes dependency between method input and output.
+  /// Describes dependency between method parseInput and output.
   /// </summary>
   /// <syntax>
   /// <p>Function Definition Table syntax:</p>
   /// <list>
   /// <item>FDT      ::= FDTRow [;FDTRow]*</item>
-  /// <item>FDTRow   ::= Input =&gt; Output | Output &lt;= Input</item>
-  /// <item>Input    ::= ParameterName: Value [, Input]*</item>
+  /// <item>FDTRow   ::= ParseInput =&gt; Output | Output &lt;= ParseInput</item>
+  /// <item>ParseInput    ::= ParameterName: Value [, ParseInput]*</item>
   /// <item>Output   ::= [ParameterName: Value]* {halt|stop|void|nothing|Value}</item>
   /// <item>Value    ::= true | false | null | notnull | canbenull</item>
   /// </list>
-  /// If the method has a single input parameter, its name could be omitted.<br/>
+  /// If the method has a single parseInput parameter, its name could be omitted.<br/>
   /// Using <c>halt</c> (or <c>void</c>/<c>nothing</c>, which is the same) for the method output
   /// means that the method doesn't return normally (throws or terminates the process).<br/>
   /// Value <c>canbenull</c> is only applicable for output parameters.<br/>

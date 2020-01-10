@@ -61,10 +61,9 @@ namespace ChessLib.Parse.PGN
             while ((readBytes = _stream.Read(buffer, 0, bufferSize)) != 0)
             {
                 SendUpdate($"Read {readBytes} from stream");
-                var str = Encoding.Default.GetString(buffer);
+                var str = Encoding.Default.GetString(buffer, 0, readBytes);
                 _pgn += str;
             }
-
             _stream.Close();
             _stream.Dispose();
             SendUpdate(
@@ -86,7 +85,7 @@ namespace ChessLib.Parse.PGN
                 .Select((g, idx) => Task.Factory.StartNew(() =>
                 {
                     var lexer = new PgnLexer();
-                    var game = lexer.ParseGame(g, ParserOptions, out var logs);
+                    var game = lexer.ParseGame(g, ParserOptions);
                     if (game != null)
                     {
                         game.GoToInitialState();
@@ -153,7 +152,7 @@ namespace ChessLib.Parse.PGN
         private void SendUpdate()
         {
             var args = new ParsingUpdateEventArgs(Stopwatch.Elapsed)
-                {Maximum = GameCount, NumberComplete = Completed};
+            { Maximum = GameCount, NumberComplete = Completed };
             UpdateProgress?.Invoke(this, args);
         }
 
@@ -176,25 +175,26 @@ namespace ChessLib.Parse.PGN
             var tmp = SanitizeInput(_pgn);
             var rxSplitter = new Regex(regExSplitGames);
             var split = rxSplitter.Split(tmp).Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-
             var tagSectionFound = false;
-            foreach (var piece in split.Select(x => x.Trim()))
+            foreach (var pgnSection in split.Select(x => x.Trim()))
             {
-                if (piece[0] == TokenTagBegin)
+                if (pgnSection[0] == TokenTagBegin)
                 {
                     tagSectionFound = true;
-                    rv.Add(piece);
+                    rv.Add(pgnSection);
                 }
                 else
                 {
                     if (tagSectionFound)
                     {
+                        var moveSection = $"{TokenSectionEnd}{pgnSection}{TokenSectionEnd}";
                         tagSectionFound = false;
-                        rv[rv.Count - 1] += TokenSectionEnd + piece;
+                        rv[rv.Count - 1] += moveSection;
                     }
                     else
                     {
-                        rv.Add(EmptyTagSection + piece);
+                        var moveSection = $"{EmptyTagSection}{TokenSectionEnd}{pgnSection}{TokenSectionEnd}";
+                        rv.Add(moveSection);
                     }
                 }
             }
