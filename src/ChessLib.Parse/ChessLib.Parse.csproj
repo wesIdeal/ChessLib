@@ -6,7 +6,7 @@
 	<LangVersion>7.3</LangVersion>
 	<Product>ChessLib</Product>
 	<Authors>Wes Idell</Authors>
-	<Version>1.0.0.5</Version>
+	<Version>1.1.0.0-alpha</Version>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<Platforms>AnyCPU;x64;x86</Platforms>
 	<PackageLicenseFile>License.txt</PackageLicenseFile>
