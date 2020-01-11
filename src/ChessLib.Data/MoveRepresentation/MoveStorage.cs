@@ -116,9 +116,7 @@ namespace ChessLib.Data.MoveRepresentation
 
         public bool Equals(MoveStorage other)
         {
-            return other != null &&
-                   base.Equals(other) &&
-                   BoardState.Equals(other.BoardState);
+            return base.Equals(other);
         }
     }
 

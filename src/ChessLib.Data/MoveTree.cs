@@ -16,6 +16,16 @@ namespace ChessLib.Data
             return AddLast(move);
         }
 
+        public MoveTree SplitFromMoveToEnd(string fen, MoveStorage[] firstMove, bool copyVariations = false)
+        {
+            var mt = new MoveTree(null, fen);
+            foreach (var mv in firstMove)
+            {
+                mt.AddMove(mv);
+            }
+
+            return mt;
+        }
 
         public override string ToString()
         {
@@ -24,7 +34,7 @@ namespace ChessLib.Data
             while (parent != null)
             {
                 depth++;
-                parent = ((MoveTree) parent.List).VariationParentNode;
+                parent = ((MoveTree)parent.List).VariationParentNode;
             }
 
             var rv = $"Variation Depth: {depth}{Environment.NewLine}{StartingFEN}";

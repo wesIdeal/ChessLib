@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.MoveRepresentation.NAG;
@@ -17,6 +18,7 @@ namespace ChessLib.Data
         {
             TagSection = new Tags();
             TagSection.SetFen(FENHelpers.FENInitial);
+            ParsingLog = new List<PgnParsingLog>();
         }
 
         public List<PgnParsingLog> ParsingLog { get; protected set; }
@@ -34,6 +36,7 @@ namespace ChessLib.Data
         public Game(Tags tags) : base(tags.FENStart)
         {
             TagSection = tags;
+            ParsingLog = new List<PgnParsingLog>();
         }
 
         public Game(string fen) : base(fen)
@@ -114,6 +117,97 @@ namespace ChessLib.Data
             return ParseTreesForEquality(MainMoveTree.First, otherGame.MainMoveTree.First, includeVariations);
         }
 
+        /// <summary>
+        /// Strategy for merging games
+        /// </summary>
+        public enum MergeGameStrategy
+        {
+            /// <summary>
+            /// Merge as ordered - if second is longer than first, add as variation
+            /// </summary>
+            Ordered,
+            /// <summary>
+            /// Use longer game as mainline
+            /// </summary>
+            LongestIsMainLine
+        }
+
+        public static Game<TMove> MergeGames(Game<TMove> g1, Game<TMove> g2)
+        {
+            var moveTree = MergeTrees(g1.MainMoveTree, g2.MainMoveTree);
+            return new Game<TMove>()
+            {
+                MainMoveTree = moveTree
+            };
+        }
+
+        private static MoveTree MergeTrees(MoveTree to, MoveTree from)
+        {
+            var rv = new MoveTree(null, to.StartingFEN);
+            var nullMoveOffset = to.First.Value.IsNullMove ? 1 : 0;
+            var arrTo = to
+                .Where(x => !x.IsNullMove).ToList();
+            var arrFrom = from
+                .Where(x => !x.IsNullMove).ToList();
+
+            var tCount = arrTo.Count;
+            var fCount = arrFrom.Count;
+            var game = new Game<TMove>(to.StartingFEN) { MainMoveTree = to };
+            if (to.StartingFEN == from.StartingFEN)
+            {
+                var index = 0;
+                for (index = 0;
+                    index < arrTo.Count && index < tCount && index < fCount;
+                    index++)
+                {
+                    var toMove = arrTo[index];
+                    var fromMove = arrFrom[index];
+                    if (toMove.Equals(fromMove))
+                    {
+                        continue;
+                    }
+
+                    var foundVariation = false;
+                    for (var i = 0; i < toMove.Variations.Count; i++)
+                    {
+                        var variation = toMove.Variations[i];
+                        if (variation.First().Equals(fromMove))
+                        {
+                            foundVariation = true;
+                            var arr = arrFrom.Skip(index);
+                            var split = GameHelpers.SplitFromMoveToEnd(variation.StartingFEN, arr);
+                            arrTo[index].Variations[i] = MergeTrees(variation, split);
+                            break;
+                        }
+                    }
+
+                    if (!foundVariation)
+                    {
+                        var split = GameHelpers.SplitFromMoveToEnd(game.CurrentFEN,
+                            arrFrom.Skip(index));
+                        toMove.Variations.Add(new MoveTree(game.CurrentMoveNode, game.CurrentFEN));
+                        var variation = toMove.Variations.Last();
+                        foreach (var move in split.Where(x => !x.IsNullMove))
+                        {
+                            variation.AddMove(move);
+                        }
+                    }
+
+                    game.TraverseForward();
+                }
+
+                if (fCount > tCount)
+                {
+                    arrTo.AddRange(arrFrom.Skip(index));
+                }
+                foreach (var moveStorage in arrTo.Where(x => !x.IsNullMove))
+                {
+                    rv.AddMove(moveStorage);
+                }
+            }
+
+            return rv;
+        }
 
         public Game<MoveStorage> SplitFromCurrentPosition(bool copyVariations = false)
         {

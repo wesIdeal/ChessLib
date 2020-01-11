@@ -16,7 +16,7 @@ namespace ChessLib.Data.MoveRepresentation
         }
 
         public string SAN { get; set; }
-        
+
         public ushort SourceIndex => (ushort)((_move >> 6) & 63);
 
         public ulong SourceValue => 1ul << SourceIndex;
@@ -37,7 +37,7 @@ namespace ChessLib.Data.MoveRepresentation
         }
 
         public PromotionPiece PromotionPiece => (PromotionPiece)((_move >> 12) & 3);
-        
+
         public bool Equals(ushort other)
         {
             return _move == other;
@@ -45,7 +45,7 @@ namespace ChessLib.Data.MoveRepresentation
 
         public override string ToString()
         {
-            if(IsNullMove)
+            if (IsNullMove)
             {
                 return "NULL_MOVE";
             }
@@ -70,6 +70,16 @@ namespace ChessLib.Data.MoveRepresentation
         public bool Equals(MoveExt other)
         {
             if (other == null)
+            {
+                return false;
+            }
+
+            if (IsNullMove && other.IsNullMove)
+            {
+                return true;
+            }
+
+            if (IsNullMove ^ other.IsNullMove)
             {
                 return false;
             }

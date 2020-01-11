@@ -17,7 +17,7 @@ namespace ChessLib.Parse.PGN.Base
         protected const char TokenCommentStart = '{';
         protected const char TokenCommentEnd = '}';
         private const string MoveRegEx = "[a-h]|[x]|[O-O]|[O-O-O]|[KNBQR]|[1-8]|[=Q|=R|=B|=N]|[+|#]";
-
+        public Dictionary<string, List<ulong>> FenToHashDictionary = new Dictionary<string, List<ulong>>();
         private static readonly char[] TokensChars = { ' ', ')', '(', '{', '}' };
         private readonly Regex _moveRegex = new Regex(MoveRegEx);
         private bool _foundGame;
@@ -46,7 +46,7 @@ namespace ChessLib.Parse.PGN.Base
 
         public void VisitMoveSection(string moveSection, PGNParserOptions options)
         {
-            moveSection = ParseResult(moveSection);
+            moveSection = ParseResultFromMoveSection(moveSection);
             var reader = new StringReader(moveSection);
             int nNextCharacter;
             while ((nNextCharacter = reader.Peek()) != -1)
@@ -84,6 +84,21 @@ namespace ChessLib.Parse.PGN.Base
                 else
                 {
                     reader.Read();
+                }
+            }
+
+            var plentyOfHashes = FenToHashDictionary.Where(x => x.Value.Count() > 1).ToArray();
+            if (plentyOfHashes.Any())
+            {
+                Console.WriteLine($"\r\nGame Contained Multiple Hashes\r\n{new string('*', 20)}\r\n");
+                foreach (var hashSet in plentyOfHashes)
+                {
+                    Console.WriteLine($"{hashSet.Value}");
+                    foreach (var key in hashSet.Key)
+                    {
+                        Console.WriteLine($"\t{key}");
+                    }
+                    Console.WriteLine();
                 }
             }
         }
@@ -218,7 +233,7 @@ namespace ChessLib.Parse.PGN.Base
             return _nagStartSymbols.Contains(c);
         }
 
-        private string ParseResult(string moveSection)
+        private string ParseResultFromMoveSection(string moveSection)
         {
             const string resultMatchRegEx = "(?<result>(1-0)|(1/2-1/2)|(0-1)|(\\*))(\\s)*$";
             var regEx = new Regex(resultMatchRegEx);
@@ -318,6 +333,7 @@ namespace ChessLib.Parse.PGN.Base
             }
 
             var move = Game.ApplySanMove(buffer, strategy);
+            AddPositionToDictionary(move);
             _plyCount = Game.PlyCount;
 
             if (move != null && options.ShouldFilterDuringParsing)
@@ -338,6 +354,21 @@ namespace ChessLib.Parse.PGN.Base
             }
 
             return true;
+        }
+
+        private void AddPositionToDictionary(LinkedListNode<MoveStorage> move)
+        {
+            var fen = Game.CurrentFEN;
+            var hash = move.Value.BoardStateHash;
+            if (!FenToHashDictionary.ContainsKey(fen))
+            {
+                FenToHashDictionary.Add(fen, new List<ulong>());
+            }
+
+            if (!FenToHashDictionary[fen].Contains(hash))
+            {
+                FenToHashDictionary[fen].Add(hash);
+            }
         }
     }
 }

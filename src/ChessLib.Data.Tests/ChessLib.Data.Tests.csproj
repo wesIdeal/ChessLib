@@ -29,6 +29,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="MergeGame.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MergeGame.resx</DependentUpon>
+    </Compile>
     <Compile Update="PGN.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -37,6 +42,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="MergeGame.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MergeGame.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="PGN.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>PGN.Designer.cs</LastGenOutput>
