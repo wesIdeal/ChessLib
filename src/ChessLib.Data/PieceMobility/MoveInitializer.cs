@@ -45,7 +45,8 @@ namespace ChessLib.Data.PieceMobility
         /// <param name="attackMask">The piece's associated attack mask from the position index</param>
         /// <param name="occupancyBoards">The associated occupancy boards</param>
         /// <returns>An array of blocker boards and corresponding moves based on blocker placement.</returns>
-        public IEnumerable<BlockerAndMoveBoards> GetAllPermutationsForAttackMask(int pieceLocationIndex, ulong attackMask, IEnumerable<ulong> occupancyBoards)
+        public IEnumerable<BlockerAndMoveBoards> GetAllPermutationsForAttackMask(int pieceLocationIndex,
+            ulong attackMask, IEnumerable<ulong> occupancyBoards)
         {
             var boardCombos = new List<BlockerAndMoveBoards>();
             foreach (var board in occupancyBoards)
@@ -55,7 +56,7 @@ namespace ChessLib.Data.PieceMobility
             return boardCombos;
         }
 
-        
+
 
         /// <summary>
         /// Generates magic multiplier to retrieve moves for a given piece on a square
