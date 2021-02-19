@@ -12,9 +12,10 @@ namespace ChessLib.MagicBitboard.Bitwise
 {
     public class MovingPieceService : IMovingPieceService
     {
+        const ushort MaxArraySize = 64;
         private readonly ulong[,] ArrInBetween = new ulong[64, 64];
 
-        private readonly ushort[] Index64 = {
+        private static readonly ushort[] Index64 = {
                                     0, 47,  1, 56, 48, 27,  2, 60,
                                    57, 49, 41, 37, 28, 16,  3, 61,
                                    54, 58, 35, 52, 50, 42, 21, 44,
@@ -30,12 +31,90 @@ namespace ChessLib.MagicBitboard.Bitwise
             Initialize();
         }
 
+        public static ulong GetPawnStartRankMask(Color color)
+        {
+            if (color == Color.Black)
+            {
+                return BoardConstants.Rank7;
+            }
+            return BoardConstants.Rank2;
+        }
+
+        /// <summary>
+        /// Gets the flipped index value, ie. A1 -> H1
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public static ushort FlipIndexVertically(ushort idx)
+        {
+            var rank = RankFromIdx(idx);
+            var file = FileFromIdx(idx);
+            var rankCompliment = RankCompliment(rank);
+            return (ushort)((rankCompliment * 8) + file);
+        }
+
+        /// <summary>
+        ///     Gets
+        /// </summary>
+        /// <param name="rank"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort RankCompliment(ushort rank)
+        {
+            return (ushort)Math.Abs(rank - 7);
+        }
+
+        /// <summary>
+        ///     Gets a rank index from boardIndex
+        ///     <param name="boardIndex">index</param>
+        /// </summary>
+        /// <param name="boardIndex"></param>
+        /// <returns>Board rank (First rank: 0)</returns>
+        /// <exception cref="ArgumentException">if
+        ///     <param name="boardIndex">index</param>
+        ///     is out of range.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort RankFromIdx(ushort boardIndex)
+        {
+            return (ushort)(boardIndex / 8);
+        }
+
+        /// <summary>
+        ///     Gets a file index from a boardIndex index
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort FileFromIdx(ushort idx)
+        {
+            return (ushort)(idx % 8);
+        }
+
+        /// <summary>
+        /// Flips a board about the 4th and 5th ranks
+        /// </summary>
+        /// <param name="board">bitboard representation</param>
+        /// <returns>A flipped board</returns>
+        public static ulong FlipVertically(in ulong board)
+        {
+            var x = board;
+            return (x << 56) |
+                   ((x << 40) & 0x00ff000000000000) |
+                   ((x << 24) & 0x0000ff0000000000) |
+                   ((x << 8) & 0x000000ff00000000) |
+                   ((x >> 8) & 0x00000000ff000000) |
+                   ((x >> 24) & 0x0000000000ff0000) |
+                   ((x >> 40) & 0x000000000000ff00) |
+                   (x >> 56);
+        }
+
         /// <summary>
         /// Gets an array of bit indexes set to '1'
         /// </summary>
         /// <param name="u"></param>
         /// <returns></returns>
-        public ushort[] GetSetBits(ulong u)
+        public static ushort[] GetSetBits(ulong u)
         {
             var rv = new List<ushort>(64); //Set max capacity to 64, since our 'array of bits' will be no larger.
             while (u != 0)
@@ -103,7 +182,7 @@ namespace ChessLib.MagicBitboard.Bitwise
         /// </summary>
         /// <param name="boardRep">A ulong 'array of bits' representing a chess board.</param>
         /// <returns>index of the least-significant set bit in ulong</returns>
-        public ushort BitScanForward(ulong boardRep)
+        private static ushort BitScanForward(ulong boardRep)
         {
             const ulong deBruijn = (0x03f79d71b4cb0a89ul);
             return Index64[((boardRep ^ (boardRep - 1)) * deBruijn) >> 58];
@@ -114,7 +193,7 @@ namespace ChessLib.MagicBitboard.Bitwise
         /// </summary>
         /// <param name="idx">The board index, 0(A1)->63(H8)</param>
         /// <returns>ulong representing a square's value on the board</returns>
-        public ulong GetBoardValueOfIndex(ushort idx) => ((ulong)1) << idx;
+        public static ulong GetBoardValueOfIndex(ushort idx) => ((ulong)1) << idx;
 
         /// <summary>
         /// Gets the permutations of blockers for a given attack mask. 
@@ -137,10 +216,10 @@ namespace ChessLib.MagicBitboard.Bitwise
         private readonly PieceDirection[] RookDirections = new PieceDirection[] { PieceDirection.South, PieceDirection.North, PieceDirection.East, PieceDirection.West };
         private readonly PieceDirection[] BishopDirections = new PieceDirection[] { PieceDirection.SouthEast, PieceDirection.SouthWest, PieceDirection.NorthEast, PieceDirection.NorthWest };
 
-        public ulong GetAttacks(Piece piece, ushort square, ulong occupancy)
+        public ulong GetAttacks(ushort square, ulong occupancy, Piece piece)
         {
-            PieceDirection[] directions = GetPieceDirections(piece);
             ulong result = 0;
+            PieceDirection[] directions = GetPieceDirections(piece);
             var squareValue = GetBoardValueOfIndex(square);
             foreach (var direction in directions)
             {
@@ -200,69 +279,26 @@ namespace ChessLib.MagicBitboard.Bitwise
             return Shift;
         }
 
-        /// <summary>
-        /// Gets the permutations of Occupancy/Move boards from a given position
-        /// </summary>
-        /// <param name="pieceLocationIndex">The index of the piece</param>
-        /// <param name="attackMask">The piece's associated attack mask from the position index</param>
-        /// <param name="occupancyBoards">The associated occupancy boards</param>
-        /// <returns>An array of blocker boards and corresponding moves based on blocker placement.</returns>
-        public IEnumerable<MoveObstructionBoard> GetAllPermutationsForAttackMask(ushort pieceLocationIndex, ulong moveMask,
-            ulong attackMask, IEnumerable<ulong> occupancyBoards)
-        {
-            foreach (var board in occupancyBoards)
-            {
-                var validMoves = CalculateValidMoves(pieceLocationIndex, moveMask, board);
-                yield return new MoveObstructionBoard(board, validMoves);
-            }
-        }
+        ///// <summary>
+        ///// Gets the permutations of Occupancy/Move boards from a given position
+        ///// </summary>
+        ///// <param name="pieceLocationIndex">The index of the piece</param>
+        ///// <param name="attackMask">The piece's associated attack mask from the position index</param>
+        ///// <param name="occupancyBoards">The associated occupancy boards</param>
+        ///// <returns>An array of blocker boards and corresponding moves based on blocker placement.</returns>
+        //public IEnumerable<MoveObstructionBoard> GetAllPermutationsForAttackMask(ushort pieceLocationIndex, ulong moveMask,
+        //    ulong attackMask, IEnumerable<ulong> occupancyBoards)
+        //{
+        //    foreach (var board in occupancyBoards)
+        //    {
+        //        var validMoves = CalculateValidMoves(pieceLocationIndex, moveMask, board);
+        //        yield return new MoveObstructionBoard(board, validMoves);
+        //    }
+        //}
 
-        private ulong CalculateValidMoves(ushort pieceLocationIndex, ulong moveMask, ulong occupancy)
-        {
-            ulong moves = SearchNorth(pieceLocationIndex, moveMask, occupancy);
-            moves |= SearchSouth(pieceLocationIndex, moveMask, occupancy);
-            return moves;
+        
 
-        }
-
-        private ulong SearchNorth(ushort pieceLocationIndex, ulong moveMask, ulong occupancy, bool attackSearch = false)
-        {
-
-            return 0;
-        }
-
-        private ulong SearchSouth(int pieceLocationIndex, ulong moveMask, ulong occupancy)
-        {
-            ulong movingPiece = 0;
-            ulong validMoves = 0;
-            const int lastSquare = 0;
-            pieceLocationIndex += 8;
-            for (movingPiece = (ulong)(1 << pieceLocationIndex);
-                (long)movingPiece > lastSquare
-                    && IsValidMove(movingPiece, moveMask)
-                    && !IsBlocked(occupancy, movingPiece);
-                pieceLocationIndex -= 8)
-            {
-                validMoves |= movingPiece;
-            }
-            return validMoves;
-        }
-
-        private ulong SearchWest(ushort pieceLocationIndex, ulong moveMask, ulong occupancy)
-        {
-            ulong validMoves = 0;
-            var lastSquare = GetWestExtent(pieceLocationIndex);
-            pieceLocationIndex += 8;
-            for (var movingPiece = (ulong)(1 << pieceLocationIndex);
-                movingPiece > lastSquare
-                    && IsValidMove(movingPiece, moveMask)
-                    && !IsBlocked(occupancy, movingPiece);
-                pieceLocationIndex -= 1)
-            {
-                validMoves |= movingPiece;
-            }
-            return validMoves;
-        }
+       
 
 
         /// <summary>

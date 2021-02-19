@@ -11,39 +11,7 @@ namespace ChessLib.MagicBitboard.Bitwise.Tests
     [TestFixture]
     public class MovingPieceService : Bitwise.MovingPieceService
     {
-        [Test]
-        public void TestWestExtent()
-        {
-            for (ushort i = 0; i < 64; i += 8)
-            {
-                var rankExtent = i + 7;
-                var expectedExtent = 1 << i;
-                for (ushort square = i; square <= rankExtent; square++)
-                {
-                    var actual = GetWestExtent(square);
-                    Assert.AreEqual(expectedExtent, actual);
-                }
-            }
-        }
-
-        [Test]
-        public void TestEastExtent()
-        {
-            for (ushort rank = 0; rank < 7; rank++)
-            {
-                ushort startingSquare = (ushort)(rank * 8);
-                var extentIndex = startingSquare + 7;
-                ulong expectedExtent = (ulong)1 << extentIndex;
-                Console.WriteLine($"Calculated extent {expectedExtent} from index {extentIndex}");
-                for (ushort square = startingSquare; square <= extentIndex; square++)
-                {
-                    var actual = GetEastExtent(square);
-                    Assert.AreEqual(expectedExtent, actual,
-                        $"When testing east extent for {square} the most east square is {extentIndex}, the extent was expected to be {expectedExtent}, but was {actual}.");
-                }
-            }
-        }
-
+        
         [Test]
         public void TesNEDiagonal_Fromh3()
         {

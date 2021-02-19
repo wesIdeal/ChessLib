@@ -8,7 +8,7 @@ namespace ChessLib.MagicBitboard
     public sealed class Bitboard
     {
         private static List<string> lLock = new List<string>();
-        private static  Bitboard instance = null;
+        private static Bitboard instance = null;
         private static IMovingPiece pawn;
         private static IMovingPiece knight;
         private static IMovingPiece bishop;
@@ -19,8 +19,7 @@ namespace ChessLib.MagicBitboard
 
         private Bitboard()
         {
-            var movingPieceService = new MovingPieceService();
-            pawn = new Pawn(movingPieceService);
+            pawn = new Pawn();
         }
 
         public ulong GetMoves(ushort squareIndex, Data.Types.Enums.Color color, ulong playerOccupancy, ulong opponentOccupancy)
@@ -34,7 +33,7 @@ namespace ChessLib.MagicBitboard
             {
                 lock (lLock)
                 {
-                    if(instance == null)
+                    if (instance == null)
                     {
                         instance = new Bitboard();
                     }
