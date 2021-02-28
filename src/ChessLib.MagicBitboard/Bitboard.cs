@@ -1,30 +1,24 @@
-﻿using ChessLib.MagicBitboard.Bitwise;
+﻿using System.Collections.Generic;
+using ChessLib.Data.Types.Enums;
 using ChessLib.MagicBitboard.MovingPieces;
-using System;
-using System.Collections.Generic;
 
 namespace ChessLib.MagicBitboard
 {
     public sealed class Bitboard
     {
-        private static List<string> lLock = new List<string>();
-        private static Bitboard instance = null;
-        private static IMovingPiece pawn;
+        private static readonly List<string> lLock = new List<string>();
+        private static Bitboard instance;
+        private static IMovingPiece _pawn;
         private static IMovingPiece knight;
-        private static IMovingPiece bishop;
+        private static Bishop _bishop;
         private static IMovingPiece rook;
         private static IMovingPiece queen;
         private static IMovingPiece king;
 
-
         private Bitboard()
         {
-            pawn = new Pawn();
-        }
-
-        public ulong GetMoves(ushort squareIndex, Data.Types.Enums.Color color, ulong playerOccupancy, ulong opponentOccupancy)
-        {
-            return pawn.GetPsuedoLegalMoves(squareIndex, color, playerOccupancy, opponentOccupancy);
+            _pawn = new Pawn();
+            _bishop = new Bishop();
         }
 
         public static Bitboard Instance
@@ -37,9 +31,21 @@ namespace ChessLib.MagicBitboard
                     {
                         instance = new Bitboard();
                     }
+
                     return instance;
                 }
             }
+        }
+
+
+        public void ShowBlockBoardsForBishop(ushort idx)
+        {
+            _bishop.ShowBlockersFromSquare(idx);
+        }
+
+        public ulong GetMoves(ushort squareIndex, Color color, ulong playerOccupancy, ulong opponentOccupancy)
+        {
+            return _pawn.GetPsuedoLegalMoves(squareIndex, color, playerOccupancy, opponentOccupancy);
         }
     }
 }

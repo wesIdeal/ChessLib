@@ -156,14 +156,15 @@ namespace ChessLib.Data.Helpers
 
             for (Rank r = Rank.R8; r >= Rank.R1; r--)
             {
-                var rank = ((ushort)r).RankCompliment();
+                var rank = (ushort) r;
                 sb.AppendLine($"<tr id=\"rank{rank}\">");
 
                 for (File f = File.A; f <= File.H; f++)
                 {
-                    var file = (int)f;
-
-                    var pieceAtSquare = board[(rank * 8) + file] == '1' ? pieceRep : "&nbsp;";
+                    var file = (ushort)f;
+                    var squareIndex = (rank * 8) + file;
+                    var strIndex = 63 - squareIndex;
+                    var pieceAtSquare = board[strIndex] == '1' ? pieceRep : "&nbsp;";
                     sb.AppendFormat(squareFormat, f.ToString(), rank, pieceAtSquare, board[(rank * 8) + file] == '1' ? "altColor" : "");
                 }
                 sb.Append("\r\n</tr>\r\n");

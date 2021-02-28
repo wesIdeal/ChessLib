@@ -11,6 +11,7 @@ namespace ChessLib.MagicBitboard.Storage
         public ulong Occupancy { get; }
         public ulong MoveBoard { get; }
 
+        
         public MoveObstructionBoard(ulong blockerBoard, ulong moveBoard)
         {
             Occupancy = blockerBoard;
