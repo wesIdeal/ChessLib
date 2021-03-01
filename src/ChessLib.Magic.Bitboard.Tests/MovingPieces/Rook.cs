@@ -15,30 +15,30 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
 {
 
     [TestFixture]
-    public class Bishop
+    public class Rook
     {
-        private static Bitboard _b = Bitboard.Instance;
         private const bool UseRandom = true;
         private static int SquaresInTestCase = 64;
         private static int BoardsInTestCase = 100;
         protected static IEnumerable<ushort> AllSquares => Enumerable.Range(0, 64).Select(x => (ushort)x);
 
-        [TestCaseSource(nameof(GetBishopTestCases), new object[] { UseRandom })]
-        public static void TestBishopMoves(MoveTestCase testCase)
-        {
-            var actual = _b.GetMoves(testCase.SquareIndex, Piece.Bishop, testCase.Color, testCase.PlayerBlocker,
-                testCase.OpponentBlocker);
-            Assert.AreEqual(testCase.Expected, actual, testCase.ToString());
-        }
+        //[TestCaseSource(nameof(GetRookTestCases), new object[] { UseRandom })]
+        //public static void TestRookMoves(MoveTestCase testCase)
+        //{
+        //    var actual = BitBoard.GetMoves(testCase.SquareIndex, Piece.Rook, testCase.Color, testCase.PlayerBlocker,
+        //        testCase.OpponentBlocker);
+        //    Assert.AreEqual(testCase.Expected, actual, testCase.ToString());
+        //}
+        private static readonly Bitboard BitBoard = Bitboard.Instance;
 
-        public static IEnumerable<MoveTestCase> GetBishopTestCases(bool useRandom)
+        public static IEnumerable<MoveTestCase> GetRookTestCases(bool useRandom)
         {
 
             var squares = useRandom ? GetRandomSquares() : AllSquares;
             Console.WriteLine("Received Random Numbers");
             foreach (var square in squares)
             {
-                MoveObstructionBoard[] blockerBoardSet = _b.Bishop.BlockerBoards[square];
+                MoveObstructionBoard[] blockerBoardSet = BitBoard.Rook.BlockerBoards[square];
                 var boards = useRandom ? GetRandomBlockerBoards(blockerBoardSet) : blockerBoardSet;
                 foreach (var blockerBoard in boards)
                 {
@@ -47,9 +47,6 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
                 }
             }
         }
-        private static readonly Bitboard BitBoard = Bitboard.Instance;
-
-     
 
         private static IEnumerable<MoveObstructionBoard> GetRandomBlockerBoards(MoveObstructionBoard[] blockerBoardSet)
         {
@@ -75,5 +72,21 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             }
         }
 
+
+        [TestCaseSource(nameof(AllSquares))]
+        public void RookMovesShouldBeInitialized(ushort squareIndex)
+        {
+            var rank = MovingPieceService.RankFromIdx(squareIndex);
+            var file = MovingPieceService.FileFromIdx(squareIndex);
+            var rankFill = ((ulong)0xff << (rank * 8));
+            var fileFill = ((ulong)0x101010101010101 << file);
+            var boardVal = MovingPieceService.GetBoardValueOfIndex(squareIndex);
+            
+            var mask = (rankFill | fileFill) ^ boardVal;
+            var actual = BitBoard.GetMoves(squareIndex, Piece.Rook, Color.Black, 0, 0);
+            Assert.AreEqual(mask, actual);
+        }
     }
+
+   
 }

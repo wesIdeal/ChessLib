@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using ChessLib.Data.Types.Enums;
 using ChessLib.MagicBitboard.Bitwise;
 using ChessLib.MagicBitboard.Storage;
 
@@ -11,12 +13,19 @@ namespace ChessLib.MagicBitboard
         public MoveObstructionBoard[][] BlockerBoards = new MoveObstructionBoard[64][];
         public MagicBitboard[] MagicBitboard { get; private set; }
         protected abstract Func<ulong, ulong>[] DirectionalMethods { get; }
+        protected abstract Func<ulong, ulong>[] AttackDirections { get; }
 
         public override void Initialize()
         {
-            MoveMask = GetAttacks();
+            SetAttacks();
             BlockerBoards = GetBlockersFromMoveMasks();
-            MagicBitboard = GetMagicBitboards();
+           MagicBitboard = GetMagicBitboards();
+        }
+
+        public override ulong GetPsuedoLegalMoves(ushort square, Color playerColor, ulong playerOccupancy, ulong opponentOccupancy)
+        {
+            ulong occupancy = playerOccupancy | opponentOccupancy;
+            return MagicBitboard[square].GetAttacks(occupancy);
         }
 
         private MagicBitboard[] GetMagicBitboards()
@@ -26,41 +35,61 @@ namespace ChessLib.MagicBitboard
             for (var index = 0; index < 64; index++)
             {
                 var blockerBoard = BlockerBoards[index];
+                var message = $"Square {index}, {blockerBoard.Length} boards. Move board is {blockerBoard.First().MoveBoard}, blocker board is {blockerBoard.First().Occupancy}";
+                Console.WriteLine(message);
+                Debug.WriteLine(message);
                 rv[index] = generator.GenerateMagicKey(blockerBoard);
             }
 
             return rv;
         }
 
-        protected ulong[] GetAttacks()
+        protected void SetAttacks()
         {
-            var moveArray = new ulong[64];
+            MoveMask = new ulong[64];
+            AttackMask = new ulong[64];
             foreach (var squareIndex in AllSquares)
             {
-                moveArray[squareIndex] = GetAttacks(squareIndex, 0);
+                MoveMask[squareIndex] = GetMoves(squareIndex, 0);
+                AttackMask[squareIndex] = GetAttacks(squareIndex, 0);
             }
-
-            return moveArray;
         }
 
         private ulong GetAttacks(ushort square, ulong occupancy)
         {
             ulong result = 0;
             var squareValue = MovingPieceService.GetBoardValueOfIndex(square);
+            foreach (var shiftDirection in AttackDirections)
+            {
+                if (shiftDirection == null) continue;
+                result |= Traverse(shiftDirection, squareValue, occupancy);
+            }
+
+            return result;
+        }
+        private ulong GetMoves(ushort square, ulong occupancy)
+        {
+            ulong result = 0;
+            var squareValue = MovingPieceService.GetBoardValueOfIndex(square);
             foreach (var shiftDirection in DirectionalMethods)
             {
-                if (shiftDirection != null)
-                {
-                    var shiftedValue = squareValue;
+                if (shiftDirection == null) continue;
+                result |= Traverse(shiftDirection, squareValue, occupancy);
+            }
 
-                    while ((shiftedValue = shiftDirection(shiftedValue)) != 0)
-                    {
-                        result |= shiftedValue;
-                        if ((shiftedValue & occupancy) != 0)
-                        {
-                            break;
-                        }
-                    }
+            return result;
+        }
+
+        private ulong Traverse(Func<ulong, ulong> traversalFunc, in ulong value, in ulong occupancy)
+        {
+            var result = (ulong)0;
+            var currentValue = value;
+            while ((currentValue = traversalFunc(currentValue)) != 0)
+            {
+                result |= currentValue;
+                if ((currentValue & occupancy) == currentValue)
+                {
+                    break;
                 }
             }
 
@@ -71,13 +100,13 @@ namespace ChessLib.MagicBitboard
         private MoveObstructionBoard[][] GetBlockersFromMoveMasks()
         {
             var rv = new MoveObstructionBoard[64][];
-            for (ushort squareIndex = 0; squareIndex < 64; squareIndex++)
+            foreach (var squareIndex in AllSquares)
             {
-                var mask = MoveMask[squareIndex];
-                var blockerPermutations = GetAllBlockerPermutationsFromMoveMask(mask);
-                var index = squareIndex;
-                rv[index] = blockerPermutations.Select(blockerBoard =>
-                    new MoveObstructionBoard(blockerBoard, GetAttacks(index, blockerBoard))).ToArray();
+                var attackMask = AttackMask[squareIndex];
+                var blockerPermutations = GetAllBlockerPermutationsFromMoveMask(attackMask).OrderBy(x => x).Distinct().ToArray();
+               
+                rv[squareIndex] = blockerPermutations.Select(blockerBoard =>
+                    new MoveObstructionBoard(blockerBoard, GetMoves(squareIndex, blockerBoard))).ToArray();
             }
 
             return rv;
@@ -101,11 +130,13 @@ namespace ChessLib.MagicBitboard
             var index = idx + 1;
             if (index < setBits.Length)
             {
-                using var occupancyPermutations =
-                    GetAllBlockerPermutationsFromMoveMask(setBits, index, value).GetEnumerator();
-                while (occupancyPermutations.MoveNext())
+                using (IEnumerator<ulong> occupancyPermutations =
+                    GetAllBlockerPermutationsFromMoveMask(setBits, index, value).GetEnumerator())
                 {
-                    yield return occupancyPermutations.Current;
+                    while (occupancyPermutations.MoveNext())
+                    {
+                        yield return occupancyPermutations.Current;
+                    }
                 }
             }
 
@@ -113,11 +144,13 @@ namespace ChessLib.MagicBitboard
             yield return value;
             if (index < setBits.Length)
             {
-                using var occupancyPermutations =
-                    GetAllBlockerPermutationsFromMoveMask(setBits, index, value).GetEnumerator();
-                while (occupancyPermutations.MoveNext())
+                using (IEnumerator<ulong> occupancyPermutations =
+                    GetAllBlockerPermutationsFromMoveMask(setBits, index, value).GetEnumerator())
                 {
-                    yield return occupancyPermutations.Current;
+                    while (occupancyPermutations.MoveNext())
+                    {
+                        yield return occupancyPermutations.Current;
+                    }
                 }
             }
         }

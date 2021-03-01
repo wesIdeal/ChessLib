@@ -27,8 +27,8 @@ namespace ChessLib.MagicBitboard
             var foundCollision = true;
             while (foundCollision)
             {
-                key = GetRandomKey();
                 foundCollision = false;
+                key = GetRandomKey();
                 attackArray = new ulong[maxMoves];
                 foreach (var pattern in blockerAndMoveBoards)
                 {
@@ -48,7 +48,7 @@ namespace ChessLib.MagicBitboard
 
         #region Random Number Helpers
 
-        private readonly Random _random = new Random();
+        private readonly Random _random = new Random(DateTime.Now.Millisecond);
 
         public ulong NextRandom()
         {

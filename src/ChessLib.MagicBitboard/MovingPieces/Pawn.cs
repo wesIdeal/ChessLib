@@ -1,17 +1,15 @@
 ﻿using ChessLib.Data.Types.Enums;
 using ChessLib.MagicBitboard.Bitwise;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace ChessLib.MagicBitboard.MovingPieces
 {
     internal class Pawn : MovingPiece
     {
-        protected new ulong[][] moveMask;
-        protected new ulong[][] attackMask;
+        protected ulong[][] moveMask;
+        protected ulong[][] attackMask;
         public Pawn()
         {
+            Initialize();
         }
 
         public override ulong GetPsuedoLegalMoves(ushort square, Color playerColor, ulong playerOccupancy, ulong opponentOccupancy)
@@ -55,7 +53,7 @@ namespace ChessLib.MagicBitboard.MovingPieces
             return (bv & secondRankMask) != 0;
         }
 
-        public override void Initialize()
+        public sealed override void Initialize()
         {
             moveMask = new ulong[2][];
             moveMask[0] = new ulong[64];

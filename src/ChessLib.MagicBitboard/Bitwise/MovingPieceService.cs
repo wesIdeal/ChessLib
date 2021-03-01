@@ -55,7 +55,7 @@ namespace ChessLib.MagicBitboard.Bitwise
             var rank = RankFromIdx(idx);
             var file = FileFromIdx(idx);
             var rankCompliment = RankCompliment(rank);
-            return (ushort) (rankCompliment * 8 + file);
+            return (ushort)(rankCompliment * 8 + file);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace ChessLib.MagicBitboard.Bitwise
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort RankCompliment(ushort rank)
         {
-            return (ushort) Math.Abs(rank - 7);
+            return (ushort)Math.Abs(rank - 7);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace ChessLib.MagicBitboard.Bitwise
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort RankFromIdx(ushort boardIndex)
         {
-            return (ushort) (boardIndex / 8);
+            return (ushort)(boardIndex / 8);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace ChessLib.MagicBitboard.Bitwise
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort FileFromIdx(ushort idx)
         {
-            return (ushort) (idx % 8);
+            return (ushort)(idx % 8);
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace ChessLib.MagicBitboard.Bitwise
 
         public ulong GetFileFromIndex(ushort idx)
         {
-            var val = (ulong) 1 << idx;
+            var val = (ulong)1 << idx;
             foreach (var file in BoardConstants.Files)
             {
                 if ((val & file) != 0)
@@ -166,9 +166,22 @@ namespace ChessLib.MagicBitboard.Bitwise
             return (u & BoardConstants.NotRank8Mask) << 8;
         }
 
+        public static ulong AttackN(ulong u)
+        {
+            var shiftedValue = ShiftN(u);
+            var rv = shiftedValue & BoardConstants.NotRank8Mask;
+            return rv;
+        }
+
         public static ulong ShiftE(ulong u)
         {
             return (u & BoardConstants.NotHFileMask) << 1;
+        }
+
+        public static ulong AttackE(ulong u)
+        {
+            var shiftedValue = ShiftE(u);
+            return shiftedValue & BoardConstants.NotHFileMask;
         }
 
         public static ulong ShiftS(ulong u)
@@ -176,9 +189,21 @@ namespace ChessLib.MagicBitboard.Bitwise
             return (u & BoardConstants.NotRank1Mask) >> 8;
         }
 
+        public static ulong AttackS(ulong u)
+        {
+            var shiftedValue = ShiftS(u);
+            return shiftedValue & BoardConstants.NotRank1Mask;
+        }
+
         public static ulong ShiftW(ulong u)
         {
             return (u & BoardConstants.NotAFileMask) >> 1;
+        }
+
+        public static ulong AttackW(ulong u)
+        {
+            var shiftedValue = ShiftW(u);
+            return shiftedValue & BoardConstants.NotAFileMask;
         }
 
         public static ulong Shift2N(ulong u)
@@ -279,7 +304,7 @@ namespace ChessLib.MagicBitboard.Bitwise
         /// <returns>ulong representing a square's value on the board</returns>
         public static ulong GetBoardValueOfIndex(ushort idx)
         {
-            return (ulong) 1 << idx;
+            return (ulong)1 << idx;
         }
 
 
@@ -311,7 +336,7 @@ namespace ChessLib.MagicBitboard.Bitwise
             Debug.Assert(squareIndex >= 0 && squareIndex < 64,
                 $"Rank from square index {squareIndex} cannot be determined.");
             var rank = squareIndex / 8;
-            return (ushort) rank;
+            return (ushort)rank;
         }
 
         /// <summary>
@@ -324,19 +349,19 @@ namespace ChessLib.MagicBitboard.Bitwise
             Debug.Assert(squareIndex >= 0 && squareIndex < 64,
                 $"File from square index {squareIndex} cannot be determined.");
             var file = squareIndex % 8;
-            return (ushort) file;
+            return (ushort)file;
         }
 
         protected ulong GetWestExtent(ushort index)
         {
-            return (ulong) (1 << (index - index % 8));
+            return (ulong)(1 << (index - index % 8));
         }
 
         protected ulong GetEastExtent(ushort index)
         {
             var rank = GetRank(index) * 8;
             var extentSquare = rank + 7;
-            return (ulong) 1 << extentSquare;
+            return (ulong)1 << extentSquare;
         }
 
         protected IEnumerable<ushort> GetNorthEastDiagonal(ushort index)
@@ -426,23 +451,23 @@ namespace ChessLib.MagicBitboard.Bitwise
         private void InitializeInBetween()
         {
             for (var f = 0; f < 64; f++)
-            for (var t = f; t < 64; t++)
-            {
-                const long m1 = -1;
-                const long aFileBorder = 0x0001010101010100;
-                const long b2DiagonalBorder = 0x0040201008040200;
-                const long hFileBorder = 0x0002040810204080;
+                for (var t = f; t < 64; t++)
+                {
+                    const long m1 = -1;
+                    const long aFileBorder = 0x0001010101010100;
+                    const long b2DiagonalBorder = 0x0040201008040200;
+                    const long hFileBorder = 0x0002040810204080;
 
-                var between = (m1 << f) ^ (m1 << t);
-                long file = (t & 7) - (f & 7);
-                long rank = ((t | 7) - f) >> 3;
-                var line = ((file & 7) - 1) & aFileBorder;
-                line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
-                line += (((rank - file) & 15) - 1) & b2DiagonalBorder; /* b2g7 if same diagonal */
-                line += (((rank + file) & 15) - 1) & hFileBorder; /* h1b7 if same anti-diagonal */
-                line *= between & -between; /* mul acts like shift by smaller boardIndex */
-                ArrInBetween[f, t] = (ulong) (line & between); /* return the bits on that line in-between */
-            }
+                    var between = (m1 << f) ^ (m1 << t);
+                    long file = (t & 7) - (f & 7);
+                    long rank = ((t | 7) - f) >> 3;
+                    var line = ((file & 7) - 1) & aFileBorder;
+                    line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
+                    line += (((rank - file) & 15) - 1) & b2DiagonalBorder; /* b2g7 if same diagonal */
+                    line += (((rank + file) & 15) - 1) & hFileBorder; /* h1b7 if same anti-diagonal */
+                    line *= between & -between; /* mul acts like shift by smaller boardIndex */
+                    ArrInBetween[f, t] = (ulong)(line & between); /* return the bits on that line in-between */
+                }
         }
 
 

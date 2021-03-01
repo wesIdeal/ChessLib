@@ -24,35 +24,14 @@ namespace ChessLib.MagicBitboard.MovingPieces
             MovingPieceService.ShiftSE,
             MovingPieceService.ShiftSW
         };
-
-        //ToDo: remove because this is test code.
-        public void ShowBlockersFromSquare(ushort squareIndex)
+        protected override Func<ulong, ulong>[] AttackDirections=> new Func<ulong, ulong>[]
         {
-            var moveHeader =
-                $"Move board for Bishop on {squareIndex.IndexToSquareDisplay()}\r\n{MoveMask[squareIndex]}";
-            var blockingBoards = BlockerBoards[squareIndex].ToList();
-            var sb = new StringBuilder(moveHeader);
-            sb.Append(MoveMask[squareIndex].MakeBoardTable(moveHeader, "B"));
+            MovingPieceService.ShiftNE,
+            MovingPieceService.ShiftNW,
+            MovingPieceService.ShiftSE,
+            MovingPieceService.ShiftSW
+        };
 
-            foreach (var bb in BlockerBoards[squareIndex])
-            {
-                var occupancy = bb.Occupancy;
-                var moveBoard = MagicBitboard[squareIndex].GetAttacks(occupancy);
-                sb.AppendLine(bb.Occupancy.MakeBoardTable($"Occupancy Board ( {bb.Occupancy} )"));
-                sb.AppendLine(moveBoard.MakeBoardTable($"Move Board ( {moveBoard} )"));
-                sb.AppendLine("<hr />");
-            }
 
-            var html = DisplayHelpers.PrintBoardHtml(sb.ToString());
-            var filePath = Path.GetTempFileName() + ".html";
-            File.WriteAllText(filePath, html);
-            Process.Start(new ProcessStartInfo(filePath) {UseShellExecute = true}); // Works ok on windows
-        }
-
-        public override ulong GetPsuedoLegalMoves(ushort square, Color playerColor, ulong playerOccupancy,
-            ulong opponentOccupancy)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
