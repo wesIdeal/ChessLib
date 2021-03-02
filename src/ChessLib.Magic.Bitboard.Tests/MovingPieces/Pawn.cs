@@ -58,7 +58,8 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             return testCases;
         }
 
-        private static MoveObstructionBoard GetMovesFromObstructions(Color color, ulong blockers, ushort squareIndex)
+        private static MoveObstructionBoard GetMovesFromObstructions(Color color, ulong blockers,
+            ushort squareIndex)
         {
             ulong moves = 0;
             var sqValue = MovingPieceService.GetBoardValueOfIndex(squareIndex);

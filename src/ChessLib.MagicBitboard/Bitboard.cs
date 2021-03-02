@@ -13,10 +13,10 @@ namespace ChessLib.MagicBitboard
     {
         private static readonly List<string> lLock = new List<string>();
         private static Bitboard instance;
-        internal Pawn Pawn;
+        private Pawn Pawn;
         private static IMovingPiece knight;
-        internal Bishop Bishop;
-        internal Rook Rook;
+        internal SlidingPiece Bishop;
+        internal SlidingPiece Rook;
         private static IMovingPiece queen;
         private static IMovingPiece king;
 
@@ -26,6 +26,7 @@ namespace ChessLib.MagicBitboard
             Pawn = new Pawn();
             Bishop = new Bishop();
             king = new King();
+            knight = new Knight();
         }
 
         public static Bitboard Instance
@@ -51,7 +52,7 @@ namespace ChessLib.MagicBitboard
                 case Piece.Pawn:
                     return Pawn.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Knight:
-
+                    return knight.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Bishop:
                     return Bishop.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Rook:
