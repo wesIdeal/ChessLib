@@ -35,8 +35,7 @@ namespace ChessLib.MagicBitboard
             }
         }
 
-        public abstract ulong GetPsuedoLegalMoves(ushort square, Color playerColor, ulong playerOccupancy,
-            ulong opponentOccupancy);
+        public abstract ulong GetPseudoLegalMoves(ushort square, Color playerColor, ulong occupancy);
 
         public abstract void Initialize();
 
@@ -44,34 +43,6 @@ namespace ChessLib.MagicBitboard
         {
             return MoveMask[squareIndex];
         }
-
-        //public ulong[][] MovesFromLocation = new ulong[64][]; private void InitializeMagicBitBoard()
-        //{
-        //    var movesAndAttacks = MovesAndAttacks;
-
-        //    for (ushort index = 8; index < 56; index++)
-        //    {
-        //        var attackBoard = movesAndAttacks[index];
-        //        ulong[] attackArray = new ulong[0];
-
-        //        if (attackBoard != 0)
-        //        {
-        //            var setBitCount = 12;
-        //            attackMask[index] = movesAndAttacks[index];
-        //            var occupancyPermutations = MovingPieceSvc.GetAllBlockerPermutationsFromMoveMask(attackBoard);
-        //            var permutations =
-        //                MovingPieceSvc.GetAllPermutationsForAttackMask(index, moveMask[index], attackMask[index], occupancyPermutations)
-        //                .ToArray();
-        //            blockerBoards[index] = permutations;
-        //            MagicKey[index] = GenerateMagicKey(blockerBoards[index], setBitCount,
-        //                out attackArray);
-        //        }
-        //        MovesFromLocation[index] = attackArray;
-        //    }
-        //    //);
-
-        //}
-
-
+        
     }
 }

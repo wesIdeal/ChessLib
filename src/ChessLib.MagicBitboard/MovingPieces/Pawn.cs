@@ -5,28 +5,19 @@ namespace ChessLib.MagicBitboard.MovingPieces
 {
     internal class Pawn : MovingPiece
     {
-        protected ulong[][] moveMask;
-        protected ulong[][] attackMask;
+        protected new ulong[][] MoveMask;
+        protected new ulong[][] AttackMask;
         public Pawn()
         {
             Initialize();
         }
 
-        public override ulong GetPsuedoLegalMoves(ushort square, Color playerColor, ulong playerOccupancy, ulong opponentOccupancy)
+        public override ulong GetPseudoLegalMoves(ushort square, Color playerColor, ulong occupancy)
         {
-            var occupancy = playerOccupancy | opponentOccupancy;
-            var empty = ~(occupancy);
-            var attacks = attackMask[(int)playerColor][square] & opponentOccupancy;
+            var attacks = AttackMask[(int)playerColor][square] & occupancy;
             var moves = GetMovesFromOccupancy(square, playerColor, occupancy);
             var result = attacks | moves;
             return result;
-        }
-
-        private bool IsOpeningMove(ushort squareIndex, Color color)
-        {
-            var boardValue = MovingPieceService.GetBoardValueOfIndex(squareIndex);
-            var rankMask = color == Color.Black ? BoardConstants.Rank7 : BoardConstants.Rank2;
-            return (boardValue & rankMask) != 0;
         }
 
 
@@ -34,7 +25,7 @@ namespace ChessLib.MagicBitboard.MovingPieces
         {
 
             var empty = ~(totalOccupancy);
-            var openMoves = moveMask[(int)color][squareIndex];
+            var openMoves = MoveMask[(int)color][squareIndex];
             var availableMoves = empty & openMoves;
 
             var dpRankMask = color == Color.Black ? BoardConstants.Rank5 : BoardConstants.Rank4;
@@ -55,30 +46,44 @@ namespace ChessLib.MagicBitboard.MovingPieces
 
         public sealed override void Initialize()
         {
-            moveMask = new ulong[2][];
-            moveMask[0] = new ulong[64];
-            moveMask[1] = new ulong[64];
+            InitializeMasks();
+            InitializeWhitePawnMovesAndAttacks();
+            InitializeBlackPawnMovesAndAttacks();
+        }
 
-            attackMask = new ulong[2][];
-            attackMask[0] = new ulong[64];
-            attackMask[1] = new ulong[64];
-
-
-            for (ushort square = 8; square < 56; square++)
-            {
-                ulong squareValue = MovingPieceService.GetBoardValueOfIndex(square);
-                moveMask[(int)Color.White][square] = MovingPieceService.ShiftN(squareValue) | ((squareValue & BoardConstants.Rank2) << 16);
-                attackMask[(int)Color.White][square] = MovingPieceService.ShiftNW(squareValue) | MovingPieceService.ShiftNE(squareValue);
-            }
+        private void InitializeBlackPawnMovesAndAttacks()
+        {
             for (ushort square = 55; square >= 8; square--)
             {
                 ulong squareValue = MovingPieceService.GetBoardValueOfIndex(square);
-                moveMask[(int)Color.Black][square] = MovingPieceService.ShiftS(squareValue) | ((squareValue & BoardConstants.Rank7) >> 16);
-                attackMask[(int)Color.Black][square] = MovingPieceService.ShiftSW(squareValue) | MovingPieceService.ShiftSE(squareValue);
+                MoveMask[(int) Color.Black][square] =
+                    MovingPieceService.ShiftS(squareValue) | ((squareValue & BoardConstants.Rank7) >> 16);
+                AttackMask[(int) Color.Black][square] =
+                    MovingPieceService.ShiftSW(squareValue) | MovingPieceService.ShiftSE(squareValue);
             }
         }
 
+        private void InitializeWhitePawnMovesAndAttacks()
+        {
+            for (ushort square = 8; square < 56; square++)
+            {
+                ulong squareValue = MovingPieceService.GetBoardValueOfIndex(square);
+                MoveMask[(int) Color.White][square] =
+                    MovingPieceService.ShiftN(squareValue) | ((squareValue & BoardConstants.Rank2) << 16);
+                AttackMask[(int) Color.White][square] =
+                    MovingPieceService.ShiftNW(squareValue) | MovingPieceService.ShiftNE(squareValue);
+            }
+        }
 
+        private void InitializeMasks()
+        {
+            MoveMask = new ulong[2][];
+            MoveMask[0] = new ulong[64];
+            MoveMask[1] = new ulong[64];
 
+            AttackMask = new ulong[2][];
+            AttackMask[0] = new ulong[64];
+            AttackMask[1] = new ulong[64];
+        }
     }
 }

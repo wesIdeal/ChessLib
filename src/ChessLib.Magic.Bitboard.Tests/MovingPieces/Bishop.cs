@@ -26,8 +26,7 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
         [TestCaseSource(nameof(GetBishopTestCases), new object[] { UseRandom })]
         public static void TestBishopMoves(MoveTestCase testCase)
         {
-            var actual = _b.GetMoves(testCase.SquareIndex, Piece.Bishop, testCase.Color, testCase.PlayerBlocker,
-                testCase.OpponentBlocker);
+            var actual = _b.GetPseudoLegalMoves(testCase.SquareIndex, Piece.Bishop, testCase.Color, testCase.Occupancy);
             Assert.AreEqual(testCase.Expected, actual, testCase.ToString());
         }
 
@@ -49,7 +48,7 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
         }
         private static readonly Bitboard BitBoard = Bitboard.Instance;
 
-     
+
 
         private static IEnumerable<MoveObstructionBoard> GetRandomBlockerBoards(MoveObstructionBoard[] blockerBoardSet)
         {

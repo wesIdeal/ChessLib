@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using ChessLib.Data.Types.Enums;
+﻿using ChessLib.Data.Types.Enums;
 using ChessLib.MagicBitboard.Bitwise;
 using ChessLib.MagicBitboard.Storage;
+using System;
+using System.Diagnostics;
+using System.Linq;
 
 namespace ChessLib.MagicBitboard
 {
@@ -22,10 +21,9 @@ namespace ChessLib.MagicBitboard
            MagicBitboard = GetMagicBitboards();
         }
 
-        public override ulong GetPsuedoLegalMoves(ushort square, Color playerColor, ulong playerOccupancy, ulong opponentOccupancy)
+        public override ulong GetPseudoLegalMoves(ushort square, Color playerColor, ulong occupancy)
         {
-            ulong occupancy = playerOccupancy | opponentOccupancy;
-            return MagicBitboard[square].GetAttacks(occupancy);
+           return MagicBitboard[square].GetAttacks(occupancy);
         }
 
         private MagicBitboard[] GetMagicBitboards()
@@ -103,8 +101,7 @@ namespace ChessLib.MagicBitboard
             foreach (var squareIndex in AllSquares)
             {
                 var attackMask = AttackMask[squareIndex];
-                var blockerPermutations = GetAllBlockerPermutationsFromMoveMask(attackMask).OrderBy(x => x).Distinct().ToArray();
-               
+                var blockerPermutations = GetBlockerBoardsFromMoves(attackMask);
                 rv[squareIndex] = blockerPermutations.Select(blockerBoard =>
                     new MoveObstructionBoard(blockerBoard, GetMoves(squareIndex, blockerBoard))).ToArray();
             }
@@ -113,58 +110,26 @@ namespace ChessLib.MagicBitboard
         }
 
         /// <summary>
-        ///     Gets the permutations of blockers for a given attack mask.
+        ///     Gets the permutations of blockers for a given move moveMask.
         /// </summary>
-        /// <param name="mask">The relevant attack mask</param>
-        /// <returns>All relevant occupancy boards for the given mask</returns>
-        public ulong[] GetAllBlockerPermutationsFromMoveMask(in ulong mask)
+        /// <param name="moveMask">The relevant move moveMask</param>
+        /// <returns>All relevant occupancy boards for the given moveMask</returns>
+        public ulong[] GetBlockerBoardsFromMoves(in ulong moveMask)
         {
-            var setBitIndices = MovingPieceService.GetSetBits(mask);
-            return GetAllBlockerPermutationsFromMoveMask(setBitIndices, 0, 0).Distinct().ToArray();
+            var setBitIndices = MovingPieceService.GetSetBits(moveMask);
+            return MovingPieceService.GetAllPermutationsOfSetBits(setBitIndices,0,0).Distinct().ToArray();
         }
+    }
 
-        private IEnumerable<ulong> GetAllBlockerPermutationsFromMoveMask(ushort[] setBits, int idx, ulong value)
-        {
-            value = MovingPieceSvc.SetBit(value, setBits[idx]);
-            yield return value;
-            var index = idx + 1;
-            if (index < setBits.Length)
-            {
-                using (IEnumerator<ulong> occupancyPermutations =
-                    GetAllBlockerPermutationsFromMoveMask(setBits, index, value).GetEnumerator())
-                {
-                    while (occupancyPermutations.MoveNext())
-                    {
-                        yield return occupancyPermutations.Current;
-                    }
-                }
-            }
-
-            value = MovingPieceSvc.ClearBit(value, setBits[idx]);
-            yield return value;
-            if (index < setBits.Length)
-            {
-                using (IEnumerator<ulong> occupancyPermutations =
-                    GetAllBlockerPermutationsFromMoveMask(setBits, index, value).GetEnumerator())
-                {
-                    while (occupancyPermutations.MoveNext())
-                    {
-                        yield return occupancyPermutations.Current;
-                    }
-                }
-            }
-        }
-
-        protected enum PieceDirection
-        {
-            South = -8,
-            West = -1,
-            East = -West,
-            North = -South,
-            NorthEast = North + East,
-            SouthEast = South + East,
-            NorthWest = North + West,
-            SouthWest = South + West
-        }
+    public enum PieceDirection
+    {
+        South = -8,
+        West = -1,
+        East = -West,
+        North = -South,
+        NorthEast = North + East,
+        SouthEast = South + East,
+        NorthWest = North + West,
+        SouthWest = South + West
     }
 }

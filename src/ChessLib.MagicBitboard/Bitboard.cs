@@ -45,19 +45,18 @@ namespace ChessLib.MagicBitboard
             }
         }
 
-        public ulong GetMoves(ushort squareIndex, Piece bishop, Color color, ulong playerOccupancy,
-            ulong opponentOccupancy)
+        public ulong GetPseudoLegalMoves(ushort squareIndex, Piece bishop, Color color, ulong occupancy)
         {
             switch (bishop)
             {
                 case Piece.Pawn:
-                    return _pawn.GetPsuedoLegalMoves(squareIndex, color, playerOccupancy, opponentOccupancy);
+                    return _pawn.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Knight:
 
                 case Piece.Bishop:
-                    return Bishop.GetPsuedoLegalMoves(squareIndex, color, playerOccupancy, opponentOccupancy);
+                    return Bishop.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Rook:
-                    return Rook.GetPsuedoLegalMoves(squareIndex, color, playerOccupancy, opponentOccupancy);
+                    return Rook.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Queen:
 
                 case Piece.King:

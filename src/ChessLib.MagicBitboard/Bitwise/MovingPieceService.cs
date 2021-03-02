@@ -424,7 +424,7 @@ namespace ChessLib.MagicBitboard.Bitwise
         /// </summary>
         /// <param name="u">ulong board representation</param>
         /// <param name="boardIndex">index of square to set</param>
-        public ulong SetBit(ulong u, ushort boardIndex)
+        public static ulong SetBit(ulong u, ushort boardIndex)
         {
             return u | (1ul << boardIndex);
         }
@@ -442,7 +442,7 @@ namespace ChessLib.MagicBitboard.Bitwise
         ///     ulong, <paramref name="boardRep">boardRep</paramref>, with the index of
         ///     <paramref name="bitIndex">bitIndex</paramref> cleared.
         /// </returns>
-        public ulong ClearBit(ulong boardRep, int bitIndex)
+        public static ulong ClearBit(ulong boardRep, int bitIndex)
         {
             return boardRep & ~(1ul << bitIndex);
         }
@@ -474,6 +474,38 @@ namespace ChessLib.MagicBitboard.Bitwise
         private void Initialize()
         {
             InitializeInBetween();
+        }
+
+        public static IEnumerable<ulong> GetAllPermutationsOfSetBits(ushort[] setBits, int idx, ulong value)
+        {
+            value = SetBit(value, setBits[idx]);
+            yield return value;
+            var index = idx + 1;
+            if (index < setBits.Length)
+            {
+                using (IEnumerator<ulong> occupancyPermutations =
+                    GetAllPermutationsOfSetBits(setBits, index, value).GetEnumerator())
+                {
+                    while (occupancyPermutations.MoveNext())
+                    {
+                        yield return occupancyPermutations.Current;
+                    }
+                }
+            }
+
+            value = ClearBit(value, setBits[idx]);
+            yield return value;
+            if (index < setBits.Length)
+            {
+                using (IEnumerator<ulong> occupancyPermutations =
+                    GetAllPermutationsOfSetBits(setBits, index, value).GetEnumerator())
+                {
+                    while (occupancyPermutations.MoveNext())
+                    {
+                        yield return occupancyPermutations.Current;
+                    }
+                }
+            }
         }
 
 

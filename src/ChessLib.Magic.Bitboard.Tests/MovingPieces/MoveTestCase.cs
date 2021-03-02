@@ -24,6 +24,14 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             Expected = expected;
         }
 
+        public ulong Occupancy
+        {
+            get
+            {
+                return OpponentBlocker | PlayerBlocker;
+            }
+        }
+
         public override string ToString()
         {
             var pieceFile = MovingPieceService.FileFromIdx(SquareIndex);

@@ -25,7 +25,7 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
         //[TestCaseSource(nameof(GetRookTestCases), new object[] { UseRandom })]
         //public static void TestRookMoves(MoveTestCase testCase)
         //{
-        //    var actual = BitBoard.GetMoves(testCase.SquareIndex, Piece.Rook, testCase.Color, testCase.PlayerBlocker,
+        //    var actual = BitBoard.GetPseudoLegalMoves(testCase.SquareIndex, Piece.Rook, testCase.Color, testCase.PlayerBlocker,
         //        testCase.OpponentBlocker);
         //    Assert.AreEqual(testCase.Expected, actual, testCase.ToString());
         //}
@@ -83,7 +83,7 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             var boardVal = MovingPieceService.GetBoardValueOfIndex(squareIndex);
             
             var mask = (rankFill | fileFill) ^ boardVal;
-            var actual = BitBoard.GetMoves(squareIndex, Piece.Rook, Color.Black, 0, 0);
+            var actual = BitBoard.GetPseudoLegalMoves(squareIndex, Piece.Rook, Color.Black, 0);
             Assert.AreEqual(mask, actual);
         }
     }
