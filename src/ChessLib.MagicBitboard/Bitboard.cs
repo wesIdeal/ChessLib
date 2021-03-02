@@ -13,20 +13,19 @@ namespace ChessLib.MagicBitboard
     {
         private static readonly List<string> lLock = new List<string>();
         private static Bitboard instance;
-        internal Pawn _pawn;
+        internal Pawn Pawn;
         private static IMovingPiece knight;
         internal Bishop Bishop;
         internal Rook Rook;
         private static IMovingPiece queen;
         private static IMovingPiece king;
-            
+
         private Bitboard()
         {
-            
             Rook = new Rook();
-            _pawn = new Pawn();
+            Pawn = new Pawn();
             Bishop = new Bishop();
-          
+            king = new King();
         }
 
         public static Bitboard Instance
@@ -50,7 +49,7 @@ namespace ChessLib.MagicBitboard
             switch (bishop)
             {
                 case Piece.Pawn:
-                    return _pawn.GetPseudoLegalMoves(squareIndex, color, occupancy);
+                    return Pawn.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Knight:
 
                 case Piece.Bishop:
@@ -58,9 +57,11 @@ namespace ChessLib.MagicBitboard
                 case Piece.Rook:
                     return Rook.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Queen:
-
+                    var rookMoves = Rook.GetPseudoLegalMoves(squareIndex, color, occupancy);
+                    var bishopMoves = Bishop.GetPseudoLegalMoves(squareIndex, color, occupancy);
+                    return rookMoves | bishopMoves;
                 case Piece.King:
-
+                    return king.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(bishop), bishop, null);
             }
