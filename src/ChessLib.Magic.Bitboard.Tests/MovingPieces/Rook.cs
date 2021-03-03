@@ -17,16 +17,16 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
     {
         private const bool UseRandom = true;
         private static readonly int SquaresInTestCase = 64;
-        private static readonly int BoardsInTestCase = 100;
-        protected static IEnumerable<ushort> AllSquares => Enumerable.Range(0, 64).Select(x => (ushort) x);
+        private static readonly int BoardsInTestCase = 20;
+        protected static IEnumerable<ushort> AllSquares => Enumerable.Range(0, 64).Select(x => (ushort)x);
 
-        //[TestCaseSource(nameof(GetRookTestCases), new object[] { UseRandom })]
-        //public static void TestRookMoves(MoveTestCase testCase)
-        //{
-        //    var actual = BitBoard.GetPseudoLegalMoves(testCase.SquareIndex, Piece.Rook, testCase.Color, testCase.PlayerBlocker,
-        //        testCase.OpponentBlocker);
-        //    Assert.AreEqual(testCase.Expected, actual, testCase.ToString());
-        //}
+        [TestCaseSource(nameof(GetRookTestCases), new object[] { UseRandom })]
+        public static void TestRookMoves(MoveTestCase testCase)
+        {
+            var actual = BitBoard.GetPseudoLegalMoves(testCase.SquareIndex, Piece.Rook, testCase.Color, testCase.OpponentObstructions);
+            Assert.AreEqual(testCase.Expected, actual, testCase.ToString());
+        }
+
         private static readonly Bitboard BitBoard = Bitboard.Instance;
 
         public static IEnumerable<MoveTestCase> GetRookTestCases(bool useRandom)
@@ -35,26 +35,26 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             Console.WriteLine("Received Random Numbers");
             foreach (var square in squares)
             {
-                var blockerBoardSet = BitBoard.Rook.BlockerBoards[square];
-                var boards = useRandom ? GetRandomBlockerBoards(blockerBoardSet) : blockerBoardSet;
-                foreach (var blockerBoard in boards)
+                var obstructionBoards = BitBoard.Rook.MoveObstructionBoards[square];
+                var boards = useRandom ? GetRandomObstructionBoards(obstructionBoards) : obstructionBoards;
+                foreach (var obstructionBoard in boards)
                 {
-                    yield return new MoveTestCase(square, Color.Black, blockerBoard.Occupancy,
-                        blockerBoard.Occupancy, blockerBoard.MoveBoard);
+                    yield return new MoveTestCase(square, Color.Black, obstructionBoard.Occupancy,
+                        obstructionBoard.Occupancy, obstructionBoard.MoveBoard);
                 }
             }
         }
 
-        private static IEnumerable<MoveObstructionBoard> GetRandomBlockerBoards(
-            MoveObstructionBoard[] blockerBoardSet)
+        private static IEnumerable<MoveObstructionBoard> GetRandomObstructionBoards(
+            MoveObstructionBoard[] obstructionBoards)
         {
             var random = new Random(DateTime.Now.Millisecond);
-            var blockerBoardCount = blockerBoardSet.Length;
+            var obstructionBoardsLength = obstructionBoards.Length;
             var boards = new List<MoveObstructionBoard>();
             for (var i = 0; i < BoardsInTestCase; i++)
             {
-                var randomBoardIndex = (ushort) random.Next(0, blockerBoardCount);
-                boards.Add(blockerBoardSet[randomBoardIndex]);
+                var randomBoardIndex = (ushort)random.Next(0, obstructionBoardsLength);
+                boards.Add(obstructionBoards[randomBoardIndex]);
             }
 
             return boards.Distinct();
@@ -66,7 +66,7 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             var random = new Random(DateTime.Now.Millisecond);
             for (var i = 0; i < SquaresInTestCase; i++)
             {
-                yield return (ushort) random.Next(0, 64);
+                yield return (ushort)random.Next(0, 64);
             }
         }
 
@@ -76,8 +76,8 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
         {
             var rank = MovingPieceService.RankFromIdx(squareIndex);
             var file = MovingPieceService.FileFromIdx(squareIndex);
-            var rankFill = (ulong) 0xff << (rank * 8);
-            var fileFill = (ulong) 0x101010101010101 << file;
+            var rankFill = (ulong)0xff << (rank * 8);
+            var fileFill = (ulong)0x101010101010101 << file;
             var boardVal = MovingPieceService.GetBoardValueOfIndex(squareIndex);
 
             var mask = (rankFill | fileFill) ^ boardVal;

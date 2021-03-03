@@ -1,10 +1,4 @@
-﻿using ChessLib.MagicBitboard.Bitwise;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace ChessLib.MagicBitboard.Storage
+﻿namespace ChessLib.MagicBitboard.Storage
 {
     public class MoveObstructionBoard
     {
@@ -12,9 +6,9 @@ namespace ChessLib.MagicBitboard.Storage
         public ulong MoveBoard { get; }
 
         
-        public MoveObstructionBoard(ulong blockerBoard, ulong moveBoard)
+        public MoveObstructionBoard(ulong occupancyBoard, ulong moveBoard)
         {
-            Occupancy = blockerBoard;
+            Occupancy = occupancyBoard;
             MoveBoard = moveBoard;
         }
        

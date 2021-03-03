@@ -58,7 +58,7 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             return testCases;
         }
 
-        private static MoveObstructionBoard GetMovesFromObstructions(Color color, ulong blockers,
+        private static MoveObstructionBoard GetMovesFromObstructions(Color color, ulong obstructions,
             ushort squareIndex)
         {
             ulong moves = 0;
@@ -66,17 +66,17 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             var shiftN = GetShift(color)(sqValue);
             var shiftDoubleN = IsStartingRank(color, squareIndex) ? GetDoubleShift(color)(sqValue) : (ulong?) null;
             var attacks = GetAllCapturesFromSquare(squareIndex, color);
-            if ((shiftN & blockers) == 0)
+            if ((shiftN & obstructions) == 0)
             {
                 moves |= shiftN;
-                if (shiftDoubleN.HasValue && (shiftDoubleN.Value & blockers) == 0)
+                if (shiftDoubleN.HasValue && (shiftDoubleN.Value & obstructions) == 0)
                 {
                     moves |= shiftDoubleN.Value;
                 }
             }
 
-            moves |= attacks & blockers;
-            return new MoveObstructionBoard(blockers, moves);
+            moves |= attacks & obstructions;
+            return new MoveObstructionBoard(obstructions, moves);
         }
 
 

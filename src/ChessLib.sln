@@ -23,6 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.ConsoleManualTesti
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BC1A3F8A-A5D5-4478-9BCB-84F9FCF6EA9C}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		BuildPackage.ps1 = BuildPackage.ps1
 		ChessLib.nuspec = ChessLib.nuspec
 		License.txt = License.txt

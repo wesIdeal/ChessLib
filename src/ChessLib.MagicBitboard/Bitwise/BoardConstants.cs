@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ChessLib.MagicBitboard.Bitwise
@@ -36,5 +37,13 @@ namespace ChessLib.MagicBitboard.Bitwise
         
 
         public static readonly ulong[] Files = new[] { AFile, BFile, CFile, DFile, EFile, FFile, GFile, HFile };
+
+        public static IEnumerable<ushort> AllSquares
+        {
+            get
+            {
+                return Enumerable.Range(0, 64).Select(x => (ushort) x);
+            }
+        }
     }
 }

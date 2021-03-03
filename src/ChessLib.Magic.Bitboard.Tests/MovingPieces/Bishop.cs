@@ -33,12 +33,12 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             Console.WriteLine("Received Random Numbers");
             foreach (var square in squares)
             {
-                var blockerBoardSet = _b.Bishop.BlockerBoards[square];
-                var boards = useRandom ? GetRandomBlockerBoards(blockerBoardSet) : blockerBoardSet;
-                foreach (var blockerBoard in boards)
+                var obstructionBoards = _b.Bishop.MoveObstructionBoards[square];
+                var randomObstructionBoards = useRandom ? GetRandomObstructionBoards(obstructionBoards) : obstructionBoards;
+                foreach (var obstructionBoard in randomObstructionBoards)
                 {
-                    yield return new MoveTestCase(square, Color.Black, blockerBoard.Occupancy,
-                        blockerBoard.Occupancy, blockerBoard.MoveBoard);
+                    yield return new MoveTestCase(square, Color.Black, obstructionBoard.Occupancy,
+                        obstructionBoard.Occupancy, obstructionBoard.MoveBoard);
                 }
             }
         }
@@ -46,16 +46,16 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
         private static readonly Bitboard BitBoard = Bitboard.Instance;
 
 
-        private static IEnumerable<MoveObstructionBoard> GetRandomBlockerBoards(
-            MoveObstructionBoard[] blockerBoardSet)
+        private static IEnumerable<MoveObstructionBoard> GetRandomObstructionBoards(
+            MoveObstructionBoard[] obstructionBoardSet)
         {
             var random = new Random(DateTime.Now.Millisecond);
-            var blockerBoardCount = blockerBoardSet.Length;
+            var obstructionBoardCount = obstructionBoardSet.Length;
             var boards = new List<MoveObstructionBoard>();
             for (var i = 0; i < BoardsInTestCase; i++)
             {
-                var randomBoardIndex = (ushort) random.Next(0, blockerBoardCount);
-                boards.Add(blockerBoardSet[randomBoardIndex]);
+                var randomBoardIndex = (ushort) random.Next(0, obstructionBoardCount);
+                boards.Add(obstructionBoardSet[randomBoardIndex]);
             }
 
             return boards.Distinct();

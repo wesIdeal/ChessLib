@@ -1,9 +1,4 @@
-﻿using ChessLib.MagicBitboard.Bitwise;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace ChessLib.MagicBitboard.Tests.Storage
 {
@@ -12,24 +7,24 @@ namespace ChessLib.MagicBitboard.Tests.Storage
     [TestFixture]
     public class MoveObstructionBoard
     {
-        private ChessLib.MagicBitboard.Storage.MoveObstructionBoard mob;
+        private ChessLib.MagicBitboard.Storage.MoveObstructionBoard _mob;
 
         [Test]
         public void TestSetMoveBoard()
         {
-            ulong blocker = 0x402000;
+            ulong occupancy = 0x402000;
             ulong moves = 0x200400002000;
-            mob = new ChessLib.MagicBitboard.Storage.MoveObstructionBoard(blocker, moves);
-            Assert.AreEqual(moves, mob.MoveBoard);
+            _mob = new ChessLib.MagicBitboard.Storage.MoveObstructionBoard(occupancy, moves);
+            Assert.AreEqual(moves, _mob.MoveBoard);
         }
 
         [Test]
-        public void TestSetBlockerBoard()
+        public void TestSetObstructionBoard()
         {
-            ulong blocker = 0x402000;
+            ulong occupancy = 0x402000;
             ulong moves = 0x200400002000;
-            mob = new ChessLib.MagicBitboard.Storage.MoveObstructionBoard(blocker, moves);
-            Assert.AreEqual(blocker, mob.Occupancy);
+            _mob = new ChessLib.MagicBitboard.Storage.MoveObstructionBoard(occupancy, moves);
+            Assert.AreEqual(occupancy, _mob.Occupancy);
         }
     }
 }

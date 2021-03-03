@@ -9,18 +9,18 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
 {
     public struct MoveTestCase
     {
-        public ulong OpponentBlocker;
+        public ulong OpponentObstructions;
         public ulong Expected;
-        public ulong PlayerBlocker;
+        public ulong PlayerObstructions;
         public ushort SquareIndex;
         public Color Color;
 
-        public MoveTestCase(ushort squareIndex, Color color, ulong playerBlocker, ulong opponentBlocker, ulong expected)
+        public MoveTestCase(ushort squareIndex, Color color, ulong playerObstructions, ulong opponentObstructions, ulong expected)
         {
             SquareIndex = squareIndex;
             Color = color;
-            PlayerBlocker = playerBlocker;
-            OpponentBlocker = opponentBlocker;
+            PlayerObstructions = playerObstructions;
+            OpponentObstructions = opponentObstructions;
             Expected = expected;
         }
 
@@ -28,7 +28,7 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
         {
             get
             {
-                return OpponentBlocker | PlayerBlocker;
+                return OpponentObstructions | PlayerObstructions;
             }
         }
 
@@ -39,8 +39,8 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             var pieceDescription = $"Piece";
             var pawnPlacement = $"on {DisplayService.IndexToSquareDisplay(SquareIndex)} ";
             var expectedIndexes = MovingPieceService.GetSetBits(Expected);
-            var playerOccupancy = MovingPieceService.GetSetBits(PlayerBlocker);
-            var opponentOccupancy = MovingPieceService.GetSetBits(OpponentBlocker);
+            var playerOccupancy = MovingPieceService.GetSetBits(PlayerObstructions);
+            var opponentOccupancy = MovingPieceService.GetSetBits(OpponentObstructions);
             var strMoves =
                 expectedIndexes.Any()
                     ? $"move to {string.Join(", ", expectedIndexes.Select(DisplayService.IndexToSquareDisplay))}"

@@ -10,7 +10,7 @@ namespace ChessLib.MagicBitboard.MovingPieces
             base.Initialize();
         }
 
-        protected override Func<ulong, ulong>[] DirectionalMethods => new Func<ulong, ulong>[]
+        protected override Func<ulong, ulong>[] MoveShifts => new Func<ulong, ulong>[]
         {
 
             MovingPieceService.ShiftN,
@@ -19,7 +19,7 @@ namespace ChessLib.MagicBitboard.MovingPieces
             MovingPieceService.ShiftE,
         };
 
-        protected override Func<ulong, ulong>[] AttackDirections => new Func<ulong, ulong>[]
+        protected override Func<ulong, ulong>[] AttackShifts => new Func<ulong, ulong>[]
         {
             MovingPieceService.AttackN,
             MovingPieceService.AttackS,
