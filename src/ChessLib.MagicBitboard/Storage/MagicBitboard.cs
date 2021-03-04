@@ -1,6 +1,11 @@
-﻿namespace ChessLib.MagicBitboard
+﻿namespace ChessLib.MagicBitboard.Storage
 {
-    class MagicBitboard
+    internal interface IMagicBitboard
+    {
+        ulong GetAttacks(ulong occupancy);
+    }
+
+    internal class MagicBitboard : IMagicBitboard
     {
         public MagicBitboard(ulong key, ulong[] attacks)
         {
@@ -8,8 +13,8 @@
             Attacks = attacks;
         }
 
-        public ulong Key { get; private set; }
-        public ulong[] Attacks { get; private set; }
+        public ulong Key { get; }
+        public ulong[] Attacks { get; }
 
         public ulong Hash(ulong occupancy)
         {

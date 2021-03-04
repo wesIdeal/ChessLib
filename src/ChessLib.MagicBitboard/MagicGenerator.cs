@@ -10,7 +10,7 @@ namespace ChessLib.MagicBitboard
         /// </summary>
         /// <param name="moveObstructionBoards">The object containing occupancy and resultant moves</param>
         /// <returns>The magic key which was found</returns>
-        public MagicBitboard GenerateMagicKey(MoveObstructionBoard[] moveObstructionBoards)
+        public Storage.MagicBitboard GenerateMagicKey(MoveObstructionBoard[] moveObstructionBoards)
         {
             var countOfSetBits = 12;
             var maxMoves = 1 << countOfSetBits;
@@ -38,7 +38,7 @@ namespace ChessLib.MagicBitboard
                 }
             }
 
-            return new MagicBitboard(key, attackArray);
+            return new Storage.MagicBitboard(key, attackArray);
         }
 
         #region Random Number Helpers

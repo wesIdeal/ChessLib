@@ -1,20 +1,20 @@
 ﻿#region
 
-using System;
-using System.Diagnostics;
-using System.Linq;
 using ChessLib.Data.Types.Enums;
 using ChessLib.MagicBitboard.Bitwise;
 using ChessLib.MagicBitboard.Storage;
+using System;
+using System.Diagnostics;
+using System.Linq;
 
 #endregion
 
-namespace ChessLib.MagicBitboard
+namespace ChessLib.MagicBitboard.MovingPieces
 {
     internal abstract class SlidingPiece : MovingPiece
     {
         public MoveObstructionBoard[][] MoveObstructionBoards = new MoveObstructionBoard[64][];
-        public MagicBitboard[] MagicBitboard { get; private set; }
+        public Storage.MagicBitboard[] MagicBitboard { get; private set; }
         protected abstract Func<ulong, ulong>[] MoveShifts { get; }
         protected abstract Func<ulong, ulong>[] AttackShifts { get; }
 
@@ -30,10 +30,10 @@ namespace ChessLib.MagicBitboard
             return MagicBitboard[square].GetAttacks(occupancy);
         }
 
-        private MagicBitboard[] GetMagicBitboards()
+        private Storage.MagicBitboard[] GetMagicBitboards()
         {
             var generator = new MagicGenerator();
-            var rv = new MagicBitboard[64];
+            var rv = new Storage.MagicBitboard[64];
             for (var index = 0; index < 64; index++)
             {
                 var obstructionBoard = MoveObstructionBoards[index];

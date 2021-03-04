@@ -1,9 +1,8 @@
-﻿using System;
+﻿using ChessLib.Data.Types.Enums;
+using ChessLib.MagicBitboard.MovingPieces;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using ChessLib.Data.Magic.Init;
-using ChessLib.Data.Types.Enums;
-using ChessLib.MagicBitboard.MovingPieces;
 
 [assembly: InternalsVisibleTo("ChessLib.MagicBitboard.Bitwise.Tests")]
 namespace ChessLib.MagicBitboard
@@ -11,29 +10,28 @@ namespace ChessLib.MagicBitboard
 
     public sealed class Bitboard
     {
-        private static readonly List<string> lLock = new List<string>();
+        private static readonly List<string> LLock = new List<string>();
         private static Bitboard instance;
-        private Pawn Pawn;
-        private static IMovingPiece knight;
-        internal SlidingPiece Bishop;
-        internal SlidingPiece Rook;
-        private static IMovingPiece queen;
-        private static IMovingPiece king;
+        private readonly Pawn _pawn;
+        private readonly Knight _knight;
+        internal readonly SlidingPiece Bishop;
+        internal readonly SlidingPiece Rook;
+        private readonly IMovingPiece _king;
 
         private Bitboard()
         {
             Rook = new Rook();
-            Pawn = new Pawn();
             Bishop = new Bishop();
-            king = new King();
-            knight = new Knight();
+            _pawn = new Pawn();
+            _king = new King();
+            _knight = new Knight();
         }
 
         public static Bitboard Instance
         {
             get
             {
-                lock (lLock)
+                lock (LLock)
                 {
                     if (instance == null)
                     {
@@ -50,9 +48,9 @@ namespace ChessLib.MagicBitboard
             switch (bishop)
             {
                 case Piece.Pawn:
-                    return Pawn.GetPseudoLegalMoves(squareIndex, color, occupancy);
+                    return _pawn.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Knight:
-                    return knight.GetPseudoLegalMoves(squareIndex, color, occupancy);
+                    return _knight.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Bishop:
                     return Bishop.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 case Piece.Rook:
@@ -62,7 +60,7 @@ namespace ChessLib.MagicBitboard
                     var bishopMoves = Bishop.GetPseudoLegalMoves(squareIndex, color, occupancy);
                     return rookMoves | bishopMoves;
                 case Piece.King:
-                    return king.GetPseudoLegalMoves(squareIndex, color, occupancy);
+                    return _king.GetPseudoLegalMoves(squareIndex, color, occupancy);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(bishop), bishop, null);
             }

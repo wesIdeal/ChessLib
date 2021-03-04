@@ -7,6 +7,11 @@ namespace ChessLib.MagicBitboard.Bitwise
 {
     internal static class BoardConstants
     {
+        private static readonly ushort[] _allSquares;
+        static BoardConstants()
+        {
+            _allSquares = Enumerable.Range(0, 64).Select(x => (ushort)x).ToArray();
+        }
         public const ulong AFile = 0x0101010101010101;
         public const ulong BFile = 0x0202020202020202;
         public const ulong CFile = 0x0404040404040404;
@@ -38,12 +43,6 @@ namespace ChessLib.MagicBitboard.Bitwise
 
         public static readonly ulong[] Files = new[] { AFile, BFile, CFile, DFile, EFile, FFile, GFile, HFile };
 
-        public static IEnumerable<ushort> AllSquares
-        {
-            get
-            {
-                return Enumerable.Range(0, 64).Select(x => (ushort) x);
-            }
-        }
+        public static IEnumerable<ushort> AllSquares => _allSquares;
     }
 }

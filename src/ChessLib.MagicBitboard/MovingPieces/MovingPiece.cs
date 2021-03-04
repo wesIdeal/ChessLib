@@ -1,13 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using ChessLib.Data.Types.Enums;
 using ChessLib.MagicBitboard.Bitwise;
-using ChessLib.MagicBitboard.Storage;
 
-namespace ChessLib.MagicBitboard
+namespace ChessLib.MagicBitboard.MovingPieces
 {
+    internal interface IMovingPiece
+    {
+        ulong GetPseudoLegalMoves(ushort square, Color playerColor, ulong occupancy);
+    }
+
     internal abstract class MovingPiece : IMovingPiece
     {
         public readonly ulong[] MagicKey = new ulong[64];
