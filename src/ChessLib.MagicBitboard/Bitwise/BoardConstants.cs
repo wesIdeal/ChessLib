@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ChessLib.MagicBitboard.Bitwise
 {
-    internal static class BoardConstants
+    public static class BoardConstants
     {
         private static readonly ushort[] _allSquares;
         static BoardConstants()

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -7,15 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="moq" Version="4.16.1" />
     <PackageReference Include="NUnit" Version="3.13.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ChessLib.Graphics\ChessLib.Graphics.csproj" />
-    <ProjectReference Include="..\ChessLib.MagicBitboard\ChessLib.MagicBitboard.csproj" />
+    <ProjectReference Include="..\ChessLib.BoardService\ChessLib.BoardService.csproj" />
   </ItemGroup>
 
 </Project>
