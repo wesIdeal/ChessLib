@@ -9,7 +9,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules
     {
         public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
-            if ((boardInfo.GetPiecePlacement().Occupancy(boardInfo.ActivePlayer) & move.DestinationValue) != 0)
+            if ((boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer) & move.DestinationValue) != 0)
             {
                 return MoveError.ActiveColorPieceAtDestination;
             }

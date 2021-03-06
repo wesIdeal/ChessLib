@@ -13,7 +13,7 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1", 43, new int[] { })]
         public static void TestPiecesAttackingSquare(string fen, int attackedSquare, params int[] attackingPieces)
         {
-            var board = new BoardInfo(fen);
+            var board = new Board(fen);
             var actual = board.PiecesAttackingSquare((ushort)attackedSquare);
             if (attackingPieces.Any())
             {
@@ -38,10 +38,10 @@ namespace ChessLib.Data.Tests.Helpers
                 : castlingMove == CastlingAvailability.WhiteQueenside ? MoveHelpers.WhiteCastleQueenSide
                 : castlingMove == CastlingAvailability.BlackKingside ? MoveHelpers.BlackCastleKingSide
                 : MoveHelpers.BlackCastleQueenSide;
-            var board = new BoardInfo(fen);
+            var board = new Board(fen);
             var postMove = BoardHelpers.ApplyMoveToBoard(board, move);
-            var activeKingVal = postMove.GetPiecePlacement().Occupancy(board.ActivePlayer, Piece.King);
-            var activeRookVal = postMove.GetPiecePlacement().Occupancy(board.ActivePlayer, Piece.Rook);
+            var activeKingVal = postMove.Occupancy.Occupancy(board.ActivePlayer, Piece.King);
+            var activeRookVal = postMove.Occupancy.Occupancy(board.ActivePlayer, Piece.Rook);
             Assert.AreEqual(expectedKingVal, activeKingVal);
             Assert.AreEqual(expectedRookVal, activeRookVal);
         }
@@ -50,12 +50,12 @@ namespace ChessLib.Data.Tests.Helpers
         public void ApplyMove_EnPassantCaptures(string fen, int src, int dst, ulong oppPawn, ulong actPawn)
         {
             var move = MoveHelpers.GenerateMove((ushort)src, (ushort)dst, MoveType.EnPassant);
-            var board = new BoardInfo(fen);
+            var board = new Board(fen);
             var activeColor = board.ActivePlayer;
             var oppColor = board.OpponentColor();
             var actual = BoardHelpers.ApplyMoveToBoard(board, move);
-            Assert.AreEqual(actual.GetPiecePlacement().Occupancy(activeColor, Piece.Pawn), actPawn, $"{board.ActivePlayer}'s pawn structure incorrect after En Passant capture");
-            Assert.AreEqual(actual.GetPiecePlacement().Occupancy(oppColor, Piece.Pawn), oppPawn, $"{board.OpponentColor()}'s pawn structure incorrect after En Passant capture");
+            Assert.AreEqual(actual.Occupancy.Occupancy(activeColor, Piece.Pawn), actPawn, $"{board.ActivePlayer}'s pawn structure incorrect after En Passant capture");
+            Assert.AreEqual(actual.Occupancy.Occupancy(oppColor, Piece.Pawn), oppPawn, $"{board.OpponentColor()}'s pawn structure incorrect after En Passant capture");
         }
 
         //[TestCase("4k3/8/8/8/8/8/8/4K3 w - - 0 1", GameState.Drawn, false)]
@@ -64,7 +64,7 @@ namespace ChessLib.Data.Tests.Helpers
         //[TestCase(FENHelpers.FENInitial, GameState.None, false)]
         //public void GameState_SetCorrectly(string fen, GameState expectedGameState, bool ended)
         //{
-        //    var board = new BoardInfo(fen);
+        //    var board = new Board(fen);
         //    board.ValidateBoard();
         //    Assert.AreEqual(expectedGameState,board.GameState);
         //    Assert.AreEqual(board.IsGameOver, ended);

@@ -41,7 +41,7 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
             out MoveExt bestMoveFromResponse,
             out MoveExt ponderMoveFromResponse)
         {
-            var board = new BoardInfo(fen);
+            var board = new Board(fen);
             var traversalSvc = new MoveTraversalService(fen);
             var translator = new MoveTranslatorService(fen);
             bestMoveFromResponse = translator.FromLongAlgebraicNotation(response.BestMoveLong);

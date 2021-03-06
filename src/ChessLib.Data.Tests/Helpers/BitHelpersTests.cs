@@ -140,7 +140,7 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase(FENQueenIsBlockedFromAttackingSquared4, 35, Color.Black, true)]
         public static void IsSquareAttackedByColor(string fen, int square, Color attackingColor, bool expected)
         {
-            IBoard boardInfo = new BoardInfo(fen);
+            IBoard boardInfo = new Board(fen);
             var isAttacked = boardInfo.IsSquareAttackedByColor((ushort)square, attackingColor);
             Assert.AreEqual(expected, isAttacked);
         }

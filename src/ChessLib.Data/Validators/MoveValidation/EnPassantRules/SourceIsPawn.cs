@@ -10,7 +10,7 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules
     {
         public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
-            var isPawn = (boardInfo.GetPiecePlacement().Occupancy(boardInfo.ActivePlayer, Piece.Pawn) & move.SourceValue) != 0;
+            var isPawn = (boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer, Piece.Pawn) & move.SourceValue) != 0;
             return isPawn ? MoveError.NoneSet : MoveError.EpSourceIsNotPawn;
         }
     }

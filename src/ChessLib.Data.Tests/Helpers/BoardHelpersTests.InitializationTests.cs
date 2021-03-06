@@ -24,7 +24,7 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase("rnbqkbnr/ppp2ppp/3p4/4p3/2PP2P1/8/PP2PP1P/RNBQKBNR b KQkq - 0 3", false)]
         public static void TestEnPassantIsAvailable(string fen, bool expected)
         {
-            var board = new BoardInfo(fen);
+            var board = new Board(fen);
             Assert.AreEqual(expected, board.IsEnPassantCaptureAvailable());
         }
         [TestFixture]

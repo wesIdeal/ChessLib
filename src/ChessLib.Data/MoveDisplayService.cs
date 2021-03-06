@@ -31,12 +31,12 @@ namespace ChessLib.Data
 
         public void Initialize()
         {
-            Board = new BoardInfo();
+            Board = new Board();
         }
 
         public void Initialize(string fen)
         {
-            Board = new BoardInfo(fen);
+            Board = new Board(fen);
         }
 
         public void Initialize(IBoard board)
@@ -67,12 +67,11 @@ namespace ChessLib.Data
                 return "O-O";
             }
             var activePlayer = Board.ActivePlayer;
-            var preMoveBoard = Board.GetPiecePlacement();
-            var postMoveBoard = BoardHelpers.GetBoardPostMove(Board, move);
-            var srcPiece = Board.GetPiecePlacement().GetPieceOfColorAtIndex(move.SourceIndex)?.Piece;
+            var preMoveBoard = Board.Occupancy;
+            var srcPiece = Board.Occupancy.GetPieceOfColorAtIndex(move.SourceIndex)?.Piece;
             if (srcPiece == null) throw new MoveException("No piece at source index.", MoveError.ActivePlayerHasNoPieceOnSourceSquare, move, activePlayer);
             var strSrcPiece = GetSANSourceString(move, srcPiece.Value);
-            var strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
+            
             string checkInfo = "", result = "", promotionInfo = "", capture = "";
 
             var opponentOcc = preMoveBoard.Occupancy(activePlayer.Toggle());
@@ -91,7 +90,7 @@ namespace ChessLib.Data
             if (board.IsActivePlayerInCheck())
             {
                 checkInfo = "+";
-                if (board.IsCheckmate())
+                if (board.GameState == GameState.Checkmate)
                 {
                     checkInfo = "#";
                     if (recordResult)
@@ -124,7 +123,7 @@ namespace ChessLib.Data
             }
 
             var strSrcPiece = src.GetCharRepresentation().ToString().ToUpper();
-            var otherLikePieces = Board.GetPiecePlacement().Occupancy(Board.ActivePlayer, src);
+            var otherLikePieces = Board.Occupancy.Occupancy(Board.ActivePlayer, src);
             var duplicateAttackerIndexes = new List<ushort>();
 
             foreach (var attackerIndex in otherLikePieces.GetSetBits())
@@ -143,15 +142,15 @@ namespace ChessLib.Data
 
             if (!duplicateFiles)
             {
-                return strSrcPiece += move.SourceIndex.IndexToFileDisplay();
+                return strSrcPiece + move.SourceIndex.IndexToFileDisplay();
             }
             else if (!duplicateRanks)
             {
-                return strSrcPiece += move.SourceIndex.IndexToRankDisplay();
+                return strSrcPiece + move.SourceIndex.IndexToRankDisplay();
             }
             else
             {
-                return strSrcPiece += move.SourceIndex.IndexToSquareDisplay();
+                return strSrcPiece + move.SourceIndex.IndexToSquareDisplay();
             }
         }
     }

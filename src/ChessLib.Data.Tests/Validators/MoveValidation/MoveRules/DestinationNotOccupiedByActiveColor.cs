@@ -12,7 +12,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
         [Test]
         public void ShouldReturnNullIfTargetUnoccupied()
         {
-            var board = new BoardInfo("4k3/8/8/8/8/5N2/8/4K3 w - - 0 1");
+            var board = new Board("4k3/8/8/8/8/5N2/8/4K3 w - - 0 1");
             var move = MoveHelpers.GenerateMove(21, 6);
             var postMove = BoardHelpers.GetBoardPostMove(board, move);
             Assert.AreEqual(MoveError.NoneSet, Validate(board,postMove,move));
@@ -20,7 +20,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
         [Test]
         public void ShouldReturnNullIfTargetOccupiedByOpponent()
         {
-            var board = new BoardInfo("4k3/8/8/8/8/5N2/8/4K1b1 w - - 0 1");
+            var board = new Board("4k3/8/8/8/8/5N2/8/4K1b1 w - - 0 1");
             var move = MoveHelpers.GenerateMove(21, 6);
             var postMove = BoardHelpers.GetBoardPostMove(board, move);
             Assert.AreEqual(MoveError.NoneSet, Validate(board, postMove, move));
@@ -28,7 +28,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
         [Test]
         public void ShouldReturnErrorIfTargetOccupiedByActivePlayer()
         {
-            var board = new BoardInfo("4k3/8/8/8/8/5N2/8/4K1B1 w - - 0 1");
+            var board = new Board("4k3/8/8/8/8/5N2/8/4K1B1 w - - 0 1");
             var move = MoveHelpers.GenerateMove(21, 6);
             var postMove = BoardHelpers.GetBoardPostMove(board, move);
             Assert.AreEqual(MoveError.ActiveColorPieceAtDestination, Validate(board, postMove, move));

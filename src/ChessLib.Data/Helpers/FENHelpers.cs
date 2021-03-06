@@ -65,7 +65,7 @@ namespace ChessLib.Data.Helpers
         /// </summary>
         /// <param name="fen">validated PremoveFEN</param>
         /// <returns>Board representation corresponding to PremoveFEN</returns>
-        internal static ulong[][] BoardFromFen(in string fen)
+        public static ulong[][] BoardFromFen(in string fen)
         {
             if (fen == FENInitial)
             {
@@ -112,7 +112,7 @@ namespace ChessLib.Data.Helpers
         /// <param name="fullmoveClock"></param>
         /// <param name="validate"></param>
         /// <returns></returns>
-        internal static ulong[][] BoardFromFen(this string fen, out Color activePlayer,
+        public static ulong[][] BoardFromFen(this string fen, out Color activePlayer,
             out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out ushort halfmoveClock,
             out ushort fullmoveClock, bool validate = true)
         {
@@ -136,6 +136,7 @@ namespace ChessLib.Data.Helpers
             return pieces;
         }
 
+        
         /// <summary>
         ///     Converts a board Index (0 = 1st Rank) to the PremoveFEN Index (7 = 1st Rank)
         /// </summary>

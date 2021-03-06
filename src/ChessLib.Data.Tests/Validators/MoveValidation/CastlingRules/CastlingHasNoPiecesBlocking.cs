@@ -13,12 +13,12 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
     [TestFixture(Description = "Tests for castling through occupied and non-occupied squares between castling King and Rook")]
     class CastlingHasNoPiecesBlocking : Data.Validators.MoveValidation.CastlingRules.CastlingHasNoPiecesBlocking
     {
-        BoardInfo _biOccupied, _biNonOccupied;
+        Board _biOccupied, _biNonOccupied;
         [SetUp]
         public void Setup()
         {
-            _biOccupied = new BoardInfo("r1N1k1Nr/8/8/8/8/8/8/R1B1K1BR w KQkq - 0 1");
-            _biNonOccupied = new BoardInfo("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+            _biOccupied = new Board("r1N1k1Nr/8/8/8/8/8/8/R1B1K1BR w KQkq - 0 1");
+            _biNonOccupied = new Board("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
         }
 
         #region Occupancy Between Castle

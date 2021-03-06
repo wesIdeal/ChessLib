@@ -11,7 +11,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules
         public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
 
-            var piece = BoardHelpers.GetPieceAtIndex(boardInfo.GetPiecePlacement(), move.SourceIndex);
+            var piece = BoardHelpers.GetPieceAtIndex(boardInfo.Occupancy, move.SourceIndex);
             if (piece == null)
             {
                 return MoveError.ActivePlayerHasNoPieceOnSourceSquare;

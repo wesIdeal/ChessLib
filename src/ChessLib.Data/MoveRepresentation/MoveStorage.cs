@@ -47,12 +47,10 @@ namespace ChessLib.Data.MoveRepresentation
         {
         }
 
-        public MoveStorage(BoardInfo boardInfo, MoveExt move, Piece? capturedPiece)
+        public MoveStorage(Board boardInfo, MoveExt move, Piece? capturedPiece)
             : base(move)
         {
-            var gameState = boardInfo.ValidateBoard();
-            var boardState = new BoardState(boardInfo.HalfmoveClock, boardInfo.EnPassantSquare, capturedPiece,
-                boardInfo.CastlingAvailability, gameState);
+            var boardState = (Board)boardInfo.Clone();
             BoardState = boardState;
             BoardStateHash = PolyglotHelpers.GetBoardStateHash(boardInfo);
             Id = Guid.NewGuid();

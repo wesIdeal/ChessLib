@@ -6,14 +6,16 @@ namespace ChessLib.Data.Validators.BoardValidation.Rules
 {
     public class EndOfGameRule : IBoardRule
     {
-        public BoardExceptionType Validate(in IBoard boardInfo)
+
+        public BoardExceptionType Validate(ulong[][] occupancy, Color activeColor, 
+            ushort? enPassantIdx, CastlingAvailability castlingAvailability)
         {
             var isDrawn = true;
             for (int c = 0; c < 2; c++)
             {
                 for (int p = 0; p < 5; p++)
                 {
-                    if (boardInfo.GetPiecePlacement().Occupancy((Color)c, (Piece)p) != 0)
+                    if (occupancy.Occupancy((Color)c, (Piece)p) != 0)
                     {
                         isDrawn = false;
                         break;
@@ -25,20 +27,23 @@ namespace ChessLib.Data.Validators.BoardValidation.Rules
             {
                 return BoardExceptionType.MaterialDraw;
             }
-            if (boardInfo.IsActivePlayerInCheck())
+
+            if (BoardHelpers.IsCheckmate(occupancy, activeColor))
             {
-                if (boardInfo.IsCheckmate())
-                {
-                    return BoardExceptionType.Checkmate;
-                }
+                return BoardExceptionType.Checkmate;
             }
 
-            if (boardInfo.IsStalemate())
+            if (BoardHelpers.IsStalemate(occupancy, activeColor, enPassantIdx, castlingAvailability))
             {
                 return BoardExceptionType.Stalemate;
             }
 
             return BoardExceptionType.None;
+        }
+        public BoardExceptionType Validate(in IBoard boardInfo)
+        {
+            return Validate(boardInfo.Occupancy, boardInfo.ActivePlayer, boardInfo.EnPassantSquare,
+                boardInfo.CastlingAvailability);
         }
     }
 }

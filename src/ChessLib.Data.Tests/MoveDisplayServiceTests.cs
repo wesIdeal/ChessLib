@@ -9,7 +9,7 @@ namespace ChessLib.Data.Tests
     [TestFixture]
     public class MoveDisplayServiceTests
     {
-        readonly BoardInfo bi = new BoardInfo();
+        readonly Board bi = new Board();
         private MoveDisplayService _moveDisplayService;
 
         [SetUp]
@@ -38,7 +38,7 @@ namespace ChessLib.Data.Tests
         [TestCase("6K1/4k1P1/8/6q1/8/8/8/8 b - - 9 56", 38, 39, "Qh5 1/2-1/2")]
         public void MoveToSAN_Stalemate(string fen, int f, int t, string expected, PromotionPiece p = PromotionPiece.Knight, MoveType type = MoveType.Normal)
         {
-            var board = new BoardInfo(fen);
+            var board = new Board(fen);
             _moveDisplayService = new MoveDisplayService(board);
             var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
             Assert.AreEqual(expected, _moveDisplayService.MoveToSAN(move));
@@ -54,7 +54,7 @@ namespace ChessLib.Data.Tests
         [TestCase("rnbqkbnr/1pp1pppp/p7/2Pp4/2P5/8/P2PPPPP/RNBQKBNR w KQkq d6 0 3", 26, 35, "cxd5")]
         public void MoveToSAN_Pawn(string fen, int from, int to, string expected, MoveType mt = MoveType.Normal)
         {
-            var board = new BoardInfo(fen);
+            var board = new Board(fen);
             _moveDisplayService = new MoveDisplayService(board);
             var move = MoveFromInt(from, to, PromotionPiece.Knight, mt);
             Assert.AreEqual(expected, _moveDisplayService.MoveToSAN(move));
@@ -63,7 +63,7 @@ namespace ChessLib.Data.Tests
         [TestCase("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23", "d5f7", "Bxf7+")]
         public void TestCheckDisplay(string fen, string lan, string expected)
         {
-            BoardInfo bi = new BoardInfo(fen);
+            Board bi = new Board(fen);
             MoveTranslatorService mts = new MoveTranslatorService(bi);
             MoveDisplayService mds = new MoveDisplayService(bi);
             var actual = mds.MoveToSAN(mts.FromLongAlgebraicNotation(lan));
@@ -81,7 +81,7 @@ namespace ChessLib.Data.Tests
         [TestCase("7k/8/8/4R3/8/3R4/7K/8 w - - 0 1", 36, 35, "Red5")]
         public void MoveToSAN_Piece(string fen, int from, int to, string expected)
         {
-            var board = new BoardInfo(fen);
+            var board = new Board(fen);
             _moveDisplayService = new MoveDisplayService(board);
             var move = MoveFromInt(from, to);
             Assert.AreEqual(expected, _moveDisplayService.MoveToSAN(move));
@@ -92,7 +92,7 @@ namespace ChessLib.Data.Tests
         [TestCase("3q4/4P3/8/8/8/8/6k1/4K3 w - - 0 1", 52, 59, "exd8=Q")]
         public void ManufacturessAppropriatePawnPromotion(string fen, int from, int to, string expected)
         {
-            var board = new BoardInfo(fen);
+            var board = new Board(fen);
             _moveDisplayService = new MoveDisplayService(board);
             var poc = new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn };
             var move = MoveFromInt(from, to, PromotionPiece.Queen, MoveType.Promotion);
@@ -105,7 +105,7 @@ namespace ChessLib.Data.Tests
         [TestCase("rnbqkbnr/ppp2ppp/3p4/4N2Q/2B1P3/8/PPPP1PPP/RNB1K2R w KQkq - 0 3", 39, 53, "Qxf7# 1-0")]
         public void DisplaysAppropriateCheckSymbol(string fen, int from, int to, string expected)
         {
-            var boardInfo = new BoardInfo(fen);
+            var boardInfo = new Board(fen);
             _moveDisplayService = new MoveDisplayService(boardInfo);
             var move = MoveHelpers.GenerateMove((ushort)from, (ushort)to);
             var actual = _moveDisplayService.MoveToSAN(move);

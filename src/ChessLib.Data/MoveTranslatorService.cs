@@ -208,7 +208,7 @@ namespace ChessLib.Data
                 }
 
                 var possibleAttackersOfType = new List<ushort>();
-                var applicableBlockerBoard = Board.GetPiecePlacement()[(int)colorMoving][(int)pieceMoving];
+                var applicableBlockerBoard = Board.Occupancy[(int)colorMoving][(int)pieceMoving];
                 foreach (var possAttacker in squaresAttackingTarget.GetSetBits())
                 {
                     if ((possAttacker.GetBoardValueOfIndex() & applicableBlockerBoard) != 0)
@@ -323,7 +323,7 @@ namespace ChessLib.Data
         {
             var colorMoving = Board.ActivePlayer;
             var promotionPiece = PromotionPiece.Knight;
-            var pawnBitBoard = Board.GetPiecePlacement()[(int)colorMoving][(int)Piece.Pawn];
+            var pawnBitBoard = Board.Occupancy[(int)colorMoving][(int)Piece.Pawn];
 
             var moveLength = move.Length;
             var isCapture = move.Contains("x");

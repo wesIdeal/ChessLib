@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using ChessLib.Data.Boards;
 using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -11,18 +13,20 @@ using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.MoveValidation;
 
+#endregion
+
 namespace ChessLib.Data
 {
     public class MoveTraversalService
     {
-        public readonly BoardInfo Board;
         private LinkedListNode<MoveStorage> _currentMoveNode;
         private bool _pauseMoveEvents;
-        
-        public MoveTraversalService(string fen, BoardInfo boardExt = null)
+        public Board Board;
+
+        public MoveTraversalService(string fen, Board boardExt = null)
         {
             IsLoaded = true;
-            Board = boardExt ?? new BoardInfo(fen);
+            Board = boardExt ?? new Board(fen);
             MainMoveTree = new MoveTree(null, fen);
             CurrentMoveNode = MainMoveTree.First;
             InitialFen = fen;
@@ -228,7 +232,7 @@ namespace ChessLib.Data
 
         public void GoToInitialState()
         {
-            var bi = new BoardInfo(InitialFen);
+            var bi = new Board(InitialFen);
             ApplyNewBoard(bi);
             while (CurrentTree.VariationParentNode != null)
             {
@@ -312,6 +316,7 @@ namespace ChessLib.Data
             {
                 return ApplySanVariationMove(moveText);
             }
+
             var move = TranslateSanMove(moveText);
             move.SAN = moveText;
             return ApplyMove(move);
@@ -396,12 +401,7 @@ namespace ChessLib.Data
         /// <param name="newBoard"></param>
         protected void ApplyNewBoard(IBoard newBoard)
         {
-            Board.SetPiecePlacement(newBoard.GetPiecePlacement());
-            Board.ActivePlayer = newBoard.ActivePlayer;
-            Board.CastlingAvailability = newBoard.CastlingAvailability;
-            Board.EnPassantSquare = newBoard.EnPassantSquare;
-            Board.HalfmoveClock = newBoard.HalfmoveClock;
-            Board.FullmoveCounter = newBoard.FullmoveCounter;
+            Board = (Board) newBoard.Clone();
         }
 
         private void UnApplyMove(LinkedListNode<MoveStorage> previousNode)
@@ -418,13 +418,14 @@ namespace ChessLib.Data
             }
 
             var previousState = previousNode.Value.BoardState;
-            var hmClock = previousState.GetHalfmoveClock();
-            var castlingAvailability = previousState.GetCastlingAvailability();
-            var epSquare = previousState.GetEnPassantSquare();
+            var hmClock = previousState.HalfMoveClock;
+            var castlingAvailability = previousState.CastlingAvailability;
+            var epSquare = previousState.EnPassantSquare;
             var pieces = UnApplyPiecesFromMove(CurrentMoveNode.Value);
-            var fullMove = Board.ActivePlayer == Color.White ? Board.FullmoveCounter - 1 : Board.FullmoveCounter;
-            var board = new BoardInfo(pieces, Board.ActivePlayer.Toggle(), castlingAvailability, epSquare, hmClock,
-                (ushort) fullMove);
+            var fullMove = Board.ActivePlayer == Color.White ? Board.FullMoveCounter - 1 : Board.FullMoveCounter;
+            var board = new Board(pieces, hmClock, epSquare, previousState.PieceCaptured,
+                previousState.CastlingAvailability,
+                previousState.ActivePlayer, (ushort) fullMove);
             return board;
         }
 
@@ -440,8 +441,8 @@ namespace ChessLib.Data
             var board = (IBoard) Board.Clone();
             var active = (int) board.ActivePlayer.Toggle();
             var opp = active ^ 1;
-            var piecePlacement = board.GetPiecePlacement();
-            var capturedPiece = currentMove.BoardState.GetPieceCaptured();
+            var piecePlacement = board.Occupancy;
+            var capturedPiece = currentMove.BoardState.PieceCaptured;
 
 
             piecePlacement[active][(int) piece.Value] = piecePlacement[active][(int) piece] | dst;
@@ -497,7 +498,7 @@ namespace ChessLib.Data
             var variationParentMove = currentTree.VariationParentNode;
             CurrentMoveNode = variationParentMove;
             var parentFen = currentTree.StartingFEN;
-            ApplyNewBoard(new BoardInfo(parentFen));
+            ApplyNewBoard(new Board(parentFen));
             TraverseForward();
             return variationParentMove;
         }

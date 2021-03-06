@@ -17,10 +17,10 @@ namespace ChessLib.Data.Validators.BoardValidation.Rules
             var castlingAvailability = boardInfo.CastlingAvailability;
             if (castlingAvailability == CastlingAvailability.NoCastlingAvailable) return BoardExceptionType.None;
 
-            var whiteRooks = boardInfo.GetPiecePlacement().Occupancy(Color.White, Piece.Rook);
-            var blackRooks = boardInfo.GetPiecePlacement().Occupancy(Color.Black, Piece.Rook);
-            var whiteKing = boardInfo.GetPiecePlacement().Occupancy(Color.White, Piece.King);
-            var blackKing = boardInfo.GetPiecePlacement().Occupancy(Color.Black, Piece.King);
+            var whiteRooks = boardInfo.Occupancy.Occupancy(Color.White, Piece.Rook);
+            var blackRooks = boardInfo.Occupancy.Occupancy(Color.Black, Piece.Rook);
+            var whiteKing = boardInfo.Occupancy.Occupancy(Color.White, Piece.King);
+            var blackKing = boardInfo.Occupancy.Occupancy(Color.Black, Piece.King);
             //Check for Rook placement
             if (castlingAvailability.HasFlag(CastlingAvailability.WhiteQueenside) &&
                 !whiteRooks.IsBitSet(0))
@@ -61,7 +61,7 @@ namespace ChessLib.Data.Validators.BoardValidation.Rules
             var possiblePawnLocation =
                 boardInfo.ActivePlayer == Color.White ? boardInfo.EnPassantSquare - 8 : boardInfo.EnPassantSquare + 8;
             var possiblePawnLocationValue = 1ul << possiblePawnLocation;
-            var pawnsOnBoard = boardInfo.GetPiecePlacement().Occupancy(boardInfo.ActivePlayer.Toggle(), Piece.Pawn);
+            var pawnsOnBoard = boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer.Toggle(), Piece.Pawn);
 
             return (pawnsOnBoard & possiblePawnLocationValue) == 0 ? BoardExceptionType.BadEnPassant : BoardExceptionType.None;
         }

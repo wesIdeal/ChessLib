@@ -10,8 +10,8 @@ namespace ChessLib.Data.Validators.BoardValidation.Rules
         public BoardExceptionType Validate(in IBoard boardInfo)
         {
             var rv = BoardExceptionType.None;
-            rv |= boardInfo.GetPiecePlacement().Occupancy(Color.White, Piece.Pawn).CountSetBits() > 8 ? BoardExceptionType.WhiteTooManyPawns : BoardExceptionType.None;
-            rv |= boardInfo.GetPiecePlacement().Occupancy(Color.Black, Piece.Pawn).CountSetBits() > 8 ? BoardExceptionType.BlackTooManyPawns : BoardExceptionType.None;
+            rv |= boardInfo.Occupancy.Occupancy(Color.White, Piece.Pawn).CountSetBits() > 8 ? BoardExceptionType.WhiteTooManyPawns : BoardExceptionType.None;
+            rv |= boardInfo.Occupancy.Occupancy(Color.Black, Piece.Pawn).CountSetBits() > 8 ? BoardExceptionType.BlackTooManyPawns : BoardExceptionType.None;
             return rv;
         }
 

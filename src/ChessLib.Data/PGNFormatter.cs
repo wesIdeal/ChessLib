@@ -131,7 +131,7 @@ namespace ChessLib.Data
             return strPgn;
         }
 
-        private string GetFormattedPly(BoardInfo bi, MoveStorage previousMove,
+        private string GetFormattedPly(Board bi, MoveStorage previousMove,
             MoveStorage move)
         {
             var displaySvc = new MoveDisplayService(bi);
@@ -160,11 +160,11 @@ namespace ChessLib.Data
             return "";
         }
 
-        private string GetFormattedMoveNumber(BoardInfo bi, MoveStorage previousMove)
+        private string GetFormattedMoveNumber(Board bi, MoveStorage previousMove)
         {
             if (ShouldWriteMoveNumber(bi.ActivePlayer, previousMove))
             {
-                return FormatMoveNumber(bi.FullmoveCounter,
+                return FormatMoveNumber(bi.FullMoveCounter,
                     UseEllipses(previousMove, bi.ActivePlayer));
             }
 

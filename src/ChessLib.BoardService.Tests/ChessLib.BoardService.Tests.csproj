@@ -16,4 +16,8 @@
     <ProjectReference Include="..\ChessLib.BoardService\ChessLib.BoardService.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="BoardRepresentation\" />
+  </ItemGroup>
+
 </Project>

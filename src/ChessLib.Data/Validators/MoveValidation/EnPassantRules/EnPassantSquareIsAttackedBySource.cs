@@ -12,7 +12,7 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules
         public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
             var pawnAttacksFromSquare = Bitboard.GetAttackedSquares(Piece.Pawn, move.SourceIndex,
-                boardInfo.TotalOccupancy(), boardInfo.ActivePlayer);
+                boardInfo.Occupancy.Occupancy(), boardInfo.ActivePlayer);
             var isAttacked = (pawnAttacksFromSquare & move.DestinationValue) != 0;
             return isAttacked ? MoveError.NoneSet : MoveError.EpNotAttackedBySource;
         }

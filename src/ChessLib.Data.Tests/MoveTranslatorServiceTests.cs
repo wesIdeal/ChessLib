@@ -153,7 +153,7 @@ namespace ChessLib.Data.Tests
             _moveTranslatorService.InitializeBoard(fen);
             for (ushort index = dstLower; index <= dstUpper; index++)
             {
-                var color = new BoardInfo(fen).ActivePlayer;
+                var color = new Board(fen).ActivePlayer;
                 var destination = index + (color == Color.Black ? -1 : 1) * (moveSquares * 8);
                 var expectedMove = MoveHelpers.GenerateMove(index, (ushort)destination);
                 var moveText = expectedMove.DestinationIndex.IndexToSquareDisplay();
@@ -175,7 +175,7 @@ namespace ChessLib.Data.Tests
        
         public static void ShouldMoveSource(string fen, int? sourceIdx, int destIdx, Piece p, Color c, string moveText, int expected)
         {
-            var moveTranslatorService = new MoveTranslatorService(new BoardInfo(fen) { ActivePlayer = c });
+            var moveTranslatorService = new MoveTranslatorService(new Board(fen) { ActivePlayer = c });
             //var md = new MoveDetail((ushort?)sourceIdx, (ushort)destIdx, p, c, moveText).GetMoveFromSAN();
             var actualMove = moveTranslatorService.GetMoveFromSAN(moveText);
             Assert.AreEqual(expected, actualMove.SourceIndex);
@@ -184,7 +184,7 @@ namespace ChessLib.Data.Tests
         [TestCase("rnb1kbnr/1p1ppppp/p7/1qp5/3PP3/P1P5/1P3PPP/RNBQKBNR w KQkq - 1 5", "Ba6")]
         public static void FindPieceSourceIndex_ShouldThrowException(string fen, string moveText)
         {
-            var moveTranslatorService = new MoveTranslatorService(new BoardInfo(fen));
+            var moveTranslatorService = new MoveTranslatorService(new Board(fen));
 
             Assert.Throws(typeof(MoveException),
                 () => { moveTranslatorService.GetMoveFromSAN(moveText); });

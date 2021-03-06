@@ -20,7 +20,7 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
 
         public static void TestCastling(string fen, BoardExceptionType expectedException, string message = "")
         {
-            var board = new BoardInfo(fen);
+            var board = new Board(fen);
             var rule = new Data.Validators.BoardValidation.Rules.CastlingAvailabilityRule();
             var actual = rule.Validate(board);
             Assert.AreEqual(expectedException, actual, message);

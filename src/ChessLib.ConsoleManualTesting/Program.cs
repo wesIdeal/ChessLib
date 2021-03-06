@@ -48,7 +48,7 @@ namespace ChessLib.ConsoleManualTesting
                 .Where(x => x.TagSection["Round"] == "2");
             game = botvinnik.FirstOrDefault() ?? game;
 
-            var bi = new BoardInfo();
+            var bi = new Board();
             var round = game.TagSection["Round"];
             var black = game.TagSection["Black"];
             var white = game.TagSection["White"];

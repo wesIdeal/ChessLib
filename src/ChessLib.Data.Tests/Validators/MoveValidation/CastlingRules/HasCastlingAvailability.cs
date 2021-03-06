@@ -13,7 +13,7 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
     [TestFixture(Description = "Tests that appropriate castling availability flag is set for castling.")]
     class HasCastlingAvailability : Data.Validators.MoveValidation.CastlingRules.HasCastlingAvailability
     {
-        BoardInfo _bi;
+        Board _bi;
         [Test(Description = "Test that no exception is thrown when Black castles Queenside with BlackQueenside flag set.")]
         public void ValidateMove_CastleKeyPiecesMoved_ShouldNotThrowExceptionWhenCastlingFlagIsSet_q()
         {
@@ -92,10 +92,10 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
             AssertCastlingAvailabilityExceptionThrown(move);
         }
 
-        private static BoardInfo MakeCastlingBoard(CastlingAvailability ca, char color = 'b')
+        private static Board MakeCastlingBoard(CastlingAvailability ca, char color = 'b')
         {
             string baseBoard = $"r3k2r/8/8/8/8/8/8/R3K2R {color} {FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(ca)} - 0 1";
-            return new BoardInfo(baseBoard);
+            return new Board(baseBoard);
         }
 
         #region BadDestination
@@ -105,7 +105,7 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
         {
             var postMoveBoard = new ulong[2][];
             var badDestinations = new ushort[] { 57, 63, 1, 5, 13, 28 };
-            var boardInfo = new BoardInfo("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
+            var boardInfo = new Board("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
             foreach (var dest in badDestinations)
             {
                 var move = MoveHelpers.GenerateMove(60, dest, MoveType.Castle);

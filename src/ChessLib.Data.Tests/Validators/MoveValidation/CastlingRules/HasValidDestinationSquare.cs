@@ -16,11 +16,11 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
         {
             var postMoveBoard = new ulong[2][];
             var badDestinations = new ushort[] { 57, 63, 1, 5, 13, 28 };
-            var BoardInfo = new BoardInfo("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
+            var board = new Board("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
             foreach (var dest in badDestinations)
             {
                 var move = MoveHelpers.GenerateMove(60, dest, MoveType.Castle);
-                Assert.AreEqual(MoveError.CastleBadDestinationSquare, Validate(BoardInfo, postMoveBoard, move));
+                Assert.AreEqual(MoveError.CastleBadDestinationSquare, Validate(board, postMoveBoard, move));
             }
         }
         #endregion
@@ -31,11 +31,11 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
         {
             var postMoveBoard = new ulong[2][];
             var badDestinations = this.ValidDestinationSquares;
-            var BoardInfo = new BoardInfo("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
+            var Board = new Board("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
             foreach (var dest in badDestinations)
             {
                 var move = MoveHelpers.GenerateMove(60, dest, MoveType.Castle);
-                Assert.AreEqual(MoveError.NoneSet, Validate(BoardInfo, postMoveBoard, move));
+                Assert.AreEqual(MoveError.NoneSet, Validate(Board, postMoveBoard, move));
             }
         }
         #endregion

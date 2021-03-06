@@ -19,13 +19,14 @@ namespace ChessLib.Data.Tests.Magic
         {
             try
             {
-                var board = new BoardInfo(fen);
-                var moves = ChessLib.Data.Magic.Bitboard.GetPseudoLegalMoves(Piece.Pawn, (ushort)pieceSourceIndex, board.ActiveOccupancy,
-                    board.OpponentOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
+                var board = new Board(fen);
+                var moves = Data.Magic.Bitboard.GetPseudoLegalMoves(Piece.Pawn, (ushort) pieceSourceIndex,
+                    board.Occupancy.Occupancy(board.ActivePlayer),
+                    board.Occupancy.Occupancy(board.OpponentColor), board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out _);
                 var epSquareIncluded = moves.IsBitSet((ushort)epSquare);
                 Assert.IsTrue(epSquareIncluded, errorMessage);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var exc = e;
             }
@@ -39,9 +40,9 @@ namespace ChessLib.Data.Tests.Magic
         public void TestThatCastlingIsAPseudoLegalMove(string fen, int pieceSourceIndex, int destIndex,
             string errorMessage = "")
         {
-            var board = new BoardInfo(fen);
-            var moves = ChessLib.Data.Magic.Bitboard.GetPseudoLegalMoves(Piece.King, (ushort)pieceSourceIndex, board.ActiveOccupancy,
-                board.OpponentOccupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out List<MoveExt> arrMoves);
+            var board = new Board(fen);
+            var moves = ChessLib.Data.Magic.Bitboard.GetPseudoLegalMoves(Piece.King, (ushort)pieceSourceIndex, board.Occupancy.Occupancy(board.ActivePlayer),
+                board.Occupancy.Occupancy(board.OpponentColor), board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out List<MoveExt> arrMoves);
             var epSquareIncluded = moves.IsBitSet((ushort)destIndex);
             Assert.IsTrue(epSquareIncluded, errorMessage);
             var move = MoveHelpers.GenerateMove((ushort)pieceSourceIndex, (ushort)destIndex, MoveType.Castle);

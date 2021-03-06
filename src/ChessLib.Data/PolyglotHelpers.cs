@@ -245,7 +245,7 @@ namespace ChessLib.Data
         /// <returns>ulong representing the hash of the board</returns>
         public static ulong GetBoardStateHash(string fen)
         {
-            return GetBoardStateHash(new BoardInfo(fen));
+            return GetBoardStateHash(new Board(fen));
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace ChessLib.Data
         /// </summary>
         /// <param name="board">The ChessLib board to encode</param>
         /// <returns>ulong representing the hash of the board</returns>
-        public static ulong GetBoardStateHash(BoardInfo board)
+        public static ulong GetBoardStateHash(Board board)
         {
             var pieceValue = GetPieceValues(board);
             var castleValue = GetCastleValue(board);
@@ -262,12 +262,12 @@ namespace ChessLib.Data
             return pieceValue ^ castleValue ^ epValue ^ turnValue;
         }
 
-        private static ulong GetTurnValue(BoardInfo board)
+        private static ulong GetTurnValue(Board board)
         {
             return board.ActivePlayer == Color.White ? Turn[0] : 0;
         }
 
-        private static ulong GetEnPassantValue(BoardInfo board)
+        private static ulong GetEnPassantValue(Board board)
         {
             if (!board.EnPassantSquare.HasValue || !board.IsEnPassantCaptureAvailable())
             {
@@ -279,7 +279,7 @@ namespace ChessLib.Data
             return EnPassant[file];
         }
 
-        private static ulong GetCastleValue(BoardInfo board)
+        private static ulong GetCastleValue(Board board)
         {
             if (board.CastlingAvailability == CastlingAvailability.NoCastlingAvailable)
             {
@@ -291,7 +291,7 @@ namespace ChessLib.Data
             return rv;
         }
 
-        private static ulong[] GetCastleKeyValues(BoardInfo board)
+        private static ulong[] GetCastleKeyValues(Board board)
         {
             var lst = new List<ulong>();
             var ca = board.CastlingAvailability;
@@ -318,14 +318,14 @@ namespace ChessLib.Data
             return lst.ToArray();
         }
 
-        private static ulong GetPieceValues(BoardInfo board)
+        private static ulong GetPieceValues(Board board)
         {
             ulong acc = 0;
             for (var color = 0; color < 2; color++)
             {
                 for (var piece = 0; piece < 6; piece++)
                 {
-                    var piecePlacement = board.GetPiecePlacement()[color][piece];
+                    var piecePlacement = board.Occupancy[color][piece];
                     if (piecePlacement != 0)
                     {
                         foreach (var index in piecePlacement.GetSetBits())
