@@ -175,7 +175,7 @@ namespace ChessLib.Data.Tests
        
         public static void ShouldMoveSource(string fen, int? sourceIdx, int destIdx, Piece p, Color c, string moveText, int expected)
         {
-            var moveTranslatorService = new MoveTranslatorService(new Board(fen) { ActivePlayer = c });
+            var moveTranslatorService = new MoveTranslatorService(new Board(fen));
             //var md = new MoveDetail((ushort?)sourceIdx, (ushort)destIdx, p, c, moveText).GetMoveFromSAN();
             var actualMove = moveTranslatorService.GetMoveFromSAN(moveText);
             Assert.AreEqual(expected, actualMove.SourceIndex);

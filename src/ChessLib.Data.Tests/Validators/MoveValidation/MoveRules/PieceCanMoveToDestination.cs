@@ -269,7 +269,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             [Test]
             public void ShouldReturnProperError_WhenBlackPawnMoves3()
             {
-                _board.ActivePlayer = Color.Black;
+                _board.ToggleActivePlayer();
                 var move = MoveHelpers.GenerateMove(52, 28);
                 var actual = Validate(_board, _postMoveBoard, move);
                 Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't move 3 squares.");
@@ -304,7 +304,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             [Test]
             public void ShouldReturnNoError_WhenBlackPawnMoves2From7thRank()
             {
-                _board.ActivePlayer = Color.Black;
+                _board.ToggleActivePlayer();
                 var move = MoveHelpers.GenerateMove(52, 36);
                 var actual = Validate(_board, _postMoveBoard, move);
                 Assert.AreEqual(MoveError.NoneSet, actual, "Pawn can move 2 squares from the opening rank.");

@@ -433,6 +433,8 @@ namespace ChessLib.Data.Helpers
             return (move.DestinationValue & opponentOccupancy) != 0;
         }
 
+       
+
         /// <summary>
         ///     Gets the piece setup post-move
         /// </summary>
@@ -620,7 +622,14 @@ namespace ChessLib.Data.Helpers
 
         public static bool IsColorInCheck(ulong[][] board, Color checkedColor)
         {
-            var checkedColorKingIdx = board[(int) checkedColor][KING].GetSetBits()[0];
+            Debug.Assert(board.Length == 2);
+            var nCheckedColor = (int)checkedColor;
+            Debug.Assert(board[nCheckedColor].Length == 6);
+            var kingOccupancy = board[nCheckedColor][KING];
+            var setBits = kingOccupancy.GetSetBits();
+            Debug.Assert(setBits.Length == 1);
+            
+            var checkedColorKingIdx = setBits[0];
             return checkedColorKingIdx.IsSquareAttackedByColor(checkedColor.Toggle(), board);
         }
 

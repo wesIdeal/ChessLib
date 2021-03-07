@@ -11,11 +11,23 @@ using System;
 
 namespace ChessLib.Data.Boards
 {
-    public class Board : BoardState, IEquatable<Board>, IBoard
+    public class Board : BoardState, IEquatable<Board>, IBoard, ICloneable
     {
+        private ulong[][] CloneOccupancy()
+        {
+            var rv = new ulong[2][];
+            rv[0] = new ulong[6];
+            rv[1] = new ulong[6];
+            Array.Copy(Occupancy[0], rv[0], 6);
+            Array.Copy(Occupancy[1], rv[1], 6);
+            return rv;
+        }
         public new object Clone()
         {
-            return new Board(Occupancy, HalfMoveClock, EnPassantSquare, PieceCaptured, CastlingAvailability, ActivePlayer, FullMoveCounter);
+            Console.WriteLine($"Total occupancy: {Occupancy.Occupancy()}");
+            var clonedOccupancy = CloneOccupancy();
+            var activePlayerColor = ActivePlayer;
+            return new Board(clonedOccupancy, HalfMoveClock, EnPassantSquare, PieceCaptured, CastlingAvailability, activePlayerColor, FullMoveCounter);
         }
         public Board() : base(FENHelpers.FENInitial)
         {
@@ -104,10 +116,7 @@ namespace ChessLib.Data.Boards
             Occupancy = occupancy;
         }
 
-        public void ToggleActivePlayer()
-        {
-            ActivePlayer = ActivePlayer.Toggle();
-        }
+       
     }
     //public class BoardInfo : BoardBase
     //{

@@ -1,4 +1,5 @@
-﻿using ChessLib.Data.Helpers;
+﻿using System;
+using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
@@ -9,7 +10,11 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules
     {
         public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
-            if ((boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer) & move.DestinationValue) != 0)
+            var activeOccupancy = boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer);
+            Console.WriteLine($"Active Occupancy: {activeOccupancy}");
+            Console.WriteLine($"Destination: {move.DestinationValue}");
+
+            if ((activeOccupancy & move.DestinationValue) != 0)
             {
                 return MoveError.ActiveColorPieceAtDestination;
             }

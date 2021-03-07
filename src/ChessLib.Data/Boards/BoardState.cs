@@ -7,10 +7,11 @@ using ChessLib.Data.Types.Enums;
 using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.BoardValidation.Rules;
+using EnumsNET;
 
 namespace ChessLib.Data.Boards
 {
-    public class BoardState : IBoardState, IEquatable<BoardState>, ICloneable
+    public class BoardState : IBoardState, IEquatable<BoardState>
     {
         /// <summary>
         ///     Makes an archival board state
@@ -88,11 +89,7 @@ namespace ChessLib.Data.Boards
         /// <summary>
         ///     Represents the player who is about to move.
         /// </summary>
-        public Color ActivePlayer
-        {
-            get => this.GetActivePlayer();
-            set => this.ToggleActivePlayer();
-        }
+        public Color ActivePlayer => this.GetActivePlayer();
 
         public bool Equals(BoardState other)
         {
@@ -141,7 +138,10 @@ namespace ChessLib.Data.Boards
 
         public override string ToString()
         {
+
             var sb = new StringBuilder();
+            sb.AppendLine($"BoardState (int): {this.BoardStateStorage}");
+            sb.AppendLine($"Active Player: {this.GetActivePlayer().AsString()}");
             sb.AppendLine($"Halfmove Clock: {this.GetHalfmoveClock()}");
             sb.AppendLine($"Castling: {this.GetCastlingAvailability()}");
             sb.AppendLine($"En Passant: {this.GetEnPassantSquare()}");
@@ -204,7 +204,7 @@ namespace ChessLib.Data.Boards
             Positions.Add(ActivePlayer, new BoardStateBitHelpers
             {
                 Mask = 0b1000_0000_0000_0000_0000_0000_0000_0000,
-                Offset = 32
+                Offset = 31
             });
         }
 
@@ -217,7 +217,8 @@ namespace ChessLib.Data.Boards
 
         public static void ToggleActivePlayer(this BoardState boardState)
         {
-            boardState.BoardStateStorage ^= Positions[ActivePlayer].Mask;
+            var mask = Positions[ActivePlayer].Mask;
+            boardState.BoardStateStorage ^= mask;
         }
 
         public static uint GetActivePlayerStorageValue(Color activePlayerColor)
