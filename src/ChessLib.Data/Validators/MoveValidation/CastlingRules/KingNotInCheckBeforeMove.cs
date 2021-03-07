@@ -10,7 +10,7 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
     {
         public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMoveExt move)
         {
-            if (boardInfo.ActiveKingIndex().IsSquareAttackedByColor(boardInfo.OpponentColor(), boardInfo.Occupancy))
+            if (boardInfo.ActiveKingIndex().IsSquareAttackedByColor(boardInfo.OpponentColor(), boardInfo.Occupancy, null))
             {
                 return MoveError.CastleKingInCheck;
             }

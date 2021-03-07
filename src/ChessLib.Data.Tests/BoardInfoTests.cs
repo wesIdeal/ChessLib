@@ -195,7 +195,7 @@ namespace ChessLib.Data.Tests
         public static void GetEvasions_ReturnsNoMovesWhenMate(string fen)
         {
             var bi = new Board(fen);
-            Assert.AreEqual(0, BoardHelpers.DoesKingHaveEvasions(bi.Occupancy,bi.ActivePlayer));
+            Assert.AreEqual(false, BoardHelpers.DoesKingHaveEvasions(bi.Occupancy,bi.ActivePlayer));
         }
 
 

@@ -281,7 +281,7 @@ namespace ChessLib.Data.Helpers
         public static bool IsPlayerInCheck(this ulong[][] board, int playerInCheckColor)
         {
             var kingIndex = board[playerInCheckColor][KING].GetSetBits()[0];
-            return kingIndex.IsSquareAttackedByColor((Color) (1 - playerInCheckColor), board);
+            return kingIndex.IsSquareAttackedByColor((Color) (1 - playerInCheckColor), board, kingIndex);
         }
 
         ///// <summary>
@@ -630,7 +630,7 @@ namespace ChessLib.Data.Helpers
             Debug.Assert(setBits.Length == 1);
             
             var checkedColorKingIdx = setBits[0];
-            return checkedColorKingIdx.IsSquareAttackedByColor(checkedColor.Toggle(), board);
+            return checkedColorKingIdx.IsSquareAttackedByColor(checkedColor.Toggle(), board, checkedColorKingIdx);
         }
 
         /// <summary>
@@ -721,7 +721,7 @@ namespace ChessLib.Data.Helpers
                 CastlingAvailability.NoCastlingAvailable, out var _);
             foreach (var move in moves.GetSetBits())
             {
-                if (!move.IsSquareAttackedByColor(activeColor.Toggle(), occupancy))
+                if (!move.IsSquareAttackedByColor(activeColor.Toggle(), occupancy, kindIndex))
                 {
                     return true;
                 }

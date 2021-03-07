@@ -391,13 +391,15 @@ namespace ChessLib.Data.Magic
         /// <param name="color">Color of attacker</param>
         /// <param name="piecesOnBoard">Occupancy arrays for both colors, indexed as [color_enum][piece_enum]</param>
         /// <returns>true if <paramref name="squareIndex"/> is attacked by any piece of <paramref name="color"/></returns>
-        public static bool IsSquareAttackedByColor(this ushort squareIndex, Color color, ulong[][] piecesOnBoard)
+        public static bool IsSquareAttackedByColor(this ushort squareIndex, Color color, ulong[][] piecesOnBoard, ushort? movingPieceIndex)
         {
             var nColor = (int)color;
             var notNColor = nColor ^ 1;
             var oppositeOccupancy = piecesOnBoard[(int)color.Toggle()].Aggregate((x, y) => x | y);
             var activeOccupancy = piecesOnBoard[(int)color].Aggregate((x, y) => x | y);
-            var totalOcc = oppositeOccupancy | activeOccupancy;
+            ulong squareValue = movingPieceIndex.HasValue ? BitHelpers.GetBoardValueOfIndex(movingPieceIndex.Value) : 0;
+            var totalOcc = (oppositeOccupancy | activeOccupancy) ^ squareValue;
+
             if (IsSquareAttackedBySlidingPiece(squareIndex, nColor, piecesOnBoard, totalOcc))
             {
                 return true;
@@ -426,7 +428,7 @@ namespace ChessLib.Data.Magic
         /// <param name="squareIndex">Index of square to test for being under attack</param>
         /// <param name="attackingColor">color of attacker</param>
         /// <returns></returns>
-        public static bool IsSquareAttackedByColor(this IBoard board, ushort squareIndex, Color attackingColor) => IsSquareAttackedByColor(squareIndex, attackingColor, board.Occupancy);
+        public static bool IsSquareAttackedByColor(this IBoard board, ushort squareIndex, Color attackingColor) => IsSquareAttackedByColor(squareIndex, attackingColor, board.Occupancy, null);
 
 
         public static ulong XRayRookAttacks(this IBoard board, ushort squareIndex)
