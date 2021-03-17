@@ -44,7 +44,7 @@ namespace ChessLib.Data.Boards
 
         protected BoardState(ulong[][] board, ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece, CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter)
         {
-            SetBoardState(board, halfMoveClock, enPassantIndex, null, castlingAvailability, activePlayer, fullMoveCounter);
+            SetBoardState(board, halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter);
         }
 
         protected virtual GameState GameStateFromBoard(ulong[][] board, Color activeColor, ushort? enPassantIdx,
