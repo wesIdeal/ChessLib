@@ -173,6 +173,7 @@ namespace ChessLib.Data
         public MoveExt GetMoveFromSAN(string sanMove)
         {
             MoveExt moveExt;
+            Debug.WriteLine(Board.ToFEN());
             var move = StripNonMoveInfoFromMove(sanMove);
             if (move.Length < 2)
             {
@@ -208,7 +209,7 @@ namespace ChessLib.Data
                 }
 
                 var possibleAttackersOfType = new List<ushort>();
-                var applicableBlockerBoard = Board.Occupancy[(int)colorMoving][(int)pieceMoving];
+                var applicableBlockerBoard = Board.Occupancy.Occupancy(Board.ActivePlayer, pieceMoving);
                 foreach (var possAttacker in squaresAttackingTarget.GetSetBits())
                 {
                     if ((possAttacker.GetBoardValueOfIndex() & applicableBlockerBoard) != 0)

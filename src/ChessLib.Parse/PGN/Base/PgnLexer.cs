@@ -39,7 +39,8 @@ namespace ChessLib.Parse.PGN.Base
         {
             _pgnVisitor = new PgnVisitor();
             var sections = GetSectionsFromPGN(game);
-            ParseTagSection(sections.tagSection);
+            var tags = ParseTagSection(sections.tagSection);
+            _pgnVisitor.Game = new Game<MoveStorage>(tags);
             ParseMoveSection(sections.moveSection.Replace("\r\n", " "), options);
             AddParsingLogsToGame();
             return _pgnVisitor.Game;
@@ -50,16 +51,17 @@ namespace ChessLib.Parse.PGN.Base
             foreach (var log in _parsingLogs) { _pgnVisitor.Game.AddParsingLogItem(log); }
         }
 
-        private void ParseTagSection(string tagSection)
+        private Tags ParseTagSection(string tagSection)
         {
             if (!string.IsNullOrWhiteSpace(tagSection))
             {
-                _pgnVisitor.VisitTagPairSection(tagSection);
+                return _pgnVisitor.VisitTagPairSection(tagSection);
             }
             else
             {
                 _parsingLogs.Add(new PgnParsingLog(ParsingErrorLevel.Warning, "Warning: No tag section found for game.",
                     tagSection));
+                return null;
             }
         }
 

@@ -85,7 +85,7 @@ namespace ChessLib.Data.Magic.Init
             PawnAttackMask[1] = new MoveBoard();
             PawnMoveMask[0] = new MoveBoard();
             PawnMoveMask[1] = new MoveBoard();
-            for (var i = 8; i < 56; i++)
+            for (var i = 0; i < 64; i++)
             {
                 var square = 1ul << i;
                 PawnAttackMask[Color.White.ToInt()][i] = square.ShiftNE() | square.ShiftNW();
@@ -93,7 +93,7 @@ namespace ChessLib.Data.Magic.Init
                     square.ShiftN() | square.Shift2N() & BoardHelpers.RankMasks[Rank.R4.ToInt()];
             }
 
-            for (var i = 8; i < 56; i++)
+            for (var i = 0; i < 64; i++)
             {
                 var square = (ulong)1 << i;
                 PawnAttackMask[Color.Black.ToInt()][i] = square.ShiftSE() | square.ShiftSW();

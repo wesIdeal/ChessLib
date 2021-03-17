@@ -45,7 +45,7 @@ namespace ChessLib.Data.Boards
         }
 
         public Board(ulong[][] occupancy, ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
-            CastlingAvailability castlingAvailability, Color activePlayer, ushort fullMoveCounter)
+            CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter)
         : base(occupancy, halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter)
         {
             Occupancy = occupancy;
@@ -53,7 +53,7 @@ namespace ChessLib.Data.Boards
 
         public ulong[] BlackOccupancy => Occupancy[(int)Color.Black];
         public ulong[] WhiteOccupancy => Occupancy[(int)Color.White];
-        public Color OpponentColor => ActivePlayer ^ (Color)(1ul << 1);
+        public Color OpponentColor => ActivePlayer.Toggle();
 
         public string CurrentFEN => this.ToFEN();
 

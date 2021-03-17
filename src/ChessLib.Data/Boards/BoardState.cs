@@ -24,7 +24,7 @@ namespace ChessLib.Data.Boards
         /// <param name="activePlayer">Player to move</param>
         /// <param name="fullMoveCounter">Number of whole moves played</param>
         public BoardState(ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
-            CastlingAvailability castlingAvailability, GameState gameState, Color activePlayer, ushort fullMoveCounter)
+            CastlingAvailability castlingAvailability, GameState gameState, Color activePlayer, uint fullMoveCounter)
         {
             SetBoardState(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, gameState, activePlayer,
                 fullMoveCounter);
@@ -42,7 +42,7 @@ namespace ChessLib.Data.Boards
             BoardStateStorage = boardStateStorage;
         }
 
-        protected BoardState(ulong[][] board, ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece, CastlingAvailability castlingAvailability, Color activePlayer, ushort fullMoveCounter)
+        protected BoardState(ulong[][] board, ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece, CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter)
         {
             SetBoardState(board, halfMoveClock, enPassantIndex, null, castlingAvailability, activePlayer, fullMoveCounter);
         }
@@ -84,7 +84,7 @@ namespace ChessLib.Data.Boards
 
         public ushort HalfMoveClock => this.GetHalfmoveClock();
 
-        public ushort FullMoveCounter { get; set; }
+        public uint FullMoveCounter => this.GetFullMoveCounter();
 
         /// <summary>
         ///     Represents the player who is about to move.
@@ -102,7 +102,7 @@ namespace ChessLib.Data.Boards
         }
 
         private void SetBoardState(ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
-            CastlingAvailability castlingAvailability, GameState gameState, Color activePlayer, ushort fullMoveCounter)
+            CastlingAvailability castlingAvailability, GameState gameState, Color activePlayer, uint fullMoveCounter)
         {
             var pieceCaptured = BoardStateHelpers.GetPieceCaptured(capturedPiece);
             var castlingAvail = BoardStateHelpers.GetCastlingRights(castlingAvailability);
@@ -114,7 +114,7 @@ namespace ChessLib.Data.Boards
             BoardStateStorage = pieceCaptured | castlingAvail | epIdx | hmClock | gmState | color | fullMoveCount;
         }
 
-        private void SetBoardState(ulong[][] board, ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece, CastlingAvailability castlingAvailability, Color activePlayer, ushort fullMoveCounter)
+        private void SetBoardState(ulong[][] board, ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece, CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter)
         {
             GameState gameState = GameStateFromBoard(board, activePlayer, enPassantIndex, castlingAvailability);
             SetBoardState(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, gameState, activePlayer, fullMoveCounter);
@@ -298,7 +298,7 @@ namespace ChessLib.Data.Boards
         {
             ValidateEP(epIndex);
             // if the index is on board rank 3, get offset by subtracting 16, else subtract 32 for offset
-            var convertedIndex = epIndex < 23 ? epIndex - 15 : epIndex - 31;
+            var convertedIndex = epIndex <= 23 ? epIndex - 15 : epIndex - 31;
             return (uint)(convertedIndex << 8);
         }
 
@@ -334,7 +334,7 @@ namespace ChessLib.Data.Boards
             throw new ArgumentException("En Passant error. Must be on board rank 3 or 6.");
         }
 
-        public static uint GetFullMoveCounterValue(ushort fullMoveCounter)
+        internal static uint GetFullMoveCounterValue(uint fullMoveCounter)
         {
             if (fullMoveCounter > 0b0001_1111_1111)
             {
@@ -342,6 +342,14 @@ namespace ChessLib.Data.Boards
             }
 
             return (uint)fullMoveCounter << Positions[FullMoveCounter].Offset;
+        }
+
+        public static uint GetFullMoveCounter(this BoardState boardState)
+        {
+            var maskEntry = Positions[FullMoveCounter];
+            var maskedValue = boardState.BoardStateStorage & maskEntry.Mask;
+            var value = maskedValue >> maskEntry.Offset;
+            return value;
         }
 
         public struct BoardStateBitHelpers

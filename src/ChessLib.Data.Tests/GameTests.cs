@@ -59,7 +59,8 @@ namespace ChessLib.Data.Tests
         {
             var parser = new PGNParser();
             var g1Str = PGN.Puzzle;
-            var g1 = parser.GetGamesFromPGNAsync(g1Str).Result.First();
+            var games = parser.GetGamesFromPGNAsync(g1Str).Result;
+            var g1 = games.First();
             g1.GoToLastMove();
             var endNode = g1.CurrentMoveNode;
             g1.GoToInitialState();

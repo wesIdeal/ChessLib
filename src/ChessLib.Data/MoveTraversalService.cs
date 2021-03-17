@@ -311,7 +311,7 @@ namespace ChessLib.Data
         public LinkedListNode<MoveStorage> ApplySanMove(string moveText,
             MoveApplicationStrategy moveApplicationStrategy)
         {
-            //Debug.WriteLine($"Applying move {moveText}");
+            Debug.WriteLine($"Applying move {moveText}");
             if (moveApplicationStrategy == MoveApplicationStrategy.Variation)
             {
                 return ApplySanVariationMove(moveText);

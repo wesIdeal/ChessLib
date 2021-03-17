@@ -4,17 +4,114 @@ using System;
 using System.Text;
 using ChessLib.Data.Boards;
 using ChessLib.Data.Types.Enums;
+using EnumsNET;
 
 namespace ChessLib.Data.Tests.Helpers
 {
     [TestFixture]
     public partial class BoardHelpersTests
     {
+        [TestCase("8/1k6/8/8/4q3/8/6K1/8 w - - 0 1", "Single check from Queen, has evasions")]
+        [TestCase("8/8/8/8/8/7k/6q1/7K w - - 0 1", "Single check from Queen. Checkmate")]
+        [TestCase("8/8/8/8/6kr/8/8/7K w - - 0 1", "Single check from rook, has evasions")]
+        [TestCase("8/1k6/8/8/8/8/7b/6qK w - - 2 2", "Single check from Queen and Bishop. Checkmate.")]
+        [TestCase("8/8/8/8/7k/8/6q1/7K w - - 0 1", "Single check from Queen, can capture.")]
+        [TestCase("8/8/8/8/7k/8/6b1/7K w - - 0 1", "Single check from Bishop, can capture.")]
+        [TestCase("8/8/8/8/7k/8/6p1/7K w - - 0 1", "Single check from pawn, can capture.")]
+        [TestCase("8/8/8/8/7k/6n1/8/7K w - - 0 1", "Single check from Knight, can capture.")]
+        [TestCase("8/8/8/8/8/4k1q1/3n4/5K2 w - - 0 1", "Single check from knight, checkmate.")]
+        [TestCase("8/1k6/2b5/8/8/5q1r/5pp1/6K1 w - - 0 1", "Single check from pawn, checkmate.")]
+
+        public static void GetCheckType_ShouldReturnSingleForSingleChecks(string fen, string description = "")
+        {
+            var board = new Board(fen);
+            var result = BoardHelpers.GetCheckType(board.Occupancy, board.ActivePlayer, out _);
+            var message = GetCheckmateTypeDescription(fen, description, result);
+            Console.WriteLine(message);
+            Assert.AreEqual(BoardHelpers.CheckType.Single, result, message);
+        }
+
+        [TestCase("8/8/8/8/7k/7q/6p1/7K w - - 0 1", "Double check, Queen and Pawn. Can evade.")]
+        [TestCase("8/8/8/8/7k/4b2q/6p1/7K w - - 0 1", "Double check, Queen and Pawn. Checkmate.")]
+        [TestCase("7k/6P1/4B2Q/7K/8/8/8/8 b - - 0 1", "Double check, Queen and Pawn. Checkmate.")]
+        [TestCase("8/1k6/8/8/4q2n/8/6K1/8 w - - 0 1", "Double check, Queen and Knight. Can evade.")]
+        [TestCase("8/8/8/8/6kr/8/8/4r2K w - - 0 1", "Double check from 2 rooks, checkmate.")]
+        [TestCase("8/1k6/8/8/7n/8/5qr1/6K1 w - - 0 1", "Double check from Queen and Rook. Can evade.")]
+        [TestCase("8/1k6/8/8/8/8/5q1b/6K1 w - - 0 1", "Double check from Queen and Bishop. Can capture and evade.")]
+        [TestCase("8/8/8/8/7k/6n1/6p1/7K w - - 0 1", "Double check from Knight+Pawn, can capture and evade.")]
+        public static void GetCheckType_ShouldReturnDoubleForDoubleChecks(string fen, string description = "")
+        {
+            var board = new Board(fen);
+
+            var result = BoardHelpers.GetCheckType(board.Occupancy, board.ActivePlayer, out _);
+            var message = GetCheckmateTypeDescription(fen, description, result);
+            Console.WriteLine(message);
+            Assert.AreEqual(BoardHelpers.CheckType.Double, result, message);
+        }
+
+        [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "Initial position.")]
+        [TestCase("rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1", "Initial position -> 1. c4.")]
+        [TestCase("rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq - 0 2", "Initial position-> 1. c4 e5.")]
+        public static void GetCheckType_ShouldReturnNoneForNoChecks(string fen, string description = "No checks expected.")
+        {
+            var board = new Board(fen);
+            var result = BoardHelpers.GetCheckType(board.Occupancy, board.ActivePlayer, out _);
+            var message = GetCheckmateTypeDescription(fen, description, result);
+            Console.WriteLine(message);
+            Assert.AreEqual(BoardHelpers.CheckType.None, result, message);
+        }
+
+        private static string GetCheckmateTypeDescription(string fen, string description, BoardHelpers.CheckType result)
+        {
+            var message =
+                $"{description}{Environment.NewLine}From position: {fen}{Environment.NewLine}Result was: {result.AsString()}";
+            return message;
+        }
+
+        [TestCase("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62", false)]
+        [TestCase("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57", false)]
+        [TestCase("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57", false)]
+        [TestCase("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", false)]
+        [TestCase("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1", false)]
+        [TestCase("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1", false)]
+        [TestCase("8/8/8/8/8/8/5QkQ/4K3 b - - 0 1", true)]
+        [TestCase("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1", false)]
+        [TestCase("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1", true)]
+        [TestCase("3qk3/5Q1p/8/p1p1N3/Pp2bP1P/1P1r4/8/4RnK1 b - - 6 38", true)]
+        [TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55", true)]
+        [TestCase("4R3/2p3pk/pp3p2/5n1p/2P2P1P/P5r1/1P4q1/3QR2K w - - 6 41", true)]
+        [TestCase("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23", false)]
+        [TestCase("2bq1rk1/3p1Bpp/p1p3N1/1rb2Pp1/1pQ5/P5N1/1PP3PP/R3R2K b - - 0 23", false)]
+        public static void IsCheckmate(string fen, bool expected)
+        {
+            var pieces = FENHelpers.BoardFromFen(fen, out Color activePlayer, out _, out _, out _, out _, false);
+            var actualResult = BoardHelpers.IsCheckmate(pieces, activePlayer);
+            Assert.AreEqual(expected, actualResult);
+        }
+
+        [TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55")]
+        public static void KingShouldNotHaveEvasions(string fen)
+        {
+            var pieces = FENHelpers.BoardFromFen(fen, out Color activePlayer, out _, out _, out _, out _, false);
+            var actualResult = BoardHelpers.DoesKingHaveEvasions(pieces, activePlayer);
+            Assert.IsFalse(actualResult);
+        }
+
+        [TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55")]
+        public static void KingShouldNotHaveLegalMoves(string fen)
+        {
+            var pieces = FENHelpers.BoardFromFen(fen, out Color activePlayer, out _, out _, out _, out _, false);
+            var actualResult = BoardHelpers.GetValidKingMoves(pieces, activePlayer);
+            Assert.IsEmpty(actualResult);
+        }
+
+
+
         [TestCase("rnbqkbnr/p1pppppp/8/8/Pp6/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1", true)]
-        [TestCase("rnbqkbnr/p1pppppp/8/1p6/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1",false)]
-        [TestCase("rnbqkbnr/pppppp1p/8/8/6pP/8/PPPPPPP1/RNBQKBNR b KQkq h3 0 1",true)]
+        [TestCase("rnbqkbnr/p1pppppp/8/1p6/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1", false)]
+        [TestCase("rnbqkbnr/pppppp1p/8/8/6pP/8/PPPPPPP1/RNBQKBNR b KQkq h3 0 1", true)]
         [TestCase("rnbqkbnr/pppppp1p/6p1/8/7P/8/PPPPPPP1/RNBQKBNR b KQkq h3 0 1", false)]
-        [TestCase("rnbqkbnr/1ppp1ppp/8/pP2p3/8/8/P1PPPPPP/RNBQKBNR w KQkq a6 0 3",true)]
+        [TestCase("rnbqkbnr/1ppp1ppp/8/pP2p3/8/8/P1PPPPPP/RNBQKBNR w KQkq a6 0 3", true)]
         [TestCase("rnbqkbnr/1ppp1ppp/8/p3p3/1PP5/8/P2PPPPP/RNBQKBNR w KQkq - 0 3", false)]
         [TestCase("rnbqkbnr/ppp2ppp/8/2Ppp3/8/8/PP1PPPPP/RNBQKBNR w KQkq d6 0 3", true)]
         [TestCase("rnbqkbnr/ppp2ppp/8/3pp3/2P1P3/8/PP1P1PPP/RNBQKBNR w KQkq - 0 3", false)]

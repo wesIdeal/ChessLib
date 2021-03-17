@@ -20,6 +20,13 @@ namespace ChessLib.Data.Helpers
 {
     public static class BoardHelpers
     {
+        public enum CheckType
+        {
+            None,
+            Single,
+            Double
+        }
+
         public static readonly ulong[][] InitialBoard;
 
         /// <summary>
@@ -381,6 +388,7 @@ namespace ChessLib.Data.Helpers
             return rv;
         }
 
+
         /// <summary>
         ///     Applies a move to a pieceLayout
         /// </summary>
@@ -428,12 +436,6 @@ namespace ChessLib.Data.Helpers
             return (board.Occupancy[(int) board.ActivePlayer][PAWN] & move.SourceValue) != 0;
         }
 
-        private static bool IsMoveCapture(ulong opponentOccupancy, MoveExt move)
-        {
-            return (move.DestinationValue & opponentOccupancy) != 0;
-        }
-
-       
 
         /// <summary>
         ///     Gets the piece setup post-move
@@ -604,12 +606,6 @@ namespace ChessLib.Data.Helpers
             return board.Occupancy[(int) board.ActivePlayer][KING].GetSetBits()[0];
         }
 
-        public static ushort OpponentKingIndex(this IBoard board)
-        {
-            return board.Occupancy[(int) board.OpponentColor()][KING].GetSetBits()[0];
-        }
-
-
         public static bool IsActivePlayerInCheck(this IBoard board)
         {
             return IsColorInCheck(board.Occupancy, board.ActivePlayer);
@@ -620,15 +616,40 @@ namespace ChessLib.Data.Helpers
             return IsColorInCheck(board.Occupancy, board.OpponentColor());
         }
 
+        private static ushort GetKingIndex(this ulong[][] board, Color kingColor)
+        {
+            var indices = board.Occupancy(kingColor, Piece.King).GetSetBits();
+            Debug.Assert(indices.Length == 1);
+            return indices[0];
+        }
+
+        public static CheckType GetCheckType(ulong[][] board, Color activeColor, out ushort[] attackingPieces)
+        {
+            var checkedColorKingIdx = board.GetKingIndex(activeColor);
+            var attackingColor = activeColor.Toggle();
+            attackingPieces = GetPiecesAttackingSquare(board, checkedColorKingIdx, attackingColor);
+            if (!attackingPieces.Any())
+            {
+                return CheckType.None;
+            }
+
+            if (attackingPieces.Length > 1)
+            {
+                return CheckType.Double;
+            }
+
+            return CheckType.Single;
+        }
+
         public static bool IsColorInCheck(ulong[][] board, Color checkedColor)
         {
             Debug.Assert(board.Length == 2);
-            var nCheckedColor = (int)checkedColor;
+            var nCheckedColor = (int) checkedColor;
             Debug.Assert(board[nCheckedColor].Length == 6);
             var kingOccupancy = board[nCheckedColor][KING];
             var setBits = kingOccupancy.GetSetBits();
             Debug.Assert(setBits.Length == 1);
-            
+
             var checkedColorKingIdx = setBits[0];
             return checkedColorKingIdx.IsSquareAttackedByColor(checkedColor.Toggle(), board, checkedColorKingIdx);
         }
@@ -668,8 +689,8 @@ namespace ChessLib.Data.Helpers
             {
                 return false;
             }
-            
-            foreach (var pieceSet in occupancy[(int)activeColor].Where(x => x != 0))
+
+            foreach (var pieceSet in occupancy[(int) activeColor].Where(x => x != 0))
             {
                 foreach (var pieceIdx in pieceSet.GetSetBits())
                 {
@@ -694,18 +715,70 @@ namespace ChessLib.Data.Helpers
         /// <summary>
         ///     Determines if active player has been mated
         /// </summary>
-        /// <param name="board"></param>
         /// <returns></returns>
         public static bool IsCheckmate(ulong[][] occupancy, Color activeColor)
         {
-            var isCheck = IsColorInCheck(occupancy, activeColor);
-            if (!isCheck)
+            var checkType = GetCheckType(occupancy, activeColor, out var attackingPieces);
+            var kingIndex = GetKingIndex(occupancy, activeColor);
+            if (checkType == CheckType.None)
             {
                 return false;
             }
 
-            return DoesKingHaveEvasions(occupancy, activeColor);
+            var kingMoves = GetValidKingMoves(occupancy, activeColor);
+            if (kingMoves.Any())
+            {
+                return false;
+            }
+
+            if (checkType == CheckType.Single)
+            {
+                //Can checking piece be captured by piece
+                var attackingPiece = attackingPieces.Single();
+                var piecesAttackingCheckingPiece = GetPiecesAttackingSquare(occupancy, attackingPiece, activeColor);
+                //if any piece other than the King attacks the checking piece (King attack was already checked above), then it is not mate.
+                if (piecesAttackingCheckingPiece.Any(x => x != kingIndex))
+                {
+                    return false;
+                }
+
+                //Can check be blocked
+                var squaresBetweenKingAndAttackingPiece = InBetween(kingIndex, attackingPiece);
+                foreach (var squareBetween in squaresBetweenKingAndAttackingPiece.GetSetBits())
+                {
+                    var availableBlockers = GetPiecesAttackingSquare(occupancy, squareBetween, activeColor);
+                    //Can any piece block the check (besides the King).
+                    if (availableBlockers.Any(blocker => blocker != kingIndex))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
+
+        public static IEnumerable<ushort> GetValidKingMoves(ulong[][] occupancy, Color activeColor)
+        {
+            var rv = new List<ushort>();
+            var kingIndex = GetKingIndex(occupancy, activeColor);
+            var activeOccupancy = occupancy.Occupancy(activeColor);
+            var opponentOccupancy = occupancy.Occupancy(activeColor.Toggle());
+            Bitboard.GetPseudoLegalMoves(Piece.King, kingIndex, activeOccupancy,
+                opponentOccupancy, activeColor, null, CastlingAvailability.NoCastlingAvailable, out var moves);
+            foreach (var move in moves)
+            {
+                var resultantBoard = GetBoardPostMove(occupancy, activeColor, move);
+                var checkType = GetCheckType(resultantBoard, activeColor, out _);
+                if (checkType == CheckType.None)
+                {
+                    rv.Add(move.DestinationIndex);
+                }
+            }
+
+            return rv;
+        }
+
 
         /// <summary>
         ///     Can the specified color's king evade an attack through a block or a capture
@@ -731,15 +804,14 @@ namespace ChessLib.Data.Helpers
         }
 
 
-        private static ushort[] GetPiecesAttackingSquare(IBoard board, ushort idx, Color attackerColor,
+        private static ushort[] GetPiecesAttackingSquare(ulong[][] pieces, ushort idx, Color attackerColor,
             ushort? blockerToRemove = null)
         {
-            var pieces = board.Occupancy;
-
             pieces = blockerToRemove.HasValue ? RemovePotentialBlocker(pieces, blockerToRemove.Value) : pieces;
-            var piecesAttacking = PiecesAttackingSquare(pieces, idx) &
-                                  board.Occupancy.Occupancy(attackerColor);
-            var attackerIndexes = piecesAttacking.GetSetBits();
+            var piecesAttacking = PiecesAttackingSquare(pieces, idx);
+            var attackingColorOccupancy = pieces.Occupancy(attackerColor);
+            var attackingPieces = piecesAttacking & attackingColorOccupancy;
+            var attackerIndexes = attackingPieces.GetSetBits();
             return attackerIndexes;
         }
 
@@ -759,49 +831,6 @@ namespace ChessLib.Data.Helpers
             }
 
             return pieceArrayRv;
-        }
-
-        private static bool CanActiveKingCaptureOnSquare(IBoard board, ushort square)
-        {
-            var kingAttacks = Bitboard.GetAttackedSquares(Piece.King, board.ActiveKingIndex(),
-                Occupancy(board.Occupancy), board.ActivePlayer);
-            var sqValue = square.ToBoardValue();
-            if ((kingAttacks & sqValue) == 0)
-            {
-                return false;
-            }
-
-            var checkerSquareAttackedBySameColor =
-                GetPiecesAttackingSquare(board, square, board.OpponentColor(), board.ActiveKingIndex()).Any();
-            return !checkerSquareAttackedBySameColor;
-        }
-
-
-        private static bool CanCheckingPieceBeCaptured(IBoard board)
-        {
-            var checkingPieceArray = GetPiecesAttackingSquare(board, board.ActiveKingIndex(), board.OpponentColor());
-            var isDoubleCheck = checkingPieceArray.Count() > 1;
-            var kingCanCapturePiece = false;
-            foreach (var checkingPiece in checkingPieceArray)
-            {
-                kingCanCapturePiece |= CanActiveKingCaptureOnSquare(board, checkingPiece);
-            }
-
-            if (kingCanCapturePiece)
-            {
-                return true;
-            }
-
-            if (isDoubleCheck)
-            {
-                return false;
-            }
-
-            var checkerIndex = checkingPieceArray.First();
-            var activePiecesAttackingChecker =
-                GetPiecesAttackingSquare(board, checkerIndex, board.ActivePlayer).ToList();
-            activePiecesAttackingChecker.RemoveAll(x => x == board.ActiveKingIndex());
-            return activePiecesAttackingChecker.Any();
         }
 
 
@@ -831,8 +860,12 @@ namespace ChessLib.Data.Helpers
             var rook = piecesOnBoard[BLACK][ROOK] | piecesOnBoard[WHITE][ROOK];
             var queen = piecesOnBoard[BLACK][QUEEN] | piecesOnBoard[WHITE][QUEEN];
             var king = piecesOnBoard[BLACK][KING] | piecesOnBoard[WHITE][KING];
-            return (Bitboard.GetAttackedSquares(Piece.Pawn, squareIndex, total, Color.Black) & pawnWhite)
-                   | (Bitboard.GetAttackedSquares(Piece.Pawn, squareIndex, total, Color.White) & pawnBlack)
+            var blackPawnPseudoAttacks = Bitboard.GetAttackedSquares(Piece.Pawn, squareIndex, total, Color.White);
+            var blackPawnAttacks = blackPawnPseudoAttacks & pawnBlack;
+            var whitePawnPseudoAttacks = Bitboard.GetAttackedSquares(Piece.Pawn, squareIndex, total, Color.Black);
+            var whitePawnAttacks = whitePawnPseudoAttacks & pawnWhite;
+            return blackPawnAttacks
+                   | whitePawnAttacks
                    | (Bitboard.GetAttackedSquares(Piece.Knight, squareIndex, total, Color.White) & knight)
                    | (Bitboard.GetAttackedSquares(Piece.Bishop, squareIndex, total, Color.White) & bishop)
                    | (Bitboard.GetAttackedSquares(Piece.Rook, squareIndex, total, Color.White) & rook)
@@ -929,7 +962,7 @@ namespace ChessLib.Data.Helpers
         ///     Gets the index of a boardIndex
         /// </summary>
         /// <param name="square">
-        ///     SAN boardIndex representation (A1, H5, E4, etc). Must be either '-' (PremoveFEN En Passant) or 2
+        ///     SAN boardIndex representation (A1, H5, E4, etc). Must be either '-' (Premove FEN En Passant) or 2
         ///     characters
         /// </param>
         /// <returns>Square index</returns>
@@ -950,17 +983,6 @@ namespace ChessLib.Data.Helpers
             return (ushort) (rankMultiplier * 8 + file - 'a');
         }
 
-        /// <summary>
-        ///     Converts rank and file to a pieceLayout index
-        /// </summary>
-        /// <param name="rank"></param>
-        /// <param name="file"></param>
-        /// <returns>Corresponding pieceLayout index specified by rank and file</returns>
-        public static ushort RankAndFileToIndex(ushort rank, ushort file)
-        {
-            Debug.Assert(rank <= 7 && file <= 7);
-            return (ushort) (rank * 8 + file);
-        }
 
         /// <summary>
         ///     Gets a File basked on boardIndex index

@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic;
+using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.Types.Enums;
 using NUnit.Framework;
 
@@ -91,8 +94,8 @@ namespace ChessLib.Data.Tests
                 {
                     var move = MoveHelpers.GenerateMove(4, 5);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.BlackKingside;
-                   var castlingAvailability  =BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.King);
-                    Assert.AreEqual(expected, castlingAvailability ,
+                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.King);
+                    Assert.AreEqual(expected, castlingAvailability,
                         "Expected castling availability to equal kq after White King moves.");
                 }
 
@@ -102,8 +105,8 @@ namespace ChessLib.Data.Tests
                     var move = MoveHelpers.GenerateMove(7, 6);
                     var expected = CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside |
                                    CastlingAvailability.WhiteQueenside;
-                   var castlingAvailability  =BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
-                    Assert.AreEqual(expected, castlingAvailability ,
+                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
+                    Assert.AreEqual(expected, castlingAvailability,
                         "Expected castling availability to equal kqQ after h1 Rook moves.");
                 }
 
@@ -113,8 +116,8 @@ namespace ChessLib.Data.Tests
                     var move = MoveHelpers.GenerateMove(0, 1);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.BlackKingside |
                                    CastlingAvailability.WhiteKingside;
-                   var castlingAvailability  =BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
-                    Assert.AreEqual(expected, castlingAvailability ,
+                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
+                    Assert.AreEqual(expected, castlingAvailability,
                         "Expected castling availability to equal kqK after a1 Rook moves.");
                 }
             }
@@ -145,7 +148,7 @@ namespace ChessLib.Data.Tests
             MoveType type = MoveType.Normal)
         {
             var board = new MoveTraversalService(fen);
-            var move = MoveHelpers.GenerateMove((ushort) f, (ushort) t, type, p);
+            var move = MoveHelpers.GenerateMove((ushort)f, (ushort)t, type, p);
             var result = board.ApplyMove(move);
             Assert.AreEqual(true, board.Board.IsStalemate());
         }
@@ -195,7 +198,7 @@ namespace ChessLib.Data.Tests
         public static void GetEvasions_ReturnsNoMovesWhenMate(string fen)
         {
             var bi = new Board(fen);
-            Assert.AreEqual(false, BoardHelpers.DoesKingHaveEvasions(bi.Occupancy,bi.ActivePlayer));
+            Assert.AreEqual(false, BoardHelpers.DoesKingHaveEvasions(bi.Occupancy, bi.ActivePlayer));
         }
 
 
@@ -271,12 +274,35 @@ namespace ChessLib.Data.Tests
             for (ushort i = 8; i < 16; i++)
             {
                 var bi = new MoveTraversalService(InitialFEN);
-                var move = MoveHelpers.GenerateMove(i, (ushort) (i + 16));
+                var move = MoveHelpers.GenerateMove(i, (ushort)(i + 16));
                 bi.ApplyMove(move);
                 Assert.AreEqual(i + 8, bi.Board.EnPassantSquare);
             }
         }
 
+        public static IEnumerable<EnPassantTestCase> GenerateEnPassantTestCases()
+        {
+            for (ushort sq = 8; sq < 16; sq++)
+            {
+                yield return new EnPassantTestCase() { Move = MoveHelpers.GenerateMove(sq, (ushort)(sq + 16)) };
+            }
+
+            for (ushort sq = 48; sq < 56; sq++)
+            {
+                yield return new EnPassantTestCase()
+                {
+                    Board = new Board("rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1"),
+                    Move = MoveHelpers.GenerateMove(sq, (ushort)(sq - 16))
+                };
+            }
+        }
+
+        [TestCaseSource(nameof(GenerateEnPassantTestCases))]
+        public static void TestEnPassantIsSet(EnPassantTestCase testCase)
+        {
+            var postMoveBoard = testCase.Board.ApplyMoveToBoard(testCase.Move);
+            Assert.AreEqual(testCase.ExpectedEnPassantSquare, postMoveBoard.EnPassantSquare);
+        }
 
         [Test]
         public static void Should_Set_Board_After_1e4()
@@ -295,23 +321,23 @@ namespace ChessLib.Data.Tests
             var blackKing = 0x1000000000000000;
             var rv = new Board(After1E4);
 
-            Assert.AreEqual(whitePawns, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Pawn]);
-            Assert.AreEqual(blackPawns, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Pawn]);
+            Assert.AreEqual(whitePawns, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Pawn]);
+            Assert.AreEqual(blackPawns, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Pawn]);
 
-            Assert.AreEqual(whiteRooks, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Rook]);
-            Assert.AreEqual(blackRooks, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Rook]);
+            Assert.AreEqual(whiteRooks, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Rook]);
+            Assert.AreEqual(blackRooks, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Rook]);
 
-            Assert.AreEqual(whiteKnights, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Knight]);
-            Assert.AreEqual(blackKnights, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Knight]);
+            Assert.AreEqual(whiteKnights, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Knight]);
+            Assert.AreEqual(blackKnights, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Knight]);
 
-            Assert.AreEqual(whiteBishops, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Bishop]);
-            Assert.AreEqual(blackBishops, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Bishop]);
+            Assert.AreEqual(whiteBishops, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Bishop]);
+            Assert.AreEqual(blackBishops, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Bishop]);
 
-            Assert.AreEqual(whiteQueen, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Queen]);
-            Assert.AreEqual(blackQueen, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Queen]);
+            Assert.AreEqual(whiteQueen, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Queen]);
+            Assert.AreEqual(blackQueen, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Queen]);
 
-            Assert.AreEqual(whiteKing, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.King]);
-            Assert.AreEqual(blackKing, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.King]);
+            Assert.AreEqual(whiteKing, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.King]);
+            Assert.AreEqual(blackKing, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.King]);
         }
 
         [Test]
@@ -331,23 +357,23 @@ namespace ChessLib.Data.Tests
             var blackKing = 0x1000000000000000;
             var rv = new Board(After1E4C5);
 
-            Assert.AreEqual(whitePawns, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Pawn]);
-            Assert.AreEqual(blackPawns, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Pawn]);
+            Assert.AreEqual(whitePawns, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Pawn]);
+            Assert.AreEqual(blackPawns, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Pawn]);
 
-            Assert.AreEqual(whiteRooks, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Rook]);
-            Assert.AreEqual(blackRooks, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Rook]);
+            Assert.AreEqual(whiteRooks, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Rook]);
+            Assert.AreEqual(blackRooks, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Rook]);
 
-            Assert.AreEqual(whiteKnights, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Knight]);
-            Assert.AreEqual(blackKnights, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Knight]);
+            Assert.AreEqual(whiteKnights, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Knight]);
+            Assert.AreEqual(blackKnights, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Knight]);
 
-            Assert.AreEqual(whiteBishops, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Bishop]);
-            Assert.AreEqual(blackBishops, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Bishop]);
+            Assert.AreEqual(whiteBishops, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Bishop]);
+            Assert.AreEqual(blackBishops, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Bishop]);
 
-            Assert.AreEqual(whiteQueen, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Queen]);
-            Assert.AreEqual(blackQueen, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Queen]);
+            Assert.AreEqual(whiteQueen, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Queen]);
+            Assert.AreEqual(blackQueen, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Queen]);
 
-            Assert.AreEqual(whiteKing, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.King]);
-            Assert.AreEqual(blackKing, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.King]);
+            Assert.AreEqual(whiteKing, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.King]);
+            Assert.AreEqual(blackKing, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.King]);
         }
 
         [Test]
@@ -366,23 +392,23 @@ namespace ChessLib.Data.Tests
             var whiteKing = 0x10;
             var blackKing = 0x1000000000000000;
             var rv = new Board(InitialBoard);
-            Assert.AreEqual(whitePawns, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Pawn]);
-            Assert.AreEqual(blackPawns, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Pawn]);
+            Assert.AreEqual(whitePawns, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Pawn]);
+            Assert.AreEqual(blackPawns, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Pawn]);
 
-            Assert.AreEqual(whiteRooks, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Rook]);
-            Assert.AreEqual(blackRooks, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Rook]);
+            Assert.AreEqual(whiteRooks, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Rook]);
+            Assert.AreEqual(blackRooks, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Rook]);
 
-            Assert.AreEqual(whiteKnights, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Knight]);
-            Assert.AreEqual(blackKnights, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Knight]);
+            Assert.AreEqual(whiteKnights, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Knight]);
+            Assert.AreEqual(blackKnights, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Knight]);
 
-            Assert.AreEqual(whiteBishops, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Bishop]);
-            Assert.AreEqual(blackBishops, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Bishop]);
+            Assert.AreEqual(whiteBishops, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Bishop]);
+            Assert.AreEqual(blackBishops, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Bishop]);
 
-            Assert.AreEqual(whiteQueen, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.Queen]);
-            Assert.AreEqual(blackQueen, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.Queen]);
+            Assert.AreEqual(whiteQueen, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.Queen]);
+            Assert.AreEqual(blackQueen, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.Queen]);
 
-            Assert.AreEqual(whiteKing, rv.Occupancy[BoardHelpers.WHITE][(int) Piece.King]);
-            Assert.AreEqual(blackKing, rv.Occupancy[BoardHelpers.BLACK][(int) Piece.King]);
+            Assert.AreEqual(whiteKing, rv.Occupancy[BoardHelpers.WHITE][(int)Piece.King]);
+            Assert.AreEqual(blackKing, rv.Occupancy[BoardHelpers.BLACK][(int)Piece.King]);
         }
 
 
@@ -398,6 +424,35 @@ namespace ChessLib.Data.Tests
             bi = new Board(closedRuyFEN);
             actual = bi.ToFEN();
             Assert.AreEqual(closedRuyFEN, actual);
+        }
+    }
+
+    public class EnPassantTestCase
+    {
+        public Board Board = new Board();
+        public MoveExt Move { get; set; }
+
+        public ushort? ExpectedEnPassantSquare
+        {
+            get
+            {
+                if (Board.ActivePlayer == Color.Black && Move.SourceIndex >= 48 && Move.SourceIndex <= 55)
+                {
+                    if (Move.DestinationIndex == Move.SourceIndex - 16)
+                    {
+                        return (ushort?)(Move.SourceIndex - 8);
+                    }
+                }
+                if (Board.ActivePlayer == Color.White && Move.SourceIndex >= 8 && Move.SourceIndex <= 15)
+                {
+                    if (Move.DestinationIndex == Move.SourceIndex + 16)
+                    {
+                        return (ushort?)(Move.SourceIndex + 8);
+                    }
+                }
+
+                return null;
+            }
         }
     }
 }

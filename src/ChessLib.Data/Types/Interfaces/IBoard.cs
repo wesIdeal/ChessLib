@@ -9,7 +9,7 @@ namespace ChessLib.Data.Types.Interfaces
         Color ActivePlayer { get; }
         CastlingAvailability CastlingAvailability { get; }
         ushort? EnPassantSquare { get; }
-        ushort FullMoveCounter { get; }
+        uint FullMoveCounter { get; }
         ushort HalfMoveClock { get; }
         ulong[][] Occupancy { get; }
     }

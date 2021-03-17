@@ -39,10 +39,7 @@ namespace ChessLib.Parse.PGN.Base
             InitNagInfo();
         }
 
-        public void AddTagPair(string key, string value)
-        {
-            Game.TagSection.Add(key, value);
-        }
+       
 
         public void VisitMoveSection(string moveSection, PGNParserOptions options)
         {
@@ -100,8 +97,9 @@ namespace ChessLib.Parse.PGN.Base
         ///     associated with the tag name. (There is a standard set of tag names and semantics described below.)
         ///     The same tag name should not appear more than once in a tag pair section.
         /// </remarks>
-        public bool VisitTagPair(in string tagSection)
+        public KeyValuePair<string,string>? VisitTagPair(in string tagSection)
         {
+            var tag = new KeyValuePair<string, string>();
             const string tagKey = "tagKey", tagValue = "tagValue";
             const string tagPairRegEx =
                 "\\[[\\s]*(?<" + tagKey + ">[A-Za-z_0-9]+)[\\s]*\\\"(?<" + tagValue + ">[\\s\\S]*)\\\"[\\s]*[\\s]*\\]";
@@ -112,29 +110,35 @@ namespace ChessLib.Parse.PGN.Base
 
             if (matches.Groups[tagKey].Success && matches.Groups[tagValue].Success)
             {
-                AddTagPair(key.Value, value.Value);
+                return new KeyValuePair<string, string>(key.Value, value.Value);
             }
             else
             {
                 Game.AddParsingLogItem(ParsingErrorLevel.Warning,
                         $"Tag Section: Could not parse tag pair for the following line{Environment.NewLine}{tagSection}"
                 );
+                return null;
             }
-
-            return true;
+            
         }
 
-        public bool VisitTagPairSection(string tagPairs)
+        public Tags VisitTagPairSection(string tagPairs)
         {
+            var tags = new Tags();
             const string tagPairSplitterRegEx = @"\[.*\]";
             var regex = new Regex(tagPairSplitterRegEx);
             var matches = regex.Matches(tagPairs);
             for (var i = 0; i < matches.Count; i++)
             {
-                VisitTagPair(matches[i].Value);
+
+                var tagPair =  VisitTagPair(matches[i].Value);
+                if (tagPair.HasValue)
+                {
+                    tags.Add(tagPair.Value.Key, tagPair.Value.Value);
+                }
             }
 
-            return true;
+            return tags;
         }
 
         public bool VisitVariationEnd(PGNParserOptions options)

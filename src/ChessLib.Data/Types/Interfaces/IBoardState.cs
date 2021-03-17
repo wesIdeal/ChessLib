@@ -35,7 +35,7 @@ namespace ChessLib.Data.Types.Interfaces
         /// <summary>
         ///     The number of the full move. Starts at 1. After each move from black, it is incremented.
         /// </summary>
-        ushort FullMoveCounter { get; }
+        uint FullMoveCounter { get; }
 
         Color ActivePlayer { get; }
     }

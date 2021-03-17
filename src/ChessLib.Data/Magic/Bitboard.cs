@@ -421,6 +421,7 @@ namespace ChessLib.Data.Magic
                 ((bishopAttackSquares & (piecesOnBoard[attackerColor][PieceHelpers.Bishop] |
                                          piecesOnBoard[attackerColor][PieceHelpers.Queen])) != 0);
         }
+
         /// <summary>
         /// Determines if piece on <paramref name="squareIndex"/> is attacked by <paramref name="attackingColor"/>
         /// </summary>
