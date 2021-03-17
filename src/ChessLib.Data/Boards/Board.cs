@@ -42,6 +42,7 @@ namespace ChessLib.Data.Boards
         public Board(string fen) : base(fen)
         {
             Occupancy = FENHelpers.BoardFromFen(fen);
+            
         }
 
         public Board(ulong[][] occupancy, ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,

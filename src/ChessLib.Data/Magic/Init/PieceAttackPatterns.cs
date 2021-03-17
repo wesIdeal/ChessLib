@@ -57,7 +57,7 @@ namespace ChessLib.Data.Magic.Init
             InitializePawnAttacksAndMoves,
             InitializeKingAttacks
             );
-            for(int i = 0; i < 64; i++)
+            for (int i = 0; i < 64; i++)
             {
                 Debug.WriteLine($"[TestCase({i}," +
                     $"new ulong[]{{ {KingMoveMask[i]}ul, {QueenMoveMask[i]}ul, {RookMoveMask[i]}ul, {BishopMoveMask[i]}ul, 0ul/*KnightMoveMask is same as attack mask*/, {PawnMoveMask[0][i]}ul, {PawnMoveMask[1][i]}ul}}, \"Piece on {i.IndexToSquareDisplay()}\")]");
@@ -89,7 +89,7 @@ namespace ChessLib.Data.Magic.Init
             {
                 var square = 1ul << i;
                 PawnAttackMask[Color.White.ToInt()][i] = square.ShiftNE() | square.ShiftNW();
-                PawnMoveMask[Color.White.ToInt()][i] =
+                PawnMoveMask[Color.White.ToInt()][i] = i < 8 || i > 55 ? 0 :
                     square.ShiftN() | square.Shift2N() & BoardHelpers.RankMasks[Rank.R4.ToInt()];
             }
 
@@ -97,7 +97,7 @@ namespace ChessLib.Data.Magic.Init
             {
                 var square = (ulong)1 << i;
                 PawnAttackMask[Color.Black.ToInt()][i] = square.ShiftSE() | square.ShiftSW();
-                PawnMoveMask[Color.Black.ToInt()][i] =
+                PawnMoveMask[Color.Black.ToInt()][i] = i > 55 || i < 8 ? 0 :
                     square.ShiftS() | square.Shift2S() & BoardHelpers.RankMasks[Rank.R5.ToInt()];
             }
         }
@@ -150,7 +150,7 @@ namespace ChessLib.Data.Magic.Init
                         true);
                 RookAttackMask[i] = rookAttackForSquare;
                 RookMoveMask[i] = rookMovesForSquare;
-               
+
             }
         }
     }

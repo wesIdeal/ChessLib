@@ -33,7 +33,7 @@ namespace ChessLib.Data.Boards
         protected BoardState(string fen)
         {
             var board = fen.BoardFromFen(out var color, out var castingAvailability,
-                out var enPassantSquare, out var halfmove, out var fullmove);
+                out var enPassantSquare, out var halfmove, out var fullmove, false);
             SetBoardState(board, halfmove, enPassantSquare, null, castingAvailability, color, fullmove);
         }
 

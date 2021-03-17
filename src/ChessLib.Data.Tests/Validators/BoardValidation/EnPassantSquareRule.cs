@@ -1,10 +1,14 @@
-﻿using ChessLib.Data.Boards;
+﻿#region
+
+using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
+using Moq;
 using NUnit.Framework;
 
-namespace ChessLib.Data.Validators.BoardValidation.Tests
+#endregion
+
+namespace ChessLib.Data.Tests.Validators.BoardValidation
 {
     [TestFixture]
     public sealed class EnPassantSquareRule
@@ -22,21 +26,23 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
         [TestCase("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e3 0 1", BoardExceptionType.BadEnPassant)]
         public static void TestEnPassant(string fen, BoardExceptionType expectedException)
         {
-            BoardExceptionType actualExceptionType = BoardExceptionType.None;
-            try
-            {
-
-                var board = new Board(fen);
-                BoardValidator validator = new BoardValidator(board);
-
-
-            }
-            catch (BoardException exc)
-            {
-                actualExceptionType = exc.ExceptionType;
-            }
+            var enPassantValidator =
+                new Data.Validators.BoardValidation.Rules.EnPassantSquareRule();
+            var board = fen.BoardFromFen(out var activePlayer, out _, out var enPassantIndex, out _, out _, false);
+            var actualExceptionType = enPassantValidator.ValidateEnPassantSquare(board, enPassantIndex, activePlayer);
             Assert.AreEqual(expectedException, actualExceptionType);
         }
 
+        [Test]
+        public static void ValidateShouldCallValidateEnPassantSquare()
+        {
+            var board = new Board();
+            var epMock = new Mock<Data.Validators.BoardValidation.Rules.EnPassantSquareRule>();
+            epMock.Setup(
+                    x => x.ValidateEnPassantSquare(It.IsAny<ulong[][]>(), It.IsAny<ushort?>(), It.IsAny<Color>()))
+                .Returns(BoardExceptionType.None).Verifiable();
+            epMock.Object.Validate(board);
+            epMock.Verify(x => x.ValidateEnPassantSquare(board.Occupancy, null, Color.White));
+        }
     }
 }
