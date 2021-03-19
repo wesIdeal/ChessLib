@@ -108,7 +108,7 @@ namespace ChessLib.Data
                 var previousMove = currentNode.Previous?.Value;
                 var move = currentNode.Value;
                 if (move.IsNullMove) continue;
-                var plySequence = GetFormattedPly(bi, previousMove, move);
+                var plySequence = GetFormattedPly(game.Board, previousMove, move);
                 sb.Append(plySequence);
                 if (move.Variations.Any())
                 {

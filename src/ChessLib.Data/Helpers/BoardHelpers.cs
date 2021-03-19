@@ -461,7 +461,8 @@ namespace ChessLib.Data.Helpers
             if (piece.Value.Color != board.ActivePlayer)
             {
                 throw new MoveException(
-                    $"Piece found was {piece.Value.Color.ToString()} when it is {board.ActivePlayer}'s move.",
+                    $"Piece found at square index {move.SourceIndex} was {piece.Value.Color} when it is {board.ActivePlayer}'s move." +
+                    $"{Environment.NewLine}FEN: {board.ToFEN()}",
                     boardInfo);
             }
 

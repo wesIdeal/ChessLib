@@ -1,12 +1,23 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using ChessLib.Data.MoveRepresentation.NAG;
 
+#endregion
+
 namespace ChessLib.Data
 {
-    public enum GameResult { None, WhiteWins, BlackWins, Draw }
+    public enum GameResult
+    {
+        None,
+        WhiteWins,
+        BlackWins,
+        Draw
+    }
+
     public class Game<TMove> : MoveTraversalService, ICloneable
         where TMove : MoveExt, IEquatable<TMove>
     {
@@ -15,25 +26,16 @@ namespace ChessLib.Data
 
         public Game() : base(FENHelpers.FENInitial)
         {
+            ParsingLog = new List<PgnParsingLog>();
             TagSection = new Tags();
             TagSection.SetFen(FENHelpers.FENInitial);
+
         }
 
-        public List<PgnParsingLog> ParsingLog { get; protected set; }
-
-        public void AddParsingLogItem(ParsingErrorLevel errorLevel, string message, string parseInput = "")
+        public Game(Tags tags) : base(tags?.FENStart)
         {
-            ParsingLog.Add(new PgnParsingLog(errorLevel, message, parseInput));
-        }
-
-        public void AddParsingLogItem(PgnParsingLog logItem)
-        {
-            ParsingLog.Add(logItem);
-        }
-
-        public Game(Tags tags) : base(tags.FENStart)
-        {
-            TagSection = tags;
+            ParsingLog = new List<PgnParsingLog>();
+            TagSection = tags ?? new Tags();
         }
 
         public Game(string fen) : base(fen)
@@ -42,6 +44,8 @@ namespace ChessLib.Data
             TagSection.SetFen(fen);
             ParsingLog = new List<PgnParsingLog>();
         }
+
+        public List<PgnParsingLog> ParsingLog { get; protected set; }
 
         public Tags TagSection { get; set; }
 
@@ -83,12 +87,6 @@ namespace ChessLib.Data
             }
         }
 
-        public string GetPGN()
-        {
-            var formatter = new PGNFormatter<TMove>(new PGNFormatterOptions());
-            return formatter.BuildPGN(this);
-        }
-
         public GameResult GameResult
         {
             get => _gameResult;
@@ -97,6 +95,33 @@ namespace ChessLib.Data
                 _gameResult = value;
                 TagSection["Result"] = Result;
             }
+        }
+
+        public object Clone()
+        {
+            var clonedGame = new Game<TMove>(TagSection);
+            foreach (var node in MainMoveTree)
+            {
+                clonedGame.MainMoveTree.AddLast(node);
+            }
+
+            return clonedGame;
+        }
+
+        public void AddParsingLogItem(ParsingErrorLevel errorLevel, string message, string parseInput = "")
+        {
+            ParsingLog.Add(new PgnParsingLog(errorLevel, message, parseInput));
+        }
+
+        public void AddParsingLogItem(PgnParsingLog logItem)
+        {
+            ParsingLog.Add(logItem);
+        }
+
+        public string GetPGN()
+        {
+            var formatter = new PGNFormatter<TMove>(new PGNFormatterOptions());
+            return formatter.BuildPGN(this);
         }
 
         public bool IsEqualTo(Game<MoveStorage> otherGame, bool includeVariations = false)
@@ -147,17 +172,6 @@ namespace ChessLib.Data
         {
             var formatter = new PGNFormatter<TMove>(PGNFormatterOptions.ExportFormatOptions);
             return formatter.BuildPGN(this);
-        }
-
-        public object Clone()
-        {
-            var clonedGame = new Game<TMove>(TagSection);
-            foreach (var node in MainMoveTree)
-            {
-                clonedGame.MainMoveTree.AddLast(node);
-            }
-
-            return clonedGame;
         }
 
         private bool ParseTreesForEquality(LinkedListNode<MoveStorage> gNode, LinkedListNode<MoveStorage> otherNode,

@@ -29,10 +29,10 @@ namespace ChessLib.Parse.Tests
         public void TestParsingTagPair(string tagPair, string expectedKey, string expectedValue)
         {
             var pgnParser = new PgnVisitor();
-
-            pgnParser.VisitTagPair(tagPair);
-            Assert.IsTrue(pgnParser.Game.TagSection.ContainsKey(expectedKey));
-            Assert.AreEqual(expectedValue, pgnParser.Game.TagSection[expectedKey]);
+            var tagKeyValuePair = pgnParser.VisitTagPair(tagPair);
+            Assert.IsNotNull(tagKeyValuePair);
+            Assert.AreEqual(expectedKey, tagKeyValuePair.Value.Key);
+            Assert.AreEqual(expectedValue, tagKeyValuePair.Value.Value);
         }
 
         [TestCase(
@@ -40,8 +40,8 @@ namespace ChessLib.Parse.Tests
         public void TestVisitingTags(string section)
         {
             var parser = new PgnVisitor();
-            parser.VisitTagPairSection(section);
-            var tags = parser.Game.TagSection;
+            
+            var tags = parser.VisitTagPairSection(section);
             Assert.AreEqual("New York", tags.Event);
             Assert.AreEqual("New York, NY USA", tags.Site);
             Assert.AreEqual("1857.??.??", tags.Date);
@@ -224,7 +224,7 @@ namespace ChessLib.Parse.Tests
         public void ShouldIgnoreVariationsWhenSetToTrue()
         {
             var pgnDb = PGNResources.GameWithVars;
-            var parserOptions = new PGNParserOptions {IgnoreVariations = true};
+            var parserOptions = new PGNParserOptions { IgnoreVariations = true };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             foreach (var move in largeDb.First().MainMoveTree)
@@ -285,7 +285,7 @@ namespace ChessLib.Parse.Tests
         {
             const int gamesToParse = 2;
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
-            var parserOptions = new PGNParserOptions {MaxGameCount = 2};
+            var parserOptions = new PGNParserOptions { MaxGameCount = 2 };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             Assert.AreEqual(gamesToParse, largeDb.Length,
@@ -297,7 +297,7 @@ namespace ChessLib.Parse.Tests
         {
             const int maxPliesToParse = 10;
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
-            var parserOptions = new PGNParserOptions {MaxGameCount = 5, MaximumPlyPerGame = maxPliesToParse};
+            var parserOptions = new PGNParserOptions { MaxGameCount = 5, MaximumPlyPerGame = maxPliesToParse };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             WritePgn(largeDb.First());

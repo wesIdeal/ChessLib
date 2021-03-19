@@ -68,10 +68,12 @@ namespace ChessLib.Data
             }
             var activePlayer = Board.ActivePlayer;
             var preMoveBoard = Board.Occupancy;
-            var srcPiece = Board.Occupancy.GetPieceOfColorAtIndex(move.SourceIndex)?.Piece;
+            var postMoveBoard = BoardHelpers.GetBoardPostMove(Board, move);
+            var srcPiece = preMoveBoard.GetPieceOfColorAtIndex(move.SourceIndex)?.Piece;
             if (srcPiece == null) throw new MoveException("No piece at source index.", MoveError.ActivePlayerHasNoPieceOnSourceSquare, move, activePlayer);
             var strSrcPiece = GetSANSourceString(move, srcPiece.Value);
-            
+            var strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
+
             string checkInfo = "", result = "", promotionInfo = "", capture = "";
 
             var opponentOcc = preMoveBoard.Occupancy(activePlayer.Toggle());
