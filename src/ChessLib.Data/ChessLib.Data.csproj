@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <Version>1.1.0.0-alpha</Version>
     <Company />
@@ -45,5 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Enums.NET" Version="4.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ChessLib.Types\ChessLib.Types.csproj" />
   </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ChessLib.BoardService\ChessLib.BoardService.csproj" />
+    <ProjectReference Include="..\ChessLib.BoardService\ChessLib.Game.csproj" />
   </ItemGroup>
 
   <ItemGroup>
