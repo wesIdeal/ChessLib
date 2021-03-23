@@ -1,11 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Runtime.Serialization;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Interfaces;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 
-namespace ChessLib.Data.Types.Exceptions
+namespace ChessLib.Types.Exceptions
 {
     public enum MoveError
     {

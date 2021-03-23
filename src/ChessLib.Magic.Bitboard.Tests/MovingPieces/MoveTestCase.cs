@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using ChessLib.Data.Types.Enums;
 using ChessLib.Graphics.TextDisplay;
 using ChessLib.MagicBitboard.Bitwise;
+using ChessLib.Types.Enums;
 using EnumsNET;
 
 namespace ChessLib.MagicBitboard.Tests.MovingPieces

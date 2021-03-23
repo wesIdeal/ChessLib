@@ -1,8 +1,8 @@
-﻿using ChessLib.Data.Types.Enums;
-using ChessLib.MagicBitboard.MovingPieces;
+﻿using ChessLib.MagicBitboard.MovingPieces;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using ChessLib.Types.Enums;
 
 [assembly: InternalsVisibleTo("ChessLib.MagicBitboard.Bitwise.Tests")]
 namespace ChessLib.MagicBitboard

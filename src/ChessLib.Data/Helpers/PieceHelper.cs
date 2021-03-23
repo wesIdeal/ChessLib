@@ -1,6 +1,6 @@
 ﻿using System;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Exceptions;
 
 namespace ChessLib.Data.Helpers
 {

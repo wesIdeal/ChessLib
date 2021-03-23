@@ -1,4 +1,4 @@
-﻿using ChessLib.Data.Types.Enums;
+﻿using ChessLib.Types.Enums;
 
 namespace ChessLib.Data.Validators.FENValidation.Rules
 {

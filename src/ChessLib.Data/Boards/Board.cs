@@ -1,11 +1,10 @@
 ﻿#region
 
 using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
-using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.BoardValidation;
 using System;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 
 #endregion
 

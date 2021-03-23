@@ -1,8 +1,8 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Interfaces;
 using System;
 using System.Linq;
 using System.Text;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Data.Magic.Init
 {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Validators.FENValidation;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Exceptions;
 using EnumsNET;
 
 namespace ChessLib.Data.Helpers

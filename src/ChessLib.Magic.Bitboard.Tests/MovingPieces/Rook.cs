@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChessLib.Data.Types.Enums;
 using ChessLib.MagicBitboard.Bitwise;
 using ChessLib.MagicBitboard.Storage;
+using ChessLib.Types.Enums;
 using NUnit.Framework;
 
 #endregion

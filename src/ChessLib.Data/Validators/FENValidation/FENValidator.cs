@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Validators.FENValidation.Rules;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Exceptions;
 
 namespace ChessLib.Data.Validators.FENValidation
 {

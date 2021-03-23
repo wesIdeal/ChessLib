@@ -1,0 +1,4 @@
+﻿namespace ChessLib.Types.Interfaces
+{
+
+}

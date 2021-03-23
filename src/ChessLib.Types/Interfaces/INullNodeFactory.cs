@@ -1,4 +1,4 @@
-﻿namespace ChessLib.Data.MoveRepresentation
+﻿namespace ChessLib.Types.Interfaces
 {
     public interface IHasNullMoveValue<T>
     {

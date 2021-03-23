@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using ChessLib.Data.Types.Enums;
+using ChessLib.Types.Enums;
 using EnumsNET;
 
-namespace ChessLib.Data.Types.Exceptions
+namespace ChessLib.Types.Exceptions
 {
     [Serializable]
     public class FENException : Exception
@@ -16,7 +16,7 @@ namespace ChessLib.Data.Types.Exceptions
         {
             if (e == FENError.None) return "";
             var sb = new StringBuilder($"PremoveFEN Errors Found ({fen}):\r\n");
-            foreach (var error in e.GetFlags().Select(x => new { error = x, message = GetFormattedMessage(x) }))
+            foreach (var error in Enumerable.Select(e.GetFlags(), x => new { error = x, message = GetFormattedMessage(x) }))
             {
                 sb.AppendLine(error.message);
             }

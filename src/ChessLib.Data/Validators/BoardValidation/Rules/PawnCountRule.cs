@@ -1,6 +1,6 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Interfaces;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Data.Validators.BoardValidation.Rules
 {

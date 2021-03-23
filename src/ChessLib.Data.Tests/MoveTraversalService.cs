@@ -1,7 +1,5 @@
 ﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
 using ChessLib.Graphics;
 using ChessLib.Parse.PGN;
 using NUnit.Framework;
@@ -12,6 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Exceptions;
+
 // ReSharper disable StringLiteralTypo
 
 namespace ChessLib.Data.Tests

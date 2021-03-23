@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ChessLib.Data.Types.Exceptions
+namespace ChessLib.Types.Exceptions
 {
     public class PieceException : Exception
     {

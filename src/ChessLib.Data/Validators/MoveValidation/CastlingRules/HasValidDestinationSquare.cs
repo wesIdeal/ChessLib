@@ -1,8 +1,9 @@
 ﻿using System.Linq;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
-using ChessLib.Data.Types.Interfaces;
+using ChessLib.Types;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Exceptions;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Data.Validators.MoveValidation.CastlingRules
 {

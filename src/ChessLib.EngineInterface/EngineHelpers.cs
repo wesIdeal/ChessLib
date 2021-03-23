@@ -4,11 +4,11 @@ using System.Diagnostics;
 using System.Linq;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types.Enums;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;
 using ChessLib.EngineInterface.UCI.Commands.ToEngine;
+using ChessLib.Types.Enums;
 using EnumsNET;
 
 namespace ChessLib.EngineInterface

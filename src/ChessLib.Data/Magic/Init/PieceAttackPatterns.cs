@@ -1,10 +1,10 @@
 ﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.PieceMobility;
-using ChessLib.Data.Types.Enums;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using ChessLib.Types.Enums;
 
 [assembly: InternalsVisibleTo("ChessLib.Data.Tests")]
 namespace ChessLib.Data.Magic.Init

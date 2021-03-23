@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using ChessLib.Data.Types.Enums;
+using ChessLib.Types.Enums;
 
 #endregion
 

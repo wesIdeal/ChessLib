@@ -49,4 +49,9 @@
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Types\ChessLib.Types.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Types\Enums\" />
+    <Folder Include="Types\Exceptions\" />
+    <Folder Include="Types\Interfaces\" />
+  </ItemGroup>
 </Project>

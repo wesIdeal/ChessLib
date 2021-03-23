@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using ChessLib.Data.Types.Enums;
+using ChessLib.Types.Enums;
 
 namespace ChessLib.MagicBitboard.Tests.Bitwise
 {

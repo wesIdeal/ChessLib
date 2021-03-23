@@ -1,13 +1,13 @@
-﻿using ChessLib.Data.Types.Enums;
-using EnumsNET;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 using System.Text;
+using ChessLib.Types.Enums;
+using EnumsNET;
 
-namespace ChessLib.Data.Types.Exceptions
+namespace ChessLib.Types.Exceptions
 {
     [Serializable]
-    internal class BoardException : Exception
+    public class BoardException : Exception
     {
         public readonly BoardExceptionType ExceptionType = BoardExceptionType.None;
         public static BoardException MakeBoardException(BoardExceptionType exceptionType)

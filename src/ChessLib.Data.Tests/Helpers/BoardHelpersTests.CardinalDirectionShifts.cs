@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Enums;
+using ChessLib.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Helpers

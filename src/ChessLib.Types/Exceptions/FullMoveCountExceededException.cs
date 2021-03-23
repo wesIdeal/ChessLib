@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace ChessLib.Data.Types.Exceptions
+namespace ChessLib.Types.Exceptions
 {
-    internal class FullMoveCountExceededException : Exception
+    public class FullMoveCountExceededException : Exception
     {
         public FullMoveCountExceededException(uint moveCount) : base(
             $"Full Move Count exceeded limit of a maximum of 511 moves. Actual count was {moveCount}.")

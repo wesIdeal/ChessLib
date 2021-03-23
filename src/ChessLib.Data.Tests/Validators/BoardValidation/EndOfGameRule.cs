@@ -1,5 +1,5 @@
 ﻿using ChessLib.Data.Boards;
-using ChessLib.Data.Types.Enums;
+using ChessLib.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Validators.BoardValidation.Tests

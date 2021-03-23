@@ -1,7 +1,7 @@
 ﻿using System;
 using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Exceptions;
+using ChessLib.Types.Exceptions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 

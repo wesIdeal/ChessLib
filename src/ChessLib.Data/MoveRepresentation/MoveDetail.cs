@@ -1,6 +1,4 @@
-﻿using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
-using System;
+﻿using System;
 
 namespace ChessLib.Data.MoveRepresentation
 {

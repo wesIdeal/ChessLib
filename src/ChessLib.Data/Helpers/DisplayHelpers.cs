@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using ChessLib.Data.Types.Enums;
+using ChessLib.Types.Enums;
 
 
 namespace ChessLib.Data.Helpers

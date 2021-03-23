@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
-using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.MoveValidation.CastlingRules;
 using ChessLib.Data.Validators.MoveValidation.EnPassantRules;
 using ChessLib.Data.Validators.MoveValidation.MoveRules;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Exceptions;
+using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Data.Validators.MoveValidation
 {

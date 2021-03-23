@@ -8,10 +8,10 @@ using System.Threading;
 using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
-using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.MoveValidation;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Exceptions;
+using ChessLib.Types.Interfaces;
 
 #endregion
 

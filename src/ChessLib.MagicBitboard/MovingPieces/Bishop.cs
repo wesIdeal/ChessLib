@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Enums;
 using ChessLib.MagicBitboard.Bitwise;
 using File = System.IO.File;
 

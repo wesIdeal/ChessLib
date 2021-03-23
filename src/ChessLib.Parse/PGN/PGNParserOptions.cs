@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using ChessLib.Data;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Enums;
 
 namespace ChessLib.Parse.PGN
 {

@@ -1,4 +1,4 @@
-﻿using ChessLib.Data.Types.Exceptions;
+﻿using ChessLib.Types.Exceptions;
 
 namespace ChessLib.Data.Validators.MoveValidation
 {

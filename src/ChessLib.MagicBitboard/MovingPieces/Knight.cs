@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using ChessLib.Data.Types.Enums;
 using ChessLib.MagicBitboard.Bitwise;
+using ChessLib.Types.Enums;
 
 namespace ChessLib.MagicBitboard.MovingPieces
 {

@@ -1,7 +1,7 @@
 ﻿using ChessLib.Data.Boards;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types.Exceptions;
+using ChessLib.Types.Exceptions;
 using EnumsNET;
 
 namespace ChessLib.Data.Tests.Validators.MoveValidation.CastlingRules

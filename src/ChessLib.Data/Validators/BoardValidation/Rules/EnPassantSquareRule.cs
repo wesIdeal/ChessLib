@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Interfaces;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Interfaces;
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace ChessLib.Data.Validators.BoardValidation.Rules

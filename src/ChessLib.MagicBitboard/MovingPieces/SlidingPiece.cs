@@ -1,11 +1,11 @@
 ﻿#region
 
-using ChessLib.Data.Types.Enums;
 using ChessLib.MagicBitboard.Bitwise;
 using ChessLib.MagicBitboard.Storage;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Types.Enums;
 
 #endregion
 

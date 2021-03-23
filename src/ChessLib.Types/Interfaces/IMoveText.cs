@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ChessLib.Data.Types.Interfaces
+namespace ChessLib.Types.Interfaces
 {
     public interface IMoveText : IEquatable<IMoveText>, IMove
     {

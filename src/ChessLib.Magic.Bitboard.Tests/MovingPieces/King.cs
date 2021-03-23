@@ -1,6 +1,6 @@
 ﻿#region
 
-using ChessLib.Data.Types.Enums;
+using ChessLib.Types.Enums;
 using NUnit.Framework;
 
 #endregion

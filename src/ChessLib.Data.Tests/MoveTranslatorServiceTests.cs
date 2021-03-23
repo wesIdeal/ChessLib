@@ -1,9 +1,10 @@
 ﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.MoveRepresentation;
 using NUnit.Framework;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
 using ChessLib.Data.Boards;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Exceptions;
+
 // ReSharper disable StringLiteralTypo
 
 namespace ChessLib.Data.Tests

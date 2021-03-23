@@ -1,8 +1,8 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
 using NUnit.Framework;
 using ChessLib.Data.Boards;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Exceptions;
 
 namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
 {

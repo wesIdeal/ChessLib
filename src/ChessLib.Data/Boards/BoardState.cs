@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.Types.Enums;
-using ChessLib.Data.Types.Exceptions;
-using ChessLib.Data.Types.Interfaces;
 using ChessLib.Data.Validators.BoardValidation.Rules;
+using ChessLib.Types.Enums;
+using ChessLib.Types.Exceptions;
+using ChessLib.Types.Interfaces;
 using EnumsNET;
 
 namespace ChessLib.Data.Boards

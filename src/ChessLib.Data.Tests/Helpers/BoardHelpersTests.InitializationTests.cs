@@ -3,7 +3,7 @@ using NUnit.Framework;
 using System;
 using System.Text;
 using ChessLib.Data.Boards;
-using ChessLib.Data.Types.Enums;
+using ChessLib.Types.Enums;
 using EnumsNET;
 
 namespace ChessLib.Data.Tests.Helpers

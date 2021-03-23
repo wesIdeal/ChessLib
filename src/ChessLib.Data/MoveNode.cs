@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Types.Interfaces;
 
 namespace ChessLib.Data
 {
