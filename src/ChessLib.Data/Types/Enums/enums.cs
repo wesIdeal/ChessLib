@@ -32,7 +32,7 @@ namespace ChessLib.Data.Types.Enums
     }
 
     /// <summary>
-    /// Pieces/sections of a PremoveFEN. />
+    /// Pieces/sections of a Premove FEN. />
     /// </summary>
     public enum FENPieces { PiecePlacement = 0, ActiveColor, CastlingAvailability, EnPassantSquare, HalfmoveClock, FullMoveCounter }
 
@@ -52,12 +52,6 @@ namespace ChessLib.Data.Types.Enums
         NW = 128
     }
     // ReSharper restore InconsistentNaming
-
-    /// <summary>
-    /// Flags to represent a check and the nature of the check.
-    /// </summary>
-    [Flags]
-    public enum Check { Null = 0, None = 1, Normal = 2, Opposite = 4, Double = 8 }
 
     [Flags]
     public enum CastlingAvailability
@@ -101,8 +95,7 @@ namespace ChessLib.Data.Types.Enums
         WhiteTooManyPieces = 4,
         [Description("Black has too many pieces. Piece count should be greater than or equal to 16.")]
         BlackTooManyPieces = 8,
-        [Description("Both sides are in check.")]
-        DoubleCheck = 16,
+
         [Description("Opponent side is in check.")]
         OppositeCheck = 32,
         [Description("Bad En Passant square in board setup.")]
@@ -129,8 +122,7 @@ namespace ChessLib.Data.Types.Enums
         Checkmate = 65536,
         [Description("Only Kings left - material draw")]
         MaterialDraw = 65536 << 1,
-        [Description("No moves exist.")]
-        NoMovesExist = 65536 << 2
+
 
     }
 
@@ -153,8 +145,6 @@ namespace ChessLib.Data.Types.Enums
         CastlingUnrecognizedChar = 32,
         [Description("Invalid Castling Information - repeated characters found.")]
         CastlingStringRepetition = 64,
-        [Description("Invalid Castling Information - cannot use '-' with other castling character.")]
-        CastlingStringBadSequence = 128,
         [Description("Invalid Castling Information - no castling availability found.")]
         CastlingNoStringPresent = 256,
         [Description("Invalid Halfmove clock.")]
