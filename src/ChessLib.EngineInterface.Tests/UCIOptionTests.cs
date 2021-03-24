@@ -52,10 +52,10 @@ namespace ChessLib.UCI.Tests
 
         [TestCase("option name Analysis Contempt type combo default Both var Off var White var Black var Both", null)]
         [TestCase("option name Contempt type spin default 24 min -100 max 100", 24)]
-        [TestCase("option name Move Overhead type spin default 30 min 0 max 5000", 30)]
+        [TestCase("option name MoveValue Overhead type spin default 30 min 0 max 5000", 30)]
         [TestCase("option name Contempt type spin default 24 min -100 max 100", 24)]
-        [TestCase("option name Move Overhead type spin default 30 min 0 max 5000", 30)]
-        [TestCase("option name Move Overhead type spin min 0 max 5000", null)]
+        [TestCase("option name MoveValue Overhead type spin default 30 min 0 max 5000", 30)]
+        [TestCase("option name MoveValue Overhead type spin min 0 max 5000", null)]
         [TestCase("", null)]
         public void GetNumericDefault(string option, double? expected)
         {
@@ -87,12 +87,12 @@ namespace ChessLib.UCI.Tests
 
 
         [TestCase("option name Contempt type spin default 24 min -100 max 100", "default", 24)]
-        [TestCase("option name Move Overhead type spin default 30 min 0 max 5000", "default", 30)]
+        [TestCase("option name MoveValue Overhead type spin default 30 min 0 max 5000", "default", 30)]
         [TestCase("option name Contempt type spin default 24 min -100 max 100", "min", -100)]
-        [TestCase("option name Move Overhead type spin default 30 min 0 max 5000", "min", 0)]
+        [TestCase("option name MoveValue Overhead type spin default 30 min 0 max 5000", "min", 0)]
         [TestCase("option name Contempt type spin default 24 min -100 max 100", "max", 100)]
-        [TestCase("option name Move Overhead type spin default 30 min 0 max 5000", "max", 5000)]
-        [TestCase("option name Move Overhead type spin default 30 min 0", "max", null)]
+        [TestCase("option name MoveValue Overhead type spin default 30 min 0 max 5000", "max", 5000)]
+        [TestCase("option name MoveValue Overhead type spin default 30 min 0", "max", null)]
         [TestCase(null, "max", null)]
         public void GetNumericOptionType(string option, string key, double? expected)
         {
@@ -150,7 +150,7 @@ option name Clear Hash type button
 option name Ponder type check default false
 option name MultiPV type spin default 1 min 1 max 500
 option name Skill Level type spin default 20 min 0 max 20
-option name Move Overhead type spin default 30 min 0 max 5000
+option name MoveValue Overhead type spin default 30 min 0 max 5000
 option name Minimum Thinking Time type spin default 20 min 0 max 5000
 option name Slow Mover type spin default 84 min 10 max 1000
 option name nodestime type spin default 0 min 0 max 10000

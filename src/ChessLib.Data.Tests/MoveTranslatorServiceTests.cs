@@ -1,9 +1,10 @@
-﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Data.Helpers;
 using NUnit.Framework;
-using ChessLib.Data.Boards;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
 
 // ReSharper disable StringLiteralTypo
 
@@ -26,7 +27,7 @@ namespace ChessLib.Data.Tests
             AssertMovesAreEqual(expectedMove, actual);
         }
 
-        private void AssertMovesAreEqual(MoveExt expectedMove, MoveExt actual)
+        private void AssertMovesAreEqual(Move expectedMove, Move actual)
         {
             Assert.AreEqual(expectedMove.SourceIndex, actual.SourceIndex, $"Expected source to be {expectedMove.SourceIndex.IndexToSquareDisplay()}, but was {actual.SourceIndex.IndexToSquareDisplay()}.");
             Assert.AreEqual(expectedMove.DestinationIndex, actual.DestinationIndex, $"Expected destination to be {expectedMove.DestinationIndex.IndexToSquareDisplay()}, but was {actual.DestinationIndex.IndexToSquareDisplay()}.");

@@ -1,12 +1,14 @@
-﻿using ChessLib.Data.Boards;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Exceptions;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
 {
     [TestFixture]
-    class SourceIsPawn : Data.Validators.MoveValidation.EnPassantRules.SourceIsPawn
+    class SourceIsPawn : Core.Validation.Validators.MoveValidation.EnPassantRules.SourceIsPawn
     {
         private readonly ulong[][] _pmb = new ulong[2][];
         [Test]
@@ -27,7 +29,7 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
     }
 
     [TestFixture]
-    class SourceIsCorrectRank : Data.Validators.MoveValidation.EnPassantRules.SourceIsCorrectRank
+    class SourceIsCorrectRank : Core.Validation.Validators.MoveValidation.EnPassantRules.SourceIsCorrectRank
     {
         readonly ulong[][] _pmb = new ulong[2][];
         [Test]
@@ -63,7 +65,7 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
     }
 
     [TestFixture]
-    class EnPassantSquareIsAttackedBySource : Data.Validators.MoveValidation.EnPassantRules.EnPassantSquareIsAttackedBySource
+    class EnPassantSquareIsAttackedBySource : Core.Validation.Validators.MoveValidation.EnPassantRules.EnPassantSquareIsAttackedBySource
     {
         readonly ulong[][] _pmb = new ulong[2][];
         [Test]
@@ -84,7 +86,7 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
         }
     }
     [TestFixture()]
-    class EnPassantIsPossible : Data.Validators.MoveValidation.EnPassantRules.EnPassantIsPossible
+    class EnPassantIsPossible : Core.Validation.Validators.MoveValidation.EnPassantRules.EnPassantIsPossible
     {
         readonly ulong[][] _pmb = new ulong[2][];
         [Test]

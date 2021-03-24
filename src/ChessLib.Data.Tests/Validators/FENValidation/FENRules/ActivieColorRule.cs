@@ -1,5 +1,5 @@
-﻿using ChessLib.Data.Validators.FENValidation.Rules;
-using ChessLib.Types.Enums;
+﻿using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Validation.Validators.FENValidation.Rules;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Validators.FENValidation.FENRules.Tests

@@ -1,25 +1,18 @@
 ﻿#region
 
+using ChessLib.Data.Helpers;
 using System;
 using System.Collections.Generic;
-using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.MoveRepresentation.NAG;
+using ChessLib.Core;
+using ChessLib.Core.Types.Enums.NAG;
+using ChessLib.Core.Types.Helpers;
 
 #endregion
 
 namespace ChessLib.Data
 {
-    public enum GameResult
-    {
-        None,
-        WhiteWins,
-        BlackWins,
-        Draw
-    }
-
     public class Game<TMove> : MoveTraversalService, ICloneable
-        where TMove : MoveExt, IEquatable<TMove>
+        where TMove : Move, IEquatable<TMove>
     {
         private GameResult _gameResult;
 
@@ -178,7 +171,7 @@ namespace ChessLib.Data
             bool includeVariations)
         {
             var areEqual = true;
-            if (gNode.Value.Move != otherNode.Value.Move)
+            if (gNode.Value.MoveValue != otherNode.Value.MoveValue)
             {
                 return false;
             }
@@ -193,7 +186,7 @@ namespace ChessLib.Data
                 }
                 else
                 {
-                    areEqual &= moveNode.Value.Move == otherMoveNode.Value.Move;
+                    areEqual &= moveNode.Value.MoveValue == otherMoveNode.Value.MoveValue;
                 }
 
                 if (!areEqual)

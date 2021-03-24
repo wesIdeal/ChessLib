@@ -5,8 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
+using ChessLib.Core;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data;
-using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN;
 using ChessLib.Parse.Tests;
 

@@ -1,7 +1,10 @@
 ﻿using System.Linq;
-using ChessLib.Data.Boards;
+using ChessLib.Core;
+using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Helpers
@@ -81,9 +84,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnFile(7))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx + 1];
+                    expectedValue = BoardConstants.IndividualSquares[idx + 1];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftE()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftE()");
             }
         }
 
@@ -95,9 +98,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(0))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx - 8];
+                    expectedValue = BoardConstants.IndividualSquares[idx - 8];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftS(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftS()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftS(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftS()");
 
             }
         }
@@ -110,9 +113,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnFile(0))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx - 1];
+                    expectedValue = BoardConstants.IndividualSquares[idx - 1];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftW()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftW()");
 
             }
         }
@@ -125,9 +128,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(7))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx + 8];
+                    expectedValue = BoardConstants.IndividualSquares[idx + 8];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftN(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftN()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftN(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftN()");
             }
         }
 
@@ -146,9 +149,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnFile(6) && !idx.IsIndexOnFile(7))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx + 2];
+                    expectedValue = BoardConstants.IndividualSquares[idx + 2];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].Shift2E(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].Shift2E(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
             }
 
         }
@@ -165,9 +168,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(1) && !idx.IsIndexOnRank(0))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx - 16];
+                    expectedValue = BoardConstants.IndividualSquares[idx - 16];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].Shift2S(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2S()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].Shift2S(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2S()");
             }
         }
 
@@ -184,9 +187,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnFile(1) && !idx.IsIndexOnFile(0))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx - 2];
+                    expectedValue = BoardConstants.IndividualSquares[idx - 2];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].Shift2W(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2W()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].Shift2W(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2W()");
             }
         }
 
@@ -203,9 +206,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(6) && !idx.IsIndexOnRank(7))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx + 16];
+                    expectedValue = BoardConstants.IndividualSquares[idx + 16];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].Shift2N(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2N()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].Shift2N(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2N()");
             }
         }
 
@@ -225,9 +228,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if ((!idx.IsIndexOnRank(6) && !idx.IsIndexOnRank(7)) && !idx.IsIndexOnFile(7))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx + 17];
+                    expectedValue = BoardConstants.IndividualSquares[idx + 17];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftNNE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftNNE()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftNNE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftNNE()");
 
             }
         }
@@ -240,9 +243,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnFile(7) && !idx.IsIndexOnRank(7))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx + 9];
+                    expectedValue = BoardConstants.IndividualSquares[idx + 9];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftNE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftNE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
 
             }
         }
@@ -255,9 +258,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(7) && !idx.IsIndexOnFile(7) && !idx.IsIndexOnFile(6))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx + 10];
+                    expectedValue = BoardConstants.IndividualSquares[idx + 10];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftENE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftENE()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftENE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftENE()");
             }
         }
 
@@ -270,9 +273,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(0) && !idx.IsIndexOnFile(7) && !idx.IsIndexOnFile(6))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx - 6];
+                    expectedValue = BoardConstants.IndividualSquares[idx - 6];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftESE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftESE()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftESE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftESE()");
 
             }
         }
@@ -285,9 +288,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnFile(7) && !idx.IsIndexOnRank(0))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx - 7];
+                    expectedValue = BoardConstants.IndividualSquares[idx - 7];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftSE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftSE()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftSE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftSE()");
             }
         }
 
@@ -299,9 +302,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(0) && !idx.IsIndexOnRank(1) && !idx.IsIndexOnFile(7))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx - 15];
+                    expectedValue = BoardConstants.IndividualSquares[idx - 15];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftSSE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftSSE()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftSSE(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftSSE()");
             }
         }
 
@@ -313,9 +316,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(0) && !idx.IsIndexOnRank(1) && !idx.IsIndexOnFile(0))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx - 17];
+                    expectedValue = BoardConstants.IndividualSquares[idx - 17];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftSSW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftSSW()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftSSW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftSSW()");
 
             }
         }
@@ -328,9 +331,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnFile(0) && !idx.IsIndexOnRank(0))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx - 9];
+                    expectedValue = BoardConstants.IndividualSquares[idx - 9];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftSW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftSW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
 
             }
         }
@@ -343,9 +346,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(0) && !idx.IsIndexOnFile(0) && !idx.IsIndexOnFile(1))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx - 10];
+                    expectedValue = BoardConstants.IndividualSquares[idx - 10];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftWSW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftWSW()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftWSW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftWSW()");
 
             }
         }
@@ -358,9 +361,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(7) && !idx.IsIndexOnFile(0) && !idx.IsIndexOnFile(1))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx + 6];
+                    expectedValue = BoardConstants.IndividualSquares[idx + 6];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftWNW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftWNW()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftWNW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftWNW()");
             }
         }
 
@@ -372,9 +375,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnFile(0) && !idx.IsIndexOnRank(7))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx + 7];
+                    expectedValue = BoardConstants.IndividualSquares[idx + 7];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftNW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftNW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
             }
         }
 
@@ -386,9 +389,9 @@ namespace ChessLib.Data.Tests.Helpers
                 ulong expectedValue = 0;
                 if (!idx.IsIndexOnRank(7) && !idx.IsIndexOnRank(6) && !idx.IsIndexOnFile(0))
                 {
-                    expectedValue = ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx + 15];
+                    expectedValue = BoardConstants.IndividualSquares[idx + 15];
                 }
-                Assert.AreEqual(expectedValue, ChessLib.Data.Helpers.BoardHelpers.IndividualSquares[idx].ShiftNNW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftNNW()");
+                Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftNNW(), $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftNNW()");
             }
         }
         #endregion

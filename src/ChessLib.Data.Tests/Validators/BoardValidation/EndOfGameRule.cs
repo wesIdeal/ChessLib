@@ -1,5 +1,6 @@
-﻿using ChessLib.Data.Boards;
-using ChessLib.Types.Enums;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Validators.BoardValidation.Tests
@@ -25,7 +26,7 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
         {
 
             var board = new Board(fen);
-            var rule = new Data.Validators.BoardValidation.Rules.EndOfGameRule();
+            var rule = new Core.Validation.Validators.BoardValidation.Rules.EndOfGameRule();
             var actual = rule.Validate(board);
             Assert.AreEqual(expectedException, actual);
         }

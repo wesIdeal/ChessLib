@@ -3,7 +3,9 @@ using ChessLib.Data.Magic.Init;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChessLib.Types.Enums;
+using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 
 namespace ChessLib.Data.PieceMobility
 {
@@ -39,7 +41,7 @@ namespace ChessLib.Data.PieceMobility
         #endregion
 
         /// <summary>
-        /// Gets the permutations of Occupancy/Move boards from a given position
+        /// Gets the permutations of Occupancy/MoveValue boards from a given position
         /// </summary>
         /// <param name="pieceLocationIndex">The index of the piece</param>
         /// <param name="attackMask">The piece's associated attack mask from the position index</param>
@@ -117,7 +119,7 @@ namespace ChessLib.Data.PieceMobility
 
                 while ((positionalValue = positionalValue.ShiftN()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.RankMasks[7] : allSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardConstants.RankMasks[7] : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
 
@@ -130,7 +132,7 @@ namespace ChessLib.Data.PieceMobility
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftE()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.FileMasks[7] : allSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardConstants.FileMasks[7] : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -141,7 +143,7 @@ namespace ChessLib.Data.PieceMobility
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftS()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.RankMasks[0] : allSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardConstants.RankMasks[0] : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -152,7 +154,7 @@ namespace ChessLib.Data.PieceMobility
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftW()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? ~BoardHelpers.FileMasks[0] : allSquares);
+                    rv |= positionalValue & (attackArrayGen ? ~BoardConstants.FileMasks[0] : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -163,7 +165,7 @@ namespace ChessLib.Data.PieceMobility
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftNE()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[7] & ~BoardHelpers.RankMasks[7]) : allSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardConstants.FileMasks[7] & ~BoardConstants.RankMasks[7]) : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -174,7 +176,7 @@ namespace ChessLib.Data.PieceMobility
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftNW()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[0] & ~BoardHelpers.RankMasks[7]) : allSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardConstants.FileMasks[0] & ~BoardConstants.RankMasks[7]) : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -185,7 +187,7 @@ namespace ChessLib.Data.PieceMobility
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftSE()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[7] & ~BoardHelpers.RankMasks[0]) : allSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardConstants.FileMasks[7] & ~BoardConstants.RankMasks[0]) : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }
@@ -196,7 +198,7 @@ namespace ChessLib.Data.PieceMobility
                 positionalValue = startingValue;
                 while ((positionalValue = positionalValue.ShiftSW()) != 0)
                 {
-                    rv |= positionalValue & (attackArrayGen ? (~BoardHelpers.FileMasks[0] & ~BoardHelpers.RankMasks[0]) : allSquares);
+                    rv |= positionalValue & (attackArrayGen ? (~BoardConstants.FileMasks[0] & ~BoardConstants.RankMasks[0]) : allSquares);
                     if ((occupancyBoard & positionalValue) == positionalValue) break;
                 }
             }

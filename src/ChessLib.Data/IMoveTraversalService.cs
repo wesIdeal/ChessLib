@@ -1,5 +1,4 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using System;
+﻿using System;
 
 namespace ChessLib.Data
 {

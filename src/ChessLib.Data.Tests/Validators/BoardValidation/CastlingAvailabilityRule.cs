@@ -1,6 +1,8 @@
-﻿using ChessLib.Data.Boards;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Validators.BoardValidation.Tests
@@ -21,7 +23,7 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
         public static void TestCastling(string fen, BoardExceptionType expectedException, string message = "")
         {
             var board = new Board(fen);
-            var rule = new Data.Validators.BoardValidation.Rules.CastlingAvailabilityRule();
+            var rule = new Core.Validation.Validators.BoardValidation.Rules.CastlingAvailabilityRule();
             var actual = rule.Validate(board);
             Assert.AreEqual(expectedException, actual, message);
         }

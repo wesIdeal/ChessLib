@@ -1,5 +1,4 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
 using ChessLib.Graphics;
 using ChessLib.Parse.PGN;
 using NUnit.Framework;
@@ -10,8 +9,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
+using ChessLib.Core;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
 
 // ReSharper disable StringLiteralTypo
 
@@ -176,10 +177,10 @@ namespace ChessLib.Data.Tests
             game.TraverseForward(move);
             var moves = game.GetNextMoves();
             Assert.AreEqual(4, moves.Length);
-            Assert.AreEqual(4013, moves[0].Move);
-            Assert.AreEqual(3364, moves[1].Move);
-            Assert.AreEqual(3372, moves[2].Move);
-            Assert.AreEqual(3234, moves[3].Move);
+            Assert.AreEqual(4013, moves[0].MoveValue);
+            Assert.AreEqual(3364, moves[1].MoveValue);
+            Assert.AreEqual(3372, moves[2].MoveValue);
+            Assert.AreEqual(3234, moves[3].MoveValue);
         }
 
         [Test]

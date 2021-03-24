@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Core;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;
 using ChessLib.EngineInterface.UCI.Commands.ToEngine;
-using ChessLib.Types.Enums;
 using EnumsNET;
 
 namespace ChessLib.EngineInterface
@@ -240,7 +241,7 @@ namespace ChessLib.EngineInterface
 
 
 
-        public static string UCIMovesFromMoveObjects(this IEnumerable<MoveExt> moveCollection)
+        public static string UCIMovesFromMoveObjects(this IEnumerable<Move> moveCollection)
         {
             var moves = moveCollection.ToArray();
             if (!moves.Any())

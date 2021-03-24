@@ -2,8 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using ChessLib.Core;
 using ChessLib.Data;
-using ChessLib.Data.MoveRepresentation;
 
 namespace ChessLib.Parse.PGN.Base
 {

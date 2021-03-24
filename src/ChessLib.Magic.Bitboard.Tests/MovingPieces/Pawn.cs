@@ -2,9 +2,10 @@
 
 using System;
 using System.Collections.Generic;
-using ChessLib.MagicBitboard.Bitwise;
-using ChessLib.MagicBitboard.Storage;
-using ChessLib.Types.Enums;
+using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.MagicBitboard.Storage;
+using ChessLib.Core.Types.Enums;
 using EnumsNET;
 using NUnit.Framework;
 

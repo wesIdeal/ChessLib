@@ -1,4 +1,4 @@
-﻿using ChessLib.Types.Enums;
+﻿using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Data.PieceMobility
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using ChessLib.Data.MoveRepresentation;
+using ChessLib.Core;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
 namespace ChessLib.EngineInterface.UCI
@@ -16,16 +16,16 @@ namespace ChessLib.EngineInterface.UCI
     public interface IBestMoveResponse : ICalculationInfoResponse
     {
         string BestMoveLong { get; }
-        MoveExt BestMove { get; set; }
+        Move BestMove { get; set; }
         string PonderMoveLong { get; }
-        MoveExt PonderMove { get; set; }
+        Move PonderMove { get; set; }
         string ToString();
     }
 
     public interface IInfoCalculationResponse : IInfoResponse
     {
         string CurrentMoveLong { get; }
-        MoveExt CurrentMove { get; set; }
+        Move CurrentMove { get; set; }
     }
 
     public enum Bound { None, Lower, Upper }
@@ -42,7 +42,7 @@ namespace ChessLib.EngineInterface.UCI
     {
         ulong Nodes { get; }
         string[] VariationLong { get; }
-        MoveExt[] Variation { get; set; }
+        Move[] Variation { get; set; }
     }
 
     public class InfoCalculationResponse : IInfoCalculationResponse
@@ -54,7 +54,7 @@ namespace ChessLib.EngineInterface.UCI
             CurrentMoveNumber = currentMoveNumber;
             CurrentMoveLong = currentMoveLong;
         }
-        public MoveExt CurrentMove { get; set; }
+        public Move CurrentMove { get; set; }
         public string CurrentMoveLong { get; set; }
         public uint CurrentMoveNumber { get; set; }
         public uint Depth { get; }
@@ -113,7 +113,7 @@ namespace ChessLib.EngineInterface.UCI
         public ulong NodesPerSecond { get; }
         public ushort TableBaseHits { get; }
         public uint Depth { get; }
-        public MoveExt[] Variation { get; set; }
+        public Move[] Variation { get; set; }
         public string[] VariationLong { get; }
         public override string ToString()
         {
@@ -139,9 +139,9 @@ namespace ChessLib.EngineInterface.UCI
 
         public string PonderMoveLong { get; }
 
-        public MoveExt BestMove { get; set; }
+        public Move BestMove { get; set; }
 
-        public MoveExt PonderMove { get; set; }
+        public Move PonderMove { get; set; }
 
         public override string ToString()
         {

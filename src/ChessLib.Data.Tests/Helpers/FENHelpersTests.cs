@@ -4,8 +4,9 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
 
 namespace ChessLib.Data.Tests.Helpers
 {

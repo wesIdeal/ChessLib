@@ -1,13 +1,15 @@
-﻿using ChessLib.Data.Helpers;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Data.Helpers;
 using NUnit.Framework;
-using ChessLib.Data.Boards;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
 
 namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
 {
     [TestFixture]
-    public class HasValidDestinationSquare : Data.Validators.MoveValidation.CastlingRules.HasValidDestinationSquare
+    public class HasValidDestinationSquare : Core.Validation.Validators.MoveValidation.CastlingRules.HasValidDestinationSquare
     {
         #region BadDestination
 

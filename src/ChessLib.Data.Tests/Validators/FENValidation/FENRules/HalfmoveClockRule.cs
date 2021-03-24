@@ -1,4 +1,4 @@
-﻿using ChessLib.Types.Enums;
+﻿using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
@@ -14,7 +14,7 @@ namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
         [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 4 1", FENError.None)]
         public static void ValidateHalfmoveClock(string fen, FENError expectedError)
         {
-            var validator = new Data.Validators.FENValidation.Rules.HalfmoveClockRule();
+            var validator = new Core.Validation.Validators.FENValidation.Rules.HalfmoveClockRule();
             var actual = validator.Validate(fen);
             Assert.AreEqual(expectedError, actual);
         }

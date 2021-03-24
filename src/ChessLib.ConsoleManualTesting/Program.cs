@@ -1,6 +1,4 @@
 ﻿using ChessLib.Data;
-using ChessLib.Data.Boards;
-using ChessLib.Data.MoveRepresentation;
 using ChessLib.Graphics;
 using ChessLib.Parse.PGN;
 using ChessLib.Parse.Tests;
@@ -10,6 +8,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using ChessLib.Core;
+using ChessLib.Core.Types;
 
 namespace ChessLib.ConsoleManualTesting
 {

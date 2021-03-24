@@ -1,8 +1,9 @@
-﻿using ChessLib.Data.Boards;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
@@ -11,7 +12,7 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
     /// Tests that appropriate castling availability flag is set for castling.
     /// </summary>
     [TestFixture(Description = "Tests that appropriate castling availability flag is set for castling.")]
-    class HasCastlingAvailability : Data.Validators.MoveValidation.CastlingRules.HasCastlingAvailability
+    class HasCastlingAvailability : Core.Validation.Validators.MoveValidation.CastlingRules.HasCastlingAvailability
     {
         Board _bi;
         [Test(Description = "Test that no exception is thrown when Black castles Queenside with BlackQueenside flag set.")]
@@ -125,7 +126,7 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
         }
         #endregion
 
-        private void AssertCastlingAvailabilityExceptionThrown(MoveExt move)
+        private void AssertCastlingAvailabilityExceptionThrown(Move move)
         {
             const MoveError expectedMoveExceptionType = MoveError.CastleUnavailable;
             var postBoard = new ulong[2][];
@@ -133,7 +134,7 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
             Assert.AreEqual(expectedMoveExceptionType, actual);
         }
 
-        private void AssertCastlingAvailabilityExceptionNotThrown(MoveExt move)
+        private void AssertCastlingAvailabilityExceptionNotThrown(Move move)
         {
             var postBoard = new ulong[2][];
             Assert.AreEqual(MoveError.NoneSet, Validate(_bi, postBoard, move));

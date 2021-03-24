@@ -1,17 +1,18 @@
-﻿using ChessLib.Data.Boards;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Exceptions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
 namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
 {
     [TestFixture]
-    class PieceMovingIsActiveColor : Data.Validators.MoveValidation.MoveRules.PieceMovingIsActiveColor
+    class PieceMovingIsActiveColor : Core.Validation.Validators.MoveValidation.MoveRules.PieceMovingIsActiveColor
     {
-        private readonly MoveExt _goodMove = MoveHelpers.GenerateMove(4, 5);
-        private readonly MoveExt _badColor = MoveHelpers.GenerateMove(60, 61);
+        private readonly Move _goodMove = MoveHelpers.GenerateMove(4, 5);
+        private readonly Move _badColor = MoveHelpers.GenerateMove(60, 61);
         private readonly Board _boardInfo = new Board("4k3/8/8/8/8/8/8/4K3 w - - 0 1");
         private readonly ulong[][] _postMoveBoard = new ulong[2][];
         [Test]

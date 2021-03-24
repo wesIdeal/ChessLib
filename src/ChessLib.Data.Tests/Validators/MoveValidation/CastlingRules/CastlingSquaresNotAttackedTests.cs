@@ -1,13 +1,15 @@
-﻿using ChessLib.Data.Boards;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
 {
     [TestFixture]
-    public class CastlingSquaresNotAttacked : Data.Validators.MoveValidation.CastlingRules.CastlingSquaresNotAttacked
+    public class CastlingSquaresNotAttacked : Core.Validation.Validators.MoveValidation.CastlingRules.CastlingSquaresNotAttacked
     {
         [Test(Description = "Should return correct error when castle's path is attacked")]
         public void Validate_ShouldReturnCorrectErrorWhenPathIsAttacked()

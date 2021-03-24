@@ -1,4 +1,5 @@
-﻿using ChessLib.Data;
+﻿using ChessLib.Core.Types.Helpers;
+using ChessLib.Data;
 
 namespace ChessLib.Parse.PGN
 {

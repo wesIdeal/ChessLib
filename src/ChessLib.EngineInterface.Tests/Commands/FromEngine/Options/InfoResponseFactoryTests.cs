@@ -1,5 +1,4 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
 using NUnit.Framework;
 using System;
 using System.Collections;
@@ -7,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data;
-using ChessLib.Data.Boards;
 using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
@@ -28,8 +29,8 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
         public void TestBestMove(string engineResponse, int bm, int? pm, string fen)
         {
            
-            var bestMove = new MoveExt((ushort)bm);
-            var ponderMove = pm.HasValue ? new MoveExt((ushort)pm) : null;
+            var bestMove = new Move((ushort)bm);
+            var ponderMove = pm.HasValue ? new Move((ushort)pm) : null;
             var iResp = _infoObj.GetInfoResponse(engineResponse);
             Assert.IsTrue(iResp is BestMoveResponse);
             TranslateBestMoveResponse(fen, iResp as BestMoveResponse, out var bestMoveFromResponse, out var ponderMoveFromResponse);
@@ -38,8 +39,8 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
         }
 
         private static void  TranslateBestMoveResponse(string fen, BestMoveResponse response,
-            out MoveExt bestMoveFromResponse,
-            out MoveExt ponderMoveFromResponse)
+            out Move bestMoveFromResponse,
+            out Move ponderMoveFromResponse)
         {
             var board = new Board(fen);
             var traversalSvc = new MoveTraversalService(fen);
@@ -110,7 +111,7 @@ namespace ChessLib.UCI.Tests.Commands.FromEngine.Options
             var resp = _infoObj.GetInfoResponse(info);
             Assert.IsTrue(resp is InfoCalculationResponse);
             var obj = resp as InfoCalculationResponse;
-            var mv = new MoveExt((ushort)move);
+            var mv = new Move((ushort)move);
             Assert.AreEqual(depth, obj.Depth);
             Assert.AreEqual(mv, MoveTranslatorService.BasicMoveFromLAN(obj.CurrentMoveLong));
             Assert.AreEqual(moveNumber, obj.CurrentMoveNumber);

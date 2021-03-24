@@ -1,7 +1,10 @@
-﻿using ChessLib.Data.Boards;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Validation.Validators.BoardValidation;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Validators.BoardValidation.Tests

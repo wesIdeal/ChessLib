@@ -2,18 +2,19 @@
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Core;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Types.Interfaces;
+using ChessLib.Core.Validation.Validators.MoveValidation;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Validators.MoveValidation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
-using ChessLib.Types.Interfaces;
 
 namespace ChessLib.Data
 {
     /// <summary>
-    ///     Used to translate moves from text format (SAN | LAN) into a ushort-based move object <see cref="MoveExt" />
+    ///     Used to translate moves from text format (SAN | LAN) into a ushort-based move object <see cref="Move" />
     /// </summary>
     public class MoveTranslatorService : MoveDisplayService
     {
@@ -87,13 +88,13 @@ namespace ChessLib.Data
         ///     is less than 4 characters or greater than 5, or the source and/or destination strings did not translate to a board
         ///     index.
         /// </exception>
-        public MoveExt FromLongAlgebraicNotation(string lanMove)
+        public Move FromLongAlgebraicNotation(string lanMove)
         {
             var basicMove = BasicMoveFromLAN(lanMove);
             return GenerateMoveFromIndexes(basicMove.SourceIndex, basicMove.DestinationIndex, basicMove.PromotionPiece);
         }
 
-        public MoveExt GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex,
+        public Move GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex,
             PromotionPiece? promotionPiece)
         {
             var rv = Bitboard.GetMove(Board, sourceIndex, destinationIndex, promotionPiece ?? PromotionPiece.Knight);
@@ -106,7 +107,7 @@ namespace ChessLib.Data
         /// </summary>
         /// <param name="lan"></param>
         /// <returns></returns>
-        public static MoveExt BasicMoveFromLAN(string lan)
+        public static Move BasicMoveFromLAN(string lan)
         {
             var length = lan.Length;
             if (length < 4 || length > 5)
@@ -143,10 +144,10 @@ namespace ChessLib.Data
         ///     is less than 4 characters or greater than 5, or the source and/or destination strings did not translate to a board
         ///     index.
         /// </exception>
-        public IEnumerable<MoveExt> FromLongAlgebraicNotation(IEnumerable<string> lanMoves)
+        public IEnumerable<Move> FromLongAlgebraicNotation(IEnumerable<string> lanMoves)
         {
             var savedBoard = (IBoard)Board.Clone();
-            var moves = new List<MoveExt>();
+            var moves = new List<Move>();
             foreach (var lanMove in lanMoves)
             {
                 var move = FromLongAlgebraicNotation(lanMove);
@@ -170,9 +171,9 @@ namespace ChessLib.Data
             return mv;
         }
 
-        public MoveExt GetMoveFromSAN(string sanMove)
+        public Move GetMoveFromSAN(string sanMove)
         {
-            MoveExt moveExt;
+            Move move;
             Debug.WriteLine(Board.ToFEN());
             var move = StripNonMoveInfoFromMove(sanMove);
             if (move.Length < 2)
@@ -238,13 +239,13 @@ namespace ChessLib.Data
 
             if (moveExt == null)
             {
-                throw new NoNullAllowedException($"MoveTranslatorService: Move should not be null after translation. Error in PGN or application for move {sanMove}.");
+                throw new NoNullAllowedException($"MoveTranslatorService: MoveValue should not be null after translation. Error in PGN or application for move {sanMove}.");
             }
 
             return moveExt;
         }
 
-        private MoveExt DetermineWhichPieceMovesToSquare(in string move, IEnumerable<ushort> possibleAttackersOfType,
+        private Move DetermineWhichPieceMovesToSquare(in string move, IEnumerable<ushort> possibleAttackersOfType,
             ulong applicableBb, ushort destinationSquare)
         {
             var mv = (string)move.Clone();
@@ -320,7 +321,7 @@ namespace ChessLib.Data
             return MoveHelpers.GenerateMove(source, destinationSquare);
         }
 
-        private MoveExt GetPawnMoveDetails(string move)
+        private Move GetPawnMoveDetails(string move)
         {
             var colorMoving = Board.ActivePlayer;
             var promotionPiece = PromotionPiece.Knight;

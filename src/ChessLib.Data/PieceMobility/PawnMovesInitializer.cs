@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic;
 using ChessLib.Data.Magic.Init;
-using ChessLib.Types.Enums;
 
 namespace ChessLib.Data.PieceMobility
 {
@@ -23,7 +24,7 @@ namespace ChessLib.Data.PieceMobility
         }
 
         /// <summary>
-        /// Gets the permutations of Occupancy/Move boards from a given position
+        /// Gets the permutations of Occupancy/MoveValue boards from a given position
         /// </summary>
         /// <param name="pieceLocationIndex">The index of the piece</param>
         /// <param name="attackMask">The piece's associated attack mask from the position index</param>

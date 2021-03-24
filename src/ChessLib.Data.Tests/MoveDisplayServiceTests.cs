@@ -1,8 +1,9 @@
-﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Data.Helpers;
 using NUnit.Framework;
-using ChessLib.Data.Boards;
-using ChessLib.Types.Enums;
 
 namespace ChessLib.Data.Tests
 {
@@ -22,7 +23,7 @@ namespace ChessLib.Data.Tests
         {
             var poc = new PieceOfColor() { Color = Color.Black, Piece = Piece.King };
             var expected = "K";
-            Assert.AreEqual(expected, _moveDisplayService.GetSANSourceString(new MoveExt(0), poc.Piece));
+            Assert.AreEqual(expected, _moveDisplayService.GetSANSourceString(new Move(0), poc.Piece));
         }
 
         [Test]
@@ -112,7 +113,7 @@ namespace ChessLib.Data.Tests
             Assert.AreEqual(expected, actual);
         }
 
-        public static MoveExt MoveFromInt(int f, int t, PromotionPiece p = PromotionPiece.Knight, MoveType mt = MoveType.Normal) =>
+        public static Move MoveFromInt(int f, int t, PromotionPiece p = PromotionPiece.Knight, MoveType mt = MoveType.Normal) =>
              MoveHelpers.GenerateMove((ushort)f, (ushort)t, mt, p);
     }
 }

@@ -1,4 +1,5 @@
-﻿using ChessLib.Data.Helpers;
+﻿using ChessLib.Core.Types.Helpers;
+using ChessLib.Data.Helpers;
 using NUnit.Framework;
 namespace ChessLib.Data.Tests.Helpers
 {

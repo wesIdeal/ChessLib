@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using ChessLib.Data.Boards;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Types.Interfaces;
+using ChessLib.Core.Validation.Validators.MoveValidation;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Validators.MoveValidation;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
-using ChessLib.Types.Interfaces;
 
 #endregion
 
@@ -135,7 +136,7 @@ namespace ChessLib.Data
             }
             catch (Exception exc)
             {
-                throw new MoveException($"TraverseForward({move}) error. Move not found.", exc);
+                throw new MoveException($"TraverseForward({move}) error. MoveValue not found.", exc);
             }
 
             ApplyMoveToBoard(move);
@@ -216,7 +217,7 @@ namespace ChessLib.Data
                 return;
             }
 
-            var moves = new List<MoveExt>();
+            var moves = new List<Move>();
             var currentMoveNode = CurrentMoveNode;
             while (!currentMoveNode.Value.IsNullMove && currentMoveNode.Value != null)
             {
@@ -260,7 +261,7 @@ namespace ChessLib.Data
 
         #endregion
 
-        #region Move Application
+        #region MoveValue Application
 
         #region Variations
 
@@ -273,14 +274,14 @@ namespace ChessLib.Data
             return ApplyValidatedMoveVariation(move);
         }
 
-        protected LinkedListNode<MoveStorage> ApplyMoveVariation(MoveExt move)
+        protected LinkedListNode<MoveStorage> ApplyMoveVariation(Move move)
         {
             TraverseBackward();
             ValidateMove(move);
             return ApplyValidatedMoveVariation(move);
         }
 
-        private LinkedListNode<MoveStorage> ApplyValidatedMoveVariation(MoveExt move)
+        private LinkedListNode<MoveStorage> ApplyValidatedMoveVariation(Move move)
         {
             try
             {
@@ -323,7 +324,7 @@ namespace ChessLib.Data
             return ApplyMove(move);
         }
 
-        public LinkedListNode<MoveStorage> ApplyMove(MoveExt move,
+        public LinkedListNode<MoveStorage> ApplyMove(Move move,
             MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine)
         {
             if (moveApplicationStrategy == MoveApplicationStrategy.Variation)
@@ -335,7 +336,7 @@ namespace ChessLib.Data
             return ApplyValidatedMove(move);
         }
 
-        internal LinkedListNode<MoveStorage> ApplyValidatedMove(MoveExt move,
+        internal LinkedListNode<MoveStorage> ApplyValidatedMove(Move move,
             MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine)
         {
             //Uncomment to debug move application
@@ -354,7 +355,7 @@ namespace ChessLib.Data
 
         #endregion
 
-        protected void ValidateMove(MoveExt move)
+        protected void ValidateMove(Move move)
         {
             if (move is MoveStorage storage)
             {
@@ -372,13 +373,13 @@ namespace ChessLib.Data
             }
         }
 
-        private string GetMoveText(MoveExt move)
+        private string GetMoveText(Move move)
         {
             var moveDisplay = new MoveDisplayService(Board);
             return moveDisplay.MoveToSAN(move);
         }
 
-        private Piece? GetCapturedPiece(MoveExt move)
+        private Piece? GetCapturedPiece(Move move)
         {
             var capturedPiece = Board.GetPieceOfColorAtIndex(move.DestinationIndex);
             if (capturedPiece == null && move.MoveType == MoveType.EnPassant)
@@ -390,7 +391,7 @@ namespace ChessLib.Data
         }
 
 
-        protected void ApplyMoveToBoard(MoveExt move)
+        protected void ApplyMoveToBoard(Move move)
         {
             var newBoard = Board.ApplyMoveToBoard(move, true);
             ApplyNewBoard(newBoard);
@@ -486,7 +487,7 @@ namespace ChessLib.Data
             return piecePlacement;
         }
 
-        private MoveExt TranslateSanMove(string moveText)
+        private Move TranslateSanMove(string moveText)
         {
             var moveTranslatorService = new MoveTranslatorService(Board);
             var move = moveTranslatorService.GetMoveFromSAN(moveText);

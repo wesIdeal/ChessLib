@@ -1,14 +1,15 @@
-﻿using ChessLib.Data.Boards;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Exceptions;
 using EnumsNET;
 
 namespace ChessLib.Data.Tests.Validators.MoveValidation.CastlingRules
 {
     internal class CastlingTestCase
     {
-        public CastlingTestCase(string fen, MoveError error, MoveExt castlingMove)
+        public CastlingTestCase(string fen, MoveError error, Move castlingMove)
         {
             Fen = fen;
             ExpectedError = error;
@@ -18,7 +19,7 @@ namespace ChessLib.Data.Tests.Validators.MoveValidation.CastlingRules
 
         public string Fen { get; set; }
         public MoveError ExpectedError { get; set; }
-        public MoveExt CastlingMove { get; set; }
+        public Move CastlingMove { get; set; }
         public Board Board { get; }
 
         public override string ToString()

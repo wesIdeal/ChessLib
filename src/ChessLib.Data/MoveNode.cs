@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using ChessLib.Data.MoveRepresentation;
 
 namespace ChessLib.Data
 {
@@ -59,7 +58,7 @@ namespace ChessLib.Data
 
     //    public override string ToString()
     //    {
-    //        var str = $"Move {MoveData.ToString()}";
+    //        var str = $"MoveValue {MoveData.ToString()}";
     //        if(ParentTreeMove != null)
     //        {
     //            str += $" from variation of move {ParentTreeMove}";

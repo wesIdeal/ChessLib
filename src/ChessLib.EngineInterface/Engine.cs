@@ -1,6 +1,5 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using System;
@@ -10,8 +9,10 @@ using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.EngineInterface.UCI;
-using ChessLib.Data.Boards;
 
 namespace ChessLib.EngineInterface
 {
@@ -141,12 +142,12 @@ namespace ChessLib.EngineInterface
         /// Sends moves to the engine to be applied from the original StartingPositionFEN sent.
         /// </summary>
         /// <param name="moves"></param>
-        public virtual void SendPosition(MoveExt[] moves)
+        public virtual void SendPosition(Move[] moves)
         {
             SetMoves(moves);
         }
 
-        private void SetMoves(IEnumerable<MoveExt> moves)
+        private void SetMoves(IEnumerable<Move> moves)
         {
             Moves.Clear();
             Moves.AddRange(moves);
@@ -154,14 +155,14 @@ namespace ChessLib.EngineInterface
             CurrentFEN = board.CurrentFEN;
         }
 
-        public List<MoveExt> Moves { get; } = new List<MoveExt>();
+        public List<Move> Moves { get; } = new List<Move>();
 
         /// <summary>
         /// Sends a fen to the board and moves
         /// </summary>
         /// <param name="fen"></param>
         /// <param name="moves"></param>
-        public virtual void SendPosition(string fen, MoveExt[] moves)
+        public virtual void SendPosition(string fen, Move[] moves)
         {
             StartingPositionFEN = fen;
             SetMoves(moves);

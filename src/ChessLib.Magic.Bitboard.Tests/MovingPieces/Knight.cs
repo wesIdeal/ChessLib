@@ -1,4 +1,5 @@
-﻿using ChessLib.Types.Enums;
+﻿using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.MagicBitboard.Tests.MovingPieces

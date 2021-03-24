@@ -1,18 +1,18 @@
-﻿using ChessLib.Data.MoveRepresentation;
-using System;
+﻿using System;
+using ChessLib.Core;
 
 namespace ChessLib.Data
 {
     public class MoveMadeEventArgs : EventArgs
     {
-        public MoveMadeEventArgs(MoveExt[] previousMoves, string fen)
+        public MoveMadeEventArgs(Move[] previousMoves, string fen)
         {
             CurrentFen = fen;
             PreviousMoves = previousMoves;
         }
 
         public string CurrentFen { get; }
-        public MoveExt[] PreviousMoves { get; }
+        public Move[] PreviousMoves { get; }
     }
 
 }

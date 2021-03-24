@@ -6,12 +6,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using ChessLib.Types.Enums;
+using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.MagicBitboard.Tests.Bitwise
 {
-    using Constants = ChessLib.MagicBitboard.Bitwise.BoardConstants;
-    using ServiceUnderTest = ChessLib.MagicBitboard.Bitwise.MovingPieceService;
+    using Constants = Core.MagicBitboard.Bitwise.BoardConstants;
+    using ServiceUnderTest = Core.MagicBitboard.Bitwise.MovingPieceService;
     public class ShiftTestCase
     {
         public ShiftTestCase(ulong value, ulong expected, Func<ulong, ulong> method)

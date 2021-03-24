@@ -1,5 +1,5 @@
-﻿using ChessLib.Data.PieceMobility;
-using ChessLib.Types.Enums;
+﻿using ChessLib.Core.Types.Enums;
+using ChessLib.Data.PieceMobility;
 
 namespace ChessLib.Data.Magic.Init
 {

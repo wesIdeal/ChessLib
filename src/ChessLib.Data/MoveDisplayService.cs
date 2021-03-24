@@ -1,12 +1,13 @@
-﻿using ChessLib.Data.Boards;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic;
-using ChessLib.Data.MoveRepresentation;
 using System.Collections.Generic;
 using System.Linq;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
-using ChessLib.Types.Interfaces;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Data
 {
@@ -43,9 +44,9 @@ namespace ChessLib.Data
         {
             Board = (IBoard)board.Clone();
         }
-        public static string MoveToLan(MoveExt move) => $"{move.SourceIndex.IndexToSquareDisplay()}{move.DestinationIndex.IndexToSquareDisplay()}{PromotionPieceChar(move)}";
+        public static string MoveToLan(Move move) => $"{move.SourceIndex.IndexToSquareDisplay()}{move.DestinationIndex.IndexToSquareDisplay()}{PromotionPieceChar(move)}";
 
-        private static char? PromotionPieceChar(MoveExt move) =>
+        private static char? PromotionPieceChar(Move move) =>
             move.MoveType == MoveType.Promotion ?
                 char.ToLower(PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)) : (char?)null;
 
@@ -54,7 +55,7 @@ namespace ChessLib.Data
         /// </summary>
         /// <param name="move">move to convert</param>
         /// <param name="recordResult">if true, the game result is included with the SAN (ie. 1-0, 1/2-1/2, 0-1)</param>
-        public string MoveToSAN(MoveExt move, bool recordResult = true)
+        public string MoveToSAN(Move move, bool recordResult = true)
         {
             if (move.MoveType == MoveType.Castle)
             {
@@ -111,7 +112,7 @@ namespace ChessLib.Data
             return $"{strSrcPiece}{capture}{move.DestinationIndex.IndexToSquareDisplay()}{promotionInfo}{checkInfo} {result}".Trim();
         }
 
-        internal string GetSANSourceString(MoveExt move, Piece src)
+        internal string GetSANSourceString(Move move, Piece src)
         {
             if (src == Piece.King)
             {

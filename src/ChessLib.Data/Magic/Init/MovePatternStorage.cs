@@ -4,8 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
 
 namespace ChessLib.Data.Magic.Init
 {
@@ -25,7 +26,7 @@ namespace ChessLib.Data.Magic.Init
         public void InitializePawns(MoveBoard board, PawnMovesInitializer initializer)
         {
             var moves = board.Board;
-            if (moves.Length > MaxArraySize) throw new ArgumentException($"Cannot hold more than {MaxArraySize} elements in Move Storage array.");
+            if (moves.Length > MaxArraySize) throw new ArgumentException($"Cannot hold more than {MaxArraySize} elements in MoveValue Storage array.");
             for (int index = 8; index < 56; index++)
             {
                 var attackBoard = moves[index];
@@ -49,7 +50,7 @@ namespace ChessLib.Data.Magic.Init
         private const int ArraySize = 12;
         public void InitializeFromOneDimensionalArray(ulong[] moves, MoveInitializer mi)
         {
-            if (moves.Length > MaxArraySize) throw new ArgumentException($"Cannot hold more than {MaxArraySize} elements in Move Storage array.");
+            if (moves.Length > MaxArraySize) throw new ArgumentException($"Cannot hold more than {MaxArraySize} elements in MoveValue Storage array.");
             Debug.WriteLine($"{DateTime.Now.TimeOfDay}\tBeginning {mi.GetType()} initialization routing.");
             Stopwatch sw = new Stopwatch();
             sw.Start();

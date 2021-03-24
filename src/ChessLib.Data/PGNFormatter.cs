@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ChessLib.Data.Boards;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
 using EnumsNET;
 
 namespace ChessLib.Data
 {
-    public class PGNFormatter<TS> where TS : MoveExt, IEquatable<TS>
+    public class PGNFormatter<TS> where TS : Move, IEquatable<TS>
     {
         private const char NewLine = '\n';
         private Game<TS> _game;

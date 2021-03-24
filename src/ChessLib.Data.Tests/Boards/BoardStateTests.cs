@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using ChessLib.Data.Boards;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
+using ChessLib.Core;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Interfaces;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Boards

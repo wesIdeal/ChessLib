@@ -1,14 +1,16 @@
 ﻿using System;
-using ChessLib.Data.Boards;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Exceptions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
 namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
 {
     [TestFixture()]
-    class DestinationNotOccupiedByActiveColor : Data.Validators.MoveValidation.MoveRules.DestinationNotOccupiedByActiveColor
+    class DestinationNotOccupiedByActiveColor : Core.Validation.Validators.MoveValidation.MoveRules.DestinationNotOccupiedByActiveColor
     {
         [Test]
         public void ShouldReturnNullIfTargetUnoccupied()

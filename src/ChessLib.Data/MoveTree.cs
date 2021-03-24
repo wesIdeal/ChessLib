@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ChessLib.Data.MoveRepresentation;
+using ChessLib.Core;
 
 namespace ChessLib.Data
 {

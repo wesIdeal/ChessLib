@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChessLib.Data.MoveRepresentation;
+using ChessLib.Core;
 
 namespace ChessLib.EngineInterface.UCI.Commands.ToEngine
 {
@@ -10,13 +10,13 @@ namespace ChessLib.EngineInterface.UCI.Commands.ToEngine
 
         public bool IgnoreCalculationInformationLines { get; }
 
-        private readonly IEnumerable<MoveExt> _searchMoves;
+        private readonly IEnumerable<Move> _searchMoves;
         private readonly int? _depth;
         private readonly int? _nodes;
         private readonly TimeSpan? _moveTime;
         private readonly string _commandText;
 
-        public Go(TimeSpan timeSpan, IEnumerable<MoveExt> searchMoves = null) : this(timeSpan, null, searchMoves)
+        public Go(TimeSpan timeSpan, IEnumerable<Move> searchMoves = null) : this(timeSpan, null, searchMoves)
         {
 
         }
@@ -26,7 +26,7 @@ namespace ChessLib.EngineInterface.UCI.Commands.ToEngine
             _commandText = "go infinite";
         }
 
-        public Go(TimeSpan? moveTime = null, int? depth = null, IEnumerable<MoveExt> searchMoves = null,
+        public Go(TimeSpan? moveTime = null, int? depth = null, IEnumerable<Move> searchMoves = null,
             int? nodes = null, bool ignoreMoveCalculationLines = true) : base(AppToUCICommand.Go)
         {
             IgnoreCalculationInformationLines = ignoreMoveCalculationLines;

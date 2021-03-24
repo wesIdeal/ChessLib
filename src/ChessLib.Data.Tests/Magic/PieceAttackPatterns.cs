@@ -7,7 +7,7 @@ namespace ChessLib.Data.Tests.Magic
     {
         #region MoveBoard TestCases
         /// <summary>
-        /// Test Move Boards
+        /// Test MoveValue Boards
         /// </summary>
         /// <param name="expected">ulong array in this order [King, Queen, Rook, Bishop, Knight, White Pawn, Black Pawn]</param>
 

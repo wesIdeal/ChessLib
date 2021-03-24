@@ -1,12 +1,11 @@
-﻿using ChessLib.Data.Boards;
-using ChessLib.Data.MoveRepresentation;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ChessLib.Core;
 
 namespace ChessLib.Data.Tests
 {

@@ -1,8 +1,11 @@
-﻿using ChessLib.Data.Boards;
+﻿using ChessLib.Core;
+using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Types.Interfaces;
 using ChessLib.Data.Magic;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Interfaces;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Helpers
@@ -14,15 +17,7 @@ namespace ChessLib.Data.Tests.Helpers
         private const string FENQueenAttacksd4 = "8/1k6/8/3q4/3P4/8/6K1/8 w - - 0 2";
         private const string FENQueenIsBlockedFromAttackingSquared4 = "8/1k6/3q4/3P4/3P4/8/6K1/8 w - - 0 2";
 
-        [Test]
-        public static void BitScanForward_ShouldReturnIndexOfBit_WhereBitIs1()
-        {
-            for (ushort expected = 0; expected < 64; expected++)
-            {
-                var testValue = BitHelpers.SetBit(0, expected) | 0x8000000000000000; //always set the MSB for testing
-                Assert.AreEqual(expected, BitHelpers.BitScanForward(testValue));
-            }
-        }
+
         [Test]
         public static void SetBit_ShouldReturnValueWithBitSet()
         {
@@ -56,7 +51,7 @@ namespace ChessLib.Data.Tests.Helpers
         public static void GetSetBits_ShouldReturnASquareIndex_GivenOneSquareOfInput()
         {
             var count = 0;
-            foreach (ulong sq in ChessLib.Data.Helpers.BoardHelpers.IndividualSquares)
+            foreach (ulong sq in BoardConstants.IndividualSquares)
             {
                 var idx = sq.GetSetBits();
                 Assert.AreEqual(count, idx[0]);
@@ -69,10 +64,10 @@ namespace ChessLib.Data.Tests.Helpers
         {
             var expectedR2 = new ushort[] { 8, 9, 10, 11, 12, 13, 14, 15 };
             var expectedR7 = new ushort[] { 48, 49, 50, 51, 52, 53, 54, 55 };
-            var rank2Value = ChessLib.Data.Helpers.BoardHelpers.RankMasks[1];
+            var rank2Value = BoardConstants.RankMasks[1];
             var rank2SetBits = rank2Value.GetSetBits();
             Assert.AreEqual(expectedR2, rank2SetBits);
-            Assert.AreEqual(expectedR7, ChessLib.Data.Helpers.BoardHelpers.RankMasks[6].GetSetBits());
+            Assert.AreEqual(expectedR7, BoardConstants.RankMasks[6].GetSetBits());
 
         }
 

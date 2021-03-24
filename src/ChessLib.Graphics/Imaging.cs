@@ -1,6 +1,5 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
 using ImageMagick;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using ChessLib.Data.Boards;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Helpers;
 
 namespace ChessLib.Graphics
 {

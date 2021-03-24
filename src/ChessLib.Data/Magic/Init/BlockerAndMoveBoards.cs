@@ -2,7 +2,8 @@
 using System;
 using System.Linq;
 using System.Text;
-using ChessLib.Types.Interfaces;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Data.Magic.Init
 {
@@ -21,7 +22,7 @@ namespace ChessLib.Data.Magic.Init
             var bb = Convert.ToString((long)Occupancy, 2).PadLeft(64, '0').ToCharArray();
             var mb = Convert.ToString((long)MoveBoard, 2).PadLeft(64, '0').ToCharArray();
             var bbHeader = "Blocker";
-            var mbHeader = "Move Board";
+            var mbHeader = "MoveValue Board";
             StringBuilder sb = new StringBuilder();
             var headerFormat = "{0,-20}{1,-20}\r\n{2,-20}{3,-20}\r\n";
             var format = "{0,-20}{1,-20}\r\n";

@@ -1,15 +1,17 @@
 ﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
 using NUnit.Framework;
 using System.Linq;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Validation.Validators.MoveValidation;
 using ChessLib.Data.Validators.MoveValidation;
-using ChessLib.Data.Boards;
-using ChessLib.Types.Exceptions;
 
 namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
 {
     [TestFixture]
-    internal class PieceCanMoveToDestination : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+    internal class PieceCanMoveToDestination : Core.Validation.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
     {
         protected static readonly ulong[][] _postMoveBoard = new ulong[2][];
 
@@ -91,7 +93,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             Assert.AreEqual(MoveError.BadDestination, Validate(Board, _postMoveBoard, move), "Should return error when the destination is invalid.");
         }
 
-        class PawnMoves : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        class PawnMoves : Core.Validation.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
             private const string InitialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
             private Board _board;
@@ -268,7 +270,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             [Test]
             public void ShouldReturnProperError_WhenBlackPawnMoves3()
             {
-                _board.ToggleActivePlayer();
+                BoardStateHelpers.ToggleActivePlayer(_board);
                 var move = MoveHelpers.GenerateMove(52, 28);
                 var actual = Validate(_board, _postMoveBoard, move);
                 Assert.AreEqual(MoveError.BadDestination, actual, "Expected validation error. Pawns can't move 3 squares.");
@@ -287,7 +289,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             [Test]
             public void ShouldReturnNoError_WhenBlackPawnMovesForward1()
             {
-                _board.ToggleActivePlayer();
+                BoardStateHelpers.ToggleActivePlayer(_board);
                 var move = MoveHelpers.GenerateMove(52, 44);
                 var actual = Validate(_board, _postMoveBoard, move);
                 Assert.AreEqual(MoveError.NoneSet, actual, "Expected no error. Pawns can move 1 forward.");
@@ -303,7 +305,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             [Test]
             public void ShouldReturnNoError_WhenBlackPawnMoves2From7thRank()
             {
-                _board.ToggleActivePlayer();
+                BoardStateHelpers.ToggleActivePlayer(_board);
                 var move = MoveHelpers.GenerateMove(52, 36);
                 var actual = Validate(_board, _postMoveBoard, move);
                 Assert.AreEqual(MoveError.NoneSet, actual, "Pawn can move 2 squares from the opening rank.");
@@ -336,22 +338,22 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
 
         }
 
-        class KnightMoves : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        class KnightMoves : Core.Validation.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
-            private static readonly MoveExt Ne5Tof3 = MoveHelpers.GenerateMove(36, 21);
-            private static readonly MoveExt Ne5Tod3 = MoveHelpers.GenerateMove(36, 19);
-            private static readonly MoveExt Ne5Toc4 = MoveHelpers.GenerateMove(36, 26);
-            private static readonly MoveExt Ne5Toc6 = MoveHelpers.GenerateMove(36, 42);
-            private static readonly MoveExt Ne5Tod7 = MoveHelpers.GenerateMove(36, 51);
-            private static readonly MoveExt Ne5Tof7 = MoveHelpers.GenerateMove(36, 53);
-            private static readonly MoveExt Ne5Tog6 = MoveHelpers.GenerateMove(36, 46);
-            private static readonly MoveExt Ne5Tog4 = MoveHelpers.GenerateMove(36, 30);
+            private static readonly Move Ne5Tof3 = MoveHelpers.GenerateMove(36, 21);
+            private static readonly Move Ne5Tod3 = MoveHelpers.GenerateMove(36, 19);
+            private static readonly Move Ne5Toc4 = MoveHelpers.GenerateMove(36, 26);
+            private static readonly Move Ne5Toc6 = MoveHelpers.GenerateMove(36, 42);
+            private static readonly Move Ne5Tod7 = MoveHelpers.GenerateMove(36, 51);
+            private static readonly Move Ne5Tof7 = MoveHelpers.GenerateMove(36, 53);
+            private static readonly Move Ne5Tog6 = MoveHelpers.GenerateMove(36, 46);
+            private static readonly Move Ne5Tog4 = MoveHelpers.GenerateMove(36, 30);
 
 
 
-            private readonly MoveExt[] _movesFromE5 = new[] { Ne5Tof3, Ne5Tod3, Ne5Toc4, Ne5Toc6, Ne5Tod7, Ne5Tof7, Ne5Tog6, Ne5Tog4 };
+            private readonly Move[] _movesFromE5 = new[] { Ne5Tof3, Ne5Tod3, Ne5Toc4, Ne5Toc6, Ne5Tod7, Ne5Tof7, Ne5Tog6, Ne5Tog4 };
 
-            private readonly MoveExt[] _movesFromCorners = new[]
+            private readonly Move[] _movesFromCorners = new[]
             {
                 MoveHelpers.GenerateMove(0, 17),
                 MoveHelpers.GenerateMove(0, 10),
@@ -371,7 +373,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             private readonly string _fenKnightInCorners = "NnbqkbnN/pp2p1pp/8/8/8/8/PP1PP1PP/N1BQKB1N w - - 0 1";
             private readonly string _fenBare = "4k3/8/8/4N3/8/8/8/4K3 w - - 0 1";
 
-            private readonly MoveExt[] _illegalMoves = new MoveExt[56];
+            private readonly Move[] _illegalMoves = new Move[56];
             [OneTimeSetUp]
             public void OneTimeSetUp()
             {
@@ -394,7 +396,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
                 foreach (var move in _illegalMoves)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
-                    Assert.AreEqual(MoveError.BadDestination, actual, $"Knight should not be able to move to illegal square. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.BadDestination, actual, $"Knight should not be able to move to illegal square. MoveValue was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
             }
 
@@ -405,7 +407,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
                 foreach (var move in _movesFromCorners)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
-                    Assert.AreEqual(MoveError.NoneSet, actual, $"Knight should be able to move to legal empty square from corner. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.NoneSet, actual, $"Knight should be able to move to legal empty square from corner. MoveValue was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
 
             }
@@ -417,7 +419,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
                 foreach (var move in _movesFromE5)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
-                    Assert.AreEqual(MoveError.NoneSet, actual, $"Knight should be able to move to legal empty square. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.NoneSet, actual, $"Knight should be able to move to legal empty square. MoveValue was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
 
             }
@@ -429,7 +431,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
                 foreach (var move in _movesFromE5)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
-                    Assert.AreEqual(MoveError.NoneSet, actual, $"Knight should be able to move to legal square occupied by opponent. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.NoneSet, actual, $"Knight should be able to move to legal square occupied by opponent. MoveValue was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
 
             }
@@ -441,7 +443,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
                 foreach (var move in _movesFromE5)
                 {
                     var actual = Validate(board, _postMoveBoard, move);
-                    Assert.AreEqual(MoveError.BadDestination, actual, $"Knight should not be able to move to legal square occupied by side to move. Move was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
+                    Assert.AreEqual(MoveError.BadDestination, actual, $"Knight should not be able to move to legal square occupied by side to move. MoveValue was from {move.SourceIndex.IndexToSquareDisplay()} to {move.DestinationIndex.IndexToSquareDisplay()}");
                 }
 
             }
@@ -450,7 +452,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
         /// <summary>
         /// Test Bishop Moves- should be minimal, as sliding piece attacks were tested by calculated shifts
         /// </summary>
-        class BishopQueenMoves : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        class BishopQueenMoves : Core.Validation.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
 
             private readonly SlidingPieceMoveAndBoard _bAttacksEnemyOnE5 =
@@ -545,7 +547,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             }
         }
 
-        class RookQueenMoves : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        class RookQueenMoves : Core.Validation.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
             private readonly SlidingPieceMoveAndBoard _rEnemyOnC7 = new SlidingPieceMoveAndBoard(2, 50, "2r1k3/2r5/8/8/8/8/8/n1R1K3 w - - 0 1");
             private readonly SlidingPieceMoveAndBoard _rEnemyOnC8 = new SlidingPieceMoveAndBoard(2, 58, "2r1k3/2r5/8/8/8/8/8/n1R1K3 w - - 0 1");
@@ -579,7 +581,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             [Test]
             public void ShouldReturnNull_WhenMovingToNonBlockedSquares()
             {
-                MoveExt move;
+                Move move;
                 for (ushort dest = 10; dest < 50; dest += 8)
                 {
                     move = MoveHelpers.GenerateMove(2, dest);
@@ -610,17 +612,17 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             }
         }
 
-        class KingMoves : Data.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        class KingMoves : Core.Validation.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
         {
             readonly Board _bi = new Board("4k3/8/8/8/8/8/1K6/8 w - - 0 1");
 
-            private readonly MoveExt[] moves = new MoveExt[]
+            private readonly Move[] moves = new Move[]
             {
                 MoveHelpers.GenerateMove(9, 0), MoveHelpers.GenerateMove(9, 1), MoveHelpers.GenerateMove(9, 2),
                 MoveHelpers.GenerateMove(9, 10), MoveHelpers.GenerateMove(9, 16), MoveHelpers.GenerateMove(9, 17),
                 MoveHelpers.GenerateMove(9, 18), MoveHelpers.GenerateMove(9, 8)
             };
-            private readonly MoveExt[] badMoves = new MoveExt[]
+            private readonly Move[] badMoves = new Move[]
             {
 
                 MoveHelpers.GenerateMove(9, 24), MoveHelpers.GenerateMove(9, 25), MoveHelpers.GenerateMove(9, 26),
@@ -653,7 +655,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
                 Move = MoveHelpers.GenerateMove(source, dest);
                 Board = new Board(fen);
             }
-            public readonly MoveExt Move;
+            public readonly Move Move;
             public readonly Board Board;
             public override string ToString()
             {

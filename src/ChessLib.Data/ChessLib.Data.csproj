@@ -47,11 +47,13 @@
     <PackageReference Include="Enums.NET" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ChessLib.Types\ChessLib.Types.csproj" />
+    <ProjectReference Include="..\ChessLib.Types\ChessLib.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Types\Enums\" />
-    <Folder Include="Types\Exceptions\" />
-    <Folder Include="Types\Interfaces\" />
+    <Folder Include="Validators\BoardValidation\Rules\" />
+    <Folder Include="Validators\FENValidation\Rules\" />
+    <Folder Include="Validators\MoveValidation\CastlingRules\" />
+    <Folder Include="Validators\MoveValidation\EnPassantRules\" />
+    <Folder Include="Validators\MoveValidation\MoveRules\" />
   </ItemGroup>
 </Project>

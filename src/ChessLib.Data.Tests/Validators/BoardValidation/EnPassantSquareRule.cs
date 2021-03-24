@@ -1,8 +1,10 @@
 ﻿#region
 
-using ChessLib.Data.Boards;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Enums;
 using Moq;
 using NUnit.Framework;
 
@@ -27,7 +29,7 @@ namespace ChessLib.Data.Tests.Validators.BoardValidation
         public static void TestEnPassant(string fen, BoardExceptionType expectedException)
         {
             var enPassantValidator =
-                new Data.Validators.BoardValidation.Rules.EnPassantSquareRule();
+                new Core.Validation.Validators.BoardValidation.Rules.EnPassantSquareRule();
             var board = fen.BoardFromFen(out var activePlayer, out _, out var enPassantIndex, out _, out _, false);
             var actualExceptionType = enPassantValidator.ValidateEnPassantSquare(board, enPassantIndex, activePlayer);
             Assert.AreEqual(expectedException, actualExceptionType);
@@ -37,7 +39,7 @@ namespace ChessLib.Data.Tests.Validators.BoardValidation
         public static void ValidateShouldCallValidateEnPassantSquare()
         {
             var board = new Board();
-            var epMock = new Mock<Data.Validators.BoardValidation.Rules.EnPassantSquareRule>();
+            var epMock = new Mock<Core.Validation.Validators.BoardValidation.Rules.EnPassantSquareRule>();
             epMock.Setup(
                     x => x.ValidateEnPassantSquare(It.IsAny<ulong[][]>(), It.IsAny<ushort?>(), It.IsAny<Color>()))
                 .Returns(BoardExceptionType.None).Verifiable();

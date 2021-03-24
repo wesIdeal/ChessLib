@@ -1,6 +1,7 @@
 ﻿#region
 
-using ChessLib.Types.Enums;
+using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
 #endregion

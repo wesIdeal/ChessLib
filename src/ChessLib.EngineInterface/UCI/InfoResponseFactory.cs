@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using ChessLib.Data.MoveRepresentation;
+using ChessLib.Core;
 
 namespace ChessLib.EngineInterface.UCI
 {
@@ -51,13 +51,13 @@ namespace ChessLib.EngineInterface.UCI
 
             public string CurrentMoveLong { get; set; }
 
-            public MoveExt CurrentMove { get; set; }
+            public Move CurrentMove { get; set; }
 
             public uint CurrentMoveNumber { get; set; }
 
             public string[] VariationLong { get; set; }
 
-            public MoveExt[] Variation { get; set; }
+            public Move[] Variation { get; set; }
 
             public Guid Id { get; set; }
 

@@ -1,10 +1,11 @@
-﻿using ChessLib.Data.Boards;
-using ChessLib.Data.Helpers;
-using ChessLib.Data.MoveRepresentation;
+﻿using ChessLib.Data.Helpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using ChessLib.Types.Enums;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 
 namespace ChessLib.Data.Tests.Magic
 {
@@ -42,7 +43,7 @@ namespace ChessLib.Data.Tests.Magic
         {
             var board = new Board(fen);
             var moves = ChessLib.Data.Magic.Bitboard.GetPseudoLegalMoves(Piece.King, (ushort)pieceSourceIndex, board.Occupancy.Occupancy(board.ActivePlayer),
-                board.Occupancy.Occupancy(board.OpponentColor), board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out List<MoveExt> arrMoves);
+                board.Occupancy.Occupancy(board.OpponentColor), board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out List<Move> arrMoves);
             var epSquareIncluded = moves.IsBitSet((ushort)destIndex);
             Assert.IsTrue(epSquareIncluded, errorMessage);
             var move = MoveHelpers.GenerateMove((ushort)pieceSourceIndex, (ushort)destIndex, MoveType.Castle);

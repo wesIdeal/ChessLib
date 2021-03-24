@@ -2,8 +2,11 @@
 using NUnit.Framework;
 using System;
 using System.Text;
-using ChessLib.Data.Boards;
-using ChessLib.Types.Enums;
+using ChessLib.Core;
+using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 using EnumsNET;
 
 namespace ChessLib.Data.Tests.Helpers
@@ -144,101 +147,101 @@ namespace ChessLib.Data.Tests.Helpers
             [Test]
             public static void InitializeFileMasks_FileMasksProperlyInitialized()
             {
-                Assert.AreEqual(0x101010101010101, BoardHelpers.FileMasks[0], "'A' File Mask not initialized properly.");
-                Assert.AreEqual(0x202020202020202, BoardHelpers.FileMasks[1], "'B' File Mask not initialized properly.");
-                Assert.AreEqual(0x404040404040404, BoardHelpers.FileMasks[2], "'C' File Mask not initialized properly.");
-                Assert.AreEqual(0x808080808080808, BoardHelpers.FileMasks[3], "'D' File Mask not initialized properly.");
-                Assert.AreEqual(0x1010101010101010, BoardHelpers.FileMasks[4], "'E' File Mask not initialized properly.");
-                Assert.AreEqual(0x2020202020202020, BoardHelpers.FileMasks[5], "'F' File Mask not initialized properly.");
-                Assert.AreEqual(0x4040404040404040, BoardHelpers.FileMasks[6], "'G' File Mask not initialized properly.");
-                Assert.AreEqual(0x8080808080808080, BoardHelpers.FileMasks[7], "'H' File Mask not initialized properly.");
+                Assert.AreEqual(0x101010101010101, BoardConstants.FileMasks[0], "'A' File Mask not initialized properly.");
+                Assert.AreEqual(0x202020202020202, BoardConstants.FileMasks[1], "'B' File Mask not initialized properly.");
+                Assert.AreEqual(0x404040404040404, BoardConstants.FileMasks[2], "'C' File Mask not initialized properly.");
+                Assert.AreEqual(0x808080808080808, BoardConstants.FileMasks[3], "'D' File Mask not initialized properly.");
+                Assert.AreEqual(0x1010101010101010, BoardConstants.FileMasks[4], "'E' File Mask not initialized properly.");
+                Assert.AreEqual(0x2020202020202020, BoardConstants.FileMasks[5], "'F' File Mask not initialized properly.");
+                Assert.AreEqual(0x4040404040404040, BoardConstants.FileMasks[6], "'G' File Mask not initialized properly.");
+                Assert.AreEqual(0x8080808080808080, BoardConstants.FileMasks[7], "'H' File Mask not initialized properly.");
             }
 
             [Test]
             public static void InitializeRankMasks_RankMasksProperlyInitialized()
             {
-                Assert.AreEqual(0xff, BoardHelpers.RankMasks[0], "Rank 1 Mask not initialized properly.");
-                Assert.AreEqual(0xff00, BoardHelpers.RankMasks[1], "Rank 2 Mask not initialized properly.");
-                Assert.AreEqual(0xff0000, BoardHelpers.RankMasks[2], "Rank 3 Mask not initialized properly.");
-                Assert.AreEqual(0xff000000, BoardHelpers.RankMasks[3], "Rank 4 Mask not initialized properly.");
-                Assert.AreEqual(0xff00000000, BoardHelpers.RankMasks[4], "Rank 5 Mask not initialized properly.");
-                Assert.AreEqual(0xff0000000000, BoardHelpers.RankMasks[5], "Rank 6 Mask not initialized properly.");
-                Assert.AreEqual(0xff000000000000, BoardHelpers.RankMasks[6], "Rank 7 Mask not initialized properly.");
-                Assert.AreEqual(0xff00000000000000, BoardHelpers.RankMasks[7], "Rank 8 Mask not initialized properly.");
+                Assert.AreEqual(0xff, BoardConstants.RankMasks[0], "Rank 1 Mask not initialized properly.");
+                Assert.AreEqual(0xff00, BoardConstants.RankMasks[1], "Rank 2 Mask not initialized properly.");
+                Assert.AreEqual(0xff0000, BoardConstants.RankMasks[2], "Rank 3 Mask not initialized properly.");
+                Assert.AreEqual(0xff000000, BoardConstants.RankMasks[3], "Rank 4 Mask not initialized properly.");
+                Assert.AreEqual(0xff00000000, BoardConstants.RankMasks[4], "Rank 5 Mask not initialized properly.");
+                Assert.AreEqual(0xff0000000000, BoardConstants.RankMasks[5], "Rank 6 Mask not initialized properly.");
+                Assert.AreEqual(0xff000000000000, BoardConstants.RankMasks[6], "Rank 7 Mask not initialized properly.");
+                Assert.AreEqual(0xff00000000000000, BoardConstants.RankMasks[7], "Rank 8 Mask not initialized properly.");
             }
 
             [Test]
             public static void IndividualSquareValidityTest()
             {
-                Assert.AreEqual(0x0000000000000001, BoardHelpers.IndividualSquares[0]);
-                Assert.AreEqual(0x0000000000000002, BoardHelpers.IndividualSquares[1]);
-                Assert.AreEqual(0x0000000000000004, BoardHelpers.IndividualSquares[2]);
-                Assert.AreEqual(0x0000000000000008, BoardHelpers.IndividualSquares[3]);
-                Assert.AreEqual(0x0000000000000010, BoardHelpers.IndividualSquares[4]);
-                Assert.AreEqual(0x0000000000000020, BoardHelpers.IndividualSquares[5]);
-                Assert.AreEqual(0x0000000000000040, BoardHelpers.IndividualSquares[6]);
-                Assert.AreEqual(0x0000000000000080, BoardHelpers.IndividualSquares[7]);
-                Assert.AreEqual(0x0000000000000100, BoardHelpers.IndividualSquares[8]);
-                Assert.AreEqual(0x0000000000000200, BoardHelpers.IndividualSquares[9]);
-                Assert.AreEqual(0x0000000000000400, BoardHelpers.IndividualSquares[10]);
-                Assert.AreEqual(0x0000000000000800, BoardHelpers.IndividualSquares[11]);
-                Assert.AreEqual(0x0000000000001000, BoardHelpers.IndividualSquares[12]);
-                Assert.AreEqual(0x0000000000002000, BoardHelpers.IndividualSquares[13]);
-                Assert.AreEqual(0x0000000000004000, BoardHelpers.IndividualSquares[14]);
-                Assert.AreEqual(0x0000000000008000, BoardHelpers.IndividualSquares[15]);
-                Assert.AreEqual(0x0000000000010000, BoardHelpers.IndividualSquares[16]);
-                Assert.AreEqual(0x0000000000020000, BoardHelpers.IndividualSquares[17]);
-                Assert.AreEqual(0x0000000000040000, BoardHelpers.IndividualSquares[18]);
-                Assert.AreEqual(0x0000000000080000, BoardHelpers.IndividualSquares[19]);
-                Assert.AreEqual(0x0000000000100000, BoardHelpers.IndividualSquares[20]);
-                Assert.AreEqual(0x0000000000200000, BoardHelpers.IndividualSquares[21]);
-                Assert.AreEqual(0x0000000000400000, BoardHelpers.IndividualSquares[22]);
-                Assert.AreEqual(0x0000000000800000, BoardHelpers.IndividualSquares[23]);
-                Assert.AreEqual(0x0000000001000000, BoardHelpers.IndividualSquares[24]);
-                Assert.AreEqual(0x0000000002000000, BoardHelpers.IndividualSquares[25]);
-                Assert.AreEqual(0x0000000004000000, BoardHelpers.IndividualSquares[26]);
-                Assert.AreEqual(0x0000000008000000, BoardHelpers.IndividualSquares[27]);
-                Assert.AreEqual(0x0000000010000000, BoardHelpers.IndividualSquares[28]);
-                Assert.AreEqual(0x0000000020000000, BoardHelpers.IndividualSquares[29]);
-                Assert.AreEqual(0x0000000040000000, BoardHelpers.IndividualSquares[30]);
-                Assert.AreEqual(0x0000000080000000, BoardHelpers.IndividualSquares[31]);
-                Assert.AreEqual(0x0000000100000000, BoardHelpers.IndividualSquares[32]);
-                Assert.AreEqual(0x0000000200000000, BoardHelpers.IndividualSquares[33]);
-                Assert.AreEqual(0x0000000400000000, BoardHelpers.IndividualSquares[34]);
-                Assert.AreEqual(0x0000000800000000, BoardHelpers.IndividualSquares[35]);
-                Assert.AreEqual(0x0000001000000000, BoardHelpers.IndividualSquares[36]);
-                Assert.AreEqual(0x0000002000000000, BoardHelpers.IndividualSquares[37]);
-                Assert.AreEqual(0x0000004000000000, BoardHelpers.IndividualSquares[38]);
-                Assert.AreEqual(0x0000008000000000, BoardHelpers.IndividualSquares[39]);
-                Assert.AreEqual(0x0000010000000000, BoardHelpers.IndividualSquares[40]);
-                Assert.AreEqual(0x0000020000000000, BoardHelpers.IndividualSquares[41]);
-                Assert.AreEqual(0x0000040000000000, BoardHelpers.IndividualSquares[42]);
-                Assert.AreEqual(0x0000080000000000, BoardHelpers.IndividualSquares[43]);
-                Assert.AreEqual(0x0000100000000000, BoardHelpers.IndividualSquares[44]);
-                Assert.AreEqual(0x0000200000000000, BoardHelpers.IndividualSquares[45]);
-                Assert.AreEqual(0x0000400000000000, BoardHelpers.IndividualSquares[46]);
-                Assert.AreEqual(0x0000800000000000, BoardHelpers.IndividualSquares[47]);
-                Assert.AreEqual(0x0001000000000000, BoardHelpers.IndividualSquares[48]);
-                Assert.AreEqual(0x0002000000000000, BoardHelpers.IndividualSquares[49]);
-                Assert.AreEqual(0x0004000000000000, BoardHelpers.IndividualSquares[50]);
-                Assert.AreEqual(0x0008000000000000, BoardHelpers.IndividualSquares[51]);
-                Assert.AreEqual(0x0010000000000000, BoardHelpers.IndividualSquares[52]);
-                Assert.AreEqual(0x0020000000000000, BoardHelpers.IndividualSquares[53]);
-                Assert.AreEqual(0x0040000000000000, BoardHelpers.IndividualSquares[54]);
-                Assert.AreEqual(0x0080000000000000, BoardHelpers.IndividualSquares[55]);
-                Assert.AreEqual(0x0100000000000000, BoardHelpers.IndividualSquares[56]);
-                Assert.AreEqual(0x0200000000000000, BoardHelpers.IndividualSquares[57]);
-                Assert.AreEqual(0x0400000000000000, BoardHelpers.IndividualSquares[58]);
-                Assert.AreEqual(0x0800000000000000, BoardHelpers.IndividualSquares[59]);
-                Assert.AreEqual(0x1000000000000000, BoardHelpers.IndividualSquares[60]);
-                Assert.AreEqual(0x2000000000000000, BoardHelpers.IndividualSquares[61]);
-                Assert.AreEqual(0x4000000000000000, BoardHelpers.IndividualSquares[62]);
-                Assert.AreEqual(0x8000000000000000, BoardHelpers.IndividualSquares[63]);
+                Assert.AreEqual(0x0000000000000001, BoardConstants.IndividualSquares[0]);
+                Assert.AreEqual(0x0000000000000002, BoardConstants.IndividualSquares[1]);
+                Assert.AreEqual(0x0000000000000004, BoardConstants.IndividualSquares[2]);
+                Assert.AreEqual(0x0000000000000008, BoardConstants.IndividualSquares[3]);
+                Assert.AreEqual(0x0000000000000010, BoardConstants.IndividualSquares[4]);
+                Assert.AreEqual(0x0000000000000020, BoardConstants.IndividualSquares[5]);
+                Assert.AreEqual(0x0000000000000040, BoardConstants.IndividualSquares[6]);
+                Assert.AreEqual(0x0000000000000080, BoardConstants.IndividualSquares[7]);
+                Assert.AreEqual(0x0000000000000100, BoardConstants.IndividualSquares[8]);
+                Assert.AreEqual(0x0000000000000200, BoardConstants.IndividualSquares[9]);
+                Assert.AreEqual(0x0000000000000400, BoardConstants.IndividualSquares[10]);
+                Assert.AreEqual(0x0000000000000800, BoardConstants.IndividualSquares[11]);
+                Assert.AreEqual(0x0000000000001000, BoardConstants.IndividualSquares[12]);
+                Assert.AreEqual(0x0000000000002000, BoardConstants.IndividualSquares[13]);
+                Assert.AreEqual(0x0000000000004000, BoardConstants.IndividualSquares[14]);
+                Assert.AreEqual(0x0000000000008000, BoardConstants.IndividualSquares[15]);
+                Assert.AreEqual(0x0000000000010000, BoardConstants.IndividualSquares[16]);
+                Assert.AreEqual(0x0000000000020000, BoardConstants.IndividualSquares[17]);
+                Assert.AreEqual(0x0000000000040000, BoardConstants.IndividualSquares[18]);
+                Assert.AreEqual(0x0000000000080000, BoardConstants.IndividualSquares[19]);
+                Assert.AreEqual(0x0000000000100000, BoardConstants.IndividualSquares[20]);
+                Assert.AreEqual(0x0000000000200000, BoardConstants.IndividualSquares[21]);
+                Assert.AreEqual(0x0000000000400000, BoardConstants.IndividualSquares[22]);
+                Assert.AreEqual(0x0000000000800000, BoardConstants.IndividualSquares[23]);
+                Assert.AreEqual(0x0000000001000000, BoardConstants.IndividualSquares[24]);
+                Assert.AreEqual(0x0000000002000000, BoardConstants.IndividualSquares[25]);
+                Assert.AreEqual(0x0000000004000000, BoardConstants.IndividualSquares[26]);
+                Assert.AreEqual(0x0000000008000000, BoardConstants.IndividualSquares[27]);
+                Assert.AreEqual(0x0000000010000000, BoardConstants.IndividualSquares[28]);
+                Assert.AreEqual(0x0000000020000000, BoardConstants.IndividualSquares[29]);
+                Assert.AreEqual(0x0000000040000000, BoardConstants.IndividualSquares[30]);
+                Assert.AreEqual(0x0000000080000000, BoardConstants.IndividualSquares[31]);
+                Assert.AreEqual(0x0000000100000000, BoardConstants.IndividualSquares[32]);
+                Assert.AreEqual(0x0000000200000000, BoardConstants.IndividualSquares[33]);
+                Assert.AreEqual(0x0000000400000000, BoardConstants.IndividualSquares[34]);
+                Assert.AreEqual(0x0000000800000000, BoardConstants.IndividualSquares[35]);
+                Assert.AreEqual(0x0000001000000000, BoardConstants.IndividualSquares[36]);
+                Assert.AreEqual(0x0000002000000000, BoardConstants.IndividualSquares[37]);
+                Assert.AreEqual(0x0000004000000000, BoardConstants.IndividualSquares[38]);
+                Assert.AreEqual(0x0000008000000000, BoardConstants.IndividualSquares[39]);
+                Assert.AreEqual(0x0000010000000000, BoardConstants.IndividualSquares[40]);
+                Assert.AreEqual(0x0000020000000000, BoardConstants.IndividualSquares[41]);
+                Assert.AreEqual(0x0000040000000000, BoardConstants.IndividualSquares[42]);
+                Assert.AreEqual(0x0000080000000000, BoardConstants.IndividualSquares[43]);
+                Assert.AreEqual(0x0000100000000000, BoardConstants.IndividualSquares[44]);
+                Assert.AreEqual(0x0000200000000000, BoardConstants.IndividualSquares[45]);
+                Assert.AreEqual(0x0000400000000000, BoardConstants.IndividualSquares[46]);
+                Assert.AreEqual(0x0000800000000000, BoardConstants.IndividualSquares[47]);
+                Assert.AreEqual(0x0001000000000000, BoardConstants.IndividualSquares[48]);
+                Assert.AreEqual(0x0002000000000000, BoardConstants.IndividualSquares[49]);
+                Assert.AreEqual(0x0004000000000000, BoardConstants.IndividualSquares[50]);
+                Assert.AreEqual(0x0008000000000000, BoardConstants.IndividualSquares[51]);
+                Assert.AreEqual(0x0010000000000000, BoardConstants.IndividualSquares[52]);
+                Assert.AreEqual(0x0020000000000000, BoardConstants.IndividualSquares[53]);
+                Assert.AreEqual(0x0040000000000000, BoardConstants.IndividualSquares[54]);
+                Assert.AreEqual(0x0080000000000000, BoardConstants.IndividualSquares[55]);
+                Assert.AreEqual(0x0100000000000000, BoardConstants.IndividualSquares[56]);
+                Assert.AreEqual(0x0200000000000000, BoardConstants.IndividualSquares[57]);
+                Assert.AreEqual(0x0400000000000000, BoardConstants.IndividualSquares[58]);
+                Assert.AreEqual(0x0800000000000000, BoardConstants.IndividualSquares[59]);
+                Assert.AreEqual(0x1000000000000000, BoardConstants.IndividualSquares[60]);
+                Assert.AreEqual(0x2000000000000000, BoardConstants.IndividualSquares[61]);
+                Assert.AreEqual(0x4000000000000000, BoardConstants.IndividualSquares[62]);
+                Assert.AreEqual(0x8000000000000000, BoardConstants.IndividualSquares[63]);
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < 64; i++)
                 {
                     sb.Append(
-                        $"0x{Convert.ToString((long)BoardHelpers.IndividualSquares[i], 16)}, {(i != 0 && i % 7 == 0 ? "\r\n" : "")}");
+                        $"0x{Convert.ToString((long)BoardConstants.IndividualSquares[i], 16)}, {(i != 0 && i % 7 == 0 ? "\r\n" : "")}");
                 }
                 Console.WriteLine(sb.ToString());
             }

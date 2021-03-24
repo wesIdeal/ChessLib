@@ -4,13 +4,15 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using ChessLib.Types.Enums;
+using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 
 [assembly: InternalsVisibleTo("ChessLib.Data.Tests")]
 namespace ChessLib.Data.Magic.Init
 {
     /// <summary>
-    /// Holds Move and Attack masks for pieces and pawns
+    /// Holds MoveValue and Attack masks for pieces and pawns
     /// </summary>
     internal class PieceAttackPatterns
     {
@@ -90,7 +92,7 @@ namespace ChessLib.Data.Magic.Init
                 var square = 1ul << i;
                 PawnAttackMask[Color.White.ToInt()][i] = square.ShiftNE() | square.ShiftNW();
                 PawnMoveMask[Color.White.ToInt()][i] = i < 8 || i > 55 ? 0 :
-                    square.ShiftN() | square.Shift2N() & BoardHelpers.RankMasks[Rank.R4.ToInt()];
+                    square.ShiftN() | square.Shift2N() & BoardConstants.RankMasks[Rank.R4.ToInt()];
             }
 
             for (var i = 0; i < 64; i++)
@@ -98,7 +100,7 @@ namespace ChessLib.Data.Magic.Init
                 var square = (ulong)1 << i;
                 PawnAttackMask[Color.Black.ToInt()][i] = square.ShiftSE() | square.ShiftSW();
                 PawnMoveMask[Color.Black.ToInt()][i] = i > 55 || i < 8 ? 0 :
-                    square.ShiftS() | square.Shift2S() & BoardHelpers.RankMasks[Rank.R5.ToInt()];
+                    square.ShiftS() | square.Shift2S() & BoardConstants.RankMasks[Rank.R5.ToInt()];
             }
         }
 

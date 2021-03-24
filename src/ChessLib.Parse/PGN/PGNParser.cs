@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ChessLib.Core;
 using ChessLib.Data;
-using ChessLib.Data.MoveRepresentation;
 using ChessLib.Parse.PGN.Base;
 
 namespace ChessLib.Parse.PGN

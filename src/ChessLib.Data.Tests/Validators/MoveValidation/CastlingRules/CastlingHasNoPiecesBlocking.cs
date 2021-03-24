@@ -1,9 +1,11 @@
 ﻿#region
 
 using System.Collections.Generic;
-using ChessLib.Data.Boards;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Exceptions;
 using NUnit.Framework;
 
 #endregion
@@ -16,7 +18,7 @@ namespace ChessLib.Data.Tests.Validators.MoveValidation.CastlingRules
     [TestFixture(Description =
         "Tests for castling through occupied and non-occupied squares between castling King and Rook")]
     internal class
-        CastlingHasNoPiecesBlocking : Data.Validators.MoveValidation.CastlingRules.CastlingHasNoPiecesBlocking
+        CastlingHasNoPiecesBlocking : Core.Validation.Validators.MoveValidation.CastlingRules.CastlingHasNoPiecesBlocking
     {
         public static IEnumerable<CastlingTestCase> GetCastlingTestCases()
         {

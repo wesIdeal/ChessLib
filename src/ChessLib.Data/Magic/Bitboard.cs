@@ -1,15 +1,16 @@
-﻿using ChessLib.Data.Boards;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic.Init;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.Validators.MoveValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using ChessLib.Types.Enums;
-using ChessLib.Types.Exceptions;
-using ChessLib.Types.Interfaces;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Types.Interfaces;
+using ChessLib.Core.Validation.Validators.MoveValidation;
 
 namespace ChessLib.Data.Magic
 {
@@ -53,7 +54,7 @@ namespace ChessLib.Data.Magic
             return false;
         }
 
-        public static bool IsCastlingMove(this Board board, MoveExt unFilledMove)
+        public static bool IsCastlingMove(this Board board, Move unFilledMove)
         {
             var sourcePiece = BoardHelpers.GetPieceAtIndex(board.Occupancy, unFilledMove.SourceIndex);
             if (sourcePiece == null)
@@ -78,7 +79,7 @@ namespace ChessLib.Data.Magic
             return false;
         }
 
-        public static bool IsEnPassantCapture(this Board board, MoveExt unFilledMove)
+        public static bool IsEnPassantCapture(this Board board, Move unFilledMove)
         {
             var sourcePiece = BoardHelpers.GetPieceAtIndex(board.Occupancy, unFilledMove.SourceIndex);
             if (sourcePiece == null)
@@ -143,13 +144,13 @@ namespace ChessLib.Data.Magic
         /// <param name="promotionPiece">Character representing promotion piece</param>
         /// <returns>A move object</returns>
         /// <exception cref="MoveException">if promotion character is not [n|b|r|q|null], insensitive of case</exception>
-        public static MoveExt GetMove(IBoard board, ushort source, ushort dest, PromotionPiece promotionPiece)
+        public static Move GetMove(IBoard board, ushort source, ushort dest, PromotionPiece promotionPiece)
         {
             var moveType = GetMoveType(board, source, dest);
             return MoveHelpers.GenerateMove(source, dest, moveType, promotionPiece);
         }
 
-        public static IEnumerable<MoveExt> BoardValueToMoves(Piece p, ushort source, ulong destinations, ushort? enPassantSq, CastlingAvailability ca)
+        public static IEnumerable<IMove> BoardValueToMoves(Piece p, ushort source, ulong destinations, ushort? enPassantSq, CastlingAvailability ca)
         {
             foreach (var destination in destinations.GetSetBits())
             {
@@ -160,14 +161,14 @@ namespace ChessLib.Data.Magic
             }
         }
 
-        public static ulong GetPseudoLegalMoves(IBoard board, ushort idx, out List<MoveExt> moves)
+        public static ulong GetPseudoLegalMoves(IBoard board, ushort idx, out List<Move> moves)
         {
             var piece = board.GetPieceAtIndex(idx);
-            moves = new List<MoveExt>();
+            moves = new List<Move>();
             if (piece == null) return 0;
             var pslMoves = GetPseudoLegalMoves(piece.Value, idx, board.Occupancy.Occupancy(board.ActivePlayer), board.Occupancy.Occupancy(board.OpponentColor()),
                 board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability, out moves);
-            var rv = new List<MoveExt>();
+            var rv = new List<Move>();
             foreach (var m in moves)
             {
                 MoveValidator mv = new MoveValidator(board, m);
@@ -194,7 +195,7 @@ namespace ChessLib.Data.Magic
         /// <param name="ca">Castling availability flags</param>
         /// <param name="unvalidatedMoves">Actual move objects</param>
         /// <returns></returns>
-        public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex, CastlingAvailability ca, out List<MoveExt> unvalidatedMoves)
+        public static ulong GetPseudoLegalMoves(Piece piece, ushort pieceSquare, ulong activeOcc, ulong oppOcc, Color color, ushort? enPassantIndex, CastlingAvailability ca, out List<IMove> unvalidatedMoves)
         {
             var totalOccupancy = activeOcc | oppOcc;
             ulong possibleMoves;
@@ -297,8 +298,8 @@ namespace ChessLib.Data.Magic
             }
 
             _ = GetPseudoLegalMoves(p.Value.Piece, square, board.Occupancy.Occupancy(p.Value.Color),
-                board.Occupancy.Occupancy(p.Value.Color.Toggle()), p.Value.Color, board.EnPassantSquare,
-                board.CastlingAvailability, out List<MoveExt> moves);
+                board.Occupancy.Occupancy(BoardHelpers.Toggle(p.Value.Color)), p.Value.Color, board.EnPassantSquare,
+                board.CastlingAvailability, out List<Move> moves);
             foreach (var mv in moves)
             {
                 var postMove = BoardHelpers.GetBoardPostMove(board, mv);
@@ -321,8 +322,8 @@ namespace ChessLib.Data.Magic
             }
 
             _ = GetPseudoLegalMoves(p.Value.Piece, square, occupancy.Occupancy(p.Value.Color),
-                occupancy.Occupancy(p.Value.Color.Toggle()), p.Value.Color, enPassantSquare,
-                castlingAvailability, out List<MoveExt> moves);
+                occupancy.Occupancy(BoardHelpers.Toggle(p.Value.Color)), p.Value.Color, enPassantSquare,
+                castlingAvailability, out List<IMove> moves);
             foreach (var mv in moves)
             {
                 var postMove = BoardHelpers.GetBoardPostMove(occupancy, activeColor, mv);
@@ -367,7 +368,7 @@ namespace ChessLib.Data.Magic
             var dstValue = destinationIndex.GetBoardValueOfIndex();
             var legalMoves = GetPseudoLegalMoves(piece.Value, sourceIndex, activeOccupancy,
                oppOccupancy, activeColor, enPassantIndex, castlingAvailability,
-                out List<MoveExt> pseudoMoves);
+                out List<Move> pseudoMoves);
 
             if (piece == Piece.Pawn)
             {

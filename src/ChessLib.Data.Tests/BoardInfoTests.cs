@@ -2,11 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using ChessLib.Data.Boards;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
 using ChessLib.Data.Magic;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Types.Enums;
 using NUnit.Framework;
 
 // ReSharper disable once CheckNamespace
@@ -430,7 +431,7 @@ namespace ChessLib.Data.Tests
     public class EnPassantTestCase
     {
         public Board Board = new Board();
-        public MoveExt Move { get; set; }
+        public Move Move { get; set; }
 
         public ushort? ExpectedEnPassantSquare
         {

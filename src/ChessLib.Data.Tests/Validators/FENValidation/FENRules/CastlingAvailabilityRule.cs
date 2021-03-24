@@ -1,4 +1,4 @@
-﻿using ChessLib.Types.Enums;
+﻿using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
@@ -26,7 +26,7 @@ namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
         [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w   - 0 1", FENError.CastlingNoStringPresent)]
         public static void ValidateCastlingAvailability(string fen, FENError expectedError)
         {
-            var validator = new Data.Validators.FENValidation.Rules.CastlingAvailabilityRule();
+            var validator = new Core.Validation.Validators.FENValidation.Rules.CastlingAvailabilityRule();
             var actual = validator.Validate(fen);
             Assert.AreEqual(expectedError, actual);
         }

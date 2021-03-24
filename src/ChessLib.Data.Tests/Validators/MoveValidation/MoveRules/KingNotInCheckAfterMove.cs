@@ -1,13 +1,15 @@
-﻿using ChessLib.Data.Boards;
+﻿using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
-using ChessLib.Types.Exceptions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
 namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
 {
     [TestFixture()]
-    class KingNotInCheckAfterMove : Data.Validators.MoveValidation.MoveRules.KingNotInCheckAfterMove
+    class KingNotInCheckAfterMove : Core.Validation.Validators.MoveValidation.MoveRules.KingNotInCheckAfterMove
     {
 
         [Test]
@@ -60,7 +62,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
             var move = MoveHelpers.GenerateMove(53, 62);
             var kingInCheck = new Board("5k2/5b2/8/8/8/8/6K1/5R2 b - - 1 2");
             var postMoveBoard = BoardHelpers.GetBoardPostMove(kingInCheck, move);
-            Assert.AreEqual(MoveError.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move), "ValidateMove should throw and exception if the move leaves the King in check. Move is Bg7.");
+            Assert.AreEqual(MoveError.MoveLeavesKingInCheck, Validate(kingInCheck, postMoveBoard, move), "ValidateMove should throw and exception if the move leaves the King in check. MoveValue is Bg7.");
         }
 
         [Test]

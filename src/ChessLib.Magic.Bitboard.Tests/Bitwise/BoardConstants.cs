@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace ChessLib.MagicBitboard.Tests.Bitwise
 {
-    using Constants = ChessLib.MagicBitboard.Bitwise.BoardConstants;
+    using Constants = Core.MagicBitboard.Bitwise.BoardConstants;
     [TestFixture]
     public class BoardConstants
     {

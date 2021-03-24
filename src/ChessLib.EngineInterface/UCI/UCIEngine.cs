@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ChessLib.Core;
 using ChessLib.Data;
-using ChessLib.Data.MoveRepresentation;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using ChessLib.EngineInterface.UCI.Commands.ToEngine;
@@ -93,17 +93,17 @@ namespace ChessLib.EngineInterface.UCI
 
         public override void SendPosition(string fen)
         {
-            SendPosition(fen, new MoveExt[] { });
+            SendPosition(fen, new Move[] { });
         }
 
-        public override void SendPosition(MoveExt[] moves)
+        public override void SendPosition(Move[] moves)
         {
             base.SendPosition(moves);
             _moveTranslatorService.InitializeBoard(CurrentFEN);
             SendPosition(StartingPositionFEN, moves);
         }
 
-        public override void SendPosition(string fen, MoveExt[] moves)
+        public override void SendPosition(string fen, Move[] moves)
         {
             base.SendPosition(fen, moves);
             base.SendPosition(fen);
@@ -125,7 +125,7 @@ namespace ChessLib.EngineInterface.UCI
         /// </summary>
         /// <param name="searchTime">Time to spend searching</param>
         /// <param name="searchMoves">only consider these moves</param>
-        public void SendGo(TimeSpan searchTime, MoveExt[] searchMoves = null)
+        public void SendGo(TimeSpan searchTime, Move[] searchMoves = null)
         {
             QueueCommand(new Go(searchTime, searchMoves));
         }

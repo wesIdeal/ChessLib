@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ChessLib.Types.Enums;
+using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Data.Tests.Boards
 {
-    using BoardUnderTest = Data.Boards.Board;
+    using BoardUnderTest = Board;
     [TestFixture]
     public class BoardTest
     {

@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using ChessLib.Core;
+using ChessLib.Core.Types.Helpers;
 using ChessLib.Data;
 using ChessLib.Data.Helpers;
 

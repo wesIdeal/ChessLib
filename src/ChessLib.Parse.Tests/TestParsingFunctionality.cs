@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using ChessLib.Core;
+using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Data;
-using ChessLib.Data.MoveRepresentation;
-using ChessLib.Data.MoveRepresentation.NAG;
 using ChessLib.Parse.PGN;
 using ChessLib.Parse.PGN.Base;
 using NUnit.Framework;
