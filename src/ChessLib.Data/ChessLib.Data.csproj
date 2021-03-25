@@ -50,6 +50,7 @@
     <ProjectReference Include="..\ChessLib.Types\ChessLib.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="PieceMobility\" />
     <Folder Include="Validators\BoardValidation\Rules\" />
     <Folder Include="Validators\FENValidation\Rules\" />
     <Folder Include="Validators\MoveValidation\CastlingRules\" />

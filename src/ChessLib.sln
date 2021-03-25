@@ -41,7 +41,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Game.Tests", "Ches
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Core", "ChessLib.Types\ChessLib.Core.csproj", "{E2695137-DE6C-461F-8E90-2E2C80A3A4AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib.CoreTests", "ChessLib.CoreTests\ChessLib.CoreTests.csproj", "{E56813BC-3CEC-488A-99DE-9A61DFBFE09D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Core.Tests", "ChessLib.CoreTests\ChessLib.Core.Tests.csproj", "{E56813BC-3CEC-488A-99DE-9A61DFBFE09D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

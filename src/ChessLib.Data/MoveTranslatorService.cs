@@ -3,13 +3,12 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core;
+using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.MoveValidation;
-using ChessLib.Data.Helpers;
-using ChessLib.Data.Magic;
 
 namespace ChessLib.Data
 {
@@ -97,7 +96,8 @@ namespace ChessLib.Data
         public Move GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex,
             PromotionPiece? promotionPiece)
         {
-            var rv = Bitboard.GetMove(Board, sourceIndex, destinationIndex, promotionPiece ?? PromotionPiece.Knight);
+            var rv = (Move)BoardHelpers.GetMove(Board, sourceIndex, destinationIndex,
+                promotionPiece ?? PromotionPiece.Knight);
             rv.SAN = MoveToSAN(rv);
             return rv;
         }
@@ -107,7 +107,7 @@ namespace ChessLib.Data
         /// </summary>
         /// <param name="lan"></param>
         /// <returns></returns>
-        public static Move BasicMoveFromLAN(string lan)
+        public static IMove BasicMoveFromLAN(string lan)
         {
             var length = lan.Length;
             if (length < 4 || length > 5)
@@ -171,9 +171,9 @@ namespace ChessLib.Data
             return mv;
         }
 
-        public Move GetMoveFromSAN(string sanMove)
+        public IMove GetMoveFromSAN(string sanMove)
         {
-            Move move;
+            IMove resultingMove;
             Debug.WriteLine(Board.ToFEN());
             var move = StripNonMoveInfoFromMove(sanMove);
             if (move.Length < 2)
@@ -185,7 +185,7 @@ namespace ChessLib.Data
 
             if (char.IsLower(move[0]))
             {
-                moveExt = GetPawnMoveDetails(move);
+                resultingMove = GetPawnMoveDetails(move);
             }
             else if (move == CastleKingSide || move == CastleQueenSide)
             {
@@ -201,7 +201,8 @@ namespace ChessLib.Data
                 var pieceMoving = PieceHelpers.GetPiece(move[0]);
                 var destinationSquare = move.Substring(move.Length - 2, 2).SquareTextToIndex();
                 Debug.Assert(destinationSquare.HasValue && destinationSquare >= 0 && destinationSquare < 64);
-                var squaresAttackingTarget = Board.PiecesAttackingSquare(destinationSquare.Value);
+                var squaresAttackingTarget =
+                    Bitboard.Instance.PiecesAttackingSquare(Board.Occupancy, destinationSquare.Value);
                 if (squaresAttackingTarget == 0)
                 {
                     throw new MoveException(
@@ -228,24 +229,24 @@ namespace ChessLib.Data
 
                 if (possibleAttackersOfType.Count == 1)
                 {
-                    moveExt = MoveHelpers.GenerateMove(possibleAttackersOfType[0], destinationSquare.Value);
+                    resultingMove = MoveHelpers.GenerateMove(possibleAttackersOfType[0], destinationSquare.Value);
                 }
                 else
                 {
-                    moveExt = DetermineWhichPieceMovesToSquare(move, possibleAttackersOfType, applicableBlockerBoard,
+                    resultingMove = DetermineWhichPieceMovesToSquare(move, possibleAttackersOfType, applicableBlockerBoard,
                         destinationSquare.Value);
                 }
             }
 
-            if (moveExt == null)
+            if (resultingMove == null)
             {
                 throw new NoNullAllowedException($"MoveTranslatorService: MoveValue should not be null after translation. Error in PGN or application for move {sanMove}.");
             }
 
-            return moveExt;
+            return resultingMove;
         }
 
-        private Move DetermineWhichPieceMovesToSquare(in string move, IEnumerable<ushort> possibleAttackersOfType,
+        private IMove DetermineWhichPieceMovesToSquare(in string move, IEnumerable<ushort> possibleAttackersOfType,
             ulong applicableBb, ushort destinationSquare)
         {
             var mv = (string)move.Clone();
@@ -311,7 +312,7 @@ namespace ChessLib.Data
                 source = narrowedSquares[0];
             }
 
-            var sourceVal = source.ToBoardValue();
+            var sourceVal = source.GetBoardValueOfIndex();
             if ((sourceVal & applicableBb) == 0)
             {
                 throw new MoveException(
@@ -321,7 +322,7 @@ namespace ChessLib.Data
             return MoveHelpers.GenerateMove(source, destinationSquare);
         }
 
-        private Move GetPawnMoveDetails(string move)
+        private IMove GetPawnMoveDetails(string move)
         {
             var colorMoving = Board.ActivePlayer;
             var promotionPiece = PromotionPiece.Knight;
@@ -331,7 +332,6 @@ namespace ChessLib.Data
             var isCapture = move.Contains("x");
 
             var isPromotion = move.Contains("=");
-            ushort? destIndex;
             ushort startingFile = 0;
             var moveType = MoveType.Normal;
             if (isCapture)
@@ -352,7 +352,7 @@ namespace ChessLib.Data
                 move = move.Substring(0, equalIndex);
             }
 
-            destIndex = move.SquareTextToIndex();
+            var destIndex = move.SquareTextToIndex();
             if (!destIndex.HasValue)
             {
                 throw new NoNullAllowedException("MoveTranslatorService: destIndex should not be null.");
@@ -362,8 +362,8 @@ namespace ChessLib.Data
             Debug.Assert(destIndex.HasValue);
 
             var isPossibleInitialMove =
-                destIndex.Value.IsIndexOnRank(3) && colorMoving == Color.White ||
-                destIndex.Value.IsIndexOnRank(4) && colorMoving == Color.Black;
+                destIndex.Value.GetRank() == 3 && colorMoving == Color.White ||
+                destIndex.Value.GetRank() == 4 && colorMoving == Color.Black;
             if (isCapture)
             {
                 var destinationFile = destIndex.Value.FileFromIdx();
@@ -381,7 +381,7 @@ namespace ChessLib.Data
             else if (isPossibleInitialMove)
             {
                 var possibleStartingIndex = colorMoving == Color.White ? destIndex.Value - 8 : destIndex + 8;
-                var srcValue = ((ushort)possibleStartingIndex).ToBoardValue();
+                var srcValue = ((ushort)possibleStartingIndex).GetBoardValueOfIndex();
                 //first check rank 2
                 if ((pawnBitBoard & srcValue) == 0)
                 {

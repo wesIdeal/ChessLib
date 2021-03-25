@@ -12,6 +12,16 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             Initialize();
         }
 
+        public ulong GetAttacksFromSquare(ushort squareIndex, Color color)
+        {
+            return AttackMask[(int) color][squareIndex];
+        }
+
+        public ulong GetMovesFromSquare(ushort squareIndex, Color color)
+        {
+            return MoveMask[(int)color][squareIndex];
+        }
+
         public override ulong GetPseudoLegalMoves(ushort square, Color playerColor, ulong occupancy)
         {
             var attacks = AttackMask[(int)playerColor][square] & occupancy;

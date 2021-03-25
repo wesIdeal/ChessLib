@@ -168,7 +168,7 @@ namespace ChessLib.Core.Types.Helpers
                 return;
             }
 
-            var epVal = epIndex.Value.ToBoardValue();
+            var epVal = epIndex.Value.GetBoardValueOfIndex();
             var isOnRank3 = (epVal & BoardConstants.RankMasks[2]) != 0;
             var isOnRank6 = (epVal & BoardConstants.RankMasks[5]) != 0;
             if (isOnRank6 || isOnRank3)

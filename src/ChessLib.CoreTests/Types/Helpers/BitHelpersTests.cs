@@ -1,235 +1,300 @@
-﻿using NUnit.Framework;
-using ChessLib.Core.Types.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Types.Helpers;
+using NUnit.Framework;
+// ReSharper disable PossibleInvalidOperationException
 
-namespace ChessLib.Core.Types.Helpers.Tests
+namespace ChessLib.Core.Tests.Types.Helpers
 {
     public class BitHelpersTestCase
     {
-        public ushort TestedValue { get; set; }
-        public ulong ExpectedValue { get; set; }
+        public BitHelpersTestCase(ulong testedValue, bool expected)
+        {
+            ExpectedBool = expected;
+            TestedValue = testedValue;
+        }
+
+        public BitHelpersTestCase(ulong testedValue, ulong? expectedValue)
+        {
+            TestedValue = testedValue;
+            ExpectedValue = expectedValue;
+        }
+
+        public ulong TestedValue2 { get; set; }
+        public ulong TestedValue { get; set; }
+        public ulong? ExpectedValue { get; set; }
+
+        public bool ExpectedBool { get; set; }
+        public string Description { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Description}{Environment.NewLine}Expected {ExpectedValue} when testing {TestedValue}.";
+        }
     }
-    [TestFixture()]
+
+    [TestFixture]
     public class BitHelpersTests
     {
         [TestCaseSource(nameof(GetBitScanTestCases))]
-        public static void BitScanForwardTest()
+        public static void BitScanForwardTest(BitHelpersTestCase testCase)
         {
-            for (ushort expected = 0; expected < 64; expected++)
-            {
-                var testValue = BitHelpers.SetBit(0, expected) | 0x8000000000000000; //always set the MSB for testing
-                Assert.AreEqual(expected, BitHelpers.BitScanForward(testValue));
-            }
+            var actual = BitHelpers.BitScanForward(testCase.TestedValue);
+            Assert.AreEqual(testCase.ExpectedValue, actual, $"{testCase} Actual was {actual}.");
         }
 
         protected static IEnumerable<BitHelpersTestCase> GetBitScanTestCases()
         {
             for (ushort index = 0; index < 64; index++)
             {
-                var testValue = BitHelpers.SetBit(0, index);
-                yield return new BitHelpersTestCase()
+                var testValue = 0ul;
+                for (var antiIndex = index; antiIndex < 64; antiIndex++)
                 {
-                    ExpectedValue = testValue | 0x8000000000000000,
-                    TestedValue = index
-                };
+                    testValue = testValue.SetBit(antiIndex);
+                }
+
+                yield return new BitHelpersTestCase(testValue, index);
             }
         }
 
-        [Test()]
-        public void GetBoardValueOfIndexTest()
+
+        [TestCaseSource(nameof(GetValueOfIndexTestCases))]
+        public void GetBoardValueOfIndexTest(BitHelpersTestCase testCase)
         {
-            Assert.Fail();
+            var actual = ((ushort) testCase.TestedValue).GetBoardValueOfIndex();
+            Assert.AreEqual(testCase.ExpectedValue, actual, $"{testCase} Actual was {actual}.");
         }
 
-        [Test()]
-        public void FlipVerticallyTest()
+        protected static IEnumerable<BitHelpersTestCase> GetValueOfIndexTestCases()
         {
-            Assert.Fail();
+            foreach (var square in BoardConstants.AllSquares)
+            {
+                var expected = 1ul << square;
+                yield return new BitHelpersTestCase(square, expected);
+            }
         }
 
-        [Test()]
-        public void FlipIndexVerticallyTest()
+        [TestCaseSource(nameof(GetIsBitSetTestCases))]
+        public void IsBitSetTest(BitHelpersTestCase testCase)
         {
-            Assert.Fail();
+            var actual = testCase.TestedValue.IsBitSet((ushort) testCase.TestedValue2);
+            Assert.AreEqual(testCase.ExpectedBool, actual, testCase.ToString());
         }
 
-        [Test()]
-        public void ToBoardValueTest()
+        protected static IEnumerable<BitHelpersTestCase> GetIsBitSetTestCases()
         {
-            Assert.Fail();
+            foreach (var square in BoardConstants.AllSquares)
+            {
+                var setBit = BitHelpers.SetBit(0, square);
+                yield return new BitHelpersTestCase(~setBit, false) {TestedValue2 = square};
+                yield return new BitHelpersTestCase(setBit, true) {TestedValue2 = square};
+                yield return new BitHelpersTestCase(ulong.MaxValue, true) {TestedValue2 = square};
+                yield return new BitHelpersTestCase(0, false) {TestedValue2 = square};
+            }
         }
 
-        [Test()]
-        public void IsIndexOnFileTest()
+        [TestCaseSource(nameof(GetSetBitsTestCases))]
+        public void GetSetBitsTest(BitHelpersTestCase testCase)
         {
-            Assert.Fail();
+            var actual = testCase.TestedValue.GetSetBits();
+            var testedValue = testCase.TestedValue;
+            if (testedValue != 0 && testedValue != ulong.MaxValue)
+            {
+                Assert.AreEqual(testCase.ExpectedValue.Value, actual.Single());
+            }
+            else
+            {
+                if (testedValue == 0)
+                {
+                    Assert.IsEmpty(actual);
+                }
+                else //(testedValue == ulong.MaxValue)
+                {
+                    Assert.AreEqual(64, actual.Length);
+                }
+            }
         }
 
-        [Test()]
-        public void IsIndexOnRankTest()
+        protected static IEnumerable<BitHelpersTestCase> GetSetBitsTestCases()
         {
-            Assert.Fail();
+            foreach (var index in BoardConstants.AllSquares)
+            {
+                var testValue = BitHelpers.SetBit(0, index);
+                yield return new BitHelpersTestCase(testValue, index);
+            }
+
+            yield return new BitHelpersTestCase(0, null);
+            yield return new BitHelpersTestCase(ulong.MaxValue, ulong.MaxValue);
         }
 
-        [Test()]
-        public void IsBitSetTest()
+        [TestCaseSource(nameof(GetSetBitTest))]
+        public void SetBitTest(BitHelpersTestCase testCase)
         {
-            Assert.Fail();
+            var actual = BitHelpers.SetBit(0, (ushort) testCase.TestedValue);
+            Assert.AreEqual(testCase.ExpectedValue.Value, actual);
         }
 
-        [Test()]
-        public void GetSetBitsTest()
+        protected static IEnumerable<BitHelpersTestCase> GetSetBitTest()
         {
-            Assert.Fail();
+            foreach (var index in BoardConstants.AllSquares)
+            {
+                yield return new BitHelpersTestCase(index, index.GetBoardValueOfIndex());
+            }
         }
 
-        [Test()]
-        public void SetBitTest()
-        {
-            Assert.Fail();
-        }
-
-        [Test()]
-        public void SetBitTest1()
-        {
-            Assert.Fail();
-        }
-
-        [Test()]
+        [Test]
         public void ClearBitTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+
+        [Test]
         public void ClearBitTest1()
         {
             Assert.Fail();
         }
 
-        [Test()]
-        public void CountSetBitsTest()
+        [TestCaseSource(nameof(GetCountSetBitCases))]
+        public void CountSetBitsTest(BitHelpersTestCase testCase)
         {
-            Assert.Fail();
+            var actual = testCase.TestedValue.CountSetBits();
+            Assert.AreEqual(testCase.ExpectedValue.Value, actual);
         }
 
-        [Test()]
+        protected static IEnumerable<BitHelpersTestCase> GetCountSetBitCases()
+        {
+            var r = new Random(DateTime.Now.Millisecond);
+            foreach (var number in Enumerable.Range(0, 256))
+            {
+                var numberOfBitsToSet = r.Next(3, 63);
+                var bitsToSet = Enumerable.Range(0, numberOfBitsToSet).Select(x => r.Next(0, 63)).Select(x => (ushort) x)
+                    .Distinct().ToArray();
+               
+                var testValue = bitsToSet.Aggregate(0ul, (current, bitToSet) => current.SetBit(bitToSet));
+
+                yield return new BitHelpersTestCase(testValue, (ulong?) bitsToSet.Count());
+            }
+        }
+
+
+        [Test]
         public void ShiftNTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftETest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftSTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftWTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void Shift2NTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void Shift2ETest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void Shift2STest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void Shift2WTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftNETest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftSETest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftSWTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftNWTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftNNETest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftENETest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftESETest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftSSETest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftSSWTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftWSWTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftWNWTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ShiftNNWTest()
         {
             Assert.Fail();

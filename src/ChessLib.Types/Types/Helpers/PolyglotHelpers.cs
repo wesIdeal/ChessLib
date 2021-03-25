@@ -369,7 +369,7 @@ namespace ChessLib.Core.Types.Helpers
 
         public PolyglotMove FromUshortMove(ushort move)
         {
-            var mv = new MoveExt(move);
+            var mv = new Move(move);
             return new PolyglotMove(mv);
         }
 
@@ -410,7 +410,7 @@ namespace ChessLib.Core.Types.Helpers
             out ushort fromRank, out ushort fromFile)
         {
             fromFile = 4;
-            if (move.DestinationIndex.IsIndexOnRank(7))
+            if (move.DestinationIndex.GetRank() == 7)
             {
                 toRank = fromRank = 7;
             }

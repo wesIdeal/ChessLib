@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
 
@@ -66,7 +68,7 @@ namespace ChessLib.Core
         public ulong BoardStateHash { get; }
 
         public string Comment { get; set; }
-        public bool Validated { get; internal set; }
+        public bool Validated { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -102,7 +104,7 @@ namespace ChessLib.Core
             return sb.ToString();
         }
 
-        internal LinkedListNode<MoveStorage> AddVariation(LinkedListNode<MoveStorage> currentMoveNode, MoveStorage move,
+        public LinkedListNode<MoveStorage> AddVariation(LinkedListNode<MoveStorage> currentMoveNode, MoveStorage move,
             string variationParentFEN)
         {
             var variation = new MoveTree(currentMoveNode, variationParentFEN);

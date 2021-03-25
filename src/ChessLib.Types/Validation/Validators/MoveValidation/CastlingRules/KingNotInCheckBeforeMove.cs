@@ -1,4 +1,5 @@
-﻿using ChessLib.Core.Types.Exceptions;
+﻿using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
 
@@ -8,11 +9,8 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
     {
         public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
-            if (boardInfo.ActiveKingIndex().IsSquareAttackedByColor(boardInfo.OpponentColor(), boardInfo.Occupancy, null))
-            {
-                return MoveError.CastleKingInCheck;
-            }
-            return MoveError.NoneSet;
+            var isOpponentInCheck = BoardHelpers.IsColorInCheck(boardInfo.Occupancy, boardInfo.OpponentColor());
+            return  isOpponentInCheck ? MoveError.CastleKingInCheck : MoveError.NoneSet;
         }
     }
 }

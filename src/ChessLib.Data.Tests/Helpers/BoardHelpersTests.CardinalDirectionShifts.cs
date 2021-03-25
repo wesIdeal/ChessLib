@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using ChessLib.Core;
+using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
@@ -17,7 +18,7 @@ namespace ChessLib.Data.Tests.Helpers
         public static void TestPiecesAttackingSquare(string fen, int attackedSquare, params int[] attackingPieces)
         {
             var board = new Board(fen);
-            var actual = board.PiecesAttackingSquare((ushort)attackedSquare);
+            var actual = Bitboard.Instance.PiecesAttackingSquare(board.Occupancy, (ushort)attackedSquare);
             if (attackingPieces.Any())
             {
                 foreach (var attackingPiece in attackingPieces)
@@ -82,7 +83,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnFile(7))
+                if (idx.GetFile() != 7)
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx + 1];
                 }
@@ -90,13 +91,15 @@ namespace ChessLib.Data.Tests.Helpers
             }
         }
 
+        private static bool IsOnRank(ushort square, ushort rank) => square.GetRank() == rank;
+
         [Test]
         public static void ShiftS_TestAll()
         {
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(0))
+                if (!IsOnRank(idx,0))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx - 8];
                 }
@@ -111,7 +114,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnFile(0))
+                if (!IsOnFile(idx,0))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx - 1];
                 }
@@ -126,7 +129,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(7))
+                if (!IsOnRank(idx,7))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx + 8];
                 }
@@ -147,7 +150,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnFile(6) && !idx.IsIndexOnFile(7))
+                if (idx.GetFile() != 6 && idx.GetFile() != 7)
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx + 2];
                 }
@@ -166,7 +169,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(1) && !idx.IsIndexOnRank(0))
+                if (!IsOnRank(idx,1) && !IsOnRank(idx,0))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx - 16];
                 }
@@ -185,7 +188,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnFile(1) && !idx.IsIndexOnFile(0))
+                if (idx.GetFile() != 1 && idx.GetFile() != 0)
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx - 2];
                 }
@@ -204,7 +207,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(6) && !idx.IsIndexOnRank(7))
+                if (!IsOnRank(idx,6) && !IsOnRank(idx,7))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx + 16];
                 }
@@ -226,7 +229,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if ((!idx.IsIndexOnRank(6) && !idx.IsIndexOnRank(7)) && !idx.IsIndexOnFile(7))
+                if ((!IsOnRank(idx,6) && !IsOnRank(idx,7)) && idx.GetFile() != 7)
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx + 17];
                 }
@@ -241,7 +244,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnFile(7) && !idx.IsIndexOnRank(7))
+                if (!IsOnFile(idx, 7) && !IsOnRank(idx,7))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx + 9];
                 }
@@ -250,13 +253,14 @@ namespace ChessLib.Data.Tests.Helpers
             }
         }
 
+        private static bool IsOnFile(ushort index, ushort file) => index.GetFile() == file;
         [Test]
         public static void ShiftENE_TestAll()
         {
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(7) && !idx.IsIndexOnFile(7) && !idx.IsIndexOnFile(6))
+                if (!IsOnRank(idx,7) && !IsOnFile(idx, 7) && !IsOnFile(idx, 6))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx + 10];
                 }
@@ -271,7 +275,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(0) && !idx.IsIndexOnFile(7) && !idx.IsIndexOnFile(6))
+                if (!IsOnRank(idx,0) && !IsOnFile(idx,7) && !IsOnFile(idx,6))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx - 6];
                 }
@@ -286,7 +290,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnFile(7) && !idx.IsIndexOnRank(0))
+                if (!IsOnFile(idx,7) && !IsOnRank(idx,0))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx - 7];
                 }
@@ -300,7 +304,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(0) && !idx.IsIndexOnRank(1) && !idx.IsIndexOnFile(7))
+                if (!IsOnRank(idx,0) && !IsOnRank(idx,1) && !IsOnFile(idx,7))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx - 15];
                 }
@@ -314,7 +318,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(0) && !idx.IsIndexOnRank(1) && !idx.IsIndexOnFile(0))
+                if (!IsOnRank(idx,0) && !IsOnRank(idx,1) && !IsOnFile(idx,0))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx - 17];
                 }
@@ -329,7 +333,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnFile(0) && !idx.IsIndexOnRank(0))
+                if (!IsOnFile(idx,0) && !IsOnRank(idx,0))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx - 9];
                 }
@@ -344,7 +348,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(0) && !idx.IsIndexOnFile(0) && !idx.IsIndexOnFile(1))
+                if (!IsOnRank(idx,0) && !IsOnFile(idx,0) && !IsOnFile(idx,1))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx - 10];
                 }
@@ -359,7 +363,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(7) && !idx.IsIndexOnFile(0) && !idx.IsIndexOnFile(1))
+                if (!IsOnRank(idx,7) && !IsOnFile(idx,0) && !IsOnFile(idx,1))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx + 6];
                 }
@@ -373,7 +377,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnFile(0) && !idx.IsIndexOnRank(7))
+                if (!IsOnFile(idx,0) && !IsOnRank(idx,7))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx + 7];
                 }
@@ -387,7 +391,7 @@ namespace ChessLib.Data.Tests.Helpers
             for (ushort idx = 0; idx < 64; idx++)
             {
                 ulong expectedValue = 0;
-                if (!idx.IsIndexOnRank(7) && !idx.IsIndexOnRank(6) && !idx.IsIndexOnFile(0))
+                if (!IsOnRank(idx,7) && !IsOnRank(idx,6) && !IsOnFile(idx,0))
                 {
                     expectedValue = BoardConstants.IndividualSquares[idx + 15];
                 }

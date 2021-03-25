@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using ChessLib.Core;
 
-namespace ChessLib.Data
+namespace ChessLib.Core.Types
 {
     public class MoveTree : LinkedList<MoveStorage>
     {

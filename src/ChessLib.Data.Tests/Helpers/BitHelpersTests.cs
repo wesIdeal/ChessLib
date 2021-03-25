@@ -1,11 +1,11 @@
 ﻿using ChessLib.Core;
+using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
-using ChessLib.Data.Magic;
-using ChessLib.Data.Helpers;
+
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Helpers
@@ -18,28 +18,28 @@ namespace ChessLib.Data.Tests.Helpers
         private const string FENQueenIsBlockedFromAttackingSquared4 = "8/1k6/3q4/3P4/3P4/8/6K1/8 w - - 0 2";
 
 
-        [Test]
-        public static void SetBit_ShouldReturnValueWithBitSet()
-        {
-            for (ushort i = 0; i < 64; i++)
-            {
-                var expected = 1ul << i;
-                var actual = BitHelpers.SetBit(0, i);
-                Assert.AreEqual(expected, actual);
-            }
-        }
+        //[Test]
+        //public static void SetBit_ShouldReturnValueWithBitSet()
+        //{
+        //    for (ushort i = 0; i < 64; i++)
+        //    {
+        //        var expected = 1ul << i;
+        //        var actual = BitHelpers.SetBit(0, i);
+        //        Assert.AreEqual(expected, actual);
+        //    }
+        //}
 
-        [Test]
-        public static void SetBit_ShouldSetReferencesBit()
-        {
-            for (ushort i = 0; i < 64; i++)
-            {
-                var expected = 1ul << i;
-                ulong actual = 0;
-                BitHelpers.SetBit(ref actual, i);
-                Assert.AreEqual(expected, actual);
-            }
-        }
+        //[Test]
+        //public static void SetBit_ShouldSetReferencesBit()
+        //{
+        //    for (ushort i = 0; i < 64; i++)
+        //    {
+        //        var expected = 1ul << i;
+        //        ulong actual = 0;
+        //        BitHelpers.SetBit(ref actual, i);
+        //        Assert.AreEqual(expected, actual);
+        //    }
+        //}
 
         [Test]
         public static void GetSetBits_ShouldReturnEmptyArrayGivenZero()
@@ -90,43 +90,9 @@ namespace ChessLib.Data.Tests.Helpers
         }
 
 
-        [Test]
-        public static void ClearBit_ShouldSetRefBitIndexToZero()
-        {
-            ulong a = 0xff;
-            var bitIndexToClear = 1;
-            BitHelpers.ClearBit(ref a, bitIndexToClear);
-            Assert.AreEqual(0xfd, a);
-        }
+    
 
-
-        [Test]
-        public static void ClearBit_ShouldSetBitIndexToZero()
-        {
-            ulong a = 0xff;
-            var bitIndexToClear = 1;
-            var actual = BitHelpers.ClearBit(a, bitIndexToClear);
-            Assert.AreEqual(0xfd, actual);
-        }
-
-        [Test]
-        public static void IsBitSet_ShouldReturnTrue_InputBitIndexIsSet()
-        {
-            ulong a = 0;
-            ushort bitIndexToSet = 32;
-            BitHelpers.SetBit(ref a, bitIndexToSet);
-            Assert.IsTrue(a.IsBitSet(bitIndexToSet));
-        }
-
-        [Test]
-        public static void IsBitSet_ShouldReturnFalse_InputBitIndexIsNotSet()
-        {
-            ulong a = 0;
-            ushort bitIndexToSet = 32;
-            BitHelpers.SetBit(ref a, bitIndexToSet);
-            a = ~a;
-            Assert.IsFalse(a.IsBitSet(bitIndexToSet));
-        }
+       
 
         [TestCase(FENScandi, 27, Color.White, false)]
         [TestCase(FENQueenIsBlockedFromAttackingSquared4, 27, Color.Black, false)]
@@ -136,7 +102,7 @@ namespace ChessLib.Data.Tests.Helpers
         public static void IsSquareAttackedByColor(string fen, int square, Color attackingColor, bool expected)
         {
             IBoard boardInfo = new Board(fen);
-            var isAttacked = boardInfo.IsSquareAttackedByColor((ushort)square, attackingColor);
+            var isAttacked = Bitboard.Instance.IsSquareAttackedByColor((ushort)square, attackingColor, boardInfo.Occupancy);
             Assert.AreEqual(expected, isAttacked);
         }
     }

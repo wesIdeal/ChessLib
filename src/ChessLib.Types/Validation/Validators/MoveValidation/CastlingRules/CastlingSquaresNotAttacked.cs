@@ -1,4 +1,5 @@
-﻿using ChessLib.Core.Types.Enums;
+﻿using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
@@ -29,7 +30,10 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
             while (squaresBetween != 0)
             {
                 var square = BitHelpers.BitScanForward(squaresBetween);
-                if (square.IsSquareAttackedByColor(opponentColor, occupancy, null)) return true;
+                if (Bitboard.Instance.IsSquareAttackedByColor(square, opponentColor, occupancy))
+                {
+                    return true;
+                }
                 squaresBetween &= squaresBetween - 1;
             }
             return false;

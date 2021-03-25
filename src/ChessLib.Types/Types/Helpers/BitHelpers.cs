@@ -40,57 +40,38 @@ namespace ChessLib.Core.Types.Helpers
             return (ulong) 1 << idx;
         }
 
-        /// <summary>
-        ///     Flips a board about the 4th and 5th ranks
-        /// </summary>
-        /// <param name="board">bitboard representation</param>
-        /// <returns>A flipped board</returns>
-        public static ulong FlipVertically(in ulong board)
-        {
-            var x = board;
-            return (x << 56) |
-                   ((x << 40) & 0x00ff000000000000) |
-                   ((x << 24) & 0x0000ff0000000000) |
-                   ((x << 8) & 0x000000ff00000000) |
-                   ((x >> 8) & 0x00000000ff000000) |
-                   ((x >> 24) & 0x0000000000ff0000) |
-                   ((x >> 40) & 0x000000000000ff00) |
-                   (x >> 56);
-        }
+        ///// <summary>
+        /////     Flips a board about the 4th and 5th ranks
+        ///// </summary>
+        ///// <param name="board">bitboard representation</param>
+        ///// <returns>A flipped board</returns>
+        //public static ulong FlipVertically(in ulong board)
+        //{
+        //    var x = board;
+        //    return (x << 56) |
+        //           ((x << 40) & 0x00ff000000000000) |
+        //           ((x << 24) & 0x0000ff0000000000) |
+        //           ((x << 8) & 0x000000ff00000000) |
+        //           ((x >> 8) & 0x00000000ff000000) |
+        //           ((x >> 24) & 0x0000000000ff0000) |
+        //           ((x >> 40) & 0x000000000000ff00) |
+        //           (x >> 56);
+        //}
 
-        /// <summary>
-        ///     Gets the flipped index value, ie. A1 -> H1
-        /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
-        public static ushort FlipIndexVertically(this ushort idx)
-        {
-            var rank = idx.RankFromIdx();
-            var file = idx.FileFromIdx();
-            var rankCompliment = rank.RankCompliment();
-            return (ushort) (rankCompliment * 8 + file);
-        }
+        ///// <summary>
+        /////     Gets the flipped index value, ie. A1 -> H1
+        ///// </summary>
+        ///// <param name="idx"></param>
+        ///// <returns></returns>
+        //public static ushort FlipIndexVertically(this ushort idx)
+        //{
+        //    var rank = idx.RankFromIdx();
+        //    var file = idx.FileFromIdx();
+        //    var rankCompliment = rank.RankCompliment();
+        //    return (ushort) (rankCompliment * 8 + file);
+        //}
 
-        /// <summary>
-        ///     Convert a board index to value
-        /// </summary>
-        public static ulong ToBoardValue(this ushort index)
-        {
-            return 1ul << index;
-        }
-
-        public static bool IsIndexOnFile(this ushort index, ushort file)
-        {
-            Debug.Assert(file < 8);
-            return (index.ToBoardValue() & BoardConstants.FileMasks[file]) != 0;
-        }
-
-        public static bool IsIndexOnRank(this ushort index, ushort rank)
-        {
-            Debug.Assert(rank < 8);
-            return (index.ToBoardValue() & BoardConstants.RankMasks[rank]) != 0;
-        }
-
+   
         /// <summary>
         ///     Determines if a bit index is set in a ulong
         /// </summary>
@@ -132,44 +113,6 @@ namespace ChessLib.Core.Types.Helpers
         }
 
 
-        /// <summary>
-        ///     Sets a bit (specified by <paramref name="bitIndex">bitIndex</paramref>) on a ulong reference using
-        ///     <see cref="SetBit(ulong,ushort)">SetBit()</see>
-        /// </summary>
-        /// <param name="u">ulong ref of a board representation</param>
-        /// <param name="bitIndex">index of bit to set</param>
-        public static void SetBit(ref ulong u, ushort bitIndex)
-        {
-            u = SetBit(u, bitIndex);
-        }
-
-        /// <summary>
-        ///     Performs <see cref="ClearBit(ulong,int)">ClearBit()</see> on a ulong ref parameter.
-        /// </summary>
-        /// <param name="boardRep">A ulong reference, in this case representing a chessboard</param>
-        /// <param name="bitIndex">Index of bit to clear</param>
-        public static void ClearBit(ref ulong boardRep, int bitIndex)
-        {
-            boardRep = ClearBit(boardRep, bitIndex);
-        }
-
-        /// <summary>
-        ///     Bitwise 'and' operation with the 'not' of the bit's index to clear.
-        /// </summary>
-        /// <remarks>
-        ///     Ex. boardRep = 7, clear bit index of 3: boardRep = 0111b; return boardRep ANDed with NOT((1 shl 3)= 0100b) or
-        ///     0111b AND 1011b returns 0011b
-        /// </remarks>
-        /// <param name="boardRep">A ulong, in this case representing a chessboard</param>
-        /// <param name="bitIndex">Index of bit to clear</param>
-        /// <returns>
-        ///     ulong, <paramref name="boardRep">boardRep</paramref>, with the index of
-        ///     <paramref name="bitIndex">bitIndex</paramref> cleared.
-        /// </returns>
-        public static ulong ClearBit(ulong boardRep, int bitIndex)
-        {
-            return boardRep & ~(1ul << bitIndex);
-        }
 
 
         /// <summary>
@@ -185,7 +128,6 @@ namespace ChessLib.Core.Types.Helpers
                 counter++;
                 u &= u - 1;
             }
-
             return counter;
         }
 

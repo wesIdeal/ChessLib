@@ -1,12 +1,31 @@
-﻿using ChessLib.Core.Types.Enums;
+﻿using System.Collections.Generic;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Types.Helpers
 {
-    internal static class MoveHelpers
+    public static class MoveHelpers
     {
-        public static readonly IMove BlackCastleKingSide,
+        public static IEnumerable<IMove> WhiteCastlingMoves
+        {
+            get
+            {
+                yield return WhiteCastleKingSide;
+                yield return WhiteCastleQueenSide;
+            }
+        }
+
+        public static IEnumerable<IMove> BlackCastlingMoves
+        {
+            get
+            {
+                yield return BlackCastleKingSide;
+                yield return BlackCastleQueenSide;
+            }
+        }
+        public static readonly IMove 
+            BlackCastleKingSide,
             BlackCastleQueenSide,
             WhiteCastleKingSide,
             WhiteCastleQueenSide;

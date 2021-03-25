@@ -1,8 +1,7 @@
-﻿using ChessLib.Data.Helpers;
-using ChessLib.Data.Magic;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core;
+using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
@@ -60,7 +59,7 @@ namespace ChessLib.Data
             if (move.MoveType == MoveType.Castle)
             {
                 var destinationFile = move.DestinationIndex;
-                if (destinationFile.IsIndexOnFile(2))
+                if (destinationFile.GetFile() == 2)
                 {
                     return "O-O-O";
                 }
@@ -105,7 +104,7 @@ namespace ChessLib.Data
             else if (recordResult)
             {
 
-                result = board.IsStalemate() ? "1/2-1/2" : "";
+                result = BoardHelpers.IsStalemate(board.Occupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability) ? "1/2-1/2" : "";
             }
 
             //Get piece representation
@@ -131,7 +130,10 @@ namespace ChessLib.Data
 
             foreach (var attackerIndex in otherLikePieces.GetSetBits())
             {
-                if (Board.CanPieceMoveToDestination(attackerIndex, move.DestinationIndex))
+                var legalMoves = Bitboard.Instance.GetLegalMoves(attackerIndex, src, Board.ActivePlayer,
+                    Board.Occupancy, Board.EnPassantSquare, Board.CastlingAvailability);
+               var canPieceMoveToDestination = legalMoves.Any(x => x.DestinationIndex == move.DestinationIndex); 
+               if (canPieceMoveToDestination)
                 {
                     duplicateAttackerIndexes.Add(attackerIndex);
                 }

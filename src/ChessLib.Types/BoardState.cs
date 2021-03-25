@@ -3,6 +3,7 @@ using System.Text;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
+using ChessLib.Core.Validation.Validators.BoardValidation.Rules;
 using EnumsNET;
 
 namespace ChessLib.Core

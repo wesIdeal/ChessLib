@@ -179,6 +179,38 @@ namespace ChessLib.Core.MagicBitboard
             }
             return false;
         }
+        public  ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color attackingColor)
+        {
+            var pseudoLegalMoves = GetPseudoLegalMoves(pieceIndex, piece, attackingColor, occupancy);
+            if (piece == Piece.Pawn)
+            {
+                pseudoLegalMoves &= ~(_pawn.GetMovesFromSquare(pieceIndex, attackingColor));
+            }
+
+            return pseudoLegalMoves;
+        }
+        public ulong PiecesAttackingSquare(in ulong[][] piecesOnBoard, in ushort squareIndex)
+        {
+            var total = piecesOnBoard.Occupancy();
+            var pawnWhite = piecesOnBoard[BoardConstants.White][BoardConstants.Pawn];
+            var pawnBlack = piecesOnBoard[BoardConstants.Black][BoardConstants.Pawn];
+            var knight = piecesOnBoard[BoardConstants.Black][BoardConstants.Knight] | piecesOnBoard[BoardConstants.White][BoardConstants.Knight];
+            var bishop = piecesOnBoard[BoardConstants.Black][BoardConstants.Bishop] | piecesOnBoard[BoardConstants.White][BoardConstants.Bishop];
+            var rook = piecesOnBoard[BoardConstants.Black][BoardConstants.Rook] | piecesOnBoard[BoardConstants.White][BoardConstants.Rook];
+            var queen = piecesOnBoard[BoardConstants.Black][BoardConstants.Queen] | piecesOnBoard[BoardConstants.White][BoardConstants.Queen];
+            var king = piecesOnBoard[BoardConstants.Black][BoardConstants.King] | piecesOnBoard[BoardConstants.White][BoardConstants.King];
+            var blackPawnPseudoAttacks = Bitboard.Instance.GetPseudoLegalMoves(squareIndex, Piece.Pawn, Color.White, total);
+            var blackPawnAttacks = blackPawnPseudoAttacks & pawnBlack;
+            var whitePawnPseudoAttacks = Bitboard.Instance.GetPseudoLegalMoves(squareIndex, Piece.Pawn, Color.Black, total);
+            var whitePawnAttacks = whitePawnPseudoAttacks & pawnWhite;
+            return blackPawnAttacks
+                   | whitePawnAttacks
+                   | (GetAttackedSquares(Piece.Knight, squareIndex, total, Color.White) & knight)
+                   | (GetAttackedSquares(Piece.Bishop, squareIndex, total, Color.White) & bishop)
+                   | (GetAttackedSquares(Piece.Rook, squareIndex, total, Color.White) & rook)
+                   | (GetAttackedSquares(Piece.Queen, squareIndex, total, Color.White) & queen)
+                   | (GetAttackedSquares(Piece.King, squareIndex, total, Color.White) & king);
+        }
 
         private bool IsSquareAttackedBySlidingPiece(ushort attackedSquare, Color attackerColor, ulong[][] piecesOnBoard)
         {

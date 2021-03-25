@@ -100,13 +100,13 @@ namespace ChessLib.Data.Tests.Helpers
             Assert.IsFalse(actualResult);
         }
 
-        [TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55")]
-        public static void KingShouldNotHaveLegalMoves(string fen)
-        {
-            var pieces = FENHelpers.BoardFromFen(fen, out Color activePlayer, out _, out _, out _, out _, false);
-            var actualResult = BoardHelpers.GetValidKingMoves(pieces, activePlayer);
-            Assert.IsEmpty(actualResult);
-        }
+        //[TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55")]
+        //public static void KingShouldNotHaveLegalMoves(string fen)
+        //{
+        //    var pieces = FENHelpers.BoardFromFen(fen, out Color activePlayer, out _, out _, out _, out _, false);
+        //    var actualResult = BoardHelpers.GetValidKingMoves(pieces, activePlayer);
+        //    Assert.IsEmpty(actualResult);
+        //}
 
 
 

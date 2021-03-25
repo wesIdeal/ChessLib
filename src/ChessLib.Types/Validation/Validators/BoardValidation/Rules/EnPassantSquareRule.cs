@@ -13,7 +13,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
             return ValidateEnPassantSquare(boardInfo.Occupancy, boardInfo.EnPassantSquare, boardInfo.ActivePlayer);
         }
 
-        internal virtual BoardExceptionType ValidateEnPassantSquare(ulong[][] occupancy, ushort? enPassantSquare, Color activeColor)
+        public virtual BoardExceptionType ValidateEnPassantSquare(ulong[][] occupancy, ushort? enPassantSquare, Color activeColor)
         {
 
             if (enPassantSquare == null) return BoardExceptionType.None;

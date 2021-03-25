@@ -1,4 +1,5 @@
-﻿using ChessLib.Core.Types.Enums;
+﻿using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
@@ -10,11 +11,9 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
         public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             var activeKingIndex = postMoveBoard[(int)boardInfo.ActivePlayer][(int)Piece.King].GetSetBits()[0];
-            if (activeKingIndex.IsSquareAttackedByColor(boardInfo.OpponentColor(), postMoveBoard, activeKingIndex))
-            {
-                return MoveError.MoveLeavesKingInCheck;
-            }
-            return MoveError.NoneSet;
+            var isKingSquareAttacked =
+                Bitboard.Instance.IsSquareAttackedByColor(activeKingIndex, boardInfo.OpponentColor(), postMoveBoard);
+            return isKingSquareAttacked ? MoveError.MoveLeavesKingInCheck : MoveError.NoneSet;
         }
     }
 }

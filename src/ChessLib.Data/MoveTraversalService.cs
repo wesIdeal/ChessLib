@@ -268,7 +268,7 @@ namespace ChessLib.Data
         protected LinkedListNode<MoveStorage> ApplySanVariationMove(string moveText)
         {
             TraverseBackward();
-            var move = TranslateSanMove(moveText);
+            var move = (Move)TranslateSanMove(moveText);
             move.SAN = moveText;
             ValidateMove(move);
             return ApplyValidatedMoveVariation(move);
@@ -319,7 +319,7 @@ namespace ChessLib.Data
                 return ApplySanVariationMove(moveText);
             }
 
-            var move = TranslateSanMove(moveText);
+            var move = (Move)TranslateSanMove(moveText);
             move.SAN = moveText;
             return ApplyMove(move);
         }
@@ -457,8 +457,8 @@ namespace ChessLib.Data
                 if (currentMove.MoveType == MoveType.EnPassant)
                 {
                     capturedPieceSrc = (Color)active == Color.White
-                        ? ((ushort)(src.GetSetBits()[0] - 8)).ToBoardValue()
-                        : ((ushort)(src.GetSetBits()[0] + 8)).ToBoardValue();
+                        ? ((ushort)(src.GetSetBits()[0] - 8)).GetBoardValueOfIndex()
+                        : ((ushort)(src.GetSetBits()[0] + 8)).GetBoardValueOfIndex();
                 }
 
                 //    Debug.WriteLine(
@@ -487,7 +487,7 @@ namespace ChessLib.Data
             return piecePlacement;
         }
 
-        private Move TranslateSanMove(string moveText)
+        private IMove TranslateSanMove(string moveText)
         {
             var moveTranslatorService = new MoveTranslatorService(Board);
             var move = moveTranslatorService.GetMoveFromSAN(moveText);

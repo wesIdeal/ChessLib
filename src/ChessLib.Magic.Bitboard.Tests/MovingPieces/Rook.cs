@@ -21,30 +21,30 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
         private static readonly int BoardsInTestCase = 20;
         protected static IEnumerable<ushort> AllSquares => Enumerable.Range(0, 64).Select(x => (ushort)x);
 
-        [TestCaseSource(nameof(GetRookTestCases), new object[] { UseRandom })]
-        public static void TestRookMoves(MoveTestCase testCase)
-        {
-            var actual = BitBoard.GetPseudoLegalMoves(testCase.SquareIndex, Piece.Rook, testCase.Color, testCase.OpponentObstructions);
-            Assert.AreEqual(testCase.Expected, actual, testCase.ToString());
-        }
 
         private static readonly Bitboard BitBoard = Bitboard.Instance;
 
-        public static IEnumerable<MoveTestCase> GetRookTestCases(bool useRandom)
-        {
-            var squares = useRandom ? GetRandomSquares() : AllSquares;
-            Console.WriteLine("Received Random Numbers");
-            foreach (var square in squares)
-            {
-                var obstructionBoards = BitBoard.Rook.MoveObstructionBoards[square];
-                var boards = useRandom ? GetRandomObstructionBoards(obstructionBoards) : obstructionBoards;
-                foreach (var obstructionBoard in boards)
-                {
-                    yield return new MoveTestCase(square, Color.Black, obstructionBoard.Occupancy,
-                        obstructionBoard.Occupancy, obstructionBoard.MoveBoard);
-                }
-            }
-        }
+        //[TestCaseSource(nameof(GetRookTestCases), new object[] { UseRandom })]
+        //public static void TestRookMoves(MoveTestCase testCase)
+        //{
+        //    var actual = BitBoard.GetPseudoLegalMoves(testCase.SquareIndex, Piece.Rook, testCase.Color, testCase.OpponentObstructions);
+        //    Assert.AreEqual(testCase.Expected, actual, testCase.ToString());
+        //}
+        //public static IEnumerable<MoveTestCase> GetRookTestCases(bool useRandom)
+        //{
+        //    var squares = useRandom ? GetRandomSquares() : AllSquares;
+        //    Console.WriteLine("Received Random Numbers");
+        //    foreach (var square in squares)
+        //    {
+        //        var obstructionBoards = BitBoard.Rook.MoveObstructionBoards[square];
+        //        var boards = useRandom ? GetRandomObstructionBoards(obstructionBoards) : obstructionBoards;
+        //        foreach (var obstructionBoard in boards)
+        //        {
+        //            yield return new MoveTestCase(square, Color.Black, obstructionBoard.Occupancy,
+        //                obstructionBoard.Occupancy, obstructionBoard.MoveBoard);
+        //        }
+        //    }
+        //}
 
         private static IEnumerable<MoveObstructionBoard> GetRandomObstructionBoards(
             MoveObstructionBoard[] obstructionBoards)
