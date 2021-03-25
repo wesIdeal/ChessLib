@@ -29,7 +29,7 @@ namespace ChessLib.Core.Tests.Types.Helpers
         }
     }
 
-    [TestFixture]
+    [TestFixture(TestOf = typeof(BitHelpers))]
     public class BitHelpersTests
     {
         [TestCaseSource(nameof(GetBitScanTestCases))]
