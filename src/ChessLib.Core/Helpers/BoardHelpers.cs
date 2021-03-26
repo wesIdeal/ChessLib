@@ -269,21 +269,39 @@ namespace ChessLib.Core.Helpers
         /// </summary>
         /// <param name="move"></param>
         /// <param name="pocSource"></param>
-        public static ushort? GetEnPassantIndex(IMove move, PieceOfColor? pocSource)
+        public static ushort? GetEnPassantIndex(IBoard board, IMove move)
         {
-            ushort? rv = null;
-            if (pocSource.HasValue)
+            var pieceOfColor = GetPieceOfColorAtIndex(board.Occupancy, move.SourceIndex);
+            if (!pieceOfColor.HasValue || pieceOfColor.Value.Piece != Piece.Pawn)
             {
-                var startRank = pocSource.Value.Color == Color.White ? 1 : 6;
-                var endRank = pocSource.Value.Color == Color.White ? 3 : 4;
-                var enPassantIndexOffset = pocSource.Value.Color == Color.White ? 8 : -8;
-                if (pocSource.Value.Piece == Piece.Pawn)
-                    if ((move.SourceValue & BoardConstants.RankMasks[startRank]) != 0
-                        && (move.DestinationValue & BoardConstants.RankMasks[endRank]) != 0)
-                        rv = (ushort)(move.SourceIndex + enPassantIndexOffset);
+                return null;
             }
 
-            return rv;
+            switch (pieceOfColor.Value.Color)
+            {
+                case Color.Black:
+                {
+                    if ((move.SourceValue & BoardConstants.Rank7) != 0 &&
+                        (move.DestinationValue & BoardConstants.Rank5) != 0)
+                    {
+                        return (ushort?) (move.SourceIndex - 8);
+                    }
+
+                    break;
+                }
+                default:
+                {
+                    if ((move.SourceValue & BoardConstants.Rank2) != 0 &&
+                        (move.DestinationValue & BoardConstants.Rank4) != 0)
+                    {
+                        return (ushort?)(move.SourceIndex + 8);
+                    }
+
+                    break;
+                }
+            }
+
+            return null;
         }
 
 
@@ -307,32 +325,25 @@ namespace ChessLib.Core.Helpers
 
             var pieceMoving = GetPieceOfColorAtIndex(board.Occupancy, move.SourceIndex);
             if (pieceMoving == null)
+            {
                 throw new MoveException("No piece at current source to apply move to.",
                     MoveError.ActivePlayerHasNoPieceOnSourceSquare, move, board.ActivePlayer);
-
-
+            }
             var capturedPiece = GetPieceAtIndex(board.Occupancy, move.DestinationIndex);
-
-
-            var isPawnMove = IsPawnMove(board, move);
-
-            var halfMoveClock = capturedPiece != null || isPawnMove ? 0 : board.HalfMoveClock + 1;
+            
+            var halfMoveClock = capturedPiece != null || pieceMoving.Value.Piece == Piece.Pawn ? 0 : board.HalfMoveClock + 1;
             var fullMoveCounter =
                 board.ActivePlayer == Color.Black ? board.FullMoveCounter + 1 : board.FullMoveCounter;
-
             var piecePlacement = GetBoardPostMove(board, move);
             var castlingAvailability = GetCastlingAvailabilityPostMove(board.Occupancy, move, board.CastlingAvailability);
-            var enPassantSquare = GetEnPassantIndex(move, pieceMoving.Value);
+            var enPassantSquare = GetEnPassantIndex(board, move);
             var activePlayer = board.ActivePlayer.Toggle();
             return new Board(piecePlacement, (ushort)halfMoveClock, enPassantSquare, capturedPiece,
                 castlingAvailability, activePlayer,
                 (ushort)fullMoveCounter);
         }
 
-        private static bool IsPawnMove(in IBoard board, in IMove move)
-        {
-            return (board.Occupancy[(int)board.ActivePlayer][BoardConstants.Pawn] & move.SourceValue) != 0;
-        }
+
 
 
         /// <summary>

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Interfaces;
 using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Helpers
@@ -245,16 +247,79 @@ namespace ChessLib.Core.Tests.Helpers
                 new Board("rnbqkbnr/pp2pppp/3P4/8/2pP4/8/PPP2PPP/RNBQKBNR b KQkq d3 0 4"), "Available on d3");
         }
 
-        [Test()]
-        public void GetEnPassantIndexTest()
+        [TestCaseSource(nameof(GetEnPassantIndexTestCases))]
+        public void GetEnPassantIndexTest(TestCase<ushort?, Board> testCase)
         {
-            Assert.Fail();
+            var actual =
+                BoardHelpers.GetEnPassantIndex(testCase.InputValue, (IMove)testCase.AdditionalInputs.Single());
+            Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
-        [Test()]
-        public void ApplyMoveToBoardTest()
+        protected static IEnumerable<TestCase<ushort?, Board>> GetEnPassantIndexTestCases()
         {
-            Assert.Fail();
+            yield return new TestCase<ushort?, Board>(20, new Board(), "After 1. e4", MoveHelpers.GenerateMove(12, 28));
+            yield return new TestCase<ushort?, Board>(44,
+                new Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "After 1. e4 e5",
+                MoveHelpers.GenerateMove(52, 36));
+            yield return new TestCase<ushort?, Board>(null, new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPRPPP/RNBQKBNR b KQkq - 0 1"), "After 1. Re4 from e3", MoveHelpers.GenerateMove(12, 28));
+            yield return new TestCase<ushort?, Board>(null, new Board(), "No piece on square", MoveHelpers.GenerateMove(28, 29));
+            yield return new TestCase<ushort?, Board>(null, new Board(), "After 1. e3", MoveHelpers.GenerateMove(12, 20));
+            yield return new TestCase<ushort?, Board>(null,
+                new Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "After 1.e4 e6",
+                MoveHelpers.GenerateMove(52, 44));
+        }
+
+        [TestCaseSource(nameof(GetApplyMoveToBoardTestCases))]
+        public void ApplyMoveToBoardTest(TestCase<Board, Board> testCase)
+        {
+            var expected = testCase.ExpectedValue;
+            var actual = (Board)BoardHelpers.ApplyMoveToBoard(testCase.InputValue, (IMove)testCase.AdditionalInputs.Single());
+            Assert.AreEqual(expected.ToFEN(), actual.ToFEN(), testCase.ToString());
+        }
+
+        protected static IEnumerable<TestCase<Board, Board>> GetApplyMoveToBoardTestCases()
+        {
+            var boardTransitions = new[] { new Board(),
+                new Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"),
+                new Board("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2"),
+                new Board("rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"),
+                new Board("rnb1kbnr/ppp1pppp/8/3q4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"),
+                new Board("rnb1kbnr/ppp1pppp/8/3q4/8/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 3"),
+                new Board("rnbqkbnr/ppp1pppp/8/8/8/2N5/PPPP1PPP/R1BQKBNR w KQkq - 2 4"),
+                new Board("rnbqkbnr/ppp1pppp/8/8/2B5/2N5/PPPP1PPP/R1BQK1NR b KQkq - 3 4"),
+                new Board("rnbqkbnr/ppp2ppp/4p3/8/2B5/2N5/PPPP1PPP/R1BQK1NR w KQkq - 0 5"),
+                new Board("rnbqkbnr/ppp2ppp/4p3/8/2B5/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 1 5"),
+                new Board("rnbqkb1r/ppp2ppp/4pn2/8/2B5/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 2 6"),
+                new Board("rnbqkb1r/ppp2ppp/4pn2/8/2B5/2N2N2/PPPP1PPP/R1BQ1RK1 b kq - 3 6"),
+                new Board("rnbqk2r/ppp1bppp/4pn2/8/2B5/2N2N2/PPPP1PPP/R1BQ1RK1 w kq - 4 7"),
+                new Board("rnbqk2r/ppp1bppp/4pn2/8/2BP4/2N2N2/PPP2PPP/R1BQ1RK1 b kq d3 0 7"),
+                new Board("rnbq1rk1/ppp1bppp/4pn2/8/2BP4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 1 8")
+            };
+            var movesToApply = new[]
+            {
+                MoveHelpers.GenerateMove(12,28),
+                MoveHelpers.GenerateMove(51,35),
+                MoveHelpers.GenerateMove(28,35),
+                MoveHelpers.GenerateMove(59,35),
+                MoveHelpers.GenerateMove(1,18),
+                MoveHelpers.GenerateMove(35,59),
+                MoveHelpers.GenerateMove(5,26),
+                MoveHelpers.GenerateMove(52,44),
+                MoveHelpers.GenerateMove(6,21),
+                MoveHelpers.GenerateMove(62,45),
+                MoveHelpers.WhiteCastleKingSide,
+                MoveHelpers.GenerateMove(61,52),
+                MoveHelpers.GenerateMove(11,27),
+                MoveHelpers.BlackCastleKingSide
+            };
+
+            for (var boardIndex = 0; boardIndex < movesToApply.Length; boardIndex++)
+            {
+                var startingBoard = boardTransitions[boardIndex];
+                var endingBoard = boardTransitions[boardIndex + 1];
+                var move = movesToApply[boardIndex];
+                yield return new TestCase<Board, Board>(endingBoard, startingBoard, $"{boardIndex:D2} {move.ToString()}", move);
+            }
         }
 
         [Test()]

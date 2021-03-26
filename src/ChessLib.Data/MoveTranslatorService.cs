@@ -5,6 +5,7 @@ using System.Linq;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;

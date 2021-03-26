@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
@@ -33,6 +34,11 @@ namespace ChessLib.Core
             InitializeOccupancy();
         }
 
+        public override string ToString()
+        {
+            return CurrentFEN + Environment.NewLine + base.ToString();
+        }
+
         /// <summary>
         ///     Construct Board from FEN
         /// </summary>
@@ -63,7 +69,12 @@ namespace ChessLib.Core
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return base.Equals(other) && Equals(Occupancy, other.Occupancy);
+            var boardStateEquality = base.Equals(other);
+            var whitePiecesEquality = this.Occupancy[(int) Color.White].Select((b, i) => new {Occ = b, Idx = i})
+                .All(x => x.Occ == other.Occupancy[(int) Color.White][x.Idx]);
+            var blackPiecesEquality = this.Occupancy[(int)Color.Black].Select((b, i) => new { Occ = b, Idx = i })
+                .All(x => x.Occ == other.Occupancy[(int)Color.Black][x.Idx]);
+            return boardStateEquality && whitePiecesEquality && blackPiecesEquality;
         }
 
         private void InitializeOccupancy()
