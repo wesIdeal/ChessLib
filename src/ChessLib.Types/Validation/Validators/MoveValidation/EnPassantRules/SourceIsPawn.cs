@@ -1,6 +1,6 @@
-﻿using ChessLib.Core.Types.Enums;
+﻿using ChessLib.Core.Helpers;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Validation.Validators.MoveValidation.EnPassantRules

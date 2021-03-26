@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
-using ChessLib.Core.Types.Helpers;
 using NUnit.Framework;
+
 // ReSharper disable PossibleInvalidOperationException
 
-namespace ChessLib.Core.Tests.Types.Helpers
+namespace ChessLib.Core.Tests.Helpers
 {
     public class TestCase<TExpected, TInput>
     {
@@ -17,6 +18,16 @@ namespace ChessLib.Core.Tests.Types.Helpers
             AdditionalInputs = additionalInputs;
         }
 
+        public TestCase(TExpected expectedValue, TInput input1, string description, params object[] additionalInputs)
+        {
+            ExpectedValue = expectedValue;
+            InputValue = input1;
+            AdditionalInputs = additionalInputs;
+            Description = description;
+        }
+
+        public string Description { get; set; }
+
         public object[] AdditionalInputs { get; set; }
 
         public TExpected ExpectedValue { get; set; }
@@ -24,7 +35,10 @@ namespace ChessLib.Core.Tests.Types.Helpers
 
         public override string ToString()
         {
-
+            if (!String.IsNullOrWhiteSpace(Description))
+            {
+                return Description;
+            }
             return $"Testing {InputValue}";
         }
     }

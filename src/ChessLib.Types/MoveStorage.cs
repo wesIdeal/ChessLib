@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
-using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core

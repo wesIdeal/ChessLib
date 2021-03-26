@@ -10,8 +10,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.Core;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.Types;
-using ChessLib.Core.Types.Helpers;
 using ChessLib.EngineInterface.UCI;
 
 namespace ChessLib.EngineInterface

@@ -4,7 +4,7 @@ using System.Linq;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
 
-namespace ChessLib.Core.Types.Helpers
+namespace ChessLib.Core.Helpers
 {
     /// <summary>
     ///     Helper methods to hash board states.

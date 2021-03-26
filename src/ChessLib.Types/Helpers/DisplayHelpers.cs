@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using ChessLib.Core.Types.Enums;
 
-namespace ChessLib.Core.Types.Helpers
+namespace ChessLib.Core.Helpers
 {
     public static class DisplayHelpers
     {

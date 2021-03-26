@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using ChessLib.Core;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Types.Helpers;
 using ChessLib.Data.Helpers;
 using NUnit.Framework;
 

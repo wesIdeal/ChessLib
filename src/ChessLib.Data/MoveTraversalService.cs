@@ -6,10 +6,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using ChessLib.Core;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.MoveValidation;
 using ChessLib.Data.Helpers;
@@ -381,7 +381,7 @@ namespace ChessLib.Data
 
         private Piece? GetCapturedPiece(Move move)
         {
-            var capturedPiece = Board.GetPieceOfColorAtIndex(move.DestinationIndex);
+            var capturedPiece = BoardHelpers.GetPieceOfColorAtIndex(Board.Occupancy, move.DestinationIndex);
             if (capturedPiece == null && move.MoveType == MoveType.EnPassant)
             {
                 capturedPiece = new PieceOfColor { Color = Board.ActivePlayer.Toggle(), Piece = Piece.Pawn };
@@ -435,7 +435,7 @@ namespace ChessLib.Data
         {
             var piece = currentMove.MoveType == MoveType.Promotion
                 ? Piece.Pawn
-                : Board.GetPieceAtIndex(currentMove.DestinationIndex);
+                : BoardHelpers.GetPieceAtIndex(Board.Occupancy, currentMove.DestinationIndex);
 
             Debug.Assert(piece.HasValue, "Piece for un-apply() has no value.");
             var src = currentMove.DestinationValue;

@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using ChessLib.Core;
-using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Helpers;
 using ChessLib.Data;
 using ChessLib.Parse.PGN;
 using ChessLib.Parse.Tests;

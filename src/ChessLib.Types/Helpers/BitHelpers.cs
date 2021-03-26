@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using ChessLib.Core.MagicBitboard.Bitwise;
 
-namespace ChessLib.Core.Types.Helpers
+namespace ChessLib.Core.Helpers
 {
     public static class BitHelpers
     {

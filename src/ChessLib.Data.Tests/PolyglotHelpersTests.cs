@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Helpers;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests

@@ -1,8 +1,8 @@
 ﻿using ChessLib.Core;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Validation.Validators.BoardValidation;
 using ChessLib.Data.Helpers;
 using NUnit.Framework;

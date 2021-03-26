@@ -1,8 +1,8 @@
 ﻿using ChessLib.Data.Helpers;
 using NUnit.Framework;
 using System;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Types.Helpers;
 
 namespace ChessLib.Data.Tests.Helpers
 {

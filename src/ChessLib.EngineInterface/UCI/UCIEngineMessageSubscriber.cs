@@ -1,4 +1,4 @@
-﻿using ChessLib.Core.Types.Helpers;
+﻿using ChessLib.Core.Helpers;
 using ChessLib.Data.Helpers;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;

@@ -6,7 +6,7 @@ using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.FENValidation;
 using EnumsNET;
 
-namespace ChessLib.Core.Types.Helpers
+namespace ChessLib.Core.Helpers
 {
     public static class FENHelpers
     {

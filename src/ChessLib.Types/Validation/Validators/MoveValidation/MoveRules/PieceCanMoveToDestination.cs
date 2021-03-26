@@ -1,6 +1,6 @@
-﻿using ChessLib.Core.MagicBitboard;
+﻿using ChessLib.Core.Helpers;
+using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules

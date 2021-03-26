@@ -1,9 +1,9 @@
 ﻿using ChessLib.Core;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
 
 using NUnit.Framework;

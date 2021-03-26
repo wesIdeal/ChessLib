@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using ChessLib.Core;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Types.Helpers;
 using NUnit.Framework;
 
 // ReSharper disable once CheckNamespace
@@ -62,7 +62,7 @@ namespace ChessLib.Data.Tests
                     var move = MoveHelpers.GenerateMove(63, 62);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside |
                                    CastlingAvailability.WhiteQueenside;
-                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
+                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move);
                     Assert.AreEqual(expected, castlingAvailability,
                         "Expected castling availability to equal qKQ after h8 Rook moves.");
                 }
@@ -74,7 +74,7 @@ namespace ChessLib.Data.Tests
                     var move = MoveHelpers.GenerateMove(56, 57);
                     var expected = CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside |
                                    CastlingAvailability.WhiteQueenside;
-                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
+                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move);
                     Assert.AreEqual(expected, castlingAvailability,
                         "Expected castling availability to equal kKQ after a8 Rook moves.");
                 }
@@ -84,7 +84,7 @@ namespace ChessLib.Data.Tests
                 {
                     var move = MoveHelpers.GenerateMove(60, 61);
                     var expected = CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside;
-                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.King);
+                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move);
                     Assert.AreEqual(expected, castlingAvailability,
                         "Expected castling availability to equal KQ after Black King moves.");
                 }
@@ -94,7 +94,7 @@ namespace ChessLib.Data.Tests
                 {
                     var move = MoveHelpers.GenerateMove(4, 5);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.BlackKingside;
-                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.King);
+                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move);
                     Assert.AreEqual(expected, castlingAvailability,
                         "Expected castling availability to equal kq after White King moves.");
                 }
@@ -105,7 +105,7 @@ namespace ChessLib.Data.Tests
                     var move = MoveHelpers.GenerateMove(7, 6);
                     var expected = CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside |
                                    CastlingAvailability.WhiteQueenside;
-                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
+                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move);
                     Assert.AreEqual(expected, castlingAvailability,
                         "Expected castling availability to equal kqQ after h1 Rook moves.");
                 }
@@ -116,7 +116,7 @@ namespace ChessLib.Data.Tests
                     var move = MoveHelpers.GenerateMove(0, 1);
                     var expected = CastlingAvailability.BlackQueenside | CastlingAvailability.BlackKingside |
                                    CastlingAvailability.WhiteKingside;
-                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move, Piece.Rook);
+                    var castlingAvailability = BoardHelpers.GetCastlingAvailabilityPostMove(_bi, move);
                     Assert.AreEqual(expected, castlingAvailability,
                         "Expected castling availability to equal kqK after a1 Rook moves.");
                 }

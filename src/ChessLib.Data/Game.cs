@@ -4,8 +4,8 @@ using ChessLib.Data.Helpers;
 using System;
 using System.Collections.Generic;
 using ChessLib.Core;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums.NAG;
-using ChessLib.Core.Types.Helpers;
 
 #endregion
 

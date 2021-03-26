@@ -9,7 +9,7 @@ using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.BoardValidation;
 
-namespace ChessLib.Core.Types.Helpers
+namespace ChessLib.Core.Helpers
 {
     public static class BoardHelpers
     {
@@ -141,21 +141,6 @@ namespace ChessLib.Core.Types.Helpers
             return pocAtIndex?.Piece;
         }
 
-        /// <summary>
-        ///     Gets the <see cref="Piece" /> object occupying the supplied
-        ///     <param name="index">pieceLayout index</param>
-        ///     on the current
-        ///     <param name="board">pieceLayout</param>
-        /// </summary>
-        /// <param name="board">The current pieceLayout configuration</param>
-        /// <param name="index">The pieceLayout index</param>
-        /// <returns>Type of Piece, if found, otherwise null</returns>
-        public static Piece? GetPieceAtIndex(this IBoard board, ushort index)
-        {
-            index.ValidateIndex();
-            var poc = GetPieceOfColorAtIndex(board, index);
-            return poc?.Piece;
-        }
 
         /// <summary>
         ///     Gets a piece of color object for the index
@@ -192,16 +177,6 @@ namespace ChessLib.Core.Types.Helpers
             return null;
         }
 
-        /// <summary>
-        ///     Gets a piece of color object for the index
-        /// </summary>
-        /// <param name="board">The current pieceLayout configuration</param>
-        /// <param name="index">The pieceLayout index in which to find piece of color</param>
-        /// <returns>The object representing the piece at an index, or null of the piece isn't there.</returns>
-        public static PieceOfColor? GetPieceOfColorAtIndex(this IBoard board, ushort index)
-        {
-            return GetPieceOfColorAtIndex(board.Occupancy, index);
-        }
 
 
         /// <summary>
@@ -214,21 +189,11 @@ namespace ChessLib.Core.Types.Helpers
             if (index >= 64) throw new ArgumentException($"Board index {index} is out of range.");
         }
 
-        /// <summary>
-        ///     Method to validate if all index params are in range (0...63)
-        /// </summary>
-        /// <param name="indices">indexes to validate</param>
-        /// <exception cref="ArgumentException">if index is out of range (0...63)</exception>
-        public static void ValidateIndices(params ushort[] indices)
-        {
-            foreach (var index in indices) index.ValidateIndex();
-        }
 
-
-        public static CastlingAvailability GetCastlingAvailabilityPostMove(IBoard board, IMove move,
-            Piece movingPiece)
+        public static CastlingAvailability GetCastlingAvailabilityPostMove(IBoard board, IMove move)
         {
             var ca = board.CastlingAvailability;
+            var movingPiece = GetPieceAtIndex(board.Occupancy, move.SourceIndex);
             switch (movingPiece)
             {
                 case Piece.Rook:
@@ -321,7 +286,7 @@ namespace ChessLib.Core.Types.Helpers
                 board.ActivePlayer == Color.Black ? board.FullMoveCounter + 1 : board.FullMoveCounter;
 
             var piecePlacement = GetBoardPostMove(board, move);
-            var castlingAvailability = GetCastlingAvailabilityPostMove(board, move, pieceMoving.Value.Piece);
+            var castlingAvailability = GetCastlingAvailabilityPostMove(board, move);
             var enPassantSquare = GetEnPassantIndex(move, pieceMoving.Value);
             var activePlayer = board.ActivePlayer.Toggle();
             return new Board(piecePlacement, (ushort)halfMoveClock, enPassantSquare, capturedPiece,
@@ -348,7 +313,7 @@ namespace ChessLib.Core.Types.Helpers
             var activeColor = (int)board.ActivePlayer;
             var oppColor = activeColor ^ 1;
             var oppOccupancy = Occupancy(board.Occupancy, board.OpponentColor());
-            var piece = board.GetPieceOfColorAtIndex(move.SourceIndex);
+            var piece = GetPieceOfColorAtIndex(board.Occupancy, move.SourceIndex);
             if (piece == null)
             {
                 throw new MoveException(
@@ -471,29 +436,6 @@ namespace ChessLib.Core.Types.Helpers
 
         //    return resultantBoard;
         //}
-
-        private static ulong GetRookBoardPostCastle(IMove move, ulong rookBoard)
-        {
-            var rank = RankFromIdx(move.DestinationIndex);
-            var file = FileFromIdx(move.DestinationIndex);
-            var rookSource = rank == 7 // black castling
-                ? file == 2
-                    ? 0x100000000000000ul // BoardConstants.Black O-O-O
-                    : 0x8000000000000000ul // BoardConstants.Black O-O
-                : file == 2
-                    ? 0x01ul // BoardConstants.White O-O-O
-                    : 0x80ul; // BoardConstants.White O-O
-
-            var rookDest = rank == 7 // black castling
-                ? file == 2
-                    ? 0x800000000000000ul // BoardConstants.Black O-O-O
-                    : 0x2000000000000000ul // BoardConstants.Black O-O
-                : file == 2
-                    ? 0x08ul // BoardConstants.White O-O-O
-                    : 0x20ul; // BoardConstants.White O-O
-
-            return (rookBoard & ~rookSource) | rookDest;
-        }
 
 
         public static Color OpponentColor(this IBoard board)
@@ -639,7 +581,7 @@ namespace ChessLib.Core.Types.Helpers
                 activeColor, activeOccupancy | opponentOccupancy);
             foreach (var move in moves.GetSetBits())
             {
-                if (!Bitboard.Instance.IsSquareAttackedByColor(kindIndex, activeColor.Toggle(), occupancy))
+                if (!Bitboard.Instance.IsSquareAttackedByColor(move, activeColor.Toggle(), occupancy))
                 {
                     return true;
                 }
@@ -676,6 +618,92 @@ namespace ChessLib.Core.Types.Helpers
             }
 
             return pieceArrayRv;
+        }
+
+        public static IMove GetMove(IBoard board, ushort sourceIndex, ushort destinationIndex,
+            PromotionPiece promotionPiece)
+        {
+            var moveType = GetMoveType(board, sourceIndex, destinationIndex);
+            return MoveHelpers.GenerateMove(sourceIndex, destinationIndex, moveType, promotionPiece);
+        }
+
+        /// <summary>
+        ///     Gets the type of move based on the current board and piece source/destination
+        /// </summary>
+        /// <param name="boardInfo">Board information for current position</param>
+        /// <param name="source">Source Index</param>
+        /// <param name="dest">Destination Index</param>
+        /// <returns>The type of move represented by the given parameters</returns>
+        /// <exception cref="PieceException">Thrown if there is no piece on the source square.</exception>
+        public static MoveType GetMoveType(in IBoard boardInfo, ushort source, ushort dest)
+        {
+            var relevantPieces = new[] { Piece.Pawn, Piece.King };
+            var sourcePiece = GetPieceOfColorAtIndex(boardInfo.Occupancy, source);
+            if (sourcePiece == null)
+            {
+                var move = $"{source.IndexToSquareDisplay()}->{dest.IndexToSquareDisplay()}";
+                throw new PieceException("Error getting piece on source in Bitboard.GetMoveType(...):" + move);
+            }
+
+            var piece = sourcePiece.Value.Piece;
+            var color = sourcePiece.Value.Color;
+            if (!relevantPieces.Contains(piece))
+            {
+                return MoveType.Normal;
+            }
+
+            if (IsEnPassantCapture(piece, source, dest, boardInfo.EnPassantSquare))
+            {
+                return MoveType.EnPassant;
+            }
+
+            if (piece == Piece.King && IsCastlingMove(color, source, dest))
+            {
+                return MoveType.Castle;
+            }
+
+            if (piece == Piece.Pawn && IsPromotion(color, source, dest))
+            {
+                return MoveType.Promotion;
+            }
+
+            return MoveType.Normal;
+        }
+
+        private static bool IsPromotion(Color color, ushort source, ushort dest)
+        {
+            var sourceValue = source.GetBoardValueOfIndex();
+            var destValue = dest.GetBoardValueOfIndex();
+            var validPromotionRankSource = color == Color.Black ? BoardConstants.Rank2 : BoardConstants.Rank7;
+            var validPromotionRankDest = color == Color.Black ? BoardConstants.Rank1 : BoardConstants.Rank8;
+            return (sourceValue & validPromotionRankSource) == sourceValue &&
+                   (destValue & validPromotionRankDest) == destValue;
+        }
+
+
+        public static bool IsCastlingMove(Color activeColor, ushort source, ushort destination)
+        {
+            var legalCastlingMovesForColor = activeColor == Color.White
+                ? MoveHelpers.WhiteCastlingMoves
+                : MoveHelpers.BlackCastlingMoves;
+            return legalCastlingMovesForColor.Any(m =>
+                m.SourceIndex == source && m.DestinationIndex == destination);
+        }
+
+        public static bool IsEnPassantCapture(Piece sourcePiece, ushort src, ushort dest, ushort? enPassantSquare)
+        {
+            if (enPassantSquare != null)
+            {
+                if (sourcePiece == Piece.Pawn)
+                {
+                    if (dest == enPassantSquare.Value && dest.GetFile() != src.GetFile())
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
 
@@ -816,23 +844,6 @@ namespace ChessLib.Core.Types.Helpers
             return (ushort)(boardIndex / 8);
         }
 
-        /// <summary>
-        ///     Gets a rank index from boardIndex
-        ///     <param name="boardIndex">index</param>
-        /// </summary>
-        /// <param name="boardIndex"></param>
-        /// <returns>Board rank (First rank: 0)</returns>
-        /// <exception cref="ArgumentException">
-        ///     if
-        ///     <param name="boardIndex">index</param>
-        ///     is out of range.
-        /// </exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort RankFromIdx(this ushort boardIndex)
-        {
-            boardIndex.ValidateIndex();
-            return (ushort)(boardIndex / 8);
-        }
 
         /// <summary>
         ///     Gets a file index from a boardIndex index
@@ -898,87 +909,5 @@ namespace ChessLib.Core.Types.Helpers
         }
 
         #endregion
-
-        public static IMove GetMove(IBoard board, ushort sourceIndex, ushort destinationIndex, PromotionPiece promotionPiece)
-        {
-            var moveType = GetMoveType(board, sourceIndex, destinationIndex);
-            return MoveHelpers.GenerateMove(sourceIndex, destinationIndex, moveType, promotionPiece);
-        }
-
-        /// <summary>
-        /// Gets the type of move based on the current board and piece source/destination
-        /// </summary>
-        /// <param name="boardInfo">Board information for current position</param>
-        /// <param name="source">Source Index</param>
-        /// <param name="dest">Destination Index</param>
-        /// <returns>The type of move represented by the given parameters</returns>
-        /// <exception cref="PieceException">Thrown if there is no piece on the source square.</exception>
-        public static MoveType GetMoveType(in IBoard boardInfo, ushort source, ushort dest)
-        {
-            var relevantPieces = new[] { Piece.Pawn, Piece.King };
-            var sourcePiece = boardInfo.GetPieceOfColorAtIndex(source);
-            if (sourcePiece == null)
-            {
-                var move = $"{source.IndexToSquareDisplay()}->{dest.IndexToSquareDisplay()}";
-                throw new PieceException("Error getting piece on source in Bitboard.GetMoveType(...):" + move);
-            }
-
-            var piece = sourcePiece.Value.Piece;
-            var color = sourcePiece.Value.Color;
-            if (!relevantPieces.Contains(piece)) { return MoveType.Normal; }
-
-            if (IsEnPassantCapture(piece, source, dest, boardInfo.EnPassantSquare))
-            {
-                return MoveType.EnPassant;
-            }
-
-            if (piece == Piece.King && IsCastlingMove(color, source, dest))
-            {
-                return MoveType.Castle;
-            }
-
-            if ( piece == Piece.Pawn && IsPromotion(color, source, dest))
-            {
-                return MoveType.Promotion;
-            }
-
-            return MoveType.Normal;
-        }
-
-        private static bool IsPromotion(Color color, ushort source, ushort dest)
-        {
-            var sourceValue = source.GetBoardValueOfIndex();
-            var destValue = dest.GetBoardValueOfIndex();
-            var validPromotionRankSource = color == Color.Black ? BoardConstants.Rank2 : BoardConstants.Rank7;
-            var validPromotionRankDest = color == Color.Black ? BoardConstants.Rank1 : BoardConstants.Rank8;
-            return (sourceValue & validPromotionRankSource) == sourceValue &&
-                   (destValue & validPromotionRankDest) == destValue;
-        }
-
-
-        public static bool IsCastlingMove(Color activeColor, ushort source, ushort destination)
-        {
-
-            var legalCastlingMovesForColor = activeColor == Color.White
-                ? MoveHelpers.WhiteCastlingMoves
-                : MoveHelpers.BlackCastlingMoves;
-            return legalCastlingMovesForColor.Any(m =>
-                m.SourceIndex == source && m.DestinationIndex == destination);
-        }
-
-        public static bool IsEnPassantCapture(Piece sourcePiece, ushort src, ushort dest, ushort? enPassantSquare)
-        {
-            if (enPassantSquare != null)
-            {
-                if (sourcePiece == Piece.Pawn)
-                {
-                    if (dest == enPassantSquare.Value && dest.FileFromIdx() != src.FileFromIdx())
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
     }
 }

@@ -2,7 +2,7 @@
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 
-namespace ChessLib.Core.Types.Helpers
+namespace ChessLib.Core.Helpers
 {
     public static class PieceHelpers
     {

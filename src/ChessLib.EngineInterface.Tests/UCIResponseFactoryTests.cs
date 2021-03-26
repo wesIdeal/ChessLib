@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ChessLib.Core.Types.Helpers;
+using ChessLib.Core.Helpers;
 using ChessLib.EngineInterface;
 using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;

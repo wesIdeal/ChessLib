@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.MagicBitboard.MovingPieces;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Helpers;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.MoveValidation;
 using EnumsNET;
