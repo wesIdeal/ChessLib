@@ -190,29 +190,28 @@ namespace ChessLib.Core.Helpers
         }
 
 
-        public static CastlingAvailability GetCastlingAvailabilityPostMove(IBoard board, IMove move)
+        public static CastlingAvailability GetCastlingAvailabilityPostMove(ulong[][] board, IMove move, CastlingAvailability currentCastlingAvailability)
         {
-            var ca = board.CastlingAvailability;
-            var movingPiece = GetPieceAtIndex(board.Occupancy, move.SourceIndex);
+            var movingPiece = GetPieceAtIndex(board, move.SourceIndex);
             switch (movingPiece)
             {
                 case Piece.Rook:
-                    if (move.SourceIndex == 56) ca &= ~CastlingAvailability.BlackQueenside;
-                    if (move.SourceIndex == 63) ca &= ~CastlingAvailability.BlackKingside;
-                    if (move.SourceIndex == 0) ca &= ~CastlingAvailability.WhiteQueenside;
-                    if (move.SourceIndex == 7) ca &= ~CastlingAvailability.WhiteKingside;
+                    if (move.SourceIndex == 56) currentCastlingAvailability &= ~CastlingAvailability.BlackQueenside;
+                    if (move.SourceIndex == 63) currentCastlingAvailability &= ~CastlingAvailability.BlackKingside;
+                    if (move.SourceIndex == 0) currentCastlingAvailability &= ~CastlingAvailability.WhiteQueenside;
+                    if (move.SourceIndex == 7) currentCastlingAvailability &= ~CastlingAvailability.WhiteKingside;
                     break;
                 case Piece.King:
                     if (move.SourceIndex == 60)
-                        ca &=
+                        currentCastlingAvailability &=
                             ~(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside);
                     if (move.SourceIndex == 4)
-                        ca &=
+                        currentCastlingAvailability &=
                             ~(CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
                     break;
             }
 
-            return ca;
+            return currentCastlingAvailability;
         }
 
         public static bool IsEnPassantCaptureAvailable(this Board board)
@@ -286,7 +285,7 @@ namespace ChessLib.Core.Helpers
                 board.ActivePlayer == Color.Black ? board.FullMoveCounter + 1 : board.FullMoveCounter;
 
             var piecePlacement = GetBoardPostMove(board, move);
-            var castlingAvailability = GetCastlingAvailabilityPostMove(board, move);
+            var castlingAvailability = GetCastlingAvailabilityPostMove(board.Occupancy, move, board.CastlingAvailability);
             var enPassantSquare = GetEnPassantIndex(move, pieceMoving.Value);
             var activePlayer = board.ActivePlayer.Toggle();
             return new Board(piecePlacement, (ushort)halfMoveClock, enPassantSquare, capturedPiece,

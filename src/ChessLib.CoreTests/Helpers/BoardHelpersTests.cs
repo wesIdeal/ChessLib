@@ -98,12 +98,16 @@ namespace ChessLib.Core.Tests.Helpers
             Assert.DoesNotThrow(delegate { BoardHelpers.ValidateIndex(0); });
         }
 
-        [Test()]
-        public void GetCastlingAvailabilityPostMoveTest()
-        {
-            Assert.Fail();
-        }
+        //[TestCaseSource(nameof(GetCastlingAvailabilityPostMoveTestCases))]
+        //public void GetCastlingAvailabilityPostMoveTest()
+        //{
+        //    Assert.Fail();
+        //}
 
+        //protected static IEnumerable<TestCase<CastlingAvailability, Board>> GetCastlingAvailabilityPostMoveTestCases()
+        //{
+        //    yield return new TestCase<CastlingAvailability, Board>()
+        //}
 
         [Test()]
         public void IsEnPassantCaptureAvailableTest()
