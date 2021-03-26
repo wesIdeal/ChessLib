@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ChessLib.Core\ChessLib.Core.csproj" />
     <ProjectReference Include="..\ChessLib.Types\ChessLib.Core.csproj" />
   </ItemGroup>
 

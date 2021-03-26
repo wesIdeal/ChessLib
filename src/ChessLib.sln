@@ -39,7 +39,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.MagicBitboard.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Game.Tests", "ChessLib.BoardService.Tests\ChessLib.Game.Tests.csproj", "{D6CCA078-9718-445B-9AC8-4BFCBC7BDFDD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Core", "ChessLib.Types\ChessLib.Core.csproj", "{E2695137-DE6C-461F-8E90-2E2C80A3A4AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Core", "ChessLib.Core\ChessLib.Core.csproj", "{E2695137-DE6C-461F-8E90-2E2C80A3A4AA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessLib.Core.Tests", "ChessLib.CoreTests\ChessLib.Core.Tests.csproj", "{E56813BC-3CEC-488A-99DE-9A61DFBFE09D}"
 EndProject

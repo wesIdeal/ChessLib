@@ -47,6 +47,7 @@
     <PackageReference Include="Enums.NET" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ChessLib.Core\ChessLib.Core.csproj" />
     <ProjectReference Include="..\ChessLib.Types\ChessLib.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
