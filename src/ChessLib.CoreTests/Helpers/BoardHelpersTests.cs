@@ -57,14 +57,14 @@ namespace ChessLib.Core.Tests.Helpers
         public void GetPieceAtIndexTest(TestCase<Piece?, ushort> testCase)
         {
             var actual = BoardHelpers.GetPieceAtIndex(BoardHelpers.InitialBoard, testCase.InputValue);
-           Assert.AreEqual(testCase.ExpectedValue,actual, testCase.Description);
+            Assert.AreEqual(testCase.ExpectedValue, actual, testCase.Description);
         }
 
         protected static IEnumerable<TestCase<Piece?, ushort>> GetPieceAtIndexTestCases()
         {
             yield return new TestCase<Piece?, ushort>(Piece.Pawn, 12, "White Pawn on e4");
-            yield return new TestCase<Piece?, ushort>(Piece.Knight, 57, "Black Knight on b8"); 
-            yield return new TestCase<Piece?, ushort>(Piece.Bishop, 5, "White Bishop on f1"); 
+            yield return new TestCase<Piece?, ushort>(Piece.Knight, 57, "Black Knight on b8");
+            yield return new TestCase<Piece?, ushort>(Piece.Bishop, 5, "White Bishop on f1");
             yield return new TestCase<Piece?, ushort>(Piece.Rook, 63, "Black Rook on h8");
             yield return new TestCase<Piece?, ushort>(Piece.Queen, 3, "White Queen on d1");
             yield return new TestCase<Piece?, ushort>(Piece.King, 60, "Black King on e8");
@@ -79,18 +79,18 @@ namespace ChessLib.Core.Tests.Helpers
         }
         protected static IEnumerable<TestCase<PieceOfColor?, ushort>> GetPieceOfColorAtIndexTestCases()
         {
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor(){Color = Color.White, Piece =Piece.Pawn}, 12, "White Pawn on e4");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.Black, Piece = Piece.Knight}, 57, "Black Knight on b8");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.White, Piece = Piece.Bishop}, 5, "White Bishop on f1");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.Black, Piece = Piece.Rook}, 63, "Black Rook on h8");
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn }, 12, "White Pawn on e4");
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.Black, Piece = Piece.Knight }, 57, "Black Knight on b8");
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.White, Piece = Piece.Bishop }, 5, "White Bishop on f1");
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.Black, Piece = Piece.Rook }, 63, "Black Rook on h8");
             yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.White, Piece = Piece.Queen }, 3, "White Queen on d1");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.Black, Piece = Piece.King}, 60, "Black King on e8");
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.Black, Piece = Piece.King }, 60, "Black King on e8");
             yield return new TestCase<PieceOfColor?, ushort>(null, 26, "[Empty Square]");
 
         }
-        
 
-       [Test]
+
+        [Test]
         public void ValidateIndexTest()
         {
             Assert.Throws<ArgumentException>(delegate { BoardHelpers.ValidateIndex(64); });
@@ -98,16 +98,134 @@ namespace ChessLib.Core.Tests.Helpers
             Assert.DoesNotThrow(delegate { BoardHelpers.ValidateIndex(0); });
         }
 
-        //[TestCaseSource(nameof(GetCastlingAvailabilityPostMoveTestCases))]
-        //public void GetCastlingAvailabilityPostMoveTest()
-        //{
-        //    Assert.Fail();
-        //}
+        [TestCaseSource(nameof(GetCastlingAvailabilityPostMoveTestCases))]
+        public void GetCastlingAvailabilityPostMoveTest(TestCase<CastlingAvailability, Board> testCase)
+        {
+            var occupancy = testCase.InputValue.Occupancy;
+            var currentCastlingAvailability = testCase.InputValue.CastlingAvailability;
+            var move = (Move)testCase.AdditionalInputs.Single();
+            var actual = BoardHelpers.GetCastlingAvailabilityPostMove(occupancy, move, currentCastlingAvailability);
+            Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
+        }
 
-        //protected static IEnumerable<TestCase<CastlingAvailability, Board>> GetCastlingAvailabilityPostMoveTestCases()
-        //{
-        //    yield return new TestCase<CastlingAvailability, Board>()
-        //}
+        protected static IEnumerable<TestCase<CastlingAvailability, Board>> GetCastlingAvailabilityPostMoveTestCases()
+        {
+            var allCastlingAvailable = new Board("r3k2r/ppp5/8/8/8/8/PPP5/R3K2R w KQkq - 0 1");
+            var knightsOnAFile = new Board("n3k2r/8/8/8/8/8/PPP5/N3K2R w Kk - 0 1");
+            var knightsOnHFile = new Board("r3k2n/8/8/8/8/8/PPP5/R3K2N w Qq - 0 1");
+            var bishopsOnAFile = new Board("b3k2r/8/8/8/8/1P6/P1P5/B3K2R w Kk - 0 1");
+            var bishopsOnHFile = new Board("r3k2b/8/8/8/8/1P6/P1P5/R3K2B w Qq - 0 1");
+            var queensOnAFile = new Board("q3k2r/8/8/8/8/8/PPP5/Q3K2R w Kk - 0 1");
+            var queensOnHFile = new Board("r3k2q/8/8/8/8/8/PPP5/R3K2Q w Qq - 0 1");
+            //
+            // No Change in Castling Availability
+            //No Piece on Square
+            yield return new TestCase<CastlingAvailability, Board>(allCastlingAvailable.CastlingAvailability,
+                allCastlingAvailable, "No Piece on Source- Castling not affected", MoveHelpers.GenerateMove(16, 24));
+
+            //White Pawn
+            yield return new TestCase<CastlingAvailability, Board>(allCastlingAvailable.CastlingAvailability,
+                allCastlingAvailable, "White Pawn Move- Castling not affected", MoveHelpers.GenerateMove(8, 24));
+            //Black Pawn
+            yield return new TestCase<CastlingAvailability, Board>(allCastlingAvailable.CastlingAvailability,
+                allCastlingAvailable, "White Pawn Move- Castling not affected", MoveHelpers.GenerateMove(48, 32));
+            //White Knight from a1 -> b3
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+                knightsOnAFile,
+                "White Knight from a1 -> b3- Castling not affected", MoveHelpers.GenerateMove(0, 17));
+            //White Knight from h1 -> g3
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+                knightsOnHFile,
+                "White Knight from h1 -> g3- Castling not affected", MoveHelpers.GenerateMove(7, 22));
+           //Black Knight from a8 -> b6
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+                knightsOnAFile,
+                "Black Knight from a8 -> b6- Castling not affected", MoveHelpers.GenerateMove(56, 41));
+            //Black Knight from h8 ->g6
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+                knightsOnHFile,
+                "Black Knight from h8 ->g6- Castling not affected", MoveHelpers.GenerateMove(63, 46));
+
+            //White Bishop from a1 -> c3
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+                bishopsOnAFile,
+                "White Bishop from a1 -> c3- Castling not affected", MoveHelpers.GenerateMove(0, 18));
+            //White Bishop from h1 -> f3
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+                bishopsOnHFile,
+                "White Bishop from h1 -> f3- Castling not affected", MoveHelpers.GenerateMove(7, 21));
+            
+            //Black Bishop from a8 -> c6
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+                bishopsOnAFile,
+                "Black Bishop from a8 -> b6- Castling not affected", MoveHelpers.GenerateMove(56, 42));
+
+            //Black Bishop from h8 ->f6
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+                bishopsOnHFile,
+                "Black Bishop from h8 -> f6- Castling not affected", MoveHelpers.GenerateMove(63, 45));
+
+
+            //White Queen from a1 -> c3
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+                queensOnAFile,
+                "White Queen from a1 -> c3- Castling not affected", MoveHelpers.GenerateMove(0, 18));
+            //White Queen from h1 -> f3
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+                queensOnHFile,
+                "White Queen from h1 -> f3- Castling not affected", MoveHelpers.GenerateMove(7, 21));
+
+            //Black Queen from a8 -> c6
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+                queensOnAFile,
+                "Black Queen from a8 -> b6- Castling not affected", MoveHelpers.GenerateMove(56, 42));
+
+            //Black Queen from h8 ->f6
+            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+                queensOnHFile,
+                "Black Queen from h8 -> f6- Castling not affected", MoveHelpers.GenerateMove(63, 45));
+
+            //Rook Moves
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside,
+                allCastlingAvailable, "White Rook Move- Queenside eliminated", MoveHelpers.GenerateMove(0, 2));
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteQueenside,
+                allCastlingAvailable, "White Rook Move- Kingside eliminated", MoveHelpers.GenerateMove(7, 6));
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside,
+                allCastlingAvailable, "Black Rook Move- Queenside eliminated", MoveHelpers.GenerateMove(56, 57));
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside,
+                allCastlingAvailable, "Black Rook Move- Kingside eliminated", MoveHelpers.GenerateMove(63, 62));
+
+            //Castling Moves
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside, allCastlingAvailable,
+                "White Castles Kingside - White Castling Eliminated",
+                MoveHelpers.WhiteCastleKingSide);
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside, allCastlingAvailable,
+                "White Castles Queenside - White Castling Eliminated",
+                MoveHelpers.WhiteCastleQueenSide);
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteKingside| CastlingAvailability.WhiteQueenside, allCastlingAvailable,
+                "Black Castles Kingside - White Castling Eliminated",
+                MoveHelpers.BlackCastleKingSide);
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside, allCastlingAvailable,
+                "Black Castles Queenside - White Castling Eliminated",
+                MoveHelpers.BlackCastleQueenSide);
+
+            //Odd circumstances
+            var blackRookOnA1 = new Board("r3k2r/ppp5/8/8/8/8/PPP5/r1B1K2R w Kkq - 0 1");
+            var whiteRookOnA8 = new Board("R1b1k2r/ppp5/8/8/8/8/PPP5/RN2K2R w KQk - 0 1");
+            yield return new TestCase<CastlingAvailability, Board>(blackRookOnA1.CastlingAvailability, blackRookOnA1,
+                "Black Rook on a1- No Change", MoveHelpers.GenerateMove(0,1));
+            yield return new TestCase<CastlingAvailability, Board>(whiteRookOnA8.CastlingAvailability, whiteRookOnA8,
+                "White Rook on a8- No Change", MoveHelpers.GenerateMove(56, 57));
+        }
+
 
         [Test()]
         public void IsEnPassantCaptureAvailableTest()

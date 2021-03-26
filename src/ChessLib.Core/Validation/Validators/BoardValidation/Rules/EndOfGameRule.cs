@@ -28,15 +28,15 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
                 return BoardExceptionType.MaterialDraw;
             }
 
-            if (BoardHelpers.IsCheckmate(occupancy, activeColor))
-            {
-                return BoardExceptionType.Checkmate;
-            }
+            //if (BoardHelpers.IsCheckmate(occupancy, activeColor))
+            //{
+            //    return BoardExceptionType.Checkmate;
+            //}
 
-            if (BoardHelpers.IsStalemate(occupancy, activeColor, enPassantIdx, castlingAvailability))
-            {
-                return BoardExceptionType.Stalemate;
-            }
+            //if (BoardHelpers.IsStalemate(occupancy, activeColor, enPassantIdx, castlingAvailability))
+            //{
+            //    return BoardExceptionType.Stalemate;
+            //}
 
             return BoardExceptionType.None;
         }

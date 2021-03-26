@@ -189,31 +189,67 @@ namespace ChessLib.Core.Helpers
             if (index >= 64) throw new ArgumentException($"Board index {index} is out of range.");
         }
 
-
-        public static CastlingAvailability GetCastlingAvailabilityPostMove(ulong[][] board, IMove move, CastlingAvailability currentCastlingAvailability)
+        /// <summary>
+        /// Get new castling availability based on move and current availability
+        /// </summary>
+        /// <param name="occupancy"></param>
+        /// <param name="move"></param>
+        /// <param name="currentCastlingAvailability"></param>
+        /// <returns></returns>
+        public static CastlingAvailability GetCastlingAvailabilityPostMove(ulong[][] occupancy, IMove move, CastlingAvailability currentCastlingAvailability)
         {
-            var movingPiece = GetPieceAtIndex(board, move.SourceIndex);
-            switch (movingPiece)
+            if (currentCastlingAvailability == CastlingAvailability.NoCastlingAvailable)
+            {
+                return CastlingAvailability.NoCastlingAvailable;
+            }
+
+            var movingPiece = GetPieceOfColorAtIndex(occupancy, move.SourceIndex);
+            if (!movingPiece.HasValue)
+            {
+                return currentCastlingAvailability;
+            }
+            switch (movingPiece.Value.Piece)
             {
                 case Piece.Rook:
-                    if (move.SourceIndex == 56) currentCastlingAvailability &= ~CastlingAvailability.BlackQueenside;
-                    if (move.SourceIndex == 63) currentCastlingAvailability &= ~CastlingAvailability.BlackKingside;
-                    if (move.SourceIndex == 0) currentCastlingAvailability &= ~CastlingAvailability.WhiteQueenside;
-                    if (move.SourceIndex == 7) currentCastlingAvailability &= ~CastlingAvailability.WhiteKingside;
+                    switch (move.SourceIndex)
+                    {
+                        case 56:
+                            currentCastlingAvailability &= ~CastlingAvailability.BlackQueenside;
+                            break;
+                        case 63:
+                            currentCastlingAvailability &= ~CastlingAvailability.BlackKingside;
+                            break;
+                        case 0:
+                            currentCastlingAvailability &= ~CastlingAvailability.WhiteQueenside;
+                            break;
+                        case 7:
+                            currentCastlingAvailability &= ~CastlingAvailability.WhiteKingside;
+                            break;
+                    }
+
                     break;
                 case Piece.King:
-                    if (move.SourceIndex == 60)
+                    if (movingPiece.Value.Color == Color.Black)
+                    {
                         currentCastlingAvailability &=
                             ~(CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside);
-                    if (move.SourceIndex == 4)
+                    }
+                    else
+                    {
                         currentCastlingAvailability &=
                             ~(CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
+                    }
                     break;
             }
 
             return currentCastlingAvailability;
         }
 
+        /// <summary>
+        /// Get EnPassant capture availability
+        /// </summary>
+        /// <param name="board"></param>
+        /// <returns>true if 1) en passant is available and 2) if a pawn attacks the en passant square. False otherwise.</returns>
         public static bool IsEnPassantCaptureAvailable(this Board board)
         {
             var epSquare = board.EnPassantSquare;
