@@ -32,7 +32,7 @@ namespace ChessLib.Core.Tests.Helpers
             var to = strTo.SquareTextToIndex();
             Assert.IsNotNull(from);
             Assert.IsNotNull(to);
-            var actual = BoardHelpers.InBetween((int) from, (int) to);
+            var actual = BoardHelpers.InBetween((int)from, (int)to);
             Assert.AreEqual(expected, actual, $"{strFrom}->{strTo}");
         }
 
@@ -40,8 +40,8 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetOccupancyTestCases))]
         public void OccupancyTest(TestCase<ulong, ulong[][]> testCase)
         {
-            var color = (Color?) testCase.AdditionalInputs.FirstOrDefault();
-            var piece = (Piece?) testCase.AdditionalInputs?.Skip(1).FirstOrDefault();
+            var color = (Color?)testCase.AdditionalInputs.FirstOrDefault();
+            var piece = (Piece?)testCase.AdditionalInputs?.Skip(1).FirstOrDefault();
             var actual = testCase.InputValue.Occupancy(color, piece);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.Description);
         }
@@ -86,17 +86,17 @@ namespace ChessLib.Core.Tests.Helpers
 
         protected static IEnumerable<TestCase<PieceOfColor?, ushort>> GetPieceOfColorAtIndexTestCases()
         {
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor {Color = Color.White, Piece = Piece.Pawn},
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor { Color = Color.White, Piece = Piece.Pawn },
                 12, "White Pawn on e4");
             yield return new TestCase<PieceOfColor?, ushort>(
-                new PieceOfColor {Color = Color.Black, Piece = Piece.Knight}, 57, "Black Knight on b8");
+                new PieceOfColor { Color = Color.Black, Piece = Piece.Knight }, 57, "Black Knight on b8");
             yield return new TestCase<PieceOfColor?, ushort>(
-                new PieceOfColor {Color = Color.White, Piece = Piece.Bishop}, 5, "White Bishop on f1");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor {Color = Color.Black, Piece = Piece.Rook},
+                new PieceOfColor { Color = Color.White, Piece = Piece.Bishop }, 5, "White Bishop on f1");
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor { Color = Color.Black, Piece = Piece.Rook },
                 63, "Black Rook on h8");
             yield return new TestCase<PieceOfColor?, ushort>(
-                new PieceOfColor {Color = Color.White, Piece = Piece.Queen}, 3, "White Queen on d1");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor {Color = Color.Black, Piece = Piece.King},
+                new PieceOfColor { Color = Color.White, Piece = Piece.Queen }, 3, "White Queen on d1");
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor { Color = Color.Black, Piece = Piece.King },
                 60, "Black King on e8");
             yield return new TestCase<PieceOfColor?, ushort>(null, 26, "[Empty Square]");
         }
@@ -115,7 +115,7 @@ namespace ChessLib.Core.Tests.Helpers
         {
             var occupancy = testCase.InputValue.Occupancy;
             var currentCastlingAvailability = testCase.InputValue.CastlingAvailability;
-            var move = (Move) testCase.AdditionalInputs.Single();
+            var move = (Move)testCase.AdditionalInputs.Single();
             var actual = BoardHelpers.GetCastlingAvailabilityPostMove(occupancy, move, currentCastlingAvailability);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
@@ -277,7 +277,7 @@ namespace ChessLib.Core.Tests.Helpers
         public void GetEnPassantIndexTest(TestCase<ushort?, Board> testCase)
         {
             var actual =
-                BoardHelpers.GetEnPassantIndex(testCase.InputValue, (IMove) testCase.AdditionalInputs.Single());
+                BoardHelpers.GetEnPassantIndex(testCase.InputValue, (IMove)testCase.AdditionalInputs.Single());
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -303,7 +303,7 @@ namespace ChessLib.Core.Tests.Helpers
         public void ApplyMoveToBoardTest(TestCase<Board, Board> testCase)
         {
             var expected = testCase.ExpectedValue;
-            var actual = (Board) testCase.InputValue.ApplyMoveToBoard((IMove) testCase.AdditionalInputs.Single());
+            var actual = (Board)testCase.InputValue.ApplyMoveToBoard((IMove)testCase.AdditionalInputs.Single());
             Assert.AreEqual(expected.ToFEN(), actual.ToFEN(), testCase.ToString());
         }
 
@@ -501,8 +501,8 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetMoveTypeTestCases))]
         public void GetMoveTypeTest(TestCase<MoveType, Board> testCase)
         {
-            var actual = BoardHelpers.GetMoveType(testCase.InputValue, (ushort) testCase.AdditionalInputs[0],
-                (ushort) testCase.AdditionalInputs[1]);
+            var actual = BoardHelpers.GetMoveType(testCase.InputValue, (ushort)testCase.AdditionalInputs[0],
+                (ushort)testCase.AdditionalInputs[1]);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -510,11 +510,11 @@ namespace ChessLib.Core.Tests.Helpers
         {
             yield return new TestCase<MoveType, Board>(MoveType.Normal,
                 new Board("rnbqkbnr/ppp1pppp/8/4P3/3p4/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"), "Normal- White, c2-c4",
-                (ushort) 10, (ushort) 26);
+                (ushort)10, (ushort)26);
             yield return new TestCase<MoveType, Board>(MoveType.EnPassant,
                 new Board("rnbqkbnr/ppp1pppp/8/4P3/2Pp4/8/PP1P1PPP/RNBQKBNR b KQkq c3 0 3"),
                 "Black makes En Passant Capture, dxc3",
-                (ushort) 27, (ushort) 18);
+                (ushort)27, (ushort)18);
             yield return new TestCase<MoveType, Board>(MoveType.Castle,
                 new Board("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
                 "White Castles KS", MoveHelpers.WhiteCastleKingSide.SourceIndex,
@@ -532,18 +532,18 @@ namespace ChessLib.Core.Tests.Helpers
                 "Black Castles QS", MoveHelpers.BlackCastleQueenSide.SourceIndex,
                 MoveHelpers.BlackCastleQueenSide.DestinationIndex);
             yield return new TestCase<MoveType, Board>(MoveType.Promotion,
-                new Board("8/3P4/8/1p6/8/P1p3P1/1k2p3/4K3 w - - 0 49"), "White promotion", (ushort) 51, (ushort) 59);
+                new Board("8/3P4/8/1p6/8/P1p3P1/1k2p3/4K3 w - - 0 49"), "White promotion", (ushort)51, (ushort)59);
             yield return new TestCase<MoveType, Board>(MoveType.Promotion,
-                new Board("6Q1/8/8/p7/5K2/k7/1p4P1/8 b - - 0 55"), "Black promotion", (ushort) 9, (ushort) 1);
+                new Board("6Q1/8/8/p7/5K2/k7/1p4P1/8 b - - 0 55"), "Black promotion", (ushort)9, (ushort)1);
         }
 
-      
-     
+
+
         [TestCaseSource(nameof(GetSquareToIndexTestCases))]
-        public void SquareTextToIndexTest(TestCase<ushort,string>testCase)
+        public void SquareTextToIndexTest(TestCase<ushort, string> testCase)
         {
             var actual = BoardHelpers.SquareTextToIndex(testCase.InputValue);
-            Assert.AreEqual(testCase.ExpectedValue,actual, testCase.ToString());
+            Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
         [TestCase("a0")]
@@ -557,36 +557,59 @@ namespace ChessLib.Core.Tests.Helpers
 
         protected static IEnumerable<TestCase<ushort, string>> GetSquareToIndexTestCases()
         {
-            foreach (var squareNanme in BoardConstants.SquareNames.Select((x, i) => new {square = x, index = (ushort)i}))
+            foreach (var squareNanme in BoardConstants.SquareNames.Select((x, i) => new { square = x, index = (ushort)i }))
             {
                 yield return new TestCase<ushort, string>(squareNanme.index, squareNanme.square);
             }
         }
-       
 
-        [Test]
-        public void GetFileTest()
+
+        [TestCaseSource(nameof(GetFileTestCases))]
+        public void GetFileTest(TestCase<ushort, ushort> testCase)
         {
-            Assert.Fail();
+            var actual = BoardHelpers.GetFile(testCase.InputValue);
+            Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
-        [Test]
-        public void GetFileTest1()
+        protected static IEnumerable<TestCase<ushort, ushort>> GetFileTestCases()
         {
-            Assert.Fail();
+            foreach (var sq in BoardConstants.AllSquares)
+            {
+                for (ushort index = 0; index < 8; index++)
+                {
+                    var fileMask = BoardConstants.FileMasks[index];
+                    if ((fileMask & sq.GetBoardValueOfIndex()) != 0)
+                    {
+                        yield return new TestCase<ushort, ushort>(index, sq, $"{sq.IndexToSquareDisplay()}");
+                        break;
+                    }
+                }
+            }
         }
 
-        [Test]
-        public void GetRankTest()
+        [TestCaseSource(nameof(GetRankTestCases))]
+        public void GetRankTest(TestCase<ushort, ushort> testCase)
         {
-            Assert.Fail();
+            var actual = BoardHelpers.GetRank(testCase.InputValue);
+            Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
-        [Test]
-        public void GetRankTest1()
+        protected static IEnumerable<TestCase<ushort, ushort>> GetRankTestCases()
         {
-            Assert.Fail();
+            foreach (var sq in BoardConstants.AllSquares)
+            {
+                for (ushort index = 0; index < 8; index++)
+                {
+                    var rankMask = BoardConstants.RankMasks[index];
+                    if ((rankMask & sq.GetBoardValueOfIndex()) != 0)
+                    {
+                        yield return new TestCase<ushort, ushort>(index, sq, $"{sq.IndexToSquareDisplay()}");
+                        break;
+                    }
+                }
+            }
         }
+
 
         [Test]
         public void FileFromIdxTest()

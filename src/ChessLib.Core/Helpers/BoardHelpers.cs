@@ -667,14 +667,6 @@ namespace ChessLib.Core.Helpers
         }
 
 
-        /// <summary>
-        ///     Gets a File basked on boardIndex index
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static File GetFile(this int square)
-        {
-            return (File)(square % 8);
-        }
 
         /// <summary>
         ///     Gets a File basked on boardIndex index

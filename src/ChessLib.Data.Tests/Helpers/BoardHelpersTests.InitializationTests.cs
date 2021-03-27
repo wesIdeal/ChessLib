@@ -246,15 +246,7 @@ namespace ChessLib.Data.Tests.Helpers
                 Console.WriteLine(sb.ToString());
             }
 
-            [Test]
-            public static void GetFile_ShouldReturnCorrectFile()
-            {
-                for (int i = 0; i < 64; i++)
-                {
-                    var expected = (File)(i % 8);
-                    Assert.AreEqual(expected, i.GetFile());
-                }
-            }
+
             [Test]
             public static void GetRank_ShouldReturnCorrectRank()
             {
