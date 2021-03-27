@@ -611,16 +611,20 @@ namespace ChessLib.Core.Tests.Helpers
         }
 
 
-        [Test]
-        public void FileFromIdxTest()
-        {
-            Assert.Fail();
-        }
+       
 
-        [Test]
-        public void RankComplimentTest()
+        [TestCase((ushort)0, (ushort)7)]
+        [TestCase((ushort)1, (ushort)6)]
+        [TestCase((ushort)2, (ushort)5)]
+        [TestCase((ushort)3, (ushort)4)]
+        [TestCase((ushort)4, (ushort)3)]
+        [TestCase((ushort)5, (ushort)2)]
+        [TestCase((ushort)6, (ushort)1)]
+        [TestCase((ushort)7, (ushort)0)]
+        public void RankComplimentTest(ushort rank, ushort expected)
         {
-            Assert.Fail();
+            var actual = BoardHelpers.RankCompliment(rank);
+            Assert.AreEqual(expected, actual, rank.IndexToSquareDisplay());
         }
 
         [Test]
