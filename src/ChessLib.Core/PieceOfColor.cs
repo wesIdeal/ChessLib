@@ -22,7 +22,7 @@ namespace ChessLib.Core
 
         public override int GetHashCode()
         {
-            return Color.ToInt() ^ Piece.ToInt();
+            return (int)Color ^ (int)Piece;
         }
 
         public override string ToString()

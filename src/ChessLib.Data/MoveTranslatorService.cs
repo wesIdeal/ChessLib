@@ -129,7 +129,7 @@ namespace ChessLib.Data
             var promotionChar = lan.Length == 5 ? lan[4] : (char?)null;
             var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionChar);
             var isPromotion = length == 5;
-            return MoveHelpers.GenerateMove(source.Value, dest.Value,
+            return MoveHelpers.GenerateMove(source, dest,
                 isPromotion ? MoveType.Promotion : MoveType.Normal, promotionPiece);
         }
 
@@ -201,13 +201,12 @@ namespace ChessLib.Data
             {
                 var pieceMoving = PieceHelpers.GetPiece(move[0]);
                 var destinationSquare = move.Substring(move.Length - 2, 2).SquareTextToIndex();
-                Debug.Assert(destinationSquare.HasValue && destinationSquare >= 0 && destinationSquare < 64);
                 var squaresAttackingTarget =
-                    Bitboard.Instance.PiecesAttackingSquare(Board.Occupancy, destinationSquare.Value);
+                    Bitboard.Instance.PiecesAttackingSquare(Board.Occupancy, destinationSquare);
                 if (squaresAttackingTarget == 0)
                 {
                     throw new MoveException(
-                        $"No pieces on any squares are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}",
+                        $"No pieces on any squares are attacking the square {destinationSquare.IndexToSquareDisplay()}",
                         Board);
                 }
 
@@ -224,18 +223,18 @@ namespace ChessLib.Data
                 if (possibleAttackersOfType.Count == 0)
                 {
                     throw new MoveException(
-                        $"Error with move {sanMove}:No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.Value.IndexToSquareDisplay()}",
+                        $"Error with move {sanMove}:No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.IndexToSquareDisplay()}",
                         Board);
                 }
 
                 if (possibleAttackersOfType.Count == 1)
                 {
-                    resultingMove = MoveHelpers.GenerateMove(possibleAttackersOfType[0], destinationSquare.Value);
+                    resultingMove = MoveHelpers.GenerateMove(possibleAttackersOfType[0], destinationSquare);
                 }
                 else
                 {
                     resultingMove = DetermineWhichPieceMovesToSquare(move, possibleAttackersOfType, applicableBlockerBoard,
-                        destinationSquare.Value);
+                        destinationSquare);
                 }
             }
 
@@ -263,7 +262,7 @@ namespace ChessLib.Data
                     throw new MoveException($"Error parsing source disambiguating square from {move}");
                 }
 
-                source = sourceIdx.Value;
+                source = sourceIdx;
             }
             else if (mv.Length == 1)
             {
@@ -354,34 +353,29 @@ namespace ChessLib.Data
             }
 
             var destIndex = move.SquareTextToIndex();
-            if (!destIndex.HasValue)
-            {
-                throw new NoNullAllowedException("MoveTranslatorService: destIndex should not be null.");
-            }
-            var likelyStartingSq = (ushort)(colorMoving == Color.White ? destIndex.Value - 8 : destIndex.Value + 8);
+            var likelyStartingSq = (ushort)(colorMoving == Color.White ? destIndex - 8 : destIndex + 8);
             var sourceIndex = likelyStartingSq;
-            Debug.Assert(destIndex.HasValue);
 
             var isPossibleInitialMove =
-                destIndex.Value.GetRank() == 3 && colorMoving == Color.White ||
-                destIndex.Value.GetRank() == 4 && colorMoving == Color.Black;
+                destIndex.GetRank() == 3 && colorMoving == Color.White ||
+                destIndex.GetRank() == 4 && colorMoving == Color.Black;
             if (isCapture)
             {
-                var destinationFile = destIndex.Value.FileFromIdx();
+                var destinationFile = destIndex.FileFromIdx();
                 if (colorMoving == Color.White)
                 {
                     var modifier = destinationFile - startingFile + 8;
-                    sourceIndex = (ushort)(destIndex.Value - modifier);
+                    sourceIndex = (ushort)(destIndex - modifier);
                 }
                 else
                 {
                     var modifier = startingFile - destinationFile + 8;
-                    sourceIndex = (ushort)(destIndex.Value + modifier);
+                    sourceIndex = (ushort)(destIndex + modifier);
                 }
             }
             else if (isPossibleInitialMove)
             {
-                var possibleStartingIndex = colorMoving == Color.White ? destIndex.Value - 8 : destIndex + 8;
+                var possibleStartingIndex = colorMoving == Color.White ? destIndex - 8 : destIndex + 8;
                 var srcValue = ((ushort)possibleStartingIndex).GetBoardValueOfIndex();
                 //first check rank 2
                 if ((pawnBitBoard & srcValue) == 0)
@@ -393,16 +387,16 @@ namespace ChessLib.Data
                 }
                 else
                 {
-                    sourceIndex = (ushort)possibleStartingIndex.Value;
+                    sourceIndex = (ushort)possibleStartingIndex;
                 }
             }
 
-            if (isCapture && Board.EnPassantSquare.HasValue && destIndex.Value == Board.EnPassantSquare.Value)
+            if (isCapture && Board.EnPassantSquare.HasValue && destIndex == Board.EnPassantSquare.Value)
             {
                 moveType = MoveType.EnPassant;
             }
 
-            return MoveHelpers.GenerateMove(sourceIndex, destIndex.Value, moveType, promotionPiece);
+            return MoveHelpers.GenerateMove(sourceIndex, destIndex, moveType, promotionPiece);
         }
     }
 }

@@ -271,7 +271,7 @@ namespace ChessLib.Data.Tests.Helpers
                 var c = 0;
                 foreach (var f in (File[])Enum.GetValues(typeof(File)))
                 {
-                    Assert.AreEqual(c, f.ToInt());
+                    Assert.AreEqual(c, (int)f);
                     c++;
                 }
             }
@@ -282,21 +282,12 @@ namespace ChessLib.Data.Tests.Helpers
                 var c = 0;
                 foreach (var r in (Rank[])Enum.GetValues(typeof(Rank)))
                 {
-                    Assert.AreEqual(c, r.ToInt(), $"Rank {r.ToString()} should convert to {c}");
+                    Assert.AreEqual(c, (int)r, $"Rank {r.ToString()} should convert to {c}");
                     c++;
                 }
             }
 
-            [Test]
-            public static void ToHexDisplay_ShouldGiveProperHexStringRepresentation()
-            {
-                var expectedPad2 = "0x10";
-                var expectedPad4 = "0x0010";
-                var expectedNoHexId = "10";
-                Assert.AreEqual(expectedPad2, 0x10ul.ToHexDisplay(true, true, 2));
-                Assert.AreEqual(expectedPad4, 0x10ul.ToHexDisplay(true, true, 4));
-                Assert.AreEqual(expectedNoHexId, 0x10ul.ToHexDisplay(false));
-            }
+
 
             [Test]
             public static void InBetween_ShouldReturnCorrectValue_GivenA1H8()

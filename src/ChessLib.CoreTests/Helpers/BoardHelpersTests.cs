@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
 using NUnit.Framework;
@@ -536,53 +537,32 @@ namespace ChessLib.Core.Tests.Helpers
                 new Board("6Q1/8/8/p7/5K2/k7/1p4P1/8 b - - 0 55"), "Black promotion", (ushort) 9, (ushort) 1);
         }
 
-        [Test]
-        public void IsCastlingMoveTest()
+      
+     
+        [TestCaseSource(nameof(GetSquareToIndexTestCases))]
+        public void SquareTextToIndexTest(TestCase<ushort,string>testCase)
         {
-            Assert.Fail();
+            var actual = BoardHelpers.SquareTextToIndex(testCase.InputValue);
+            Assert.AreEqual(testCase.ExpectedValue,actual, testCase.ToString());
         }
 
-        [Test]
-        public void IsEnPassantCaptureTest()
+        [TestCase("a0")]
+        [TestCase("a9")]
+        [TestCase("i1")]
+        [TestCase("z8")]
+        public void SquareTextToIndexTestShouldThrowExceptionWhenOutOfRange(string testCase)
         {
-            Assert.Fail();
+            Assert.Throws(typeof(ArgumentException), delegate { BoardHelpers.SquareTextToIndex(testCase); });
         }
 
-        [Test]
-        public void ToIntTest()
+        protected static IEnumerable<TestCase<ushort, string>> GetSquareToIndexTestCases()
         {
-            Assert.Fail();
+            foreach (var squareNanme in BoardConstants.SquareNames.Select((x, i) => new {square = x, index = (ushort)i}))
+            {
+                yield return new TestCase<ushort, string>(squareNanme.index, squareNanme.square);
+            }
         }
-
-        [Test]
-        public void ToIntTest1()
-        {
-            Assert.Fail();
-        }
-
-        [Test]
-        public void ToIntTest2()
-        {
-            Assert.Fail();
-        }
-
-        [Test]
-        public void ToIntTest3()
-        {
-            Assert.Fail();
-        }
-
-        [Test]
-        public void ToHexDisplayTest()
-        {
-            Assert.Fail();
-        }
-
-        [Test]
-        public void SquareTextToIndexTest()
-        {
-            Assert.Fail();
-        }
+       
 
         [Test]
         public void GetFileTest()
