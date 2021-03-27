@@ -564,13 +564,6 @@ namespace ChessLib.Core.Helpers
             return pieceArrayRv;
         }
 
-        public static IMove GetMove(IBoard board, ushort sourceIndex, ushort destinationIndex,
-            PromotionPiece promotionPiece)
-        {
-            var moveType = GetMoveType(board, sourceIndex, destinationIndex);
-            return MoveHelpers.GenerateMove(sourceIndex, destinationIndex, moveType, promotionPiece);
-        }
-
         /// <summary>
         ///     Gets the type of move based on the current board and piece source/destination
         /// </summary>
@@ -588,7 +581,6 @@ namespace ChessLib.Core.Helpers
                 var move = $"{source.IndexToSquareDisplay()}->{dest.IndexToSquareDisplay()}";
                 throw new PieceException("Error getting piece on source in Bitboard.GetMoveType(...):" + move);
             }
-
             var piece = sourcePiece.Value.Piece;
             var color = sourcePiece.Value.Color;
             if (!relevantPieces.Contains(piece))

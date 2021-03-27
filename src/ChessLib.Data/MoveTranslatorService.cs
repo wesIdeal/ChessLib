@@ -97,10 +97,10 @@ namespace ChessLib.Data
         public Move GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex,
             PromotionPiece? promotionPiece)
         {
-            var rv = (Move)BoardHelpers.GetMove(Board, sourceIndex, destinationIndex,
-                promotionPiece ?? PromotionPiece.Knight);
-            rv.SAN = MoveToSAN(rv);
-            return rv;
+            var moveType = BoardHelpers.GetMoveType(Board, sourceIndex, destinationIndex);
+            var move = (Move)MoveHelpers.GenerateMove(sourceIndex, destinationIndex, moveType, promotionPiece ?? PromotionPiece.Knight);
+            move.SAN = MoveToSAN(move);
+            return move;
         }
 
         /// <summary>

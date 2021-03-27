@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
-using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
 using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Helpers
 {
-    [TestFixture()]
+    [TestFixture]
     public class BoardHelpersTests
     {
         [TestCase(Color.Black, Color.White)]
@@ -32,7 +31,7 @@ namespace ChessLib.Core.Tests.Helpers
             var to = strTo.SquareTextToIndex();
             Assert.IsNotNull(from);
             Assert.IsNotNull(to);
-            var actual = BoardHelpers.InBetween((int)from, (int)to);
+            var actual = BoardHelpers.InBetween((int) from, (int) to);
             Assert.AreEqual(expected, actual, $"{strFrom}->{strTo}");
         }
 
@@ -40,19 +39,23 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetOccupancyTestCases))]
         public void OccupancyTest(TestCase<ulong, ulong[][]> testCase)
         {
-            var color = (Color?)testCase.AdditionalInputs.FirstOrDefault();
-            var piece = (Piece?)testCase.AdditionalInputs?.Skip(1).FirstOrDefault();
-            var actual = BoardHelpers.Occupancy(testCase.InputValue, color, piece);
+            var color = (Color?) testCase.AdditionalInputs.FirstOrDefault();
+            var piece = (Piece?) testCase.AdditionalInputs?.Skip(1).FirstOrDefault();
+            var actual = testCase.InputValue.Occupancy(color, piece);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.Description);
         }
 
         protected static IEnumerable<TestCase<ulong, ulong[][]>> GetOccupancyTestCases()
         {
             yield return new TestCase<ulong, ulong[][]>(0xffff00000000ffff, BoardHelpers.InitialBoard, "All Pieces");
-            yield return new TestCase<ulong, ulong[][]>(0xfffful, BoardHelpers.InitialBoard, "All Pieces for White", Color.White);
-            yield return new TestCase<ulong, ulong[][]>(0xffff000000000000, BoardHelpers.InitialBoard, "All Pieces for Black", Color.Black);
-            yield return new TestCase<ulong, ulong[][]>(0xff00ul, BoardHelpers.InitialBoard, "All Pawns for White", Color.White, Piece.Pawn);
-            yield return new TestCase<ulong, ulong[][]>(0x00ff000000000000, BoardHelpers.InitialBoard, "All Pawns for Black", Color.Black, Piece.Pawn);
+            yield return new TestCase<ulong, ulong[][]>(0xfffful, BoardHelpers.InitialBoard, "All Pieces for White",
+                Color.White);
+            yield return new TestCase<ulong, ulong[][]>(0xffff000000000000, BoardHelpers.InitialBoard,
+                "All Pieces for Black", Color.Black);
+            yield return new TestCase<ulong, ulong[][]>(0xff00ul, BoardHelpers.InitialBoard, "All Pawns for White",
+                Color.White, Piece.Pawn);
+            yield return new TestCase<ulong, ulong[][]>(0x00ff000000000000, BoardHelpers.InitialBoard,
+                "All Pawns for Black", Color.Black, Piece.Pawn);
         }
 
         [TestCaseSource(nameof(GetPieceAtIndexTestCases))]
@@ -76,19 +79,25 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetPieceOfColorAtIndexTestCases))]
         public void GetPieceOfColorAtIndexTest(TestCase<PieceOfColor?, ushort> testCase)
         {
-            var actual = BoardHelpers.GetPieceOfColorAtIndex(BoardHelpers.InitialBoard, testCase.InputValue);
+            var actual = BoardHelpers.InitialBoard.GetPieceOfColorAtIndex(testCase.InputValue);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.Description);
         }
+
         protected static IEnumerable<TestCase<PieceOfColor?, ushort>> GetPieceOfColorAtIndexTestCases()
         {
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.White, Piece = Piece.Pawn }, 12, "White Pawn on e4");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.Black, Piece = Piece.Knight }, 57, "Black Knight on b8");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.White, Piece = Piece.Bishop }, 5, "White Bishop on f1");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.Black, Piece = Piece.Rook }, 63, "Black Rook on h8");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.White, Piece = Piece.Queen }, 3, "White Queen on d1");
-            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor() { Color = Color.Black, Piece = Piece.King }, 60, "Black King on e8");
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor {Color = Color.White, Piece = Piece.Pawn},
+                12, "White Pawn on e4");
+            yield return new TestCase<PieceOfColor?, ushort>(
+                new PieceOfColor {Color = Color.Black, Piece = Piece.Knight}, 57, "Black Knight on b8");
+            yield return new TestCase<PieceOfColor?, ushort>(
+                new PieceOfColor {Color = Color.White, Piece = Piece.Bishop}, 5, "White Bishop on f1");
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor {Color = Color.Black, Piece = Piece.Rook},
+                63, "Black Rook on h8");
+            yield return new TestCase<PieceOfColor?, ushort>(
+                new PieceOfColor {Color = Color.White, Piece = Piece.Queen}, 3, "White Queen on d1");
+            yield return new TestCase<PieceOfColor?, ushort>(new PieceOfColor {Color = Color.Black, Piece = Piece.King},
+                60, "Black King on e8");
             yield return new TestCase<PieceOfColor?, ushort>(null, 26, "[Empty Square]");
-
         }
 
 
@@ -105,7 +114,7 @@ namespace ChessLib.Core.Tests.Helpers
         {
             var occupancy = testCase.InputValue.Occupancy;
             var currentCastlingAvailability = testCase.InputValue.CastlingAvailability;
-            var move = (Move)testCase.AdditionalInputs.Single();
+            var move = (Move) testCase.AdditionalInputs.Single();
             var actual = BoardHelpers.GetCastlingAvailabilityPostMove(occupancy, move, currentCastlingAvailability);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
@@ -132,73 +141,89 @@ namespace ChessLib.Core.Tests.Helpers
             yield return new TestCase<CastlingAvailability, Board>(allCastlingAvailable.CastlingAvailability,
                 allCastlingAvailable, "White Pawn Move- Castling not affected", MoveHelpers.GenerateMove(48, 32));
             //White Knight from a1 -> b3
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
                 knightsOnAFile,
                 "White Knight from a1 -> b3- Castling not affected", MoveHelpers.GenerateMove(0, 17));
             //White Knight from h1 -> g3
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
                 knightsOnHFile,
                 "White Knight from h1 -> g3- Castling not affected", MoveHelpers.GenerateMove(7, 22));
             //Black Knight from a8 -> b6
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
                 knightsOnAFile,
                 "Black Knight from a8 -> b6- Castling not affected", MoveHelpers.GenerateMove(56, 41));
             //Black Knight from h8 ->g6
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
                 knightsOnHFile,
                 "Black Knight from h8 ->g6- Castling not affected", MoveHelpers.GenerateMove(63, 46));
 
             //White Bishop from a1 -> c3
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
                 bishopsOnAFile,
                 "White Bishop from a1 -> c3- Castling not affected", MoveHelpers.GenerateMove(0, 18));
             //White Bishop from h1 -> f3
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
                 bishopsOnHFile,
                 "White Bishop from h1 -> f3- Castling not affected", MoveHelpers.GenerateMove(7, 21));
 
             //Black Bishop from a8 -> c6
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
                 bishopsOnAFile,
                 "Black Bishop from a8 -> b6- Castling not affected", MoveHelpers.GenerateMove(56, 42));
 
             //Black Bishop from h8 ->f6
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
                 bishopsOnHFile,
                 "Black Bishop from h8 -> f6- Castling not affected", MoveHelpers.GenerateMove(63, 45));
 
 
             //White Queen from a1 -> c3
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
                 queensOnAFile,
                 "White Queen from a1 -> c3- Castling not affected", MoveHelpers.GenerateMove(0, 18));
             //White Queen from h1 -> f3
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
                 queensOnHFile,
                 "White Queen from h1 -> f3- Castling not affected", MoveHelpers.GenerateMove(7, 21));
 
             //Black Queen from a8 -> c6
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteKingside | CastlingAvailability.BlackKingside,
                 queensOnAFile,
                 "Black Queen from a8 -> b6- Castling not affected", MoveHelpers.GenerateMove(56, 42));
 
             //Black Queen from h8 ->f6
-            yield return new TestCase<CastlingAvailability, Board>(CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
+            yield return new TestCase<CastlingAvailability, Board>(
+                CastlingAvailability.WhiteQueenside | CastlingAvailability.BlackQueenside,
                 queensOnHFile,
                 "Black Queen from h8 -> f6- Castling not affected", MoveHelpers.GenerateMove(63, 45));
 
             //Rook Moves
             yield return new TestCase<CastlingAvailability, Board>(
-                CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside,
+                CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside |
+                CastlingAvailability.WhiteKingside,
                 allCastlingAvailable, "White Rook Move- Queenside eliminated", MoveHelpers.GenerateMove(0, 2));
             yield return new TestCase<CastlingAvailability, Board>(
-                CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteQueenside,
+                CastlingAvailability.BlackKingside | CastlingAvailability.BlackQueenside |
+                CastlingAvailability.WhiteQueenside,
                 allCastlingAvailable, "White Rook Move- Kingside eliminated", MoveHelpers.GenerateMove(7, 6));
             yield return new TestCase<CastlingAvailability, Board>(
-                CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside,
+                CastlingAvailability.BlackKingside | CastlingAvailability.WhiteKingside |
+                CastlingAvailability.WhiteQueenside,
                 allCastlingAvailable, "Black Rook Move- Queenside eliminated", MoveHelpers.GenerateMove(56, 57));
             yield return new TestCase<CastlingAvailability, Board>(
-                CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside,
+                CastlingAvailability.BlackQueenside | CastlingAvailability.WhiteKingside |
+                CastlingAvailability.WhiteQueenside,
                 allCastlingAvailable, "Black Rook Move- Kingside eliminated", MoveHelpers.GenerateMove(63, 62));
 
             //Castling Moves
@@ -232,7 +257,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetIsEnPassantCaptureAvailableTestCases))]
         public void IsEnPassantCaptureAvailableTest(TestCase<bool, Board> testCase)
         {
-            var actual = BoardHelpers.IsEnPassantCaptureAvailable(testCase.InputValue);
+            var actual = testCase.InputValue.IsEnPassantCaptureAvailable();
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -251,7 +276,7 @@ namespace ChessLib.Core.Tests.Helpers
         public void GetEnPassantIndexTest(TestCase<ushort?, Board> testCase)
         {
             var actual =
-                BoardHelpers.GetEnPassantIndex(testCase.InputValue, (IMove)testCase.AdditionalInputs.Single());
+                BoardHelpers.GetEnPassantIndex(testCase.InputValue, (IMove) testCase.AdditionalInputs.Single());
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -261,9 +286,13 @@ namespace ChessLib.Core.Tests.Helpers
             yield return new TestCase<ushort?, Board>(44,
                 new Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "After 1. e4 e5",
                 MoveHelpers.GenerateMove(52, 36));
-            yield return new TestCase<ushort?, Board>(null, new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPRPPP/RNBQKBNR b KQkq - 0 1"), "After 1. Re4 from e3", MoveHelpers.GenerateMove(12, 28));
-            yield return new TestCase<ushort?, Board>(null, new Board(), "No piece on square", MoveHelpers.GenerateMove(28, 29));
-            yield return new TestCase<ushort?, Board>(null, new Board(), "After 1. e3", MoveHelpers.GenerateMove(12, 20));
+            yield return new TestCase<ushort?, Board>(null,
+                new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPRPPP/RNBQKBNR b KQkq - 0 1"), "After 1. Re4 from e3",
+                MoveHelpers.GenerateMove(12, 28));
+            yield return new TestCase<ushort?, Board>(null, new Board(), "No piece on square",
+                MoveHelpers.GenerateMove(28, 29));
+            yield return new TestCase<ushort?, Board>(null, new Board(), "After 1. e3",
+                MoveHelpers.GenerateMove(12, 20));
             yield return new TestCase<ushort?, Board>(null,
                 new Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "After 1.e4 e6",
                 MoveHelpers.GenerateMove(52, 44));
@@ -273,13 +302,15 @@ namespace ChessLib.Core.Tests.Helpers
         public void ApplyMoveToBoardTest(TestCase<Board, Board> testCase)
         {
             var expected = testCase.ExpectedValue;
-            var actual = (Board)BoardHelpers.ApplyMoveToBoard(testCase.InputValue, (IMove)testCase.AdditionalInputs.Single());
+            var actual = (Board) testCase.InputValue.ApplyMoveToBoard((IMove) testCase.AdditionalInputs.Single());
             Assert.AreEqual(expected.ToFEN(), actual.ToFEN(), testCase.ToString());
         }
 
         protected static IEnumerable<TestCase<Board, Board>> GetApplyMoveToBoardTestCases()
         {
-            var boardTransitions = new[] { new Board(),
+            var boardTransitions = new[]
+            {
+                new Board(),
                 new Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"),
                 new Board("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2"),
                 new Board("rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"),
@@ -297,19 +328,19 @@ namespace ChessLib.Core.Tests.Helpers
             };
             var movesToApply = new[]
             {
-                MoveHelpers.GenerateMove(12,28),
-                MoveHelpers.GenerateMove(51,35),
-                MoveHelpers.GenerateMove(28,35),
-                MoveHelpers.GenerateMove(59,35),
-                MoveHelpers.GenerateMove(1,18),
-                MoveHelpers.GenerateMove(35,59),
-                MoveHelpers.GenerateMove(5,26),
-                MoveHelpers.GenerateMove(52,44),
-                MoveHelpers.GenerateMove(6,21),
-                MoveHelpers.GenerateMove(62,45),
+                MoveHelpers.GenerateMove(12, 28),
+                MoveHelpers.GenerateMove(51, 35),
+                MoveHelpers.GenerateMove(28, 35),
+                MoveHelpers.GenerateMove(59, 35),
+                MoveHelpers.GenerateMove(1, 18),
+                MoveHelpers.GenerateMove(35, 59),
+                MoveHelpers.GenerateMove(5, 26),
+                MoveHelpers.GenerateMove(52, 44),
+                MoveHelpers.GenerateMove(6, 21),
+                MoveHelpers.GenerateMove(62, 45),
                 MoveHelpers.WhiteCastleKingSide,
-                MoveHelpers.GenerateMove(61,52),
-                MoveHelpers.GenerateMove(11,27),
+                MoveHelpers.GenerateMove(61, 52),
+                MoveHelpers.GenerateMove(11, 27),
                 MoveHelpers.BlackCastleKingSide
             };
 
@@ -318,12 +349,10 @@ namespace ChessLib.Core.Tests.Helpers
                 var startingBoard = boardTransitions[boardIndex];
                 var endingBoard = boardTransitions[boardIndex + 1];
                 var move = movesToApply[boardIndex];
-                yield return new TestCase<Board, Board>(endingBoard, startingBoard, $"{boardIndex:D2} {move.ToString()}", move);
+                yield return new TestCase<Board, Board>(endingBoard, startingBoard,
+                    $"{boardIndex:D2} {move.ToString()}", move);
             }
         }
-
-
-
 
 
         [TestCaseSource(nameof(GetCheckTypeTestCases))]
@@ -343,7 +372,8 @@ namespace ChessLib.Core.Tests.Helpers
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
                 new Board("rn5r/pp5p/2p1k1p1/q4p2/1bBPp3/2N4Q/PPP2P1P/2KR3R b - - 1 16"), "White Bishop vs Black King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
-                new Board("2brr1k1/5p2/p2p3p/P1pP2p1/1pNbP3/1P3PPq/6QP/2BRR1K1 w - - 1 30"), "Black Bishop vs White King");
+                new Board("2brr1k1/5p2/p2p3p/P1pP2p1/1pNbP3/1P3PPq/6QP/2BRR1K1 w - - 1 30"),
+                "Black Bishop vs White King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
                 new Board("8/1k6/2P5/2R5/8/8/6K1/8 b - - 0 1"), "White Pawn vs Black King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
@@ -383,7 +413,8 @@ namespace ChessLib.Core.Tests.Helpers
 
         protected static IEnumerable<TestCase<bool, Board>> GetIsStalemateTestCases()
         {
-            yield return new TestCase<bool, Board>(false, new Board("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"), "Double Check");
+            yield return new TestCase<bool, Board>(false, new Board("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"),
+                "Double Check");
             yield return new TestCase<bool, Board>(false,
                 new Board("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"), "Single Check");
             yield return new TestCase<bool, Board>(false,
@@ -396,9 +427,12 @@ namespace ChessLib.Core.Tests.Helpers
                 new Board("8/8/8/5p2/6p1/5kP1/7K/5q2 w - - 0 106"), "02 Stalemate");
             yield return new TestCase<bool, Board>(true,
                 new Board("7k/7P/7K/8/8/8/8/8 b - - 2 66"), "03 Stalemate");
-            yield return new TestCase<bool, Board>(true, new Board("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62"), "04 Stalemate");
-            yield return new TestCase<bool, Board>(true, new Board("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57"), "05 Stalemate");
-            yield return new TestCase<bool, Board>(true, new Board("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57"), "06 Stalemate");
+            yield return new TestCase<bool, Board>(true, new Board("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62"),
+                "04 Stalemate");
+            yield return new TestCase<bool, Board>(true, new Board("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57"),
+                "05 Stalemate");
+            yield return new TestCase<bool, Board>(true, new Board("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57"),
+                "06 Stalemate");
         }
 
         [TestCaseSource(nameof(GetIsCheckmateTestCases))]
@@ -407,24 +441,28 @@ namespace ChessLib.Core.Tests.Helpers
             var actual = BoardHelpers.IsCheckmate(testCase.InputValue);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
+
         protected static IEnumerable<TestCase<bool, Board>> GetIsCheckmateTestCases()
         {
             //Normal positions
             yield return new TestCase<bool, Board>(false,
                 new Board(), "Initial Board");
             yield return new TestCase<bool, Board>(false,
-                new Board("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23"), "No checks- Normal Position");
+                new Board("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23"),
+                "No checks- Normal Position");
             yield return new TestCase<bool, Board>(false,
                 new Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"), "1. e4");
             yield return new TestCase<bool, Board>(false,
                 new Board("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1"), "1. d4");
 
             //Normal checks
-            yield return new TestCase<bool, Board>(false, new Board("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1"), "Single Check, Can evade");
+            yield return new TestCase<bool, Board>(false, new Board("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1"),
+                "Single Check, Can evade");
             yield return new TestCase<bool, Board>(false,
                 new Board("2bq1rk1/3p1Bpp/p1p3N1/1rb2Pp1/1pQ5/P5N1/1PP3PP/R3R2K b - - 0 23"),
                 "Check, attacker can be captured");
-            yield return new TestCase<bool, Board>(false, new Board("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"), "Double Check, Can evade and capture");
+            yield return new TestCase<bool, Board>(false, new Board("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"),
+                "Double Check, Can evade and capture");
             yield return new TestCase<bool, Board>(false,
                 new Board("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"), "Single Check, Can evade");
             yield return new TestCase<bool, Board>(false,
@@ -432,9 +470,12 @@ namespace ChessLib.Core.Tests.Helpers
             //Stalemates
             yield return new TestCase<bool, Board>(false,
                 new Board("7k/7P/7K/8/8/8/8/8 b - - 2 66"), "Stalemate 01");
-            yield return new TestCase<bool, Board>(false, new Board("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62"), "Stalemate 02");
-            yield return new TestCase<bool, Board>(false, new Board("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57"), "Stalemate 03");
-            yield return new TestCase<bool, Board>(false, new Board("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57"), "Stalemate 04");
+            yield return new TestCase<bool, Board>(false, new Board("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62"),
+                "Stalemate 02");
+            yield return new TestCase<bool, Board>(false, new Board("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57"),
+                "Stalemate 03");
+            yield return new TestCase<bool, Board>(false, new Board("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57"),
+                "Stalemate 04");
             //Mates
             yield return new TestCase<bool, Board>(true,
                 new Board("3kr3/pppQ4/5N2/1n3p2/3p4/1P6/1P2qPP1/6K1 b - - 1 36"), "00 Checkmate");
@@ -453,150 +494,169 @@ namespace ChessLib.Core.Tests.Helpers
                 "06 Checkmate, Rook");
             yield return new TestCase<bool, Board>(true,
                 new Board("4R3/2p3pk/pp3p2/5n1p/2P2P1P/P5r1/1P4q1/3QR2K w - - 6 41"), "07 Checkmate, Queen");
-
-
         }
 
 
-        [Test()]
-        public void DoesKingHaveEvasionsTest()
+        [TestCaseSource(nameof(GetMoveTypeTestCases))]
+        public void GetMoveTypeTest(TestCase<MoveType, Board> testCase)
         {
-            
+            var actual = BoardHelpers.GetMoveType(testCase.InputValue, (ushort) testCase.AdditionalInputs[0],
+                (ushort) testCase.AdditionalInputs[1]);
+            Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
-        [Test()]
-        public void GetMoveTest()
+        protected static IEnumerable<TestCase<MoveType, Board>> GetMoveTypeTestCases()
         {
-            Assert.Fail();
+            yield return new TestCase<MoveType, Board>(MoveType.Normal,
+                new Board("rnbqkbnr/ppp1pppp/8/4P3/3p4/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"), "Normal- White, c2-c4",
+                (ushort) 10, (ushort) 26);
+            yield return new TestCase<MoveType, Board>(MoveType.EnPassant,
+                new Board("rnbqkbnr/ppp1pppp/8/4P3/2Pp4/8/PP1P1PPP/RNBQKBNR b KQkq c3 0 3"),
+                "Black makes En Passant Capture, dxc3",
+                (ushort) 27, (ushort) 18);
+            yield return new TestCase<MoveType, Board>(MoveType.Castle,
+                new Board("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
+                "White Castles KS", MoveHelpers.WhiteCastleKingSide.SourceIndex,
+                MoveHelpers.WhiteCastleKingSide.DestinationIndex);
+            yield return new TestCase<MoveType, Board>(MoveType.Castle,
+                new Board("r4n2/pp3kp1/2pbbn2/3p2B1/3P4/3B4/PPP2PPP/R3K2R w KQ - 3 19"),
+                "White Castles QS", MoveHelpers.WhiteCastleQueenSide.SourceIndex,
+                MoveHelpers.WhiteCastleQueenSide.DestinationIndex);
+            yield return new TestCase<MoveType, Board>(MoveType.Castle,
+                new Board("rnbqk2r/pppp1ppp/5n2/4N3/1bP5/2N5/PP1PPPPP/R1BQKB1R b KQkq - 0 4"),
+                "Black Castles KS", MoveHelpers.BlackCastleKingSide.SourceIndex,
+                MoveHelpers.BlackCastleKingSide.DestinationIndex);
+            yield return new TestCase<MoveType, Board>(MoveType.Castle,
+                new Board("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
+                "Black Castles QS", MoveHelpers.BlackCastleQueenSide.SourceIndex,
+                MoveHelpers.BlackCastleQueenSide.DestinationIndex);
+            yield return new TestCase<MoveType, Board>(MoveType.Promotion,
+                new Board("8/3P4/8/1p6/8/P1p3P1/1k2p3/4K3 w - - 0 49"), "White promotion", (ushort) 51, (ushort) 59);
+            yield return new TestCase<MoveType, Board>(MoveType.Promotion,
+                new Board("6Q1/8/8/p7/5K2/k7/1p4P1/8 b - - 0 55"), "Black promotion", (ushort) 9, (ushort) 1);
         }
 
-        [Test()]
-        public void GetMoveTypeTest()
-        {
-            Assert.Fail();
-        }
-
-        [Test()]
+        [Test]
         public void IsCastlingMoveTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void IsEnPassantCaptureTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ToIntTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ToIntTest1()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ToIntTest2()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ToIntTest3()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ToHexDisplayTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void SquareTextToIndexTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void GetFileTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void GetFileTest1()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void GetRankTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void GetRankTest1()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void FileFromIdxTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void RankComplimentTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void GetFENPiecePlacementTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void GetFENSideToMoveStrRepresentationTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void GetFENCastlingAvailabilityStringTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void GetFENEnPassantStringTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void GetFENHalfMoveClockStringTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void GetFENMoveCounterStringTest()
         {
             Assert.Fail();
         }
 
-        [Test()]
+        [Test]
         public void ToFENTest()
         {
             Assert.Fail();
