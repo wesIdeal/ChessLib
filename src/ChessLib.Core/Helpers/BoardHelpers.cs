@@ -702,18 +702,6 @@ namespace ChessLib.Core.Helpers
             return (ushort)(boardIndex / 8);
         }
 
-
-        /// <summary>
-        ///     Gets a file index from a boardIndex index
-        /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort FileFromIdx(this ushort idx)
-        {
-            return (ushort)(idx % 8);
-        }
-
         /// <summary>
         ///     Gets
         /// </summary>

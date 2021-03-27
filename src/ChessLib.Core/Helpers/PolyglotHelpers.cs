@@ -273,7 +273,7 @@ namespace ChessLib.Core.Helpers
             }
 
             Debug.Assert(board.EnPassantSquare != null, "EnPassant square cannot be null after reaching this point");
-            var file = board.EnPassantSquare.Value.FileFromIdx();
+            var file = board.EnPassantSquare.Value.GetFile();
             return EnPassant[file];
         }
 

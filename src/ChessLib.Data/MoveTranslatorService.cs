@@ -361,7 +361,7 @@ namespace ChessLib.Data
                 destIndex.GetRank() == 4 && colorMoving == Color.Black;
             if (isCapture)
             {
-                var destinationFile = destIndex.FileFromIdx();
+                var destinationFile = destIndex.GetFile();
                 if (colorMoving == Color.White)
                 {
                     var modifier = destinationFile - startingFile + 8;
