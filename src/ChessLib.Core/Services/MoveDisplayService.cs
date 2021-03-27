@@ -87,7 +87,7 @@ namespace ChessLib.Core.Services
 
 
             var board = Board.ApplyMoveToBoard(move, true);
-            if (board.IsActivePlayerInCheck())
+            if (BoardHelpers.IsColorInCheck(board.Occupancy, board.ActivePlayer))
             {
                 checkInfo = "+";
                 if (board.GameState == GameState.Checkmate)

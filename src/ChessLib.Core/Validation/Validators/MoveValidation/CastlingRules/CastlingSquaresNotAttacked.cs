@@ -10,7 +10,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
     {
         public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
-            if (IsKingsPathInCheck(boardInfo.OpponentColor(), boardInfo.Occupancy, move))
+            if (IsKingsPathInCheck(boardInfo.ActivePlayer.Toggle(), boardInfo.Occupancy, move))
             {
                 return MoveError.CastleThroughCheck;
             }

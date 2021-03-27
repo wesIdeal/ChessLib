@@ -5,12 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.MagicBitboard.Storage;
-using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
 #endregion
 
-namespace ChessLib.MagicBitboard.Tests.MovingPieces
+namespace ChessLib.Core.Tests.MagicBitboard.MovingPieces
 {
     [TestFixture]
     public class Bishop

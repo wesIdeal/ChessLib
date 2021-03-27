@@ -56,10 +56,10 @@ namespace ChessLib.Data.Tests.Helpers
             var move = MoveHelpers.GenerateMove((ushort)src, (ushort)dst, MoveType.EnPassant);
             var board = new Board(fen);
             var activeColor = board.ActivePlayer;
-            var oppColor = board.OpponentColor();
+            var oppColor = board.ActivePlayer.Toggle();
             var actual = BoardHelpers.ApplyMoveToBoard(board, move);
             Assert.AreEqual(actual.Occupancy.Occupancy(activeColor, Piece.Pawn), actPawn, $"{board.ActivePlayer}'s pawn structure incorrect after En Passant capture");
-            Assert.AreEqual(actual.Occupancy.Occupancy(oppColor, Piece.Pawn), oppPawn, $"{board.OpponentColor()}'s pawn structure incorrect after En Passant capture");
+            Assert.AreEqual(actual.Occupancy.Occupancy(oppColor, Piece.Pawn), oppPawn, $"{board.ActivePlayer.Toggle()}'s pawn structure incorrect after En Passant capture");
         }
 
         //[TestCase("4k3/8/8/8/8/8/8/4K3 w - - 0 1", GameState.Drawn, false)]

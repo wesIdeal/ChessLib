@@ -27,7 +27,8 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
 
         public override ulong GetPseudoLegalMoves(ushort square, Color playerColor, ulong occupancy)
         {
-            return MagicBitboard[square].GetAttacks(occupancy);
+            var relevantOccupancy = occupancy & AttackMask[square];
+            return MagicBitboard[square].GetAttacks(relevantOccupancy);
         }
 
         private Storage.MagicBitboard[] GetMagicBitboards()

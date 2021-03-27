@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.MagicBitboard.Storage;
@@ -10,8 +11,9 @@ using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
 #endregion
+[assembly: InternalsVisibleTo("ChessLib.Core.Tests.MagicBitboard.MovingPieces")]
 
-namespace ChessLib.MagicBitboard.Tests.MovingPieces
+namespace ChessLib.Core.Tests.MagicBitboard.MovingPieces
 {
     [TestFixture]
     public class Rook

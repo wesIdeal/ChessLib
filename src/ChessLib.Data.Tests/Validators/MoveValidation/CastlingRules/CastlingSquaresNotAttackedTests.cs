@@ -33,7 +33,7 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
         {
             var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
             var position = new Board("4k2r/8/8/8/8/8/8/4K3 b kq - 1 2");
-            Assert.IsFalse(IsKingsPathInCheck(position.OpponentColor(), position.Occupancy, move), "IsKingsPathInCheck() should return false when nothing blocks castling privilege.");
+            Assert.IsFalse(IsKingsPathInCheck(position.ActivePlayer.Toggle(), position.Occupancy, move), "IsKingsPathInCheck() should return false when nothing blocks castling privilege.");
         }
 
         [Test]
@@ -44,10 +44,10 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
             var pos2 = new Board("4k2r/8/8/8/8/8/8/4K1R1 b kq - 1 2");
             var pos3 = new Board("4k2r/8/8/8/8/8/4R3/4K3 b kq - 1 2");
 
-            Assert.IsTrue(IsKingsPathInCheck(pos1.OpponentColor(), pos1.Occupancy, move), "IsKingsPathInCheck() should return true when Rook on f1 blocks castling privilege.");
-            Assert.IsTrue(IsKingsPathInCheck(pos2.OpponentColor(), pos1.Occupancy, move), "IsKingsPathInCheck() should return true when Rook on g1 blocks castling privilege.");
-            Assert.IsTrue(IsKingsPathInCheck(pos3.OpponentColor(), pos1.Occupancy, move), "IsKingsPathInCheck() should return true when Rook on e2 blocks castling privilege.");
-            Assert.IsTrue(IsKingsPathInCheck(pos3.OpponentColor(), pos1.Occupancy, move), "IsKingsPathInCheck() should return true when Rooks on f1-h1 block castling privilege.");
+            Assert.IsTrue(IsKingsPathInCheck(pos1.ActivePlayer.Toggle(), pos1.Occupancy, move), "IsKingsPathInCheck() should return true when Rook on f1 blocks castling privilege.");
+            Assert.IsTrue(IsKingsPathInCheck(pos2.ActivePlayer.Toggle(), pos1.Occupancy, move), "IsKingsPathInCheck() should return true when Rook on g1 blocks castling privilege.");
+            Assert.IsTrue(IsKingsPathInCheck(pos3.ActivePlayer.Toggle(), pos1.Occupancy, move), "IsKingsPathInCheck() should return true when Rook on e2 blocks castling privilege.");
+            Assert.IsTrue(IsKingsPathInCheck(pos3.ActivePlayer.Toggle(), pos1.Occupancy, move), "IsKingsPathInCheck() should return true when Rooks on f1-h1 block castling privilege.");
 
         }
         [Test]
@@ -55,7 +55,7 @@ namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
         {
             var move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
             var position = new Board("4k2r/8/8/8/8/8/8/4K2R b kq - 1 2");
-            Assert.IsFalse(IsKingsPathInCheck(position.OpponentColor(), position.Occupancy, move), "IsKingsPathInCheck() should return false when Rook on h1 doesn't block castling privilege.");
+            Assert.IsFalse(IsKingsPathInCheck(position.ActivePlayer.Toggle(), position.Occupancy, move), "IsKingsPathInCheck() should return false when Rook on h1 doesn't block castling privilege.");
         }
 
     }

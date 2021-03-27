@@ -18,4 +18,8 @@
     <ProjectReference Include="..\ChessLib.MagicBitboard\ChessLib.MagicBitboard.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="MovingPieces\" />
+  </ItemGroup>
+
 </Project>

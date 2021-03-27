@@ -322,40 +322,54 @@ namespace ChessLib.Core.Tests.Helpers
             }
         }
 
-        [Test()]
-        public void GetBoardPostMoveTest()
+
+
+
+
+        [TestCaseSource(nameof(GetCheckTypeTestCases))]
+        public void GetCheckTypeTest(TestCase<BoardHelpers.CheckType, Board> testCase)
         {
-            Assert.Fail();
+            var occupancy = testCase.InputValue.Occupancy;
+            var color = testCase.InputValue.ActivePlayer;
+            ushort[] attackingPieces;
+            var actual = BoardHelpers.GetCheckType(occupancy, color, out attackingPieces);
+            Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
-        [Test()]
-        public void OpponentColorTest()
+        protected static IEnumerable<TestCase<BoardHelpers.CheckType, Board>> GetCheckTypeTestCases()
         {
-            Assert.Fail();
-        }
-
-        [Test()]
-        public void ActiveKingIndexTest()
-        {
-            Assert.Fail();
-        }
-
-        [Test()]
-        public void IsActivePlayerInCheckTest()
-        {
-            Assert.Fail();
-        }
-
-        [Test()]
-        public void IsOpponentInCheckTest()
-        {
-            Assert.Fail();
-        }
-
-        [Test()]
-        public void GetCheckTypeTest()
-        {
-            Assert.Fail();
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
+                new Board("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"), "White Rook vs Black King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
+                new Board("rn5r/pp5p/2p1k1p1/q4p2/1bBPp3/2N4Q/PPP2P1P/2KR3R b - - 1 16"), "White Bishop vs Black King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
+                new Board("2brr1k1/5p2/p2p3p/P1pP2p1/1pNbP3/1P3PPq/6QP/2BRR1K1 w - - 1 30"), "Black Bishop vs White King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
+                new Board("8/1k6/2P5/2R5/8/8/6K1/8 b - - 0 1"), "White Pawn vs Black King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
+                new Board("8/1k6/8/8/8/8/3p3r/4K3 w - - 0 1"), "Black Pawn vs White King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
+                new Board("8/1k6/8/8/8/5q2/6K1/8 w - - 0 1"), "Black Queen vs White King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
+                new Board("8/1k6/8/8/8/8/3p3r/4K3 w - - 0 1"), "Black Knight vs White King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
+                new Board("8/1k6/8/8/5n1n/8/6K1/8 w - - 0 1"), "2 Black Knights + Rook vs White King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
+                new Board("8/1k6/8/8/8/5q1q/6K1/8 w - - 0 1"), "2 Black Queens vs White King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
+                new Board("8/1k6/5r2/8/8/3b4/8/5K2 w - - 0 1"), "Black Bishop + Rook vs White King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
+                new Board("8/1k6/2P5/1R6/8/8/6K1/8 b - - 0 1"), "White Pawn + Rook vs Black King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
+                new Board("8/1k6/8/8/8/4r3/3p4/4K3 w - - 0 1"), "Black Pawn and Rook vs White King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
+                new Board("k7/1P6/8/8/8/8/6K1/Q7 b - - 0 2"), "White Pawn + Queen vs Black King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
+                new Board("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"), "2 White Pawns vs Black King");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.None,
+                new Board(), "No Check - Initial Board");
+            yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.None,
+                new Board("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"), "No Check - 1. e4 d5");
         }
 
         [Test()]

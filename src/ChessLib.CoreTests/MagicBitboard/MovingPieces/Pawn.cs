@@ -11,7 +11,7 @@ using NUnit.Framework;
 
 #endregion
 
-namespace ChessLib.MagicBitboard.Tests.MovingPieces
+namespace ChessLib.Core.Tests.MagicBitboard.MovingPieces
 {
     [TestFixture]
     public class Pawn

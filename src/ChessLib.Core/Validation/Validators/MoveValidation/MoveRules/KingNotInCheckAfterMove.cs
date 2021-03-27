@@ -12,7 +12,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
         {
             var activeKingIndex = postMoveBoard[(int)boardInfo.ActivePlayer][(int)Piece.King].GetSetBits()[0];
             var isKingSquareAttacked =
-                Bitboard.Instance.IsSquareAttackedByColor(activeKingIndex, boardInfo.OpponentColor(), postMoveBoard);
+                Bitboard.Instance.IsSquareAttackedByColor(activeKingIndex, boardInfo.ActivePlayer.Toggle(), postMoveBoard);
             return isKingSquareAttacked ? MoveError.MoveLeavesKingInCheck : MoveError.NoneSet;
         }
     }

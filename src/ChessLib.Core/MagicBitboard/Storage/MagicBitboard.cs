@@ -18,7 +18,7 @@
 
         public ulong Hash(ulong occupancy)
         {
-            return (occupancy * Key) >> 52;
+            return (occupancy * Key) >>  (64 - 12);
         }
 
         public ulong GetAttacks(ulong occupancy)

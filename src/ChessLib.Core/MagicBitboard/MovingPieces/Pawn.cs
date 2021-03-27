@@ -63,7 +63,7 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
 
         private void InitializeBlackPawnMovesAndAttacks()
         {
-            for (ushort square = 55; square >= 8; square--)
+            foreach (var square in BoardConstants.AllSquares)
             {
                 ulong squareValue = MovingPieceService.GetBoardValueOfIndex(square);
                 MoveMask[(int) Color.Black][square] =
@@ -75,7 +75,7 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
 
         private void InitializeWhitePawnMovesAndAttacks()
         {
-            for (ushort square = 8; square < 56; square++)
+            for (ushort square = 0; square < 64; square++)
             {
                 ulong squareValue = MovingPieceService.GetBoardValueOfIndex(square);
                 MoveMask[(int) Color.White][square] =

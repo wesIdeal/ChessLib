@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using ChessLib.Core.MagicBitboard.Bitwise;
+[assembly: InternalsVisibleTo("ChessLib.Core.Tests.MagicBitboard.MovingPieces")]
 
 namespace ChessLib.Core.MagicBitboard.MovingPieces
 {

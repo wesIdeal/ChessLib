@@ -9,7 +9,7 @@ using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.MoveValidation;
 using EnumsNET;
-[assembly: InternalsVisibleTo("ChessLib.MagicBitboard.Bitwise.Tests")]
+[assembly: InternalsVisibleTo("ChessLib.Core.Tests.MagicBitboard.MovingPieces")]
 namespace ChessLib.Core.MagicBitboard
 {
 
@@ -181,7 +181,8 @@ namespace ChessLib.Core.MagicBitboard
         }
         public  ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color attackingColor)
         {
-            var pseudoLegalMoves = GetPseudoLegalMoves(pieceIndex, piece, attackingColor, occupancy);
+            var occupancyWithoutAttackingPiece = occupancy & ~(pieceIndex.GetBoardValueOfIndex());
+            var pseudoLegalMoves = GetPseudoLegalMoves(pieceIndex, piece, attackingColor, occupancyWithoutAttackingPiece );
             if (piece == Piece.Pawn)
             {
                 pseudoLegalMoves &= ~(_pawn.GetMovesFromSquare(pieceIndex, attackingColor));
@@ -191,6 +192,7 @@ namespace ChessLib.Core.MagicBitboard
         }
         public ulong PiecesAttackingSquare(in ulong[][] piecesOnBoard, in ushort squareIndex)
         {
+
             var total = piecesOnBoard.Occupancy();
             var pawnWhite = piecesOnBoard[BoardConstants.White][BoardConstants.Pawn];
             var pawnBlack = piecesOnBoard[BoardConstants.Black][BoardConstants.Pawn];
@@ -199,17 +201,19 @@ namespace ChessLib.Core.MagicBitboard
             var rook = piecesOnBoard[BoardConstants.Black][BoardConstants.Rook] | piecesOnBoard[BoardConstants.White][BoardConstants.Rook];
             var queen = piecesOnBoard[BoardConstants.Black][BoardConstants.Queen] | piecesOnBoard[BoardConstants.White][BoardConstants.Queen];
             var king = piecesOnBoard[BoardConstants.Black][BoardConstants.King] | piecesOnBoard[BoardConstants.White][BoardConstants.King];
-            var blackPawnPseudoAttacks = Bitboard.Instance.GetPseudoLegalMoves(squareIndex, Piece.Pawn, Color.White, total);
+            var blackPawnPseudoAttacks = _pawn.GetAttacksFromSquare(squareIndex, Color.White);
             var blackPawnAttacks = blackPawnPseudoAttacks & pawnBlack;
-            var whitePawnPseudoAttacks = Bitboard.Instance.GetPseudoLegalMoves(squareIndex, Piece.Pawn, Color.Black, total);
+            var whitePawnPseudoAttacks = _pawn.GetAttacksFromSquare(squareIndex, Color.Black);
             var whitePawnAttacks = whitePawnPseudoAttacks & pawnWhite;
-            return blackPawnAttacks
-                   | whitePawnAttacks
-                   | (GetAttackedSquares(Piece.Knight, squareIndex, total, Color.White) & knight)
-                   | (GetAttackedSquares(Piece.Bishop, squareIndex, total, Color.White) & bishop)
-                   | (GetAttackedSquares(Piece.Rook, squareIndex, total, Color.White) & rook)
-                   | (GetAttackedSquares(Piece.Queen, squareIndex, total, Color.White) & queen)
-                   | (GetAttackedSquares(Piece.King, squareIndex, total, Color.White) & king);
+            var rookAttackedSquares = (GetAttackedSquares(Piece.Rook, squareIndex, total, Color.White) & rook);
+            var allAttacks = blackPawnAttacks
+                             | whitePawnAttacks
+                             | (GetAttackedSquares(Piece.Knight, squareIndex, total, Color.White) & knight)
+                             | (GetAttackedSquares(Piece.Bishop, squareIndex, total, Color.White) & bishop)
+                             | rookAttackedSquares
+                             | (GetAttackedSquares(Piece.Queen, squareIndex, total, Color.White) & queen)
+                             | (GetAttackedSquares(Piece.King, squareIndex, total, Color.White) & king);
+            return allAttacks;
         }
 
         private bool IsSquareAttackedBySlidingPiece(ushort attackedSquare, Color attackerColor, ulong[][] piecesOnBoard)

@@ -8,7 +8,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
     {
         public BoardExceptionType Validate(in IBoard boardInfo)
         {
-            if (boardInfo.IsOpponentInCheck()) return BoardExceptionType.OppositeCheck;
+            if (BoardHelpers.IsColorInCheck(boardInfo.Occupancy, boardInfo.ActivePlayer.Toggle())) return BoardExceptionType.OppositeCheck;
             return BoardExceptionType.None;
         }
     }

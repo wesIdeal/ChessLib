@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Graphics.TextDisplay;
 using EnumsNET;
 
-namespace ChessLib.MagicBitboard.Tests.MovingPieces
+namespace ChessLib.Core.Tests.MagicBitboard.MovingPieces
 {
     public struct MoveTestCase
     {
@@ -37,25 +37,25 @@ namespace ChessLib.MagicBitboard.Tests.MovingPieces
             var pieceFile = MovingPieceService.FileFromIdx(SquareIndex);
             var pawnDescription = $"{Color.AsString()}";
             var pieceDescription = $"Piece";
-            var pawnPlacement = $"on {DisplayService.IndexToSquareDisplay(SquareIndex)} ";
+            var pawnPlacement = $"on {DisplayHelpers.IndexToSquareDisplay(SquareIndex)} ";
             var expectedIndexes = MovingPieceService.GetSetBits(Expected);
             var playerOccupancy = MovingPieceService.GetSetBits(PlayerObstructions);
             var opponentOccupancy = MovingPieceService.GetSetBits(OpponentObstructions);
             var strMoves =
                 expectedIndexes.Any()
-                    ? $"move to {string.Join(", ", expectedIndexes.Select(DisplayService.IndexToSquareDisplay))}"
+                    ? $"move to {string.Join(", ", expectedIndexes.Select(DisplayHelpers.IndexToSquareDisplay))}"
                     : "[no moves expected]";
             var strPlayerOccupancy =
                 playerOccupancy.Any()
-                    ? string.Join(", ", playerOccupancy.Select(DisplayService.IndexToSquareDisplay))
+                    ? string.Join(", ", playerOccupancy.Select(DisplayHelpers.IndexToSquareDisplay))
                     : "[no player pieces]";
             var strOpponentOccupancy =
                 opponentOccupancy.Any()
-                    ? string.Join(", ", opponentOccupancy.Select(DisplayService.IndexToSquareDisplay))
+                    ? string.Join(", ", opponentOccupancy.Select(DisplayHelpers.IndexToSquareDisplay))
                     : "[no opponent pieces]";
             var attackedOpponentPieces = opponentOccupancy.Where(x => MovingPieceService.FileFromIdx(x) != pieceFile);
             var strAttack = attackedOpponentPieces.Any()
-                ? $"- Attack pieces on {string.Join(", ", attackedOpponentPieces.Select(DisplayService.IndexToSquareDisplay))}"
+                ? $"- Attack pieces on {string.Join(", ", attackedOpponentPieces.Select(DisplayHelpers.IndexToSquareDisplay))}"
                 : "[no attacked pieces]";
 
             return $"{pawnDescription} {pieceDescription} on {pawnPlacement} should be able to:{Environment.NewLine}" +
