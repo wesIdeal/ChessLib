@@ -8,6 +8,7 @@ using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.BoardValidation;
+using EnumsNET;
 
 namespace ChessLib.Core.Helpers
 {
@@ -280,25 +281,25 @@ namespace ChessLib.Core.Helpers
             switch (pieceOfColor.Value.Color)
             {
                 case Color.Black:
-                {
-                    if ((move.SourceValue & BoardConstants.Rank7) != 0 &&
-                        (move.DestinationValue & BoardConstants.Rank5) != 0)
                     {
-                        return (ushort?) (move.SourceIndex - 8);
-                    }
+                        if ((move.SourceValue & BoardConstants.Rank7) != 0 &&
+                            (move.DestinationValue & BoardConstants.Rank5) != 0)
+                        {
+                            return (ushort?)(move.SourceIndex - 8);
+                        }
 
-                    break;
-                }
+                        break;
+                    }
                 default:
-                {
-                    if ((move.SourceValue & BoardConstants.Rank2) != 0 &&
-                        (move.DestinationValue & BoardConstants.Rank4) != 0)
                     {
-                        return (ushort?)(move.SourceIndex + 8);
-                    }
+                        if ((move.SourceValue & BoardConstants.Rank2) != 0 &&
+                            (move.DestinationValue & BoardConstants.Rank4) != 0)
+                        {
+                            return (ushort?)(move.SourceIndex + 8);
+                        }
 
-                    break;
-                }
+                        break;
+                    }
             }
 
             return null;
@@ -330,7 +331,7 @@ namespace ChessLib.Core.Helpers
                     MoveError.ActivePlayerHasNoPieceOnSourceSquare, move, board.ActivePlayer);
             }
             var capturedPiece = GetPieceAtIndex(board.Occupancy, move.DestinationIndex);
-            
+
             var halfMoveClock = capturedPiece != null || pieceMoving.Value.Piece == Piece.Pawn ? 0 : board.HalfMoveClock + 1;
             var fullMoveCounter =
                 board.ActivePlayer == Color.Black ? board.FullMoveCounter + 1 : board.FullMoveCounter;
@@ -413,7 +414,7 @@ namespace ChessLib.Core.Helpers
             return pieces;
         }
 
-    
+
         public static CheckType GetCheckType(ulong[][] board, Color activeColor, out ushort[] attackingPieces)
         {
             var checkedColorKingIdx = board.Occupancy(activeColor, Piece.King).GetSetBits()[0];
@@ -434,11 +435,7 @@ namespace ChessLib.Core.Helpers
 
         public static bool IsColorInCheck(ulong[][] board, Color checkedColor)
         {
-            var nCheckedColor = (int)checkedColor;
-            var kingOccupancy = board[nCheckedColor][BoardConstants.King];
-            var setBits = kingOccupancy.GetSetBits();
-            var checkedColorKingIdx = setBits[0];
-            return Bitboard.Instance.IsSquareAttackedByColor(checkedColorKingIdx, checkedColor.Toggle(), board);
+            return GetCheckType(board, checkedColor, out _) != CheckType.None;
         }
 
 
@@ -450,10 +447,9 @@ namespace ChessLib.Core.Helpers
                 return false;
             }
 
-            for (var p = 0; p <= 6; p++)
+            foreach (var piece in Enums.GetValues<Piece>())
             {
-                var piece = (Piece)p;
-                var pieceSet = occupancy.Occupancy(activeColor);
+                var pieceSet = occupancy.Occupancy(activeColor, piece);
                 foreach (var pieceIdx in pieceSet.GetSetBits())
                 {
                     var legalMoves = Bitboard.Instance.GetLegalMoves(pieceIdx, piece, activeColor, occupancy,

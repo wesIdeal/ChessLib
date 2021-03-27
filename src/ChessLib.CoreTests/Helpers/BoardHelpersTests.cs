@@ -372,16 +372,31 @@ namespace ChessLib.Core.Tests.Helpers
                 new Board("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"), "No Check - 1. e4 d5");
         }
 
-        [Test()]
-        public void IsColorInCheckTest()
+
+        [TestCaseSource(nameof(GetIsStalemateTestCases))]
+        public void IsStalemateTest(TestCase<bool, Board> testCase)
         {
-            Assert.Fail();
+            var actual = BoardHelpers.IsStalemate(testCase.InputValue.Occupancy, testCase.InputValue.ActivePlayer,
+                testCase.InputValue.EnPassantSquare, testCase.InputValue.CastlingAvailability);
+            Assert.AreEqual(testCase.ExpectedValue, actual);
         }
 
-        [Test()]
-        public void IsStalemateTest()
+        protected static IEnumerable<TestCase<bool, Board>> GetIsStalemateTestCases()
         {
-            Assert.Fail();
+            yield return new TestCase<bool, Board>(false, new Board("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"), "Double Check");
+            yield return new TestCase<bool, Board>(false,
+                new Board("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"), "Single Check");
+            yield return new TestCase<bool, Board>(false,
+                new Board(), "Initial Board");
+            yield return new TestCase<bool, Board>(false,
+                new Board("3kr3/pppQ4/5N2/1n3p2/3p4/1P6/1P2qPP1/6K1 b - - 1 36"), "Checkmate");
+            yield return new TestCase<bool, Board>(true,
+                new Board("7k/6pP/6P1/8/6P1/8/6K1/8 b - - 0 50"), "01 Stalemate");
+            yield return new TestCase<bool, Board>(true,
+                new Board("8/8/8/5p2/6p1/5kP1/7K/5q2 w - - 0 106"), "02 Stalemate");
+            yield return new TestCase<bool, Board>(true,
+                new Board("7k/7P/7K/8/8/8/8/8 b - - 2 66"), "03 Stalemate");
+
         }
 
         [Test()]

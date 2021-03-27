@@ -171,8 +171,13 @@ namespace ChessLib.Core.MagicBitboard
             var squareVal = squareIndex.GetBoardValueOfIndex();
             foreach (var p in Enums.GetValues<Piece>())
             {
-                var moves = GetPseudoLegalMoves(squareIndex, p, color, occupancy);
-                if ((moves & squareVal) == squareVal)
+                var moves = GetPseudoLegalMoves(squareIndex, p, color.Toggle(), occupancy);
+                if (p == Piece.Pawn)
+                {
+                    moves = moves & ~(BoardConstants.FileMasks[squareIndex.GetFile()]);
+                }
+                var squareAttackers = piecesOnBoard.Occupancy(color, p) & moves;
+                if ((squareAttackers & moves) != 0)
                 {
                     return true;
                 }
