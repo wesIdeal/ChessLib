@@ -128,10 +128,10 @@ namespace ChessLib.Core.Services
 
             foreach (var attackerIndex in otherLikePieces.GetSetBits())
             {
-                var legalMoves = Bitboard.Instance.GetLegalMoves(attackerIndex, src, Board.ActivePlayer,
+                var legalMoves = Bitboard.Instance.GetLegalMoves(attackerIndex,
                     Board.Occupancy, Board.EnPassantSquare, Board.CastlingAvailability);
-               var canPieceMoveToDestination = legalMoves.Any(x => x.DestinationIndex == move.DestinationIndex); 
-               if (canPieceMoveToDestination)
+                var canPieceMoveToDestination = legalMoves.Any(x => x.DestinationIndex == move.DestinationIndex);
+                if (canPieceMoveToDestination)
                 {
                     duplicateAttackerIndexes.Add(attackerIndex);
                 }

@@ -71,34 +71,34 @@ namespace ChessLib.Data.Tests.Helpers
             return message;
         }
 
-        [TestCase("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62", false)]
-        [TestCase("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57", false)]
-        [TestCase("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57", false)]
-        [TestCase("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", false)]
-        [TestCase("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1", false)]
-        [TestCase("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1", false)]
-        [TestCase("8/8/8/8/8/8/5QkQ/4K3 b - - 0 1", true)]
-        [TestCase("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1", false)]
-        [TestCase("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1", true)]
-        [TestCase("3qk3/5Q1p/8/p1p1N3/Pp2bP1P/1P1r4/8/4RnK1 b - - 6 38", true)]
-        [TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55", true)]
-        [TestCase("4R3/2p3pk/pp3p2/5n1p/2P2P1P/P5r1/1P4q1/3QR2K w - - 6 41", true)]
-        [TestCase("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23", false)]
-        [TestCase("2bq1rk1/3p1Bpp/p1p3N1/1rb2Pp1/1pQ5/P5N1/1PP3PP/R3R2K b - - 0 23", false)]
-        public static void IsCheckmate(string fen, bool expected)
-        {
-            var pieces = FENHelpers.BoardFromFen(fen, out Color activePlayer, out _, out _, out _, out _, false);
-            var actualResult = BoardHelpers.IsCheckmate(pieces, activePlayer);
-            Assert.AreEqual(expected, actualResult);
-        }
+        //[TestCase("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62", false)]
+        //[TestCase("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57", false)]
+        //[TestCase("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57", false)]
+        //[TestCase("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", false)]
+        //[TestCase("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1", false)]
+        //[TestCase("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1", false)]
+        //[TestCase("8/8/8/8/8/8/5QkQ/4K3 b - - 0 1", true)]
+        //[TestCase("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1", false)]
+        //[TestCase("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1", true)]
+        //[TestCase("3qk3/5Q1p/8/p1p1N3/Pp2bP1P/1P1r4/8/4RnK1 b - - 6 38", true)]
+        //[TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55", true)]
+        //[TestCase("4R3/2p3pk/pp3p2/5n1p/2P2P1P/P5r1/1P4q1/3QR2K w - - 6 41", true)]
+        //[TestCase("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23", false)]
+        //[TestCase("2bq1rk1/3p1Bpp/p1p3N1/1rb2Pp1/1pQ5/P5N1/1PP3PP/R3R2K b - - 0 23", false)]
+        //public static void IsCheckmate(string fen, bool expected)
+        //{
+        //    var pieces = FENHelpers.BoardFromFen(fen, out Color activePlayer, out _, out _, out _, out _, false);
+        //    var actualResult = BoardHelpers.IsCheckmate(pieces, activePlayer);
+        //    Assert.AreEqual(expected, actualResult);
+        //}
 
-        [TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55")]
-        public static void KingShouldNotHaveEvasions(string fen)
-        {
-            var pieces = FENHelpers.BoardFromFen(fen, out Color activePlayer, out _, out _, out _, out _, false);
-            var actualResult = BoardHelpers.DoesKingHaveEvasions(pieces, activePlayer);
-            Assert.IsFalse(actualResult);
-        }
+        //[TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55")]
+        //public static void KingShouldNotHaveEvasions(string fen)
+        //{
+        //    var pieces = FENHelpers.BoardFromFen(fen, out Color activePlayer, out _, out _, out _, out _, false);
+        //    var actualResult = BoardHelpers.DoesKingHaveEvasions(pieces, activePlayer);
+        //    Assert.IsFalse(actualResult);
+        //}
 
         //[TestCase("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55")]
         //public static void KingShouldNotHaveLegalMoves(string fen)

@@ -48,9 +48,17 @@ namespace ChessLib.Core.MagicBitboard
             }
         }
 
-        public IEnumerable<IMove> GetLegalMoves(ushort squareIndex, Piece piece, Color color, ulong[][] occupancy, ushort? enPassantIdx,
+        public IEnumerable<IMove> GetLegalMoves(ushort squareIndex, ulong[][] occupancy, ushort? enPassantIdx,
             CastlingAvailability castlingAvailability)
         {
+            var pieceOfColor = BoardHelpers.GetPieceOfColorAtIndex(occupancy, squareIndex);
+            if (pieceOfColor == null)
+            {
+                yield break;
+            }
+
+            var piece = pieceOfColor.Value.Piece;
+            var color = pieceOfColor.Value.Color;
             var pseudoLegalMoves = GetPseudoLegalMoves(squareIndex, piece, color, occupancy.Occupancy());
             var moves = new List<IMove>();
             var squareValue = squareIndex.GetBoardValueOfIndex();
@@ -184,10 +192,10 @@ namespace ChessLib.Core.MagicBitboard
             }
             return false;
         }
-        public  ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color attackingColor)
+        public ulong GetAttackedSquares(Piece piece, ushort pieceIndex, ulong occupancy, Color attackingColor)
         {
             var occupancyWithoutAttackingPiece = occupancy & ~(pieceIndex.GetBoardValueOfIndex());
-            var pseudoLegalMoves = GetPseudoLegalMoves(pieceIndex, piece, attackingColor, occupancyWithoutAttackingPiece );
+            var pseudoLegalMoves = GetPseudoLegalMoves(pieceIndex, piece, attackingColor, occupancyWithoutAttackingPiece);
             if (piece == Piece.Pawn)
             {
                 pseudoLegalMoves &= ~(_pawn.GetMovesFromSquare(pieceIndex, attackingColor));
@@ -197,7 +205,6 @@ namespace ChessLib.Core.MagicBitboard
         }
         public ulong PiecesAttackingSquare(in ulong[][] piecesOnBoard, in ushort squareIndex)
         {
-
             var total = piecesOnBoard.Occupancy();
             var pawnWhite = piecesOnBoard[BoardConstants.White][BoardConstants.Pawn];
             var pawnBlack = piecesOnBoard[BoardConstants.Black][BoardConstants.Pawn];
@@ -233,7 +240,27 @@ namespace ChessLib.Core.MagicBitboard
                                         piecesOnBoard[(int)attackerColor][PieceHelpers.Queen])) != 0;
         }
 
+        internal ulong GetPiecesThatCanMoveToSquare(ulong[][] occupancy, ushort squareIndex, Color pieceColorMovingToSquare)
+        {
+            var total = occupancy.Occupancy();
+            var pawnBlack = occupancy[(int)pieceColorMovingToSquare][BoardConstants.Pawn];
+            var knight = occupancy[(int)pieceColorMovingToSquare][BoardConstants.Knight];
+            var bishop = occupancy[(int)pieceColorMovingToSquare][BoardConstants.Bishop];
+            var rook = occupancy[(int)pieceColorMovingToSquare][BoardConstants.Rook];
+            var queen = occupancy[(int)pieceColorMovingToSquare][BoardConstants.Queen];
+            var king = occupancy[(int)pieceColorMovingToSquare][BoardConstants.King];
 
+            var pawnPseudoAttacks = _pawn.GetMovesFromSquare(squareIndex, pieceColorMovingToSquare.Toggle());
+            var pawnAttacks = pawnPseudoAttacks & pawnBlack;
+            var rookAttackedSquares = (GetAttackedSquares(Piece.Rook, squareIndex, total, Color.White) & rook);
+            var allAttacks = pawnAttacks
+                             | (GetAttackedSquares(Piece.Knight, squareIndex, total, Color.White) & knight)
+                             | (GetAttackedSquares(Piece.Bishop, squareIndex, total, Color.White) & bishop)
+                             | rookAttackedSquares
+                             | (GetAttackedSquares(Piece.Queen, squareIndex, total, Color.White) & queen)
+                             | (GetAttackedSquares(Piece.King, squareIndex, total, Color.White) & king);
+            return allAttacks;
+        }
     }
 }
 

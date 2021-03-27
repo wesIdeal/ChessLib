@@ -396,19 +396,72 @@ namespace ChessLib.Core.Tests.Helpers
                 new Board("8/8/8/5p2/6p1/5kP1/7K/5q2 w - - 0 106"), "02 Stalemate");
             yield return new TestCase<bool, Board>(true,
                 new Board("7k/7P/7K/8/8/8/8/8 b - - 2 66"), "03 Stalemate");
-
+            yield return new TestCase<bool, Board>(true, new Board("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62"), "04 Stalemate");
+            yield return new TestCase<bool, Board>(true, new Board("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57"), "05 Stalemate");
+            yield return new TestCase<bool, Board>(true, new Board("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57"), "06 Stalemate");
         }
 
-        [Test()]
-        public void IsCheckmateTest()
+        [TestCaseSource(nameof(GetIsCheckmateTestCases))]
+        public void IsCheckmateTest(TestCase<bool, Board> testCase)
         {
-            Assert.Fail();
+            var actual = BoardHelpers.IsCheckmate(testCase.InputValue);
+            Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
+        protected static IEnumerable<TestCase<bool, Board>> GetIsCheckmateTestCases()
+        {
+            //Normal positions
+            yield return new TestCase<bool, Board>(false,
+                new Board(), "Initial Board");
+            yield return new TestCase<bool, Board>(false,
+                new Board("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23"), "No checks- Normal Position");
+            yield return new TestCase<bool, Board>(false,
+                new Board("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"), "1. e4");
+            yield return new TestCase<bool, Board>(false,
+                new Board("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1"), "1. d4");
+
+            //Normal checks
+            yield return new TestCase<bool, Board>(false, new Board("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1"), "Single Check, Can evade");
+            yield return new TestCase<bool, Board>(false,
+                new Board("2bq1rk1/3p1Bpp/p1p3N1/1rb2Pp1/1pQ5/P5N1/1PP3PP/R3R2K b - - 0 23"),
+                "Check, attacker can be captured");
+            yield return new TestCase<bool, Board>(false, new Board("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"), "Double Check, Can evade and capture");
+            yield return new TestCase<bool, Board>(false,
+                new Board("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"), "Single Check, Can evade");
+            yield return new TestCase<bool, Board>(false,
+                new Board("5Bk1/p4p2/5P1p/1Pp4P/2bbrp2/6p1/P2P2P1/5K1R w - - 1 30"), "Single check, can block");
+            //Stalemates
+            yield return new TestCase<bool, Board>(false,
+                new Board("7k/7P/7K/8/8/8/8/8 b - - 2 66"), "Stalemate 01");
+            yield return new TestCase<bool, Board>(false, new Board("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62"), "Stalemate 02");
+            yield return new TestCase<bool, Board>(false, new Board("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57"), "Stalemate 03");
+            yield return new TestCase<bool, Board>(false, new Board("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57"), "Stalemate 04");
+            //Mates
+            yield return new TestCase<bool, Board>(true,
+                new Board("3kr3/pppQ4/5N2/1n3p2/3p4/1P6/1P2qPP1/6K1 b - - 1 36"), "00 Checkmate");
+            yield return new TestCase<bool, Board>(true,
+                new Board("5Bk1/p4p2/5P1p/1Pp4P/2bbrp2/6p1/P1P3P1/5K1R w - - 1 30"), "01 Checkmate");
+            yield return new TestCase<bool, Board>(true,
+                new Board("2bQkr2/1p1p2bp/3PNnq1/5pN1/r4BpP/2P3P1/PP6/R4RK1 b - - 10 25"), "02 Checkmate");
+            yield return new TestCase<bool, Board>(true, new Board("8/8/8/8/8/8/5QkQ/4K3 b - - 0 1"),
+                "03 Mate with 2 Queens");
+            yield return new TestCase<bool, Board>(false, new Board("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1"), "Mate in 5");
+            yield return new TestCase<bool, Board>(true, new Board("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1"),
+                "04 Checkmate, single check");
+            yield return new TestCase<bool, Board>(true,
+                new Board("3qk3/5Q1p/8/p1p1N3/Pp2bP1P/1P1r4/8/4RnK1 b - - 6 38"), "05 Checkmate, Queen");
+            yield return new TestCase<bool, Board>(true, new Board("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55"),
+                "06 Checkmate, Rook");
+            yield return new TestCase<bool, Board>(true,
+                new Board("4R3/2p3pk/pp3p2/5n1p/2P2P1P/P5r1/1P4q1/3QR2K w - - 6 41"), "07 Checkmate, Queen");
+
+
+        }
+
 
         [Test()]
         public void DoesKingHaveEvasionsTest()
         {
-            Assert.Fail();
+            
         }
 
         [Test()]

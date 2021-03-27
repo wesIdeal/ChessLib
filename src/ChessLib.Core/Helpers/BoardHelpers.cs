@@ -52,23 +52,23 @@ namespace ChessLib.Core.Helpers
         private static void InitializeInBetween()
         {
             for (var f = 0; f < 64; f++)
-                for (var t = f; t < 64; t++)
-                {
-                    const long m1 = -1;
-                    const long aFileBorder = 0x0001010101010100;
-                    const long b2DiagonalBorder = 0x0040201008040200;
-                    const long hFileBorder = 0x0002040810204080;
+            for (var t = f; t < 64; t++)
+            {
+                const long m1 = -1;
+                const long aFileBorder = 0x0001010101010100;
+                const long b2DiagonalBorder = 0x0040201008040200;
+                const long hFileBorder = 0x0002040810204080;
 
-                    var between = (m1 << f) ^ (m1 << t);
-                    long file = (t & 7) - (f & 7);
-                    long rank = ((t | 7) - f) >> 3;
-                    var line = ((file & 7) - 1) & aFileBorder;
-                    line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
-                    line += (((rank - file) & 15) - 1) & b2DiagonalBorder; /* b2g7 if same diagonal */
-                    line += (((rank + file) & 15) - 1) & hFileBorder; /* h1b7 if same anti-diagonal */
-                    line *= between & -between; /* mul acts like shift by smaller boardIndex */
-                    ArrInBetween[f, t] = (ulong)(line & between); /* return the bits on that line in-between */
-                }
+                var between = (m1 << f) ^ (m1 << t);
+                long file = (t & 7) - (f & 7);
+                long rank = ((t | 7) - f) >> 3;
+                var line = ((file & 7) - 1) & aFileBorder;
+                line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
+                line += (((rank - file) & 15) - 1) & b2DiagonalBorder; /* b2g7 if same diagonal */
+                line += (((rank + file) & 15) - 1) & hFileBorder; /* h1b7 if same anti-diagonal */
+                line *= between & -between; /* mul acts like shift by smaller boardIndex */
+                ArrInBetween[f, t] = (ulong) (line & between); /* return the bits on that line in-between */
+            }
         }
 
         #endregion
@@ -115,10 +115,10 @@ namespace ChessLib.Core.Helpers
             if (c == null && p == null)
                 return board.Select(x => x.Aggregate((acc, val) => acc | val)).Aggregate((acc, val) => acc | val);
             if (c == null)
-                return board[(int)Color.White][(int)p] | board[(int)Color.Black][(int)p];
-            if (p == null) return board[(int)c].Aggregate((current, val) => current | val);
+                return board[(int) Color.White][(int) p] | board[(int) Color.Black][(int) p];
+            if (p == null) return board[(int) c].Aggregate((current, val) => current | val);
 
-            return board[(int)c][(int)p];
+            return board[(int) c][(int) p];
         }
 
         /// <summary>
@@ -159,10 +159,10 @@ namespace ChessLib.Core.Helpers
             var val = 1ul << boardIndex;
             for (var c = 0; c < 2; c++)
             {
-                var color = (Color)c;
+                var color = (Color) c;
                 var piecePosition = occupancy[c]
                     .Select((placementValue, arrIdx) => new
-                    { Color = color, PlacementValue = placementValue, Piece = (Piece)arrIdx })
+                        {Color = color, PlacementValue = placementValue, Piece = (Piece) arrIdx})
                     .FirstOrDefault(p => (p.PlacementValue & val) != 0);
 
                 if (piecePosition != null)
@@ -179,7 +179,6 @@ namespace ChessLib.Core.Helpers
         }
 
 
-
         /// <summary>
         ///     Method to validate if index is in range.
         /// </summary>
@@ -191,13 +190,14 @@ namespace ChessLib.Core.Helpers
         }
 
         /// <summary>
-        /// Get new castling availability based on move and current availability
+        ///     Get new castling availability based on move and current availability
         /// </summary>
         /// <param name="occupancy"></param>
         /// <param name="move"></param>
         /// <param name="currentCastlingAvailability"></param>
         /// <returns></returns>
-        public static CastlingAvailability GetCastlingAvailabilityPostMove(ulong[][] occupancy, IMove move, CastlingAvailability currentCastlingAvailability)
+        public static CastlingAvailability GetCastlingAvailabilityPostMove(ulong[][] occupancy, IMove move,
+            CastlingAvailability currentCastlingAvailability)
         {
             if (currentCastlingAvailability == CastlingAvailability.NoCastlingAvailable)
             {
@@ -209,6 +209,7 @@ namespace ChessLib.Core.Helpers
             {
                 return currentCastlingAvailability;
             }
+
             switch (movingPiece.Value.Piece)
             {
                 case Piece.Rook:
@@ -240,6 +241,7 @@ namespace ChessLib.Core.Helpers
                         currentCastlingAvailability &=
                             ~(CastlingAvailability.WhiteKingside | CastlingAvailability.WhiteQueenside);
                     }
+
                     break;
             }
 
@@ -247,7 +249,7 @@ namespace ChessLib.Core.Helpers
         }
 
         /// <summary>
-        /// Get EnPassant capture availability
+        ///     Get EnPassant capture availability
         /// </summary>
         /// <param name="board"></param>
         /// <returns>true if 1) en passant is available and 2) if a pawn attacks the en passant square. False otherwise.</returns>
@@ -262,7 +264,7 @@ namespace ChessLib.Core.Helpers
             var epAttackFromSquares = Bitboard.Instance.GetPseudoLegalMoves(epSquare.Value, Piece.Pawn,
                 board.OpponentColor,
                 board.Occupancy.Occupancy());
-            return (epAttackFromSquares & board.Occupancy[(int)board.ActivePlayer][(int)Piece.Pawn]) != 0;
+            return (epAttackFromSquares & board.Occupancy[(int) board.ActivePlayer][(int) Piece.Pawn]) != 0;
         }
 
         /// <summary>
@@ -281,25 +283,25 @@ namespace ChessLib.Core.Helpers
             switch (pieceOfColor.Value.Color)
             {
                 case Color.Black:
+                {
+                    if ((move.SourceValue & BoardConstants.Rank7) != 0 &&
+                        (move.DestinationValue & BoardConstants.Rank5) != 0)
                     {
-                        if ((move.SourceValue & BoardConstants.Rank7) != 0 &&
-                            (move.DestinationValue & BoardConstants.Rank5) != 0)
-                        {
-                            return (ushort?)(move.SourceIndex - 8);
-                        }
-
-                        break;
+                        return (ushort?) (move.SourceIndex - 8);
                     }
+
+                    break;
+                }
                 default:
+                {
+                    if ((move.SourceValue & BoardConstants.Rank2) != 0 &&
+                        (move.DestinationValue & BoardConstants.Rank4) != 0)
                     {
-                        if ((move.SourceValue & BoardConstants.Rank2) != 0 &&
-                            (move.DestinationValue & BoardConstants.Rank4) != 0)
-                        {
-                            return (ushort?)(move.SourceIndex + 8);
-                        }
-
-                        break;
+                        return (ushort?) (move.SourceIndex + 8);
                     }
+
+                    break;
+                }
             }
 
             return null;
@@ -317,7 +319,7 @@ namespace ChessLib.Core.Helpers
         public static IBoard ApplyMoveToBoard(this IBoard currentBoard, in IMove move,
             bool bypassMoveValidation = false)
         {
-            var board = (IBoard)currentBoard.Clone();
+            var board = (IBoard) currentBoard.Clone();
             if (!bypassMoveValidation)
             {
                 var boardValidator = new BoardValidator(board);
@@ -330,21 +332,23 @@ namespace ChessLib.Core.Helpers
                 throw new MoveException("No piece at current source to apply move to.",
                     MoveError.ActivePlayerHasNoPieceOnSourceSquare, move, board.ActivePlayer);
             }
+
             var capturedPiece = GetPieceAtIndex(board.Occupancy, move.DestinationIndex);
 
-            var halfMoveClock = capturedPiece != null || pieceMoving.Value.Piece == Piece.Pawn ? 0 : board.HalfMoveClock + 1;
+            var halfMoveClock = capturedPiece != null || pieceMoving.Value.Piece == Piece.Pawn
+                ? 0
+                : board.HalfMoveClock + 1;
             var fullMoveCounter =
                 board.ActivePlayer == Color.Black ? board.FullMoveCounter + 1 : board.FullMoveCounter;
             var piecePlacement = GetBoardPostMove(board, move);
-            var castlingAvailability = GetCastlingAvailabilityPostMove(board.Occupancy, move, board.CastlingAvailability);
+            var castlingAvailability =
+                GetCastlingAvailabilityPostMove(board.Occupancy, move, board.CastlingAvailability);
             var enPassantSquare = GetEnPassantIndex(board, move);
             var activePlayer = board.ActivePlayer.Toggle();
-            return new Board(piecePlacement, (ushort)halfMoveClock, enPassantSquare, capturedPiece,
+            return new Board(piecePlacement, (ushort) halfMoveClock, enPassantSquare, capturedPiece,
                 castlingAvailability, activePlayer,
-                (ushort)fullMoveCounter);
+                (ushort) fullMoveCounter);
         }
-
-
 
 
         /// <summary>
@@ -355,9 +359,9 @@ namespace ChessLib.Core.Helpers
         /// <returns></returns>
         public static ulong[][] GetBoardPostMove(in IBoard boardInfo, in IMove move)
         {
-            var board = (IBoard)boardInfo.Clone();
+            var board = (IBoard) boardInfo.Clone();
             var pieces = board.Occupancy;
-            var activeColor = (int)board.ActivePlayer;
+            var activeColor = (int) board.ActivePlayer;
             var oppColor = activeColor ^ 1;
             var oppOccupancy = Occupancy(board.Occupancy, board.ActivePlayer.Toggle());
             var piece = GetPieceOfColorAtIndex(board.Occupancy, move.SourceIndex);
@@ -376,7 +380,7 @@ namespace ChessLib.Core.Helpers
                     boardInfo);
             }
 
-            var nPiece = (int)piece.Value.Piece;
+            var nPiece = (int) piece.Value.Piece;
             pieces[activeColor][nPiece] ^= move.SourceValue ^ move.DestinationValue;
             if ((oppOccupancy & move.DestinationValue) != 0)
             {
@@ -390,7 +394,7 @@ namespace ChessLib.Core.Helpers
             {
                 case MoveType.Promotion:
                     pieces[activeColor][nPiece] ^= move.DestinationValue;
-                    var promotionPiece = (int)move.PromotionPiece + 1;
+                    var promotionPiece = (int) move.PromotionPiece + 1;
                     pieces[activeColor][promotionPiece] ^= move.DestinationValue;
                     break;
                 case MoveType.EnPassant:
@@ -403,7 +407,7 @@ namespace ChessLib.Core.Helpers
 
                     var enPassantSqIdx = board.EnPassantSquare.Value;
                     var captureSquare = board.ActivePlayer == Color.White ? enPassantSqIdx - 8 : enPassantSqIdx + 8;
-                    pieces[oppColor][BoardConstants.Pawn] &= ~((ushort)captureSquare).GetBoardValueOfIndex();
+                    pieces[oppColor][BoardConstants.Pawn] &= ~((ushort) captureSquare).GetBoardValueOfIndex();
                     break;
                 case MoveType.Castle:
                     var rookMove = MoveHelpers.GetRookMoveForCastleMove(move);
@@ -452,8 +456,8 @@ namespace ChessLib.Core.Helpers
                 var pieceSet = occupancy.Occupancy(activeColor, piece);
                 foreach (var pieceIdx in pieceSet.GetSetBits())
                 {
-                    var legalMoves = Bitboard.Instance.GetLegalMoves(pieceIdx, piece, activeColor, occupancy,
-                        enPassantIdx, castlingAvailability);
+                    var legalMoves =
+                        Bitboard.Instance.GetLegalMoves(pieceIdx, occupancy, enPassantIdx, castlingAvailability);
                     if (legalMoves.Any())
                     {
                         return false;
@@ -469,8 +473,10 @@ namespace ChessLib.Core.Helpers
         ///     Determines if active player has been mated
         /// </summary>
         /// <returns></returns>
-        public static bool IsCheckmate(ulong[][] occupancy, Color activeColor)
+        public static bool IsCheckmate(IBoard board)
         {
+            var occupancy = board.Occupancy;
+            var activeColor = board.ActivePlayer;
             var checkType = GetCheckType(occupancy, activeColor, out var attackingPieces);
             var kingIndex = occupancy.Occupancy(activeColor, Piece.King).GetSetBits()[0];
             if (checkType == CheckType.None)
@@ -478,7 +484,7 @@ namespace ChessLib.Core.Helpers
                 return false;
             }
 
-            var kingMoves = Bitboard.Instance.GetLegalMoves(kingIndex, Piece.King, activeColor, occupancy, null,
+            var kingMoves = Bitboard.Instance.GetLegalMoves(kingIndex, occupancy, null,
                 CastlingAvailability.NoCastlingAvailable);
             if (kingMoves.Any())
             {
@@ -497,44 +503,37 @@ namespace ChessLib.Core.Helpers
                 }
 
                 //Can check be blocked
-                var squaresBetweenKingAndAttackingPiece = InBetween(kingIndex, attackingPiece);
-                foreach (var squareBetween in squaresBetweenKingAndAttackingPiece.GetSetBits())
+                if (CanAttackBeBlocked(board, kingIndex, attackingPiece, occupancy, activeColor))
                 {
-                    var availableBlockers = GetPiecesAttackingSquare(occupancy, squareBetween, activeColor);
-                    //Can any piece block the check (besides the King).
-                    if (availableBlockers.Any(blocker => blocker != kingIndex))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
             return true;
         }
 
-
-        /// <summary>
-        ///     Can the specified color's king evade an attack through a block or a capture
-        /// </summary>
-        /// <returns></returns>
-        public static bool DoesKingHaveEvasions(ulong[][] occupancy, Color activeColor)
+        private static bool CanAttackBeBlocked(IBoard board, ushort indexOfAttackedPiece, ushort attackingPieceIndex,
+            ulong[][] occupancy, Color activeColor)
         {
-            var kindIndex = occupancy[(int)activeColor][(int)Piece.King].GetSetBits()[0];
-            var activeOccupancy = Occupancy(occupancy, activeColor);
-            var opponentOccupancy = Occupancy(occupancy, activeColor.Toggle());
-            var moves = Bitboard.Instance.GetPseudoLegalMoves(kindIndex, Piece.King,
-                activeColor, activeOccupancy | opponentOccupancy);
-            foreach (var move in moves.GetSetBits())
+            var squaresBetweenKingAndAttackingPiece = InBetween(indexOfAttackedPiece, attackingPieceIndex);
+            foreach (var squareBetween in squaresBetweenKingAndAttackingPiece.GetSetBits())
             {
-                if (!Bitboard.Instance.IsSquareAttackedByColor(move, activeColor.Toggle(), occupancy))
+                //Can any piece block the check (besides the King).
+                var attackedPieceValue = indexOfAttackedPiece.GetBoardValueOfIndex();
+                var availableBlockers = Bitboard.Instance.GetPiecesThatCanMoveToSquare(occupancy, squareBetween, activeColor) & ~attackedPieceValue;
+                foreach (var availableBlocker in availableBlockers.GetSetBits())
                 {
-                    return true;
+                    var legalMovesForPotentialBlocker = Bitboard.Instance.GetLegalMoves(availableBlocker, occupancy,
+                        board.EnPassantSquare, board.CastlingAvailability);
+                    if (legalMovesForPotentialBlocker.Any(x=> x.DestinationIndex == squareBetween))
+                    {
+                        return true;
+                    }
                 }
             }
 
             return false;
         }
-
 
         private static ushort[] GetPiecesAttackingSquare(ulong[][] pieces, ushort idx, Color attackerColor,
             ushort? blockerToRemove = null)
@@ -582,7 +581,7 @@ namespace ChessLib.Core.Helpers
         /// <exception cref="PieceException">Thrown if there is no piece on the source square.</exception>
         public static MoveType GetMoveType(in IBoard boardInfo, ushort source, ushort dest)
         {
-            var relevantPieces = new[] { Piece.Pawn, Piece.King };
+            var relevantPieces = new[] {Piece.Pawn, Piece.King};
             var sourcePiece = GetPieceOfColorAtIndex(boardInfo.Occupancy, source);
             if (sourcePiece == null)
             {
@@ -662,7 +661,7 @@ namespace ChessLib.Core.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ToInt(this Color c)
         {
-            return (int)c;
+            return (int) c;
         }
 
         /// <summary>
@@ -673,7 +672,7 @@ namespace ChessLib.Core.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ToInt(this Piece p)
         {
-            return (int)p;
+            return (int) p;
         }
 
         /// <summary>
@@ -684,7 +683,7 @@ namespace ChessLib.Core.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ToInt(this File f)
         {
-            return (int)f;
+            return (int) f;
         }
 
         /// <summary>
@@ -695,7 +694,7 @@ namespace ChessLib.Core.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ToInt(this Rank r)
         {
-            return (int)r;
+            return (int) r;
         }
 
         /// <summary>
@@ -710,7 +709,7 @@ namespace ChessLib.Core.Helpers
         public static string ToHexDisplay(this ulong u, bool appendHexNotation = true, bool pad = false,
             int padSize = 64)
         {
-            var str = Convert.ToString((long)u, 16);
+            var str = Convert.ToString((long) u, 16);
             if (pad) str = str.PadLeft(padSize, '0');
             if (appendHexNotation) str = "0x" + str;
             return str;
@@ -742,7 +741,7 @@ namespace ChessLib.Core.Helpers
                 throw new ArgumentException(
                     "Rank portion of boardIndex-text should be a digit with a value between 1 and 8.");
             var rankMultiplier = rank - 1;
-            return (ushort)(rankMultiplier * 8 + file - 'a');
+            return (ushort) (rankMultiplier * 8 + file - 'a');
         }
 
 
@@ -752,7 +751,7 @@ namespace ChessLib.Core.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static File GetFile(this int square)
         {
-            return (File)(square % 8);
+            return (File) (square % 8);
         }
 
         /// <summary>
@@ -761,7 +760,7 @@ namespace ChessLib.Core.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort GetFile(this ushort square)
         {
-            return (ushort)(square % 8);
+            return (ushort) (square % 8);
         }
 
         /// <summary>
@@ -771,7 +770,7 @@ namespace ChessLib.Core.Helpers
         public static Rank GetRank(this int square)
         {
             Debug.Assert(square >= 0 && square < 64);
-            return (Rank)((ushort)square).GetRank();
+            return (Rank) ((ushort) square).GetRank();
         }
 
         /// <summary>
@@ -786,7 +785,7 @@ namespace ChessLib.Core.Helpers
         public static ushort GetRank(this ushort boardIndex)
         {
             boardIndex.ValidateIndex();
-            return (ushort)(boardIndex / 8);
+            return (ushort) (boardIndex / 8);
         }
 
 
@@ -798,7 +797,7 @@ namespace ChessLib.Core.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort FileFromIdx(this ushort idx)
         {
-            return (ushort)(idx % 8);
+            return (ushort) (idx % 8);
         }
 
         /// <summary>
@@ -809,7 +808,7 @@ namespace ChessLib.Core.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort RankCompliment(this ushort rank)
         {
-            return (ushort)Math.Abs(rank - 7);
+            return (ushort) Math.Abs(rank - 7);
         }
 
         #endregion
