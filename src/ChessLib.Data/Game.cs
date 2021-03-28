@@ -113,8 +113,8 @@ namespace ChessLib.Data
 
         public string GetPGN()
         {
-            var formatter = new PGNFormatter<TMove>(new PGNFormatterOptions());
-            return formatter.BuildPGN(this);
+            var formatter = new PgnFormatter<TMove>(new PGNFormatterOptions());
+            return formatter.BuildPgn(this);
         }
 
         public bool IsEqualTo(Game<MoveStorage> otherGame, bool includeVariations = false)
@@ -163,8 +163,8 @@ namespace ChessLib.Data
 
         public override string ToString()
         {
-            var formatter = new PGNFormatter<TMove>(PGNFormatterOptions.ExportFormatOptions);
-            return formatter.BuildPGN(this);
+            var formatter = new PgnFormatter<TMove>(PGNFormatterOptions.ExportFormatOptions);
+            return formatter.BuildPgn(this);
         }
 
         private bool ParseTreesForEquality(LinkedListNode<MoveStorage> gNode, LinkedListNode<MoveStorage> otherNode,

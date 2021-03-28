@@ -25,7 +25,7 @@ namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
         {
             var fen = "4k3/8/8/8/8/5N2/8/4K1b1 w - - 0 1";
             var board = new Board(fen);
-            Console.WriteLine(board.ToFEN());
+            Console.WriteLine(board.CurrentFEN);
             var move = MoveHelpers.GenerateMove(21, 6);
             var postMove = BoardHelpers.GetBoardPostMove(board, move);
             Assert.AreEqual(MoveError.NoneSet, Validate(board, postMove, move));

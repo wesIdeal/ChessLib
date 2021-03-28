@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
@@ -98,7 +97,8 @@ namespace ChessLib.Data
             PromotionPiece? promotionPiece)
         {
             var moveType = BoardHelpers.GetMoveType(Board, sourceIndex, destinationIndex);
-            var move = (Move)MoveHelpers.GenerateMove(sourceIndex, destinationIndex, moveType, promotionPiece ?? PromotionPiece.Knight);
+            var move = (Move) MoveHelpers.GenerateMove(sourceIndex, destinationIndex, moveType,
+                promotionPiece ?? PromotionPiece.Knight);
             move.SAN = MoveToSAN(move);
             return move;
         }
@@ -120,13 +120,8 @@ namespace ChessLib.Data
             var destString = lan.Substring(2, 2);
             var source = sourceString.SquareTextToIndex();
             var dest = destString.SquareTextToIndex();
-            if (source == null || dest == null)
-            {
-                throw new MoveException(
-                    $"Unexpected value when converting LAN move to source and destination index: {lan}");
-            }
 
-            var promotionChar = lan.Length == 5 ? lan[4] : (char?)null;
+            var promotionChar = lan.Length == 5 ? lan[4] : (char?) null;
             var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionChar);
             var isPromotion = length == 5;
             return MoveHelpers.GenerateMove(source, dest,
@@ -147,7 +142,7 @@ namespace ChessLib.Data
         /// </exception>
         public IEnumerable<Move> FromLongAlgebraicNotation(IEnumerable<string> lanMoves)
         {
-            var savedBoard = (IBoard)Board.Clone();
+            var savedBoard = (IBoard) Board.Clone();
             var moves = new List<Move>();
             foreach (var lanMove in lanMoves)
             {
@@ -162,8 +157,8 @@ namespace ChessLib.Data
 
         private string StripNonMoveInfoFromMove(in string move)
         {
-            var nmi = new[] { "#", "+", "1/2-1/2", "1-0", "0-1" };
-            var mv = (string)move.Clone();
+            var nmi = new[] {"#", "+", "1/2-1/2", "1-0", "0-1"};
+            var mv = (string) move.Clone();
             foreach (var s in nmi)
             {
                 mv = mv.Replace(s, "");
@@ -175,7 +170,6 @@ namespace ChessLib.Data
         public IMove GetMoveFromSAN(string sanMove)
         {
             IMove resultingMove;
-            Debug.WriteLine(Board.ToFEN());
             var move = StripNonMoveInfoFromMove(sanMove);
             if (move.Length < 2)
             {
@@ -202,7 +196,8 @@ namespace ChessLib.Data
                 var pieceMoving = PieceHelpers.GetPiece(move[0]);
                 var destinationSquare = move.Substring(move.Length - 2, 2).SquareTextToIndex();
                 var squaresAttackingTarget =
-                    Bitboard.Instance.PiecesAttackingSquare(Board.Occupancy, destinationSquare);
+                    Bitboard.Instance.PiecesAttackingSquareByColor(Board.Occupancy, destinationSquare,
+                        Board.ActivePlayer);
                 if (squaresAttackingTarget == 0)
                 {
                     throw new MoveException(
@@ -233,14 +228,16 @@ namespace ChessLib.Data
                 }
                 else
                 {
-                    resultingMove = DetermineWhichPieceMovesToSquare(move, possibleAttackersOfType, applicableBlockerBoard,
+                    resultingMove = DetermineWhichPieceMovesToSquare(move, possibleAttackersOfType,
+                        applicableBlockerBoard,
                         destinationSquare);
                 }
             }
 
             if (resultingMove == null)
             {
-                throw new NoNullAllowedException($"MoveTranslatorService: MoveValue should not be null after translation. Error in PGN or application for move {sanMove}.");
+                throw new NoNullAllowedException(
+                    $"MoveTranslatorService: MoveValue should not be null after translation. Error in PGN or application for move {sanMove}.");
             }
 
             return resultingMove;
@@ -249,7 +246,7 @@ namespace ChessLib.Data
         private IMove DetermineWhichPieceMovesToSquare(in string move, IEnumerable<ushort> possibleAttackersOfType,
             ulong applicableBb, ushort destinationSquare)
         {
-            var mv = (string)move.Clone();
+            var mv = (string) move.Clone();
             mv = mv.Substring(1);
             mv = mv.Substring(0, mv.Length - 2);
             mv = mv.Replace("x", "");
@@ -257,10 +254,6 @@ namespace ChessLib.Data
             if (mv.Length == 2)
             {
                 var sourceIdx = mv.SquareTextToIndex();
-                if (sourceIdx == null)
-                {
-                    throw new MoveException($"Error parsing source disambiguating square from {move}");
-                }
 
                 source = sourceIdx;
             }
@@ -326,7 +319,7 @@ namespace ChessLib.Data
         {
             var colorMoving = Board.ActivePlayer;
             var promotionPiece = PromotionPiece.Knight;
-            var pawnBitBoard = Board.Occupancy[(int)colorMoving][(int)Piece.Pawn];
+            var pawnBitBoard = Board.Occupancy[(int) colorMoving][(int) Piece.Pawn];
 
             var moveLength = move.Length;
             var isCapture = move.Contains("x");
@@ -336,7 +329,7 @@ namespace ChessLib.Data
             var moveType = MoveType.Normal;
             if (isCapture)
             {
-                startingFile = (ushort)(move[0] - 'a');
+                startingFile = (ushort) (move[0] - 'a');
                 move = move.Substring(2, moveLength - 2);
                 if (Board.EnPassantSquare.HasValue)
                 {
@@ -353,7 +346,7 @@ namespace ChessLib.Data
             }
 
             var destIndex = move.SquareTextToIndex();
-            var likelyStartingSq = (ushort)(colorMoving == Color.White ? destIndex - 8 : destIndex + 8);
+            var likelyStartingSq = (ushort) (colorMoving == Color.White ? destIndex - 8 : destIndex + 8);
             var sourceIndex = likelyStartingSq;
 
             var isPossibleInitialMove =
@@ -365,29 +358,29 @@ namespace ChessLib.Data
                 if (colorMoving == Color.White)
                 {
                     var modifier = destinationFile - startingFile + 8;
-                    sourceIndex = (ushort)(destIndex - modifier);
+                    sourceIndex = (ushort) (destIndex - modifier);
                 }
                 else
                 {
                     var modifier = startingFile - destinationFile + 8;
-                    sourceIndex = (ushort)(destIndex + modifier);
+                    sourceIndex = (ushort) (destIndex + modifier);
                 }
             }
             else if (isPossibleInitialMove)
             {
                 var possibleStartingIndex = colorMoving == Color.White ? destIndex - 8 : destIndex + 8;
-                var srcValue = ((ushort)possibleStartingIndex).GetBoardValueOfIndex();
+                var srcValue = ((ushort) possibleStartingIndex).GetBoardValueOfIndex();
                 //first check rank 2
                 if ((pawnBitBoard & srcValue) == 0)
                 {
                     //no, it was from the starting position
                     sourceIndex = colorMoving == Color.White
-                        ? (ushort)(possibleStartingIndex - 8)
-                        : (ushort)(possibleStartingIndex + 8);
+                        ? (ushort) (possibleStartingIndex - 8)
+                        : (ushort) (possibleStartingIndex + 8);
                 }
                 else
                 {
-                    sourceIndex = (ushort)possibleStartingIndex;
+                    sourceIndex = (ushort) possibleStartingIndex;
                 }
             }
 

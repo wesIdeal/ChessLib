@@ -61,8 +61,8 @@ namespace ChessLib.Parse.Console
         {
             var parser = new PGNParser();
             var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagSymbol).Result;
-            var formatter = new PGNFormatter<MoveStorage>(new PGNFormatterOptions());
-            formatter.BuildPGN(game.First());
+            var formatter = new PgnFormatter<MoveStorage>(new PGNFormatterOptions());
+            formatter.BuildPgn(game.First());
         }
 
         private static GameDatabase GetDatabaseFromArg(string s)
@@ -160,11 +160,11 @@ namespace ChessLib.Parse.Console
             }
 
             var game = games[i];
-            var pgnFormatter = new PGNFormatter<MoveStorage>(new PGNFormatterOptions
+            var pgnFormatter = new PgnFormatter<MoveStorage>(new PGNFormatterOptions
             {
                 ExportFormat = true
             });
-            var pgn = pgnFormatter.BuildPGN(game);
+            var pgn = pgnFormatter.BuildPgn(game);
             System.Console.WriteLine(pgn);
             File.WriteAllText("C:\\temp\\test.pgn", pgn);
         }

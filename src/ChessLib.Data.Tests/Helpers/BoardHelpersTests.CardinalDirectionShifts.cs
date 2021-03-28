@@ -13,25 +13,24 @@ namespace ChessLib.Data.Tests.Helpers
 
     public partial class ShiftHelpers
     {
-        [TestCase("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1", 42, 35)]
-        [TestCase("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1", 43, new int[] { })]
-        public static void TestPiecesAttackingSquare(string fen, int attackedSquare, params int[] attackingPieces)
-        {
-            var board = new Board(fen);
-            var actual = Bitboard.Instance.PiecesAttackingSquare(board.Occupancy, (ushort)attackedSquare);
-            if (attackingPieces.Any())
-            {
-                foreach (var attackingPiece in attackingPieces)
-                {
-                    Assert.IsTrue(actual.IsBitSet((ushort)attackingPiece), $"{attackingPiece.IndexToSquareDisplay()} should attack {attackedSquare.IndexToSquareDisplay()}");
-                }
-            }
-            else
-            {
-                //no pieces attack square
-                Assert.AreEqual(0, actual);
-            }
-        }
+        
+        //public static void TestPiecesAttackingSquare(string fen, int attackedSquare, params int[] attackingPieces)
+        //{
+        //    var board = new Board(fen);
+        //    var actual = Bitboard.Instance.PiecesAttackingSquare(board.Occupancy, (ushort)attackedSquare);
+        //    if (attackingPieces.Any())
+        //    {
+        //        foreach (var attackingPiece in attackingPieces)
+        //        {
+        //            Assert.IsTrue(actual.IsBitSet((ushort)attackingPiece), $"{attackingPiece.IndexToSquareDisplay()} should attack {attackedSquare.IndexToSquareDisplay()}");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        //no pieces attack square
+        //        Assert.AreEqual(0, actual);
+        //    }
+        //}
         [TestCase("r3k2r/8/8/8/8/8/8/R3K2R w - - 0 1", CastlingAvailability.WhiteKingside, 64ul, 33ul)]
         [TestCase("r3k2r/8/8/8/8/8/8/R3K2R w - - 0 1", CastlingAvailability.WhiteQueenside, 4ul, 136ul)]
         [TestCase("r3k2r/8/8/8/8/8/8/R3K2R b - - 0 1", CastlingAvailability.BlackKingside, 0x4000000000000000ul, 0x2100000000000000ul)]

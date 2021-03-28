@@ -3,24 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ChessLib.Core;
-using ChessLib.Core.Helpers;
 using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Data.Helpers;
 using EnumsNET;
 
 namespace ChessLib.Data
 {
-    public class PGNFormatter<TS> where TS : Move, IEquatable<TS>
+    public class PgnFormatter<TS> where TS : Move, IEquatable<TS>
     {
         private const char NewLine = '\n';
-        private Game<TS> _game;
-        private string _initialFEN;
         private readonly PGNFormatterOptions _options;
         private readonly List<string> _tagsToKeep = new List<string>();
+        private Game<TS> _game;
+        private string _initialFEN;
 
-        public PGNFormatter(PGNFormatterOptions options)
+        public PgnFormatter(PGNFormatterOptions options)
         {
             if (!options.KeepAllTags)
             {
@@ -35,7 +33,7 @@ namespace ChessLib.Data
             _options = options;
         }
 
-        public string BuildPGN(Game<TS> game)
+        public string BuildPgn(Game<TS> game)
         {
             _game = game;
             _initialFEN = game.TagSection.FENStart;
@@ -117,7 +115,7 @@ namespace ChessLib.Data
                     var lstVariations = new List<string>();
                     foreach (var variation in move.Variations)
                     {
-                        lstVariations.Add(BuildMoveTree(variation, bi.ToFEN(), indentLevel++));
+                        lstVariations.Add(BuildMoveTree(variation, bi.CurrentFEN, indentLevel++));
                     }
 
                     sb.Append(GetFormattedVariations(lstVariations, indentLevel++));
@@ -197,7 +195,7 @@ namespace ChessLib.Data
 
         private string IndentText(uint depth)
         {
-            return depth == 0 ? " " : new string(' ', (int)depth * 4);
+            return depth == 0 ? " " : new string(' ', (int) depth * 4);
         }
 
         private char GetEndOfMoveWhitespace(Color activeColor)

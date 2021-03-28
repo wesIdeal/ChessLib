@@ -91,9 +91,9 @@ namespace ChessLib.Parse.Tests
         private void WritePgn(Game<MoveStorage> game)
         {
             var opts = PGNFormatterOptions.ExportFormatOptions;
-            var parser = new PGNFormatter<MoveStorage>(opts);
+            var parser = new PgnFormatter<MoveStorage>(opts);
             Console.WriteLine(new string('*', 20));
-            Console.WriteLine(parser.BuildPGN(game));
+            Console.WriteLine(parser.BuildPgn(game));
             Console.WriteLine(new string('*', 20));
         }
 

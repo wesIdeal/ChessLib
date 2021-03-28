@@ -60,7 +60,7 @@ namespace ChessLib.Core
         public ulong[] WhiteOccupancy => Occupancy[(int)Color.White];
         public Color OpponentColor => ActivePlayer.Toggle();
 
-        public string CurrentFEN => this.ToFEN();
+        public string CurrentFEN => this.FENFromBoard();
 
         public ulong[][] Occupancy { get; private set; }
 
