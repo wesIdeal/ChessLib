@@ -18,7 +18,7 @@ namespace ChessLib.Core.Tests
     public class BoardStateTests
     {
 
-        [Test()]
+        [Test(Description = "En Passant")]
         public void EnPassant_ShouldThrowExceptionWhenSquareIsInvalidForEnPassant()
         {
             var boardState = new BoardState { ActivePlayer = Color.Black };
@@ -28,7 +28,7 @@ namespace ChessLib.Core.Tests
             Assert.Throws(typeof(BoardException), delegate { boardState.EnPassantIndex = null; });
         }
 
-        [Test()]
+        [Test(Description = "En Passant")]
         public void EnPassant_ShouldSetSquareValueWhenSquareIsValidForEnPassant_Black()
         {
             var boardState = new BoardState { ActivePlayer = Color.Black };
@@ -39,7 +39,7 @@ namespace ChessLib.Core.Tests
             Assert.AreEqual(boardStateEnPassantIndex, boardState.EnPassantIndex);
         }
 
-        [Test()]
+        [Test(Description = "En Passant")]
         public void EnPassant_ShouldSetSquareValueWhenSquareIsValidForEnPassant_White()
         {
             var boardState = new BoardState { ActivePlayer = Color.White };
@@ -50,13 +50,13 @@ namespace ChessLib.Core.Tests
             Assert.AreEqual(boardStateEnPassantIndex, boardState.EnPassantIndex);
         }
 
-        [Test()]
+        [Test(Description = "En Passant")]
         public void EnPassant_ShouldReturnNullWhenSetToNull()
         {
             var boardState = new BoardState { ActivePlayer = Color.Black };
             var mock = new Mock<IEnPassantSquareRule>();
             mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>())).Returns(true);
-            boardState.EnPassantIndex = (ushort?)null;
+            boardState.EnPassantIndex = null;
             Assert.IsNull(boardState.EnPassantIndex);
         }
 
@@ -87,34 +87,46 @@ namespace ChessLib.Core.Tests
             yield return new TestCase<bool, Piece?>(true, null);
         }
 
-        [Test()]
-        public void EqualsTest()
+        [TestCaseSource(nameof(GetCastlingAbilityTestCases))]
+        public void GetCastlingAbilityTest(TestCase<CastlingAvailability, CastlingAvailability> testCase)
         {
-            Assert.Fail();
+            var boardState = new BoardState();
+            boardState.CastlingAvailability = testCase.InputValue;
+            Assert.AreEqual(testCase.ExpectedValue, boardState.CastlingAvailability);
+        }
+        protected static IEnumerable<TestCase<CastlingAvailability, CastlingAvailability>> GetCastlingAbilityTestCases()
+        {
+            var all = Enums.GetValues<CastlingAvailability>().Select(x => (ulong) x);
+            var max = 15ul;
+
+            var permutations= MovingPieceService.GetAllPermutationsOfSetBits(max.GetSetBits(), 0, 0);
+                var castlingCartesian = permutations.Distinct()
+                .Select(x=>(CastlingAvailability)x)
+                .Select(x =>
+                    new TestCase<CastlingAvailability, CastlingAvailability>(x,
+                        x, $"{FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(x)}")).ToArray();
+            return castlingCartesian;
         }
 
-        [Test()]
-        public void ValidateEnPassantSquareTest()
+        [TestCaseSource(nameof(GetHalfMoveClockTestCases))]
+        public void TestHalfMoveClockTestCases(TestCase<bool, byte> testCase)
         {
-            Assert.Fail();
+            var boardState = new BoardState();
+            if (testCase.ExpectedValue == false)
+            {
+                Assert.Throws(typeof(ArgumentException), delegate { boardState.HalfMoveClock = testCase.InputValue; },
+                    $"{testCase.InputValue} is greater than the allowed 255.");
+            }
+            else
+            {
+                boardState.HalfMoveClock = testCase.InputValue;
+                Assert.AreEqual(testCase.InputValue, boardState.HalfMoveClock, testCase.ToString());
+            }
+        }
+        protected static IEnumerable<TestCase<bool, byte>> GetHalfMoveClockTestCases()
+        {
+            return Enumerable.Range(0, byte.MaxValue).Select(x => new TestCase<bool, byte>(x < 256, (byte)x));
         }
 
-        [Test()]
-        public void EqualsTest1()
-        {
-            Assert.Fail();
-        }
-
-        [Test()]
-        public void InitializeMasksTest()
-        {
-            Assert.Fail();
-        }
-
-        [Test()]
-        public void ToStringTest()
-        {
-            Assert.Fail();
-        }
     }
 }

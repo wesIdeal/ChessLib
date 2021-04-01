@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.FENValidation;
 using EnumsNET;
-
+[assembly: InternalsVisibleTo("ChessLib.Core.Tests")]
 namespace ChessLib.Core.Helpers
 {
     public static class FENHelpers

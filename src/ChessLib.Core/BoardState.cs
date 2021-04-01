@@ -177,7 +177,7 @@ namespace ChessLib.Core
             return idx;
         }
 
-        public virtual void ValidateEnPassantSquare(ushort? value)
+        private void ValidateEnPassantSquare(ushort? value)
         {
             var enPassantValidator = EnPassantSquareRule ?? new EnPassantSquareRule();
             if (!enPassantValidator.IsValidEnPassantSquare(value, ActivePlayer))
@@ -331,7 +331,7 @@ namespace ChessLib.Core
             if (hmClock >= 256)
             {
                 throw new ArgumentException(
-                    "Half move is logically limited to 255, max. Why higher? Do you even draw, bro?");
+                    "Half move is logically limited to 255, max. Time to draw.");
             }
 
             return (byte)hmClock;
