@@ -31,7 +31,7 @@ namespace ChessLib.Core.Tests
         [Test(Description = "En Passant")]
         public void EnPassant_ShouldSetSquareValueWhenSquareIsValidForEnPassant_Black()
         {
-            var boardState = new BoardState { ActivePlayer = Color.Black };
+            var boardState = new BoardState { ActivePlayer = Color.White };
             var mock = new Mock<IEnPassantSquareRule>();
             var ruleMock = mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>())).Returns(true);
             var boardStateEnPassantIndex = "e6".SquareTextToIndex();
@@ -42,7 +42,7 @@ namespace ChessLib.Core.Tests
         [Test(Description = "En Passant")]
         public void EnPassant_ShouldSetSquareValueWhenSquareIsValidForEnPassant_White()
         {
-            var boardState = new BoardState { ActivePlayer = Color.White };
+            var boardState = new BoardState { ActivePlayer = Color.Black };
             var mock = new Mock<IEnPassantSquareRule>();
             var ruleMock = mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>())).Returns(true);
             var boardStateEnPassantIndex = "e3".SquareTextToIndex();
@@ -53,7 +53,7 @@ namespace ChessLib.Core.Tests
         [Test(Description = "En Passant")]
         public void EnPassant_ShouldReturnNullWhenSetToNull()
         {
-            var boardState = new BoardState { ActivePlayer = Color.Black };
+            var boardState = new BoardState { ActivePlayer = Color.White };
             var mock = new Mock<IEnPassantSquareRule>();
             mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>())).Returns(true);
             boardState.EnPassantIndex = null;

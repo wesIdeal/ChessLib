@@ -183,7 +183,7 @@ namespace ChessLib.Core
             if (!enPassantValidator.IsValidEnPassantSquare(value, ActivePlayer))
             {
                 var square = value.HasValue ? value.Value.IndexToSquareDisplay() : "[null]";
-                var message = $"{square} is not a valid en passant square. Found in BoardState.ValidateEnPassant.";
+                var message = $"{square} is not a valid en passant square with {ActivePlayer.AsString()} to play. Found in BoardState.ValidateEnPassant.";
                 throw new BoardException(BoardExceptionType.BadEnPassant,
                     message);
             }

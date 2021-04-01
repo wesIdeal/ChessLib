@@ -45,7 +45,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules.Tests
                 foreach (var square in BoardConstants.AllSquares)
                 {
                     var squareValue = square.GetBoardValueOfIndex();
-                    var isValid = color == Color.Black ? (rank6 & squareValue) == squareValue : (rank3 & squareValue) == squareValue;
+                    var isValid = color == Color.White ? (rank6 & squareValue) == squareValue : (rank3 & squareValue) == squareValue;
                     yield return new TestCase<bool, ushort?>(isValid, square, $"{color.AsString()} {square.IndexToSquareDisplay()}", color);
                 }
                 yield return new TestCase<bool, ushort?>(true, (ushort?)null, $"{color.AsString()} [null]", color);

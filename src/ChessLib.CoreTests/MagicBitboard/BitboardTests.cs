@@ -41,7 +41,7 @@ namespace ChessLib.Core.Tests.MagicBitboard
                 $"{description} 3 White Pieces attack Black King", (ushort)60, Color.White);
             yield return new TestCase<ulong, Board>(0x140000000000, new Board("4k2q/8/2B1R3/8/8/8/8/4K3 b - - 0 1"),
                 $"{description} Two White pieces attack the Black Queen, one Black Queen flanks from the Kingside.",
-                (ushort)60,
+                (ushort)60, 
                 Color.White);
         }
 

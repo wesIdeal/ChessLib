@@ -30,7 +30,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
                 return BoardExceptionType.None;
             }
 
-            if (IsValidEnPassantSquare(enPassantSquare, activeColor))
+            if (!IsValidEnPassantSquare(enPassantSquare, activeColor))
             {
                 return BoardExceptionType.BadEnPassant;
             }
@@ -55,7 +55,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
             {
                 return true;
             }
-            var enPassantRange = activeColor == Color.Black ? BoardConstants.Rank6 : BoardConstants.Rank3;
+            var enPassantRange = activeColor == Color.White ? BoardConstants.Rank6 : BoardConstants.Rank3;
 
 
             var boardValueOfIndex = enPassantSquare.Value.GetBoardValueOfIndex();
