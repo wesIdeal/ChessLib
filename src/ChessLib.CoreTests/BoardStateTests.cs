@@ -1,29 +1,28 @@
 ﻿using System;
-using ChessLib.Core;
+using System.Collections.Generic;
+using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Tests.Helpers;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using EnumsNET;
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
 using ChessLib.Core.Validation.Validators.BoardValidation.Rules;
+using EnumsNET;
 using Moq;
+using NUnit.Framework;
 
 namespace ChessLib.Core.Tests
 {
     [TestFixture(TestOf = typeof(BoardState))]
     public class BoardStateTests
     {
-
         [Test(Description = "En Passant")]
         public void EnPassant_ShouldThrowExceptionWhenSquareIsInvalidForEnPassant()
         {
-            var boardState = new BoardState { ActivePlayer = Color.Black };
+            var boardState = new BoardState {ActivePlayer = Color.Black};
             var mock = new Mock<IEnPassantSquareRule>();
-            var ruleMock = mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>())).Returns(false);
+            mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>()))
+                .Returns(false);
             boardState.EnPassantSquareRule = mock.Object;
             Assert.Throws(typeof(BoardException), delegate { boardState.EnPassantIndex = null; });
         }
@@ -31,9 +30,10 @@ namespace ChessLib.Core.Tests
         [Test(Description = "En Passant")]
         public void EnPassant_ShouldSetSquareValueWhenSquareIsValidForEnPassant_Black()
         {
-            var boardState = new BoardState { ActivePlayer = Color.White };
+            var boardState = new BoardState {ActivePlayer = Color.White};
             var mock = new Mock<IEnPassantSquareRule>();
-            var ruleMock = mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>())).Returns(true);
+            mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>()))
+                .Returns(true);
             var boardStateEnPassantIndex = "e6".SquareTextToIndex();
             boardState.EnPassantIndex = boardStateEnPassantIndex;
             Assert.AreEqual(boardStateEnPassantIndex, boardState.EnPassantIndex);
@@ -42,9 +42,10 @@ namespace ChessLib.Core.Tests
         [Test(Description = "En Passant")]
         public void EnPassant_ShouldSetSquareValueWhenSquareIsValidForEnPassant_White()
         {
-            var boardState = new BoardState { ActivePlayer = Color.Black };
+            var boardState = new BoardState {ActivePlayer = Color.Black};
             var mock = new Mock<IEnPassantSquareRule>();
-            var ruleMock = mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>())).Returns(true);
+            mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>()))
+                .Returns(true);
             var boardStateEnPassantIndex = "e3".SquareTextToIndex();
             boardState.EnPassantIndex = boardStateEnPassantIndex;
             Assert.AreEqual(boardStateEnPassantIndex, boardState.EnPassantIndex);
@@ -53,7 +54,7 @@ namespace ChessLib.Core.Tests
         [Test(Description = "En Passant")]
         public void EnPassant_ShouldReturnNullWhenSetToNull()
         {
-            var boardState = new BoardState { ActivePlayer = Color.White };
+            var boardState = new BoardState {ActivePlayer = Color.White};
             var mock = new Mock<IEnPassantSquareRule>();
             mock.Setup(m => m.IsValidEnPassantSquare(It.IsAny<ushort?>(), It.IsAny<Color>())).Returns(true);
             boardState.EnPassantIndex = null;
@@ -63,7 +64,7 @@ namespace ChessLib.Core.Tests
         [TestCaseSource(nameof(GetPieceCapturedTestCases))]
         public void PieceCapturedTests(TestCase<bool, Piece?> testCase)
         {
-            var boardState = new BoardState() {ActivePlayer = Color.Black};
+            var boardState = new BoardState {ActivePlayer = Color.Black};
             if (!testCase.ExpectedValue)
             {
                 Assert.Throws(typeof(ArgumentException),
@@ -73,7 +74,7 @@ namespace ChessLib.Core.Tests
             else
             {
                 boardState.PieceCaptured = testCase.InputValue;
-                Assert.AreEqual(testCase.InputValue, boardState.PieceCaptured); 
+                Assert.AreEqual(testCase.InputValue, boardState.PieceCaptured);
             }
         }
 
@@ -81,27 +82,42 @@ namespace ChessLib.Core.Tests
         {
             foreach (var piece in Enums.GetValues<Piece>())
             {
-                yield return new TestCase<bool, Piece?>(piece == Piece.King ? false : true, piece);
+                yield return new TestCase<bool, Piece?>(piece != Piece.King, piece);
             }
 
             yield return new TestCase<bool, Piece?>(true, null);
         }
 
+        [TestCaseSource(nameof(GetGameStateTestCases))]
+        public void GetGameStateTest(TestCase<bool, GameState> testCase)
+        {
+            var boardState = new BoardState {GameState = testCase.InputValue};
+            Assert.AreEqual(testCase.InputValue, boardState.GameState, testCase.ToString());
+        }
+
+        protected static IEnumerable<TestCase<bool, GameState>> GetGameStateTestCases()
+        {
+            foreach (var gameState in Enums.GetValues<GameState>())
+            {
+                yield return new TestCase<bool, GameState>(true, gameState, gameState.AsString());
+            }
+        }
+
         [TestCaseSource(nameof(GetCastlingAbilityTestCases))]
         public void GetCastlingAbilityTest(TestCase<CastlingAvailability, CastlingAvailability> testCase)
         {
-            var boardState = new BoardState();
-            boardState.CastlingAvailability = testCase.InputValue;
+            var boardState = new BoardState {CastlingAvailability = testCase.InputValue};
             Assert.AreEqual(testCase.ExpectedValue, boardState.CastlingAvailability);
         }
+
         protected static IEnumerable<TestCase<CastlingAvailability, CastlingAvailability>> GetCastlingAbilityTestCases()
         {
-            var all = Enums.GetValues<CastlingAvailability>().Select(x => (ulong) x);
+            Enums.GetValues<CastlingAvailability>().Select(x => (ulong) x);
             var max = 15ul;
 
-            var permutations= MovingPieceService.GetAllPermutationsOfSetBits(max.GetSetBits(), 0, 0);
-                var castlingCartesian = permutations.Distinct()
-                .Select(x=>(CastlingAvailability)x)
+            var permutations = MovingPieceService.GetAllPermutationsOfSetBits(max.GetSetBits(), 0, 0);
+            var castlingCartesian = permutations.Distinct()
+                .Select(x => (CastlingAvailability) x)
                 .Select(x =>
                     new TestCase<CastlingAvailability, CastlingAvailability>(x,
                         x, $"{FENHelpers.MakeCastlingAvailabilityStringFromBitFlags(x)}")).ToArray();
@@ -111,22 +127,35 @@ namespace ChessLib.Core.Tests
         [TestCaseSource(nameof(GetHalfMoveClockTestCases))]
         public void TestHalfMoveClockTestCases(TestCase<bool, byte> testCase)
         {
+            var boardState = new BoardState {HalfMoveClock = testCase.InputValue};
+
+            Assert.AreEqual(testCase.InputValue, boardState.HalfMoveClock, testCase.ToString());
+        }
+
+        protected static IEnumerable<TestCase<bool, byte>> GetHalfMoveClockTestCases()
+        {
+            return Enumerable.Range(0, byte.MaxValue + 2).Select(x => new TestCase<bool, byte>(true, (byte) x));
+        }
+
+        [TestCaseSource(nameof(GetFullMoveCounterTestCases))]
+        public void FullMoveCounterTest(TestCase<bool, uint> testCase)
+        {
             var boardState = new BoardState();
-            if (testCase.ExpectedValue == false)
+            if (!testCase.ExpectedValue)
             {
-                Assert.Throws(typeof(ArgumentException), delegate { boardState.HalfMoveClock = testCase.InputValue; },
-                    $"{testCase.InputValue} is greater than the allowed 255.");
+                Assert.Throws(typeof(ArgumentException),
+                    delegate { boardState.FullMoveCounter = testCase.InputValue; });
             }
             else
             {
-                boardState.HalfMoveClock = testCase.InputValue;
-                Assert.AreEqual(testCase.InputValue, boardState.HalfMoveClock, testCase.ToString());
+                boardState.FullMoveCounter = testCase.InputValue;
+                Assert.AreEqual(testCase.InputValue, boardState.FullMoveCounter, testCase.InputValue.ToString());
             }
         }
-        protected static IEnumerable<TestCase<bool, byte>> GetHalfMoveClockTestCases()
-        {
-            return Enumerable.Range(0, byte.MaxValue).Select(x => new TestCase<bool, byte>(x < 256, (byte)x));
-        }
 
+        protected static IEnumerable<TestCase<bool, uint>> GetFullMoveCounterTestCases()
+        {
+            return Enumerable.Range(0, 513).Select(x => new TestCase<bool, uint>(x < 512, (uint) x));
+        }
     }
 }

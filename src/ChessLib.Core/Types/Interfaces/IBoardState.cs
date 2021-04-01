@@ -29,7 +29,7 @@ namespace ChessLib.Core.Types.Interfaces
         /// <summary>
         ///     Number of halfmoves since either a) a pawn advance or b) capture. Used to determine draws for 50-move rule.
         /// </summary>
-        ushort HalfMoveClock { get; }
+        byte HalfMoveClock { get; }
 
 
         /// <summary>

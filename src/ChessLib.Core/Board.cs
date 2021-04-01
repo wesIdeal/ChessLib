@@ -28,7 +28,7 @@ namespace ChessLib.Core
 
         }
 
-        public Board(ulong[][] occupancy, ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
+        public Board(ulong[][] occupancy, byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter)
             : base(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter)
         {

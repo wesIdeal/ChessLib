@@ -351,9 +351,9 @@ namespace ChessLib.Core.Helpers
             var piecePlacement = GetBoardPostMove(board, move);
             var castlingAvailability =
                 GetCastlingAvailabilityPostMove(board.Occupancy, move, board.CastlingAvailability);
-            var EnPassantIndex = GetEnPassantIndex(board, move);
+            var enPassantIndex = GetEnPassantIndex(board, move);
             var activePlayer = board.ActivePlayer.Toggle();
-            return new Board(piecePlacement, (ushort)halfMoveClock, EnPassantIndex, capturedPiece,
+            return new Board(piecePlacement, (byte)halfMoveClock, enPassantIndex, capturedPiece,
                 castlingAvailability, activePlayer,
                 (ushort)fullMoveCounter);
         }

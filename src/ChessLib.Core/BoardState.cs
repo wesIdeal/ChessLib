@@ -44,7 +44,7 @@ namespace ChessLib.Core
         /// <param name="activePlayer">Player to move</param>
         /// <param name="fullMoveCounter">Number of whole moves played</param>
         /// <param name="gameState">Game state of current board. </param>
-        public BoardState(ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
+        public BoardState(byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
             GameState gameState = GameState.None) : this()
         {
@@ -56,7 +56,7 @@ namespace ChessLib.Core
         {
             fen.BoardFromFen(out var color, out var castingAvailability,
                 out var enPassantSquare, out var halfmove, out var fullmove, false);
-            SetBoardState(halfmove, enPassantSquare, null, castingAvailability, color, fullmove);
+            SetBoardState((byte)halfmove, enPassantSquare, null, castingAvailability, color, fullmove);
         }
 
         private BoardState(uint boardStateStorage)
@@ -190,17 +190,17 @@ namespace ChessLib.Core
         }
 
 
-        public ushort HalfMoveClock
+        public byte HalfMoveClock
         {
             get
             {
                 var hmInfo = _positions[HalfMoveClockKey];
-                return (ushort)((BoardStateStorage & hmInfo.Mask) >> hmInfo.Offset);
+                return (byte)((BoardStateStorage & hmInfo.Mask) >> hmInfo.Offset);
             }
             set
             {
                 var clearValue = GetClearValue(HalfMoveClockKey) & BoardStateStorage;
-                var storageValue = GetHalfMoveStorageValue(value);
+                var storageValue = value;
                 BoardStateStorage = clearValue | storageValue;
             }
         }
@@ -326,16 +326,7 @@ namespace ChessLib.Core
             return value;
         }
 
-        private byte GetHalfMoveStorageValue(ushort hmClock)
-        {
-            if (hmClock >= 256)
-            {
-                throw new ArgumentException(
-                    "Half move is logically limited to 255, max. Time to draw.");
-            }
 
-            return (byte)hmClock;
-        }
 
         private uint GetFullMoveCounterStorageValue(uint fullMoveCounter)
         {
@@ -348,7 +339,7 @@ namespace ChessLib.Core
         }
 
 
-        private void SetBoardState(ushort halfMoveClock, ushort? enPassantIndex, Piece? pieceCaptured,
+        private void SetBoardState(byte halfMoveClock, ushort? enPassantIndex, Piece? pieceCaptured,
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
             GameState gameState = GameState.None)
         {

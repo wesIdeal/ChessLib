@@ -10,7 +10,7 @@ namespace ChessLib.Core.Types.Interfaces
         CastlingAvailability CastlingAvailability { get; }
         ushort? EnPassantIndex { get; set; }
         uint FullMoveCounter { get; }
-        ushort HalfMoveClock { get; }
+        byte HalfMoveClock { get; }
         ulong[][] Occupancy { get; }
 
         ulong[][] CloneOccupancy();
