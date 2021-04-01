@@ -8,9 +8,11 @@ namespace ChessLib.Core.Types.Interfaces
         GameState GameState { get; }
         Color ActivePlayer { get; }
         CastlingAvailability CastlingAvailability { get; }
-        ushort? EnPassantSquare { get; }
+        ushort? EnPassantIndex { get; set; }
         uint FullMoveCounter { get; }
         ushort HalfMoveClock { get; }
         ulong[][] Occupancy { get; }
+
+        ulong[][] CloneOccupancy();
     }
 }

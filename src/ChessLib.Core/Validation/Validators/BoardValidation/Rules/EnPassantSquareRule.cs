@@ -1,22 +1,35 @@
 ﻿using System.Runtime.CompilerServices;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 {
-    public class EnPassantSquareRule : IBoardRule
+    public interface IEnPassantSquareRule
+    {
+        BoardExceptionType ValidateEnPassantSquare(ulong[][] occupancy, ushort? enPassantSquare, Color activeColor);
+        bool IsValidEnPassantSquare(ushort? enPassantSquare, Color activeColor);
+    }
+
+    /// <summary>
+    /// Validates that board parameters are correct in regards to en passant square
+    /// </summary>
+    public class EnPassantSquareRule : IBoardRule, IEnPassantSquareRule
     {
         public BoardExceptionType Validate(in IBoard boardInfo)
         {
-            return ValidateEnPassantSquare(boardInfo.Occupancy, boardInfo.EnPassantSquare, boardInfo.ActivePlayer);
+            return ValidateEnPassantSquare(boardInfo.Occupancy, boardInfo.EnPassantIndex, boardInfo.ActivePlayer);
         }
 
         public virtual BoardExceptionType ValidateEnPassantSquare(ulong[][] occupancy, ushort? enPassantSquare, Color activeColor)
         {
+            if (enPassantSquare == null)
+            {
+                return BoardExceptionType.None;
+            }
 
-            if (enPassantSquare == null) return BoardExceptionType.None;
             if (IsValidEnPassantSquare(enPassantSquare, activeColor))
             {
                 return BoardExceptionType.BadEnPassant;
@@ -36,13 +49,17 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
             return isPawnPresentNorthOfEnPassantSquare;
         }
 
-        private static bool IsValidEnPassantSquare(ushort? enPassantSquare, Color activeColor)
+        public bool IsValidEnPassantSquare(ushort? enPassantSquare, Color activeColor)
         {
-            if (activeColor == Color.White)
+            if (enPassantSquare == null)
             {
-                return enPassantSquare < 40 || enPassantSquare > 47;
+                return true;
             }
-            return enPassantSquare < 16 || enPassantSquare > 23;
+            var enPassantRange = activeColor == Color.Black ? BoardConstants.Rank6 : BoardConstants.Rank3;
+
+
+            var boardValueOfIndex = enPassantSquare.Value.GetBoardValueOfIndex();
+            return (enPassantRange & boardValueOfIndex) == boardValueOfIndex;
         }
     }
 }

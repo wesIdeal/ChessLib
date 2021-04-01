@@ -1,59 +1,40 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
-
-#endregion
+using ChessLib.Core.Validation.Validators.BoardValidation.Rules;
 
 namespace ChessLib.Core
 {
-    public class Board : BoardState, IEquatable<Board>, IBoard, ICloneable
+    public class Board : BoardState, IEquatable<Board>, IBoard
     {
-        private ulong[][] CloneOccupancy()
-        {
-            var rv = new ulong[2][];
-            rv[0] = new ulong[6];
-            rv[1] = new ulong[6];
-            Array.Copy(Occupancy[0], rv[0], 6);
-            Array.Copy(Occupancy[1], rv[1], 6);
-            return rv;
-        }
-        public new object Clone()
-        {
-            Console.WriteLine($"Total occupancy: {Occupancy.Occupancy()}");
-            var clonedOccupancy = CloneOccupancy();
-            var activePlayerColor = ActivePlayer;
-            return new Board(clonedOccupancy, HalfMoveClock, EnPassantSquare, PieceCaptured, CastlingAvailability, activePlayerColor, FullMoveCounter);
-        }
         public Board() : base(FENHelpers.FENInitial)
         {
             Occupancy = new ulong[2][];
             InitializeOccupancy();
         }
 
-        public override string ToString()
-        {
-            return CurrentFEN + Environment.NewLine + base.ToString();
-        }
-
         /// <summary>
         ///     Construct Board from FEN
         /// </summary>
         /// <param name="fen">fen string </param>
-        public Board(string fen) : base(fen)
+        public Board(string fen) :  base(fen)
         {
-            Occupancy = FENHelpers.BoardFromFen(fen);
-            
+            Occupancy = new ulong[2][];
+            Occupancy = FENHelpers.BoardFromFen(fen, out _, out _, out ushort? enPassantIndex, out _, out _);
+            EnPassantIndex = enPassantIndex;
+
         }
 
         public Board(ulong[][] occupancy, ushort halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter)
-        : base(occupancy, halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter)
+            : base(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter)
         {
-            Occupancy = occupancy;
+            Occupancy = new ulong[2][];
+            Occupancy = CloneOccupancy(occupancy);
+            GameState = GameStateFromBoard();
         }
 
         public ulong[] BlackOccupancy => Occupancy[(int)Color.Black];
@@ -62,7 +43,26 @@ namespace ChessLib.Core
 
         public string CurrentFEN => this.FENFromBoard();
 
-        public ulong[][] Occupancy { get; private set; }
+        public new object Clone()
+        {
+            Console.WriteLine($"Total occupancy: {Occupancy.Occupancy()}");
+            var clonedOccupancy = CloneOccupancy();
+            var activePlayerColor = ActivePlayer;
+            return new Board(clonedOccupancy, HalfMoveClock, EnPassantIndex, PieceCaptured, CastlingAvailability,
+                activePlayerColor, FullMoveCounter);
+        }
+
+        public override ushort? EnPassantIndex
+        {
+            get => base.EnPassantIndex;
+            set
+            {
+                ValidateEnPassant(value);
+                base.EnPassantIndex = value;
+            }
+        }
+
+        public ulong[][] Occupancy { get; }
 
 
         public bool Equals(Board other)
@@ -70,11 +70,54 @@ namespace ChessLib.Core
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             var boardStateEquality = base.Equals(other);
-            var whitePiecesEquality = this.Occupancy[(int) Color.White].Select((b, i) => new {Occ = b, Idx = i})
-                .All(x => x.Occ == other.Occupancy[(int) Color.White][x.Idx]);
-            var blackPiecesEquality = this.Occupancy[(int)Color.Black].Select((b, i) => new { Occ = b, Idx = i })
+            var whitePiecesEquality = Occupancy[(int)Color.White].Select((b, i) => new { Occ = b, Idx = i })
+                .All(x => x.Occ == other.Occupancy[(int)Color.White][x.Idx]);
+            var blackPiecesEquality = Occupancy[(int)Color.Black].Select((b, i) => new { Occ = b, Idx = i })
                 .All(x => x.Occ == other.Occupancy[(int)Color.Black][x.Idx]);
             return boardStateEquality && whitePiecesEquality && blackPiecesEquality;
+        }
+
+        public ulong[][] CloneOccupancy()
+        {
+            return CloneOccupancy(Occupancy);
+        }
+
+        private static ulong[][] CloneOccupancy(ulong[][] occupancy)
+        {
+            var rv = new ulong[2][];
+            rv[0] = new ulong[6];
+            rv[1] = new ulong[6];
+            Array.Copy(occupancy[0], rv[0], 6);
+            Array.Copy(occupancy[1], rv[1], 6);
+            return rv;
+        }
+
+        public override string ToString()
+        {
+            return CurrentFEN + Environment.NewLine + base.ToString();
+        }
+
+        protected GameState GameStateFromBoard()
+        {
+            var gameState = EndOfGameRule.Validate(this);
+            switch (gameState)
+            {
+                case BoardExceptionType.MaterialDraw: return GameState.Drawn;
+                case BoardExceptionType.Checkmate: return GameState.Checkmate;
+                case BoardExceptionType.Stalemate: return GameState.StaleMate;
+                default: return GameState.None;
+            }
+        }
+
+        private void ValidateEnPassant(ushort? epIndex)
+        {
+            var validate = new EnPassantSquareRule();
+            var validationResult = validate.ValidateEnPassantSquare(Occupancy, epIndex, ActivePlayer);
+            if (validationResult != BoardExceptionType.None)
+            {
+                throw new BoardException(validationResult,
+                    "Bad en passant square passed to Board.cs ValidateEnPassant.");
+            }
         }
 
         private void InitializeOccupancy()
@@ -120,13 +163,5 @@ namespace ChessLib.Core
                 return (base.GetHashCode() * 397) ^ (Occupancy != null ? Occupancy.GetHashCode() : 0);
             }
         }
-
-        public void SetPiecePlacement(ulong[][] occupancy)
-        {
-            Occupancy = occupancy;
-        }
-
-       
     }
- 
 }

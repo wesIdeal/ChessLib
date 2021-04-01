@@ -24,7 +24,7 @@ namespace ChessLib.Core.Types.Interfaces
         /// <summary>
         ///     Index of en passant square, if available. Null if no en passant capture exists.
         /// </summary>
-        ushort? EnPassantSquare { get; }
+        ushort? EnPassantIndex { get; }
 
         /// <summary>
         ///     Number of halfmoves since either a) a pawn advance or b) capture. Used to determine draws for 50-move rule.
@@ -38,5 +38,7 @@ namespace ChessLib.Core.Types.Interfaces
         uint FullMoveCounter { get; }
 
         Color ActivePlayer { get; }
+
+        
     }
 }

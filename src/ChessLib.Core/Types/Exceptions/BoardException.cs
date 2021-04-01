@@ -21,7 +21,7 @@ namespace ChessLib.Core.Types.Exceptions
             return new BoardException(exceptionType, sb.ToString());
         }
 
-        protected BoardException(BoardExceptionType exceptionType, string message) : base(message)
+        public BoardException(BoardExceptionType exceptionType, string message) : base(message)
         {
             ExceptionType = exceptionType;
         }

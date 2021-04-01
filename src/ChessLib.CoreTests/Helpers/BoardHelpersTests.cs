@@ -10,6 +10,12 @@ using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Helpers
 {
+    [TestFixture(Category = "Board State", TestOf = typeof(BoardHelpers))]
+    public class BoardStateHelpersTests
+    {
+
+    }
+
     [TestFixture(Category = "Board Helpers", TestOf = typeof(BoardHelpers))]
     public class BoardHelpersTests
     {
@@ -408,7 +414,7 @@ namespace ChessLib.Core.Tests.Helpers
         public void IsStalemateTest(TestCase<bool, Board> testCase)
         {
             var actual = BoardHelpers.IsStalemate(testCase.InputValue.Occupancy, testCase.InputValue.ActivePlayer,
-                testCase.InputValue.EnPassantSquare, testCase.InputValue.CastlingAvailability);
+                testCase.InputValue.EnPassantIndex, testCase.InputValue.CastlingAvailability);
             Assert.AreEqual(testCase.ExpectedValue, actual);
         }
 

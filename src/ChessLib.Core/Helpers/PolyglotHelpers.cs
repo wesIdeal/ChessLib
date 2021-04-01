@@ -267,13 +267,13 @@ namespace ChessLib.Core.Helpers
 
         private static ulong GetEnPassantValue(Board board)
         {
-            if (!board.EnPassantSquare.HasValue || !board.IsEnPassantCaptureAvailable())
+            if (!board.EnPassantIndex.HasValue || !board.IsEnPassantCaptureAvailable())
             {
                 return 0;
             }
 
-            Debug.Assert(board.EnPassantSquare != null, "EnPassant square cannot be null after reaching this point");
-            var file = board.EnPassantSquare.Value.GetFile();
+            Debug.Assert(board.EnPassantIndex != null, "EnPassant square cannot be null after reaching this point");
+            var file = board.EnPassantIndex.Value.GetFile();
             return EnPassant[file];
         }
 

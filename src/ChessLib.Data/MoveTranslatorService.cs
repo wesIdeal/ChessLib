@@ -331,7 +331,7 @@ namespace ChessLib.Data
             {
                 startingFile = (ushort) (move[0] - 'a');
                 move = move.Substring(2, moveLength - 2);
-                if (Board.EnPassantSquare.HasValue)
+                if (Board.EnPassantIndex.HasValue)
                 {
                 }
             }
@@ -384,7 +384,7 @@ namespace ChessLib.Data
                 }
             }
 
-            if (isCapture && Board.EnPassantSquare.HasValue && destIndex == Board.EnPassantSquare.Value)
+            if (isCapture && Board.EnPassantIndex.HasValue && destIndex == Board.EnPassantIndex.Value)
             {
                 moveType = MoveType.EnPassant;
             }

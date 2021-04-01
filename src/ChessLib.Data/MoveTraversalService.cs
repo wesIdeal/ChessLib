@@ -423,7 +423,7 @@ namespace ChessLib.Data
             var previousState = previousNode.Value.BoardState;
             var hmClock = previousState.HalfMoveClock;
             var castlingAvailability = previousState.CastlingAvailability;
-            var epSquare = previousState.EnPassantSquare;
+            var epSquare = previousState.EnPassantIndex;
             var pieces = UnApplyPiecesFromMove(CurrentMoveNode.Value);
             var fullMove = Board.ActivePlayer == Color.White ? Board.FullMoveCounter - 1 : Board.FullMoveCounter;
             var board = new Board(pieces, hmClock, epSquare, previousState.PieceCaptured,

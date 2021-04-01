@@ -38,7 +38,7 @@ namespace ChessLib.Core.Helpers
         internal static string FENFromBoard(this IBoard board)
         {
             return
-                $"{board.Occupancy.GetPiecePlacement()} {board.ActivePlayer.GetFENSideToMoveStrRepresentation()} {MakeCastlingAvailabilityStringFromBitFlags(board.CastlingAvailability)} {GetFENEnPassantString(board.EnPassantSquare)} {board.HalfMoveClock} {board.FullMoveCounter}";
+                $"{board.Occupancy.GetPiecePlacement()} {board.ActivePlayer.GetFENSideToMoveStrRepresentation()} {MakeCastlingAvailabilityStringFromBitFlags(board.CastlingAvailability)} {GetFENEnPassantString(board.EnPassantIndex)} {board.HalfMoveClock} {board.FullMoveCounter}";
         }
 
         internal static string GetFENSideToMoveStrRepresentation(this Color sideToMove)
@@ -111,13 +111,13 @@ namespace ChessLib.Core.Helpers
         /// <param name="fen"></param>
         /// <param name="activePlayer"></param>
         /// <param name="castlingAvailability"></param>
-        /// <param name="enPassantSquareIndex"></param>
+        /// <param name="EnPassantIndexIndex"></param>
         /// <param name="halfmoveClock"></param>
         /// <param name="fullmoveClock"></param>
         /// <param name="validate"></param>
         /// <returns></returns>
         public static ulong[][] BoardFromFen(this string fen, out Color activePlayer,
-            out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out ushort halfmoveClock,
+            out CastlingAvailability castlingAvailability, out ushort? EnPassantIndexIndex, out ushort halfmoveClock,
             out ushort fullmoveClock, bool validate = true)
         {
             var fenPieces = fen.Split(' ');
@@ -135,7 +135,7 @@ namespace ChessLib.Core.Helpers
             activePlayer = GetActiveColor(fenPieces[(int) FENPieces.ActiveColor]);
             castlingAvailability = GetCastlingFromString(fen.GetFENPiece(FENPieces.CastlingAvailability));
             var enPassantStringValue = fenPieces[(int) FENPieces.EnPassantSquare];
-            enPassantSquareIndex = enPassantStringValue.Trim() == "-"
+            EnPassantIndexIndex = enPassantStringValue.Trim() == "-"
                 ? (ushort?) null
                 : enPassantStringValue.SquareTextToIndex();
             halfmoveClock = ushort.Parse(fenPieces[(int) FENPieces.HalfmoveClock]);

@@ -1,49 +1,32 @@
-﻿using ChessLib.Core.Helpers;
+﻿using System.Linq;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
+using EnumsNET;
 
 namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 {
     public class EndOfGameRule : IBoardRule
     {
 
-        public BoardExceptionType Validate(ulong[][] occupancy, Color activeColor, 
-            ushort? enPassantIdx, CastlingAvailability castlingAvailability)
+        public BoardExceptionType Validate(in IBoard boardInfo)
         {
-            var isDrawn = true;
-            for (int c = 0; c < 2; c++)
-            {
-                for (int p = 0; p < 5; p++)
-                {
-                    if (occupancy.Occupancy((Color)c, (Piece)p) != 0)
-                    {
-                        isDrawn = false;
-                        break;
-                    }
-                }
-            }
-
-            if (isDrawn)
+            if (BoardHelpers.IsDrawn(boardInfo.Occupancy))
             {
                 return BoardExceptionType.MaterialDraw;
             }
 
-            //if (BoardHelpers.IsCheckmate(occupancy, activeColor))
-            //{
-            //    return BoardExceptionType.Checkmate;
-            //}
+            if (BoardHelpers.IsCheckmate(boardInfo))
+            {
+                return BoardExceptionType.Checkmate;
+            }
 
-            //if (BoardHelpers.IsStalemate(occupancy, activeColor, enPassantIdx, castlingAvailability))
-            //{
-            //    return BoardExceptionType.Stalemate;
-            //}
+            if (BoardHelpers.IsStalemate(boardInfo.Occupancy,boardInfo.ActivePlayer,boardInfo.EnPassantIndex,boardInfo.CastlingAvailability))
+            {
+                return BoardExceptionType.Stalemate;
+            }
 
             return BoardExceptionType.None;
-        }
-        public BoardExceptionType Validate(in IBoard boardInfo)
-        {
-            return Validate(boardInfo.Occupancy, boardInfo.ActivePlayer, boardInfo.EnPassantSquare,
-                boardInfo.CastlingAvailability);
         }
     }
 }

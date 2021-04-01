@@ -61,7 +61,7 @@ namespace ChessLib.Core
         public Guid Id { get; }
 
         public bool IsEndOfGame =>
-            new[] {GameState.Checkmate, GameState.StaleMate}.Contains(BoardStateHelpers.GetGameState(BoardState));
+            new[] {GameState.Checkmate, GameState.StaleMate}.Contains(BoardState.GameState);
 
         public BoardState BoardState { get; }
 

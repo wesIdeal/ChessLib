@@ -102,7 +102,7 @@ namespace ChessLib.Core.Services
             else if (recordResult)
             {
 
-                result = BoardHelpers.IsStalemate(board.Occupancy, board.ActivePlayer, board.EnPassantSquare, board.CastlingAvailability) ? "1/2-1/2" : "";
+                result = BoardHelpers.IsStalemate(board.Occupancy, board.ActivePlayer, board.EnPassantIndex, board.CastlingAvailability) ? "1/2-1/2" : "";
             }
 
             //Get piece representation
@@ -129,7 +129,7 @@ namespace ChessLib.Core.Services
             foreach (var attackerIndex in otherLikePieces.GetSetBits())
             {
                 var legalMoves = Bitboard.Instance.GetLegalMoves(attackerIndex,
-                    Board.Occupancy, Board.EnPassantSquare, Board.CastlingAvailability);
+                    Board.Occupancy, Board.EnPassantIndex, Board.CastlingAvailability);
                 var canPieceMoveToDestination = legalMoves.Any(x => x.DestinationIndex == move.DestinationIndex);
                 if (canPieceMoveToDestination)
                 {
