@@ -143,8 +143,8 @@ namespace ChessLib.Core.Tests
             var boardState = new BoardState();
             if (!testCase.ExpectedValue)
             {
-                Assert.Throws(typeof(ArgumentException),
-                    delegate { boardState.FullMoveCounter = testCase.InputValue; });
+                Assert.Throws(typeof(FullMoveCountExceededException),
+                    delegate { boardState.FullMoveCounter = testCase.InputValue; }, string.Format(FullMoveCountExceededException.MessageFormat, testCase.InputValue));
             }
             else
             {

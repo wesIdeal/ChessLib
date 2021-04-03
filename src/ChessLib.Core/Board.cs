@@ -82,7 +82,7 @@ namespace ChessLib.Core
             return CloneOccupancy(Occupancy);
         }
 
-        private static ulong[][] CloneOccupancy(ulong[][] occupancy)
+        private static ulong[][] CloneOccupancy(in ulong[][] occupancy)
         {
             var rv = new ulong[2][];
             rv[0] = new ulong[6];
