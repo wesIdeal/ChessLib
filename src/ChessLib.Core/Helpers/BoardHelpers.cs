@@ -328,11 +328,6 @@ namespace ChessLib.Core.Helpers
             bool bypassMoveValidation = false)
         {
             var board = (IBoard)currentBoard.Clone();
-            if (!bypassMoveValidation)
-            {
-                var boardValidator = new BoardValidator(board);
-                boardValidator.Validate(true);
-            }
 
             var pieceMoving = GetPieceOfColorAtIndex(board.Occupancy, move.SourceIndex);
             if (pieceMoving == null)
@@ -355,7 +350,7 @@ namespace ChessLib.Core.Helpers
             var activePlayer = board.ActivePlayer.Toggle();
             return new Board(piecePlacement, (byte)halfMoveClock, enPassantIndex, capturedPiece,
                 castlingAvailability, activePlayer,
-                (ushort)fullMoveCounter);
+                (ushort)fullMoveCounter, true);
         }
 
 

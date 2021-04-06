@@ -1,40 +1,55 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
-using ChessLib.Core.Validation.Validators.BoardValidation.Rules;
+using ChessLib.Core.Validation.Validators.BoardValidation;
 
 namespace ChessLib.Core
 {
     public class Board : BoardState, IEquatable<Board>, IBoard
     {
-        public Board() : base(FENHelpers.FENInitial)
+        protected readonly IBoardValidator BoardValidator;
+        public Board(IBoardValidator boardValidator = null)
         {
+            BoardValidator = boardValidator ?? new BoardValidator();
             Occupancy = new ulong[2][];
             InitializeOccupancy();
+            BoardValidator = boardValidator ?? new BoardValidator();
         }
 
         /// <summary>
         ///     Construct Board from FEN
         /// </summary>
         /// <param name="fen">fen string </param>
-        public Board(string fen) :  base(fen)
+        /// <param name="boardValidator"></param>
+        public Board(string fen, IBoardValidator boardValidator = null) : base(fen)
         {
-            Occupancy = new ulong[2][];
-            Occupancy = FENHelpers.BoardFromFen(fen, out _, out _, out ushort? enPassantIndex, out _, out _);
-            EnPassantIndex = enPassantIndex;
-
+            BoardValidator = boardValidator ?? new BoardValidator();
+            Occupancy = fen.BoardFromFen(out _, out _, out _, out _, out _);
+            Validate();
         }
 
         public Board(ulong[][] occupancy, byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
-            CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter)
+            CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
+            IBoardValidator boardValidator = null)
+        : this(occupancy, halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter, true, boardValidator)
+
+        { }
+
+        internal Board(ulong[][] occupancy, byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
+            CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter, bool validateBoard = true,
+            IBoardValidator boardValidator = null)
             : base(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter)
         {
-            Occupancy = new ulong[2][];
+            BoardValidator = boardValidator ?? new BoardValidator();
             Occupancy = CloneOccupancy(occupancy);
-            GameState = GameStateFromBoard();
+            if (validateBoard)
+            {
+                Validate();
+            }
         }
 
         public ulong[] BlackOccupancy => Occupancy[(int)Color.Black];
@@ -43,26 +58,22 @@ namespace ChessLib.Core
 
         public string CurrentFEN => this.FENFromBoard();
 
-        public new object Clone()
+        public object Clone()
         {
             Console.WriteLine($"Total occupancy: {Occupancy.Occupancy()}");
             var clonedOccupancy = CloneOccupancy();
             var activePlayerColor = ActivePlayer;
             return new Board(clonedOccupancy, HalfMoveClock, EnPassantIndex, PieceCaptured, CastlingAvailability,
-                activePlayerColor, FullMoveCounter);
+                activePlayerColor, FullMoveCounter, false, this.BoardValidator);
         }
 
-        public override ushort? EnPassantIndex
-        {
-            get => base.EnPassantIndex;
-            set
-            {
-                ValidateEnPassant(value);
-                base.EnPassantIndex = value;
-            }
-        }
 
         public ulong[][] Occupancy { get; }
+
+        public ulong[][] CloneOccupancy()
+        {
+            return CloneOccupancy(Occupancy);
+        }
 
 
         public bool Equals(Board other)
@@ -77,9 +88,27 @@ namespace ChessLib.Core
             return boardStateEquality && whitePiecesEquality && blackPiecesEquality;
         }
 
-        public ulong[][] CloneOccupancy()
+        private void Validate()
         {
-            return CloneOccupancy(Occupancy);
+
+            var validationResult = BoardValidator.Validate(this);
+            if (validationResult != BoardExceptionType.None)
+            {
+                switch (validationResult)
+                {
+                    case BoardExceptionType.Checkmate:
+                        this.GameState = GameState.Checkmate;
+                        break;
+                    case BoardExceptionType.MaterialDraw:
+                        this.GameState = GameState.Drawn;
+                        break;
+                    case BoardExceptionType.Stalemate:
+                        this.GameState = GameState.StaleMate;
+                        break;
+                    default:
+                        throw new BoardException(validationResult, "Invalid board setup.");
+                }
+            }
         }
 
         private static ulong[][] CloneOccupancy(in ulong[][] occupancy)
@@ -97,28 +126,6 @@ namespace ChessLib.Core
             return CurrentFEN + Environment.NewLine + base.ToString();
         }
 
-        protected GameState GameStateFromBoard()
-        {
-            var gameState = EndOfGameRule.Validate(this);
-            switch (gameState)
-            {
-                case BoardExceptionType.MaterialDraw: return GameState.Drawn;
-                case BoardExceptionType.Checkmate: return GameState.Checkmate;
-                case BoardExceptionType.Stalemate: return GameState.StaleMate;
-                default: return GameState.None;
-            }
-        }
-
-        private void ValidateEnPassant(ushort? epIndex)
-        {
-            var validate = new EnPassantSquareRule();
-            var validationResult = validate.ValidateEnPassantSquare(Occupancy, epIndex, ActivePlayer);
-            if (validationResult != BoardExceptionType.None)
-            {
-                throw new BoardException(validationResult,
-                    "Bad en passant square passed to Board.cs ValidateEnPassant.");
-            }
-        }
 
         private void InitializeOccupancy()
         {

@@ -78,7 +78,7 @@ namespace ChessLib.Core.MagicBitboard
             foreach (var move in moves)
             {
                 var moveValidator =
-                    new MoveValidator(new Board(occupancy, 0, enPassantIdx, null, castlingAvailability, color, 0),
+                    new MoveValidator(new Board(occupancy, 0, enPassantIdx, null, castlingAvailability, color, 0, false),
                         move);
                 var validationResult = moveValidator.Validate();
                 if (validationResult == MoveError.NoneSet)

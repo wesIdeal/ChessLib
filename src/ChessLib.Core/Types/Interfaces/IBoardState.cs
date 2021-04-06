@@ -39,6 +39,6 @@ namespace ChessLib.Core.Types.Interfaces
 
         Color ActivePlayer { get; }
 
-        
+
     }
 }

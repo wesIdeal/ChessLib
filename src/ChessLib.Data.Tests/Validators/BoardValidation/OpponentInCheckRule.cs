@@ -18,8 +18,8 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
             try
             {
                 var board = new Board(fen);
-                var boardValidator = new BoardValidator(board);
-                boardValidator.Validate(true);
+                var boardValidator = new BoardValidator();
+                boardValidator.Validate(board);
             }
             catch (BoardException be)
             {

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
+using ChessLib.Core.Validation.Validators.BoardValidation;
 using ChessLib.Core.Validation.Validators.BoardValidation.Rules;
 using EnumsNET;
 
@@ -26,14 +28,17 @@ namespace ChessLib.Core
         private readonly Dictionary<string, BoardStateBitHelpers> _positions =
             new Dictionary<string, BoardStateBitHelpers>();
 
+        
+
         protected EndOfGameRule EndOfGameRule = new EndOfGameRule();
-        public IEnPassantSquareRule EnPassantSquareRule;
 
         public BoardState()
         {
             BoardStateStorage = 0;
+            
             InitializeMasks();
         }
+
         /// <summary>
         ///     Makes an archival board state
         /// </summary>
@@ -44,9 +49,9 @@ namespace ChessLib.Core
         /// <param name="activePlayer">Player to move</param>
         /// <param name="fullMoveCounter">Number of whole moves played</param>
         /// <param name="gameState">Game state of current board. </param>
-        public BoardState(byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
+        protected BoardState(byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
-            GameState gameState = GameState.None) : this()
+            GameState gameState = GameState.None) :this()
         {
             SetBoardState(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer,
                 fullMoveCounter, gameState);
@@ -125,6 +130,7 @@ namespace ChessLib.Core
             }
         }
 
+
         public Piece? PieceCaptured
         {
             get
@@ -142,7 +148,7 @@ namespace ChessLib.Core
             }
         }
 
-        public virtual ushort? EnPassantIndex
+        public ushort? EnPassantIndex
         {
             get
             {
@@ -166,26 +172,6 @@ namespace ChessLib.Core
                 var clearedEnPassantValue = clearValue & BoardStateStorage;
                 var storageValue = GetEnPassantStorageValue(value);
                 BoardStateStorage = clearedEnPassantValue | storageValue;
-            }
-        }
-
-        private uint GetEnPassantValueFromStorage()
-        {
-            var epInfo = _positions[EnPassantIndexKey];
-            var unMasked = BoardStateStorage & epInfo.Mask;
-            var idx = (ushort)(unMasked >> epInfo.Offset);
-            return idx;
-        }
-
-        private void ValidateEnPassantSquare(ushort? value)
-        {
-            var enPassantValidator = EnPassantSquareRule ?? new EnPassantSquareRule();
-            if (!enPassantValidator.IsValidEnPassantSquare(value, ActivePlayer))
-            {
-                var square = value.HasValue ? value.Value.IndexToSquareDisplay() : "[null]";
-                var message = $"{square} is not a valid en passant square with {ActivePlayer.AsString()} to play. Found in BoardState.ValidateEnPassant.";
-                throw new BoardException(BoardExceptionType.BadEnPassant,
-                    message);
             }
         }
 
@@ -234,6 +220,31 @@ namespace ChessLib.Core
             }
 
             return BoardStateStorage == other.BoardStateStorage;
+        }
+
+        private uint GetEnPassantValueFromStorage()
+        {
+            var epInfo = _positions[EnPassantIndexKey];
+            var unMasked = BoardStateStorage & epInfo.Mask;
+            var idx = (ushort)(unMasked >> epInfo.Offset);
+            return idx;
+        }
+
+        internal virtual void ValidateEnPassantSquare(ushort? value)
+        {
+            if (value != null)
+            {
+                var enPassantIndexValidator = new EnPassantSquareIndexRule();
+                var valid = enPassantIndexValidator.Validate(value, ActivePlayer) == BoardExceptionType.None;
+                if (!valid)
+                {
+                    var square = value.Value.IndexToSquareDisplay();
+                    var message =
+                        $"{square} is not a valid en passant square with {ActivePlayer.AsString()} to play. Found in BoardState.ValidateEnPassant.";
+                    throw new BoardException(BoardExceptionType.BadEnPassant,
+                        message);
+                }
+            }
         }
 
         public void InitializeMasks()
@@ -320,12 +331,12 @@ namespace ChessLib.Core
             {
                 return 0;
             }
+
             // if the index is on board rank 3, get offset by subtracting 16, else subtract 32 for offset
             var convertedIndex = epIndex <= 23 ? epIndex - 15 : epIndex - 31;
             var value = (uint)(convertedIndex << 8);
             return value;
         }
-
 
 
         private uint GetFullMoveCounterStorageValue(uint fullMoveCounter)
@@ -343,12 +354,12 @@ namespace ChessLib.Core
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
             GameState gameState = GameState.None)
         {
+            ActivePlayer = activePlayer;
             PieceCaptured = pieceCaptured;
             CastlingAvailability = castlingAvailability;
-            EnPassantIndex = null;
+            EnPassantIndex = enPassantIndex;
             HalfMoveClock = halfMoveClock;
             GameState = gameState;
-            ActivePlayer = activePlayer;
             FullMoveCounter = fullMoveCounter;
         }
 

@@ -29,22 +29,12 @@ namespace ChessLib.Data.Tests.Validators.BoardValidation
         public static void TestEnPassant(string fen, BoardExceptionType expectedException)
         {
             var enPassantValidator =
-                new Core.Validation.Validators.BoardValidation.Rules.EnPassantSquareRule();
-            var board = fen.BoardFromFen(out var activePlayer, out _, out var enPassantIndex, out _, out _, false);
-            var actualExceptionType = enPassantValidator.ValidateEnPassantSquare(board, enPassantIndex, activePlayer);
+                new Core.Validation.Validators.BoardValidation.Rules.EnPassantPositionRule();
+            var board = new Board(fen);
+            var actualExceptionType = enPassantValidator.Validate(board);
             Assert.AreEqual(expectedException, actualExceptionType);
         }
 
-        [Test]
-        public static void ValidateShouldCallValidateEnPassantSquare()
-        {
-            var board = new Board();
-            var epMock = new Mock<Core.Validation.Validators.BoardValidation.Rules.EnPassantSquareRule>();
-            epMock.Setup(
-                    x => x.ValidateEnPassantSquare(It.IsAny<ulong[][]>(), It.IsAny<ushort?>(), It.IsAny<Color>()))
-                .Returns(BoardExceptionType.None).Verifiable();
-            epMock.Object.Validate(board);
-            epMock.Verify(x => x.ValidateEnPassantSquare(board.Occupancy, null, Color.White));
-        }
+       
     }
 }
