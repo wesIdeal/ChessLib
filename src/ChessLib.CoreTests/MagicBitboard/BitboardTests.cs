@@ -16,7 +16,7 @@ namespace ChessLib.Core.Tests.MagicBitboard
             var square = (ushort)testCase.AdditionalInputs[0];
             var attackerColor = (Color?)testCase.AdditionalInputs[1];
             var actual =
-                Bitboard.Instance.PiecesAttackingSquareByColor(testCase.InputValue.Occupancy,
+                Bitboard.Instance.PiecesAttackingSquareByColor(testCase.TestMethodInputValue.Occupancy,
                     square, attackerColor);
             Assert.AreEqual(testCase.ExpectedValue, actual);
         }

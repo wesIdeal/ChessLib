@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
@@ -22,12 +23,12 @@ namespace ChessLib.Core.Helpers
         public static FEN GetFenObject(string fen)
         {
             var fenPieces = fen.Split(' ');
-            var fenValidator = new FENValidator(fen);
-            fenValidator.Validate();
+            var fenValidator = new FENValidator();
+            fenValidator.Validate(fen);
             BoardFromFen(fen, out var ac, out var ca, out var ep, out var hm, out var fm);
             return new FEN
             {
-                PiecePlacement = fenPieces[(int) FENPieces.PiecePlacement],
+                PiecePlacement = fenPieces[(int)FENPieces.PiecePlacement],
                 ActiveColor = ac,
                 CastlingAvailability = ca,
                 EnPassantIndex = ep,
@@ -79,10 +80,10 @@ namespace ChessLib.Core.Helpers
 
             uint pieceIndex = 0;
             var pieces = new ulong[2][];
-            pieces[(int) Color.White] = new ulong[6];
-            pieces[(int) Color.Black] = new ulong[6];
+            pieces[(int)Color.White] = new ulong[6];
+            pieces[(int)Color.Black] = new ulong[6];
             var fenPieces = fen.Split(' ');
-            var piecePlacement = fenPieces[(int) FENPieces.PiecePlacement];
+            var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
             var ranks = piecePlacement.Split('/').Reverse();
             foreach (var rank in ranks)
             {
@@ -96,7 +97,7 @@ namespace ChessLib.Core.Helpers
                             break;
                         case false:
                             var pieceOfColor = PieceHelpers.GetPieceOfColor(f);
-                            pieces[(int) pieceOfColor.Color][(int) pieceOfColor.Piece] |= 1ul << (int) pieceIndex;
+                            pieces[(int)pieceOfColor.Color][(int)pieceOfColor.Piece] |= 1ul << (int)pieceIndex;
                             pieceIndex++;
                             break;
                     }
@@ -124,8 +125,8 @@ namespace ChessLib.Core.Helpers
             var fenPieces = fen.Split(' ');
             if (validate)
             {
-                var validator = new FENValidator(fen);
-                var results = validator.Validate();
+                var validator = new FENValidator();
+                var results = validator.Validate(fen);
                 if (results != FENError.None)
                 {
                     throw new FENException(fen, results);
@@ -133,14 +134,14 @@ namespace ChessLib.Core.Helpers
             }
 
             var pieces = BoardFromFen(fen);
-            activePlayer = GetActiveColor(fenPieces[(int) FENPieces.ActiveColor]);
+            activePlayer = GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
             castlingAvailability = GetCastlingFromString(fen.GetFENPiece(FENPieces.CastlingAvailability));
-            var enPassantStringValue = fenPieces[(int) FENPieces.EnPassantSquare];
+            var enPassantStringValue = fenPieces[(int)FENPieces.EnPassantSquare];
             EnPassantIndexIndex = enPassantStringValue.Trim() == "-"
-                ? (ushort?) null
+                ? (ushort?)null
                 : enPassantStringValue.SquareTextToIndex();
-            halfmoveClock = ushort.Parse(fenPieces[(int) FENPieces.HalfmoveClock]);
-            fullmoveClock = ushort.Parse(fenPieces[(int) FENPieces.FullMoveCounter]);
+            halfmoveClock = ushort.Parse(fenPieces[(int)FENPieces.HalfmoveClock]);
+            fullmoveClock = ushort.Parse(fenPieces[(int)FENPieces.FullMoveCounter]);
             return pieces;
         }
 
@@ -152,7 +153,7 @@ namespace ChessLib.Core.Helpers
         /// <returns>the corresponding board index</returns>
         internal static int BoardIndexToFENIndex(ushort idx)
         {
-            var rankOffset = ((ushort) (idx / 8)).RankCompliment();
+            var rankOffset = ((ushort)(idx / 8)).RankCompliment();
             return rankOffset * 8 + idx % 8;
         }
 
@@ -181,7 +182,7 @@ namespace ChessLib.Core.Helpers
         internal static string GetFENPiece(this string fen, FENPieces piece)
         {
             var fenPieces = fen.Split(' ');
-            return fenPieces[(int) piece];
+            return fenPieces[(int)piece];
         }
 
 
@@ -189,18 +190,18 @@ namespace ChessLib.Core.Helpers
         {
             var pieceSection = new char[64];
             for (var iColor = 0; iColor < 2; iColor++)
-            for (var iPiece = 0; iPiece < 6; iPiece++)
-            {
-                var pieceArray = piecesOnBoard[iColor][iPiece];
-                var charRepForPieceOfColor = PieceHelpers.GetFENCharPieceRepresentation((Color) iColor, (Piece) iPiece);
-                while (pieceArray != 0)
+                for (var iPiece = 0; iPiece < 6; iPiece++)
                 {
-                    var squareIndex = BitHelpers.BitScanForward(pieceArray);
-                    var fenIndex = BoardIndexToFENIndex(squareIndex);
-                    pieceSection[fenIndex] = charRepForPieceOfColor;
-                    pieceArray &= pieceArray - 1;
+                    var pieceArray = piecesOnBoard[iColor][iPiece];
+                    var charRepForPieceOfColor = PieceHelpers.GetFENCharPieceRepresentation((Color)iColor, (Piece)iPiece);
+                    while (pieceArray != 0)
+                    {
+                        var squareIndex = BitHelpers.BitScanForward(pieceArray);
+                        var fenIndex = BoardIndexToFENIndex(squareIndex);
+                        pieceSection[fenIndex] = charRepForPieceOfColor;
+                        pieceArray &= pieceArray - 1;
+                    }
                 }
-            }
 
             var sb = new StringBuilder();
             for (var rank = 0; rank < 8; rank++) //start at PremoveFEN Rank of zero -> 7
@@ -264,25 +265,33 @@ namespace ChessLib.Core.Helpers
             if (castleAvailability == "-") return CastlingAvailability.NoCastlingAvailable;
             if (castleAvailability.Contains('k'))
             {
-                rv |= (int) CastlingAvailability.BlackKingside;
+                rv |= (int)CastlingAvailability.BlackKingside;
             }
 
             if (castleAvailability.Contains('K'))
             {
-                rv |= (int) CastlingAvailability.WhiteKingside;
+                rv |= (int)CastlingAvailability.WhiteKingside;
             }
 
             if (castleAvailability.Contains('q'))
             {
-                rv |= (int) CastlingAvailability.BlackQueenside;
+                rv |= (int)CastlingAvailability.BlackQueenside;
             }
 
             if (castleAvailability.Contains('Q'))
             {
-                rv |= (int) CastlingAvailability.WhiteQueenside;
+                rv |= (int)CastlingAvailability.WhiteQueenside;
             }
 
-            return (CastlingAvailability) rv;
+            return (CastlingAvailability)rv;
+        }
+
+        public static string SanitizeFenString(string fen)
+        {
+            fen = fen.Trim();
+            Regex regex = new Regex("[ ]{2,}", RegexOptions.None);
+            fen = regex.Replace(fen, " ");
+            return fen;
         }
     }
 }

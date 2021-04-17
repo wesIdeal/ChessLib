@@ -76,13 +76,13 @@ namespace ChessLib.Core.Tests
             if (!testCase.ExpectedValue)
             {
                 Assert.Throws(typeof(ArgumentException),
-                    delegate { boardState.PieceCaptured = testCase.InputValue.Value; }, "King should throw exception.");
+                    delegate { boardState.PieceCaptured = testCase.TestMethodInputValue.Value; }, "King should throw exception.");
             }
 
             else
             {
-                boardState.PieceCaptured = testCase.InputValue;
-                Assert.AreEqual(testCase.InputValue, boardState.PieceCaptured);
+                boardState.PieceCaptured = testCase.TestMethodInputValue;
+                Assert.AreEqual(testCase.TestMethodInputValue, boardState.PieceCaptured);
             }
         }
 
@@ -99,8 +99,8 @@ namespace ChessLib.Core.Tests
         [TestCaseSource(nameof(GetGameStateTestCases))]
         public void GetGameStateTest(TestCase<bool, GameState> testCase)
         {
-            var boardState = new BoardState() { GameState = testCase.InputValue };
-            Assert.AreEqual(testCase.InputValue, boardState.GameState, testCase.ToString());
+            var boardState = new BoardState() { GameState = testCase.TestMethodInputValue };
+            Assert.AreEqual(testCase.TestMethodInputValue, boardState.GameState, testCase.ToString());
         }
 
         protected static IEnumerable<TestCase<bool, GameState>> GetGameStateTestCases()
@@ -114,7 +114,7 @@ namespace ChessLib.Core.Tests
         [TestCaseSource(nameof(GetCastlingAbilityTestCases))]
         public void GetCastlingAbilityTest(TestCase<CastlingAvailability, CastlingAvailability> testCase)
         {
-            var boardState = new BoardState() { CastlingAvailability = testCase.InputValue };
+            var boardState = new BoardState() { CastlingAvailability = testCase.TestMethodInputValue };
             Assert.AreEqual(testCase.ExpectedValue, boardState.CastlingAvailability);
         }
 
@@ -135,9 +135,9 @@ namespace ChessLib.Core.Tests
         [TestCaseSource(nameof(GetHalfMoveClockTestCases))]
         public void TestHalfMoveClockTestCases(TestCase<bool, byte> testCase)
         {
-            var boardState = new BoardState() { HalfMoveClock = testCase.InputValue };
+            var boardState = new BoardState() { HalfMoveClock = testCase.TestMethodInputValue };
 
-            Assert.AreEqual(testCase.InputValue, boardState.HalfMoveClock, testCase.ToString());
+            Assert.AreEqual(testCase.TestMethodInputValue, boardState.HalfMoveClock, testCase.ToString());
         }
 
         protected static IEnumerable<TestCase<bool, byte>> GetHalfMoveClockTestCases()
@@ -152,12 +152,12 @@ namespace ChessLib.Core.Tests
             if (!testCase.ExpectedValue)
             {
                 Assert.Throws(typeof(FullMoveCountExceededException),
-                    delegate { boardState.FullMoveCounter = testCase.InputValue; }, string.Format(FullMoveCountExceededException.MessageFormat, testCase.InputValue));
+                    delegate { boardState.FullMoveCounter = testCase.TestMethodInputValue; }, string.Format(FullMoveCountExceededException.MessageFormat, testCase.TestMethodInputValue));
             }
             else
             {
-                boardState.FullMoveCounter = testCase.InputValue;
-                Assert.AreEqual(testCase.InputValue, boardState.FullMoveCounter, testCase.InputValue.ToString());
+                boardState.FullMoveCounter = testCase.TestMethodInputValue;
+                Assert.AreEqual(testCase.TestMethodInputValue, boardState.FullMoveCounter, testCase.TestMethodInputValue.ToString());
             }
         }
 

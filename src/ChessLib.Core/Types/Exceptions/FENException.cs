@@ -24,7 +24,10 @@ namespace ChessLib.Core.Types.Exceptions
         }
 
         public FENException(string fen, FENError fenError)
-                   : base(FormatFENError(fen, fenError)) => FENError = fenError;
+                   : base(FormatFENError(fen, fenError))
+        {
+            FENError = fenError;
+        }
 
         public FENException(string fen, FENError fenError, Exception innerException)
             : base(FormatFENError(fen, fenError), innerException)

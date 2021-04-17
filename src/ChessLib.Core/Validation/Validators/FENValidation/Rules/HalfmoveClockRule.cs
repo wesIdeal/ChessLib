@@ -5,7 +5,7 @@ namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
 {
     public class HalfmoveClockRule : IFENRule
     {
-        public FENError Validate(in string fen)
+        public FENError Validate(string fen)
         {
             var hmClock = fen.GetFENPiece(FENPieces.HalfmoveClock);
             return ValidateHalfmoveClock(hmClock);

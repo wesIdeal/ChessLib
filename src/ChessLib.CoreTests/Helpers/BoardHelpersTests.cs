@@ -49,7 +49,7 @@ namespace ChessLib.Core.Tests.Helpers
         {
             var color = (Color?) testCase.AdditionalInputs.FirstOrDefault();
             var piece = (Piece?) testCase.AdditionalInputs?.Skip(1).FirstOrDefault();
-            var actual = testCase.InputValue.Occupancy(color, piece);
+            var actual = testCase.TestMethodInputValue.Occupancy(color, piece);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.Description);
         }
 
@@ -69,7 +69,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetPieceAtIndexTestCases))]
         public void GetPieceAtIndexTest(TestCase<Piece?, ushort> testCase)
         {
-            var actual = BoardHelpers.GetPieceAtIndex(BoardHelpers.InitialBoard, testCase.InputValue);
+            var actual = BoardHelpers.GetPieceAtIndex(BoardHelpers.InitialBoard, testCase.TestMethodInputValue);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.Description);
         }
 
@@ -87,7 +87,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetPieceOfColorAtIndexTestCases))]
         public void GetPieceOfColorAtIndexTest(TestCase<PieceOfColor?, ushort> testCase)
         {
-            var actual = BoardHelpers.InitialBoard.GetPieceOfColorAtIndex(testCase.InputValue);
+            var actual = BoardHelpers.InitialBoard.GetPieceOfColorAtIndex(testCase.TestMethodInputValue);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.Description);
         }
 
@@ -120,8 +120,8 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetCastlingAvailabilityPostMoveTestCases))]
         public void GetCastlingAvailabilityPostMoveTest(TestCase<CastlingAvailability, Board> testCase)
         {
-            var occupancy = testCase.InputValue.Occupancy;
-            var currentCastlingAvailability = testCase.InputValue.CastlingAvailability;
+            var occupancy = testCase.TestMethodInputValue.Occupancy;
+            var currentCastlingAvailability = testCase.TestMethodInputValue.CastlingAvailability;
             var move = (Move) testCase.AdditionalInputs.Single();
             var actual = BoardHelpers.GetCastlingAvailabilityPostMove(occupancy, move, currentCastlingAvailability);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
@@ -265,7 +265,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetIsEnPassantCaptureAvailableTestCases))]
         public void IsEnPassantCaptureAvailableTest(TestCase<bool, Board> testCase)
         {
-            var actual = testCase.InputValue.IsEnPassantCaptureAvailable();
+            var actual = testCase.TestMethodInputValue.IsEnPassantCaptureAvailable();
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -284,7 +284,7 @@ namespace ChessLib.Core.Tests.Helpers
         public void GetEnPassantIndexTest(TestCase<ushort?, Board> testCase)
         {
             var actual =
-                BoardHelpers.GetEnPassantIndex(testCase.InputValue, (IMove) testCase.AdditionalInputs.Single());
+                BoardHelpers.GetEnPassantIndex(testCase.TestMethodInputValue, (IMove) testCase.AdditionalInputs.Single());
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -310,7 +310,7 @@ namespace ChessLib.Core.Tests.Helpers
         public void ApplyMoveToBoardTest(TestCase<Board, Board> testCase)
         {
             var expected = testCase.ExpectedValue;
-            var actual = (Board) testCase.InputValue.ApplyMoveToBoard((IMove) testCase.AdditionalInputs.Single());
+            var actual = (Board) testCase.TestMethodInputValue.ApplyMoveToBoard((IMove) testCase.AdditionalInputs.Single());
             Assert.AreEqual(expected.CurrentFEN, actual.CurrentFEN, testCase.ToString());
         }
 
@@ -366,8 +366,8 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetCheckTypeTestCases))]
         public void GetCheckTypeTest(TestCase<BoardHelpers.CheckType, Board> testCase)
         {
-            var occupancy = testCase.InputValue.Occupancy;
-            var color = testCase.InputValue.ActivePlayer;
+            var occupancy = testCase.TestMethodInputValue.Occupancy;
+            var color = testCase.TestMethodInputValue.ActivePlayer;
             var actual = BoardHelpers.GetCheckType(occupancy, color, out _);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
@@ -413,8 +413,8 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetIsStalemateTestCases))]
         public void IsStalemateTest(TestCase<bool, Board> testCase)
         {
-            var actual = BoardHelpers.IsStalemate(testCase.InputValue.Occupancy, testCase.InputValue.ActivePlayer,
-                testCase.InputValue.EnPassantIndex, testCase.InputValue.CastlingAvailability);
+            var actual = BoardHelpers.IsStalemate(testCase.TestMethodInputValue.Occupancy, testCase.TestMethodInputValue.ActivePlayer,
+                testCase.TestMethodInputValue.EnPassantIndex, testCase.TestMethodInputValue.CastlingAvailability);
             Assert.AreEqual(testCase.ExpectedValue, actual);
         }
 
@@ -445,7 +445,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetIsCheckmateTestCases))]
         public void IsCheckmateTest(TestCase<bool, Board> testCase)
         {
-            var actual = BoardHelpers.IsCheckmate(testCase.InputValue);
+            var actual = BoardHelpers.IsCheckmate(testCase.TestMethodInputValue);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -507,7 +507,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetMoveTypeTestCases))]
         public void GetMoveTypeTest(TestCase<MoveType, Board> testCase)
         {
-            var actual = BoardHelpers.GetMoveType(testCase.InputValue, (ushort) testCase.AdditionalInputs[0],
+            var actual = BoardHelpers.GetMoveType(testCase.TestMethodInputValue, (ushort) testCase.AdditionalInputs[0],
                 (ushort) testCase.AdditionalInputs[1]);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
@@ -547,7 +547,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetSquareToIndexTestCases))]
         public void SquareTextToIndexTest(TestCase<ushort, string> testCase)
         {
-            var actual = testCase.InputValue.SquareTextToIndex();
+            var actual = testCase.TestMethodInputValue.SquareTextToIndex();
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -573,7 +573,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetFileTestCases))]
         public void GetFileTest(TestCase<ushort, ushort> testCase)
         {
-            var actual = testCase.InputValue.GetFile();
+            var actual = testCase.TestMethodInputValue.GetFile();
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -596,7 +596,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetRankTestCases))]
         public void GetRankTest(TestCase<ushort, ushort> testCase)
         {
-            var actual = testCase.InputValue.GetRank();
+            var actual = testCase.TestMethodInputValue.GetRank();
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 

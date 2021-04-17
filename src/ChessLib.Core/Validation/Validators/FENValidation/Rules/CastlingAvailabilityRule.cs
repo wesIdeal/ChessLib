@@ -7,7 +7,7 @@ namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
     public class CastlingAvailabilityRule : IFENRule
     {
         private static readonly char[] ValidCastlingStringChars = { 'k', 'K', 'q', 'Q' };
-        public FENError Validate(in string fen)
+        public FENError Validate(string fen)
         {
             var castlingAvailability = fen.GetFENPiece(FENPieces.CastlingAvailability);
             return ValidateCastlingAvailabilityString(castlingAvailability);

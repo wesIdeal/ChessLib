@@ -16,28 +16,11 @@ namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
     [TestFixture()]
     public class EnPassantSquareRuleTests
     {
-        [Test()]
-        public void ValidateTest()
-        {
-            Assert.Fail();
-        }
-
-        [Test()]
-        public void ValidateEnPassantSquareTest()
-        {
-            Assert.Fail();
-        }
-
         [TestCaseSource(nameof(GetIsValidEnPassantSquareTestCases))]
         public void TestIBoardStateValidation(TestCase<BoardExceptionType, ushort?> testCase)
         {
             var enPassantSquareRule = new EnPassantSquareIndexRule();
-            var board = new BoardState()
-            {
-                ActivePlayer = (Color) testCase.AdditionalInputs.Single(), 
-                EnPassantIndex = testCase.InputValue
-            };
-            var actual = enPassantSquareRule.Validate(board);
+            var actual = enPassantSquareRule.Validate(testCase.TestMethodInputValue, (Color)testCase.AdditionalInputs.Single());
             Assert.AreEqual(testCase.ExpectedValue, actual);
         }
 

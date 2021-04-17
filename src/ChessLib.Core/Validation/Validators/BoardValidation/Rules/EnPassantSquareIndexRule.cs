@@ -21,7 +21,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
             return Validate(enPassantSquare, activeColor);
         }
 
-        public virtual BoardExceptionType Validate(ushort? enPassantSquare, Color activeColor)
+        internal virtual BoardExceptionType Validate(ushort? enPassantSquare, Color activeColor)
         {
             if (enPassantSquare == null)
             {

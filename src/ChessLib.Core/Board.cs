@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.BoardValidation;
+using EnumsNET;
 
 namespace ChessLib.Core
 {
     public class Board : BoardState, IEquatable<Board>, IBoard
     {
         protected readonly IBoardValidator BoardValidator;
-        public Board(IBoardValidator boardValidator = null)
+
+        
+        public Board(IBoardValidator boardValidator = null) : base(FENHelpers.FENInitial)
         {
             BoardValidator = boardValidator ?? new BoardValidator();
             Occupancy = new ulong[2][];
@@ -35,12 +40,15 @@ namespace ChessLib.Core
         public Board(ulong[][] occupancy, byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
             IBoardValidator boardValidator = null)
-        : this(occupancy, halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter, true, boardValidator)
+            : this(occupancy, halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer,
+                fullMoveCounter, true, boardValidator)
 
-        { }
+        {
+        }
 
         internal Board(ulong[][] occupancy, byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
-            CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter, bool validateBoard = true,
+            CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
+            bool validateBoard = true,
             IBoardValidator boardValidator = null)
             : base(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter)
         {
@@ -64,7 +72,7 @@ namespace ChessLib.Core
             var clonedOccupancy = CloneOccupancy();
             var activePlayerColor = ActivePlayer;
             return new Board(clonedOccupancy, HalfMoveClock, EnPassantIndex, PieceCaptured, CastlingAvailability,
-                activePlayerColor, FullMoveCounter, false, this.BoardValidator);
+                activePlayerColor, FullMoveCounter, false, BoardValidator);
         }
 
 
@@ -76,34 +84,71 @@ namespace ChessLib.Core
         }
 
 
-        public bool Equals(Board other)
+        public virtual bool Equals(Board otherBoard)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            var boardStateEquality = base.Equals(other);
-            var whitePiecesEquality = Occupancy[(int)Color.White].Select((b, i) => new { Occ = b, Idx = i })
-                .All(x => x.Occ == other.Occupancy[(int)Color.White][x.Idx]);
-            var blackPiecesEquality = Occupancy[(int)Color.Black].Select((b, i) => new { Occ = b, Idx = i })
-                .All(x => x.Occ == other.Occupancy[(int)Color.Black][x.Idx]);
-            return boardStateEquality && whitePiecesEquality && blackPiecesEquality;
+            if (ReferenceEquals(null, otherBoard) || GetType() != otherBoard.GetType())
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, otherBoard))
+            {
+                return true;
+            }
+            
+            if (Occupancy.Occupancy() != otherBoard.Occupancy.Occupancy())
+            {
+                return false;
+            }
+            var returnValue = true;
+            Parallel.ForEach(BoardConstants.AllColorIndexes, (color, state) =>
+            {
+                var thisColorOccupancy = Occupancy[color];
+                var otherColorOccupancy = otherBoard.Occupancy[color];
+                var pieceEquality = CheckPieceEquality(thisColorOccupancy, otherColorOccupancy);
+                if (!pieceEquality)
+                {
+                    state.Stop();
+                    returnValue = false;
+                }
+            });
+
+            return returnValue;
+        }
+
+        private static bool CheckPieceEquality(ulong[] thesePieces, ulong[] otherPieces)
+        {
+            Debug.Assert(thesePieces.Length == otherPieces.Length && otherPieces.Length == 6);
+            var returnVal = true;
+            Parallel.ForEach(BoardConstants.AllPieceIndexes, (pieceValue, state) =>
+            {
+                var otherPieceValue = otherPieces[pieceValue];
+                var thesePieceValue = thesePieces[pieceValue];
+                if (thesePieceValue != otherPieceValue)
+                {
+                    returnVal = false;
+                    state.Break();
+                }
+            });
+
+            return returnVal;
         }
 
         private void Validate()
         {
-
             var validationResult = BoardValidator.Validate(this);
             if (validationResult != BoardExceptionType.None)
             {
                 switch (validationResult)
                 {
                     case BoardExceptionType.Checkmate:
-                        this.GameState = GameState.Checkmate;
+                        GameState = GameState.Checkmate;
                         break;
                     case BoardExceptionType.MaterialDraw:
-                        this.GameState = GameState.Drawn;
+                        GameState = GameState.Drawn;
                         break;
                     case BoardExceptionType.Stalemate:
-                        this.GameState = GameState.StaleMate;
+                        GameState = GameState.StaleMate;
                         break;
                     default:
                         throw new BoardException(validationResult, "Invalid board setup.");
@@ -157,18 +202,18 @@ namespace ChessLib.Core
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((Board)obj);
+            var otherBoard = obj as Board;
+            return Equals(otherBoard);
         }
 
         public override int GetHashCode()
         {
-            unchecked
+            if (Occupancy != null)
             {
-                return (base.GetHashCode() * 397) ^ (Occupancy != null ? Occupancy.GetHashCode() : 0);
+                return Occupancy.GetHashCode();
             }
+
+            return 0;
         }
     }
 }

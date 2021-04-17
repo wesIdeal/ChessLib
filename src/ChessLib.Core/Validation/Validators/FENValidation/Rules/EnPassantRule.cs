@@ -5,7 +5,7 @@ namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
 {
     public class EnPassantRule : IFENRule
     {
-        public FENError Validate(in string fen)
+        public FENError Validate(string fen)
         {
             var ep = fen.GetFENPiece(FENPieces.EnPassantSquare);
             return ValidateEnPassantSquare(ep);

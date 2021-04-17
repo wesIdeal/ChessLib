@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Types.Enums;
+using EnumsNET;
 
 namespace ChessLib.Core.MagicBitboard.Bitwise
 {
@@ -164,5 +166,10 @@ namespace ChessLib.Core.MagicBitboard.Bitwise
         public const int Black = (int)Color.Black;
 
         public static IEnumerable<ushort> AllSquares => AllSquareIndexes;
+        public static IEnumerable<Piece> AllPieces => Enums.GetValues<Piece>();
+
+        public static IEnumerable<int> AllPieceIndexes => AllPieces.Cast<int>();
+        public static IEnumerable<Color> AllColors => Enums.GetValues<Color>();
+        public static IEnumerable<int> AllColorIndexes => AllColors.Cast<int>();
     }
 }

@@ -1,23 +1,26 @@
-﻿using ChessLib.Core.Types.Enums;
+﻿using ChessLib.Core.Helpers;
+using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
 {
     public class FENStructureRule : IFENRule
     {
-        public FENError Validate(in string fen)
+        public const char SeperationCharacter = ' ';
+        public FENError Validate(string fen)
         {
-            if (string.IsNullOrEmpty(fen)
-                || fen.Split(' ').Length != 6)
+            fen = FENHelpers.SanitizeFenString(fen);
+            if (string.IsNullOrEmpty(fen))
+            {
+                return FENError.InvalidFENString;
+            }
+
+            var splitSectionsLength = fen.Split(SeperationCharacter).Length;
+            if (splitSectionsLength != 6)
             {
                 return FENError.InvalidFENString;
             }
 
             return FENError.None;
-        }
-
-        public static void ValidateFENStructure(string fen)
-        {
-
         }
     }
 }

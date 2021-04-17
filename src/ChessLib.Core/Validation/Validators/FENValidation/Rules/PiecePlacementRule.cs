@@ -9,7 +9,7 @@ namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
     {
         private static readonly char[] ValidFENChars = { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
         private string _piecePlacement = "";
-        public FENError Validate(in string fen)
+        public FENError Validate(string fen)
         {
             _piecePlacement = fen.GetFENPiece(FENPieces.PiecePlacement);
             FENError fenError = FENError.None;

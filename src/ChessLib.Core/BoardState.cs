@@ -35,7 +35,6 @@ namespace ChessLib.Core
         public BoardState()
         {
             BoardStateStorage = 0;
-            
             InitializeMasks();
         }
 
