@@ -6,7 +6,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 {
     public class PieceCountRule : IBoardRule
     {
-        public BoardExceptionType Validate(in IBoard boardInfo)
+        public BoardExceptionType Validate(in Board boardInfo)
         {
             var rv = BoardExceptionType.None;
             if (boardInfo.Occupancy.Occupancy(Color.White).CountSetBits() > 16)

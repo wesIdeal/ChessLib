@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
-using ChessLib.Core.Services;
+using ChessLib.Core.Parse;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
@@ -16,7 +16,7 @@ using EnumsNET;
 
 namespace ChessLib.Core
 {
-    public class BoardState : IBoardState, IEquatable<BoardState>
+    public class BoardState
     {
         private const string HalfMoveClockKey = "HMCLOCK";
         private const string CastlingAvailabilityKey = "CA";
@@ -59,9 +59,8 @@ namespace ChessLib.Core
 
         protected BoardState(string strFen) : this()
         {
-            var fenReader = new FenReader();
-            var fen = fenReader.GetFenObject(strFen);
-            SetBoardState((byte)fen.HalfmoveClock, fen.EnPassantIndex, null, fen.CastlingAvailability, fen.ActiveColor, fen.FullmoveClock);
+            var fen = new FenTextToBoard().Translate(strFen);
+            SetBoardState((byte)fen.HalfMoveClock, fen.EnPassantIndex, null, fen.CastlingAvailability, fen.ActivePlayer, fen.FullMoveCounter);
         }
 
         private BoardState(uint boardStateStorage)
@@ -70,13 +69,16 @@ namespace ChessLib.Core
         }
 
 
-        public bool Equals(IBoardState other)
-        {
-            if (other == null) return false;
-            return BoardStateStorage == other.BoardStateStorage;
-        }
-
-
+        /// <summary>
+        ///     FIELD               [bit index, from smallest]
+        ///     Half MoveValue Clock     [Bits 0 - 7]
+        ///     En Passant Index    [Bits 8 - 12] 0-based index for board ranks 3 and 6, A3-H3, A6-H6
+        ///     Castling Rights     [Bits 13 - 15]
+        ///     Captured Piece      [Bits 17 - 19] 1-5 (pawn - Queen, 0 for none)
+        ///     GameState           [Bits 20 - 21]
+        ///     Full MoveValue Count     [Bits 22 - 30]
+        ///     Active Color        [Bit  31]
+        /// </summary>
         public uint BoardStateStorage { get; set; }
 
         public GameState GameState

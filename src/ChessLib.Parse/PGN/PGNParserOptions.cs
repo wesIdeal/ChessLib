@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
-using ChessLib.Core.Services;
 using ChessLib.Data;
 using ChessLib.Data.Helpers;
 
@@ -10,7 +9,7 @@ namespace ChessLib.Parse.PGN
     public class PGNParserOptions
     {
         private string _fenFilter;
-        private FEN _fenObject;
+        private Fen _fenObject;
         private bool _ignoreVariations;
 
         /// <summary>

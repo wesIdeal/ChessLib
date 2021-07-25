@@ -8,7 +8,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
 {
     public class KingNotInCheckAfterMove : IMoveRule
     {
-        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             var activeKingIndex = postMoveBoard[(int)boardInfo.ActivePlayer][(int)Piece.King].GetSetBits()[0];
             var isKingSquareAttacked =

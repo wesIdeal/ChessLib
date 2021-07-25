@@ -7,14 +7,14 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 {
     public class EnPassantSquareIndexRule : IEnPassantSquareRule
     {
-        public BoardExceptionType Validate(in IBoard boardState)
+        public BoardExceptionType Validate(in Board boardState)
         {
             var enPassantSquare = boardState.EnPassantIndex;
             var activeColor = boardState.ActivePlayer;
             return Validate(enPassantSquare, activeColor);
         }
 
-        public BoardExceptionType Validate(IBoardState boardState)
+        public BoardExceptionType Validate(BoardState boardState)
         {
             var enPassantSquare = boardState.EnPassantIndex;
             var activeColor = boardState.ActivePlayer;
@@ -37,6 +37,5 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 
             return BoardExceptionType.BadEnPassant;
         }
-
     }
 }

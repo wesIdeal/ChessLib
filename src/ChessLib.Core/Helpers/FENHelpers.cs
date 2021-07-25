@@ -2,7 +2,6 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
@@ -18,7 +17,7 @@ namespace ChessLib.Core.Helpers
 
       
 
-        internal static string FENFromBoard(this IBoard board)
+        internal static string FENFromBoard(this Board board)
         {
             return
                 $"{board.Occupancy.GetPiecePlacement()} {board.ActivePlayer.GetFENSideToMoveStrRepresentation()} {MakeCastlingAvailabilityStringFromBitFlags(board.CastlingAvailability)} {GetFENEnPassantString(board.EnPassantIndex)} {board.HalfMoveClock} {board.FullMoveCounter}";

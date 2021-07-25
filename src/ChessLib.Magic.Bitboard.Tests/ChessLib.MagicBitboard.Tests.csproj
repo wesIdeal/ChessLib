@@ -15,10 +15,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Graphics\ChessLib.Graphics.csproj" />
-    <ProjectReference Include="..\ChessLib.MagicBitboard\ChessLib.MagicBitboard.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Bitwise\" />
     <Folder Include="MovingPieces\" />
   </ItemGroup>
 

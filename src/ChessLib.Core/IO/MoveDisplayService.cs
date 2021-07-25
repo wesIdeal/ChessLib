@@ -2,17 +2,17 @@
 using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Parse;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Interfaces;
 
-namespace ChessLib.Core.Services
+namespace ChessLib.Core.IO
 {
     public class MoveDisplayService
     {
-        protected IBoard Board;
+        protected Board Board;
 
-        public MoveDisplayService(IBoard board)
+        public MoveDisplayService(Board board)
         {
             Initialize(board);
         }
@@ -24,21 +24,29 @@ namespace ChessLib.Core.Services
 
         public void Initialize(string fen)
         {
-            Board = new FenReader().GetBoard(fen);
+            Board = new FenTextToBoard().Translate(fen);
         }
 
-        public void Initialize(IBoard board)
+        public void Initialize(Board board)
         {
-            Board = (IBoard)board.Clone();
+            Board = (Board) board.Clone();
         }
-        public static string MoveToLan(Move move) => $"{move.SourceIndex.IndexToSquareDisplay()}{move.DestinationIndex.IndexToSquareDisplay()}{PromotionPieceChar(move)}";
 
-        private static char? PromotionPieceChar(Move move) =>
-            move.MoveType == MoveType.Promotion ?
-                char.ToLower(PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece)) : (char?)null;
+        public static string MoveToLan(Move move)
+        {
+            return
+                $"{move.SourceIndex.IndexToSquareDisplay()}{move.DestinationIndex.IndexToSquareDisplay()}{PromotionPieceChar(move)}";
+        }
+
+        private static char? PromotionPieceChar(Move move)
+        {
+            return move.MoveType == MoveType.Promotion
+                ? char.ToLower(PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece))
+                : (char?) null;
+        }
 
         /// <summary>
-        /// Gets a Standard Algebraic Notation string from a move.
+        ///     Gets a Standard Algebraic Notation string from a move.
         /// </summary>
         /// <param name="move">move to convert</param>
         /// <param name="recordResult">if true, the game result is included with the SAN (ie. 1-0, 1/2-1/2, 0-1)</param>
@@ -54,11 +62,14 @@ namespace ChessLib.Core.Services
 
                 return "O-O";
             }
+
             var activePlayer = Board.ActivePlayer;
             var preMoveBoard = Board.Occupancy;
-            
+
             var srcPiece = preMoveBoard.GetPieceOfColorAtIndex(move.SourceIndex)?.Piece;
-            if (srcPiece == null) throw new MoveException("No piece at source index.", MoveError.ActivePlayerHasNoPieceOnSourceSquare, move, activePlayer);
+            if (srcPiece == null)
+                throw new MoveException("No piece at source index.", MoveError.ActivePlayerHasNoPieceOnSourceSquare,
+                    move, activePlayer);
             var strSrcPiece = GetSANSourceString(move, srcPiece.Value);
             move.DestinationIndex.IndexToSquareDisplay();
 
@@ -85,18 +96,22 @@ namespace ChessLib.Core.Services
                     checkInfo = "#";
                     if (recordResult)
                     {
-                        result = (activePlayer == Color.White ? "1-0" : "0-1");
+                        result = activePlayer == Color.White ? "1-0" : "0-1";
                     }
                 }
             }
             else if (recordResult)
             {
-
-                result = BoardHelpers.IsStalemate(board.Occupancy, board.ActivePlayer, board.EnPassantIndex, board.CastlingAvailability) ? "1/2-1/2" : "";
+                result = BoardHelpers.IsStalemate(board.Occupancy, board.ActivePlayer, board.EnPassantIndex,
+                    board.CastlingAvailability)
+                    ? "1/2-1/2"
+                    : "";
             }
 
             //Get piece representation
-            return $"{strSrcPiece}{capture}{move.DestinationIndex.IndexToSquareDisplay()}{promotionInfo}{checkInfo} {result}".Trim();
+            return
+                $"{strSrcPiece}{capture}{move.DestinationIndex.IndexToSquareDisplay()}{promotionInfo}{checkInfo} {result}"
+                    .Trim();
         }
 
         internal string GetSANSourceString(Move move, Piece src)
@@ -105,11 +120,14 @@ namespace ChessLib.Core.Services
             {
                 return "K";
             }
+
             if (src == Piece.Pawn)
             {
                 //if the move was an En Passant or a capture, return the file letter
-                return move.MoveType == MoveType.EnPassant || (move.SourceIndex.GetFile() != move.DestinationIndex.GetFile())
-                    ? move.SourceIndex.IndexToFileDisplay().ToString() : "";
+                return move.MoveType == MoveType.EnPassant ||
+                       move.SourceIndex.GetFile() != move.DestinationIndex.GetFile()
+                    ? move.SourceIndex.IndexToFileDisplay().ToString()
+                    : "";
             }
 
             var strSrcPiece = src.GetCharRepresentation().ToString().ToUpper();
@@ -137,14 +155,13 @@ namespace ChessLib.Core.Services
             {
                 return strSrcPiece + move.SourceIndex.IndexToFileDisplay();
             }
-            else if (!duplicateRanks)
+
+            if (!duplicateRanks)
             {
                 return strSrcPiece + move.SourceIndex.IndexToRankDisplay();
             }
-            else
-            {
-                return strSrcPiece + move.SourceIndex.IndexToSquareDisplay();
-            }
+
+            return strSrcPiece + move.SourceIndex.IndexToSquareDisplay();
         }
     }
 }

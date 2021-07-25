@@ -15,10 +15,10 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
 
         readonly List<IMoveRule> _rules = new List<IMoveRule>();
         public readonly ulong[][] PostMoveBoard;
-        private readonly IBoard _board;
+        private readonly Board _board;
         private readonly IMove _move;
 
-        public MoveValidator(in IBoard board, in IMove move)
+        public MoveValidator(in Board board, in IMove move)
         {
             _board = board;
             _move = move;

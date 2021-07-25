@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
-using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
 using NUnit.Framework;

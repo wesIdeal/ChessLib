@@ -7,7 +7,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.EnPassantRules
 {
     public class SourceIsPawn : IMoveRule
     {
-        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             var isPawn = (boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer, Piece.Pawn) & move.SourceValue) != 0;
             return isPawn ? MoveError.NoneSet : MoveError.EpSourceIsNotPawn;

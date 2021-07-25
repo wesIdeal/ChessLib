@@ -9,7 +9,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
     public class EndOfGameRule : IBoardRule
     {
 
-        public BoardExceptionType Validate(in IBoard boardInfo)
+        public BoardExceptionType Validate(in Board boardInfo)
         {
             if (BoardHelpers.IsDrawn(boardInfo.Occupancy))
             {

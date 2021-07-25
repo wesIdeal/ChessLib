@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ChessLib.Core.Services;
+using ChessLib.Core.Parse;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
 
@@ -237,14 +237,12 @@ namespace ChessLib.Core.Helpers
             Turn = Random64.Skip(780).Take(1).ToArray();
         }
 
-        // <summary>
-        /// Gets the hash of a board state, based on polyglot specs
-        /// </summary>
+        // <summary>Gets the hash of a board state, based on polyglot specs </summary>
         /// <param name="fen">FEN of the board state to hash</param>
         /// <returns>ulong representing the hash of the board</returns>
         public static ulong GetBoardStateHash(string fen)
         {
-            return GetBoardStateHash(new FenReader().GetBoard(fen));
+            return GetBoardStateHash(new FenTextToBoard().Translate(fen));
         }
 
         /// <summary>
@@ -340,7 +338,6 @@ namespace ChessLib.Core.Helpers
         }
 
 
-
         private static ulong GetPieceValue(PieceOfColor poc, ushort boardIndexOfPiece)
         {
             Debug.Assert(boardIndexOfPiece < 64);
@@ -352,21 +349,20 @@ namespace ChessLib.Core.Helpers
 
     public class PolyglotMove
     {
-        private ushort _move;
-        public ushort Move => _move;
-
-        public ushort SourceIndex => (ushort)((((_move >> 9) & 255) * 8) + ((_move >> 6) & 255));
-        public ushort DestIndex => (ushort)((((_move >> 6) & 255) * 8) + (_move & 255));
-
         public PolyglotMove(ushort polyglotMove)
         {
-            _move = polyglotMove;
+            Move = polyglotMove;
         }
 
         public PolyglotMove(IMove move)
         {
-            _move = GetEncodedMove(move);
+            Move = GetEncodedMove(move);
         }
+
+        public ushort Move { get; }
+
+        public ushort SourceIndex => (ushort)(((Move >> 9) & 255) * 8 + ((Move >> 6) & 255));
+        public ushort DestIndex => (ushort)(((Move >> 6) & 255) * 8 + (Move & 255));
 
         public PolyglotMove FromUshortMove(ushort move)
         {
@@ -442,7 +438,9 @@ namespace ChessLib.Core.Helpers
             return (ushort)(promotionPiece + 1);
         }
 
-        public override string ToString() =>
-            $"{SourceIndex.IndexToSquareDisplay()}->{DestIndex.IndexToSquareDisplay()}";
+        public override string ToString()
+        {
+            return $"{SourceIndex.IndexToSquareDisplay()}->{DestIndex.IndexToSquareDisplay()}";
+        }
     }
 }

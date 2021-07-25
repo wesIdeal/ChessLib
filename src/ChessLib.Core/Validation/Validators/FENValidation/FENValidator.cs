@@ -8,7 +8,6 @@ namespace ChessLib.Core.Validation.Validators.FENValidation
 {
     public class FENValidator
     {
-        private readonly string _fen;
         private readonly List<IFENRule> _rules = new List<IFENRule>();
 
         public FENValidator()
@@ -26,6 +25,7 @@ namespace ChessLib.Core.Validation.Validators.FENValidation
         {
             _rules.AddRange(fenRules);
         }
+
         public FENError Validate(string fen)
         {
             fen = FENHelpers.SanitizeFenString(fen);
@@ -34,9 +34,10 @@ namespace ChessLib.Core.Validation.Validators.FENValidation
                 var rv = rule.Validate(fen);
                 if (rv != FENError.None)
                 {
-                    throw new FENException(_fen, rv);
+                    throw new FENException(fen, rv);
                 }
             }
+
             return FENError.None;
         }
     }

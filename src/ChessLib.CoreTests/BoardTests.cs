@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
-using ChessLib.Core.Services;
 using ChessLib.Core.Tests.Helpers;
 using ChessLib.Core.Types.Enums;
 using EnumsNET;

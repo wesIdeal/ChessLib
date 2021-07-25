@@ -282,7 +282,7 @@ namespace ChessLib.Core.Helpers
         /// </summary>
         /// <param name="board"></param>
         /// <param name="move"></param>
-        public static ushort? GetEnPassantIndex(IBoard board, IMove move)
+        public static ushort? GetEnPassantIndex(Board board, IMove move)
         {
             var pieceOfColor = GetPieceOfColorAtIndex(board.Occupancy, move.SourceIndex);
             if (!pieceOfColor.HasValue || pieceOfColor.Value.Piece != Piece.Pawn)
@@ -326,9 +326,9 @@ namespace ChessLib.Core.Helpers
         /// <param name="bypassMoveValidation">Bypass validation; useful when move was previously validated</param>
         /// <returns>The board after the move has been applied.</returns>
         /// <exception cref="MoveException">If no piece exists at source.</exception>
-        public static IBoard ApplyMoveToBoard(this IBoard currentBoard, in IMove move)
+        public static Board ApplyMoveToBoard(this Board currentBoard, in IMove move)
         {
-            var board = (IBoard)currentBoard.Clone();
+            var board = (Board)currentBoard.Clone();
 
             var moveValidator = new MoveValidator(board, move);
             var validationError = moveValidator.Validate();
@@ -362,9 +362,9 @@ namespace ChessLib.Core.Helpers
         /// <param name="boardInfo"></param>
         /// <param name="move"></param>
         /// <returns></returns>
-        public static ulong[][] GetBoardPostMove(in IBoard boardInfo, in IMove move)
+        public static ulong[][] GetBoardPostMove(in Board boardInfo, in IMove move)
         {
-            var board = (IBoard)boardInfo.Clone();
+            var board = (Board)boardInfo.Clone();
             var pieces = board.Occupancy;
             var activeColor = (int)board.ActivePlayer;
             var oppColor = activeColor ^ 1;
@@ -497,7 +497,7 @@ namespace ChessLib.Core.Helpers
         ///     Determines if active player has been mated
         /// </summary>
         /// <returns></returns>
-        public static bool IsCheckmate(IBoard board)
+        public static bool IsCheckmate(Board board)
         {
             var occupancy = board.Occupancy;
             var activeColor = board.ActivePlayer;
@@ -536,7 +536,7 @@ namespace ChessLib.Core.Helpers
             return true;
         }
 
-        private static bool CanAttackBeBlocked(IBoard board, ushort indexOfAttackedPiece, ushort attackingPieceIndex,
+        private static bool CanAttackBeBlocked(Board board, ushort indexOfAttackedPiece, ushort attackingPieceIndex,
             ulong[][] occupancy, Color activeColor)
         {
             var squaresBetweenKingAndAttackingPiece = InBetween(indexOfAttackedPiece, attackingPieceIndex);
@@ -598,7 +598,7 @@ namespace ChessLib.Core.Helpers
         /// <param name="dest">Destination Index</param>
         /// <returns>The type of move represented by the given parameters</returns>
         /// <exception cref="PieceException">Thrown if there is no piece on the source square.</exception>
-        public static MoveType GetMoveType(in IBoard boardInfo, ushort source, ushort dest)
+        public static MoveType GetMoveType(in Board boardInfo, ushort source, ushort dest)
         {
             var relevantPieces = new[] { Piece.Pawn, Piece.King };
             var sourcePiece = GetPieceOfColorAtIndex(boardInfo.Occupancy, source);

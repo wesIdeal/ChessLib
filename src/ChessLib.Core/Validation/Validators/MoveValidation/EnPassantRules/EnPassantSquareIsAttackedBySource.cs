@@ -8,7 +8,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.EnPassantRules
 {
     public class EnPassantSquareIsAttackedBySource : IMoveRule
     {
-        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             var pawnAttacksFromSquare = Bitboard.Instance.GetAttackedSquares(Piece.Pawn, move.SourceIndex,
                 boardInfo.Occupancy.Occupancy(), boardInfo.ActivePlayer);

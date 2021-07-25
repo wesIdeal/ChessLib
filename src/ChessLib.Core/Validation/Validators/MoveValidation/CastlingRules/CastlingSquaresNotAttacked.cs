@@ -8,7 +8,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
 {
     public class CastlingSquaresNotAttacked : IMoveRule
     {
-        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             if (IsKingsPathInCheck(boardInfo.ActivePlayer.Toggle(), boardInfo.Occupancy, move))
             {

@@ -7,7 +7,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
 {
     public class CastlingHasNoPiecesBlocking : IMoveRule
     {
-        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             ulong piecesBetween;
             if (boardInfo.ActivePlayer == Color.Black)
@@ -32,11 +32,12 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
                     return MoveError.CastleBadDestinationSquare;
                 }
             }
-           
+
             if ((boardInfo.Occupancy.Occupancy() & piecesBetween) != 0)
             {
                 return MoveError.CastleOccupancyBetween;
             }
+
             return MoveError.NoneSet;
         }
     }

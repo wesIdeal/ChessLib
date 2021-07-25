@@ -1,6 +1,5 @@
 ﻿using System;
 using ChessLib.Core.Helpers;
-using ChessLib.Core.Services;
 using ChessLib.Core.Types.Exceptions;
 using NUnit.Framework;
 

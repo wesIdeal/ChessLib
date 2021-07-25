@@ -9,7 +9,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 {
     public interface IEnPassantSquareRule : IBoardRule
     {
-        BoardExceptionType Validate(IBoardState boardState);
+        BoardExceptionType Validate(BoardState boardState);
     }
 
     /// <summary>
@@ -17,7 +17,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
     /// </summary>
     public class EnPassantPositionRule : IBoardRule
     {
-        public BoardExceptionType Validate(in IBoard boardInfo)
+        public BoardExceptionType Validate(in Board boardInfo)
         {
             return ValidateEnPassantSquare(boardInfo.Occupancy, boardInfo.EnPassantIndex, boardInfo.ActivePlayer);
         }
@@ -31,9 +31,8 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
                 return BoardExceptionType.None;
             }
 
-        
 
-            if (occupancy != null && occupancy.Occupancy() != 0)    
+            if (occupancy != null && occupancy.Occupancy() != 0)
             {
                 var isPawnPresentNorthOfEnPassantSquare =
                     IsPawnPresentNorthOfEnPassantSquare(occupancy, enPassantSquare, activeColor);
@@ -45,7 +44,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 
             return BoardExceptionType.None;
         }
-        
+
         private static bool IsPawnPresentNorthOfEnPassantSquare(ulong[][] occupancy, ushort? enPassantSquare,
             Color activeColor)
         {

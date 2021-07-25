@@ -6,7 +6,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.EnPassantRules
 {
     public class SourceIsCorrectRank : IMoveRule
     {
-        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             var rank = move.SourceIndex / 8;
             var error = MoveError.EpWrongSourceRank;

@@ -9,7 +9,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
         /// <summary>
         /// Validates castling move with availability flags
         /// </summary>
-        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             CastlingAvailability? castleChar;
             switch (move.DestinationIndex)

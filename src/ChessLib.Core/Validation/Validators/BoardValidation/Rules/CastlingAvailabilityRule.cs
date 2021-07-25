@@ -6,8 +6,8 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 {
     public class CastlingAvailabilityRule : IBoardRule
     {
-      
-        public BoardExceptionType Validate(in IBoard boardInfo)
+
+        public BoardExceptionType Validate(in Board boardInfo)
         {
             var rv = BoardExceptionType.None;
             var castlingAvailability = boardInfo.CastlingAvailability;

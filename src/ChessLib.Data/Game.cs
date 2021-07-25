@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
-using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums.NAG;
 
 #endregion

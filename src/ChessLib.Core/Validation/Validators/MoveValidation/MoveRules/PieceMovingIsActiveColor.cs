@@ -6,7 +6,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
 {
     public class PieceMovingIsActiveColor : IMoveRule
     {
-        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             var activeOccupancy = boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer);
             var activeColorOccupiesSquare = (activeOccupancy & move.SourceValue) != 0;

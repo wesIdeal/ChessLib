@@ -5,7 +5,6 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation
 {
     public interface IBoardRule
     {
-        BoardExceptionType Validate(in IBoard boardInfo);
+        BoardExceptionType Validate(in Board boardInfo);
     }
 }
-

@@ -8,7 +8,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation
 {
     public interface IBoardValidator
     {
-        BoardExceptionType Validate(in IBoard board);
+        BoardExceptionType Validate(in Board board);
     }
 
     public class BoardValidator : IBoardValidator
@@ -19,16 +19,16 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation
         ///     BoardValidator constructor
         /// </summary>
         /// <param name="board"></param>
-        public BoardValidator() : 
+        public BoardValidator() :
             this(new PawnCountRule(), new PieceCountRule(), new EnPassantPositionRule(), new EnPassantSquareIndexRule(), new OpponentInCheckRule(), new EndOfGameRule())
         {
         }
 
         internal BoardValidator(params IBoardRule[] boardRules)
         {
-          _rules.AddRange(boardRules.Where(x=>x != null));
+            _rules.AddRange(boardRules.Where(x => x != null));
         }
-        public BoardExceptionType Validate(in IBoard board)
+        public BoardExceptionType Validate(in Board board)
         {
             var rv = BoardExceptionType.None;
             foreach (var rule in _rules)
@@ -49,7 +49,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation
 
             return rv;
         }
-        
 
-       }
+
+    }
 }

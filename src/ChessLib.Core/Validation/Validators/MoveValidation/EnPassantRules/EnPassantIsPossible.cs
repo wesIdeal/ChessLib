@@ -5,7 +5,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.EnPassantRules
 {
     public class EnPassantIsPossible : IMoveRule
     {
-        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             return (boardInfo.EnPassantIndex != move.DestinationIndex)
                 ? MoveError.EpNotAvailable

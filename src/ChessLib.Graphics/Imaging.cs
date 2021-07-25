@@ -10,7 +10,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
-using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 
 namespace ChessLib.Graphics

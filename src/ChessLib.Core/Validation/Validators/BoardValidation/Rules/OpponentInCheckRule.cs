@@ -6,7 +6,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 {
     public class OpponentInCheckRule : IBoardRule
     {
-        public BoardExceptionType Validate(in IBoard boardInfo)
+        public BoardExceptionType Validate(in Board boardInfo)
         {
             if (BoardHelpers.IsColorInCheck(boardInfo.Occupancy, boardInfo.ActivePlayer.Toggle())) return BoardExceptionType.OppositeCheck;
             return BoardExceptionType.None;

@@ -7,7 +7,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
 {
     public class PieceCanMoveToDestination : IMoveRule
     {
-        public MoveError Validate(in IBoard boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
 
             var piece = BoardHelpers.GetPieceAtIndex(boardInfo.Occupancy, move.SourceIndex);
