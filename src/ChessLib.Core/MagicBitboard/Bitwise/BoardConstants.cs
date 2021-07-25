@@ -8,6 +8,7 @@ namespace ChessLib.Core.MagicBitboard.Bitwise
 {
     public static class BoardConstants
     {
+        public const string FenStartingPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         public static string[] SquareNames = new[]
         {
 
