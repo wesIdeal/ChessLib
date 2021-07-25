@@ -17,8 +17,7 @@ namespace ChessLib.Data
     /// </summary>
     public class MoveTranslatorService : MoveDisplayService
     {
-        protected readonly string CastleKingSide = "O-O";
-        protected readonly string CastleQueenSide = "O-O-O";
+
 
         /// <summary>
         ///     Constructs the service based on the normal starting position
@@ -51,7 +50,7 @@ namespace ChessLib.Data
         /// </summary>
         public void InitializeBoard()
         {
-            var fen = FENHelpers.FENInitial;
+            var fen = FENReader.FENInitial;
             InitializeBoard(fen);
         }
 
@@ -93,155 +92,11 @@ namespace ChessLib.Data
             return GenerateMoveFromIndexes(basicMove.SourceIndex, basicMove.DestinationIndex, basicMove.PromotionPiece);
         }
 
-        public Move GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex,
-            PromotionPiece? promotionPiece)
-        {
-            var moveType = BoardHelpers.GetMoveType(Board, sourceIndex, destinationIndex);
-            var move = (Move) MoveHelpers.GenerateMove(sourceIndex, destinationIndex, moveType,
-                promotionPiece ?? PromotionPiece.Knight);
-            move.SAN = MoveToSAN(move);
-            return move;
-        }
+      
 
-        /// <summary>
-        ///     Gets a basic move with no SAN and no en passant information
-        /// </summary>
-        /// <param name="lan"></param>
-        /// <returns></returns>
-        public static IMove BasicMoveFromLAN(string lan)
-        {
-            var length = lan.Length;
-            if (length < 4 || length > 5)
-            {
-                throw new MoveException($"LAN move {lan} has invalid length.");
-            }
 
-            var sourceString = lan.Substring(0, 2);
-            var destString = lan.Substring(2, 2);
-            var source = sourceString.SquareTextToIndex();
-            var dest = destString.SquareTextToIndex();
 
-            var promotionChar = lan.Length == 5 ? lan[4] : (char?) null;
-            var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionChar);
-            var isPromotion = length == 5;
-            return MoveHelpers.GenerateMove(source, dest,
-                isPromotion ? MoveType.Promotion : MoveType.Normal, promotionPiece);
-        }
-
-        /// <summary>
-        ///     Creates moves from long algebraic notation (LAN) sequential move array
-        /// </summary>
-        /// <remarks>Does not alter board state from the initialized state.</remarks>
-        /// <param name="lanMoves">Sequential set of moves in string format.</param>
-        /// <returns>A collection of moves based on the current board.</returns>
-        /// <exception cref="MoveException">
-        ///     If an element of
-        ///     <param name="lanMoves">lanMoves</param>
-        ///     is less than 4 characters or greater than 5, or the source and/or destination strings did not translate to a board
-        ///     index.
-        /// </exception>
-        public IEnumerable<Move> FromLongAlgebraicNotation(IEnumerable<string> lanMoves)
-        {
-            var savedBoard = (IBoard) Board.Clone();
-            var moves = new List<Move>();
-            foreach (var lanMove in lanMoves)
-            {
-                var move = FromLongAlgebraicNotation(lanMove);
-                Board = Board.ApplyMoveToBoard(move, true);
-                moves.Add(move);
-            }
-
-            InitializeBoard(savedBoard);
-            return moves;
-        }
-
-        private string StripNonMoveInfoFromMove(in string move)
-        {
-            var nmi = new[] {"#", "+", "1/2-1/2", "1-0", "0-1"};
-            var mv = (string) move.Clone();
-            foreach (var s in nmi)
-            {
-                mv = mv.Replace(s, "");
-            }
-
-            return mv;
-        }
-
-        public IMove GetMoveFromSAN(string sanMove)
-        {
-            IMove resultingMove;
-            var move = StripNonMoveInfoFromMove(sanMove);
-            if (move.Length < 2)
-            {
-                throw new MoveException("Invalid move. Must have at least 2 characters.");
-            }
-
-            var colorMoving = Board.ActivePlayer;
-
-            if (char.IsLower(move[0]))
-            {
-                resultingMove = GetPawnMoveDetails(move);
-            }
-            else if (move == CastleKingSide || move == CastleQueenSide)
-            {
-                if (colorMoving == Color.White)
-                {
-                    return move == CastleKingSide ? MoveHelpers.WhiteCastleKingSide : MoveHelpers.WhiteCastleQueenSide;
-                }
-
-                return move == CastleKingSide ? MoveHelpers.BlackCastleKingSide : MoveHelpers.BlackCastleQueenSide;
-            }
-            else
-            {
-                var pieceMoving = PieceHelpers.GetPiece(move[0]);
-                var destinationSquare = move.Substring(move.Length - 2, 2).SquareTextToIndex();
-                var squaresAttackingTarget =
-                    Bitboard.Instance.PiecesAttackingSquareByColor(Board.Occupancy, destinationSquare,
-                        Board.ActivePlayer);
-                if (squaresAttackingTarget == 0)
-                {
-                    throw new MoveException(
-                        $"No pieces on any squares are attacking the square {destinationSquare.IndexToSquareDisplay()}",
-                        Board);
-                }
-
-                var possibleAttackersOfType = new List<ushort>();
-                var applicableBlockerBoard = Board.Occupancy.Occupancy(Board.ActivePlayer, pieceMoving);
-                foreach (var possAttacker in squaresAttackingTarget.GetSetBits())
-                {
-                    if ((possAttacker.GetBoardValueOfIndex() & applicableBlockerBoard) != 0)
-                    {
-                        possibleAttackersOfType.Add(possAttacker);
-                    }
-                }
-
-                if (possibleAttackersOfType.Count == 0)
-                {
-                    throw new MoveException(
-                        $"Error with move {sanMove}:No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.IndexToSquareDisplay()}",
-                        Board);
-                }
-
-                if (possibleAttackersOfType.Count == 1)
-                {
-                    resultingMove = MoveHelpers.GenerateMove(possibleAttackersOfType[0], destinationSquare);
-                }
-                else
-                {
-                    resultingMove = DetermineWhichPieceMovesToSquare(move, possibleAttackersOfType,
-                        applicableBlockerBoard,
-                        destinationSquare);
-                }
-            }
-
-            if (resultingMove == null)
-            {
-                throw new NoNullAllowedException(
-                    $"MoveTranslatorService: MoveValue should not be null after translation. Error in PGN or application for move {sanMove}.");
-            }
-
-            return resultingMove;
-        }
+   
 
         private IMove DetermineWhichPieceMovesToSquare(in string move, IEnumerable<ushort> possibleAttackersOfType,
             ulong applicableBb, ushort destinationSquare)
@@ -314,82 +169,20 @@ namespace ChessLib.Data
 
             return MoveHelpers.GenerateMove(source, destinationSquare);
         }
-
-        private IMove GetPawnMoveDetails(string move)
+        public IEnumerable<Move> FromLongAlgebraicNotation(IEnumerable<string> lanMoves)
         {
-            var colorMoving = Board.ActivePlayer;
-            var promotionPiece = PromotionPiece.Knight;
-            var pawnBitBoard = Board.Occupancy[(int) colorMoving][(int) Piece.Pawn];
-
-            var moveLength = move.Length;
-            var isCapture = move.Contains("x");
-
-            var isPromotion = move.Contains("=");
-            ushort startingFile = 0;
-            var moveType = MoveType.Normal;
-            if (isCapture)
+            var savedBoard = (IBoard)Board.Clone();
+            var moves = new List<Move>();
+            foreach (var lanMove in lanMoves)
             {
-                startingFile = (ushort) (move[0] - 'a');
-                move = move.Substring(2, moveLength - 2);
-                if (Board.EnPassantIndex.HasValue)
-                {
-                }
+                var move = FromLongAlgebraicNotation(lanMove);
+                Board = Board.ApplyMoveToBoard(move, true);
+                moves.Add(move);
             }
 
-            if (isPromotion)
-            {
-                moveType = MoveType.Promotion;
-                var equalIndex = move.IndexOf('=');
-                var promotionPieceStr = move.Substring(equalIndex + 1, 1);
-                promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionPieceStr[0]);
-                move = move.Substring(0, equalIndex);
-            }
-
-            var destIndex = move.SquareTextToIndex();
-            var likelyStartingSq = (ushort) (colorMoving == Color.White ? destIndex - 8 : destIndex + 8);
-            var sourceIndex = likelyStartingSq;
-
-            var isPossibleInitialMove =
-                destIndex.GetRank() == 3 && colorMoving == Color.White ||
-                destIndex.GetRank() == 4 && colorMoving == Color.Black;
-            if (isCapture)
-            {
-                var destinationFile = destIndex.GetFile();
-                if (colorMoving == Color.White)
-                {
-                    var modifier = destinationFile - startingFile + 8;
-                    sourceIndex = (ushort) (destIndex - modifier);
-                }
-                else
-                {
-                    var modifier = startingFile - destinationFile + 8;
-                    sourceIndex = (ushort) (destIndex + modifier);
-                }
-            }
-            else if (isPossibleInitialMove)
-            {
-                var possibleStartingIndex = colorMoving == Color.White ? destIndex - 8 : destIndex + 8;
-                var srcValue = ((ushort) possibleStartingIndex).GetBoardValueOfIndex();
-                //first check rank 2
-                if ((pawnBitBoard & srcValue) == 0)
-                {
-                    //no, it was from the starting position
-                    sourceIndex = colorMoving == Color.White
-                        ? (ushort) (possibleStartingIndex - 8)
-                        : (ushort) (possibleStartingIndex + 8);
-                }
-                else
-                {
-                    sourceIndex = (ushort) possibleStartingIndex;
-                }
-            }
-
-            if (isCapture && Board.EnPassantIndex.HasValue && destIndex == Board.EnPassantIndex.Value)
-            {
-                moveType = MoveType.EnPassant;
-            }
-
-            return MoveHelpers.GenerateMove(sourceIndex, destIndex, moveType, promotionPiece);
+            InitializeBoard(savedBoard);
+            return moves;
         }
+
     }
 }

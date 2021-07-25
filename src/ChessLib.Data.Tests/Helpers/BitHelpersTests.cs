@@ -2,6 +2,7 @@
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
@@ -90,9 +91,10 @@ namespace ChessLib.Data.Tests.Helpers
         }
 
 
-    
 
-       
+
+        private static readonly FenReader FenReader = new FenReader();
+
 
         [TestCase(FENScandi, 27, Color.White, false)]
         [TestCase(FENQueenIsBlockedFromAttackingSquared4, 27, Color.Black, false)]
@@ -101,7 +103,7 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase(FENQueenIsBlockedFromAttackingSquared4, 35, Color.Black, true)]
         public static void IsSquareAttackedByColor(string fen, int square, Color attackingColor, bool expected)
         {
-            IBoard boardInfo = new Board(fen);
+            IBoard boardInfo = FenReader.GetBoard(fen);
             var isAttacked = Bitboard.Instance.IsSquareAttackedByColor((ushort)square, attackingColor, boardInfo.Occupancy);
             Assert.AreEqual(expected, isAttacked);
         }

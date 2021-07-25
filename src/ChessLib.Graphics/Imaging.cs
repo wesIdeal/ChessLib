@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 
 namespace ChessLib.Graphics
@@ -160,7 +161,7 @@ namespace ChessLib.Graphics
         public void MakeAnimationFromMoveTree(Stream writeTo, Game<MoveStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
         {
             MagickFormat format = MagickFormat.Gif;
-            var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FENHelpers.FENInitial;
+            var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FenReader.FENInitial;
             var moves = game.MainMoveTree;
             _imageOptions = imageOpts = imageOpts ?? new ImageOptions();
             _squareSize = imageOpts.SquareSize;

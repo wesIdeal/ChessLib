@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
@@ -17,7 +18,7 @@ namespace ChessLib.Core
         protected readonly IBoardValidator BoardValidator;
 
         
-        public Board(IBoardValidator boardValidator = null) : base(FENHelpers.FENInitial)
+        public Board(IBoardValidator boardValidator = null) : base(FenReader.FENInitial)
         {
             BoardValidator = boardValidator ?? new BoardValidator();
             Occupancy = new ulong[2][];
@@ -25,17 +26,7 @@ namespace ChessLib.Core
             BoardValidator = boardValidator ?? new BoardValidator();
         }
 
-        /// <summary>
-        ///     Construct Board from FEN
-        /// </summary>
-        /// <param name="fen">fen string </param>
-        /// <param name="boardValidator"></param>
-        public Board(string fen, IBoardValidator boardValidator = null) : base(fen)
-        {
-            BoardValidator = boardValidator ?? new BoardValidator();
-            Occupancy = fen.BoardFromFen(out _, out _, out _, out _, out _);
-            Validate();
-        }
+
 
         public Board(ulong[][] occupancy, byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,

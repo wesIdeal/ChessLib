@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
@@ -12,30 +13,10 @@ namespace ChessLib.Core.Helpers
 {
     public static class FENHelpers
     {
-        /// <summary>
-        ///     Initial PremoveFEN - starting position of a chess game
-        /// </summary>
-        public const string FENInitial = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
         internal static readonly char[] ValidFENChars =
             {'/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8'};
 
-        public static FEN GetFenObject(string fen)
-        {
-            var fenPieces = fen.Split(' ');
-            var fenValidator = new FENValidator();
-            fenValidator.Validate(fen);
-            BoardFromFen(fen, out var ac, out var ca, out var ep, out var hm, out var fm);
-            return new FEN
-            {
-                PiecePlacement = fenPieces[(int)FENPieces.PiecePlacement],
-                ActiveColor = ac,
-                CastlingAvailability = ca,
-                EnPassantIndex = ep,
-                HalfmoveClock = hm,
-                FullmoveClock = fm
-            };
-        }
+      
 
         internal static string FENFromBoard(this IBoard board)
         {
@@ -66,84 +47,7 @@ namespace ChessLib.Core.Helpers
             return ranks;
         }
 
-        /// <summary>
-        ///     Gets a piece representation from PremoveFEN, indexed by [color][piece]
-        /// </summary>
-        /// <param name="fen">validated PremoveFEN</param>
-        /// <returns>Board representation corresponding to PremoveFEN</returns>
-        public static ulong[][] BoardFromFen(in string fen)
-        {
-            if (fen == FENInitial)
-            {
-                return BoardHelpers.InitialBoard;
-            }
-
-            uint pieceIndex = 0;
-            var pieces = new ulong[2][];
-            pieces[(int)Color.White] = new ulong[6];
-            pieces[(int)Color.Black] = new ulong[6];
-            var fenPieces = fen.Split(' ');
-            var piecePlacement = fenPieces[(int)FENPieces.PiecePlacement];
-            var ranks = piecePlacement.Split('/').Reverse();
-            foreach (var rank in ranks)
-            {
-                foreach (var f in rank)
-                {
-                    switch (char.IsDigit(f))
-                    {
-                        case true:
-                            var emptySquares = uint.Parse(f.ToString());
-                            pieceIndex += emptySquares;
-                            break;
-                        case false:
-                            var pieceOfColor = PieceHelpers.GetPieceOfColor(f);
-                            pieces[(int)pieceOfColor.Color][(int)pieceOfColor.Piece] |= 1ul << (int)pieceIndex;
-                            pieceIndex++;
-                            break;
-                    }
-                }
-            }
-
-            return pieces;
-        }
-
-        /// <summary>
-        ///     Gets a board-state representation from a PremoveFEN
-        /// </summary>
-        /// <param name="fen"></param>
-        /// <param name="activePlayer"></param>
-        /// <param name="castlingAvailability"></param>
-        /// <param name="EnPassantIndexIndex"></param>
-        /// <param name="halfmoveClock"></param>
-        /// <param name="fullmoveClock"></param>
-        /// <param name="validate"></param>
-        /// <returns></returns>
-        public static ulong[][] BoardFromFen(this string fen, out Color activePlayer,
-            out CastlingAvailability castlingAvailability, out ushort? EnPassantIndexIndex, out ushort halfmoveClock,
-            out ushort fullmoveClock, bool validate = true)
-        {
-            var fenPieces = fen.Split(' ');
-            if (validate)
-            {
-                var validator = new FENValidator();
-                var results = validator.Validate(fen);
-                if (results != FENError.None)
-                {
-                    throw new FENException(fen, results);
-                }
-            }
-
-            var pieces = BoardFromFen(fen);
-            activePlayer = GetActiveColor(fenPieces[(int)FENPieces.ActiveColor]);
-            castlingAvailability = GetCastlingFromString(fen.GetFENPiece(FENPieces.CastlingAvailability));
-            var enPassantStringValue = fenPieces[(int)FENPieces.EnPassantSquare];
-            EnPassantIndexIndex = enPassantStringValue.Trim() == "-"
-                ? (ushort?)null
-                : enPassantStringValue.SquareTextToIndex();
-            halfmoveClock = ushort.Parse(fenPieces[(int)FENPieces.HalfmoveClock]);
-            fullmoveClock = ushort.Parse(fenPieces[(int)FENPieces.FullMoveCounter]);
-            return pieces;
-        }
+      
 
 
         /// <summary>
@@ -157,20 +61,7 @@ namespace ChessLib.Core.Helpers
             return rankOffset * 8 + idx % 8;
         }
 
-        /// <summary>
-        ///     Gets the Active Color type from the corresponding PremoveFEN section
-        /// </summary>
-        /// <param name="v">The Active Color piece of the PremoveFEN</param>
-        /// <returns>A Color object representing the active Color</returns>
-        internal static Color GetActiveColor(string v)
-        {
-            switch (v)
-            {
-                case "w": return Color.White;
-                case "b": return Color.Black;
-                default: throw new FENException(v, FENError.InvalidActiveColor);
-            }
-        }
+
 
 
         /// <summary>
@@ -254,37 +145,7 @@ namespace ChessLib.Core.Helpers
             return s;
         }
 
-        /// <summary>
-        ///     Gets CastingAvailability flags from the provided PremoveFEN castle availability piece
-        /// </summary>
-        /// <param name="castleAvailability">the Castling Availability piece of the PremoveFEN</param>
-        /// <returns>Flags representing who can castle where</returns>
-        private static CastlingAvailability GetCastlingFromString(string castleAvailability)
-        {
-            var rv = 0;
-            if (castleAvailability == "-") return CastlingAvailability.NoCastlingAvailable;
-            if (castleAvailability.Contains('k'))
-            {
-                rv |= (int)CastlingAvailability.BlackKingside;
-            }
-
-            if (castleAvailability.Contains('K'))
-            {
-                rv |= (int)CastlingAvailability.WhiteKingside;
-            }
-
-            if (castleAvailability.Contains('q'))
-            {
-                rv |= (int)CastlingAvailability.BlackQueenside;
-            }
-
-            if (castleAvailability.Contains('Q'))
-            {
-                rv |= (int)CastlingAvailability.WhiteQueenside;
-            }
-
-            return (CastlingAvailability)rv;
-        }
+       
 
         public static string SanitizeFenString(string fen)
         {

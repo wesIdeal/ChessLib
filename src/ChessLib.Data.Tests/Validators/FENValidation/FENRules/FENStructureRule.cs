@@ -1,4 +1,5 @@
 ﻿using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Data.Helpers;
 using NUnit.Framework;
@@ -11,7 +12,7 @@ namespace ChessLib.Data.Tests.Validators.FENValidation.FENRules
         [TestCase("", FENError.InvalidFENString)]
         [TestCase(null, FENError.InvalidFENString)]
         [TestCase("fen s struct", FENError.InvalidFENString)]
-        [TestCase(FENHelpers.FENInitial, FENError.None)]
+        [TestCase(FenReader.FENInitial, FENError.None)]
         public static void ValidateStructure(string fen, FENError expectedError)
         {
             var validator = new Core.Validation.Validators.FENValidation.Rules.FENStructureRule();

@@ -1,4 +1,5 @@
 ﻿using ChessLib.Core;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
@@ -8,6 +9,8 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
     [TestFixture]
     public sealed class EndOfGameRule
     {
+        private static readonly FenReader FenReader = new FenReader();
+
         [TestCase("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62", BoardExceptionType.Stalemate)]
         [TestCase("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57", BoardExceptionType.Stalemate)]
         [TestCase("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57", BoardExceptionType.Stalemate)]
@@ -25,7 +28,7 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
         public static void ValidateEndOfGame(string fen, BoardExceptionType expectedException)
         {
 
-            var board = new Board(fen);
+            var board = FenReader.GetBoard(fen);
             var rule = new Core.Validation.Validators.BoardValidation.Rules.EndOfGameRule();
             var actual = rule.Validate(board);
             Assert.AreEqual(expectedException, actual);

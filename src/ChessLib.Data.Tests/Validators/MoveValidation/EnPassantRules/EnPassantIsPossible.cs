@@ -1,20 +1,21 @@
-﻿using ChessLib.Core;
-using ChessLib.Core.Helpers;
-using ChessLib.Core.Types;
+﻿using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Data.Helpers;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
 {
     [TestFixture]
-    class SourceIsPawn : Core.Validation.Validators.MoveValidation.EnPassantRules.SourceIsPawn
+    internal class SourceIsPawn : Core.Validation.Validators.MoveValidation.EnPassantRules.SourceIsPawn
     {
+        private static readonly FenReader FenReader = new FenReader();
+
         private readonly ulong[][] _pmb = new ulong[2][];
+
         [Test]
         public void ShouldReturnErrorWhenSourceIsNotPawn()
         {
-            var board = new Board("rnbqkbnr/pppp1ppp/8/3Bp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
+            var board = FenReader.GetBoard("rnbqkbnr/pppp1ppp/8/3Bp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
             var move = MoveHelpers.GenerateMove(35, 44);
             Assert.AreEqual(MoveError.EpSourceIsNotPawn, Validate(board, _pmb, move));
         }
@@ -22,20 +23,23 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
         [Test]
         public void ShouldReturnNullWhenSourceIsPawn()
         {
-            var board = new Board("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
+            var board = FenReader.GetBoard("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
             var move = MoveHelpers.GenerateMove(35, 44);
             Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
     }
 
     [TestFixture]
-    class SourceIsCorrectRank : Core.Validation.Validators.MoveValidation.EnPassantRules.SourceIsCorrectRank
+    internal class SourceIsCorrectRank : Core.Validation.Validators.MoveValidation.EnPassantRules.SourceIsCorrectRank
     {
-        readonly ulong[][] _pmb = new ulong[2][];
+        private static readonly FenReader FenReader = new FenReader();
+
+        private readonly ulong[][] _pmb = new ulong[2][];
+
         [Test]
         public void ShouldReturnErrorWhenWrongSourceRank()
         {
-            var board = new Board("rnbqkbnr/ppp2ppp/3p4/3Pp3/8/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3");
+            var board = FenReader.GetBoard("rnbqkbnr/ppp2ppp/3p4/3Pp3/8/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3");
             var move = MoveHelpers.GenerateMove(27, 44);
             Assert.AreEqual(MoveError.EpWrongSourceRank, Validate(board, _pmb, move));
         }
@@ -43,14 +47,15 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
         [Test]
         public void ShouldReturnNullWhenGoodSource()
         {
-            var board = new Board("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
+            var board = FenReader.GetBoard("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
             var move = MoveHelpers.GenerateMove(35, 44);
             Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
+
         [Test]
         public void ShouldReturnErrorWhenWrongSourceRank_Black()
         {
-            var board = new Board("rnbqkbnr/ppp1pppp/8/8/1P1pP3/P7/2PP1PPP/RNBQKBNR b KQkq e3 0 1");
+            var board = FenReader.GetBoard("rnbqkbnr/ppp1pppp/8/8/1P1pP3/P7/2PP1PPP/RNBQKBNR b KQkq e3 0 1");
             var move = MoveHelpers.GenerateMove(35, 28);
             Assert.AreEqual(MoveError.EpWrongSourceRank, Validate(board, _pmb, move));
         }
@@ -58,20 +63,23 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
         [Test]
         public void ShouldReturnNullWhenGoodSource_Black()
         {
-            var board = new Board("rnbqkbnr/ppp1pppp/8/8/1P1pP3/P7/2PP1PPP/RNBQKBNR b KQkq e3 0 1");
+            var board = FenReader.GetBoard("rnbqkbnr/ppp1pppp/8/8/1P1pP3/P7/2PP1PPP/RNBQKBNR b KQkq e3 0 1");
             var move = MoveHelpers.GenerateMove(27, 20);
             Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
     }
 
     [TestFixture]
-    class EnPassantSquareIsAttackedBySource : Core.Validation.Validators.MoveValidation.EnPassantRules.EnPassantSquareIsAttackedBySource
+    internal class EnPassantSquareIsAttackedBySource : Core.Validation.Validators.MoveValidation.EnPassantRules.
+        EnPassantSquareIsAttackedBySource
     {
-        readonly ulong[][] _pmb = new ulong[2][];
+        private static readonly FenReader FenReader = new FenReader();
+        private readonly ulong[][] _pmb = new ulong[2][];
+
         [Test]
         public void ShouldReturnErrorWhenEnPassantIsNotAttackedBySource()
         {
-            var board = new Board("rnbqkbnr/ppp2ppp/3p4/3Pp3/8/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3");
+            var board = FenReader.GetBoard("rnbqkbnr/ppp2ppp/3p4/3Pp3/8/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3");
             var move = MoveHelpers.GenerateMove(35, 45);
             var actual = Validate(board, _pmb, move);
             Assert.AreEqual(MoveError.EpNotAttackedBySource, actual);
@@ -80,19 +88,23 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
         [Test]
         public void ShouldReturnNullWhenEnPassantIsAttackedBySource()
         {
-            var board = new Board("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
+            var board = FenReader.GetBoard("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
             var move = MoveHelpers.GenerateMove(35, 44);
             Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
     }
-    [TestFixture()]
-    class EnPassantIsPossible : Core.Validation.Validators.MoveValidation.EnPassantRules.EnPassantIsPossible
+
+    [TestFixture]
+    internal class EnPassantIsPossible : Core.Validation.Validators.MoveValidation.EnPassantRules.EnPassantIsPossible
     {
-        readonly ulong[][] _pmb = new ulong[2][];
+        private static readonly FenReader FenReader = new FenReader();
+
+        private readonly ulong[][] _pmb = new ulong[2][];
+
         [Test]
         public void ShouldReturnErrorWhenEnPassantIsNotPossible()
         {
-            var board = new Board("rnbqkbnr/ppp2ppp/3p4/3Pp3/8/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3");
+            var board = FenReader.GetBoard("rnbqkbnr/ppp2ppp/3p4/3Pp3/8/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3");
             var move = MoveHelpers.GenerateMove(35, 44);
             Assert.AreEqual(MoveError.EpNotAvailable, Validate(board, _pmb, move));
         }
@@ -100,7 +112,7 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
         [Test]
         public void ShouldReturnNullWhenEnPassantIsPossible()
         {
-            var board = new Board("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
+            var board = FenReader.GetBoard("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
             var move = MoveHelpers.GenerateMove(35, 44);
             Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }

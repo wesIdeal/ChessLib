@@ -28,8 +28,8 @@ namespace ChessLib.Data
         public MoveTraversalService(string fen, Board boardExt = null)
         {
             IsLoaded = true;
-            fen = fen ?? FENHelpers.FENInitial;
-            Board = boardExt ?? new Board(fen);
+            fen = fen ?? FenReader.FENInitial;
+            Board = boardExt ?? new FenReader().GetBoard(fen);
             MainMoveTree = new MoveTree(null, fen);
             CurrentMoveNode = MainMoveTree.First;
             InitialFen = fen;
@@ -235,7 +235,7 @@ namespace ChessLib.Data
 
         public void GoToInitialState()
         {
-            var bi = new Board(InitialFen);
+            var bi = new FenReader().GetBoard(InitialFen);
             ApplyNewBoard(bi);
             while (CurrentTree.VariationParentNode != null)
             {
@@ -488,12 +488,12 @@ namespace ChessLib.Data
             return piecePlacement;
         }
 
-        private IMove TranslateSanMove(string moveText)
-        {
-            var moveTranslatorService = new MoveTranslatorService(Board);
-            var move = moveTranslatorService.GetMoveFromSAN(moveText);
-            return move;
-        }
+        //private IMove TranslateSanMove(string moveText)
+        //{
+        //    var moveTranslatorService = new MoveTranslatorService(Board);
+        //    var move = moveTranslatorService.(moveText, Board);
+        //    return move;
+        //}
 
         public LinkedListNode<MoveStorage> ExitVariation()
         {
@@ -501,7 +501,8 @@ namespace ChessLib.Data
             var variationParentMove = currentTree.VariationParentNode;
             CurrentMoveNode = variationParentMove;
             var parentFen = currentTree.StartingFEN;
-            ApplyNewBoard(new Board(parentFen));
+            var newBoard = new FenReader().GetBoard(parentFen);
+            ApplyNewBoard(newBoard);
             TraverseForward();
             return variationParentMove;
         }

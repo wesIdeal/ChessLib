@@ -1,5 +1,6 @@
 ﻿using ChessLib.Core;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Data.Helpers;
@@ -9,12 +10,13 @@ namespace ChessLib.Data.Tests.Validators.MoveValidation.CastlingRules
 {
     internal class CastlingTestCase
     {
+        private static readonly FenReader FenReader = new FenReader();
         public CastlingTestCase(string fen, MoveError error, Move castlingMove)
         {
             Fen = fen;
             ExpectedError = error;
             CastlingMove = castlingMove;
-            Board = new Board(fen);
+            Board = FenReader.GetBoard(fen);
         }
 
         public string Fen { get; set; }

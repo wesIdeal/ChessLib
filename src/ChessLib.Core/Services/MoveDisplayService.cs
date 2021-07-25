@@ -12,16 +12,6 @@ namespace ChessLib.Core.Services
     {
         protected IBoard Board;
 
-        public MoveDisplayService()
-        {
-            Initialize();
-        }
-
-        public MoveDisplayService(string fen)
-        {
-            Initialize(fen);
-        }
-
         public MoveDisplayService(IBoard board)
         {
             Initialize(board);
@@ -34,7 +24,7 @@ namespace ChessLib.Core.Services
 
         public void Initialize(string fen)
         {
-            Board = new Board(fen);
+            Board = new FenReader().GetBoard(fen);
         }
 
         public void Initialize(IBoard board)
@@ -66,11 +56,11 @@ namespace ChessLib.Core.Services
             }
             var activePlayer = Board.ActivePlayer;
             var preMoveBoard = Board.Occupancy;
-            var postMoveBoard = BoardHelpers.GetBoardPostMove(Board, move);
+            
             var srcPiece = preMoveBoard.GetPieceOfColorAtIndex(move.SourceIndex)?.Piece;
             if (srcPiece == null) throw new MoveException("No piece at source index.", MoveError.ActivePlayerHasNoPieceOnSourceSquare, move, activePlayer);
             var strSrcPiece = GetSANSourceString(move, srcPiece.Value);
-            var strDstSquare = move.DestinationIndex.IndexToSquareDisplay();
+            move.DestinationIndex.IndexToSquareDisplay();
 
             string checkInfo = "", result = "", promotionInfo = "", capture = "";
 
@@ -86,7 +76,7 @@ namespace ChessLib.Core.Services
             }
 
 
-            var board = Board.ApplyMoveToBoard(move, true);
+            var board = Board.ApplyMoveToBoard(move);
             if (BoardHelpers.IsColorInCheck(board.Occupancy, board.ActivePlayer))
             {
                 checkInfo = "+";

@@ -5,6 +5,7 @@ using System.Text;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using EnumsNET;
@@ -14,6 +15,8 @@ namespace ChessLib.Data.Tests.Helpers
     [TestFixture]
     public partial class BoardHelpersTests
     {
+        private static readonly FenReader FenReader = new FenReader();
+
         [TestCase("8/1k6/8/8/4q3/8/6K1/8 w - - 0 1", "Single check from Queen, has evasions")]
         [TestCase("8/8/8/8/8/7k/6q1/7K w - - 0 1", "Single check from Queen. Checkmate")]
         [TestCase("8/8/8/8/6kr/8/8/7K w - - 0 1", "Single check from rook, has evasions")]
@@ -27,7 +30,7 @@ namespace ChessLib.Data.Tests.Helpers
 
         public static void GetCheckType_ShouldReturnSingleForSingleChecks(string fen, string description = "")
         {
-            var board = new Board(fen);
+            var board = FenReader.GetBoard(fen);
             var result = BoardHelpers.GetCheckType(board.Occupancy, board.ActivePlayer, out _);
             var message = GetCheckmateTypeDescription(fen, description, result);
             Console.WriteLine(message);
@@ -44,7 +47,7 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase("8/8/8/8/7k/6n1/6p1/7K w - - 0 1", "Double check from Knight+Pawn, can capture and evade.")]
         public static void GetCheckType_ShouldReturnDoubleForDoubleChecks(string fen, string description = "")
         {
-            var board = new Board(fen);
+            var board = FenReader.GetBoard(fen);
 
             var result = BoardHelpers.GetCheckType(board.Occupancy, board.ActivePlayer, out _);
             var message = GetCheckmateTypeDescription(fen, description, result);
@@ -57,7 +60,7 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase("rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq - 0 2", "Initial position-> 1. c4 e5.")]
         public static void GetCheckType_ShouldReturnNoneForNoChecks(string fen, string description = "No checks expected.")
         {
-            var board = new Board(fen);
+            var board = FenReader.GetBoard(fen);
             var result = BoardHelpers.GetCheckType(board.Occupancy, board.ActivePlayer, out _);
             var message = GetCheckmateTypeDescription(fen, description, result);
             Console.WriteLine(message);
@@ -124,7 +127,7 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase("rnbqkbnr/ppp2ppp/3p4/4p3/2PP2P1/8/PP2PP1P/RNBQKBNR b KQkq - 0 3", false)]
         public static void TestEnPassantIsAvailable(string fen, bool expected)
         {
-            var board = new Board(fen);
+            var board = FenReader.GetBoard(fen);
             Assert.AreEqual(expected, board.IsEnPassantCaptureAvailable());
         }
         [TestFixture]

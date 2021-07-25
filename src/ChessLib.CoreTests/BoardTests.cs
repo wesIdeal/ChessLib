@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Tests.Helpers;
 using ChessLib.Core.Types.Enums;
 using EnumsNET;
@@ -30,7 +31,7 @@ namespace ChessLib.Core.Tests
         [Test]
         public void CloneTest()
         {
-            var board = new Board("rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 1 2");
+            var board = new FenReader().GetBoard("rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 1 2");
             var clone = board.Clone();
             Assert.AreNotSame(board, clone);
             Assert.AreEqual(board, clone);
@@ -50,7 +51,7 @@ namespace ChessLib.Core.Tests
                 }
             }
         }
-
+        private static readonly FenReader FenReader = new FenReader();
         [TestCaseSource(nameof(GetEqualsTestCases))]
         public void BoardEqualsOverrideTest(TestCase<bool, Board> testCase)
         {
@@ -61,14 +62,14 @@ namespace ChessLib.Core.Tests
         protected static IEnumerable<TestCase<bool, Board>> GetEqualsTestCases()
         {
             yield return new TestCase<bool, Board>(true, new Board(), "Initial boards, different reference", new Board());
-            var englishSetupBoard = new Board("rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 1 2");
+            var englishSetupBoard = FenReader.GetBoard("rnbqkbnr/pppp1ppp/8/4p3/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 1 2") ;
             yield return new TestCase<bool, Board>(false,
                 englishSetupBoard, "Two different boards - English vs Initial Board", new Board());
-            var pieceRearrangedBoard = new Board("rbnqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            var pieceRearrangedBoard = FenReader.GetBoard("rbnqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
             yield return new TestCase<bool, Board>(false,
                 pieceRearrangedBoard, "Pieces same, rearranged",
                 new Board());
-            var downAPawnBoard = new Board("rbnqkbnr/ppp1pppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
+            var downAPawnBoard = FenReader.GetBoard("rbnqkbnr/ppp1pppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
             yield return new TestCase<bool, Board>(false, downAPawnBoard, "Black's Down a pawn", new Board());
 
             yield return new TestCase<bool, Board>(false, new Board(), "null Board", (Board)null);

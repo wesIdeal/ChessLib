@@ -1,4 +1,5 @@
 ﻿using ChessLib.Core;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
@@ -10,6 +11,7 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
     [TestFixture]
     public sealed class OpponentInCheckRule
     {
+        private static readonly FenReader FenReader = new FenReader();
         [TestCase("8/8/8/8/8/8/6kQ/4K3 b - - 0 1", BoardExceptionType.None)]
         [TestCase("8/8/8/8/8/8/6kQ/4K3 w - - 0 1", BoardExceptionType.OppositeCheck)]
         public static void ValidateCheck(string fen, BoardExceptionType expectedException)
@@ -17,7 +19,7 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
             BoardExceptionType actual = BoardExceptionType.None;
             try
             {
-                var board = new Board(fen);
+                var board =  FenReader.GetBoard(fen);
                 var boardValidator = new BoardValidator();
                 boardValidator.Validate(board);
             }

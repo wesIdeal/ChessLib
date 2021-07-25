@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using ChessLib.Core.MagicBitboard;
@@ -7,6 +8,7 @@ using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.BoardValidation;
+using ChessLib.Core.Validation.Validators.MoveValidation;
 using EnumsNET;
 
 namespace ChessLib.Core.Helpers
@@ -324,33 +326,33 @@ namespace ChessLib.Core.Helpers
         /// <param name="bypassMoveValidation">Bypass validation; useful when move was previously validated</param>
         /// <returns>The board after the move has been applied.</returns>
         /// <exception cref="MoveException">If no piece exists at source.</exception>
-        public static IBoard ApplyMoveToBoard(this IBoard currentBoard, in IMove move,
-            bool bypassMoveValidation = false)
+        public static IBoard ApplyMoveToBoard(this IBoard currentBoard, in IMove move)
         {
             var board = (IBoard)currentBoard.Clone();
 
-            var pieceMoving = GetPieceOfColorAtIndex(board.Occupancy, move.SourceIndex);
-            if (pieceMoving == null)
+            var moveValidator = new MoveValidator(board, move);
+            var validationError = moveValidator.Validate();
+            if (validationError != MoveError.NoneSet)
             {
-                throw new MoveException("No piece at current source to apply move to.",
-                    MoveError.ActivePlayerHasNoPieceOnSourceSquare, move, board.ActivePlayer);
+               Debugger.Break();
             }
 
+            var pieceMoving = GetPieceAtIndex(board.Occupancy, move.SourceIndex);
             var capturedPiece = GetPieceAtIndex(board.Occupancy, move.DestinationIndex);
 
-            var halfMoveClock = capturedPiece != null || pieceMoving.Value.Piece == Piece.Pawn
+            var halfMoveClock = capturedPiece != null || pieceMoving == Piece.Pawn
                 ? 0
                 : board.HalfMoveClock + 1;
             var fullMoveCounter =
                 board.ActivePlayer == Color.Black ? board.FullMoveCounter + 1 : board.FullMoveCounter;
-            var piecePlacement = GetBoardPostMove(board, move);
+            
             var castlingAvailability =
                 GetCastlingAvailabilityPostMove(board.Occupancy, move, board.CastlingAvailability);
             var enPassantIndex = GetEnPassantIndex(board, move);
             var activePlayer = board.ActivePlayer.Toggle();
-            return new Board(piecePlacement, (byte)halfMoveClock, enPassantIndex, capturedPiece,
+            return new Board(moveValidator.PostMoveBoard, (byte)halfMoveClock, enPassantIndex, capturedPiece,
                 castlingAvailability, activePlayer,
-                (ushort)fullMoveCounter, true);
+                (ushort)fullMoveCounter, validateBoard: true);
         }
 
 

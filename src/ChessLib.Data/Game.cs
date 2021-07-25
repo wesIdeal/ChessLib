@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums.NAG;
 
 #endregion
@@ -17,11 +18,11 @@ namespace ChessLib.Data
         private GameResult _gameResult;
 
 
-        public Game() : base(FENHelpers.FENInitial)
+        public Game() : base(FenReader.FENInitial)
         {
             ParsingLog = new List<PgnParsingLog>();
             TagSection = new Tags();
-            TagSection.SetFen(FENHelpers.FENInitial);
+            TagSection.SetFen(FenReader.FENInitial);
 
         }
 

@@ -9,7 +9,9 @@ namespace ChessLib.Core
         public CastlingAvailability CastlingAvailability;
         public ushort? EnPassantIndex;
         public int HalfmoveClock;
-        public int FullmoveClock;
-        public int TotalPlies => (2 * FullmoveClock) - (ActiveColor == Color.White ? 2 : 1);
+        public uint FullmoveClock;
+        public uint TotalPlies => (uint) ((2 * FullmoveClock) - (ActiveColor == Color.White ? 2 : 1));
+
+    
     }
 }

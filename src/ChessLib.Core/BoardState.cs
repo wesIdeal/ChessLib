@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
@@ -56,11 +57,11 @@ namespace ChessLib.Core
                 fullMoveCounter, gameState);
         }
 
-        protected BoardState(string fen) : this()
+        protected BoardState(string strFen) : this()
         {
-            fen.BoardFromFen(out var color, out var castingAvailability,
-                out var enPassantSquare, out var halfmove, out var fullmove, false);
-            SetBoardState((byte)halfmove, enPassantSquare, null, castingAvailability, color, fullmove);
+            var fenReader = new FenReader();
+            var fen = fenReader.GetFenObject(strFen);
+            SetBoardState((byte)fen.HalfmoveClock, fen.EnPassantIndex, null, fen.CastlingAvailability, fen.ActiveColor, fen.FullmoveClock);
         }
 
         private BoardState(uint boardStateStorage)

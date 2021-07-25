@@ -1,5 +1,6 @@
 ﻿using ChessLib.Core;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Data.Helpers;
@@ -10,7 +11,9 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
     [TestFixture]
     public sealed class CastlingAvailabilityRule
     {
-        [TestCase(FENHelpers.FENInitial, BoardExceptionType.None)]
+        private static readonly FenReader FenReader = new FenReader();
+
+        [TestCase(FenReader.FENInitial, BoardExceptionType.None)]
         [TestCase("1r2k3/8/8/8/8/8/8/1R2K3 w Q - 0 1", BoardExceptionType.WhiteCastleLong, "White cannot castle long if Rook isn't on A1.")]
         [TestCase("1r2k3/8/8/8/8/8/8/1R2K3 w q - 0 1", BoardExceptionType.BlackCastleLong, "Black cannot castle long if Rook isn't on A8.")]
         [TestCase("4k1r1/8/8/8/8/8/8/4K1R1 w K - 0 1", BoardExceptionType.WhiteCastleShort, "White cannot castle short if Rook isn't on H1.")]
@@ -22,7 +25,7 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
 
         public static void TestCastling(string fen, BoardExceptionType expectedException, string message = "")
         {
-            var board = new Board(fen);
+            var board = FenReader.GetBoard(fen);
             var rule = new Core.Validation.Validators.BoardValidation.Rules.CastlingAvailabilityRule();
             var actual = rule.Validate(board);
             Assert.AreEqual(expectedException, actual, message);

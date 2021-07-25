@@ -1,5 +1,6 @@
 ﻿using ChessLib.Core;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
@@ -12,7 +13,8 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
     [TestFixture]
     public sealed class PieceCountRule
     {
-        [TestCase(FENHelpers.FENInitial, BoardExceptionType.None)]
+        private static readonly FenReader FenReader = new FenReader();
+        [TestCase(FenReader.FENInitial, BoardExceptionType.None)]
         [TestCase("rnbqkbnr/pppppppp/8/8/8/7N/PPPPPPPP/RNBQKBNR w KQkq - 0 1", BoardExceptionType.WhiteTooManyPieces)]
         [TestCase("rnbqkbnr/pppppppp/7n/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", BoardExceptionType.BlackTooManyPieces)]
         [TestCase("rnbqkbnr/pppppppp/7n/8/8/7N/PPPPPPPP/RNBQKBNR w KQkq - 0 1", BoardExceptionType.BlackTooManyPieces | BoardExceptionType.WhiteTooManyPieces)]
@@ -21,7 +23,7 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
             BoardExceptionType actual = BoardExceptionType.None;
             try
             {
-                var board = new Board(fen);
+                var board = FenReader.GetBoard(fen);
                 var validator = new BoardValidator();
                 validator.Validate(board);
             }

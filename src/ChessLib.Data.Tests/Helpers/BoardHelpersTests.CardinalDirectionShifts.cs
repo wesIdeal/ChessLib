@@ -3,6 +3,7 @@ using ChessLib.Core;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Data.Helpers;
@@ -13,7 +14,8 @@ namespace ChessLib.Data.Tests.Helpers
 
     public partial class ShiftHelpers
     {
-        
+        private static readonly FenReader FenReader = new FenReader();
+
         //public static void TestPiecesAttackingSquare(string fen, int attackedSquare, params int[] attackingPieces)
         //{
         //    var board = new Board(fen);
@@ -41,7 +43,7 @@ namespace ChessLib.Data.Tests.Helpers
                 : castlingMove == CastlingAvailability.WhiteQueenside ? MoveHelpers.WhiteCastleQueenSide
                 : castlingMove == CastlingAvailability.BlackKingside ? MoveHelpers.BlackCastleKingSide
                 : MoveHelpers.BlackCastleQueenSide;
-            var board = new Board(fen);
+            var board = new FenReader().GetBoard(fen);
             var postMove = BoardHelpers.ApplyMoveToBoard(board, move);
             var activeKingVal = postMove.Occupancy.Occupancy(board.ActivePlayer, Piece.King);
             var activeRookVal = postMove.Occupancy.Occupancy(board.ActivePlayer, Piece.Rook);
@@ -53,7 +55,7 @@ namespace ChessLib.Data.Tests.Helpers
         public void ApplyMove_EnPassantCaptures(string fen, int src, int dst, ulong oppPawn, ulong actPawn)
         {
             var move = MoveHelpers.GenerateMove((ushort)src, (ushort)dst, MoveType.EnPassant);
-            var board = new Board(fen);
+            var board = new FenReader().GetBoard(fen);
             var activeColor = board.ActivePlayer;
             var oppColor = board.ActivePlayer.Toggle();
             var actual = BoardHelpers.ApplyMoveToBoard(board, move);

@@ -1,4 +1,5 @@
 ﻿using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Data.Helpers;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
@@ -26,7 +27,7 @@ namespace ChessLib.EngineInterface.UCI
             _responseFactory = responseFactory;
         }
 
-        public string FEN { get; set; } = FENHelpers.FENInitial;
+        public string FEN { get; set; } = FenReader.FENInitial;
 
         public void ProcessEngineResponse(string engineResponseText, CommandInfo currentCommand)
         {

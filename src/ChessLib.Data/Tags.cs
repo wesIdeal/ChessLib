@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Data.Helpers;
 
 namespace ChessLib.Data
@@ -74,7 +75,7 @@ namespace ChessLib.Data
         }
 
         public bool HasSetup => ContainsKey("FEN") ||( ContainsKey("SetUp") && this["SetUp"] == "1");
-        public string FENStart => HasSetup ? this["FEN"] : FENHelpers.FENInitial;
+        public string FENStart => HasSetup ? this["FEN"] : FenReader.FENInitial;
         
         public string White
         {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
 
@@ -243,7 +244,7 @@ namespace ChessLib.Core.Helpers
         /// <returns>ulong representing the hash of the board</returns>
         public static ulong GetBoardStateHash(string fen)
         {
-            return GetBoardStateHash(new Board(fen));
+            return GetBoardStateHash(new FenReader().GetBoard(fen));
         }
 
         /// <summary>

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.EngineInterface;
 using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
@@ -26,7 +27,7 @@ namespace ChessLib.UCI.Tests
         [Test]
         public void TestReadyOk()
         {
-            var resp = _factory.MakeResponseArgs(FENHelpers.FENInitial, "readyok");
+            var resp = _factory.MakeResponseArgs(FenReader.FENInitial, "readyok");
             Assert.IsTrue(resp is ReadyOkResponseArgs);
             Assert.AreEqual("readyok", resp.ResponseText);
         }
@@ -41,7 +42,7 @@ namespace ChessLib.UCI.Tests
                         "uciok";
             foreach (var command in str.Split("\r\n"))
             {
-                var resp = _factory.MakeResponseArgs(FENHelpers.FENInitial, command);
+                var resp = _factory.MakeResponseArgs(FenReader.FENInitial, command);
                 if (command == "uciok")
                 {
                     Assert.IsTrue(resp.ResponseObject is UCIResponse);
@@ -64,7 +65,7 @@ namespace ChessLib.UCI.Tests
         [TestCase("bestmove e2e4 ponder e7e6", typeof(BestMoveResponse))]
         public void TestInfo(string engineResponse, Type t)
         {
-            var resp = _factory.MakeResponseArgs(FENHelpers.FENInitial, engineResponse);
+            var resp = _factory.MakeResponseArgs(FenReader.FENInitial, engineResponse);
             Assert.IsTrue(resp.ResponseObject.GetType() == t);
         }
     }

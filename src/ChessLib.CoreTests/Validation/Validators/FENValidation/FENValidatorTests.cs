@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.FENValidation;
@@ -46,7 +47,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.FENValidation
             _fenValidator = new FENValidator(_fenRuleMock.Object);
             try
             {
-                _fenValidator.Validate(FENHelpers.FENInitial);
+                _fenValidator.Validate(FenReader.FENInitial);
             }
             catch (System.Exception exc)
             {

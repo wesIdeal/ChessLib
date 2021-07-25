@@ -2,6 +2,7 @@
 
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Data.Helpers;
@@ -15,7 +16,7 @@ namespace ChessLib.Data.Tests.Validators.BoardValidation
     [TestFixture]
     public sealed class EnPassantSquareRule
     {
-        [TestCase(FENHelpers.FENInitial, BoardExceptionType.None)]
+        [TestCase(FenReader.FENInitial, BoardExceptionType.None)]
         [TestCase("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a4 0 1", BoardExceptionType.BadEnPassant)]
         [TestCase("rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR w KQkq a5 0 2", BoardExceptionType.BadEnPassant)]
         [TestCase("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a2 0 1", BoardExceptionType.BadEnPassant)]
@@ -30,11 +31,12 @@ namespace ChessLib.Data.Tests.Validators.BoardValidation
         {
             var enPassantValidator =
                 new Core.Validation.Validators.BoardValidation.Rules.EnPassantPositionRule();
-            var board = new Board(fen);
+            var board = FenReader.GetBoard(fen);
             var actualExceptionType = enPassantValidator.Validate(board);
             Assert.AreEqual(expectedException, actualExceptionType);
         }
 
-       
+        protected readonly static FenReader FenReader = new FenReader();
+
     }
 }

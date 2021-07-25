@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Services;
 using ChessLib.Data;
 using ChessLib.Data.Helpers;
 
@@ -46,7 +47,7 @@ namespace ChessLib.Parse.PGN
             : this(updateProgressFrequency, maxGameCount, maxPlyCount, ignoreVariations)
         {
             FenFilter = fenPositionFilter;
-            FilterPlyLimit = plySearchLimit ?? _fenObject.TotalPlies;
+            FilterPlyLimit = plySearchLimit ?? (int?)_fenObject.TotalPlies;
             BoardStateHash = PolyglotHelpers.GetBoardStateHash(fenPositionFilter);
         }
 
@@ -65,7 +66,7 @@ namespace ChessLib.Parse.PGN
                 _fenFilter = value.Trim();
                 if (!string.IsNullOrWhiteSpace(_fenFilter))
                 {
-                    _fenObject = FENHelpers.GetFenObject(_fenFilter);
+                    _fenObject = new FenReader().GetFenObject(_fenFilter);
                     Debug.Assert(ShouldUseFenFilter);
                 }
             }
