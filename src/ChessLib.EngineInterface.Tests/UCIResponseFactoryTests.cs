@@ -1,32 +1,27 @@
-﻿using ChessLib.Data.Helpers;
-using NUnit.Framework;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChessLib.Core.Helpers;
-using ChessLib.EngineInterface;
+using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.EngineInterface.UCI;
-using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;
+using NUnit.Framework;
 
 namespace ChessLib.UCI.Tests
 {
     [TestFixture]
     public class UCIResponseFactoryTests
     {
-        private UCIResponseFactory _factory;
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            _factory = new UCIResponseFactory(false);
+            _factory = new UCIResponseFactory();
         }
+
+        private UCIResponseFactory _factory;
+
         [Test]
         public void TestReadyOk()
         {
-            var resp = _factory.MakeResponseArgs(FenReader.FENInitial, "readyok");
+            var resp = _factory.MakeResponseArgs(BoardConstants.FenStartingPosition, "readyok");
             Assert.IsTrue(resp is ReadyOkResponseArgs);
             Assert.AreEqual("readyok", resp.ResponseText);
         }
@@ -36,12 +31,12 @@ namespace ChessLib.UCI.Tests
         {
             UCIResponse obj = null;
             var str = "id name Stockfish 10 64\r\n" + "\r\n" +
-                        "id author T.Romstad, M.Costalba, J.Kiiski, G.Linscott\r\n" +
-                        "option name Debug Log File type string default\r\n" +
-                        "uciok";
+                      "id author T.Romstad, M.Costalba, J.Kiiski, G.Linscott\r\n" +
+                      "option name Debug Log File type string default\r\n" +
+                      "uciok";
             foreach (var command in str.Split("\r\n"))
             {
-                var resp = _factory.MakeResponseArgs(FenReader.FENInitial, command);
+                var resp = _factory.MakeResponseArgs(BoardConstants.FenStartingPosition, command);
                 if (command == "uciok")
                 {
                     Assert.IsTrue(resp.ResponseObject is UCIResponse);
@@ -52,6 +47,7 @@ namespace ChessLib.UCI.Tests
                     Assert.IsNull(resp);
                 }
             }
+            Assert.IsNotNull(obj);
             Assert.AreEqual(1, obj.Options.Count());
             Assert.IsTrue(obj.Options[0] is UCIStringOption);
             Assert.IsTrue(obj.Name == "Stockfish 10 64");
@@ -60,11 +56,13 @@ namespace ChessLib.UCI.Tests
         }
 
         [TestCase("info depth 25 currmove g2g3 currmovenumber 16", typeof(InfoCalculationResponse))]
-        [TestCase("info depth 25 seldepth 35 multipv 1 score cp 51 upperbound nodes 14803677 nps 1531520 hashfull 996 tbhits 0 time 9666 pv e2e4 e7e6", typeof(PrincipalVariationResponse))]
+        [TestCase(
+            "info depth 25 seldepth 35 multipv 1 score cp 51 upperbound nodes 14803677 nps 1531520 hashfull 996 tbhits 0 time 9666 pv e2e4 e7e6",
+            typeof(PrincipalVariationResponse))]
         [TestCase("bestmove e2e4 ponder e7e6", typeof(BestMoveResponse))]
         public void TestInfo(string engineResponse, Type t)
         {
-            var resp = _factory.MakeResponseArgs(FenReader.FENInitial, engineResponse);
+            var resp = _factory.MakeResponseArgs(BoardConstants.FenStartingPosition, engineResponse);
             Assert.IsTrue(resp.ResponseObject.GetType() == t);
         }
     }

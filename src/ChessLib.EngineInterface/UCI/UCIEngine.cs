@@ -4,34 +4,37 @@ using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.Core;
 using ChessLib.Core.IO;
-using ChessLib.Core.Parse;
-using ChessLib.Data;
+using ChessLib.Core.Translate;
 using ChessLib.EngineInterface.UCI.Commands;
-using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 
 namespace ChessLib.EngineInterface.UCI
 {
     public sealed class UCIEngine : Engine
     {
-        private readonly MoveTranslatorService _moveTranslatorService;
-        public new UCIEngineStartupArgs UserSuppliedArgs { get; }
-        public override InterruptCommand QuitCommand { get; } = new InterruptCommand(AppToUCICommand.Quit);
-        public override InterruptCommand StopCommand { get; } = new InterruptCommand(AppToUCICommand.Stop);
+        [NonSerialized] private readonly LanToMove _lanToMove;
+        [NonSerialized] private bool _isDisposed;
+        [NonSerialized] private readonly LanVariationToMoves _lanVariationToMoves;
+        [NonSerialized] public UCIResponse EngineInformation;
 
         public UCIEngine(UCIEngineStartupArgs args)
             : base(args)
         {
             UserSuppliedArgs = args;
-            _moveTranslatorService = new MoveTranslatorService();
+            _lanToMove = new LanToMove();
+            _lanVariationToMoves = new LanVariationToMoves();
             InitializeEngineProcess(new UCIEngineMessageSubscriber(ResponseReceived));
         }
 
         public UCIEngine(UCIEngineStartupArgs args, EngineProcess process)
-        : base(args, process)
+            : base(args, process)
         {
             UserSuppliedArgs = args;
         }
+
+        public new UCIEngineStartupArgs UserSuppliedArgs { get; }
+        public override InterruptCommand QuitCommand { get; } = new InterruptCommand(AppToUCICommand.Quit);
+        public override InterruptCommand StopCommand { get; } = new InterruptCommand(AppToUCICommand.Stop);
 
         public void ResponseReceived(EngineResponseArgs engineResponse)
         {
@@ -40,16 +43,14 @@ namespace ChessLib.EngineInterface.UCI
                 OnDebugEventExecuted(new DebugEventArgs("Received null object from engine."));
                 return;
             }
-            else if (engineResponse is EngineCalculationResponseArgs calcResponse && !PauseEngineMessageHandling)
+
+            if (engineResponse is EngineCalculationResponseArgs calcResponse && !PauseEngineMessageHandling)
             {
                 engineResponse.ResponseObject = FillCalculationResponseWithMoveObjects(calcResponse.ResponseObject);
             }
+
             OnEngineObjectReceived(engineResponse);
         }
-
-
-        [NonSerialized] private bool _isDisposed;
-        [NonSerialized] public UCIResponse EngineInformation;
 
         public override ManualResetEvent SendIsReadyAsync()
         {
@@ -79,80 +80,23 @@ namespace ChessLib.EngineInterface.UCI
             return commandInfo.ResetEvent;
         }
 
-        #region Send Position Command Methods
-
-        public void SendNewGame()
-        {
-            SendPosition();
-        }
-        public override void SendPosition()
-        {
-            base.SendPosition();
-            _moveTranslatorService.InitializeBoard();
-            var commandInfo = new CommandInfo(AppToUCICommand.NewGame);
-            QueueCommand(commandInfo);
-        }
-
-        public override void SendPosition(string fen)
-        {
-            SendPosition(fen, new Move[] { });
-        }
-
-        public override void SendPosition(Move[] moves)
-        {
-            base.SendPosition(moves);
-            _moveTranslatorService.InitializeBoard(CurrentFEN);
-            SendPosition(StartingPositionFEN, moves);
-        }
-
-        public override void SendPosition(string fen, Move[] moves)
-        {
-            base.SendPosition(fen, moves);
-            base.SendPosition(fen);
-            base.SendPosition(moves);
-            _moveTranslatorService.InitializeBoard(CurrentFEN);
-            var commandInfo = new CommandInfo(AppToUCICommand.Position);
-            var positionString = $"fen {StartingPositionFEN}";
-            var moveString = "";
-            if (moves.Any())
-                moveString = " moves " + string.Join(" ", moves.Select(MoveDisplayService.MoveToLan));
-            QueueCommand(commandInfo, $"{positionString}{moveString}");
-        }
-
-        #endregion
-
-        #region Analysis Command Methods
-        /// <summary>
-        ///     Starts a search for set amount of time
-        /// </summary>
-        /// <param name="searchTime">Time to spend searching</param>
-        /// <param name="searchMoves">only consider these moves</param>
-        public void SendGo(TimeSpan searchTime, Move[] searchMoves = null)
-        {
-            QueueCommand(new Go(searchTime, searchMoves));
-        }
-
-        public void SendGoInfinite()
-        {
-            QueueCommand(new Go());
-        }
-
-        #endregion
-
         #region Other Command Methods
+
         public void SetOption(string optionName, string optionValue)
         {
             var option = new SetOption(optionName, optionValue);
             QueueCommand(option);
         }
+
         #endregion
 
 
-
-        public override string ToString() =>
-            EngineInformation != null
+        public override string ToString()
+        {
+            return EngineInformation != null
                 ? EngineInformation.ToString()
                 : $"[uninitialized] {UserAssignedId} {UserAssignedId}";
+        }
 
         public override void SendStop()
         {
@@ -170,7 +114,7 @@ namespace ChessLib.EngineInterface.UCI
 
         public void SendStartupMessagesToEngine()
         {
-            TimeSpan timeout = TimeSpan.FromSeconds(100);
+            var timeout = TimeSpan.FromSeconds(100);
             SendUCI(timeout);
             SendIsReady();
         }
@@ -189,6 +133,7 @@ namespace ChessLib.EngineInterface.UCI
                 {
                     throw new ArgumentException(message);
                 }
+
                 QueueCommand(new SetOption(option.Key, option.Value));
             }
         }
@@ -215,26 +160,29 @@ namespace ChessLib.EngineInterface.UCI
                 FillBestMoveResponseWithMoveObjects(ref pvResponse);
                 return pvResponse;
             }
+
             return calculation;
         }
 
         private void FillBestMoveResponseWithMoveObjects(ref IPrincipalVariationResponse principalVariationResponse)
         {
-            principalVariationResponse.Variation = _moveTranslatorService.FromLongAlgebraicNotation(principalVariationResponse.VariationLong).ToArray();
+            principalVariationResponse.Variation = _lanVariationToMoves
+                .Translate(principalVariationResponse.VariationLong).ToArray();
         }
 
         private void FillBestMoveResponseWithMoveObjects(ref IInfoCalculationResponse infoCalcResponse)
         {
-            infoCalcResponse.CurrentMove = _moveTranslatorService.FromLongAlgebraicNotation(infoCalcResponse.CurrentMoveLong);
+            infoCalcResponse.CurrentMove =
+                _lanToMove.Translate(infoCalcResponse.CurrentMoveLong);
         }
 
         private void FillBestMoveResponseWithMoveObjects(ref IBestMoveResponse bestMoveResponse)
         {
-            bestMoveResponse.BestMove = _moveTranslatorService.FromLongAlgebraicNotation(bestMoveResponse.BestMoveLong);
+            bestMoveResponse.BestMove = _lanToMove.Translate(bestMoveResponse.BestMoveLong);
             if (!string.IsNullOrWhiteSpace(bestMoveResponse.PonderMoveLong))
             {
                 bestMoveResponse.PonderMove =
-                    _moveTranslatorService.FromLongAlgebraicNotation(bestMoveResponse.PonderMoveLong);
+                    _lanToMove.Translate(bestMoveResponse.PonderMoveLong);
             }
         }
 
@@ -248,10 +196,69 @@ namespace ChessLib.EngineInterface.UCI
             if (disposing)
             {
             }
+
             _isDisposed = true;
             base.Dispose(disposing);
         }
 
+        #region Send Position Command Methods
+
+        public void SendNewGame()
+        {
+            SendPosition();
+        }
+
+        public override void SendPosition()
+        {
+            base.SendPosition();
+            var commandInfo = new CommandInfo(AppToUCICommand.NewGame);
+            QueueCommand(commandInfo);
+        }
+
+        public override void SendPosition(string fen)
+        {
+            SendPosition(fen, new Move[] { });
+        }
+
+        public override void SendPosition(Move[] moves)
+        {
+            base.SendPosition(moves);
+            SendPosition(StartingPositionFEN, moves);
+        }
+
+        public override void SendPosition(string fen, Move[] moves)
+        {
+            base.SendPosition(fen, moves);
+            base.SendPosition(fen);
+            base.SendPosition(moves);
+            var commandInfo = new CommandInfo(AppToUCICommand.Position);
+            var positionString = $"fen {StartingPositionFEN}";
+            var moveString = "";
+            if (moves.Any())
+                moveString = " moves " + string.Join(" ", moves.Select(MoveDisplayService.MoveToLan));
+            QueueCommand(commandInfo, $"{positionString}{moveString}");
+        }
+
+        #endregion
+
+        #region Analysis Command Methods
+
+        /// <summary>
+        ///     Starts a search for set amount of time
+        /// </summary>
+        /// <param name="searchTime">Time to spend searching</param>
+        /// <param name="searchMoves">only consider these moves</param>
+        public void SendGo(TimeSpan searchTime, Move[] searchMoves = null)
+        {
+            QueueCommand(new Go(searchTime, searchMoves));
+        }
+
+        public void SendGoInfinite()
+        {
+            QueueCommand(new Go());
+        }
+
+        #endregion
     }
 
     //internal static class WaitHandleExtensions

@@ -1,7 +1,5 @@
-﻿using ChessLib.Core.Helpers;
-using ChessLib.Data.Helpers;
+﻿using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.EngineInterface.UCI.Commands;
-using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
 namespace ChessLib.EngineInterface.UCI
 {
@@ -10,15 +8,17 @@ namespace ChessLib.EngineInterface.UCI
         string FEN { get; set; }
         void ProcessEngineResponse(string engineResponseText, CommandInfo awaitedCommand);
     }
+
     public delegate void EngineResponseCallback(EngineResponseArgs engineResponse);
 
     public class UCIEngineMessageSubscriber : IEngineMessageSubscriber
     {
-        public EngineResponseCallback EngineResponseCallback { get; set; }
         private readonly IEngineResponseFactory _responseFactory;
+
         public UCIEngineMessageSubscriber(EngineResponseCallback callback)
             : this(callback, new UCIResponseFactory())
-        { }
+        {
+        }
 
         public UCIEngineMessageSubscriber(EngineResponseCallback callback, IEngineResponseFactory responseFactory)
         {
@@ -26,16 +26,22 @@ namespace ChessLib.EngineInterface.UCI
             _responseFactory = responseFactory;
         }
 
-        public string FEN { get; set; } = FenReader.FENInitial;
+        public EngineResponseCallback EngineResponseCallback { get; set; }
+
+        public string FEN { get; set; } = BoardConstants.FenStartingPosition;
 
         public void ProcessEngineResponse(string engineResponseText, CommandInfo currentCommand)
         {
-            if (string.IsNullOrEmpty(engineResponseText)) { return; }
+            if (string.IsNullOrEmpty(engineResponseText))
+            {
+                return;
+            }
 
             if (currentCommand is AwaitableCommandInfo awaitedCommand)
             {
                 HandleAwaitedResponse(engineResponseText, awaitedCommand);
             }
+
             var response = _responseFactory.MakeResponseArgs(FEN, engineResponseText);
             if (response != null)
             {

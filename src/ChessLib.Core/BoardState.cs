@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
-using ChessLib.Core.Parse;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;

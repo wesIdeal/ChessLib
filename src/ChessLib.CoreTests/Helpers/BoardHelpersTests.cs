@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
 using NUnit.Framework;
@@ -127,17 +128,17 @@ namespace ChessLib.Core.Tests.Helpers
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
-        private static readonly FenReader FenReader = new FenReader();
+        private static readonly FenTextToBoard FenReader = new FenTextToBoard();
 
         protected static IEnumerable<TestCase<CastlingAvailability, Board>> GetCastlingAvailabilityPostMoveTestCases()
         {
-            var allCastlingAvailable = FenReader.GetBoard("r3k2r /ppp5/8/8/8/8/PPP5/R3K2R w KQkq - 0 1");
-            var knightsOnAFile = FenReader.GetBoard("n3k2r/8/8/8/8/8/PPP5/N3K2R w Kk - 0 1");
-            var knightsOnHFile = FenReader.GetBoard("r3k2n/8/8/8/8/8/PPP5/R3K2N w Qq - 0 1");
-            var bishopsOnAFile = FenReader.GetBoard("b3k2r/8/8/8/8/1P6/P1P5/B3K2R w Kk - 0 1");
-            var bishopsOnHFile = FenReader.GetBoard("r3k2b/8/8/8/8/1P6/P1P5/R3K2B w Qq - 0 1");
-            var queensOnAFile = FenReader.GetBoard("q3k2r/8/8/8/8/8/PPP5/Q3K2R w Kk - 0 1");
-            var queensOnHFile = FenReader.GetBoard("r3k2q/8/8/8/8/8/PPP5/R3K2Q w Qq - 0 1");
+            var allCastlingAvailable = FenReader.Translate("r3k2r /ppp5/8/8/8/8/PPP5/R3K2R w KQkq - 0 1");
+            var knightsOnAFile = FenReader.Translate("n3k2r/8/8/8/8/8/PPP5/N3K2R w Kk - 0 1");
+            var knightsOnHFile = FenReader.Translate("r3k2n/8/8/8/8/8/PPP5/R3K2N w Qq - 0 1");
+            var bishopsOnAFile = FenReader.Translate("b3k2r/8/8/8/8/1P6/P1P5/B3K2R w Kk - 0 1");
+            var bishopsOnHFile = FenReader.Translate("r3k2b/8/8/8/8/1P6/P1P5/R3K2B w Qq - 0 1");
+            var queensOnAFile = FenReader.Translate("q3k2r/8/8/8/8/8/PPP5/Q3K2R w Kk - 0 1");
+            var queensOnHFile = FenReader.Translate("r3k2q/8/8/8/8/8/PPP5/R3K2Q w Qq - 0 1");
             //
             // No Change in Castling Availability
             //No Piece on Square
@@ -255,8 +256,8 @@ namespace ChessLib.Core.Tests.Helpers
                 MoveHelpers.BlackCastleQueenSide);
 
             //Odd circumstances
-            var blackRookOnA1 = FenReader.GetBoard("r3k2r/ppp5/8/8/8/8/PPP5/r1B1K2R w Kkq - 0 1");
-            var whiteRookOnA8 = FenReader.GetBoard("R1b1k2r/ppp5/8/8/8/8/PPP5/RN2K2R w KQk - 0 1");
+            var blackRookOnA1 = FenReader.Translate("r3k2r/ppp5/8/8/8/8/PPP5/r1B1K2R w Kkq - 0 1");
+            var whiteRookOnA8 = FenReader.Translate("R1b1k2r/ppp5/8/8/8/8/PPP5/RN2K2R w KQk - 0 1");
             yield return new TestCase<CastlingAvailability, Board>(blackRookOnA1.CastlingAvailability, blackRookOnA1,
                 "Black Rook on a1- No Change", MoveHelpers.GenerateMove(0, 1));
             yield return new TestCase<CastlingAvailability, Board>(whiteRookOnA8.CastlingAvailability, whiteRookOnA8,
@@ -275,11 +276,11 @@ namespace ChessLib.Core.Tests.Helpers
         {
             yield return new TestCase<bool, Board>(false, new Board(), "Initial board");
             yield return new TestCase<bool, Board>(false,
-                FenReader.GetBoard("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "After 1. e4");
+                FenReader.Translate("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "After 1. e4");
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("rnbqkbnr/pp2pppp/8/2ppP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3"), "Available on d6");
+                FenReader.Translate("rnbqkbnr/pp2pppp/8/2ppP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3"), "Available on d6");
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("rnbqkbnr/pp2pppp/3P4/8/2pP4/8/PPP2PPP/RNBQKBNR b KQkq d3 0 4"), "Available on d3");
+                FenReader.Translate("rnbqkbnr/pp2pppp/3P4/8/2pP4/8/PPP2PPP/RNBQKBNR b KQkq d3 0 4"), "Available on d3");
         }
 
         [TestCaseSource(nameof(GetEnPassantIndexTestCases))]
@@ -295,17 +296,17 @@ namespace ChessLib.Core.Tests.Helpers
         {
             yield return new TestCase<ushort?, Board>(20, new Board(), "After 1. e4", MoveHelpers.GenerateMove(12, 28));
             yield return new TestCase<ushort?, Board>(44,
-                FenReader.GetBoard("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "After 1. e4 e5",
+                FenReader.Translate("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "After 1. e4 e5",
                 MoveHelpers.GenerateMove(52, 36));
             yield return new TestCase<ushort?, Board>(null,
-                FenReader.GetBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPRPPP/RNBQKBNR b KQkq - 0 1"), "After 1. Re4 from e3",
+                FenReader.Translate("rnbqkbnr/pppppppp/8/8/8/8/PPPPRPPP/RNBQKBNR b KQkq - 0 1"), "After 1. Re4 from e3",
                 MoveHelpers.GenerateMove(12, 28));
             yield return new TestCase<ushort?, Board>(null, new Board(), "No piece on square",
                 MoveHelpers.GenerateMove(28, 29));
             yield return new TestCase<ushort?, Board>(null, new Board(), "After 1. e3",
                 MoveHelpers.GenerateMove(12, 20));
             yield return new TestCase<ushort?, Board>(null,
-                FenReader.GetBoard("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "After 1.e4 e6",
+                FenReader.Translate("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), "After 1.e4 e6",
                 MoveHelpers.GenerateMove(52, 44));
         }
 
@@ -323,20 +324,20 @@ namespace ChessLib.Core.Tests.Helpers
             var boardTransitions = new[]
             {
                 new Board(),
-                FenReader.GetBoard("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"),
-                FenReader.GetBoard("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2"),
-                FenReader.GetBoard("rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"),
-                FenReader.GetBoard("rnb1kbnr/ppp1pppp/8/3q4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"),
-                FenReader.GetBoard("rnb1kbnr/ppp1pppp/8/3q4/8/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 3"),
-                FenReader.GetBoard("rnbqkbnr/ppp1pppp/8/8/8/2N5/PPPP1PPP/R1BQKBNR w KQkq - 2 4"),
-                FenReader.GetBoard("rnbqkbnr/ppp1pppp/8/8/2B5/2N5/PPPP1PPP/R1BQK1NR b KQkq - 3 4"),
-                FenReader.GetBoard("rnbqkbnr/ppp2ppp/4p3/8/2B5/2N5/PPPP1PPP/R1BQK1NR w KQkq - 0 5"),
-                FenReader.GetBoard("rnbqkbnr/ppp2ppp/4p3/8/2B5/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 1 5"),
-                FenReader.GetBoard("rnbqkb1r/ppp2ppp/4pn2/8/2B5/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 2 6"),
-                FenReader.GetBoard("rnbqkb1r/ppp2ppp/4pn2/8/2B5/2N2N2/PPPP1PPP/R1BQ1RK1 b kq - 3 6"),
-                FenReader.GetBoard("rnbqk2r/ppp1bppp/4pn2/8/2B5/2N2N2/PPPP1PPP/R1BQ1RK1 w kq - 4 7"),
-                FenReader.GetBoard("rnbqk2r/ppp1bppp/4pn2/8/2BP4/2N2N2/PPP2PPP/R1BQ1RK1 b kq d3 0 7"),
-                FenReader.GetBoard("rnbq1rk1/ppp1bppp/4pn2/8/2BP4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 1 8")
+                FenReader.Translate("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"),
+                FenReader.Translate("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2"),
+                FenReader.Translate("rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"),
+                FenReader.Translate("rnb1kbnr/ppp1pppp/8/3q4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"),
+                FenReader.Translate("rnb1kbnr/ppp1pppp/8/3q4/8/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 3"),
+                FenReader.Translate("rnbqkbnr/ppp1pppp/8/8/8/2N5/PPPP1PPP/R1BQKBNR w KQkq - 2 4"),
+                FenReader.Translate("rnbqkbnr/ppp1pppp/8/8/2B5/2N5/PPPP1PPP/R1BQK1NR b KQkq - 3 4"),
+                FenReader.Translate("rnbqkbnr/ppp2ppp/4p3/8/2B5/2N5/PPPP1PPP/R1BQK1NR w KQkq - 0 5"),
+                FenReader.Translate("rnbqkbnr/ppp2ppp/4p3/8/2B5/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 1 5"),
+                FenReader.Translate("rnbqkb1r/ppp2ppp/4pn2/8/2B5/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 2 6"),
+                FenReader.Translate("rnbqkb1r/ppp2ppp/4pn2/8/2B5/2N2N2/PPPP1PPP/R1BQ1RK1 b kq - 3 6"),
+                FenReader.Translate("rnbqk2r/ppp1bppp/4pn2/8/2B5/2N2N2/PPPP1PPP/R1BQ1RK1 w kq - 4 7"),
+                FenReader.Translate("rnbqk2r/ppp1bppp/4pn2/8/2BP4/2N2N2/PPP2PPP/R1BQ1RK1 b kq d3 0 7"),
+                FenReader.Translate("rnbq1rk1/ppp1bppp/4pn2/8/2BP4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 1 8")
             };
             var movesToApply = new[]
             {
@@ -379,40 +380,40 @@ namespace ChessLib.Core.Tests.Helpers
         protected static IEnumerable<TestCase<BoardHelpers.CheckType, Board>> GetCheckTypeTestCases()
         {
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
-                FenReader.GetBoard("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"),
+                FenReader.Translate("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"),
                 "White Rook vs Black King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
-                FenReader.GetBoard("rn5r/pp5p/2p1k1p1/q4p2/1bBPp3/2N4Q/PPP2P1P/2KR3R b - - 1 16"),
+                FenReader.Translate("rn5r/pp5p/2p1k1p1/q4p2/1bBPp3/2N4Q/PPP2P1P/2KR3R b - - 1 16"),
                 "White Bishop vs Black King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
-                FenReader.GetBoard("2brr1k1/5p2/p2p3p/P1pP2p1/1pNbP3/1P3PPq/6QP/2BRR1K1 w - - 1 30"),
+                FenReader.Translate("2brr1k1/5p2/p2p3p/P1pP2p1/1pNbP3/1P3PPq/6QP/2BRR1K1 w - - 1 30"),
                 "Black Bishop vs White King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
-                FenReader.GetBoard("8/1k6/2P5/2R5/8/8/6K1/8 b - - 0 1"), "White Pawn vs Black King");
+                FenReader.Translate("8/1k6/2P5/2R5/8/8/6K1/8 b - - 0 1"), "White Pawn vs Black King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
-                FenReader.GetBoard("8/1k6/8/8/8/8/3p3r/4K3 w - - 0 1"), "Black Pawn vs White King");
+                FenReader.Translate("8/1k6/8/8/8/8/3p3r/4K3 w - - 0 1"), "Black Pawn vs White King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
-                FenReader.GetBoard("8/1k6/8/8/8/5q2/6K1/8 w - - 0 1"), "Black Queen vs White King");
+                FenReader.Translate("8/1k6/8/8/8/5q2/6K1/8 w - - 0 1"), "Black Queen vs White King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Single,
-                FenReader.GetBoard("8/1k6/8/8/8/8/3p3r/4K3 w - - 0 1"), "Black Knight vs White King");
+                FenReader.Translate("8/1k6/8/8/8/8/3p3r/4K3 w - - 0 1"), "Black Knight vs White King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
-                FenReader.GetBoard("8/1k6/8/8/5n1n/8/6K1/8 w - - 0 1"), "2 Black Knights + Rook vs White King");
+                FenReader.Translate("8/1k6/8/8/5n1n/8/6K1/8 w - - 0 1"), "2 Black Knights + Rook vs White King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
-                FenReader.GetBoard("8/1k6/8/8/8/5q1q/6K1/8 w - - 0 1"), "2 Black Queens vs White King");
+                FenReader.Translate("8/1k6/8/8/8/5q1q/6K1/8 w - - 0 1"), "2 Black Queens vs White King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
-                FenReader.GetBoard("8/1k6/5r2/8/8/3b4/8/5K2 w - - 0 1"), "Black Bishop + Rook vs White King");
+                FenReader.Translate("8/1k6/5r2/8/8/3b4/8/5K2 w - - 0 1"), "Black Bishop + Rook vs White King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
-                FenReader.GetBoard("8/1k6/2P5/1R6/8/8/6K1/8 b - - 0 1"), "White Pawn + Rook vs Black King");
+                FenReader.Translate("8/1k6/2P5/1R6/8/8/6K1/8 b - - 0 1"), "White Pawn + Rook vs Black King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
-                FenReader.GetBoard("8/1k6/8/8/8/4r3/3p4/4K3 w - - 0 1"), "Black Pawn and Rook vs White King");
+                FenReader.Translate("8/1k6/8/8/8/4r3/3p4/4K3 w - - 0 1"), "Black Pawn and Rook vs White King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
-                FenReader.GetBoard("k7/1P6/8/8/8/8/6K1/Q7 b - - 0 2"), "White Pawn + Queen vs Black King");
+                FenReader.Translate("k7/1P6/8/8/8/8/6K1/Q7 b - - 0 2"), "White Pawn + Queen vs Black King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.Double,
-                FenReader.GetBoard("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"), "2 White Pawns vs Black King");
+                FenReader.Translate("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"), "2 White Pawns vs Black King");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.None,
                 new Board(), "No Check - Initial Board");
             yield return new TestCase<BoardHelpers.CheckType, Board>(BoardHelpers.CheckType.None,
-                FenReader.GetBoard("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"),
+                FenReader.Translate("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"),
                 "No Check - 1. e4 d5");
         }
 
@@ -428,25 +429,25 @@ namespace ChessLib.Core.Tests.Helpers
 
         protected static IEnumerable<TestCase<bool, Board>> GetIsStalemateTestCases()
         {
-            yield return new TestCase<bool, Board>(false, FenReader.GetBoard("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"),
+            yield return new TestCase<bool, Board>(false, FenReader.Translate("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"),
                 "Double Check");
             yield return new TestCase<bool, Board>(false,
-                FenReader.GetBoard("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"), "Single Check");
+                FenReader.Translate("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"), "Single Check");
             yield return new TestCase<bool, Board>(false,
                 new Board(), "Initial Board");
             yield return new TestCase<bool, Board>(false,
-                FenReader.GetBoard("3kr3/pppQ4/5N2/1n3p2/3p4/1P6/1P2qPP1/6K1 b - - 1 36"), "Checkmate");
+                FenReader.Translate("3kr3/pppQ4/5N2/1n3p2/3p4/1P6/1P2qPP1/6K1 b - - 1 36"), "Checkmate");
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("7k/6pP/6P1/8/6P1/8/6K1/8 b - - 0 50"), "01 Stalemate");
+                FenReader.Translate("7k/6pP/6P1/8/6P1/8/6K1/8 b - - 0 50"), "01 Stalemate");
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("8/8/8/5p2/6p1/5kP1/7K/5q2 w - - 0 106"), "02 Stalemate");
+                FenReader.Translate("8/8/8/5p2/6p1/5kP1/7K/5q2 w - - 0 106"), "02 Stalemate");
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("7k/7P/7K/8/8/8/8/8 b - - 2 66"), "03 Stalemate");
-            yield return new TestCase<bool, Board>(true, FenReader.GetBoard("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62"),
+                FenReader.Translate("7k/7P/7K/8/8/8/8/8 b - - 2 66"), "03 Stalemate");
+            yield return new TestCase<bool, Board>(true, FenReader.Translate("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62"),
                 "04 Stalemate");
-            yield return new TestCase<bool, Board>(true, FenReader.GetBoard("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57"),
+            yield return new TestCase<bool, Board>(true, FenReader.Translate("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57"),
                 "05 Stalemate");
-            yield return new TestCase<bool, Board>(true, FenReader.GetBoard("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57"),
+            yield return new TestCase<bool, Board>(true, FenReader.Translate("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57"),
                 "06 Stalemate");
         }
 
@@ -463,56 +464,56 @@ namespace ChessLib.Core.Tests.Helpers
             yield return new TestCase<bool, Board>(false,
                 new Board(), "Initial Board");
             yield return new TestCase<bool, Board>(false,
-                FenReader.GetBoard("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23"),
+                FenReader.Translate("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23"),
                 "No checks- Normal Position");
             yield return new TestCase<bool, Board>(false,
-                FenReader.GetBoard("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"), "1. e4");
+                FenReader.Translate("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"), "1. e4");
             yield return new TestCase<bool, Board>(false,
-                FenReader.GetBoard("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1"), "1. d4");
+                FenReader.Translate("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1"), "1. d4");
 
             //Normal checks
-            yield return new TestCase<bool, Board>(false, FenReader.GetBoard("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1"),
+            yield return new TestCase<bool, Board>(false, FenReader.Translate("8/8/8/8/8/8/5Qk1/4K3 b - - 0 1"),
                 "Single Check, Can evade");
             yield return new TestCase<bool, Board>(false,
-                FenReader.GetBoard("2bq1rk1/3p1Bpp/p1p3N1/1rb2Pp1/1pQ5/P5N1/1PP3PP/R3R2K b - - 0 23"),
+                FenReader.Translate("2bq1rk1/3p1Bpp/p1p3N1/1rb2Pp1/1pQ5/P5N1/1PP3PP/R3R2K b - - 0 23"),
                 "Check, attacker can be captured");
-            yield return new TestCase<bool, Board>(false, FenReader.GetBoard("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"),
+            yield return new TestCase<bool, Board>(false, FenReader.Translate("2k5/1P1P4/8/8/8/8/6K1/8 b - - 0 1"),
                 "Double Check, Can evade and capture");
             yield return new TestCase<bool, Board>(false,
-                FenReader.GetBoard("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"),
+                FenReader.Translate("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"),
                 "Single Check, Can evade");
             yield return new TestCase<bool, Board>(false,
-                FenReader.GetBoard("5Bk1/p4p2/5P1p/1Pp4P/2bbrp2/6p1/P2P2P1/5K1R w - - 1 30"),
+                FenReader.Translate("5Bk1/p4p2/5P1p/1Pp4P/2bbrp2/6p1/P2P2P1/5K1R w - - 1 30"),
                 "Single check, can block");
             //Stalemates
             yield return new TestCase<bool, Board>(false,
-                FenReader.GetBoard("7k/7P/7K/8/8/8/8/8 b - - 2 66"), "Stalemate 01");
-            yield return new TestCase<bool, Board>(false, FenReader.GetBoard("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62"),
+                FenReader.Translate("7k/7P/7K/8/8/8/8/8 b - - 2 66"), "Stalemate 01");
+            yield return new TestCase<bool, Board>(false, FenReader.Translate("5Q2/7k/1R6/7P/6K1/8/8/8 b - - 0 62"),
                 "Stalemate 02");
-            yield return new TestCase<bool, Board>(false, FenReader.GetBoard("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57"),
+            yield return new TestCase<bool, Board>(false, FenReader.Translate("4k1K1/6P1/8/7q/8/8/8/8 w - - 10 57"),
                 "Stalemate 03");
-            yield return new TestCase<bool, Board>(false, FenReader.GetBoard("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57"),
+            yield return new TestCase<bool, Board>(false, FenReader.Translate("6K1/4k1P1/8/7q/8/8/8/8 w - - 10 57"),
                 "Stalemate 04");
             //Mates
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("3kr3/pppQ4/5N2/1n3p2/3p4/1P6/1P2qPP1/6K1 b - - 1 36"), "00 Checkmate");
+                FenReader.Translate("3kr3/pppQ4/5N2/1n3p2/3p4/1P6/1P2qPP1/6K1 b - - 1 36"), "00 Checkmate");
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("5Bk1/p4p2/5P1p/1Pp4P/2bbrp2/6p1/P1P3P1/5K1R w - - 1 30"), "01 Checkmate");
+                FenReader.Translate("5Bk1/p4p2/5P1p/1Pp4P/2bbrp2/6p1/P1P3P1/5K1R w - - 1 30"), "01 Checkmate");
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("2bQkr2/1p1p2bp/3PNnq1/5pN1/r4BpP/2P3P1/PP6/R4RK1 b - - 10 25"), "02 Checkmate");
-            yield return new TestCase<bool, Board>(true, FenReader.GetBoard("8/8/8/8/8/8/5QkQ/4K3 b - - 0 1"),
+                FenReader.Translate("2bQkr2/1p1p2bp/3PNnq1/5pN1/r4BpP/2P3P1/PP6/R4RK1 b - - 10 25"), "02 Checkmate");
+            yield return new TestCase<bool, Board>(true, FenReader.Translate("8/8/8/8/8/8/5QkQ/4K3 b - - 0 1"),
                 "03 Mate with 2 Queens");
-            yield return new TestCase<bool, Board>(false, FenReader.GetBoard("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1"),
+            yield return new TestCase<bool, Board>(false, FenReader.Translate("8/8/8/8/3b4/8/3Q2k1/4K3 b - - 0 1"),
                 "Mate in 5");
-            yield return new TestCase<bool, Board>(true, FenReader.GetBoard("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1"),
+            yield return new TestCase<bool, Board>(true, FenReader.Translate("8/8/8/8/3b2B1/5N1Q/6k1/4K3 b - - 0 1"),
                 "04 Checkmate, single check");
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("3qk3/5Q1p/8/p1p1N3/Pp2bP1P/1P1r4/8/4RnK1 b - - 6 38"), "05 Checkmate, Queen");
+                FenReader.Translate("3qk3/5Q1p/8/p1p1N3/Pp2bP1P/1P1r4/8/4RnK1 b - - 6 38"), "05 Checkmate, Queen");
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55"),
+                FenReader.Translate("7R/pp4p1/2p3Bk/5P2/7P/8/PP4p1/4K3 b - - 1 55"),
                 "06 Checkmate, Rook");
             yield return new TestCase<bool, Board>(true,
-                FenReader.GetBoard("4R3/2p3pk/pp3p2/5n1p/2P2P1P/P5r1/1P4q1/3QR2K w - - 6 41"), "07 Checkmate, Queen");
+                FenReader.Translate("4R3/2p3pk/pp3p2/5n1p/2P2P1P/P5r1/1P4q1/3QR2K w - - 6 41"), "07 Checkmate, Queen");
         }
 
 
@@ -527,34 +528,34 @@ namespace ChessLib.Core.Tests.Helpers
         protected static IEnumerable<TestCase<MoveType, Board>> GetMoveTypeTestCases()
         {
             yield return new TestCase<MoveType, Board>(MoveType.Normal,
-                FenReader.GetBoard("rnbqkbnr/ppp1pppp/8/4P3/3p4/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"),
+                FenReader.Translate("rnbqkbnr/ppp1pppp/8/4P3/3p4/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"),
                 "Normal- White, c2-c4",
                 (ushort) 10, (ushort) 26);
             yield return new TestCase<MoveType, Board>(MoveType.EnPassant,
-                FenReader.GetBoard("rnbqkbnr/ppp1pppp/8/4P3/2Pp4/8/PP1P1PPP/RNBQKBNR b KQkq c3 0 3"),
+                FenReader.Translate("rnbqkbnr/ppp1pppp/8/4P3/2Pp4/8/PP1P1PPP/RNBQKBNR b KQkq c3 0 3"),
                 "Black makes En Passant Capture, dxc3",
                 (ushort) 27, (ushort) 18);
             yield return new TestCase<MoveType, Board>(MoveType.Castle,
-                FenReader.GetBoard("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
+                FenReader.Translate("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
                 "White Castles KS", MoveHelpers.WhiteCastleKingSide.SourceIndex,
                 MoveHelpers.WhiteCastleKingSide.DestinationIndex);
             yield return new TestCase<MoveType, Board>(MoveType.Castle,
-                FenReader.GetBoard("r4n2/pp3kp1/2pbbn2/3p2B1/3P4/3B4/PPP2PPP/R3K2R w KQ - 3 19"),
+                FenReader.Translate("r4n2/pp3kp1/2pbbn2/3p2B1/3P4/3B4/PPP2PPP/R3K2R w KQ - 3 19"),
                 "White Castles QS", MoveHelpers.WhiteCastleQueenSide.SourceIndex,
                 MoveHelpers.WhiteCastleQueenSide.DestinationIndex);
             yield return new TestCase<MoveType, Board>(MoveType.Castle,
-                FenReader.GetBoard("rnbqk2r/pppp1ppp/5n2/4N3/1bP5/2N5/PP1PPPPP/R1BQKB1R b KQkq - 0 4"),
+                FenReader.Translate("rnbqk2r/pppp1ppp/5n2/4N3/1bP5/2N5/PP1PPPPP/R1BQKB1R b KQkq - 0 4"),
                 "Black Castles KS", MoveHelpers.BlackCastleKingSide.SourceIndex,
                 MoveHelpers.BlackCastleKingSide.DestinationIndex);
             yield return new TestCase<MoveType, Board>(MoveType.Castle,
-                FenReader.GetBoard("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
+                FenReader.Translate("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
                 "Black Castles QS", MoveHelpers.BlackCastleQueenSide.SourceIndex,
                 MoveHelpers.BlackCastleQueenSide.DestinationIndex);
             yield return new TestCase<MoveType, Board>(MoveType.Promotion,
-                FenReader.GetBoard("8/3P4/8/1p6/8/P1p3P1/1k2p3/4K3 w - - 0 49"), "White promotion", (ushort) 51,
+                FenReader.Translate("8/3P4/8/1p6/8/P1p3P1/1k2p3/4K3 w - - 0 49"), "White promotion", (ushort) 51,
                 (ushort) 59);
             yield return new TestCase<MoveType, Board>(MoveType.Promotion,
-                FenReader.GetBoard("6Q1/8/8/p7/5K2/k7/1p4P1/8 b - - 0 55"), "Black promotion", (ushort) 9, (ushort) 1);
+                FenReader.Translate("6Q1/8/8/p7/5K2/k7/1p4P1/8 b - - 0 55"), "Black promotion", (ushort) 9, (ushort) 1);
         }
 
 

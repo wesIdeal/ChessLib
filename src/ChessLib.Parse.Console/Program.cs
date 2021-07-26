@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
-using ChessLib.Data;
+using ChessLib.Core.Types;
 using ChessLib.Parse.PGN;
 using ChessLib.Parse.Tests;
 
@@ -16,14 +16,26 @@ namespace ChessLib.Parse.Console
     [SuppressMessage("ReSharper", "LocalizableElement")]
     internal class Program
     {
+        public enum GameDatabase
+        {
+            WithFENSetup,
+            TalSmall,
+            TalLarge,
+            TalMedium,
+            GameWithVariation,
+            PregameComment,
+            SymbolNag
+        }
+
+        private static int CursorTop => System.Console.CursorTop;
+
         private static void Main(string[] args)
         {
             var games = TestParsing(GameDatabase.TalLarge);
-            games.First().MainMoveTree.Count();
-            //WriteGame(listenerGames, 0);
+
         }
 
-        public static Game<MoveStorage>[] TestParsing(GameDatabase db)
+        public static Game[] TestParsing(GameDatabase db)
         {
             var parser = new PGNParser();
             parser.UpdateProgress += UpdateProgress;
@@ -54,14 +66,14 @@ namespace ChessLib.Parse.Console
             }
 
             System.Console.WriteLine(
-                $"{Environment.NewLine}Old:\tTotal:{Math.Round((double) (oldParsingTimes.Sum() / 1000), 2)} secs\t{oldParsingTimes.Average()} avg ms");
+                $"{Environment.NewLine}Old:\tTotal:{Math.Round((double)(oldParsingTimes.Sum() / 1000), 2)} secs\t{oldParsingTimes.Average()} avg ms");
         }
 
         public static void TestParsingNagSymbols()
         {
             var parser = new PGNParser();
             var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagSymbol).Result;
-            var formatter = new PgnFormatter<MoveStorage>(new PGNFormatterOptions());
+            var formatter = new PgnFormatter<Move>(new PGNFormatterOptions());
             formatter.BuildPgn(game.First());
         }
 
@@ -74,7 +86,7 @@ namespace ChessLib.Parse.Console
                 return GameDatabase.TalSmall;
             }
 
-            return (GameDatabase) rv;
+            return (GameDatabase)rv;
         }
 
         private static GameDatabase GetDatabaseFromUser()
@@ -87,7 +99,7 @@ namespace ChessLib.Parse.Console
                 System.Console.Clear();
                 System.Console.WriteLine("Choose database:");
                 var count = 0;
-                foreach (var db in (GameDatabase[]) Enum.GetValues(typeof(GameDatabase)))
+                foreach (var db in (GameDatabase[])Enum.GetValues(typeof(GameDatabase)))
                 {
                     System.Console.WriteLine($"{count}\t{db}");
                     max = count++;
@@ -100,7 +112,7 @@ namespace ChessLib.Parse.Console
                 }
             }
 
-            return (GameDatabase) answer;
+            return (GameDatabase)answer;
         }
 
         private static GameDatabase GetDatabaseToParse(string[] args)
@@ -151,7 +163,7 @@ namespace ChessLib.Parse.Console
             System.Console.Write(e.Label);
         }
 
-        private static void WriteGame(Game<MoveStorage>[] games, int i)
+        private static void WriteGame(Game[] games, int i)
         {
             if (i >= games.Length)
             {
@@ -160,7 +172,7 @@ namespace ChessLib.Parse.Console
             }
 
             var game = games[i];
-            var pgnFormatter = new PgnFormatter<MoveStorage>(new PGNFormatterOptions
+            var pgnFormatter = new PgnFormatter<Move>(new PGNFormatterOptions
             {
                 ExportFormat = true
             });
@@ -169,7 +181,7 @@ namespace ChessLib.Parse.Console
             File.WriteAllText("C:\\temp\\test.pgn", pgn);
         }
 
-        private static void WritePolyglotInfo(Game<MoveStorage>[] games, int i)
+        private static void WritePolyglotInfo(Game[] games, int i)
         {
             if (i >= games.Length)
             {
@@ -184,7 +196,7 @@ namespace ChessLib.Parse.Console
 
             foreach (var move in game.MainMoveTree.Skip(1).Take(5))
             {
-                var hash = Convert.ToString((long) PolyglotHelpers.GetBoardStateHash(game.Board), 16);
+                var hash = Convert.ToString((long)PolyglotHelpers.GetBoardStateHash(game.Board), 16);
                 System.Console.WriteLine($"\tHash:{hash}");
                 game.TraverseForward();
                 var pgMove = Convert.ToString(PolyglotMove.GetEncodedMove(move), 16).PadLeft(4, '0');
@@ -194,18 +206,5 @@ namespace ChessLib.Parse.Console
                 System.Console.WriteLine($"\tMove:{pgMove}");
             }
         }
-
-        public enum GameDatabase
-        {
-            WithFENSetup,
-            TalSmall,
-            TalLarge,
-            TalMedium,
-            GameWithVariation,
-            PregameComment,
-            SymbolNag
-        }
-
-        private static int CursorTop => System.Console.CursorTop;
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ChessLib.Core;
 using ChessLib.Parse.PGN.Base;
 
 namespace ChessLib.Parse.PGN
@@ -41,13 +42,13 @@ namespace ChessLib.Parse.PGN
         public int GameCount { get; protected set; }
 
 
-        public async Task<IEnumerable<Game<MoveStorage>>> GetGamesFromPGNAsync(string pgn)
+        public async Task<IEnumerable<Game>> GetGamesFromPGNAsync(string pgn)
         {
             _pgn = pgn;
             return await GetGamesFromPGNAsync();
         }
 
-        public async Task<IEnumerable<Game<MoveStorage>>> GetGamesFromPGNAsync(Stream pgnStream)
+        public async Task<IEnumerable<Game>> GetGamesFromPGNAsync(Stream pgnStream)
         {
             SendUpdate("Opening and reading stream." + Environment.NewLine);
             Stopwatch.Restart();
@@ -62,6 +63,7 @@ namespace ChessLib.Parse.PGN
                 var str = Encoding.Default.GetString(buffer, 0, readBytes);
                 _pgn += str;
             }
+
             _stream.Close();
             _stream.Dispose();
             SendUpdate(
@@ -71,13 +73,13 @@ namespace ChessLib.Parse.PGN
             return await GetGamesFromPGNAsync();
         }
 
-        private async Task<IEnumerable<Game<MoveStorage>>> GetGamesFromPGNAsync()
+        private async Task<IEnumerable<Game>> GetGamesFromPGNAsync()
         {
             Stopwatch.Restart();
             var strGames = SplitPgnIntoGames();
             GameCount = strGames.Count;
             var take = ParserOptions.MaxGameCount ?? GameCount;
-            var rv = new Game<MoveStorage>[take];
+            var rv = new Game[take];
 
             var parseTasks = strGames.Take(take)
                 .Select((g, idx) => Task.Factory.StartNew(() =>
@@ -150,7 +152,7 @@ namespace ChessLib.Parse.PGN
         private void SendUpdate()
         {
             var args = new ParsingUpdateEventArgs(Stopwatch.Elapsed)
-            { Maximum = GameCount, NumberComplete = Completed };
+                {Maximum = GameCount, NumberComplete = Completed};
             UpdateProgress?.Invoke(this, args);
         }
 

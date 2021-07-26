@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="BoardRepresentation\**" />
+    <EmbeddedResource Remove="BoardRepresentation\**" />
+    <None Remove="BoardRepresentation\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NUnit" Version="3.13.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
@@ -14,10 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.BoardService\ChessLib.Game.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="BoardRepresentation\" />
   </ItemGroup>
 
 </Project>

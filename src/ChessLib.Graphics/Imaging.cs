@@ -1,7 +1,4 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Helpers;
-using ImageMagick;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -10,32 +7,34 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types;
+using ImageMagick;
 
 namespace ChessLib.Graphics
 {
     public enum ImageFormat
     {
-        GIF, PNG, JPG
+        GIF,
+        PNG,
+        JPG
     }
+
     public enum AnimatedFormat
     {
         GIF
     }
+
     public class Imaging : IDisposable
     {
-
         private MagickImage _boardBase;
+        private ImageOptions _imageOptions = new ImageOptions();
+        private int _offset;
         private Dictionary<char, IMagickImage> _pieceMap;
         private int _squareSize;
-        private int _offset;
-        private ImageOptions _imageOptions = new ImageOptions();
-        private bool _disposed = false;
-        public bool IsDisposed { get { return _disposed; } private set { _disposed = value; } }
 
         public Imaging()
         {
-
             _imageOptions = new ImageOptions();
             var assembly = Assembly.GetExecutingAssembly();
             var names = assembly.GetManifestResourceNames();
@@ -44,11 +43,33 @@ namespace ChessLib.Graphics
 
         public Imaging(ImageOptions imageOptions)
         {
-
             _imageOptions = imageOptions;
             var assembly = Assembly.GetExecutingAssembly();
             var names = assembly.GetManifestResourceNames();
             SetBoardBaseImage();
+        }
+
+        public bool IsDisposed { get; private set; }
+
+        public void Dispose()
+        {
+            if (!_boardBase.IsDisposed)
+            {
+                _boardBase.Dispose();
+            }
+
+            if (_pieceMap != null)
+            {
+                foreach (var p in _pieceMap)
+                {
+                    if (!p.Value.IsDisposed)
+                    {
+                        p.Value.Dispose();
+                    }
+                }
+            }
+
+            IsDisposed = true;
         }
 
         private void SetBoardBaseImage()
@@ -56,10 +77,10 @@ namespace ChessLib.Graphics
             var assembly = Assembly.GetExecutingAssembly();
             using (var resources = assembly.GetManifestResourceStream("ChessLib.Graphics.Images.Board.svg"))
             {
-                MagickReadSettings readSettings = new MagickReadSettings { Format = MagickFormat.Svg };
+                var readSettings = new MagickReadSettings {Format = MagickFormat.Svg};
                 using (var bm = new MagickImage(resources, readSettings))
                 {
-                    _boardBase = (MagickImage)bm.Clone();
+                    _boardBase = (MagickImage) bm.Clone();
                 }
             }
         }
@@ -68,7 +89,11 @@ namespace ChessLib.Graphics
         {
             Dispose();
         }
-        private MagickColor SquareColor(int rank, int file) => ((rank + file) % 2) == 1 ? _imageOptions.MagickLightSquareColor : _imageOptions.MagickDarkSquareColor;
+
+        private MagickColor SquareColor(int rank, int file)
+        {
+            return (rank + file) % 2 == 1 ? _imageOptions.MagickLightSquareColor : _imageOptions.MagickDarkSquareColor;
+        }
 
         public Dictionary<PieceOfColor, IMagickImage> GetPieceTypeDictionaryOfSize(int size)
         {
@@ -94,7 +119,6 @@ namespace ChessLib.Graphics
                 };
                 using (var bm = new MagickImage(resources, readSettings))
                 {
-
                     var pieces = new List<IMagickImage>();
                     var colorFrom = new MagickColor(0, 0, 0);
                     var colorTo = _imageOptions.BlackPieceColor;
@@ -113,6 +137,7 @@ namespace ChessLib.Graphics
                             piece.Dispose();
                         }
                     }
+
                     var pieceMap = new Dictionary<char, IMagickImage>
                     {
                         {'k', pieces[0].Clone()},
@@ -150,17 +175,18 @@ namespace ChessLib.Graphics
             return orig;
         }
 
-        private static int SecondsToHundredths(double seconds) => (int)Math.Round(seconds * 100);
-
-        struct MoveImages
+        private static int SecondsToHundredths(double seconds)
         {
-            public int Index { get; set; }
-            public IMagickImage Image { get; set; }
+            return (int) Math.Round(seconds * 100);
         }
-        public void MakeAnimationFromMoveTree(Stream writeTo, Game<MoveStorage> game, double positionDelayInSeconds, ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
+
+        public void MakeAnimationFromMoveTree(Stream writeTo, Game game, double positionDelayInSeconds,
+            ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
         {
-            MagickFormat format = MagickFormat.Gif;
-            var initialFen = game.TagSection.ContainsKey("FEN") ? game.TagSection["FEN"] : FenReader.FENInitial;
+            var format = MagickFormat.Gif;
+            var initialFen = game.TagSection.ContainsKey("FEN")
+                ? game.TagSection["FEN"]
+                : BoardConstants.FenStartingPosition;
             var moves = game.MainMoveTree;
             _imageOptions = imageOpts = imageOpts ?? new ImageOptions();
             _squareSize = imageOpts.SquareSize;
@@ -176,16 +202,16 @@ namespace ChessLib.Graphics
                         firstImage.AnimationDelay = delay * 2;
                         imageList.Add(firstImage);
                         var images = new List<MoveImages>();
-                        
-                        var results = Parallel.ForEach(moves.Select((x, i) => new { mv = x, idx = i }), move =>
-                           {
-                               //using (var positionBoard = MakeBoardFromFen(move.mv.PremoveFEN, boardImage, game.TagSection, null))
-                               //{
-                               //    positionBoard.AnimationDelay = delay;
-                               //    images.Add(new MoveImages { Image = positionBoard, Index = move.idx });
-                               //}
-                           });
-                        imageList.AddRange(images.OrderBy(i => i.Index).Select(x => (IMagickImage)x.Image));
+
+                        var results = Parallel.ForEach(moves.Select((x, i) => new {mv = x, idx = i}), move =>
+                        {
+                            //using (var positionBoard = MakeBoardFromFen(move.mv.PremoveFEN, boardImage, game.TagSection, null))
+                            //{
+                            //    positionBoard.AnimationDelay = delay;
+                            //    images.Add(new MoveImages { Image = positionBoard, Index = move.idx });
+                            //}
+                        });
+                        imageList.AddRange(images.OrderBy(i => i.Index).Select(x => x.Image));
                         imageList.OptimizePlus();
                         imageList.Write(writeTo, format);
                         images.ForEach(i => { i.Image.Dispose(); });
@@ -222,18 +248,26 @@ namespace ChessLib.Graphics
             {
                 WriteGameInformation(ref bm, tags);
             }
+
             return bm;
         }
 
-        public PointD UpperSquareCoordinate(int rank, int file) => UpperSquareCoordinateFromFENRank(Math.Abs(8 - rank), file);
+        public PointD UpperSquareCoordinate(int rank, int file)
+        {
+            return UpperSquareCoordinateFromFENRank(Math.Abs(8 - rank), file);
+        }
 
-        public PointD UpperSquareCoordinateFromFENRank(int rank, int file) => new PointD((file * _squareSize) + _offset, (rank * _squareSize) + _offset);
+        public PointD UpperSquareCoordinateFromFENRank(int rank, int file)
+        {
+            return new PointD(file * _squareSize + _offset, rank * _squareSize + _offset);
+        }
 
         public PointD LowerSquareCoordinate(int rank, int file)
         {
             var upper = UpperSquareCoordinate(rank, file);
             return LowerSquareCoordinate(upper);
         }
+
         public PointD LowerSquareCoordinate(PointD upperSquareCoordinate)
         {
             return new PointD(upperSquareCoordinate.X + _squareSize, upperSquareCoordinate.Y + _squareSize);
@@ -247,39 +281,42 @@ namespace ChessLib.Graphics
 
         private void WriteRankLabels(ref IMagickImage image)
         {
-            var x = (_squareSize * 0.8);
+            var x = _squareSize * 0.8;
             var rankAndFileDrawables = new Drawables();
             var fontSizePixels = _squareSize * 0.15;
             for (var rank = 0; rank < 8; rank++)
             {
                 var strRank = Math.Abs(rank - 8).ToString();
-                var y = (rank * _squareSize) + _offset + (_offset / 2);
-                rankAndFileDrawables.FontPointSize(fontSizePixels).StrokeColor(_imageOptions.MagickTextColor).FillColor(_imageOptions.MagickTextColor)
-                           .Text(x, y, strRank)
-                           .TextAlignment(TextAlignment.Center);
+                var y = rank * _squareSize + _offset + _offset / 2;
+                rankAndFileDrawables.FontPointSize(fontSizePixels).StrokeColor(_imageOptions.MagickTextColor)
+                    .FillColor(_imageOptions.MagickTextColor)
+                    .Text(x, y, strRank)
+                    .TextAlignment(TextAlignment.Center);
             }
+
             image.Draw(rankAndFileDrawables);
         }
 
         private void WriteFileLabels(ref IMagickImage image)
         {
-            var y = (_squareSize * 8) + _offset + (_offset * 0.2);
+            var y = _squareSize * 8 + _offset + _offset * 0.2;
             var rankAndFileDrawables = new Drawables();
             var fontSizePixels = _squareSize * 0.15;
             for (var file = 0; file < 8; file++)
             {
-                var strFile = ((char)('A' + file)).ToString();
-                var x = (file * _squareSize) + _offset + (_squareSize / 2);
-                rankAndFileDrawables.FontPointSize(fontSizePixels).StrokeColor(_imageOptions.MagickTextColor).FillColor(_imageOptions.MagickTextColor)
-                           .Text(x, y, strFile)
-                           .TextAlignment(TextAlignment.Center);
+                var strFile = ((char) ('A' + file)).ToString();
+                var x = file * _squareSize + _offset + _squareSize / 2;
+                rankAndFileDrawables.FontPointSize(fontSizePixels).StrokeColor(_imageOptions.MagickTextColor)
+                    .FillColor(_imageOptions.MagickTextColor)
+                    .Text(x, y, strFile)
+                    .TextAlignment(TextAlignment.Center);
             }
+
             image.Draw(rankAndFileDrawables);
         }
 
         private void WriteGameInformation(ref IMagickImage image, Tags tags)
         {
-
             var boardWidth = _squareSize * 10;
             var nameFontSize = _squareSize * 0.2;
             if (_offset != 0)
@@ -292,8 +329,8 @@ namespace ChessLib.Graphics
                     .StrokeColor(_imageOptions.MagickTextColor)
                     .FillColor(_imageOptions.MagickTextColor)
                     .Font("Arial", FontStyleType.Normal, FontWeight.Normal, FontStretch.Normal)
-                    .Text(boardWidth / 2, (_offset * 0.8), tags.Black)
-                    .Text(boardWidth / 2, _squareSize * 10 - (_offset * 0.5), tags.White);
+                    .Text(boardWidth / 2, _offset * 0.8, tags.Black)
+                    .Text(boardWidth / 2, _squareSize * 10 - _offset * 0.5, tags.White);
                 //var whitePlayerNameDrawable = new DrawableText(_boardWidth / 2, _squareWidth * 10 - (_squareWidth / 2), _whitePlayerName);
                 //_boardBase.Draw(blackPlayerNameDrawable, whitePlayerNameDrawable);
                 image.Draw(drawables);
@@ -336,13 +373,14 @@ namespace ChessLib.Graphics
                         fileCount++;
                     }
                 }
+
                 return board.Clone();
             }
         }
 
 
-
-        public void MakeBoardFromFen(Stream writeTo, string fen, ImageOptions imageOptions = null, Tags tags = null, ImageFormat imageFormat = ImageFormat.PNG)
+        public void MakeBoardFromFen(Stream writeTo, string fen, ImageOptions imageOptions = null, Tags tags = null,
+            ImageFormat imageFormat = ImageFormat.PNG)
         {
             imageOptions = imageOptions ?? _imageOptions;
             _imageOptions = imageOptions;
@@ -367,9 +405,9 @@ namespace ChessLib.Graphics
                     return false;
                 }
             }
+
             return true;
         }
-
 
 
         private static PointD CenterOfRectangle(double upperX, double upperY, double lowerX, double lowerY)
@@ -381,34 +419,21 @@ namespace ChessLib.Graphics
 
         public PointD GetPointFromBoardIndex(ushort sq)
         {
-            var x = ((sq % 8) * _squareSize) + _squareSize;
-            var y = (Math.Abs((sq / 8) - 7)) * _squareSize + _squareSize;
+            var x = sq % 8 * _squareSize + _squareSize;
+            var y = Math.Abs(sq / 8 - 7) * _squareSize + _squareSize;
             return new PointD(x, y);
         }
 
         public RectangleF GetRectFromBoardIndex(ushort squareIndex)
         {
             var p = GetPointFromBoardIndex(squareIndex);
-            return new RectangleF((float)p.X, (float)p.Y + _squareSize, _squareSize, _squareSize);
+            return new RectangleF((float) p.X, (float) p.Y + _squareSize, _squareSize, _squareSize);
         }
 
-        public void Dispose()
+        private struct MoveImages
         {
-            if (!_boardBase.IsDisposed)
-            {
-                _boardBase.Dispose();
-            }
-            if (_pieceMap != null)
-            {
-                foreach (var p in _pieceMap)
-                {
-                    if (!p.Value.IsDisposed)
-                    {
-                        p.Value.Dispose();
-                    }
-                } 
-            }
-            IsDisposed = true;
+            public int Index { get; set; }
+            public IMagickImage Image { get; set; }
         }
 
         //private void SetBoardBaseImage()

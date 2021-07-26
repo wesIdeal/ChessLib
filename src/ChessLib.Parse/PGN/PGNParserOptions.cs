@@ -1,15 +1,12 @@
 ﻿using System.Diagnostics;
-using ChessLib.Core;
 using ChessLib.Core.Helpers;
-using ChessLib.Data;
-using ChessLib.Data.Helpers;
+
 
 namespace ChessLib.Parse.PGN
 {
     public class PGNParserOptions
     {
         private string _fenFilter;
-        private Fen _fenObject;
         private bool _ignoreVariations;
 
         /// <summary>
@@ -46,7 +43,7 @@ namespace ChessLib.Parse.PGN
             : this(updateProgressFrequency, maxGameCount, maxPlyCount, ignoreVariations)
         {
             FenFilter = fenPositionFilter;
-            FilterPlyLimit = plySearchLimit ?? (int?)_fenObject.TotalPlies;
+            FilterPlyLimit = plySearchLimit;
             BoardStateHash = PolyglotHelpers.GetBoardStateHash(fenPositionFilter);
         }
 
@@ -63,17 +60,13 @@ namespace ChessLib.Parse.PGN
             set
             {
                 _fenFilter = value.Trim();
-                if (!string.IsNullOrWhiteSpace(_fenFilter))
-                {
-                    _fenObject = new FenReader().GetFenObject(_fenFilter);
-                    Debug.Assert(ShouldUseFenFilter);
-                }
+
             }
         }
 
         public bool ShouldFilterDuringParsing => ShouldUseFenFilter || ShouldLimitPlyCount;
 
-        public bool ShouldUseFenFilter => _fenObject != null;
+        public bool ShouldUseFenFilter => !string.IsNullOrEmpty(_fenFilter);
 
         /// <summary>
         ///     How many rows to process before an update event is sent. Higher numbers should give marginally better performance.

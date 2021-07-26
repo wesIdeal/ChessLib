@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.Tests.Helpers;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
@@ -13,35 +14,42 @@ namespace ChessLib.Core.Tests.MagicBitboard
         [TestCaseSource(nameof(GetPiecesAttackingSquareTestCases_AllColors))]
         public void PiecesAttackingSquareTest(TestCase<ulong, Board> testCase)
         {
-            var square = (ushort)testCase.AdditionalInputs[0];
-            var attackerColor = (Color?)testCase.AdditionalInputs[1];
+            var square = (ushort) testCase.AdditionalInputs[0];
+            var attackerColor = (Color?) testCase.AdditionalInputs[1];
             var actual =
                 Bitboard.Instance.PiecesAttackingSquareByColor(testCase.TestMethodInputValue.Occupancy,
                     square, attackerColor);
             Assert.AreEqual(testCase.ExpectedValue, actual);
         }
-        private static readonly FenReader FenReader = new FenReader();
+
+        private static readonly FenTextToBoard FenReader = new FenTextToBoard();
+
         protected static IEnumerable<TestCase<ulong, Board>> GetPiecesAttackingSquareTestCases_SpecificColor()
         {
             var description = "Specific Color";
             yield return new TestCase<ulong, Board>(0x4000ul,
-                FenReader.GetBoard("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"),
-                $"{description} White Rook attacks (Black attacks from Queenside)", (ushort)54, Color.White);
-            yield return new TestCase<ulong, Board>(0x800000000, FenReader.GetBoard("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
-                $"{description} White Pawn on d4 attacks the c6 square.", (ushort)42, Color.White);
-            yield return new TestCase<ulong, Board>(0x200000000, FenReader.GetBoard("4k3/8/8/1p6/8/3P4/8/4K3 w - - 0 1"),
-                $"{description} Black Pawn on b5 attacks the c4 square.", (ushort)26, Color.Black);
-            yield return new TestCase<ulong, Board>(0x80000, FenReader.GetBoard("4k3/8/8/1p6/8/3P4/8/4K3 w - - 0 1"),
-                $"{description} White Pawn on d3 attacks the c4 square.", (ushort)26, Color.White);
-            yield return new TestCase<ulong, Board>(0x00, FenReader.GetBoard("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
-                $"{description} Nothing attacking d6", (ushort)43, Color.White);
-            yield return new TestCase<ulong, Board>(0x400000000, FenReader.GetBoard("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
-                $"{description} Black Pawn attacks d4", (ushort)27, Color.Black);
-            yield return new TestCase<ulong, Board>(0x8000140000000000, FenReader.GetBoard("4k2Q/8/2B1R3/8/8/8/8/4K3 b - - 0 1"),
-                $"{description} 3 White Pieces attack Black King", (ushort)60, Color.White);
-            yield return new TestCase<ulong, Board>(0x140000000000, FenReader.GetBoard("4k2q/8/2B1R3/8/8/8/8/4K3 b - - 0 1"),
+                FenReader.Translate("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"),
+                $"{description} White Rook attacks (Black attacks from Queenside)", (ushort) 54, Color.White);
+            yield return new TestCase<ulong, Board>(0x800000000,
+                FenReader.Translate("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
+                $"{description} White Pawn on d4 attacks the c6 square.", (ushort) 42, Color.White);
+            yield return new TestCase<ulong, Board>(0x200000000,
+                FenReader.Translate("4k3/8/8/1p6/8/3P4/8/4K3 w - - 0 1"),
+                $"{description} Black Pawn on b5 attacks the c4 square.", (ushort) 26, Color.Black);
+            yield return new TestCase<ulong, Board>(0x80000, FenReader.Translate("4k3/8/8/1p6/8/3P4/8/4K3 w - - 0 1"),
+                $"{description} White Pawn on d3 attacks the c4 square.", (ushort) 26, Color.White);
+            yield return new TestCase<ulong, Board>(0x00, FenReader.Translate("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
+                $"{description} Nothing attacking d6", (ushort) 43, Color.White);
+            yield return new TestCase<ulong, Board>(0x400000000,
+                FenReader.Translate("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
+                $"{description} Black Pawn attacks d4", (ushort) 27, Color.Black);
+            yield return new TestCase<ulong, Board>(0x8000140000000000,
+                FenReader.Translate("4k2Q/8/2B1R3/8/8/8/8/4K3 b - - 0 1"),
+                $"{description} 3 White Pieces attack Black King", (ushort) 60, Color.White);
+            yield return new TestCase<ulong, Board>(0x140000000000,
+                FenReader.Translate("4k2q/8/2B1R3/8/8/8/8/4K3 b - - 0 1"),
                 $"{description} Two White pieces attack the Black Queen, one Black Queen flanks from the Kingside.",
-                (ushort)60, 
+                (ushort) 60,
                 Color.White);
         }
 
@@ -49,21 +57,26 @@ namespace ChessLib.Core.Tests.MagicBitboard
         {
             var description = "All Colors";
             yield return new TestCase<ulong, Board>(0x8000000004000ul,
-                FenReader.GetBoard("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"),
-                $"{description} Black and White Rook Attack g7", (ushort)54, null);
-            yield return new TestCase<ulong, Board>(0x800000000, FenReader.GetBoard("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
-                $"{description} White Pawn on d4 attacks the c6 square.", (ushort)42, null);
-            yield return new TestCase<ulong, Board>(0x00, FenReader.GetBoard("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
-                $"{description} Nothing attacking d6", (ushort)43, null);
-            yield return new TestCase<ulong, Board>(0x200080000, FenReader.GetBoard("4k3/8/8/1p6/8/3P4/8/4K3 w - - 0 1"),
-                $"{description} White Pawn on d3 / Black Pawn on b5 both attack the c4 square.", (ushort)26, null);
-            yield return new TestCase<ulong, Board>(0x400000000, FenReader.GetBoard("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
-                $"{description} Black Pawn attacks d4", (ushort)27, null);
-            yield return new TestCase<ulong, Board>(0x8000140000000000, FenReader.GetBoard("4k2Q/8/2B1R3/8/8/8/8/4K3 b - - 0 1"),
-                $"{description} 3 White Pieces attack Black King", (ushort)60, null);
-            yield return new TestCase<ulong, Board>(0x8000140000000000, FenReader.GetBoard("4k2q/8/2B1R3/8/8/8/8/4K3 b - - 0 1"),
+                FenReader.Translate("2r5/3r2k1/p3b3/1p3p2/2pPpP2/P1N1P3/1P4RP/2R3K1 b - - 1 34"),
+                $"{description} Black and White Rook Attack g7", (ushort) 54, null);
+            yield return new TestCase<ulong, Board>(0x800000000,
+                FenReader.Translate("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
+                $"{description} White Pawn on d4 attacks the c6 square.", (ushort) 42, null);
+            yield return new TestCase<ulong, Board>(0x00, FenReader.Translate("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
+                $"{description} Nothing attacking d6", (ushort) 43, null);
+            yield return new TestCase<ulong, Board>(0x200080000,
+                FenReader.Translate("4k3/8/8/1p6/8/3P4/8/4K3 w - - 0 1"),
+                $"{description} White Pawn on d3 / Black Pawn on b5 both attack the c4 square.", (ushort) 26, null);
+            yield return new TestCase<ulong, Board>(0x400000000,
+                FenReader.Translate("4k3/8/8/2pP4/8/8/8/4K3 w - c6 0 1"),
+                $"{description} Black Pawn attacks d4", (ushort) 27, null);
+            yield return new TestCase<ulong, Board>(0x8000140000000000,
+                FenReader.Translate("4k2Q/8/2B1R3/8/8/8/8/4K3 b - - 0 1"),
+                $"{description} 3 White Pieces attack Black King", (ushort) 60, null);
+            yield return new TestCase<ulong, Board>(0x8000140000000000,
+                FenReader.Translate("4k2q/8/2B1R3/8/8/8/8/4K3 b - - 0 1"),
                 $"{description} Two White pieces attack the Black Queen, one Black Queen flanks from the Kingside.",
-                (ushort)60,
+                (ushort) 60,
                 null);
         }
     }

@@ -1,8 +1,4 @@
-﻿using ChessLib.Data;
-using ChessLib.Data.Helpers;
-using ChessLib.EngineInterface.UCI.Commands;
-using ChessLib.EngineInterface.UCI.Commands.FromEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
@@ -10,19 +6,22 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.Core;
-using ChessLib.Core.Helpers;
-using ChessLib.Core.Types;
+using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Translate;
 using ChessLib.EngineInterface.UCI;
+using ChessLib.EngineInterface.UCI.Commands;
 
 namespace ChessLib.EngineInterface
 {
     [Serializable]
     public abstract class Engine : IDisposable
     {
-
         public IEngineStartupArgs UserSuppliedArgs { get; protected set; }
         public abstract InterruptCommand QuitCommand { get; }
         public abstract InterruptCommand StopCommand { get; }
+
+        public List<Move> Moves { get; } = new List<Move>();
+
         public virtual void Dispose()
         {
             Dispose(true);
@@ -42,6 +41,7 @@ namespace ChessLib.EngineInterface
                 Process.ProcessErrorDataReceived -= OnErrorDataReceived;
                 Process.Dispose();
             }
+
             _isDisposed = true;
         }
 
@@ -60,9 +60,10 @@ namespace ChessLib.EngineInterface
         {
             if (!(commandInfo is AwaitableCommandInfo || commandInfo is InterruptCommand))
             {
-                Debug.Assert(!(new[] { "isready", "uci", "stop", "quit" }.Contains(commandInfo.CommandText)));
+                Debug.Assert(!new[] {"isready", "uci", "stop", "quit"}.Contains(commandInfo.CommandText));
                 SendIsReady();
             }
+
             Process.Send(commandInfo);
         }
 
@@ -73,10 +74,10 @@ namespace ChessLib.EngineInterface
             {
                 throw new ArgumentNullException(nameof(Process), "Process must be initialized before starting engine.");
             }
+
             OnDebugEventExecuted(new DebugEventArgs("Starting engine task - ExecuteEngineAsync()"));
             return Task.Run(ExecuteEngineAsync);
         }
-
 
 
         protected virtual void ExecuteEngineAsync()
@@ -90,7 +91,6 @@ namespace ChessLib.EngineInterface
             Process.Start(UserSuppliedArgs.CommandLine, UserSuppliedArgs.InitialPriority);
             return Process.Id;
         }
-
 
 
         public virtual void SendIsReady()
@@ -110,7 +110,7 @@ namespace ChessLib.EngineInterface
         private void BeginExitRoutine()
         {
             OnDebugEventExecuted(new DebugEventArgs("Waiting for process to exit."));
-            var exitTimeout = (int)TimeSpan.FromSeconds(5).TotalMilliseconds;
+            var exitTimeout = (int) TimeSpan.FromSeconds(5).TotalMilliseconds;
             if (!Process.WaitForExit(exitTimeout))
             {
                 OnDebugEventExecuted(
@@ -122,15 +122,15 @@ namespace ChessLib.EngineInterface
 
 
         /// <summary>
-        /// Sends a new game position to engine
+        ///     Sends a new game position to engine
         /// </summary>
         public virtual void SendPosition()
         {
-            SendPosition(FenReader.FENInitial);
+            SendPosition(BoardConstants.FenStartingPosition);
         }
 
         /// <summary>
-        /// Sends a fen to the engine
+        ///     Sends a fen to the engine
         /// </summary>
         /// <param name="fen"></param>
         public virtual void SendPosition(string fen)
@@ -139,7 +139,7 @@ namespace ChessLib.EngineInterface
         }
 
         /// <summary>
-        /// Sends moves to the engine to be applied from the original StartingPositionFEN sent.
+        ///     Sends moves to the engine to be applied from the original StartingPositionFEN sent.
         /// </summary>
         /// <param name="moves"></param>
         public virtual void SendPosition(Move[] moves)
@@ -155,10 +155,8 @@ namespace ChessLib.EngineInterface
             CurrentFEN = board.CurrentFEN;
         }
 
-        public List<Move> Moves { get; } = new List<Move>();
-
         /// <summary>
-        /// Sends a fen to the board and moves
+        ///     Sends a fen to the board and moves
         /// </summary>
         /// <param name="fen"></param>
         /// <param name="moves"></param>
@@ -169,7 +167,7 @@ namespace ChessLib.EngineInterface
         }
 
         /// <summary>
-        /// Sends a 'stop' command to the engine to halt calculation/other operations
+        ///     Sends a 'stop' command to the engine to halt calculation/other operations
         /// </summary>
         public virtual void SendStop()
         {
@@ -178,7 +176,7 @@ namespace ChessLib.EngineInterface
         }
 
         /// <summary>
-        /// Sends the quit command to the engine
+        ///     Sends the quit command to the engine
         /// </summary>
         public void SendQuit()
         {
@@ -192,13 +190,10 @@ namespace ChessLib.EngineInterface
         }
 
 
-
         #region Constructors / Descructor
 
         private Engine()
         {
-
-
         }
 
         protected void InitializeEngineProcess(IEngineMessageSubscriber messageSubscriber)
@@ -246,18 +241,19 @@ namespace ChessLib.EngineInterface
         /// </summary>
         public Dictionary<string, string> EngineOptions { get; }
 
-
         #endregion
 
         #region Non-Serialized Fields/Properties
+
         protected MoveTraversalService StartingBoard => new MoveTraversalService(StartingPositionFEN);
+
         protected Board CurrentBoard
         {
             get
             {
                 var board = StartingBoard;
                 Moves.ForEach(mv => { board.ApplyMove(mv); });
-                return (Board)(StartingBoard.Board.Clone());
+                return (Board) StartingBoard.Board.Clone();
             }
         }
 
@@ -269,23 +265,24 @@ namespace ChessLib.EngineInterface
         protected IEngineProcess Process { get; set; }
 
         /// <summary>
-        /// Invoked when a response object was received from the underlying engine process
+        ///     Invoked when a response object was received from the underlying engine process
         /// </summary>
         public event EventHandler<EngineResponseArgs> EngineResponseObjectReceived;
 
         /// <summary>
-        /// Invoked when general debug information is sent from any Engine related process
+        ///     Invoked when general debug information is sent from any Engine related process
         /// </summary>
         public event EventHandler<DebugEventArgs> DebugEventExecuted;
 
         /// <summary>
-        /// Only sends the subset of engine objects involving variation calculation / best moves
+        ///     Only sends the subset of engine objects involving variation calculation / best moves
         /// </summary>
         public event EventHandler<EngineCalculationResponseArgs> EngineCalculationReceived;
 
         #endregion
 
         #region Event Raisers
+
         protected void OnDebugEventExecuted(object sender, DebugEventArgs args)
         {
             Debug.WriteLine(args.DebugText);
@@ -309,9 +306,9 @@ namespace ChessLib.EngineInterface
             {
                 PauseEngineMessageHandling = false;
             }
+
             Volatile.Read(ref EngineResponseObjectReceived)?.Invoke(this, response);
         }
-
 
 
         protected void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
@@ -321,7 +318,8 @@ namespace ChessLib.EngineInterface
             {
                 message = "No message received.";
             }
-            OnDebugEventExecuted(new DebugEventArgs(message) { EventLevel = EventLevel.Error });
+
+            OnDebugEventExecuted(new DebugEventArgs(message) {EventLevel = EventLevel.Error});
         }
 
         #endregion

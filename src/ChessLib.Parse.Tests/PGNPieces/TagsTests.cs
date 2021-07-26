@@ -1,15 +1,11 @@
-﻿using ChessLib.Data;
+﻿using ChessLib.Core.Types;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ChessLib.Parse.Tests.PGNPieces
 {
     [TestFixture]
     public class TagsTests : Tags
     {
-
         //#region Result Tests
         //[Test]
         //public void TestResultGetter_WhiteWins()

@@ -6,12 +6,8 @@ using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Tests.Helpers;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Interfaces;
-using ChessLib.Core.Validation.Validators.BoardValidation;
-using ChessLib.Core.Validation.Validators.BoardValidation.Rules;
 using EnumsNET;
 using Moq;
-using Moq.Language.Flow;
 using NUnit.Framework;
 
 namespace ChessLib.Core.Tests
@@ -20,31 +16,29 @@ namespace ChessLib.Core.Tests
     public class BoardStateTests
     {
         [TestFixture(TestOf = typeof(BoardState), Category = "Base Functionality", Description = "En Passant")]
-
         public class EnPassantTests
         {
-            private Mock<IBoardValidator> BoardValidatorMock;
-            private Mock<BoardState> _boardState;
             [SetUp]
             public void Setup()
             {
                 _boardState = new Mock<BoardState>();
                 _boardState.Setup(x => x.ValidateEnPassantSquare(It.IsAny<ushort?>())).Verifiable();
-
             }
-            
+
+            private Mock<BoardState> _boardState;
+
             [Test(Description = "En Passant")]
             public void EnPassantSet_ShouldCallValidate()
             {
                 _boardState.Object.ActivePlayer = Color.Black;
                 _boardState.Object.EnPassantIndex = null;
-                _boardState.Verify(x=>x.ValidateEnPassantSquare(It.IsAny<ushort?>()), Times.Once);
+                _boardState.Verify(x => x.ValidateEnPassantSquare(It.IsAny<ushort?>()), Times.Once);
             }
 
             [Test(Description = "En Passant")]
             public void EnPassant_ShouldSetSquareValueWhenSquareIsValidForEnPassant_Black()
             {
-                var boardState = new BoardState() { ActivePlayer = Color.White };
+                var boardState = new BoardState { ActivePlayer = Color.White };
                 var boardStateEnPassantIndex = "e6".SquareTextToIndex();
                 boardState.EnPassantIndex = boardStateEnPassantIndex;
                 Assert.AreEqual(boardStateEnPassantIndex, boardState.EnPassantIndex);
@@ -53,8 +47,7 @@ namespace ChessLib.Core.Tests
             [Test(Description = "En Passant")]
             public void EnPassant_ShouldSetSquareValueWhenSquareIsValidForEnPassant_White()
             {
-                
-                var boardState = new BoardState() { ActivePlayer = Color.Black };
+                var boardState = new BoardState { ActivePlayer = Color.Black };
                 var boardStateEnPassantIndex = "e3".SquareTextToIndex();
                 boardState.EnPassantIndex = boardStateEnPassantIndex;
                 Assert.AreEqual(boardStateEnPassantIndex, boardState.EnPassantIndex);
@@ -63,8 +56,7 @@ namespace ChessLib.Core.Tests
             [Test(Description = "En Passant")]
             public void EnPassant_ShouldReturnNullWhenSetToNull()
             {
-                var boardState = new BoardState() { ActivePlayer = Color.Black };
-                boardState.EnPassantIndex = null;
+                var boardState = new BoardState { ActivePlayer = Color.Black, EnPassantIndex = null };
                 Assert.IsNull(boardState.EnPassantIndex);
             }
         }
@@ -72,11 +64,12 @@ namespace ChessLib.Core.Tests
         [TestCaseSource(nameof(GetPieceCapturedTestCases))]
         public void PieceCapturedTests(TestCase<bool, Piece?> testCase)
         {
-            var boardState = new BoardState() { ActivePlayer = Color.Black };
+            var boardState = new BoardState { ActivePlayer = Color.Black };
             if (!testCase.ExpectedValue)
             {
                 Assert.Throws(typeof(ArgumentException),
-                    delegate { boardState.PieceCaptured = testCase.TestMethodInputValue.Value; }, "King should throw exception.");
+                    delegate { boardState.PieceCaptured = testCase.TestMethodInputValue.Value; },
+                    "King should throw exception.");
             }
 
             else
@@ -99,7 +92,7 @@ namespace ChessLib.Core.Tests
         [TestCaseSource(nameof(GetGameStateTestCases))]
         public void GetGameStateTest(TestCase<bool, GameState> testCase)
         {
-            var boardState = new BoardState() { GameState = testCase.TestMethodInputValue };
+            var boardState = new BoardState { GameState = testCase.TestMethodInputValue };
             Assert.AreEqual(testCase.TestMethodInputValue, boardState.GameState, testCase.ToString());
         }
 
@@ -114,13 +107,13 @@ namespace ChessLib.Core.Tests
         [TestCaseSource(nameof(GetCastlingAbilityTestCases))]
         public void GetCastlingAbilityTest(TestCase<CastlingAvailability, CastlingAvailability> testCase)
         {
-            var boardState = new BoardState() { CastlingAvailability = testCase.TestMethodInputValue };
+            var boardState = new BoardState { CastlingAvailability = testCase.TestMethodInputValue };
             Assert.AreEqual(testCase.ExpectedValue, boardState.CastlingAvailability);
         }
 
         protected static IEnumerable<TestCase<CastlingAvailability, CastlingAvailability>> GetCastlingAbilityTestCases()
         {
-            Enums.GetValues<CastlingAvailability>().Select(x => (ulong)x);
+
             var max = 15ul;
 
             var permutations = MovingPieceService.GetAllPermutationsOfSetBits(max.GetSetBits(), 0, 0);
@@ -135,7 +128,7 @@ namespace ChessLib.Core.Tests
         [TestCaseSource(nameof(GetHalfMoveClockTestCases))]
         public void TestHalfMoveClockTestCases(TestCase<bool, byte> testCase)
         {
-            var boardState = new BoardState() { HalfMoveClock = testCase.TestMethodInputValue };
+            var boardState = new BoardState { HalfMoveClock = testCase.TestMethodInputValue };
 
             Assert.AreEqual(testCase.TestMethodInputValue, boardState.HalfMoveClock, testCase.ToString());
         }
@@ -152,12 +145,14 @@ namespace ChessLib.Core.Tests
             if (!testCase.ExpectedValue)
             {
                 Assert.Throws(typeof(FullMoveCountExceededException),
-                    delegate { boardState.FullMoveCounter = testCase.TestMethodInputValue; }, string.Format(FullMoveCountExceededException.MessageFormat, testCase.TestMethodInputValue));
+                    delegate { boardState.FullMoveCounter = testCase.TestMethodInputValue; },
+                    string.Format(FullMoveCountExceededException.MessageFormat, testCase.TestMethodInputValue));
             }
             else
             {
                 boardState.FullMoveCounter = testCase.TestMethodInputValue;
-                Assert.AreEqual(testCase.TestMethodInputValue, boardState.FullMoveCounter, testCase.TestMethodInputValue.ToString());
+                Assert.AreEqual(testCase.TestMethodInputValue, boardState.FullMoveCounter,
+                    testCase.TestMethodInputValue.ToString());
             }
         }
 

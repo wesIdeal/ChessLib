@@ -2,7 +2,7 @@
 using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
-using ChessLib.Core.Parse;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 

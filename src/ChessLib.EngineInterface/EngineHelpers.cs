@@ -5,7 +5,6 @@ using System.Linq;
 using ChessLib.Core;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Data.Helpers;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;

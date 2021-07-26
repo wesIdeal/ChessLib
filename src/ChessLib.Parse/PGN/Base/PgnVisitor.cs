@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using ChessLib.Core;
+using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
-using ChessLib.Data;
 using EnumsNET;
 
 namespace ChessLib.Parse.PGN.Base
@@ -18,7 +19,7 @@ namespace ChessLib.Parse.PGN.Base
         protected const char TokenCommentEnd = '}';
         private const string MoveRegEx = "[a-h]|[x]|[O-O]|[O-O-O]|[KNBQR]|[1-8]|[=Q|=R|=B|=N]|[+|#]";
 
-        private static readonly char[] TokensChars = { ' ', ')', '(', '{', '}' };
+        private static readonly char[] TokensChars = {' ', ')', '(', '{', '}'};
         private readonly Regex _moveRegex = new Regex(MoveRegEx);
         private bool _foundGame;
 
@@ -26,7 +27,7 @@ namespace ChessLib.Parse.PGN.Base
         private bool _nextMoveIsVariation;
         private int _plyCount;
         private int _variationDepth;
-        public Game<MoveStorage> Game;
+        public Game Game;
         public List<PgnParsingLog> LogMessages = new List<PgnParsingLog>();
         protected (string, MoveNAG)[] MoveNags;
         protected (string, NonStandardNAG)[] NonStandardNags;
@@ -35,11 +36,10 @@ namespace ChessLib.Parse.PGN.Base
 
         public PgnVisitor()
         {
-            Game = new Game<MoveStorage>();
+            Game = new Game();
             InitNagInfo();
         }
 
-       
 
         public void VisitMoveSection(string moveSection, PGNParserOptions options)
         {
@@ -48,7 +48,7 @@ namespace ChessLib.Parse.PGN.Base
             int nNextCharacter;
             while ((nNextCharacter = reader.Peek()) != -1)
             {
-                var nextChar = (char)nNextCharacter;
+                var nextChar = (char) nNextCharacter;
                 if (char.IsLetter(nextChar))
                 {
                     if (!VisitSanMove(reader, options))
@@ -97,9 +97,8 @@ namespace ChessLib.Parse.PGN.Base
         ///     associated with the tag name. (There is a standard set of tag names and semantics described below.)
         ///     The same tag name should not appear more than once in a tag pair section.
         /// </remarks>
-        public KeyValuePair<string,string>? VisitTagPair(in string tagSection)
+        public KeyValuePair<string, string>? VisitTagPair(in string tagSection)
         {
-            var tag = new KeyValuePair<string, string>();
             const string tagKey = "tagKey", tagValue = "tagValue";
             const string tagPairRegEx =
                 "\\[[\\s]*(?<" + tagKey + ">[A-Za-z_0-9]+)[\\s]*\\\"(?<" + tagValue + ">[\\s\\S]*)\\\"[\\s]*[\\s]*\\]";
@@ -112,14 +111,11 @@ namespace ChessLib.Parse.PGN.Base
             {
                 return new KeyValuePair<string, string>(key.Value, value.Value);
             }
-            else
-            {
-                Game.AddParsingLogItem(ParsingErrorLevel.Warning,
-                        $"Tag Section: Could not parse tag pair for the following line{Environment.NewLine}{tagSection}"
-                );
-                return null;
-            }
-            
+
+            Game.AddParsingLogItem(ParsingErrorLevel.Warning,
+                $"Tag Section: Could not parse tag pair for the following line{Environment.NewLine}{tagSection}"
+            );
+            return null;
         }
 
         public Tags VisitTagPairSection(string tagPairs)
@@ -130,8 +126,7 @@ namespace ChessLib.Parse.PGN.Base
             var matches = regex.Matches(tagPairs);
             for (var i = 0; i < matches.Count; i++)
             {
-
-                var tagPair =  VisitTagPair(matches[i].Value);
+                var tagPair = VisitTagPair(matches[i].Value);
                 if (tagPair.HasValue)
                 {
                     tags.Add(tagPair.Value.Key, tagPair.Value.Value);
@@ -163,10 +158,10 @@ namespace ChessLib.Parse.PGN.Base
         protected int[] GetNAGSymbolMatches(string possibleNagStart)
         {
             var rv = new List<int>();
-            rv.AddRange(MoveNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
-            rv.AddRange(PositionalNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
-            rv.AddRange(TimeTroubleNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
-            rv.AddRange(NonStandardNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
+            rv.AddRange(MoveNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
+            rv.AddRange(PositionalNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
+            rv.AddRange(TimeTroubleNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
+            rv.AddRange(NonStandardNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
             return rv.ToArray();
         }
 
@@ -176,7 +171,7 @@ namespace ChessLib.Parse.PGN.Base
             int nNextChar;
             while ((nNextChar = reader.Peek()) != -1)
             {
-                var readChar = (char)nNextChar;
+                var readChar = (char) nNextChar;
                 if (c.Contains(readChar))
                 {
                     break;
@@ -241,15 +236,15 @@ namespace ChessLib.Parse.PGN.Base
             return moveSection;
         }
 
-        private bool ValidatePositionFilter(PGNParserOptions options, MoveStorage move)
+        private bool ValidatePositionFilter(PGNParserOptions options)
         {
             if (!_foundGame)
             {
-                if (move.BoardStateHash == options.BoardStateHash)
+                if (Game.CurrentMoveNode.Value.BoardStateHash == options.BoardStateHash)
                 {
                     _foundGame = true;
                 }
-                else if (_plyCount >= options.FilterPlyLimit)
+                else if (options.FilterPlyLimit.HasValue && _plyCount >= options.FilterPlyLimit.Value)
                 {
                     return false;
                 }
@@ -278,14 +273,14 @@ namespace ChessLib.Parse.PGN.Base
                 else
                 {
                     Game.AddParsingLogItem(
-                         ParsingErrorLevel.Warning,
+                        ParsingErrorLevel.Warning,
                         $"Found multiple symbol matches for {nagBuffer}", nagBuffer);
                 }
             }
             else
             {
                 Game.AddParsingLogItem(ParsingErrorLevel.Warning,
-                     $"Could not find symbol match for {nagBuffer}", nagBuffer);
+                    $"Could not find symbol match for {nagBuffer}", nagBuffer);
             }
         }
 
@@ -302,7 +297,7 @@ namespace ChessLib.Parse.PGN.Base
             int nReadChar;
             while ((nReadChar = reader.Peek()) != -1)
             {
-                var c = (char)nReadChar;
+                var c = (char) nReadChar;
                 if (!_moveRegex.IsMatch(c.ToString()))
                 {
                     break;
@@ -328,7 +323,7 @@ namespace ChessLib.Parse.PGN.Base
             {
                 if (options.ShouldUseFenFilter)
                 {
-                    if (!ValidatePositionFilter(options, move.Value))
+                    if (!ValidatePositionFilter(options))
                     {
                         Game = null;
                         return false;

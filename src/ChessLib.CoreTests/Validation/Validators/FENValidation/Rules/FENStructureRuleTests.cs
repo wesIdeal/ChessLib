@@ -1,4 +1,5 @@
 ﻿using ChessLib.Core.Helpers;
+using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Validation.Validators.FENValidation.Rules;
 using NUnit.Framework;
@@ -42,7 +43,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.FENValidation.Rules
         [Test]
         public void ValidateTest_ShouldReturnNoErrorIndicatedWhenFenIsCorrect()
         {
-            var actual = _fenStructureRule.Validate(FenReader.FENInitial);
+            var actual = _fenStructureRule.Validate(BoardConstants.FenStartingPosition);
             Assert.AreEqual(FENError.None, actual,
                 "Should return InvalidFENString when too many sections are supplied.");
         }

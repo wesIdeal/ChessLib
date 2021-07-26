@@ -1,25 +1,23 @@
-﻿using ChessLib.Data;
-using ChessLib.Graphics;
-using ChessLib.Parse.PGN;
-using ChessLib.Parse.Tests;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using ChessLib.Core;
-using ChessLib.Core.Types;
+using ChessLib.Graphics;
+using ChessLib.Parse.PGN;
+using ChessLib.Parse.Tests;
 
 namespace ChessLib.ConsoleManualTesting
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var parsePgn = new PGNParser();
             //parsePgn.ProgressUpdate += OnProgressUpdated;
-            Stopwatch sw = new Stopwatch();
+            var sw = new Stopwatch();
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talLarge);
             sw.Start();
             var games = parsePgn.GetGamesFromPGNAsync(pgnDb).Result;
@@ -30,15 +28,15 @@ namespace ChessLib.ConsoleManualTesting
         private static void OnProgressUpdated(object sender, double e)
         {
             Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write($@"Progress {e*100}%                ");
+            Console.Write($@"Progress {e * 100}%                ");
         }
 
-        private static void EvalPosition(Game<BoardSnapshot> game)
+        private static void EvalPosition(Game game)
         {
             // var engineRunner = new EngineRunner();
         }
 
-        private static void MakeGifs(List<Game<BoardSnapshot>> games)
+        private static void MakeGifs(List<Game> games)
         {
             var graphics = new Imaging();
             var game = games[0];
@@ -59,13 +57,13 @@ namespace ChessLib.ConsoleManualTesting
             var pTime = 0L;
             using (var fsParallel = new FileStream($".\\GameGifs\\{fnP}", FileMode.Create, FileAccess.Write))
             {
-                Stopwatch sw = new Stopwatch();
+                var sw = new Stopwatch();
                 sw.Start();
                 sw.Stop();
                 nonPTime = sw.ElapsedMilliseconds;
                 sw.Reset();
                 sw.Start();
-                graphics.MakeAnimationFromMoveTree(fsParallel, game, 1, new ImageOptions() { SquareSize = 80 });
+                graphics.MakeAnimationFromMoveTree(fsParallel, game, 1, new ImageOptions {SquareSize = 80});
                 sw.Stop();
                 pTime = sw.ElapsedMilliseconds;
                 Console.WriteLine($"Created and wrote {fnP} in {pTime}ms.");

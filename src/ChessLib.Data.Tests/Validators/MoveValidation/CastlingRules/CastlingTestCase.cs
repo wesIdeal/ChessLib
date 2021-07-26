@@ -1,21 +1,21 @@
 ﻿using ChessLib.Core;
 using ChessLib.Core.Helpers;
-using ChessLib.Core.Types;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Data.Helpers;
 using EnumsNET;
 
 namespace ChessLib.Data.Tests.Validators.MoveValidation.CastlingRules
 {
     internal class CastlingTestCase
     {
-        private static readonly FenReader FenReader = new FenReader();
+        private static readonly FenTextToBoard FenReader = new FenTextToBoard();
+
         public CastlingTestCase(string fen, MoveError error, Move castlingMove)
         {
             Fen = fen;
             ExpectedError = error;
             CastlingMove = castlingMove;
-            Board = FenReader.GetBoard(fen);
+            Board = FenReader.Translate(fen);
         }
 
         public string Fen { get; set; }

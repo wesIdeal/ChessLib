@@ -1,5 +1,4 @@
 ﻿using ChessLib.Core.Helpers;
-using ChessLib.Data;
 
 namespace ChessLib.Parse.PGN
 {
@@ -16,6 +15,6 @@ namespace ChessLib.Parse.PGN
         public ulong BoardHash { get; } // 64 bits (8 bytes)
         public PolyglotMove Move { get; } //16 bits (2 bytes)
         public ushort Weight { get; } //16 bits (2 bytes)
-        public uint Learn { get; }//32 bits (4 bytes)
+        public uint Learn { get; } //32 bits (4 bytes)
     }
 }

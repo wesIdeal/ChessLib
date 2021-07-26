@@ -1,20 +1,18 @@
-﻿using ChessLib.Data.Helpers;
-using NUnit.Framework;
-using System;
+﻿using System;
 using System.Text;
-using ChessLib.Core;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
-using ChessLib.Core.Types;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using EnumsNET;
+using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Helpers
 {
     [TestFixture]
     public partial class BoardHelpersTests
     {
-        private static readonly FenReader FenReader = new FenReader();
+        private static readonly FenTextToBoard FenReader = new FenTextToBoard();
 
         [TestCase("8/1k6/8/8/4q3/8/6K1/8 w - - 0 1", "Single check from Queen, has evasions")]
         [TestCase("8/8/8/8/8/7k/6q1/7K w - - 0 1", "Single check from Queen. Checkmate")]
@@ -26,10 +24,9 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase("8/8/8/8/7k/6n1/8/7K w - - 0 1", "Single check from Knight, can capture.")]
         [TestCase("8/8/8/8/8/4k1q1/3n4/5K2 w - - 0 1", "Single check from knight, checkmate.")]
         [TestCase("8/1k6/2b5/8/8/5q1r/5pp1/6K1 w - - 0 1", "Single check from pawn, checkmate.")]
-
         public static void GetCheckType_ShouldReturnSingleForSingleChecks(string fen, string description = "")
         {
-            var board = FenReader.GetBoard(fen);
+            var board = FenReader.Translate(fen);
             var result = BoardHelpers.GetCheckType(board.Occupancy, board.ActivePlayer, out _);
             var message = GetCheckmateTypeDescription(fen, description, result);
             Console.WriteLine(message);
@@ -46,7 +43,7 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase("8/8/8/8/7k/6n1/6p1/7K w - - 0 1", "Double check from Knight+Pawn, can capture and evade.")]
         public static void GetCheckType_ShouldReturnDoubleForDoubleChecks(string fen, string description = "")
         {
-            var board = FenReader.GetBoard(fen);
+            var board = FenReader.Translate(fen);
 
             var result = BoardHelpers.GetCheckType(board.Occupancy, board.ActivePlayer, out _);
             var message = GetCheckmateTypeDescription(fen, description, result);
@@ -57,9 +54,10 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "Initial position.")]
         [TestCase("rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1", "Initial position -> 1. c4.")]
         [TestCase("rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq - 0 2", "Initial position-> 1. c4 e5.")]
-        public static void GetCheckType_ShouldReturnNoneForNoChecks(string fen, string description = "No checks expected.")
+        public static void GetCheckType_ShouldReturnNoneForNoChecks(string fen,
+            string description = "No checks expected.")
         {
-            var board = FenReader.GetBoard(fen);
+            var board = FenReader.Translate(fen);
             var result = BoardHelpers.GetCheckType(board.Occupancy, board.ActivePlayer, out _);
             var message = GetCheckmateTypeDescription(fen, description, result);
             Console.WriteLine(message);
@@ -111,7 +109,6 @@ namespace ChessLib.Data.Tests.Helpers
         //}
 
 
-
         [TestCase("rnbqkbnr/p1pppppp/8/8/Pp6/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1", true)]
         [TestCase("rnbqkbnr/p1pppppp/8/1p6/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1", false)]
         [TestCase("rnbqkbnr/pppppp1p/8/8/6pP/8/PPPPPPP1/RNBQKBNR b KQkq h3 0 1", true)]
@@ -126,13 +123,13 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase("rnbqkbnr/ppp2ppp/3p4/4p3/2PP2P1/8/PP2PP1P/RNBQKBNR b KQkq - 0 3", false)]
         public static void TestEnPassantIsAvailable(string fen, bool expected)
         {
-            var board = FenReader.GetBoard(fen);
+            var board = FenReader.Translate(fen);
             Assert.AreEqual(expected, board.IsEnPassantCaptureAvailable());
         }
+
         [TestFixture]
         public static class InitializationTests
         {
-
             [Test]
             public static void TestRankCompliment()
             {
@@ -149,14 +146,22 @@ namespace ChessLib.Data.Tests.Helpers
             [Test]
             public static void InitializeFileMasks_FileMasksProperlyInitialized()
             {
-                Assert.AreEqual(0x101010101010101, BoardConstants.FileMasks[0], "'A' File Mask not initialized properly.");
-                Assert.AreEqual(0x202020202020202, BoardConstants.FileMasks[1], "'B' File Mask not initialized properly.");
-                Assert.AreEqual(0x404040404040404, BoardConstants.FileMasks[2], "'C' File Mask not initialized properly.");
-                Assert.AreEqual(0x808080808080808, BoardConstants.FileMasks[3], "'D' File Mask not initialized properly.");
-                Assert.AreEqual(0x1010101010101010, BoardConstants.FileMasks[4], "'E' File Mask not initialized properly.");
-                Assert.AreEqual(0x2020202020202020, BoardConstants.FileMasks[5], "'F' File Mask not initialized properly.");
-                Assert.AreEqual(0x4040404040404040, BoardConstants.FileMasks[6], "'G' File Mask not initialized properly.");
-                Assert.AreEqual(0x8080808080808080, BoardConstants.FileMasks[7], "'H' File Mask not initialized properly.");
+                Assert.AreEqual(0x101010101010101, BoardConstants.FileMasks[0],
+                    "'A' File Mask not initialized properly.");
+                Assert.AreEqual(0x202020202020202, BoardConstants.FileMasks[1],
+                    "'B' File Mask not initialized properly.");
+                Assert.AreEqual(0x404040404040404, BoardConstants.FileMasks[2],
+                    "'C' File Mask not initialized properly.");
+                Assert.AreEqual(0x808080808080808, BoardConstants.FileMasks[3],
+                    "'D' File Mask not initialized properly.");
+                Assert.AreEqual(0x1010101010101010, BoardConstants.FileMasks[4],
+                    "'E' File Mask not initialized properly.");
+                Assert.AreEqual(0x2020202020202020, BoardConstants.FileMasks[5],
+                    "'F' File Mask not initialized properly.");
+                Assert.AreEqual(0x4040404040404040, BoardConstants.FileMasks[6],
+                    "'G' File Mask not initialized properly.");
+                Assert.AreEqual(0x8080808080808080, BoardConstants.FileMasks[7],
+                    "'H' File Mask not initialized properly.");
             }
 
             [Test]
@@ -169,7 +174,8 @@ namespace ChessLib.Data.Tests.Helpers
                 Assert.AreEqual(0xff00000000, BoardConstants.RankMasks[4], "Rank 5 Mask not initialized properly.");
                 Assert.AreEqual(0xff0000000000, BoardConstants.RankMasks[5], "Rank 6 Mask not initialized properly.");
                 Assert.AreEqual(0xff000000000000, BoardConstants.RankMasks[6], "Rank 7 Mask not initialized properly.");
-                Assert.AreEqual(0xff00000000000000, BoardConstants.RankMasks[7], "Rank 8 Mask not initialized properly.");
+                Assert.AreEqual(0xff00000000000000, BoardConstants.RankMasks[7],
+                    "Rank 8 Mask not initialized properly.");
             }
 
             [Test]
@@ -239,12 +245,13 @@ namespace ChessLib.Data.Tests.Helpers
                 Assert.AreEqual(0x2000000000000000, BoardConstants.IndividualSquares[61]);
                 Assert.AreEqual(0x4000000000000000, BoardConstants.IndividualSquares[62]);
                 Assert.AreEqual(0x8000000000000000, BoardConstants.IndividualSquares[63]);
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < 64; i++)
+                var sb = new StringBuilder();
+                for (var i = 0; i < 64; i++)
                 {
                     sb.Append(
-                        $"0x{Convert.ToString((long)BoardConstants.IndividualSquares[i], 16)}, {(i != 0 && i % 7 == 0 ? "\r\n" : "")}");
+                        $"0x{Convert.ToString((long) BoardConstants.IndividualSquares[i], 16)}, {(i != 0 && i % 7 == 0 ? "\r\n" : "")}");
                 }
+
                 Console.WriteLine(sb.ToString());
             }
 
@@ -252,9 +259,9 @@ namespace ChessLib.Data.Tests.Helpers
             [Test]
             public static void GetRank_ShouldReturnCorrectRank()
             {
-                for (int i = 0; i < 64; i++)
+                for (var i = 0; i < 64; i++)
                 {
-                    var expected = (Rank)(i / 8);
+                    var expected = (Rank) (i / 8);
                     Assert.AreEqual(expected, i.GetRank());
                 }
             }
@@ -263,9 +270,9 @@ namespace ChessLib.Data.Tests.Helpers
             public static void FileToIntFunctionality_ShouldConvertFileEnumValueToInt()
             {
                 var c = 0;
-                foreach (var f in (File[])Enum.GetValues(typeof(File)))
+                foreach (var f in (File[]) Enum.GetValues(typeof(File)))
                 {
-                    Assert.AreEqual(c, (int)f);
+                    Assert.AreEqual(c, (int) f);
                     c++;
                 }
             }
@@ -274,13 +281,12 @@ namespace ChessLib.Data.Tests.Helpers
             public static void RankToIntFunctionality_ShouldConvertRankEnumValueToInt()
             {
                 var c = 0;
-                foreach (var r in (Rank[])Enum.GetValues(typeof(Rank)))
+                foreach (var r in (Rank[]) Enum.GetValues(typeof(Rank)))
                 {
-                    Assert.AreEqual(c, (int)r, $"Rank {r.ToString()} should convert to {c}");
+                    Assert.AreEqual(c, (int) r, $"Rank {r.ToString()} should convert to {c}");
                     c++;
                 }
             }
-
 
 
             [Test]
@@ -302,37 +308,39 @@ namespace ChessLib.Data.Tests.Helpers
             [Test]
             public static void InBetween_ShouldReturnZero_GivenTwoEWOneAnother()
             {
-                var expected = (ulong)0x00;
+                var expected = (ulong) 0x00;
                 var actual = BoardHelpers.InBetween(3, 4);
-                Assert.AreEqual(expected, actual, "Should not be any squares between squares E+W of one another (d1-e1)");
+                Assert.AreEqual(expected, actual,
+                    "Should not be any squares between squares E+W of one another (d1-e1)");
             }
 
             [Test]
             public static void InBetween_ShouldReturnZero_GivenTwoNSOneAnother()
             {
-                var expected = (ulong)0x00;
+                var expected = (ulong) 0x00;
                 var actual = BoardHelpers.InBetween(1, 9);
-                Assert.AreEqual(expected, actual, "Should not be any squares between squares N+S of ona another (b1-b2)");
+                Assert.AreEqual(expected, actual,
+                    "Should not be any squares between squares N+S of ona another (b1-b2)");
             }
 
             [Test]
             public static void InBetween_ShouldReturnCorrectValue_GivenRandomPositions()
             {
-                var expected = (ulong)0x00;
+                var expected = (ulong) 0x00;
                 var actual = BoardHelpers.InBetween(3, 8);
-                Assert.AreEqual(expected, actual, $"Should not be any squares between {3.IndexToSquareDisplay()}{8.IndexToSquareDisplay()}");
+                Assert.AreEqual(expected, actual,
+                    $"Should not be any squares between {3.IndexToSquareDisplay()}{8.IndexToSquareDisplay()}");
 
                 expected = 0x200;
                 actual = BoardHelpers.InBetween(16, 2);
-                Assert.AreEqual(expected, actual, $"Did not return correct value for in between {16.IndexToSquareDisplay()} - {2.IndexToSquareDisplay()}");
+                Assert.AreEqual(expected, actual,
+                    $"Did not return correct value for in between {16.IndexToSquareDisplay()} - {2.IndexToSquareDisplay()}");
 
                 expected = 0x2040800000000;
                 actual = BoardHelpers.InBetween(28, 56);
-                Assert.AreEqual(expected, actual, $"Did not return correct value for in between {28.IndexToSquareDisplay()} - {56.IndexToSquareDisplay()}");
-
+                Assert.AreEqual(expected, actual,
+                    $"Did not return correct value for in between {28.IndexToSquareDisplay()} - {56.IndexToSquareDisplay()}");
             }
-
         }
-
     }
 }

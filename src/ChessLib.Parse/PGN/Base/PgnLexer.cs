@@ -1,27 +1,23 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using ChessLib.Core;
-using ChessLib.Data;
+using ChessLib.Core.Types;
 
 namespace ChessLib.Parse.PGN.Base
 {
     public class PgnLexer
     {
+        private readonly List<PgnParsingLog> _parsingLogs = new List<PgnParsingLog>();
 
-        readonly char[] _whiteSpaceTokens =
-        {
-            ' ', '.', '<', '>',
-            '\n', '\v', '\t', '\r'
-        };
 
-        public static (string tagSection, string moveSection) GetSectionsFromPGN(string pgn)
+        private PgnVisitor _pgnVisitor;
+
+        public static (string tagSection, string moveSection) GetSectionsFromPgn(string pgn)
         {
             const string tagSectionKey = "tagSection";
-            const string sectionSeperatingRegEx =
+            const string sectionSeparatingRegEx =
                 "(?<" + tagSectionKey + ">[\\s]*[\\[[\\s\\S]*\\\"(\\s)*\\])(\\r\\n){2}";
-            Regex regex = new Regex(sectionSeperatingRegEx);
+            var regex = new Regex(sectionSeparatingRegEx);
             var matches = regex.Match(pgn);
             var tagGroup = matches.Groups[tagSectionKey];
             if (tagGroup.Success)
@@ -33,14 +29,13 @@ namespace ChessLib.Parse.PGN.Base
 
             return ("", "");
         }
-        List<PgnParsingLog> _parsingLogs = new List<PgnParsingLog>();
 
-        public Game<MoveStorage> ParseGame(in string game, PGNParserOptions options)
+        public Game ParseGame(in string game, PGNParserOptions options)
         {
             _pgnVisitor = new PgnVisitor();
-            var sections = GetSectionsFromPGN(game);
+            var sections = GetSectionsFromPgn(game);
             var tags = ParseTagSection(sections.tagSection);
-            _pgnVisitor.Game = new Game<MoveStorage>(tags);
+            _pgnVisitor.Game = new Game(tags);
             ParseMoveSection(sections.moveSection.Replace("\r\n", " "), options);
             AddParsingLogsToGame();
             return _pgnVisitor.Game;
@@ -48,7 +43,10 @@ namespace ChessLib.Parse.PGN.Base
 
         private void AddParsingLogsToGame()
         {
-            foreach (var log in _parsingLogs) { _pgnVisitor.Game.AddParsingLogItem(log); }
+            foreach (var log in _parsingLogs)
+            {
+                _pgnVisitor.Game.AddParsingLogItem(log);
+            }
         }
 
         private Tags ParseTagSection(string tagSection)
@@ -57,12 +55,10 @@ namespace ChessLib.Parse.PGN.Base
             {
                 return _pgnVisitor.VisitTagPairSection(tagSection);
             }
-            else
-            {
-                _parsingLogs.Add(new PgnParsingLog(ParsingErrorLevel.Warning, "Warning: No tag section found for game.",
-                    tagSection));
-                return null;
-            }
+
+            _parsingLogs.Add(new PgnParsingLog(ParsingErrorLevel.Warning, "Warning: No tag section found for game.",
+                tagSection));
+            return null;
         }
 
         private void ParseMoveSection(string moveSection, PGNParserOptions options)
@@ -73,13 +69,10 @@ namespace ChessLib.Parse.PGN.Base
             }
             else
             {
-                _parsingLogs.Add(new PgnParsingLog(ParsingErrorLevel.Warning, "Warning: No move section found for game.",
+                _parsingLogs.Add(new PgnParsingLog(ParsingErrorLevel.Warning,
+                    "Warning: No move section found for game.",
                     moveSection));
             }
         }
-
-
-        private PgnVisitor _pgnVisitor;
-
     }
 }
