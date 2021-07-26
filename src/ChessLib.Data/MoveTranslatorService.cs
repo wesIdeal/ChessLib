@@ -75,7 +75,7 @@ namespace ChessLib.Core.Parse
         private Move GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex,
             PromotionPiece? promotionPiece)
         {
-            var rv = ApplyMoveToBoard()
+            var rv = ApplyMoveToBoard();
 
 
             return rv;
