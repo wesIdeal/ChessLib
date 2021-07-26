@@ -689,7 +689,7 @@ namespace ChessLib.Core.Helpers
             {
                 throw new ArgumentException($"{square} is not recognized as a legal square.");
             }
-
+            Debug.Assert(squareIndex >= 0 && squareIndex < 64);
             return squareIndex.Value;
         }
 

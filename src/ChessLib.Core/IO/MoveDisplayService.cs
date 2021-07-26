@@ -114,6 +114,8 @@ namespace ChessLib.Core.IO
                     .Trim();
         }
 
+       
+
         internal string GetSANSourceString(Move move, Piece src)
         {
             if (src == Piece.King)

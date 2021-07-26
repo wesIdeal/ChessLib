@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="MovingPieces\**" />
+    <EmbeddedResource Remove="MovingPieces\**" />
+    <None Remove="MovingPieces\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="moq" Version="4.16.1" />
     <PackageReference Include="NUnit" Version="3.13.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
@@ -18,8 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Bitwise\" />
-    <Folder Include="MovingPieces\" />
+    <Folder Include="Storage\" />
   </ItemGroup>
 
 </Project>

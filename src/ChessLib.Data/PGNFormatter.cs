@@ -89,7 +89,7 @@ namespace ChessLib.Data
         private string BuildMoveTree(in MoveTree tree, string fen, uint indentLevel = 0)
         {
             var sb = new StringBuilder();
-            var game = new Game<MoveStorage>(fen);
+            var game = new Game<BoardSnapshot>(fen);
             game.BeginGameInitialization();
             var bi = game.Board;
             if (tree.HasGameComment)
@@ -131,8 +131,8 @@ namespace ChessLib.Data
             return strPgn;
         }
 
-        private string GetFormattedPly(Board bi, MoveStorage previousMove,
-            MoveStorage move)
+        private string GetFormattedPly(Board bi, BoardSnapshot previousMove,
+            BoardSnapshot move)
         {
             var displaySvc = new MoveDisplayService(bi);
             var strMoveNumber = GetFormattedMoveNumber(bi, previousMove);
@@ -145,7 +145,7 @@ namespace ChessLib.Data
             return moveText;
         }
 
-        private string GetFormattedAnnotation(MoveStorage move)
+        private string GetFormattedAnnotation(BoardSnapshot move)
         {
             if (move.Annotation != null)
             {
@@ -160,7 +160,7 @@ namespace ChessLib.Data
             return "";
         }
 
-        private string GetFormattedMoveNumber(Board bi, MoveStorage previousMove)
+        private string GetFormattedMoveNumber(Board bi, BoardSnapshot previousMove)
         {
             if (ShouldWriteMoveNumber(bi.ActivePlayer, previousMove))
             {
@@ -203,7 +203,7 @@ namespace ChessLib.Data
             return _options.ExportFormat ? ' ' : _options.NewlineEachMove && activeColor == Color.Black ? NewLine : ' ';
         }
 
-        private bool ShouldWriteMoveNumber(Color activeColor, MoveStorage previousMove)
+        private bool ShouldWriteMoveNumber(Color activeColor, BoardSnapshot previousMove)
         {
             if (activeColor == Color.White)
             {
@@ -223,7 +223,7 @@ namespace ChessLib.Data
             return false;
         }
 
-        private bool UseEllipses(MoveStorage previousMove, Color activeColor)
+        private bool UseEllipses(BoardSnapshot previousMove, Color activeColor)
         {
             return (previousMove == null || !string.IsNullOrWhiteSpace(previousMove.Comment)) &&
                    activeColor == Color.Black;

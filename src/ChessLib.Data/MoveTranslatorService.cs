@@ -1,76 +1,57 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using ChessLib.Core;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.IO;
 using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Translate;
+
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.MoveValidation;
 
-namespace ChessLib.Data
+namespace ChessLib.Core.Parse
 {
     /// <summary>
     ///     Used to translate moves from text format (SAN | LAN) into a ushort-based move object <see cref="Move" />
     /// </summary>
-    public class MoveTranslatorService : MoveDisplayService
+    public class MoveTranslatorService
     {
 
-
-        /// <summary>
-        ///     Constructs the service based on the normal starting position
-        /// </summary>
-        public MoveTranslatorService()
-        {
-            InitializeBoard();
-        }
+        private MoveDisplayService _moveDisplayService;
 
         /// <summary>
         ///     Constructs the service based on an existing board configuration
         /// </summary>
         /// <param name="board">The configuration/state of the current board.</param>
-        public MoveTranslatorService(in IBoard board) : this()
+        public MoveTranslatorService(in Board board)
         {
             InitializeBoard(board);
+
         }
 
-        /// <summary>
-        ///     Constructs the service based on an existing board configuration supplied via a PremoveFEN string
-        /// </summary>
-        /// <param name="fen">A PremoveFEN string detailing the board config</param>
-        public MoveTranslatorService(string fen) : this()
-        {
-            InitializeBoard(fen);
-        }
+
 
         /// <summary>
         ///     Used to initialize the underlying board object based on the initial starting position
         /// </summary>
         public void InitializeBoard()
         {
-            var fen = FENReader.FENInitial;
-            InitializeBoard(fen);
+            InitializeBoard(new Board());
         }
 
-        /// <summary>
-        ///     Used to initialize the underlying board object based on PremoveFEN
-        /// </summary>
-        /// <param name="fen">PremoveFEN string detailing the board configuration</param>
-        public void InitializeBoard(string fen)
-        {
-            Initialize(fen);
-        }
+
 
         /// <summary>
         ///     Used to initialize the underlying board object based on an existing board.
         /// </summary>
         /// <remarks>Is non-destructive to the board passed to the method by using the board's Clone() method.</remarks>
         /// <param name="board">An existing board to base the service's board from.</param>
-        public void InitializeBoard(in IBoard board)
+        public void InitializeBoard(in Board board)
         {
-            Initialize(board);
+            _moveDisplayService.Initialize(board);
         }
 
 
@@ -91,17 +72,55 @@ namespace ChessLib.Data
             var basicMove = BasicMoveFromLAN(lanMove);
             return GenerateMoveFromIndexes(basicMove.SourceIndex, basicMove.DestinationIndex, basicMove.PromotionPiece);
         }
+        private Move GenerateMoveFromIndexes(ushort sourceIndex, ushort destinationIndex,
+            PromotionPiece? promotionPiece)
+        {
+            var rv = ApplyMoveToBoard()
 
-      
+
+            return rv;
+        }
 
 
 
-   
+        /// <summary>
+        ///     Gets a basic move with no SAN and no en passant information
+        /// </summary>
+        /// <param name="lan"></param>
+        /// <returns></returns>
+        public static Move BasicMoveFromLAN(string lan)
+        {
+            var length = lan.Length;
+            if (length < 4 || length > 5)
+            {
+                throw new MoveException($"LAN move {lan} has invalid length.");
+            }
+
+            var sourceString = lan.Substring(0, 2);
+            var destString = lan.Substring(2, 2);
+            var source = sourceString.SquareTextToIndex();
+            var dest = destString.SquareTextToIndex();
+            if (source == null || dest == null)
+            {
+                throw new MoveException(
+                    $"Unexpected value when converting LAN move to source and destination index: {lan}");
+            }
+
+            var promotionChar = lan.Length == 5 ? lan[4] : (char?)null;
+            var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionChar);
+            var isPromotion = length == 5;
+
+            return MoveHelpers.GenerateMove(source, dest,
+                isPromotion ? MoveType.Promotion : MoveType.Normal, promotionPiece);
+        }
+
+
+
 
         private IMove DetermineWhichPieceMovesToSquare(in string move, IEnumerable<ushort> possibleAttackersOfType,
             ulong applicableBb, ushort destinationSquare)
         {
-            var mv = (string) move.Clone();
+            var mv = (string)move.Clone();
             mv = mv.Substring(1);
             mv = mv.Substring(0, mv.Length - 2);
             mv = mv.Replace("x", "");
@@ -169,20 +188,26 @@ namespace ChessLib.Data
 
             return MoveHelpers.GenerateMove(source, destinationSquare);
         }
-        public IEnumerable<Move> FromLongAlgebraicNotation(IEnumerable<string> lanMoves)
-        {
-            var savedBoard = (IBoard)Board.Clone();
-            var moves = new List<Move>();
-            foreach (var lanMove in lanMoves)
-            {
-                var move = FromLongAlgebraicNotation(lanMove);
-                Board = Board.ApplyMoveToBoard(move, true);
-                moves.Add(move);
-            }
+        //public IEnumerable<BoardSnapshot> FromLongAlgebraicNotation(IEnumerable<string> lanMoves)
+        //{
+        //    var clonedBoard = (Board)Board.Clone();
+        //    var moves = new List<Move>();
+        //    foreach (var lanMove in lanMoves)
+        //    {
+        //        var move = FromLongAlgebraicNotation(lanMove);
+        //        Board = clonedBoard.ApplyMoveToBoard(move);
+        //        moves.Add(move);
+        //    }
 
-            InitializeBoard(savedBoard);
-            return moves;
-        }
+        //}
 
+        //private Board ApplyMoveToBoard(Board currentBoard, Move simpleMove)
+        //{
+        //    var postMoveBoard = currentBoard.ApplyMoveToBoard(simpleMove);
+        //    _moveDisplayService.Initialize(postMoveBoard);
+
+        //}
+
+        private static readonly MoveToSan _moveToSan = new MoveToSan();
     }
 }

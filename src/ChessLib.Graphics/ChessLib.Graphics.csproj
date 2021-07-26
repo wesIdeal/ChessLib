@@ -17,13 +17,6 @@
     <None Remove="Fonts\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Images\BlackKing.svg" />
-    <None Remove="Images\Board.svg" />
-    <None Remove="Images\ChessPieces.svg" />
-    <None Remove="Images\pieceArray.svg" />
-    <None Remove="Images\WhiteKing.svg" />
-  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Images\Board.svg">

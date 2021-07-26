@@ -55,8 +55,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -33,12 +33,12 @@ namespace ChessLib.ConsoleManualTesting
             Console.Write($@"Progress {e*100}%                ");
         }
 
-        private static void EvalPosition(Game<MoveStorage> game)
+        private static void EvalPosition(Game<BoardSnapshot> game)
         {
             // var engineRunner = new EngineRunner();
         }
 
-        private static void MakeGifs(List<Game<MoveStorage>> games)
+        private static void MakeGifs(List<Game<BoardSnapshot>> games)
         {
             var graphics = new Imaging();
             var game = games[0];

@@ -13,8 +13,6 @@ namespace ChessLib.Core
     public class Board : BoardState, IEquatable<Board>, IBoard
     {
         protected readonly IBoardValidator BoardValidator;
-
-
         public Board(IBoardValidator boardValidator = null) : base(BoardConstants.FenStartingPosition)
         {
             BoardValidator = boardValidator ?? new BoardValidator();

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ChessLib.Core;
 using ChessLib.Core.IO;
+using ChessLib.Core.Parse;
 using ChessLib.Data;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;

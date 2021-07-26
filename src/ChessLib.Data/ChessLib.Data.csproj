@@ -29,11 +29,17 @@
  
   <ItemGroup>
     <Compile Remove="Exceptions\**" />
+    <Compile Remove="PieceMobility\**" />
     <Compile Remove="SlidingPieces\**" />
+    <Compile Remove="Validators\**" />
     <EmbeddedResource Remove="Exceptions\**" />
+    <EmbeddedResource Remove="PieceMobility\**" />
     <EmbeddedResource Remove="SlidingPieces\**" />
+    <EmbeddedResource Remove="Validators\**" />
     <None Remove="Exceptions\**" />
+    <None Remove="PieceMobility\**" />
     <None Remove="SlidingPieces\**" />
+    <None Remove="Validators\**" />
     <None Include="..\License.txt">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -49,13 +55,5 @@
   <ItemGroup>
     <ProjectReference Include="..\ChessLib.Core\ChessLib.Core.csproj" />
     <ProjectReference Include="..\ChessLib.Types\ChessLib.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PieceMobility\" />
-    <Folder Include="Validators\BoardValidation\Rules\" />
-    <Folder Include="Validators\FENValidation\Rules\" />
-    <Folder Include="Validators\MoveValidation\CastlingRules\" />
-    <Folder Include="Validators\MoveValidation\EnPassantRules\" />
-    <Folder Include="Validators\MoveValidation\MoveRules\" />
   </ItemGroup>
 </Project>

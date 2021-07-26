@@ -16,7 +16,7 @@ namespace ChessLib.Core.Helpers
             }
         }
 
-        public static IEnumerable<IMove> BlackCastlingMoves
+        public static IEnumerable<Move> BlackCastlingMoves
         {
             get
             {
@@ -24,13 +24,13 @@ namespace ChessLib.Core.Helpers
                 yield return BlackCastleQueenSide;
             }
         }
-        public static readonly IMove 
+        public static readonly Move
             BlackCastleKingSide,
             BlackCastleQueenSide,
             WhiteCastleKingSide,
             WhiteCastleQueenSide;
 
-        private static readonly IMove BlackCastleKingSideRookMove,
+        private static readonly Move BlackCastleKingSideRookMove,
             BlackCastleQueenSideRookMove,
             WhiteCastleKingSideRookMove,
             WhiteCastleQueenSideRookMove;
@@ -52,14 +52,14 @@ namespace ChessLib.Core.Helpers
         /// </summary>
         /// <remarks>Basically makes a ushort from the 4 details needed to make a move</remarks>
         /// <returns></returns>
-        public static IMove GenerateMove(ushort fromIdx, ushort toIdx, MoveType moveType = MoveType.Normal,
+        public static Move GenerateMove(ushort fromIdx, ushort toIdx, MoveType moveType = MoveType.Normal,
             PromotionPiece promotionPiece = 0)
         {
-            var mt = (ushort) moveType << 14;
-            var pp = (ushort) promotionPiece << 12;
+            var mt = (ushort)moveType << 14;
+            var pp = (ushort)promotionPiece << 12;
             var origin = fromIdx << 6;
             var dest = toIdx << 0;
-            return new Move((ushort) (mt | pp | origin | dest));
+            return new Move((ushort)(mt | pp | origin | dest));
         }
 
         public static IMove GetRookMoveForCastleMove(in IMove move)

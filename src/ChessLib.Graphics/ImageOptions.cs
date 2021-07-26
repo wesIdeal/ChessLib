@@ -1,7 +1,6 @@
-﻿using ChessLib.Data;
+﻿
 using ImageMagick;
-using System;
-using System.Collections.Generic;
+
 using System.Drawing;
 
 namespace ChessLib.Graphics

@@ -6,13 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChessLib.Core;
+using ChessLib.Core.Parse;
 
 namespace ChessLib.Data.Tests
 {
     [TestFixture]
     public class PGNFormatterTests
     {
-        private PgnFormatter<MoveStorage> _moveFormatter = new PgnFormatter<MoveStorage>(new PGNFormatterOptions());
+        private PgnFormatter<BoardSnapshot> _moveFormatter = new PgnFormatter<BoardSnapshot>(new PGNFormatterOptions());
         [TestCase("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23", "d5f7", "23. Bxf7+")]
         public void TestCheckDisplay(string fen, string lan, string expected)
         {
