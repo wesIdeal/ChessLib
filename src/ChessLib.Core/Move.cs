@@ -91,7 +91,7 @@ namespace ChessLib.Core
         }
 
         public ushort MoveValue => _move;
-        public bool IsNullMove { get; }
+        public bool IsNullMove => _isNullMove;
 
-        }
+    }
 }

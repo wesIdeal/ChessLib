@@ -132,7 +132,7 @@ namespace ChessLib.Core.Tests.Helpers
 
         protected static IEnumerable<TestCase<CastlingAvailability, Board>> GetCastlingAvailabilityPostMoveTestCases()
         {
-            var allCastlingAvailable = FenReader.Translate("r3k2r /ppp5/8/8/8/8/PPP5/R3K2R w KQkq - 0 1");
+            var allCastlingAvailable = FenReader.Translate("r3k2r/ppp5/8/8/8/8/PPP5/R3K2R w KQkq - 0 1");
             var knightsOnAFile = FenReader.Translate("n3k2r/8/8/8/8/8/PPP5/N3K2R w Kk - 0 1");
             var knightsOnHFile = FenReader.Translate("r3k2n/8/8/8/8/8/PPP5/R3K2N w Qq - 0 1");
             var bishopsOnAFile = FenReader.Translate("b3k2r/8/8/8/8/1P6/P1P5/B3K2R w Kk - 0 1");

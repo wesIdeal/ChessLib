@@ -1,8 +1,7 @@
-﻿using ChessLib.Data.Helpers;
-using NUnit.Framework;
-using System;
+﻿using System;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
+using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Helpers
 {
@@ -12,7 +11,6 @@ namespace ChessLib.Data.Tests.Helpers
         [SetUp]
         public static void Setup()
         {
-
         }
 
         [Test]

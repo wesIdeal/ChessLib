@@ -1,14 +1,11 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using ChessLib.Core.Types.Enums;
+using NUnit.Framework;
 
-namespace ChessLib.MagicBitboard.Tests.Bitwise
+namespace ChessLib.Core.Tests.MagicBitboard.Bitwise
 {
     using Constants = Core.MagicBitboard.Bitwise.BoardConstants;
     using ServiceUnderTest = Core.MagicBitboard.Bitwise.MovingPieceService;

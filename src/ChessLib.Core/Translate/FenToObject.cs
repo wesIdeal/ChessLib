@@ -52,11 +52,22 @@ namespace ChessLib.Core.Translate
             var pieces = BoardFromFen(fen);
             activePlayer = GetActiveColor(fenPieces[(int) FENPieces.ActiveColor]);
             castlingAvailability = GetCastlingFromString(fen.GetFENPiece(FENPieces.CastlingAvailability));
-            enPassantSquareIndex = fenPieces[(int) FENPieces.EnPassantSquare].SquareTextToIndex();
+            enPassantSquareIndex = GetEnPassantSquareIndex(fenPieces);
             var parsedHalfmoveClock = GetHalfmoveClock(fenPieces);
             halfmoveClock = (byte) parsedHalfmoveClock;
             fullmoveClock = ushort.Parse(fenPieces[(int) FENPieces.FullMoveCounter]);
             return pieces;
+        }
+
+        private static ushort? GetEnPassantSquareIndex(string[] fenPieces)
+        {
+            var squareInfo = fenPieces[(int) FENPieces.EnPassantSquare].Trim();
+            if (squareInfo == "-")
+            {
+                return null;
+            }
+
+            return squareInfo.SquareTextToIndex();
         }
 
         private static int GetHalfmoveClock(string[] fenPieces)

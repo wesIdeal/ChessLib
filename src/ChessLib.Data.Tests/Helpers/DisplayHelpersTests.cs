@@ -1,6 +1,6 @@
 ﻿using ChessLib.Core.Helpers;
-using ChessLib.Data.Helpers;
 using NUnit.Framework;
+
 namespace ChessLib.Data.Tests.Helpers
 {
     [TestFixture]
@@ -9,7 +9,7 @@ namespace ChessLib.Data.Tests.Helpers
         [Test]
         public static void GetDisplayBits_PlacesMSBAtH8()
         {
-            ulong testVal = 0x8000000000000000;
+            var testVal = 0x8000000000000000;
             var expected =
                 "0 0 0 0 0 0 0 1\r\n" +
                 "0 0 0 0 0 0 0 0\r\n" +
@@ -37,8 +37,5 @@ namespace ChessLib.Data.Tests.Helpers
                 "1 0 0 0 0 0 0 0\r\n";
             Assert.AreEqual(expected, testVal.GetDisplayBits(), "GetDisplayBits() didn't locate A1 as LSB.");
         }
-
-
-
     }
 }

@@ -20,7 +20,7 @@ namespace ChessLib.Core.Translate
 {
     public class MoveTraversalService
     {
-        private static readonly FenTextToBoard fenTranslator = new FenTextToBoard();
+        private static readonly FenTextToBoard FenTranslator = new FenTextToBoard();
         private LinkedListNode<BoardSnapshot> _currentMoveNode;
         private bool _pauseMoveEvents;
         public Board Board;
@@ -28,7 +28,7 @@ namespace ChessLib.Core.Translate
         public MoveTraversalService(string fen)
         {
             IsLoaded = true;
-            Board = fenTranslator.Translate(fen);
+            Board = FenTranslator.Translate(fen);
             MainMoveTree = new MoveTree(null, fen);
             CurrentMoveNode = MainMoveTree.First;
             InitialFen = fen;
@@ -238,7 +238,7 @@ namespace ChessLib.Core.Translate
 
         public void GoToInitialState()
         {
-            var initialBoard = fenTranslator.Translate(InitialFen);
+            var initialBoard = FenTranslator.Translate(InitialFen);
             ApplyNewBoard(initialBoard);
             while (CurrentTree.VariationParentNode != null)
             {
@@ -287,27 +287,35 @@ namespace ChessLib.Core.Translate
                 {
                     move.SAN = GetMoveText(move);
                 }
-
                 var variationParentFen = CurrentFEN;
                 ApplyMoveToBoard(move);
                 var moveStorageObj = new BoardSnapshot(Board, move) { Validated = true };
-                Debug.Assert(CurrentMoveNode.Next != null,
-                    "Cannot apply a variation if there is not a move to apply it to.");
-                CurrentMoveNode =
-                    CurrentMoveNode.Next.Value.AddVariation(CurrentMoveNode, moveStorageObj, variationParentFen);
-                return CurrentMoveNode;
+                
+                return AddVariationToCurrentNode(CurrentMoveNode, move, variationParentFen);
             }
             catch (Exception e)
             {
                 throw new MoveException($"Issue while applying move {move}.", e);
             }
         }
-
+        public LinkedListNode<BoardSnapshot> AddVariationToCurrentNode(LinkedListNode<BoardSnapshot> currentMoveNode, Move move, string initialFen)
+        {
+            var boardSnapshot = new BoardSnapshot(Board, move) { Validated = true };
+            
+            Debug.Assert(CurrentMoveNode.Next != null,
+                "Cannot apply a variation if there is not a move to apply it to.");
+            var variationList = CurrentMoveNode.Next.Value.Variations;
+            var variation = new MoveTree(currentMoveNode, initialFen);
+            variation.AddFirst(boardSnapshot);
+            variationList.Add(variation);
+            var addedVariationIdx = variationList.IndexOf(variation);
+            return CurrentMoveNode = variationList.ElementAt(addedVariationIdx).First;
+        }
         #endregion
 
         #region Regular Moves
 
-      
+
 
         public LinkedListNode<BoardSnapshot> ApplyMove(Move move,
             MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine)
@@ -472,7 +480,7 @@ namespace ChessLib.Core.Translate
             return piecePlacement;
         }
 
-       
+
 
 
 

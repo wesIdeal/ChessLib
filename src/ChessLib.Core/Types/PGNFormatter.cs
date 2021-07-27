@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ChessLib.Core;
 using ChessLib.Core.IO;
 using ChessLib.Core.Types.Enums;
 using EnumsNET;
@@ -106,7 +105,12 @@ namespace ChessLib.Core.Types
             {
                 var previousMove = currentNode.Previous?.Value;
                 var move = currentNode.Value;
-                if (move.IsNullMove) continue;
+                if (move.IsNullMove)
+                {
+                    currentNode = currentNode.Next;
+                    continue;
+                }
+
                 var plySequence = GetFormattedPly(game.Board, previousMove, move);
                 sb.Append(plySequence);
                 if (move.Variations.Any())
@@ -119,7 +123,6 @@ namespace ChessLib.Core.Types
 
                     sb.Append(GetFormattedVariations(lstVariations, indentLevel++));
                 }
-
 
                 game.ApplyMove(move);
                 currentNode = currentNode.Next;
@@ -192,7 +195,7 @@ namespace ChessLib.Core.Types
             return string.Join("", lstVariations.Select(v => $"( {v} ) "));
         }
 
-        private string IndentText(uint depth)
+        private static string IndentText(uint depth)
         {
             return depth == 0 ? " " : new string(' ', (int) depth * 4);
         }
@@ -202,7 +205,7 @@ namespace ChessLib.Core.Types
             return _options.ExportFormat ? ' ' : _options.NewlineEachMove && activeColor == Color.Black ? NewLine : ' ';
         }
 
-        private bool ShouldWriteMoveNumber(Color activeColor, BoardSnapshot previousMove)
+        private static bool ShouldWriteMoveNumber(Color activeColor, BoardSnapshot previousMove)
         {
             if (activeColor == Color.White)
             {

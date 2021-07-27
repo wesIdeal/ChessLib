@@ -7,7 +7,6 @@ using ChessLib.Core.Helpers;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
-using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core
 {
@@ -22,23 +21,23 @@ namespace ChessLib.Core
         /// <summary>
         ///     Makes a NULL move node for head of move list
         /// </summary>
-        public BoardSnapshot()
+        internal BoardSnapshot() : base()
         {
+           
         }
 
 
         public BoardSnapshot(Board boardInfo, Move move)
             : base(move.MoveValue)
         {
-            BoardState = (Board)boardInfo.Clone();
+            BoardState = (BoardState)boardInfo.Clone();
             BoardStateHash = PolyglotHelpers.GetBoardStateHash(boardInfo);
             Id = Guid.NewGuid();
         }
 
         public Guid Id { get; }
 
-        public bool IsEndOfGame =>
-            new[] { GameState.Checkmate, GameState.StaleMate }.Contains(BoardState.GameState);
+        
 
         public BoardState BoardState { get; }
 
@@ -47,10 +46,19 @@ namespace ChessLib.Core
         public string Comment { get; set; }
         public bool Validated { get; set; }
 
+
+        public bool Equals(BoardSnapshot other)
+        {
+            return other != null &&
+                   base.Equals(other) &&
+                   BoardState.Equals(other.BoardState);
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null) return false;
-            return obj is BoardSnapshot other && BoardState.Equals(other.BoardState) && MoveValue.Equals(other.MoveValue);
+            return obj is BoardSnapshot other && BoardState.Equals(other.BoardState) &&
+                   MoveValue.Equals(other.MoveValue);
         }
 
 
@@ -79,25 +87,5 @@ namespace ChessLib.Core
 
             return sb.ToString();
         }
-
-        public LinkedListNode<BoardSnapshot> AddVariation(LinkedListNode<BoardSnapshot> currentMoveNode, BoardSnapshot move,
-            string variationParentFEN)
-        {
-            var variation = new MoveTree(currentMoveNode, variationParentFEN);
-            variation.AddFirst(move);
-            Variations.Add(variation);
-            var addedVariationIdx = Variations.IndexOf(variation);
-            return Variations.ElementAt(addedVariationIdx).First;
-        }
-
-        public bool Equals(BoardSnapshot other)
-        {
-            return other != null &&
-                   base.Equals(other) &&
-                   BoardState.Equals(other.BoardState);
-        }
     }
-
-
-
 }

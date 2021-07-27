@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using ChessLib.Core.Helpers;
@@ -29,7 +30,7 @@ namespace ChessLib.Core
         private readonly Dictionary<string, BoardStateBitHelpers> _positions =
             new Dictionary<string, BoardStateBitHelpers>();
 
-        
+
 
         protected EndOfGameRule EndOfGameRule = new EndOfGameRule();
 
@@ -37,6 +38,15 @@ namespace ChessLib.Core
         {
             BoardStateStorage = 0;
             InitializeMasks();
+        }
+
+        public bool IsEndOfGame
+        {
+            get
+            {
+                var endOfGameStates = new[] { GameState.Checkmate, GameState.StaleMate };
+                return endOfGameStates.Contains(GameState);
+            }
         }
 
         /// <summary>
@@ -51,7 +61,7 @@ namespace ChessLib.Core
         /// <param name="gameState">Game state of current board. </param>
         protected BoardState(byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
-            GameState gameState = GameState.None) :this()
+            GameState gameState = GameState.None) : this()
         {
             SetBoardState(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer,
                 fullMoveCounter, gameState);

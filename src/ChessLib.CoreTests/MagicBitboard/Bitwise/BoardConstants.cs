@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualBasic;
+﻿using System.Linq;
 using NUnit.Framework;
 
-namespace ChessLib.MagicBitboard.Tests.Bitwise
+namespace ChessLib.Core.Tests.MagicBitboard.Bitwise
 {
     using Constants = Core.MagicBitboard.Bitwise.BoardConstants;
     [TestFixture]

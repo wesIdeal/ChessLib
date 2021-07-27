@@ -16,7 +16,7 @@ namespace ChessLib.Core.Types
             OnFenChanged = onFenChanged;
             foreach (var requiredTag in RequiredTagKeys)
             {
-                Add(requiredTag, requiredTag);
+                Add(requiredTag, "?");
             }
 
             OnFENChanged(FENStart);

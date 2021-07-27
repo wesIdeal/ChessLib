@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ChessLib.Data\ChessLib.Data.csproj" />
     <ProjectReference Include="..\ChessLib.Graphics\ChessLib.Graphics.csproj" />
     <ProjectReference Include="..\ChessLib.Parse\ChessLib.Parse.csproj" />
   </ItemGroup>
