@@ -8,7 +8,7 @@ namespace ChessLib.Core.Types
 
     public class Tags : Dictionary<string, string>
     {
-        public readonly string[] RequiredTagKeys = {"Event", "Site", "Date", "Round", "White", "Black", "Result"};
+        public readonly string[] RequiredTagKeys = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
         public OnFenChangedCallback OnFenChanged;
 
         public Tags(OnFenChangedCallback onFenChanged = null)
@@ -20,6 +20,14 @@ namespace ChessLib.Core.Types
             }
 
             OnFENChanged(FENStart);
+        }
+
+        /// <summary>
+        ///     Copies the elements from <paramref name="tags" /> into a new object.
+        /// </summary>
+        /// <param name="tags"></param>
+        public Tags(Tags tags) : base(tags)
+        {
         }
 
         public string Event
@@ -72,9 +80,25 @@ namespace ChessLib.Core.Types
             }
         }
 
-        public bool HasSetup => ContainsKey("FEN") ||( ContainsKey("SetUp") && this["SetUp"] == "1");
-        public string FENStart => HasSetup ? this["FEN"] : BoardConstants.FenStartingPosition;
-        
+        public bool HasSetup => ContainsKey("FEN") || ContainsKey("SetUp") && this["SetUp"] == "1";
+        public string FENStart
+        {
+            get
+            {
+                var fenReturnVal = BoardConstants.FenStartingPosition;
+                if (HasSetup)
+                {
+                    var fen = this["FEN"];
+                    if (!string.IsNullOrWhiteSpace(fen) && fen != "?")
+                    {
+                        fenReturnVal = fen;
+                    }
+                }
+
+                return fenReturnVal;
+            }
+        }
+
         public string White
         {
             get => ContainsKey("White") ? this["White"] : "";

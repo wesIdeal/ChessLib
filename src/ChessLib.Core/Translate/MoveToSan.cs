@@ -19,7 +19,7 @@ namespace ChessLib.Core.Translate
 
 
             var strSrcPiece = GetSANSourceString(preMoveBoard, move);
-            move.DestinationIndex.IndexToSquareDisplay();
+           
             if (postMoveBoard.PieceCaptured.HasValue)
             {
                 capture = "x";
@@ -40,12 +40,13 @@ namespace ChessLib.Core.Translate
             }
 
             //Get piece representation
-            return
+            var san =
                 $"{strSrcPiece}{capture}{move.DestinationIndex.IndexToSquareDisplay()}{promotionPiece}{checkInfo} {result}"
                     .Trim();
+            return san;
         }
 
-        internal string GetSANSourceString(Board preMoveBoard, Move move)
+        private string GetSANSourceString(Board preMoveBoard, Move move)
         {
             var src = BoardHelpers.GetPieceAtIndex(preMoveBoard.Occupancy, move.SourceIndex);
             Debug.Assert(src.HasValue);
@@ -56,7 +57,15 @@ namespace ChessLib.Core.Translate
 
             if (src == Piece.Pawn)
             {
-                return move.SourceIndex.IndexToFileDisplay().ToString();
+                var source = "";
+                
+                //if the move was an En Passant or a capture, return the file letter
+                if (move.MoveType == MoveType.EnPassant ||
+                    move.SourceIndex.GetFile() != move.DestinationIndex.GetFile())
+                {
+                    source = move.SourceIndex.IndexToFileDisplay().ToString();
+                }
+                return source;
             }
 
             var strSrcPiece = src.Value.GetCharRepresentation().ToString().ToUpper();

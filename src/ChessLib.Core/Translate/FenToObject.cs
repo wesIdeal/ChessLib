@@ -5,20 +5,25 @@ using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.FENValidation;
 
-
 namespace ChessLib.Core.Translate
 {
     internal sealed class FenToObject : ChessDto<string, Fen>
     {
+        internal bool BypassValidation { get; set; }
+
         public override Fen Translate(string from)
         {
+            if (!BypassValidation)
+            {
+                var fenValidator = new FENValidator();
+                fenValidator.Validate(from);
+            }
+
             return GetFenObject(from);
         }
 
         private static Fen GetFenObject(string fen)
         {
-            var fenValidator = new FENValidator();
-            fenValidator.Validate(fen);
             var pp = BoardFromFen(fen, out var activePlayer, out var castlingAvailability, out var enPassantSquareIndex,
                 out var halfmoveClock, out var fm);
             return new Fen

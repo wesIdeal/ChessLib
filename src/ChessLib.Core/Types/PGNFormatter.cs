@@ -89,7 +89,7 @@ namespace ChessLib.Core.Types
             var sb = new StringBuilder();
             var game = new Game(fen);
             game.BeginGameInitialization();
-            var bi = game.Board;
+            var bi = game.CurrentBoard;
             if (tree.HasGameComment)
             {
                 sb.Append(IndentText(indentLevel) + GetFormattedComment(tree.GameComment));
@@ -111,7 +111,7 @@ namespace ChessLib.Core.Types
                     continue;
                 }
 
-                var plySequence = GetFormattedPly(game.Board, previousMove, move);
+                var plySequence = GetFormattedPly(game.CurrentBoard, previousMove, move);
                 sb.Append(plySequence);
                 if (move.Variations.Any())
                 {

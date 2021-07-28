@@ -1,33 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ChessLib.Core.Types
 {
     public class MoveTree : LinkedList<BoardSnapshot>
     {
-        /// <summary>
-        ///     Adds a move at the end of the tree.
-        /// </summary>
-        /// <param name="move"></param>
-        /// <returns>the added move's node</returns>
-        public LinkedListNode<BoardSnapshot> AddMove(BoardSnapshot move)
+        internal MoveTree(MoveTree moveTree)
         {
-            return AddLast(move);
+            this.Clear();
+            CopyTree(moveTree);
         }
 
-
-        public override string ToString()
+        private void CopyTree(MoveTree moveTree)
         {
-            var parent = VariationParentNode;
-            var depth = 0;
-            while (parent != null)
+            foreach (var node in moveTree.AsQueryable())
             {
-                depth++;
-                parent = ((MoveTree) parent.List).VariationParentNode;
-            }
+                this.AddLast(new BoardSnapshot(node));
 
-            var rv = $"Variation Depth: {depth}{Environment.NewLine}{StartingFEN}";
-            return rv;
+            }
         }
 
 
@@ -47,5 +38,29 @@ namespace ChessLib.Core.Types
         //public MoveNode<T> VariationParent { get; internal set; }
         public LinkedListNode<BoardSnapshot> VariationParentNode { get; }
         public string StartingFEN { get; set; }
+
+        /// <summary>
+        ///     Adds a move at the end of the tree.
+        /// </summary>
+        /// <param name="move"></param>
+        /// <returns>the added move's node</returns>
+        public LinkedListNode<BoardSnapshot> AddMove(BoardSnapshot move)
+        {
+            return AddLast(move);
+        }
+
+        public override string ToString()
+        {
+            var parent = VariationParentNode;
+            var depth = 0;
+            while (parent != null)
+            {
+                depth++;
+                parent = ((MoveTree) parent.List).VariationParentNode;
+            }
+
+            var rv = $"Variation Depth: {depth}{Environment.NewLine}{StartingFEN}";
+            return rv;
+        }
     }
 }

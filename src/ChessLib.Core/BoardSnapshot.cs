@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Types;
-using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
 
 namespace ChessLib.Core
@@ -13,31 +11,40 @@ namespace ChessLib.Core
     /// <summary>
     ///     A class that stores move information in a way that can easily be hashed for quick lookup
     /// </summary>
-    public class BoardSnapshot : Move, IEquatable<BoardSnapshot>
+    public class BoardSnapshot : Move, IEquatable<BoardSnapshot>, ICloneable
     {
         public NumericAnnotation Annotation;
         public List<MoveTree> Variations = new List<MoveTree>();
 
+
         /// <summary>
         ///     Makes a NULL move node for head of move list
         /// </summary>
-        internal BoardSnapshot() : base()
+        internal BoardSnapshot()
         {
-           
         }
 
 
         public BoardSnapshot(Board boardInfo, Move move)
             : base(move.MoveValue)
         {
-            BoardState = (BoardState)boardInfo.Clone();
+            BoardState = (BoardState) boardInfo.Clone();
             BoardStateHash = PolyglotHelpers.GetBoardStateHash(boardInfo);
             Id = Guid.NewGuid();
         }
 
+        public BoardSnapshot(BoardSnapshot node) : base(node.MoveValue)
+        {
+            BoardState = node.BoardState;
+            Variations = new List<MoveTree>(node.Variations);
+            Annotation = node.Annotation;
+            Comment = node.Comment;
+            Id = node.Id;
+            Validated = node.Validated;
+        }
+
         public Guid Id { get; }
 
-        
 
         public BoardState BoardState { get; }
 

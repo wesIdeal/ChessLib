@@ -35,7 +35,7 @@ namespace ChessLib.Parse.PGN.Base
             _pgnVisitor = new PgnVisitor();
             var sections = GetSectionsFromPgn(game);
             var tags = ParseTagSection(sections.tagSection);
-            _pgnVisitor.Game = new Game(tags);
+            _pgnVisitor.Game = new Game(tags.FENStart, tags);
             ParseMoveSection(sections.moveSection.Replace("\r\n", " "), options);
             AddParsingLogsToGame();
             return _pgnVisitor.Game;

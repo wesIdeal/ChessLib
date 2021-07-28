@@ -245,7 +245,7 @@ namespace ChessLib.EngineInterface
 
         #region Non-Serialized Fields/Properties
 
-        protected MoveTraversalService StartingBoard => new MoveTraversalService(StartingPositionFEN);
+        protected Game StartingBoard => new Game(StartingPositionFEN);
 
         protected Board CurrentBoard
         {
@@ -253,7 +253,7 @@ namespace ChessLib.EngineInterface
             {
                 var board = StartingBoard;
                 Moves.ForEach(mv => { board.ApplyMove(mv); });
-                return (Board) StartingBoard.Board.Clone();
+                return (Board) StartingBoard.CurrentBoard.Clone();
             }
         }
 

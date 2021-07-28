@@ -28,11 +28,16 @@ namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
         {
             var enPassantValidator =
                 new EnPassantPositionRule();
-            var board = FenReader.Translate(fen);
+            var board = new Board(fen, true);
             var actualExceptionType = enPassantValidator.Validate(board);
             Assert.AreEqual(expectedException, actualExceptionType);
         }
 
+        [SetUp]
+        public void Setup()
+        {
+            FenReader.BypassValidation = true;
+        }
         private static readonly FenTextToBoard FenReader = new FenTextToBoard();
     }
 }

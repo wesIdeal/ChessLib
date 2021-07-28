@@ -4,12 +4,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using ChessLib.Core.Helpers;
-using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Interfaces;
-using ChessLib.Core.Validation.Validators.BoardValidation;
 using ChessLib.Core.Validation.Validators.BoardValidation.Rules;
 using EnumsNET;
 
@@ -31,22 +28,13 @@ namespace ChessLib.Core
             new Dictionary<string, BoardStateBitHelpers>();
 
 
-
         protected EndOfGameRule EndOfGameRule = new EndOfGameRule();
+        private readonly bool _bypassValidation = false;
 
-        public BoardState()
+        internal BoardState()
         {
             BoardStateStorage = 0;
             InitializeMasks();
-        }
-
-        public bool IsEndOfGame
-        {
-            get
-            {
-                var endOfGameStates = new[] { GameState.Checkmate, GameState.StaleMate };
-                return endOfGameStates.Contains(GameState);
-            }
         }
 
         /// <summary>
@@ -67,15 +55,26 @@ namespace ChessLib.Core
                 fullMoveCounter, gameState);
         }
 
-        protected BoardState(string strFen) : this()
+        protected BoardState(string strFen, bool bypassValidation) : this()
         {
-            var fen = new FenTextToBoard().Translate(strFen);
-            SetBoardState((byte)fen.HalfMoveClock, fen.EnPassantIndex, null, fen.CastlingAvailability, fen.ActivePlayer, fen.FullMoveCounter);
+            _bypassValidation = bypassValidation;
+            var fen = new FenTextToBoard() { BypassValidation = bypassValidation }.Translate(strFen);
+            SetBoardState(fen.HalfMoveClock, fen.EnPassantIndex, null, fen.CastlingAvailability, fen.ActivePlayer,
+                fen.FullMoveCounter);
         }
 
         private BoardState(uint boardStateStorage)
         {
             BoardStateStorage = boardStateStorage;
+        }
+
+        public bool IsEndOfGame
+        {
+            get
+            {
+                var endOfGameStates = new[] { GameState.Checkmate, GameState.StaleMate };
+                return endOfGameStates.Contains(GameState);
+            }
         }
 
 
@@ -244,6 +243,10 @@ namespace ChessLib.Core
 
         internal virtual void ValidateEnPassantSquare(ushort? value)
         {
+            if (_bypassValidation)
+            {
+                return;
+            }
             if (value != null)
             {
                 var enPassantIndexValidator = new EnPassantSquareIndexRule();

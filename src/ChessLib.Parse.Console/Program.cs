@@ -196,7 +196,7 @@ namespace ChessLib.Parse.Console
 
             foreach (var move in game.MainMoveTree.Skip(1).Take(5))
             {
-                var hash = Convert.ToString((long)PolyglotHelpers.GetBoardStateHash(game.Board), 16);
+                var hash = Convert.ToString((long)PolyglotHelpers.GetBoardStateHash(game.CurrentBoard), 16);
                 System.Console.WriteLine($"\tHash:{hash}");
                 game.TraverseForward();
                 var pgMove = Convert.ToString(PolyglotMove.GetEncodedMove(move), 16).PadLeft(4, '0');

@@ -8,35 +8,49 @@ using ChessLib.Core.Types.Enums.NAG;
 
 namespace ChessLib.Core
 {
-    public class Game : MoveTraversalService, ICloneable
+    public class Game : MoveTraversalService
     {
-        private static readonly SanToMove sanToMove = new SanToMove();
+        private static readonly SanToMove SanToMove = new SanToMove();
         private GameResult _gameResult;
+        private readonly List<PgnParsingLog> _parsingLog;
 
-        public Game() : base(BoardConstants.FenStartingPosition)
+
+        /// <summary>
+        /// Copies <paramref name="game"/>'s objects into a new Game object.
+        /// </summary>
+        /// <param name="game"></param>
+        public Game(Game game) : base(game)
         {
-            ParsingLog = new List<PgnParsingLog>();
-            TagSection = new Tags();
-            TagSection.SetFen(BoardConstants.FenStartingPosition);
+            TagSection = new Tags(game.TagSection);
+            _parsingLog = new List<PgnParsingLog>(game.ParsingLog);
         }
-
-        public Game(Tags tags) : base(tags?.FENStart)
+        /// <summary>
+        /// Construct game from <paramref name="fen"/> and <paramref name="tags"/>
+        /// </summary>
+        /// <param name="fen">Specify a starting position. Defaults to initial position if null.</param>
+        /// <param name="tags">Specify tags providing information about the game.</param>
+        public Game(string fen = null, Tags tags = null) : base(fen)
         {
-            ParsingLog = new List<PgnParsingLog>();
             TagSection = tags ?? new Tags();
+            if (InitialFen != BoardConstants.FenStartingPosition)
+            {
+                TagSection.SetFen(InitialFen);
+            }
+            _parsingLog = new List<PgnParsingLog>();
         }
 
-        public Game(string fen) : base(fen)
+        public IEnumerable<PgnParsingLog> ParsingLog => _parsingLog;
+
+        public void ClearParsingLog()
         {
-            TagSection = new Tags();
-            TagSection.SetFen(fen);
-            ParsingLog = new List<PgnParsingLog>();
+            _parsingLog.Clear();
         }
 
-        public List<PgnParsingLog> ParsingLog { get; protected set; }
+        public Tags TagSection { get; }
 
-        public Tags TagSection { get; set; }
-
+        /// <summary>
+        /// PGN string of the game's result.
+        /// </summary>
         public string Result
         {
             get
@@ -74,7 +88,9 @@ namespace ChessLib.Core
                 }
             }
         }
-
+        /// <summary>
+        /// The result, provided as a <see cref="GameResult"/>
+        /// </summary>
         public GameResult GameResult
         {
             get => _gameResult;
@@ -85,47 +101,56 @@ namespace ChessLib.Core
             }
         }
 
-        public object Clone()
-        {
-            var clonedGame = new Game(TagSection);
-            foreach (var node in MainMoveTree)
-            {
-                clonedGame.MainMoveTree.AddLast(node);
-            }
 
-            return clonedGame;
-        }
-
-        public LinkedListNode<BoardSnapshot> ApplySanMove(string moveText,
-            MoveApplicationStrategy moveApplicationStrategy)
+        /// <summary>
+        /// Applies a short/standard algebraic notation move to the <see cref="MoveTraversalService.CurrentBoard"/>"/>
+        /// </summary>
+        /// <param name="moveText"></param>
+        /// <param name="moveApplicationStrategy"></param>
+        /// <returns></returns>
+        public LinkedListNode<BoardSnapshot> ApplySanMove(string moveText, MoveApplicationStrategy moveApplicationStrategy)
         {
             if (moveApplicationStrategy == MoveApplicationStrategy.Variation)
             {
                 return ApplySanVariationMove(moveText);
             }
 
-            var move = sanToMove.GetMoveFromSAN(Board, moveText);
-            move.SAN = moveText;
+            var move = SanToMove.GetMoveFromSAN(CurrentBoard, moveText);
+
             return ApplyMove(move);
         }
 
+        /// <summary>
+        /// Used by <see cref="ApplySanMove"/> to apply a short/standard algebraic notation move as a variation to the <see cref="MoveTraversalService.CurrentBoard"/>
+        /// </summary>
+        /// <param name="moveText"></param>
+        /// <returns></returns>
         protected LinkedListNode<BoardSnapshot> ApplySanVariationMove(string moveText)
         {
-            TraverseBackward();
-            var move = sanToMove.GetMoveFromSAN(Board, moveText);
+            var move = SanToMove.GetMoveFromSAN(CurrentBoard, moveText);
             move.SAN = moveText;
             ValidateMove(move);
             return ApplyValidatedMoveVariation(move);
         }
 
+        /// <summary>
+        /// Adds an item to the <see cref="ParsingLog"/> to help detail parsing events / exceptions.
+        /// </summary>
+        /// <param name="errorLevel"></param>
+        /// <param name="message"></param>
+        /// <param name="parseInput"></param>
         public void AddParsingLogItem(ParsingErrorLevel errorLevel, string message, string parseInput = "")
         {
-            ParsingLog.Add(new PgnParsingLog(errorLevel, message, parseInput));
+            _parsingLog.Add(new PgnParsingLog(errorLevel, message, parseInput));
         }
 
+        /// <summary>
+        /// Adds an item to the <see cref="ParsingLog"/> to help detail parsing events / exceptions.
+        /// </summary>
+        /// <param name="logItem">The log item to add.</param>
         public void AddParsingLogItem(PgnParsingLog logItem)
         {
-            ParsingLog.Add(logItem);
+            _parsingLog.Add(logItem);
         }
 
         public string GetPgn()
@@ -134,19 +159,21 @@ namespace ChessLib.Core
             return formatter.BuildPgn(this);
         }
 
-        public bool IsEqualTo(Game otherGame, bool includeVariations = false)
+        public bool IsEqualTo(Game other, bool includeVariations = false)
         {
-            if (otherGame.PlyCount != PlyCount)
+            var otherGame = new Game(other);
+            var thisGame = new Game(this);
+            if (otherGame.PlyCount != thisGame.PlyCount)
             {
                 return false;
             }
 
-            if (otherGame.InitialFen != InitialFen)
+            if (otherGame.InitialFen != thisGame.InitialFen)
             {
                 return false;
             }
 
-            return ParseTreesForEquality(MainMoveTree.First, otherGame.MainMoveTree.First, includeVariations);
+            return ParseTreesForEquality(thisGame.MainMoveTree.First, otherGame.MainMoveTree.First, includeVariations);
         }
 
 
@@ -157,7 +184,6 @@ namespace ChessLib.Core
 
         public Game SplitFromMove(LinkedListNode<BoardSnapshot> move, bool copyVariations = false)
         {
-            var currentFen = CurrentFEN;
             var moveStack = new Stack<BoardSnapshot>();
             var currentMove = move;
             moveStack.Push(currentMove.Value);

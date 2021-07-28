@@ -1,5 +1,8 @@
 ﻿namespace ChessLib.Core.Types
 {
+    /// <summary>
+    /// Error severity level for a <see cref="PgnParsingLog"/>
+    /// </summary>
     public enum ParsingErrorLevel
     {
         Info,

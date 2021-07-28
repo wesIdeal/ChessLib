@@ -9,39 +9,7 @@ namespace ChessLib.Data.Tests
     [TestFixture]
     public class GameTests
     {
-        [Test]
-        public void ShouldReturnEqualForSameGame()
-        {
-            var parser = new PGNParser();
-            var g1Str = PGN.g1;
-            var g2Str = PGN.g1;
-            var g1 = parser.GetGamesFromPGNAsync(g1Str).Result.First();
-            var g2 = parser.GetGamesFromPGNAsync(g2Str).Result.First();
-            Assert.IsTrue(g1.IsEqualTo(g2));
-            Assert.IsTrue(g1.IsEqualTo(g2, true));
-        }
-
-        [Test]
-        public void ShouldReturnEqualIgnoringVariations()
-        {
-            var parser = new PGNParser();
-            var g1Str = PGN.g1;
-            var g2Str = PGN.g1Variation;
-            var g1 = parser.GetGamesFromPGNAsync(g1Str).Result.First();
-            var g2 = parser.GetGamesFromPGNAsync(g2Str).Result.First();
-            Assert.IsTrue(g1.IsEqualTo(g2));
-        }
-
-        [Test]
-        public void ShouldReturnEqualIncludingVariations()
-        {
-            var parser = new PGNParser();
-            var g1Str = PGN.g1Variation;
-            var g2Str = PGN.g1Variation;
-            var g1 = parser.GetGamesFromPGNAsync(g1Str).Result.First();
-            var g2 = parser.GetGamesFromPGNAsync(g2Str).Result.First();
-            Assert.IsTrue(g1.IsEqualTo(g2, true));
-        }
+      
 
         [Test]
         public void ShouldReturnNotEqualIncludingVariations()
