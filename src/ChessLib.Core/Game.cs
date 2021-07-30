@@ -242,7 +242,7 @@ namespace ChessLib.Core
             while (moveStack.Count > 0)
             {
                 var moveStorage = moveStack.Pop();
-                g.ApplyValidatedMove(moveStorage);
+                g.AddMove(moveStorage);
             }
 
             g.GoToInitialState();

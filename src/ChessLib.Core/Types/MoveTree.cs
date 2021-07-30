@@ -30,12 +30,9 @@ namespace ChessLib.Core.Types
         /// </summary>
         /// <param name="parentVariation">The variation from which these moves begin.</param>
         /// <param name="move">A move to apply as a first move to the <paramref name="parentVariation"/>'s board.</param>
-        public MoveTree(LinkedListNode<BoardSnapshot> parentVariation, Move move)
+        public MoveTree(LinkedListNode<BoardSnapshot> parentVariation)
         {
             VariationParentNode = parentVariation;
-            var newBoard = parentVariation.Value.Board.ApplyMoveToBoard(move);
-            AddMove(new BoardSnapshot(newBoard, move));
-
         }
 
         /// <summary>
@@ -43,10 +40,10 @@ namespace ChessLib.Core.Types
         /// </summary>
         /// <remarks>This should be used for the start of the game (initial board)</remarks>
         /// <param name="initialBoard">The board loaded into the property <see cref="InitialBoard"/></param>
-        public MoveTree(Board initialBoard)
+        public MoveTree(Board initialBoard) 
+        :this(new LinkedListNode<BoardSnapshot>(new BoardSnapshot(initialBoard)))
         {
-            var initialVariation = new LinkedListNode<BoardSnapshot>(new BoardSnapshot(initialBoard));
-            VariationParentNode = initialVariation;
+          
         }
 
 

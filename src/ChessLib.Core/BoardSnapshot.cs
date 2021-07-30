@@ -114,11 +114,11 @@ namespace ChessLib.Core
         }
 
 
-        public LinkedListNode<BoardSnapshot> AddVariation(LinkedListNode<BoardSnapshot> boardNode, Move move)
+        public MoveTree AddVariation(LinkedListNode<BoardSnapshot> boardNode)
         {
-            var moveTree = new MoveTree(boardNode, move);
-            this.Variations.Add(moveTree);
-            return moveTree.Last;
+            var moveTree = new MoveTree(boardNode);
+            Variations.Add(moveTree);
+            return moveTree;
         }
     }
 }
