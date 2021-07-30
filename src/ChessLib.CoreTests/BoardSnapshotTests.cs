@@ -14,7 +14,7 @@ namespace ChessLib.Core.Tests
         {
             ;
 
-            Assert.AreNotSame(CoreTestConstants.EnglishTabiyaBoard, _boardSnapshot.BoardState);
+            Assert.AreNotSame(CoreTestConstants.EnglishTabiyaBoard, _boardSnapshot.Board);
         }
 
         [Test]

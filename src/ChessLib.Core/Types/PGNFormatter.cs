@@ -124,7 +124,7 @@ namespace ChessLib.Core.Types
                     sb.Append(GetFormattedVariations(lstVariations, indentLevel++));
                 }
 
-                game.ApplyMove(move);
+                game.AddMove(move);
                 currentNode = currentNode.Next;
             }
 

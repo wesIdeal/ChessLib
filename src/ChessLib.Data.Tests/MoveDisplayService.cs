@@ -15,7 +15,7 @@ namespace ChessLib.Core.Tests
             var game = new Game(fen);
             var lanToMove = new LanToMove();
             var move = lanToMove.Translate(lan);
-            game.ApplyMove(move);
+            game.AddMove(move);
             var pgnOutput = _moveFormatter.BuildPgn(game);
             Assert.AreEqual(expected, pgnOutput);
         }

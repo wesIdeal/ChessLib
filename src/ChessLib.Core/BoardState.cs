@@ -14,7 +14,7 @@ using EnumsNET;
 
 namespace ChessLib.Core
 {
-    public class BoardState
+    public class BoardState : ICloneable
     {
         private const string HalfMoveClockKey = "HMCLOCK";
         private const string CastlingAvailabilityKey = "CA";
@@ -63,9 +63,14 @@ namespace ChessLib.Core
                 fen.FullMoveCounter);
         }
 
-        private BoardState(uint boardStateStorage)
+        private BoardState(uint boardStateStorage) : base()
         {
             BoardStateStorage = boardStateStorage;
+        }
+
+        public BoardState(BoardState nodeBoardState)
+        {
+            BoardStateStorage = nodeBoardState?.BoardStateStorage ?? 0;
         }
 
         public bool IsEndOfGame
@@ -399,6 +404,11 @@ namespace ChessLib.Core
             sb.AppendLine($"En Passant: {EnPassantIndex}");
             sb.AppendLine($"Captured Piece: {PieceCaptured}");
             return sb.ToString();
+        }
+
+        public object Clone()
+        {
+            return new BoardState(BoardStateStorage);
         }
     }
 

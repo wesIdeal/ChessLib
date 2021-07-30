@@ -9,9 +9,9 @@ using ChessLib.Core.Types.Enums.NAG;
 namespace ChessLib.Core
 {
     /// <summary>
-    ///     A class that stores move information in a way that can easily be hashed for quick lookup
+    ///     A move that was applied
     /// </summary>
-    public class BoardSnapshot : Move, IEquatable<BoardSnapshot>, ICloneable
+    public class BoardSnapshot : Move, IEquatable<BoardSnapshot>
     {
         public NumericAnnotation Annotation;
         public List<MoveTree> Variations = new List<MoveTree>();
@@ -20,22 +20,35 @@ namespace ChessLib.Core
         /// <summary>
         ///     Makes a NULL move node for head of move list
         /// </summary>
-        internal BoardSnapshot()
+        internal BoardSnapshot() : base(NullMoveValue)
         {
+        }
+
+        /// <summary>
+        /// Establishes a <see cref="BoardSnapshot"/> as a null-move board, meaning it represents the beginning of the game or the beginning variation, with no prior moves applied
+        /// </summary>
+        /// <param name="nullMoveBoard"></param>
+        public BoardSnapshot(Board nullMoveBoard):this()
+        {
+            Board = new Board(nullMoveBoard);
         }
 
 
         public BoardSnapshot(Board boardInfo, Move move)
             : base(move.MoveValue)
         {
-            BoardState = (BoardState) boardInfo.Clone();
+            Board = new Board(boardInfo);
             BoardStateHash = PolyglotHelpers.GetBoardStateHash(boardInfo);
             Id = Guid.NewGuid();
         }
 
-        public BoardSnapshot(BoardSnapshot node) : base(node.MoveValue)
+        public BoardSnapshot(BoardSnapshot node) : base(node)
         {
-            BoardState = node.BoardState;
+            if (node.Board != null)
+            {
+                Board = new Board(node.Board);
+            }
+
             Variations = new List<MoveTree>(node.Variations);
             Annotation = node.Annotation;
             Comment = node.Comment;
@@ -46,7 +59,7 @@ namespace ChessLib.Core
         public Guid Id { get; }
 
 
-        public BoardState BoardState { get; }
+        public Board Board { get; }
 
         public ulong BoardStateHash { get; }
 
@@ -56,15 +69,20 @@ namespace ChessLib.Core
 
         public bool Equals(BoardSnapshot other)
         {
-            return other != null &&
-                   base.Equals(other) &&
-                   BoardState.Equals(other.BoardState);
+            if (other == null)
+            {
+                return false;
+            }
+
+            var baseEq = base.Equals(other);
+            var boardEq = Board.Equals(other.Board);
+            return baseEq && boardEq;
         }
 
         public override bool Equals(object obj)
         {
             if (obj == null) return false;
-            return obj is BoardSnapshot other && BoardState.Equals(other.BoardState) &&
+            return obj is BoardSnapshot other && Board.Equals(other.Board) &&
                    MoveValue.Equals(other.MoveValue);
         }
 
@@ -78,9 +96,9 @@ namespace ChessLib.Core
 
         public override int GetHashCode()
         {
-            if (BoardState != null)
+            if (Board != null)
             {
-                return base.GetHashCode() ^ BoardState.GetHashCode();
+                return base.GetHashCode() ^ Board.GetHashCode();
             }
 
             return -1;
@@ -93,6 +111,14 @@ namespace ChessLib.Core
                 sb.Append(b.ToString("X2"));
 
             return sb.ToString();
+        }
+
+
+        public LinkedListNode<BoardSnapshot> AddVariation(LinkedListNode<BoardSnapshot> boardNode, Move move)
+        {
+            var moveTree = new MoveTree(boardNode, move);
+            this.Variations.Add(moveTree);
+            return moveTree.Last;
         }
     }
 }

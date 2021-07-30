@@ -62,7 +62,7 @@ namespace ChessLib.Core
 
         public string CurrentFEN => this.FENFromBoard();
 
-        [Obsolete("Going away in favor of copy constructor.")]
+
         public object Clone()
         {
             Console.WriteLine($"Total occupancy: {Occupancy.Occupancy()}");
@@ -110,7 +110,7 @@ namespace ChessLib.Core
                     returnValue = false;
                 }
             });
-
+            returnValue &= base.Equals(otherBoard);
             return returnValue;
         }
 

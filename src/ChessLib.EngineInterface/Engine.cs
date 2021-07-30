@@ -252,7 +252,7 @@ namespace ChessLib.EngineInterface
             get
             {
                 var board = StartingBoard;
-                Moves.ForEach(mv => { board.ApplyMove(mv); });
+                Moves.ForEach(mv => { board.AddMove(mv); });
                 return (Board) StartingBoard.CurrentBoard.Clone();
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
@@ -8,8 +9,48 @@ using ChessLib.Core.Types.Enums.NAG;
 
 namespace ChessLib.Core
 {
-    public class Game : MoveTraversalService
+    public class Game : MoveTraversalService, IEquatable<Game>
     {
+        public bool Equals(Game other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            var resultEq = _gameResult == other._gameResult;
+            var parsingLogEq = ParsingLog.SequenceEqual(other.ParsingLog);
+            var tagSectionEq = TagSection.SequenceEqual(other.TagSection);
+            var baseEq = base.Equals(other);
+            return resultEq && parsingLogEq && tagSectionEq && baseEq;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Game) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (int) _gameResult;
+                hashCode = (hashCode * 397) ^ (_parsingLog != null ? _parsingLog.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (TagSection != null ? TagSection.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(Game left, Game right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Game left, Game right)
+        {
+            return !Equals(left, right);
+        }
+
         private static readonly SanToMove SanToMove = new SanToMove();
         private GameResult _gameResult;
         private readonly List<PgnParsingLog> _parsingLog;
@@ -24,6 +65,14 @@ namespace ChessLib.Core
             TagSection = new Tags(game.TagSection);
             _parsingLog = new List<PgnParsingLog>(game.ParsingLog);
         }
+
+        private Game(string fen) : base(fen)
+        {
+            if (fen != BoardConstants.FenStartingPosition)
+            {
+                TagSection.SetFen(fen);
+            }
+        }
         /// <summary>
         /// Construct game from <paramref name="fen"/> and <paramref name="tags"/>
         /// </summary>
@@ -32,10 +81,7 @@ namespace ChessLib.Core
         public Game(string fen = null, Tags tags = null) : base(fen)
         {
             TagSection = tags ?? new Tags();
-            if (InitialFen != BoardConstants.FenStartingPosition)
-            {
-                TagSection.SetFen(InitialFen);
-            }
+            
             _parsingLog = new List<PgnParsingLog>();
         }
 
@@ -117,7 +163,7 @@ namespace ChessLib.Core
 
             var move = SanToMove.GetMoveFromSAN(CurrentBoard, moveText);
 
-            return ApplyMove(move);
+            return AddMove(move);
         }
 
         /// <summary>
@@ -129,8 +175,7 @@ namespace ChessLib.Core
         {
             var move = SanToMove.GetMoveFromSAN(CurrentBoard, moveText);
             move.SAN = moveText;
-            ValidateMove(move);
-            return ApplyValidatedMoveVariation(move);
+            return AddMove(move, MoveApplicationStrategy.Variation);
         }
 
         /// <summary>

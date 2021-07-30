@@ -7,49 +7,65 @@ namespace ChessLib.Core
 {
     public class Move : IMove, ICloneable, IEquatable<Move>
     {
-        private ushort _move;
-        private readonly bool _isNullMove = false;
+        public const int NullMoveValue = 0;
 
-        public Move()
+        internal Move()
         {
-            _move = 0;
-            _isNullMove = true;
+            MoveValue = NullMoveValue;
         }
-
         public Move(ushort move)
         {
-            this._move = move;
+            MoveValue = move;
         }
+
+        protected Move(Move node) : this(node.MoveValue)
+        {
+        }
+
         public string SAN { get; set; }
 
-        public ushort SourceIndex => (ushort)((_move >> 6) & 63);
+        public object Clone()
+        {
+            return new Move(MoveValue);
+        }
+
+        public bool Equals(Move other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            return MoveValue == other.MoveValue;
+        }
+
+        public ushort SourceIndex => (ushort) ((MoveValue >> 6) & 63);
 
         public ulong SourceValue => 1ul << SourceIndex;
 
-        public ushort DestinationIndex => (ushort)(_move & 63);
+        public ushort DestinationIndex => (ushort) (MoveValue & 63);
 
         public ulong DestinationValue => 1ul << DestinationIndex;
 
-        public MoveType MoveType
-        {
-            get => (MoveType)((_move >> 14) & 3);
+        public MoveType MoveType => (MoveType) ((MoveValue >> 14) & 3);
 
-        }
-
-        public PromotionPiece PromotionPiece => (PromotionPiece)((_move >> 12) & 3);
+        public PromotionPiece PromotionPiece => (PromotionPiece) ((MoveValue >> 12) & 3);
 
         public bool Equals(ushort other)
         {
-            return _move == other;
+            return MoveValue == other;
         }
 
         public override string ToString()
         {
-            if (_isNullMove)
+            if (IsNullMove)
             {
                 return "NULL_MOVE";
             }
-            return !string.IsNullOrEmpty(SAN) ? SAN : $"{SourceIndex.IndexToSquareDisplay()}->{DestinationIndex.IndexToSquareDisplay()}";
+
+            return !string.IsNullOrEmpty(SAN)
+                ? SAN
+                : $"{SourceIndex.IndexToSquareDisplay()}->{DestinationIndex.IndexToSquareDisplay()}";
         }
 
         public bool Equals(IMove other)
@@ -59,22 +75,12 @@ namespace ChessLib.Core
                 return false;
             }
 
-            return _move == other.MoveValue;
+            return MoveValue == other.MoveValue;
         }
 
-        public object Clone()
-        {
-            return new Move(_move);
-        }
+        public ushort MoveValue { get; }
 
-        public bool Equals(Move other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-            return _move == other._move;
-        }
+        public bool IsNullMove => MoveValue == NullMoveValue;
 
         public override bool Equals(object obj)
         {
@@ -82,20 +88,13 @@ namespace ChessLib.Core
             {
                 return false;
             }
+
             return base.Equals(obj);
         }
 
         public override int GetHashCode()
         {
-            return _move.GetHashCode();
+            return MoveValue.GetHashCode();
         }
-
-        public ushort MoveValue
-        {
-            get { return _move; }
-        }
-
-        public bool IsNullMove => _isNullMove;
-
     }
 }

@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using ChessLib.Core.Helpers;
-using ChessLib.Core.IO;
-using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.EventArgs;
@@ -15,19 +13,17 @@ using ChessLib.Core.Validation.Validators.MoveValidation;
 
 namespace ChessLib.Core.Translate
 {
-    public abstract class MoveTraversalService
+    public abstract class MoveTraversalService : IEquatable<MoveTraversalService>
     {
+        private static readonly FenTextToBoard FenTextToBoard = new FenTextToBoard();
         private LinkedListNode<BoardSnapshot> _currentMoveNode;
-
-        private Board _initialBoard;
         private bool _pauseMoveEvents;
-
 
         protected MoveTraversalService(string fen)
         {
-            SetupBoard(fen);
-            MainMoveTree = new MoveTree(null, InitialFen);
-            CurrentMoveNode = MainMoveTree.First;
+            var board = FenTextToBoard.Translate(fen);
+            MainMoveTree = new MoveTree(board);
+            
             GoToInitialState();
         }
 
@@ -46,15 +42,11 @@ namespace ChessLib.Core.Translate
 
         public bool ShouldSendMoveEvents => MoveMade != null && !_pauseMoveEvents && IsLoaded;
 
-        public string InitialFen => InitialBoard.CurrentFEN;
+        public string InitialFen => MainMoveTree.StartingFen;
+        public Board InitialBoard => MainMoveTree.InitialBoard;
 
-        public Board InitialBoard
-        {
-            get => _initialBoard;
-            private set => _initialBoard = new Board(value);
-        }
 
-        public string CurrentFEN => CurrentBoard.CurrentFEN;
+        public string CurrentFen => CurrentMoveNode.Value.Board.CurrentFEN;
         public MoveTree MainMoveTree { get; protected set; }
         public int PlyCount => MainMoveTree.Skip(1).Count();
 
@@ -69,23 +61,19 @@ namespace ChessLib.Core.Translate
         }
 
         public bool HasNextMove => NextMoveNode != null;
-        public MoveTree CurrentTree => (MoveTree) CurrentMoveNode.List;
+        public MoveTree CurrentTree => (MoveTree)CurrentMoveNode?.List;
         public LinkedListNode<BoardSnapshot> NextMoveNode => CurrentMoveNode.Next;
 
         public LinkedListNode<BoardSnapshot> PreviousMoveNode => GetPreviousNode(CurrentMoveNode);
 
-        private void SetupBoard(string fen)
+        public bool Equals(MoveTraversalService other)
         {
-            if (string.IsNullOrEmpty(fen))
-            {
-                fen = BoardConstants.FenStartingPosition;
-            }
-
-            var ftb = new FenTextToBoard();
-            var board = ftb.Translate(fen);
-            InitialBoard = board;
-            CurrentBoard = new Board(board);
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            var treeEq = MainMoveTree.Equals(other.MainMoveTree);
+            return treeEq;
         }
+
 
         public virtual event EventHandler<MoveMadeEventArgs> MoveMade;
 
@@ -127,10 +115,11 @@ namespace ChessLib.Core.Translate
             return nextMoveNodes.Select(x => x.Value).ToArray();
         }
 
-        public IBoard TraverseBackward()
+        public Board TraverseBackward()
         {
-            TraverseBackToNode(PreviousMoveNode);
-            return CurrentBoard;
+            var previousNode = PreviousMoveNode?.Value?.Board ?? InitialBoard;
+            UnApplyMove();
+            return previousNode;
         }
 
         public IBoard TraverseForward()
@@ -140,7 +129,6 @@ namespace ChessLib.Core.Translate
                 return CurrentBoard;
             }
 
-            ApplyMoveToBoard(NextMoveNode.Value);
             CurrentMoveNode = NextMoveNode;
             return CurrentBoard;
         }
@@ -166,7 +154,7 @@ namespace ChessLib.Core.Translate
                 throw new MoveException($"TraverseForward({move}) error. MoveValue not found.", exc);
             }
 
-            ApplyMoveToBoard(move);
+
             CurrentMoveNode = foundMove;
             return CurrentBoard;
         }
@@ -179,7 +167,7 @@ namespace ChessLib.Core.Translate
             }
 
             Debug.Assert(CurrentMoveNode.Next != null, "Next move was null. Execution should not get to this point.");
-            var lMoves = new List<LinkedListNode<BoardSnapshot>> {CurrentMoveNode.Next};
+            var lMoves = new List<LinkedListNode<BoardSnapshot>> { CurrentMoveNode.Next };
             var nextMove = CurrentMoveNode.Next.Value;
             if (nextMove.Variations.Any())
             {
@@ -189,32 +177,11 @@ namespace ChessLib.Core.Translate
             return lMoves.ToArray();
         }
 
-        protected LinkedListNode<BoardSnapshot> TraverseBackToNode(LinkedListNode<BoardSnapshot> node)
-        {
-            _pauseMoveEvents = true;
-            if (node != null)
-            {
-                while (!CurrentMoveNode.Equals(node) && CurrentMoveNode != null && !CurrentMoveNode.Value.IsNullMove)
-                {
-                    UnApplyMove();
-                }
-            }
-            else
-            {
-                GoToInitialState();
-            }
-
-            _pauseMoveEvents = false;
-            OnMoveMade();
-            return CurrentMoveNode;
-        }
-
 
         protected LinkedListNode<BoardSnapshot> UnApplyMove()
         {
             if (!PreviousMoveNode.Value.IsNullMove)
             {
-                UnApplyMove(PreviousMoveNode);
                 CurrentMoveNode = PreviousMoveNode;
             }
             else
@@ -253,7 +220,28 @@ namespace ChessLib.Core.Translate
             }
 
             moves.Reverse();
-            Volatile.Read(ref MoveMade)?.Invoke(this, new MoveMadeEventArgs(moves.ToArray(), CurrentFEN));
+            Volatile.Read(ref MoveMade)?.Invoke(this, new MoveMadeEventArgs(moves.ToArray(), CurrentFen));
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((MoveTraversalService)obj);
+        }
+
+
+
+        public static bool operator ==(MoveTraversalService left, MoveTraversalService right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(MoveTraversalService left, MoveTraversalService right)
+        {
+            return !Equals(left, right);
         }
 
 
@@ -261,14 +249,8 @@ namespace ChessLib.Core.Translate
 
         public void GoToInitialState()
         {
-            ApplyNewBoard(InitialBoard);
-            while (CurrentTree.VariationParentNode != null)
-            {
-                CurrentMoveNode = CurrentTree.VariationParentNode;
-            }
-
-            CurrentMoveNode = CurrentTree.First;
-           
+            CurrentMoveNode = MainMoveTree.VariationParentNode;
+            CurrentBoard = MainMoveTree.InitialBoard;
         }
 
         public void GoToLastMove()
@@ -291,93 +273,59 @@ namespace ChessLib.Core.Translate
 
         #region Variations
 
-        protected LinkedListNode<BoardSnapshot> ApplyMoveVariation(Move move)
-        {
-            TraverseBackward();
-            ValidateMove(move);
-            return ApplyValidatedMoveVariation(move);
-        }
 
         protected LinkedListNode<BoardSnapshot> ApplyValidatedMoveVariation(Move move)
         {
-            try
-            {
-                
-
-                var variationParentFen = CurrentFEN;
-                var preMove = new Board(CurrentBoard);
-                ApplyMoveToBoard(move);
-                var postMove = new Board(CurrentBoard);
-                if (string.IsNullOrEmpty(move.SAN))
-                {
-                    move.SAN = _moveToSan.Translate(move, preMove, postMove);
-                }
-                return AddVariationToCurrentNode(CurrentMoveNode, move, variationParentFen);
-            }
-            catch (Exception e)
-            {
-                throw new MoveException($"Issue while applying move {move}.", e);
-            }
-
+            var newBoardNode = CurrentMoveNode = CurrentMoveNode.Value.AddVariation(CurrentMoveNode, move);
+            CurrentMoveNode = newBoardNode;
+            return newBoardNode;
         }
 
-        public LinkedListNode<BoardSnapshot> AddVariationToCurrentNode(LinkedListNode<BoardSnapshot> currentMoveNode,
-            Move move, string initialFen)
+        internal LinkedListNode<BoardSnapshot> ApplyValidatedMove(Move move)
         {
-            var boardSnapshot = new BoardSnapshot(CurrentBoard, move) {Validated = true};
+            var preMoveBoard = CurrentBoard;
+            var postMoveBoard = CurrentBoard.ApplyMoveToBoard(move);
+            if (string.IsNullOrEmpty(move.SAN))
+            {
+                move.SAN = _moveToSan.Translate(move, preMoveBoard, postMoveBoard);
+            }
+            var moveStorageObject = new BoardSnapshot(postMoveBoard, move) { Validated = true };
 
-            Debug.Assert(CurrentMoveNode.Next != null,
-                "Cannot apply a variation if there is not a move to apply it to.");
-            var variationList = CurrentMoveNode.Next.Value.Variations;
-            var variation = new MoveTree(currentMoveNode, initialFen);
-            variation.AddFirst(boardSnapshot);
-            variationList.Add(variation);
-            var addedVariationIdx = variationList.IndexOf(variation);
-            return CurrentMoveNode = variationList.ElementAt(addedVariationIdx).First;
+            CurrentMoveNode = (CurrentTree ?? MainMoveTree).AddMove(moveStorageObject);
+            return CurrentMoveNode;
         }
-
         #endregion
 
         #region Regular Moves
 
-        public LinkedListNode<BoardSnapshot> ApplyMove(Move move,
+        public LinkedListNode<BoardSnapshot> AddMove(Move move,
             MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine)
         {
+            ValidateMove(move);
+            LinkedListNode<BoardSnapshot> boardNode;
             if (moveApplicationStrategy == MoveApplicationStrategy.Variation)
             {
-                return ApplyMoveVariation(move);
+                boardNode = ApplyValidatedMoveVariation(move);
             }
-
-            ValidateMove(move);
-           return ApplyValidatedMove(move);
+            else
+            {
+                boardNode = ApplyValidatedMove(move);
+            }
+            CurrentBoard = boardNode.Value.Board;
+            return boardNode;
         }
 
         private readonly MoveToSan _moveToSan = new MoveToSan();
 
-        internal LinkedListNode<BoardSnapshot> ApplyValidatedMove(Move move,
-            MoveApplicationStrategy moveApplicationStrategy = MoveApplicationStrategy.ContinueMainLine)
-        {
-            //Uncomment to debug move application
-            //Debug.WriteLine($"Before applying move {move}, FEN is:\t{Board.CurrentFEN}");
+       
 
-            var variationParentFen = CurrentFEN;
-            var preMove = new Board(CurrentBoard);
-            ApplyMoveToBoard(move);
-            var postMove = new Board(CurrentBoard);
-            if (string.IsNullOrEmpty(move.SAN))
-            {
-                move.SAN = _moveToSan.Translate(move, preMove, postMove);
-            }
-            var moveStorageObject = new BoardSnapshot(CurrentBoard, move) {Validated = true};
-            CurrentMoveNode = CurrentTree.AddMove(moveStorageObject);
-            return CurrentMoveNode;
-        }
+      
 
         #endregion
 
         protected void ValidateMove(Move move)
         {
-            if (move is BoardSnapshot {Validated: true})
+            if (move is BoardSnapshot { Validated: true })
             {
                 return;
             }
@@ -390,32 +338,11 @@ namespace ChessLib.Core.Translate
             }
         }
 
-        private string GetMoveText(Move move, Board preMoveBoard, Board postMoveBoard)
-        {
-            return _moveToSan.Translate(move, preMoveBoard, postMoveBoard);
-        }
 
 
-        protected void ApplyMoveToBoard(Move move)
-        {
-            var newBoard = CurrentBoard.ApplyMoveToBoard(move);
-            ApplyNewBoard(newBoard);
-        }
 
-        /// <summary>
-        ///     Applies the given board parameter to this board
-        /// </summary>
-        /// <param name="newBoard"></param>
-        protected void ApplyNewBoard(Board newBoard)
-        {
-            CurrentBoard = new Board(newBoard);
-        }
 
-        private void UnApplyMove(LinkedListNode<BoardSnapshot> previousNode)
-        {
-            var board = GetBoardFromBoardState(previousNode);
-            ApplyNewBoard(board);
-        }
+
 
         private Board GetBoardFromBoardState(LinkedListNode<BoardSnapshot> previousNode)
         {
@@ -424,7 +351,7 @@ namespace ChessLib.Core.Translate
                 return InitialBoard;
             }
 
-            var previousState = previousNode.Value.BoardState;
+            var previousState = previousNode.Value.Board;
             var hmClock = previousState.HalfMoveClock;
             var epSquare = previousState.EnPassantIndex;
             var pieces = UnApplyPiecesFromMove(CurrentMoveNode.Value);
@@ -433,7 +360,7 @@ namespace ChessLib.Core.Translate
                 : CurrentBoard.FullMoveCounter;
             var board = new Board(pieces, hmClock, epSquare, previousState.PieceCaptured,
                 previousState.CastlingAvailability,
-                previousState.ActivePlayer, (ushort) fullMove);
+                previousState.ActivePlayer, (ushort)fullMove);
             return board;
         }
 
@@ -447,14 +374,14 @@ namespace ChessLib.Core.Translate
             var src = currentMove.DestinationValue;
             var dst = currentMove.SourceValue;
             var board = new Board(CurrentBoard);
-            var active = (int) board.ActivePlayer.Toggle();
+            var active = (int)board.ActivePlayer.Toggle();
             var opp = active ^ 1;
             var piecePlacement = board.Occupancy;
-            var capturedPiece = currentMove.BoardState.PieceCaptured;
+            var capturedPiece = currentMove.Board.PieceCaptured;
 
 
-            piecePlacement[active][(int) piece.Value] = piecePlacement[active][(int) piece] | dst;
-            piecePlacement[active][(int) piece.Value] = piecePlacement[active][(int) piece] & ~src;
+            piecePlacement[active][(int)piece.Value] = piecePlacement[active][(int)piece] | dst;
+            piecePlacement[active][(int)piece.Value] = piecePlacement[active][(int)piece] & ~src;
 
 
             if (capturedPiece.HasValue)
@@ -462,31 +389,31 @@ namespace ChessLib.Core.Translate
                 var capturedPieceSrc = src;
                 if (currentMove.MoveType == MoveType.EnPassant)
                 {
-                    capturedPieceSrc = (Color) active == Color.White
-                        ? ((ushort) (src.GetSetBits()[0] - 8)).GetBoardValueOfIndex()
-                        : ((ushort) (src.GetSetBits()[0] + 8)).GetBoardValueOfIndex();
+                    capturedPieceSrc = (Color)active == Color.White
+                        ? ((ushort)(src.GetSetBits()[0] - 8)).GetBoardValueOfIndex()
+                        : ((ushort)(src.GetSetBits()[0] + 8)).GetBoardValueOfIndex();
                 }
 
                 //    Debug.WriteLine(
                 //        $"{board.ActivePlayer}'s captured {capturedPiece} is being replaced. ulong={piecePlacement[opp][(int)capturedPiece]}");
-                piecePlacement[opp][(int) capturedPiece] ^= capturedPieceSrc;
+                piecePlacement[opp][(int)capturedPiece] ^= capturedPieceSrc;
                 //    Debug.WriteLine(
                 //        $"{board.ActivePlayer}'s captured {capturedPiece} was replaced. ulong={piecePlacement[opp][(int)capturedPiece]}");
             }
 
             if (currentMove.MoveType == MoveType.Promotion)
             {
-                var promotionPiece = (Piece) (currentMove.PromotionPiece + 1);
+                var promotionPiece = (Piece)(currentMove.PromotionPiece + 1);
                 //Debug.WriteLine($"Un-applying promotion to {promotionPiece}.");
                 //Debug.WriteLine($"{promotionPiece} ulong is {piecePlacement[active][(int)promotionPiece].ToString()}");
-                piecePlacement[active][(int) promotionPiece] &= ~src;
+                piecePlacement[active][(int)promotionPiece] &= ~src;
                 //Debug.WriteLine(
                 //    $"{promotionPiece} ulong is now {piecePlacement[active][(int)promotionPiece].ToString()}");
             }
             else if (currentMove.MoveType == MoveType.Castle)
             {
                 var rookMove = MoveHelpers.GetRookMoveForCastleMove(currentMove);
-                piecePlacement[active][(int) Piece.Rook] = piecePlacement[active][(int) Piece.Rook] ^
+                piecePlacement[active][(int)Piece.Rook] = piecePlacement[active][(int)Piece.Rook] ^
                                                            (rookMove.SourceValue | rookMove.DestinationValue);
             }
 
@@ -496,12 +423,11 @@ namespace ChessLib.Core.Translate
 
         public LinkedListNode<BoardSnapshot> ExitVariation()
         {
-            var currentTree = (MoveTree) CurrentMoveNode.List;
+            var currentTree = (MoveTree)CurrentMoveNode.List;
             var variationParentMove = currentTree.VariationParentNode;
             CurrentMoveNode = variationParentMove;
-            var parentFen = currentTree.StartingFEN;
+            var parentFen = currentTree.StartingFen;
             var newBoard = new FenTextToBoard().Translate(parentFen);
-            ApplyNewBoard(newBoard);
             TraverseForward();
             return variationParentMove;
         }
