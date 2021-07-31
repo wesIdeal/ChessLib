@@ -11,53 +11,13 @@ namespace ChessLib.Core
 {
     public class Game : MoveTraversalService, IEquatable<Game>
     {
-        public bool Equals(Game other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            var resultEq = _gameResult == other._gameResult;
-            var parsingLogEq = ParsingLog.SequenceEqual(other.ParsingLog);
-            var tagSectionEq = TagSection.SequenceEqual(other.TagSection);
-            var baseEq = base.Equals(other);
-            return resultEq && parsingLogEq && tagSectionEq && baseEq;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((Game) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (int) _gameResult;
-                hashCode = (hashCode * 397) ^ (_parsingLog != null ? _parsingLog.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (TagSection != null ? TagSection.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(Game left, Game right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(Game left, Game right)
-        {
-            return !Equals(left, right);
-        }
-
         private static readonly SanToMove SanToMove = new SanToMove();
-        private GameResult _gameResult;
         private readonly List<PgnParsingLog> _parsingLog;
+        private GameResult _gameResult;
 
 
         /// <summary>
-        /// Copies <paramref name="game"/>'s objects into a new Game object.
+        ///     Copies <paramref name="game" />'s objects into a new Game object.
         /// </summary>
         /// <param name="game"></param>
         public Game(Game game) : base(game)
@@ -73,29 +33,24 @@ namespace ChessLib.Core
                 TagSection.SetFen(fen);
             }
         }
+
         /// <summary>
-        /// Construct game from <paramref name="fen"/> and <paramref name="tags"/>
+        ///     Construct game from <paramref name="fen" /> and <paramref name="tags" />
         /// </summary>
         /// <param name="fen">Specify a starting position. Defaults to initial position if null.</param>
         /// <param name="tags">Specify tags providing information about the game.</param>
-        public Game(string fen = null, Tags tags = null) : base(fen)
+        public Game(string fen = null, Tags tags = null) : base(fen ?? BoardConstants.FenStartingPosition)
         {
             TagSection = tags ?? new Tags();
-            
             _parsingLog = new List<PgnParsingLog>();
         }
 
         public IEnumerable<PgnParsingLog> ParsingLog => _parsingLog;
 
-        public void ClearParsingLog()
-        {
-            _parsingLog.Clear();
-        }
-
         public Tags TagSection { get; }
 
         /// <summary>
-        /// PGN string of the game's result.
+        ///     PGN string of the game's result.
         /// </summary>
         public string Result
         {
@@ -134,8 +89,9 @@ namespace ChessLib.Core
                 }
             }
         }
+
         /// <summary>
-        /// The result, provided as a <see cref="GameResult"/>
+        ///     The result, provided as a <see cref="GameResult" />
         /// </summary>
         public GameResult GameResult
         {
@@ -147,39 +103,69 @@ namespace ChessLib.Core
             }
         }
 
+        public bool Equals(Game other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            var resultEq = _gameResult == other._gameResult;
+            var parsingLogEq = ParsingLog.SequenceEqual(other.ParsingLog);
+            var tagSectionEq = TagSection.SequenceEqual(other.TagSection);
+            var baseEq = base.Equals(other);
+            return resultEq && parsingLogEq && tagSectionEq && baseEq;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((Game) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (int) _gameResult;
+                hashCode = (hashCode * 397) ^ (_parsingLog != null ? _parsingLog.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (TagSection != null ? TagSection.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(Game left, Game right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Game left, Game right)
+        {
+            return !Equals(left, right);
+        }
+
+        public void ClearParsingLog()
+        {
+            _parsingLog.Clear();
+        }
+
 
         /// <summary>
-        /// Applies a short/standard algebraic notation move to the <see cref="MoveTraversalService.CurrentBoard"/>"/>
+        ///     Applies a short/standard algebraic notation move to the <see cref="MoveTraversalService.CurrentBoard" />"/>
         /// </summary>
         /// <param name="moveText"></param>
         /// <param name="moveApplicationStrategy"></param>
         /// <returns></returns>
-        public LinkedListNode<BoardSnapshot> ApplySanMove(string moveText, MoveApplicationStrategy moveApplicationStrategy)
-        {
-            if (moveApplicationStrategy == MoveApplicationStrategy.Variation)
-            {
-                return ApplySanVariationMove(moveText);
-            }
-
-            var move = SanToMove.GetMoveFromSAN(CurrentBoard, moveText);
-
-            return AddMove(move);
-        }
-
-        /// <summary>
-        /// Used by <see cref="ApplySanMove"/> to apply a short/standard algebraic notation move as a variation to the <see cref="MoveTraversalService.CurrentBoard"/>
-        /// </summary>
-        /// <param name="moveText"></param>
-        /// <returns></returns>
-        protected LinkedListNode<BoardSnapshot> ApplySanVariationMove(string moveText)
+        public LinkedListNode<BoardSnapshot> ApplySanMove(string moveText,
+            MoveApplicationStrategy moveApplicationStrategy)
         {
             var move = SanToMove.GetMoveFromSAN(CurrentBoard, moveText);
-            move.SAN = moveText;
-            return AddMove(move, MoveApplicationStrategy.Variation);
+            return AddMove(move, moveApplicationStrategy);
         }
 
+
+
         /// <summary>
-        /// Adds an item to the <see cref="ParsingLog"/> to help detail parsing events / exceptions.
+        ///     Adds an item to the <see cref="ParsingLog" /> to help detail parsing events / exceptions.
         /// </summary>
         /// <param name="errorLevel"></param>
         /// <param name="message"></param>
@@ -190,7 +176,7 @@ namespace ChessLib.Core
         }
 
         /// <summary>
-        /// Adds an item to the <see cref="ParsingLog"/> to help detail parsing events / exceptions.
+        ///     Adds an item to the <see cref="ParsingLog" /> to help detail parsing events / exceptions.
         /// </summary>
         /// <param name="logItem">The log item to add.</param>
         public void AddParsingLogItem(PgnParsingLog logItem)
@@ -218,7 +204,8 @@ namespace ChessLib.Core
                 return false;
             }
 
-            return ParseTreesForEquality(thisGame.MainMoveTree.First, otherGame.MainMoveTree.First, includeVariations);
+            return MainMoveTree
+                .Equals(other.MainMoveTree, includeVariations);
         }
 
 
@@ -255,57 +242,6 @@ namespace ChessLib.Core
             return formatter.BuildPgn(this);
         }
 
-        private bool ParseTreesForEquality(LinkedListNode<BoardSnapshot> gNode, LinkedListNode<BoardSnapshot> otherNode,
-            bool includeVariations)
-        {
-            var areEqual = true;
-            if (gNode.Value.MoveValue != otherNode.Value.MoveValue)
-            {
-                return false;
-            }
-
-            var moveNode = gNode.Next;
-            var otherMoveNode = otherNode.Next;
-            while (moveNode != null)
-            {
-                if (otherMoveNode == null)
-                {
-                    areEqual = false;
-                }
-                else
-                {
-                    areEqual &= moveNode.Value.MoveValue == otherMoveNode.Value.MoveValue;
-                }
-
-                if (!areEqual)
-                {
-                    break;
-                }
-
-                if (includeVariations)
-                {
-                    if (moveNode.Value.Variations.Count != otherMoveNode.Value.Variations.Count)
-                    {
-                        areEqual = false;
-                    }
-                    else
-                    {
-                        for (var variationIndex = 0; variationIndex < moveNode.Value.Variations.Count; variationIndex++)
-                        {
-                            var variation = moveNode.Value.Variations[variationIndex];
-                            var otherVariation = otherMoveNode.Value.Variations[variationIndex];
-                            areEqual &= ParseTreesForEquality(variation.First, otherVariation.First,
-                                true);
-                        }
-                    }
-                }
-
-                moveNode = moveNode.Next;
-                otherMoveNode = otherMoveNode.Next;
-            }
-
-            return areEqual;
-        }
 
         public void ApplyNAG(int nag)
         {

@@ -65,7 +65,6 @@ namespace ChessLib.Core
 
         public object Clone()
         {
-            Console.WriteLine($"Total occupancy: {Occupancy.Occupancy()}");
             var clonedOccupancy = CloneOccupancy();
             var activePlayerColor = ActivePlayer;
             return new Board(clonedOccupancy, HalfMoveClock, EnPassantIndex, PieceCaptured, CastlingAvailability,

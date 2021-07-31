@@ -18,8 +18,10 @@ namespace ChessLib.Core
             MoveValue = move;
         }
 
-        protected Move(Move node) : this(node.MoveValue)
+        protected Move(Move node)
         {
+            this.MoveValue = node.MoveValue;
+            this.SAN = node.SAN;
         }
 
         public string SAN { get; set; }

@@ -10,8 +10,8 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
         public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
             var activeOccupancy = boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer);
-            Console.WriteLine($"Active Occupancy: {activeOccupancy}");
-            Console.WriteLine($"Destination: {move.DestinationValue}");
+            //Console.WriteLine($"Active Occupancy: {activeOccupancy}");
+            //Console.WriteLine($"Destination: {move.DestinationValue}");
 
             if ((activeOccupancy & move.DestinationValue) != 0)
             {

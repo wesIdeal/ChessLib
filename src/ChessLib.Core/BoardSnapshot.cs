@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using ChessLib.Core.Helpers;
@@ -11,11 +13,19 @@ namespace ChessLib.Core
     /// <summary>
     ///     A move that was applied
     /// </summary>
-    public class BoardSnapshot : Move, IEquatable<BoardSnapshot>
+    public class BoardSnapshot : Move, IEquatable<BoardSnapshot>, ICloneable
     {
         public NumericAnnotation Annotation;
         public List<MoveTree> Variations = new List<MoveTree>();
 
+        public new object Clone()
+        {
+            var bs = new BoardSnapshot(this.Board);
+            
+         
+
+            return bs;
+        }
 
         /// <summary>
         ///     Makes a NULL move node for head of move list
@@ -35,7 +45,7 @@ namespace ChessLib.Core
 
 
         public BoardSnapshot(Board boardInfo, Move move)
-            : base(move.MoveValue)
+            : base(move)
         {
             Board = new Board(boardInfo);
             BoardStateHash = PolyglotHelpers.GetBoardStateHash(boardInfo);
@@ -119,6 +129,11 @@ namespace ChessLib.Core
             var moveTree = new MoveTree(boardNode);
             Variations.Add(moveTree);
             return moveTree;
+        }
+
+        public IEnumerable<Tuple<MoveTree, MoveTree>> GetDualEnumerators(BoardSnapshot board2)
+        {
+            return this.Variations.Zip(board2.Variations, Tuple.Create);
         }
     }
 }

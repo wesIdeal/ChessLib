@@ -59,10 +59,10 @@ namespace ChessLib.Core.Translate
                         board);
                 }
 
-                var possibleAttackersOfType = new List<ushort>();
+               
 
                 var attackerIndices = activePieces.GetSetBits();
-
+                
 
                 if (attackerIndices.Length == 0)
                 {
@@ -71,13 +71,13 @@ namespace ChessLib.Core.Translate
                         board);
                 }
 
-                if (possibleAttackersOfType.Count == 1)
+                if (attackerIndices.Length == 1)
                 {
-                    moveExt = MoveHelpers.GenerateMove(possibleAttackersOfType[0], destinationSquare);
+                    moveExt = MoveHelpers.GenerateMove(attackerIndices[0], destinationSquare);
                 }
                 else
                 {
-                    moveExt = DetermineWhichPieceMovesToSquare(board, strMove, possibleAttackersOfType,
+                    moveExt = DetermineWhichPieceMovesToSquare(board, strMove, attackerIndices,
                         applicableBlockerBoard,
                         destinationSquare);
                 }
@@ -108,7 +108,7 @@ namespace ChessLib.Core.Translate
             IEnumerable<ushort> possibleAttackersOfType,
             ulong applicableBb, ushort destinationSquare)
         {
-            var mv = (string) move.Clone();
+            var mv = move;
             mv = mv.Substring(1);
             mv = mv.Substring(0, mv.Length - 2);
             mv = mv.Replace("x", "");

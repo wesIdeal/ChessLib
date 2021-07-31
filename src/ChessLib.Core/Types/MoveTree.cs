@@ -1,50 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChessLib.Core.Helpers;
 
 namespace ChessLib.Core.Types
 {
     /// <summary>
-    /// A class that holds a database containing a chess game.
+    ///     A class that holds a database containing a chess game.
     /// </summary>
-
     public class MoveTree : LinkedList<BoardSnapshot>, IEquatable<MoveTree>
     {
         internal MoveTree(MoveTree moveTree)
         {
             CopyTree(moveTree);
-        }
-
-        public Board InitialBoard => VariationParentNode.Value.Board;
-        private void CopyTree(MoveTree moveTree)
-        {
-            foreach (var node in moveTree.AsQueryable())
-            {
-                AddLast(new BoardSnapshot(node));
-            }
+            var clonedParent = (BoardSnapshot) moveTree.VariationParentNode.Value.Clone();
+            VariationParentNode = new LinkedListNode<BoardSnapshot>(clonedParent);
+            GameComment = moveTree.GameComment;
         }
 
         /// <summary>
-        /// Creates a new tree of moves under the parent <paramref name="parentVariation"/>.
+        ///     Creates a new tree of moves under the parent <paramref name="parentVariation" />.
         /// </summary>
         /// <param name="parentVariation">The variation from which these moves begin.</param>
-        /// <param name="move">A move to apply as a first move to the <paramref name="parentVariation"/>'s board.</param>
+        /// <param name="move">A move to apply as a first move to the <paramref name="parentVariation" />'s board.</param>
         public MoveTree(LinkedListNode<BoardSnapshot> parentVariation)
         {
             VariationParentNode = parentVariation;
         }
 
         /// <summary>
-        /// Creates a new MoveTree from a board.
+        ///     Creates a new MoveTree from a board.
         /// </summary>
         /// <remarks>This should be used for the start of the game (initial board)</remarks>
-        /// <param name="initialBoard">The board loaded into the property <see cref="InitialBoard"/></param>
-        public MoveTree(Board initialBoard) 
-        :this(new LinkedListNode<BoardSnapshot>(new BoardSnapshot(initialBoard)))
+        /// <param name="initialBoard">The board loaded into the property <see cref="InitialBoard" /></param>
+        public MoveTree(Board initialBoard)
+            : this(new LinkedListNode<BoardSnapshot>(new BoardSnapshot(initialBoard)))
         {
-          
         }
+
+        public Board InitialBoard => VariationParentNode.Value.Board;
 
 
         public bool HasGameComment => !string.IsNullOrEmpty(GameComment);
@@ -53,11 +46,59 @@ namespace ChessLib.Core.Types
         //public MoveNode<T> VariationParent { get; internal set; }
 
         /// <summary>
-        /// The parent to the current variation
+        ///     The parent to the current variation
         /// </summary>
         public LinkedListNode<BoardSnapshot> VariationParentNode { get; }
 
-        public string StartingFen => VariationParentNode.Value.Board.CurrentFEN;
+        public string StartingFen => VariationParentNode?.Value?.Board.CurrentFEN;
+
+
+        public bool Equals(MoveTree other)
+        {
+            return Equals(other, true);
+        }
+
+        public bool Equals(MoveTree other, bool checkVariations)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            var gameCommentEq = GameComment == other.GameComment;
+            var variationParentNodeEq = VariationParentNode.Value.Equals(other.VariationParentNode.Value);
+            var startingFenEq = StartingFen == other.StartingFen;
+            var variationsEq = CheckVariationsEquality(VariationParentNode.Value.Variations,
+                other.VariationParentNode.Value.Variations);
+            var treeEqual = CheckEquality(other, checkVariations);
+            return gameCommentEq && variationParentNodeEq && startingFenEq && treeEqual && variationsEq;
+        }
+
+        private static bool CheckVariationsEquality(List<MoveTree> v1, List<MoveTree> v2)
+        {
+            var areEqual = true;
+            if (!(areEqual &= v1.Count == v2.Count))
+            {
+                areEqual = false;
+            }
+            else
+            {
+                foreach (var (variation1, variation2) in v1.Zip(v2, Tuple.Create))
+                {
+                    if (!(areEqual &= CheckEquality(variation1, variation2, true)))
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return areEqual;
+        }
+
+        private void CopyTree(MoveTree moveTree)
+        {
+            foreach (var node in moveTree.AsQueryable())
+            {
+                AddLast(new BoardSnapshot(node));
+            }
+        }
 
         /// <summary>
         ///     Adds a move at the end of the tree.
@@ -76,7 +117,7 @@ namespace ChessLib.Core.Types
             while (parent != null)
             {
                 depth++;
-                parent = ((MoveTree)parent.List).VariationParentNode;
+                parent = ((MoveTree) parent.List).VariationParentNode;
             }
 
             var rv = $"Variation Depth: {depth}{Environment.NewLine}{StartingFen}";
@@ -84,51 +125,49 @@ namespace ChessLib.Core.Types
         }
 
 
-        public bool Equals(MoveTree other)
+        public bool CheckEquality(MoveTree other, bool checkVariations)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            var gameCommentEq = GameComment == other.GameComment;
-            var variationParentNodeEq = Equals(VariationParentNode, other.VariationParentNode);
-            var startingFenEq = StartingFen == other.StartingFen;
-            var treeEqual = CheckEquality(other);
-            return gameCommentEq && variationParentNodeEq && startingFenEq && treeEqual;
+            return CheckEquality(this, other, checkVariations);
         }
 
-        private bool CheckEquality(MoveTree other)
+        protected static bool CheckEquality(MoveTree tree1, MoveTree tree2, bool checkVariations)
         {
-            var iterator = this.First;
-            var otherIterator = other.First;
             var areEqual = true;
-            while (iterator != null && otherIterator != null)
-            {
-                var valuesEqual = iterator.Value.Equals(otherIterator.Value);
-                areEqual &= valuesEqual;
-                iterator = iterator.Next;
-                otherIterator = otherIterator.Next;
-            }
 
-            if (iterator == null ^ otherIterator == null)
+            foreach (var (board1, board2) in tree1.Zip(tree2))
             {
-                areEqual = false;
+                if (!(areEqual &= board1.Equals(board2)))
+                {
+                    break;
+                }
+
+                if (checkVariations)
+                {
+                    areEqual &= CheckVariationsEquality(board1.Variations, board2.Variations);
+                }
             }
 
             return areEqual;
+        }
+
+        public IEnumerable<Tuple<BoardSnapshot, BoardSnapshot>> Zip(MoveTree other)
+        {
+            return this.Zip(other, Tuple.Create);
         }
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((MoveTree)obj);
+            if (obj.GetType() != GetType()) return false;
+            return Equals((MoveTree) obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = (GameComment != null ? GameComment.GetHashCode() : 0);
+                var hashCode = GameComment != null ? GameComment.GetHashCode() : 0;
                 hashCode = (hashCode * 397) ^ (VariationParentNode != null ? VariationParentNode.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (StartingFen != null ? StartingFen.GetHashCode() : 0);
                 return hashCode;
