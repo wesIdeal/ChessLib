@@ -45,6 +45,8 @@ namespace ChessLib.Core
             }
         }
 
+       
+
         public Board(Board board)
         {
             var clonedOccupancy = board.CloneOccupancy();

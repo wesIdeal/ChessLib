@@ -187,7 +187,7 @@ namespace ChessLib.Graphics
             var initialFen = game.TagSection.ContainsKey("FEN")
                 ? game.TagSection["FEN"]
                 : BoardConstants.FenStartingPosition;
-            var moves = game.MainMoveTree;
+            var moves = game.Continuations;
             _imageOptions = imageOpts = imageOpts ?? new ImageOptions();
             _squareSize = imageOpts.SquareSize;
             _offset = _squareSize;

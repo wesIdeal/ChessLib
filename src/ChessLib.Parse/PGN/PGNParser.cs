@@ -88,7 +88,7 @@ namespace ChessLib.Parse.PGN
                     var game = lexer.ParseGame(g, ParserOptions);
                     if (game != null)
                     {
-                        game.GoToInitialState();
+                        game.GoToFirstMove();
                         rv[idx] = game;
                     }
 

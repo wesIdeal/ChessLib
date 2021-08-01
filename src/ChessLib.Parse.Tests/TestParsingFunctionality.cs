@@ -225,12 +225,12 @@ namespace ChessLib.Parse.Tests
         public void ShouldIgnoreVariationsWhenSetToTrue()
         {
             var pgnDb = PGNResources.GameWithVars;
-            var parserOptions = new PGNParserOptions {IgnoreVariations = true};
+            var parserOptions = new PGNParserOptions { IgnoreVariations = true };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
-            foreach (var move in largeDb.First().MainMoveTree)
+            foreach (var move in largeDb.First().Continuations)
             {
-                Assert.IsEmpty(move.Variations, $"Found a variation on move {move.SAN} and shouldn't have any.");
+                Assert.IsEmpty(move.Variations, $"Found a variation on move {move.San} and shouldn't have any.");
             }
         }
 
@@ -252,7 +252,7 @@ namespace ChessLib.Parse.Tests
             const MoveNAG expected = MoveNAG.VeryGoodMove;
             var parser = new PGNParser();
             var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagNumber).Result;
-            Assert.AreEqual(expected, game.First().MainMoveTree.Last.Value.Annotation.MoveNAG);
+            Assert.AreEqual(expected, game.First().Continuations.Last().Annotation.MoveNAG);
         }
 
         [Test]
@@ -261,14 +261,14 @@ namespace ChessLib.Parse.Tests
             const MoveNAG expected = MoveNAG.VeryGoodMove;
             var parser = new PGNParser();
             var game = parser.GetGamesFromPGNAsync(PGNResources.MoveNagSymbol).Result;
-            Assert.AreEqual(expected, game.First().MainMoveTree.Last.Value.Annotation.MoveNAG);
+            Assert.AreEqual(expected, game.First().Continuations.Last().Annotation.MoveNAG);
         }
 
         [Test]
         public void ShouldParsePreGameComment()
         {
             var game = _parser.GetGamesFromPGNAsync(PGNResources.PregameComment).Result.First();
-            Assert.IsNotEmpty(game.MainMoveTree.First.Value.Comment);
+            Assert.IsNotEmpty(game.Continuations.First()?.PreMoveComment);
         }
 
         [Test]
@@ -286,7 +286,7 @@ namespace ChessLib.Parse.Tests
         {
             const int gamesToParse = 2;
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
-            var parserOptions = new PGNParserOptions {MaxGameCount = 2};
+            var parserOptions = new PGNParserOptions { MaxGameCount = 2 };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             Assert.AreEqual(gamesToParse, largeDb.Length,
@@ -298,14 +298,14 @@ namespace ChessLib.Parse.Tests
         {
             const int maxPliesToParse = 10;
             var pgnDb = Encoding.UTF8.GetString(PGNResources.talMedium);
-            var parserOptions = new PGNParserOptions {MaxGameCount = 5, MaximumPlyPerGame = maxPliesToParse};
+            var parserOptions = new PGNParserOptions { MaxGameCount = 5, MaximumPlyPerGame = maxPliesToParse };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
             WritePgn(largeDb.First());
             foreach (var game in largeDb)
             {
                 Assert.IsTrue(game.PlyCount <= maxPliesToParse,
-                    $"Expected ply count of {maxPliesToParse} but was {game.MainMoveTree.Count}.");
+                    $"Expected ply count of {maxPliesToParse} but was {game.Continuations.Count}.");
             }
         }
 
@@ -331,7 +331,7 @@ namespace ChessLib.Parse.Tests
         {
             var games = _parser.GetGamesFromPGNAsync(PGNResources.ColumnStyle).Result.ToArray();
             Assert.AreEqual(1, games.Length, $"Expected only one game, but found {games.Length}.");
-            Assert.AreEqual(51, games[0].MainMoveTree.Count(), "Game should have 50 moves.");
+            Assert.AreEqual(51, games[0].Continuations.Count(), "Game should have 50 moves.");
         }
 
         [Test]
@@ -340,9 +340,9 @@ namespace ChessLib.Parse.Tests
             const string expected = "Qc7 is a great move, here.";
             const int movePosition = 18; //Black's move 9...Qc7
             var game = _parser.GetGamesFromPGNAsync(PGNResources.GameWithNAG).Result.First();
-            var move = game.MainMoveTree.ElementAt(movePosition);
-            Assert.AreEqual(expected, move.Comment,
-                $"Expected comment '{expected}' at move {MoveDisplay(movePosition, move.SAN)}.");
+            var move = game.Continuations.ElementAt(movePosition);
+            Assert.AreEqual(expected, move.PostMoveComment,
+                $"Expected comment '{expected}' at move {MoveDisplay(movePosition, move.San)}.");
         }
 
         [Test]
@@ -352,7 +352,7 @@ namespace ChessLib.Parse.Tests
             var parser = new PGNParser();
             var games = parser.GetGamesFromPGNAsync(pgn).Result.ToArray();
             Assert.IsNotEmpty(games);
-            Assert.IsTrue(games.First().MainMoveTree.Count == 40);
+            Assert.IsTrue(games.First().Continuations.Count == 40);
         }
 
         [Test]
@@ -379,9 +379,9 @@ namespace ChessLib.Parse.Tests
             const string expected = "$1";
             const int moveIndex = 16;
             var game = _parser.GetGamesFromPGNAsync(PGNResources.GameWithNAG).Result.First();
-            var move = game.MainMoveTree.ElementAt(moveIndex);
+            var move = game.Continuations.ElementAt(moveIndex);
             Assert.AreEqual(MoveNAG.GoodMove, move.Annotation.MoveNAG,
-                $"Expected NAG to be '{expected}' at move {MoveDisplay(moveIndex, move.SAN)}.");
+                $"Expected NAG to be '{expected}' at move {MoveDisplay(moveIndex, move.San)}.");
         }
 
 
@@ -452,9 +452,9 @@ namespace ChessLib.Parse.Tests
             const int expectedVariationCount = 1;
             const string variationSAN = "c4";
             var withVarDb = _parser.GetGamesFromPGNAsync(PGNResources.GameWithVariation).Result.First();
-            var variationMove = withVarDb.MainMoveTree.ElementAt(variationOnMovePosition);
-            Assert.AreEqual(expectedVariationCount, variationMove.Variations.Count);
-            Assert.AreEqual(variationSAN, variationMove.Variations[0].ElementAt(0).SAN);
+            var variationMove = withVarDb.Continuations.ElementAt(variationOnMovePosition);
+            Assert.AreEqual(expectedVariationCount, variationMove.Variations.Count());
+            Assert.AreEqual(variationSAN, variationMove.Variations?.First()?.San);
         }
 
         //[Test]

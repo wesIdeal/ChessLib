@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types;
@@ -9,14 +7,44 @@ using NUnit.Framework;
 
 namespace ChessLib.Core.Tests
 {
+    public class GameTestsBase
+    {
+        protected Game GetEnglishMainLine
+        {
+            get
+            {
+                var g = new Game();
+                foreach (var move in CoreTestConstants.EnglishTabiyaMoves)
+                {
+                    g.ApplySanMove(move, MoveApplicationStrategy.ContinueMainLine);
+                }
+
+                return g;
+            }
+        }
+
+        protected Game AddContinuation(Game g, string[] variation, MoveApplicationStrategy moveApplicationStrategy)
+        {
+            Assert.IsNotEmpty(variation);
+            g.ApplySanMove(variation[0], moveApplicationStrategy);
+            for (var i = 1; i < variation.Length; i++)
+            {
+                var mv = variation[i];
+                g.ApplySanMove(mv, MoveApplicationStrategy.ContinueMainLine);
+            }
+
+            return g;
+        }
+    }
+
     [TestFixture(TestOf = typeof(Game))]
-    public class GameTests
+    public class GameTests : GameTestsBase
     {
         [SetUp]
         public void Setup()
         {
             var fen = CoreTestConstants.EnglishTabiyaFen;
-            var tags = new Tags { Event = "Unit Testing" };
+            var tags = new Tags {Event = "Unit Testing"};
             _game = new Game(fen, tags);
             //_moveNodePostMove = _game.AddMove(CoreTestConstants.EnglishTabiyaNextMove);
             _game.AddParsingLogItem(new PgnParsingLog(ParsingErrorLevel.Info,
@@ -37,21 +65,8 @@ namespace ChessLib.Core.Tests
             }
         }
 
-        protected Game AddContinuation(Game g, string[] variation, MoveApplicationStrategy moveApplicationStrategy)
-        {
-            Assert.IsNotEmpty(variation);
-            g.ApplySanMove(variation[0], moveApplicationStrategy);
-            for (int i = 1; i < variation.Length; i++)
-            {
-                var mv = variation[i];
-                g.ApplySanMove(mv, MoveApplicationStrategy.ContinueMainLine);
-            }
-
-            return g;
-        }
 
         private Game _game;
-        private LinkedListNode<BoardSnapshot> _moveNodePostMove;
 
         [Test]
         public void CopyConstructor_Test()
@@ -62,7 +77,7 @@ namespace ChessLib.Core.Tests
             Assert.AreNotSame(_game, gameCopy);
             Assert.AreNotSame(_game.TagSection, gameCopy.TagSection,
                 "TagSection should not point to the same object when copied.");
-            Assert.AreNotSame(_game.MainMoveTree, gameCopy.MainMoveTree,
+            Assert.AreNotSame(_game.Continuations, gameCopy.Continuations,
                 "MainMoveTree should not point to the same object when copied.");
             Assert.AreNotSame(_game.ParsingLog, gameCopy.ParsingLog,
                 "Parsing should not point to the same object when copied.");
@@ -73,20 +88,20 @@ namespace ChessLib.Core.Tests
         public void ApplySanMoveTest_NormalMove()
         {
             _game = new Game(CoreTestConstants.EnglishTabiyaFen);
-            var postMoveNode = _game.ApplySanMove(CoreTestConstants.EnglishTabiyaNextMoveSan, MoveApplicationStrategy.ContinueMainLine);
+            var postMoveNode = _game.ApplySanMove(CoreTestConstants.EnglishTabiyaNextMoveSan,
+                MoveApplicationStrategy.ContinueMainLine);
 
-            Assert.AreEqual(CoreTestConstants.EnglishTabiyaPostMove, _game.CurrentFen);
-            Assert.AreEqual(CoreTestConstants.EnglishTabiyaNextMoveSan, _game.CurrentMoveNode.Value.SAN);
-            Assert.AreEqual(CoreTestConstants.EnglishTabiyaNextMove.MoveValue, postMoveNode.Value.MoveValue);
+            Assert.AreEqual(CoreTestConstants.EnglishTabiyaPostMove, _game.Fen);
+            Assert.AreEqual(CoreTestConstants.EnglishTabiyaNextMoveSan, _game.CurrentBoard.San);
         }
 
         [Test]
         public void ApplySanMoveTest_Variation()
         {
-            _game.TraverseBackward();
-            Console.WriteLine(_game.CurrentFen);
+            _game.MovePrevious();
+            Console.WriteLine(_game.Fen);
             _game.ApplySanMove("d4", MoveApplicationStrategy.Variation);
-            Assert.AreEqual(CoreTestConstants.EnglishTabiyaPostMoveAlternate, _game.CurrentFen);
+            Assert.AreEqual(CoreTestConstants.EnglishTabiyaPostMoveAlternate, _game.Fen);
         }
 
         [Test]
@@ -99,15 +114,15 @@ namespace ChessLib.Core.Tests
                 g.ApplySanMove(mv, MoveApplicationStrategy.NewMainLine);
             }
 
-            for (int i = 0; i < CoreTestConstants.EnglishTabiyaContinuation.Length; i++)
+            for (var i = 0; i < CoreTestConstants.EnglishTabiyaContinuation.Length; i++)
             {
-                g.TraverseBackward();
+                g.MovePrevious();
             }
 
-            Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, g.CurrentFen);
-            Console.WriteLine($"Current FEN after exiting variation: {g.CurrentFen}");
+            Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, g.Fen);
+            Console.WriteLine($"Current FEN after exiting variation: {g.Fen}");
             g.ApplySanMove(CoreTestConstants.EnglishTabiyaVariation[0], MoveApplicationStrategy.Variation);
-            for (int i = 1; i < CoreTestConstants.EnglishTabiyaVariation.Length; i++)
+            for (var i = 1; i < CoreTestConstants.EnglishTabiyaVariation.Length; i++)
             {
                 var mv = CoreTestConstants.EnglishTabiyaVariation[i];
                 g.ApplySanMove(mv, MoveApplicationStrategy.ContinueMainLine);
@@ -115,8 +130,8 @@ namespace ChessLib.Core.Tests
 
             g.ExitVariation();
 
-            Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, g.CurrentFen);
-            Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, _game.CurrentFen);
+            Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, g.Fen);
+            Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, _game.Fen);
         }
 
         [Test]
@@ -125,13 +140,12 @@ namespace ChessLib.Core.Tests
             var g = GetEnglishMainLine;
             AddContinuation(g, CoreTestConstants.EnglishTabiyaContinuation, MoveApplicationStrategy.ContinueMainLine);
             Traverse(g, CoreTestConstants.EnglishTabiyaContinuation);
-            var node = g.CurrentMoveNode;
-            var board = g.CurrentBoard;
+            var node = g.CurrentBoard;
+           
             AddContinuation(g, CoreTestConstants.EnglishTabiyaVariation, MoveApplicationStrategy.Variation);
             g.ExitVariation();
-            Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, g.CurrentFen);
-            Assert.AreEqual(node, g.CurrentMoveNode);
-            Assert.AreEqual(board, g.CurrentBoard);
+            Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, g.Fen);
+            Assert.AreEqual(node, g.CurrentBoard);
         }
 
         [Test]
@@ -140,15 +154,14 @@ namespace ChessLib.Core.Tests
             var g = GetEnglishMainLine;
             AddContinuation(g, CoreTestConstants.EnglishTabiyaContinuation, MoveApplicationStrategy.ContinueMainLine);
             g.ExitVariation();
-            Assert.AreEqual(BoardConstants.FenStartingPosition, g.CurrentFen);
-
+            Assert.AreEqual(BoardConstants.FenStartingPosition, g.Fen);
         }
 
         private Game Traverse(Game game, string[] englishMainLineContinuation)
         {
-            for (int i = 0; i < englishMainLineContinuation.Length; i++)
+            for (var i = 0; i < englishMainLineContinuation.Length; i++)
             {
-                game.TraverseBackward();
+                game.MovePrevious();
             }
 
             return game;
@@ -157,7 +170,6 @@ namespace ChessLib.Core.Tests
         [Test]
         public void AddParsingLogItemTest_ConstructedFromParams()
         {
-
             var level = ParsingErrorLevel.Warning;
             var msg = "Warning issued.";
             var parseInput = "1. e4";
@@ -172,7 +184,6 @@ namespace ChessLib.Core.Tests
         [Test]
         public void AddParsingLogItemTest_FromParams()
         {
-
             var level = ParsingErrorLevel.Warning;
             var msg = "Warning issued.";
             var parseInput = "1. e4";
@@ -188,23 +199,24 @@ namespace ChessLib.Core.Tests
         [Test]
         public void ShouldReturnEqualForSameGame()
         {
-            _game.TraverseBackward();
+            _game.MovePrevious();
             _game.ApplySanMove("d4", MoveApplicationStrategy.Variation);
             var game2 = new Game(_game);
-            Assert.IsTrue(_game.IsEqualTo(game2));
-            Assert.IsTrue(_game.IsEqualTo(game2, true));
+            Assert.IsTrue(_game.IsMainLineEqual(game2));
+            Assert.IsTrue(_game.Equals(game2));
         }
+
         [Test]
         public void ShouldReturnCorrectValueSameGame_VariationAndNoVariation()
         {
             var game1 = new Game(CoreTestConstants.EnglishTabiyaFen);
             game1.ApplySanMove(CoreTestConstants.EnglishTabiyaNextMoveSan, MoveApplicationStrategy.ContinueMainLine);
             var game2 = new Game(game1);
-            game1.TraverseBackward();
+            game1.MovePrevious();
             game1.ApplySanMove("d4", MoveApplicationStrategy.Variation);
-            
-            Assert.IsTrue(game1.IsEqualTo(game2), "Should return true, ignoring variations.");
-            Assert.IsFalse(game1.IsEqualTo(game2, true), "Should return false when including variations");
+
+            Assert.IsTrue(game1.IsMainLineEqual(game2), "Should return true, ignoring variations.");
+            Assert.IsFalse(game1.Equals(game2), "Should return false when including variations");
         }
     }
 }

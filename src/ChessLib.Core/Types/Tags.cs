@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.MagicBitboard.Bitwise;
 
@@ -6,7 +7,7 @@ namespace ChessLib.Core.Types
 {
     public delegate void OnFenChangedCallback(string fen);
 
-    public class Tags : Dictionary<string, string>
+    public class Tags : Dictionary<string, string>, IEquatable<Tags>
     {
         public readonly string[] RequiredTagKeys = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
         public OnFenChangedCallback OnFenChanged;
@@ -18,7 +19,6 @@ namespace ChessLib.Core.Types
             {
                 Add(requiredTag, "?");
             }
-
             OnFENChanged(FENStart);
         }
 
@@ -148,6 +148,54 @@ namespace ChessLib.Core.Types
         private void OnFENChanged(string fen)
         {
             OnFenChanged?.Invoke(fen);
+        }
+
+        public bool Equals(Tags other)
+        {
+            if (other == null || Keys.Count != other.Keys.Count)
+            {
+                return false;
+            }
+            var theseKeys = Keys.OrderBy(x => x);
+           
+            foreach (var key in theseKeys)
+            {
+                if (!other.ContainsKey(key))
+                {
+                    return false;
+                }
+
+                if (this[key] != other[key])
+                {
+                    return false;
+                }
+
+            }
+
+            return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Tags) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool operator ==(Tags left, Tags right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Tags left, Tags right)
+        {
+            return !Equals(left, right);
         }
     }
 }

@@ -323,13 +323,12 @@ namespace ChessLib.Core.Helpers
         /// </summary>
         /// <param name="currentBoard">Board to which move will be applied.</param>
         /// <param name="move"></param>
-        /// <param name="bypassMoveValidation">Bypass validation; useful when move was previously validated</param>
         /// <returns>The board after the move has been applied.</returns>
         /// <exception cref="MoveException">If no piece exists at source.</exception>
-        public static Board ApplyMoveToBoard(this Board currentBoard, in IMove move)
+        public static Board ApplyMoveToBoard(this Board currentBoard, in Move move)
         {
             var board = (Board)currentBoard.Clone();
-
+            
             var moveValidator = new MoveValidator(board, move);
             var validationError = moveValidator.Validate();
             if (validationError != MoveError.NoneSet)
@@ -355,6 +354,83 @@ namespace ChessLib.Core.Helpers
                 (ushort)fullMoveCounter, validateBoard: true);
         }
 
+        /// <summary>
+        /// Removes a move from a board, effectively rewinding the state to one more prior to <paramref name="currentBoard"/>
+        /// </summary>
+        /// <param name="currentBoard"></param>
+        /// <param name="previousState"></param>
+        /// <param name="move"></param>
+        /// <returns></returns>
+        public static Board UnapplyMoveFromBoard(this Board currentBoard, in BoardState previousState, in Move move)
+        {
+            var hmClock = previousState.HalfMoveClock;
+            var epSquare = previousState.EnPassantIndex;
+            var pieces = UnapplyMoveFromBoard(currentBoard.Occupancy, previousState, move);
+            var fullMove = currentBoard.ActivePlayer == Color.White
+                ? currentBoard.FullMoveCounter - 1
+                : currentBoard.FullMoveCounter;
+            var activeColor = previousState.ActivePlayer;
+            var castlingAvailability = previousState.CastlingAvailability;
+            var board = new Board(pieces, hmClock, epSquare, previousState.PieceCaptured,
+                castlingAvailability,
+                activeColor, (ushort)fullMove);
+            return board;
+        }
+
+        private static ulong[][] UnapplyMoveFromBoard(in ulong[][] preMoveBoard, in BoardState previousBoardState, in Move move)
+        {
+            var piece = move.MoveType == MoveType.Promotion
+               ? Piece.Pawn
+               : BoardHelpers.GetPieceAtIndex(preMoveBoard, move.DestinationIndex);
+
+            Debug.Assert(piece.HasValue, "Piece for un-apply() has no value.");
+            var sourceSquareValue = move.DestinationValue;
+            var destinationSquareValue = move.SourceValue;
+            var activeColor = (int)previousBoardState.ActivePlayer;
+            var opponentColor = activeColor ^ 1;
+            var piecePlacement = preMoveBoard;
+            var capturedPieceType = previousBoardState.PieceCaptured;
+
+
+            piecePlacement[activeColor][(int)piece.Value] = piecePlacement[activeColor][(int)piece] | destinationSquareValue;
+            piecePlacement[activeColor][(int)piece.Value] = piecePlacement[activeColor][(int)piece] & ~sourceSquareValue;
+
+
+            if (capturedPieceType.HasValue)
+            {
+                var capturedPieceSrc = sourceSquareValue;
+                if (move.MoveType == MoveType.EnPassant)
+                {
+                    capturedPieceSrc = (Color)activeColor == Color.White
+                        ? ((ushort)(sourceSquareValue.GetSetBits()[0] - 8)).GetBoardValueOfIndex()
+                        : ((ushort)(sourceSquareValue.GetSetBits()[0] + 8)).GetBoardValueOfIndex();
+                }
+
+                //    Debug.WriteLine(
+                //        $"{board.ActivePlayer}'s captured {capturedPiece} is being replaced. ulong={piecePlacement[opp][(int)capturedPiece]}");
+                piecePlacement[opponentColor][(int)capturedPieceType] ^= capturedPieceSrc;
+                //    Debug.WriteLine(
+                //        $"{board.ActivePlayer}'s captured {capturedPiece} was replaced. ulong={piecePlacement[opp][(int)capturedPiece]}");
+            }
+
+            if (move.MoveType == MoveType.Promotion)
+            {
+                var promotionPiece = (Piece)(move.PromotionPiece + 1);
+                //Debug.WriteLine($"Un-applying promotion to {promotionPiece}.");
+                //Debug.WriteLine($"{promotionPiece} ulong is {piecePlacement[active][(int)promotionPiece].ToString()}");
+                piecePlacement[activeColor][(int)promotionPiece] &= ~sourceSquareValue;
+                //Debug.WriteLine(
+                //    $"{promotionPiece} ulong is now {piecePlacement[active][(int)promotionPiece].ToString()}");
+            }
+            else if (move.MoveType == MoveType.Castle)
+            {
+                var rookMove = MoveHelpers.GetRookMoveForCastleMove(move);
+                piecePlacement[activeColor][(int)Piece.Rook] = piecePlacement[activeColor][(int)Piece.Rook] ^
+                                                           (rookMove.SourceValue | rookMove.DestinationValue);
+            }
+
+            return piecePlacement;
+        }
 
         /// <summary>
         ///     Gets the piece setup post-move

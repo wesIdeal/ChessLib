@@ -240,7 +240,7 @@ namespace ChessLib.Parse.PGN.Base
         {
             if (!_foundGame)
             {
-                if (Game.CurrentMoveNode.Value.BoardStateHash == options.BoardStateHash)
+                if (Game.CurrentBoard.BoardStateHash == options.BoardStateHash)
                 {
                     _foundGame = true;
                 }
@@ -257,7 +257,7 @@ namespace ChessLib.Parse.PGN.Base
         {
             var comment = ReadUntil(reader, TokenCommentEnd);
             comment = comment.Trim(TokenCommentStart, TokenCommentEnd).Trim();
-            Game.AddComment(comment);
+            Game.PostMoveComment = comment;
         }
 
         private void VisitNAGSymbol(StringReader reader)

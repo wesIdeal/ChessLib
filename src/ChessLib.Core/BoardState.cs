@@ -24,17 +24,21 @@ namespace ChessLib.Core
         private const string ActivePlayerKey = "ACTIVEPLAYER";
         private const string FullMoveCounterKey = "FULLMOVECOUNT";
 
-        private readonly Dictionary<string, BoardStateBitHelpers> _positions =
+        private static readonly Dictionary<string, BoardStateBitHelpers> Positions =
             new Dictionary<string, BoardStateBitHelpers>();
 
 
         protected EndOfGameRule EndOfGameRule = new EndOfGameRule();
         private readonly bool _bypassValidation = false;
 
+        static BoardState()
+        {
+            InitializeMasks();
+        }
         internal BoardState()
         {
             BoardStateStorage = 0;
-            InitializeMasks();
+            
         }
 
         /// <summary>
@@ -63,12 +67,13 @@ namespace ChessLib.Core
                 fen.FullMoveCounter);
         }
 
-        private BoardState(uint boardStateStorage) : base()
+        public BoardState(uint boardStateStorage) :this()
         {
             BoardStateStorage = boardStateStorage;
+            
         }
 
-        public BoardState(BoardState nodeBoardState)
+        public BoardState(BoardState nodeBoardState):this()
         {
             BoardStateStorage = nodeBoardState?.BoardStateStorage ?? 0;
         }
@@ -99,7 +104,7 @@ namespace ChessLib.Core
         {
             get
             {
-                var gsInfo = _positions[GameStateKey];
+                var gsInfo = Positions[GameStateKey];
                 var unmasked = (BoardStateStorage & gsInfo.Mask) >> gsInfo.Offset;
                 return (GameState)unmasked;
             }
@@ -118,8 +123,8 @@ namespace ChessLib.Core
         {
             get
             {
-                var maskedVal = (BoardStateStorage & _positions[CastlingAvailabilityKey].Mask) >>
-                                _positions[CastlingAvailabilityKey].Offset;
+                var maskedVal = (BoardStateStorage & Positions[CastlingAvailabilityKey].Mask) >>
+                                Positions[CastlingAvailabilityKey].Offset;
                 return (CastlingAvailability)maskedVal;
             }
             set
@@ -134,7 +139,7 @@ namespace ChessLib.Core
         {
             get
             {
-                var activePlayerInfo = _positions[ActivePlayerKey];
+                var activePlayerInfo = Positions[ActivePlayerKey];
                 var unmasked = (BoardStateStorage & activePlayerInfo.Mask) >> activePlayerInfo.Offset;
                 return (Color)unmasked;
             }
@@ -151,7 +156,7 @@ namespace ChessLib.Core
         {
             get
             {
-                var pieceCapturedInfo = _positions[PieceCapturedKey];
+                var pieceCapturedInfo = Positions[PieceCapturedKey];
                 var unmasked = BoardStateStorage & pieceCapturedInfo.Mask;
                 var notOffset = unmasked >> pieceCapturedInfo.Offset;
                 return notOffset == 0 ? (Piece?)null : (Piece)(notOffset - 1);
@@ -196,7 +201,7 @@ namespace ChessLib.Core
         {
             get
             {
-                var hmInfo = _positions[HalfMoveClockKey];
+                var hmInfo = Positions[HalfMoveClockKey];
                 return (byte)((BoardStateStorage & hmInfo.Mask) >> hmInfo.Offset);
             }
             set
@@ -211,7 +216,7 @@ namespace ChessLib.Core
         {
             get
             {
-                var maskEntry = _positions[FullMoveCounterKey];
+                var maskEntry = Positions[FullMoveCounterKey];
                 var maskedValue = BoardStateStorage & maskEntry.Mask;
                 var value = maskedValue >> maskEntry.Offset;
                 return value;
@@ -240,7 +245,7 @@ namespace ChessLib.Core
 
         private uint GetEnPassantValueFromStorage()
         {
-            var epInfo = _positions[EnPassantIndexKey];
+            var epInfo = Positions[EnPassantIndexKey];
             var unMasked = BoardStateStorage & epInfo.Mask;
             var idx = (ushort)(unMasked >> epInfo.Offset);
             return idx;
@@ -267,39 +272,39 @@ namespace ChessLib.Core
             }
         }
 
-        public void InitializeMasks()
+        public static void InitializeMasks()
         {
-            _positions.Add(HalfMoveClockKey, new BoardStateBitHelpers
+            Positions.Add(HalfMoveClockKey, new BoardStateBitHelpers
             {
                 Mask = 0b0000_0000_0000_0000_0000_0000_1111_1111,
                 Offset = 0
             });
-            _positions.Add(EnPassantIndexKey, new BoardStateBitHelpers
+            Positions.Add(EnPassantIndexKey, new BoardStateBitHelpers
             {
                 Mask = 0b0000_0000_0000_0000_0001_1111_0000_0000,
                 Offset = 8
             });
-            _positions.Add(CastlingAvailabilityKey, new BoardStateBitHelpers
+            Positions.Add(CastlingAvailabilityKey, new BoardStateBitHelpers
             {
                 Mask = 0b0000_0000_0000_0001_1110_0000_0000_0000,
                 Offset = 13
             });
-            _positions.Add(PieceCapturedKey, new BoardStateBitHelpers
+            Positions.Add(PieceCapturedKey, new BoardStateBitHelpers
             {
                 Mask = 0b0000_0000_0000_1110_0000_0000_0000_0000,
                 Offset = 17
             });
-            _positions.Add(GameStateKey, new BoardStateBitHelpers
+            Positions.Add(GameStateKey, new BoardStateBitHelpers
             {
                 Mask = 0b0000_0000_0011_0000_0000_0000_0000_0000,
                 Offset = 20
             });
-            _positions.Add(FullMoveCounterKey, new BoardStateBitHelpers
+            Positions.Add(FullMoveCounterKey, new BoardStateBitHelpers
             {
                 Mask = 0b0111_1111_1100_0000_0000_0000_0000_0000,
                 Offset = 22
             });
-            _positions.Add(ActivePlayerKey, new BoardStateBitHelpers
+            Positions.Add(ActivePlayerKey, new BoardStateBitHelpers
             {
                 Mask = 0b1000_0000_0000_0000_0000_0000_0000_0000,
                 Offset = 31
@@ -308,28 +313,28 @@ namespace ChessLib.Core
 
         private uint GetGameStateStorageValue(GameState state)
         {
-            return (uint)state << _positions[GameStateKey].Offset;
+            return (uint)state << Positions[GameStateKey].Offset;
         }
 
         private uint GetClearValue(string key)
         {
-            return ~_positions[key].Mask;
+            return ~Positions[key].Mask;
         }
 
 
         private uint GetActivePlayerStorageValue(Color activePlayerColor)
         {
-            return (uint)activePlayerColor << _positions[ActivePlayerKey].Offset;
+            return (uint)activePlayerColor << Positions[ActivePlayerKey].Offset;
         }
 
         private uint GetCastlingRightsStorageValue(CastlingAvailability ca)
         {
-            return (uint)ca << _positions[CastlingAvailabilityKey].Offset;
+            return (uint)ca << Positions[CastlingAvailabilityKey].Offset;
         }
 
         private uint GetPieceCapturedStorageValue(Piece? p)
         {
-            var pieceCapturedInfo = _positions[PieceCapturedKey];
+            var pieceCapturedInfo = Positions[PieceCapturedKey];
             if (p == null)
             {
                 return 0;
@@ -366,7 +371,7 @@ namespace ChessLib.Core
                 throw new FullMoveCountExceededException(fullMoveCounter);
             }
 
-            return fullMoveCounter << _positions[FullMoveCounterKey].Offset;
+            return fullMoveCounter << Positions[FullMoveCounterKey].Offset;
         }
 
 

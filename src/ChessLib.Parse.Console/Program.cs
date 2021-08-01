@@ -181,30 +181,30 @@ namespace ChessLib.Parse.Console
             File.WriteAllText("C:\\temp\\test.pgn", pgn);
         }
 
-        private static void WritePolyglotInfo(Game[] games, int i)
-        {
-            if (i >= games.Length)
-            {
-                System.Console.WriteLine($"Requested game at index {i} not found. Length is {games.Length}.");
-                return;
-            }
+        //private static void WritePolyglotInfo(Game[] games, int i)
+        //{
+        //    if (i >= games.Length)
+        //    {
+        //        System.Console.WriteLine($"Requested game at index {i} not found. Length is {games.Length}.");
+        //        return;
+        //    }
 
-            var game = games[0];
+        //    var game = games[0];
 
-            System.Console.WriteLine("Starting Position");
+        //    System.Console.WriteLine("Starting Position");
 
 
-            foreach (var move in game.MainMoveTree.Skip(1).Take(5))
-            {
-                var hash = Convert.ToString((long)PolyglotHelpers.GetBoardStateHash(game.CurrentBoard), 16);
-                System.Console.WriteLine($"\tHash:{hash}");
-                game.TraverseForward();
-                var pgMove = Convert.ToString(PolyglotMove.GetEncodedMove(move), 16).PadLeft(4, '0');
-                System.Console.WriteLine(move.SAN);
+        //    foreach (var move in game.MainLine.Take(5))
+        //    {
+                
+        //        System.Console.WriteLine($"\tHash:{move.BoardStateHash}");
+        //        game.MoveNext();
+        //        var pgMove = Convert.ToString(PolyglotMove.GetEncodedMove(move), 16).PadLeft(4, '0');
+        //        System.Console.WriteLine(move.SAN);
 
-                System.Console.WriteLine($"\tHash:{hash}");
-                System.Console.WriteLine($"\tMove:{pgMove}");
-            }
-        }
+        //        System.Console.WriteLine($"\tHash:{hash}");
+        //        System.Console.WriteLine($"\tMove:{pgMove}");
+        //    }
+        //}
     }
 }

@@ -7,7 +7,7 @@ namespace ChessLib.Core
 {
     public class Move : IMove, ICloneable, IEquatable<Move>
     {
-        public const int NullMoveValue = 0;
+        protected const int NullMoveValue = 0;
 
         internal Move()
         {
@@ -83,6 +83,7 @@ namespace ChessLib.Core
         public ushort MoveValue { get; }
 
         public bool IsNullMove => MoveValue == NullMoveValue;
+        public static Move NullMove => new Move(NullMoveValue);
 
         public override bool Equals(object obj)
         {
