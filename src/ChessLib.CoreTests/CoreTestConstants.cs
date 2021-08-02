@@ -23,7 +23,7 @@ namespace ChessLib.Core.Tests
         public static readonly string[] EnglishTabiyaContinuation = new[] { "g3", "Bb4", "Bg2"};
         public static readonly string[] EnglishTabiyaVariation = new[] {"d4", "exd4", "Nxd4"};
 
-        public const string EnglishTabiyaPostMoveAlternate = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2PP4/2N2N2/PP2PPPP/R1BQKB1R b KQkq - 0 4";
+        public const string EnglishTabiyaPostMoveAlternate = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2PP4/2N2N2/PP2PPPP/R1BQKB1R b KQkq d3 0 4";
         public const ulong EnglishTabiyaBoardStateHash = 0x90901935d014a8dc;
     }
 }

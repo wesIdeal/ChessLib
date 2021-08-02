@@ -7,7 +7,7 @@ using ChessLib.Core.Types.Enums.NAG;
 
 namespace ChessLib.Core
 {
-    
+
     /// <summary>
     ///     A move that was applied
     /// </summary>
@@ -17,7 +17,21 @@ namespace ChessLib.Core
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return BoardStateValue == other.BoardStateValue && MoveValue == other.MoveValue;
+            var boardStateEq = BoardStateValue == other.BoardStateValue && MoveValue == other.MoveValue;
+            var moveEq = Move.Equals(other.Move);
+            if (Continuations.Count != other.Continuations.Count)
+            {
+                return false;
+            }
+
+            var continuationZip = Continuations.Zip(other.Continuations, (c1, c2) => new
+            {
+                continuation1 = c1,
+                continuation2 = c2,
+                areEqual = c1.Equals(c2)
+            });
+            var continuationsEq = continuationZip.All(x => x.areEqual);
+            return boardStateEq && moveEq && continuationsEq;
         }
 
         public override bool Equals(object obj)
@@ -25,14 +39,14 @@ namespace ChessLib.Core
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((MoveNode) obj);
+            return Equals((MoveNode)obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((int) BoardStateValue * 397) ^ MoveValue.GetHashCode();
+                return ((int)BoardStateValue * 397) ^ MoveValue.GetHashCode();
             }
         }
 
@@ -83,7 +97,8 @@ namespace ChessLib.Core
             BoardStateHash = moveNode.BoardStateHash;
             PostMoveComment = moveNode.PostMoveComment;
             PreMoveComment = moveNode.PreMoveComment;
-            moveNode.Continuations.ForEach(x=>CopyNodeTree(x, Continuations));
+            Previous = moveNode.Previous;
+            moveNode.Continuations.ForEach(x => CopyNodeTree(x, Continuations));
         }
 
         protected uint BoardStateValue { get; set; }

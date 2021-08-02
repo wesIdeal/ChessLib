@@ -48,7 +48,10 @@ namespace ChessLib.Core
 
         protected MoveNodeIterator(MoveNodeIterator board) : this(board.BoardState, Move.NullMove)
         {
-
+            foreach (var gameContinuation in board.Continuations)
+            {
+                Continuations.Add(new MoveNode(gameContinuation));
+            }
         }
 
         public new Board BoardState { get; }

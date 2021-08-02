@@ -156,10 +156,9 @@ namespace ChessLib.Core
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             var resultEq = _gameResult == other._gameResult;
-            var parsingLogEq = ParsingLog.SequenceEqual(other.ParsingLog);
             var tagSectionEq = TagSection.SequenceEqual(other.TagSection);
             var baseEq = base.Equals(other);
-            return resultEq && parsingLogEq && tagSectionEq && baseEq;
+            return resultEq && tagSectionEq && baseEq;
         }
 
         protected static Board BoardFromFen(string fen)
@@ -222,7 +221,7 @@ namespace ChessLib.Core
         {
             get
             {
-                var previousNode = base.Previous;
+                var previousNode = CurrentBoard.Previous;
                 if (previousNode == null)
                 {
                     return StartingBoard;
@@ -234,23 +233,18 @@ namespace ChessLib.Core
 
         public MoveNodeIterator ExitVariation()
         {
-            var previous = Previous;
-            var isCurrentVariationOfParent = true;
-            var isCurrentVariationMainlineOfParent = false;
-            while (previous != null)
+            MoveNodeIterator previousNode;
+            while ((previousNode = Previous) != null)
             {
-                var currentMove = CurrentBoard.Move;
-                isCurrentVariationOfParent = previous.Variations.Any(x => x.Move.MoveValue == currentMove.MoveValue);
-                isCurrentVariationMainlineOfParent = previous.Next.Move.MoveValue == currentMove.MoveValue;
-                var previousBoard = Previous;
-                CurrentBoard = previousBoard;
-                if (isCurrentVariationMainlineOfParent)
+                var currentNode = CurrentBoard;
+                CurrentBoard = previousNode;
+                if (previousNode.Variations.Select(x => x).Contains(currentNode))
                 {
                     return CurrentBoard;
                 }
             }
 
-            throw new Exception("Error: Could not find beginning variation.");
+            return CurrentBoard;
         }
         /// <summary>
         ///     Applies a short/standard algebraic notation move to the <see cref="MoveTraversalService.CurrentBoard" />"/>
@@ -260,7 +254,7 @@ namespace ChessLib.Core
         /// <returns></returns>
         public MoveNodeIterator ApplySanMove(string moveText, MoveApplicationStrategy moveApplicationStrategy)
         {
-            var move = SanToMove.GetMoveFromSAN(StartingBoard.BoardState, moveText);
+            var move = SanToMove.GetMoveFromSAN(CurrentBoard.BoardState, moveText);
             var newBoard = CurrentBoard.AddContinuation(move);
             return CurrentBoard = newBoard;
         }
@@ -342,7 +336,7 @@ namespace ChessLib.Core
             var otherMainLine = game2.MainLine;
             var mainLine = currentMainline.Zip(otherMainLine,
                 (c1, c2) =>
-                    new { CurrentMove = c1.Move, OtherMove = c2.Move, AreEqual = c1.Equals(c2) });
+                    new { CurrentMove = c1.Move, OtherMove = c2.Move, AreEqual = (c1.Move.Equals(c2.Move)) });
             var mainLineEq = mainLine.All(x => x.AreEqual);
             Debug.WriteLineIf(!mainLineEq,
                 $"Main lines differ, starting here at Game 1's move {mainLine.FirstOrDefault(x => !x.AreEqual)?.CurrentMove}");

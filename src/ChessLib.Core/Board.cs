@@ -167,7 +167,7 @@ namespace ChessLib.Core
 
         public override string ToString()
         {
-            return CurrentFEN + Environment.NewLine + base.ToString();
+            return CurrentFEN;
         }
 
 

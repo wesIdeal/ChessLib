@@ -161,7 +161,10 @@ namespace ChessLib.Core.Tests
         {
             for (var i = 0; i < englishMainLineContinuation.Length; i++)
             {
+                var fromMove = game.CurrentBoard.San;
                 game.MovePrevious();
+                var toMove = game.CurrentBoard.San;
+                Console.WriteLine($"Moving backward, from state {fromMove} to state {toMove}");
             }
 
             return game;
