@@ -316,7 +316,7 @@ namespace ChessLib.Core.Tests.Helpers
             var expected = testCase.ExpectedValue;
             var actual =
                 (Board)testCase.TestMethodInputValue.ApplyMoveToBoard((Move)testCase.AdditionalInputs.Single());
-            Assert.AreEqual(expected.CurrentFEN, actual.CurrentFEN, testCase.ToString());
+            Assert.AreEqual(expected.Fen, actual.Fen, testCase.ToString());
         }
 
         protected static IEnumerable<TestCase<Board, Board>> GetApplyMoveToBoardTestCases()

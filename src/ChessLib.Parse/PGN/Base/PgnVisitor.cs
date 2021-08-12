@@ -257,7 +257,7 @@ namespace ChessLib.Parse.PGN.Base
         {
             var comment = ReadUntil(reader, TokenCommentEnd);
             comment = comment.Trim(TokenCommentStart, TokenCommentEnd).Trim();
-            Game.PostMoveComment = comment;
+            Game.SetComment(comment);
         }
 
         private void VisitNAGSymbol(StringReader reader)
@@ -268,7 +268,7 @@ namespace ChessLib.Parse.PGN.Base
             {
                 if (nags.Length == 1)
                 {
-                    Game.ApplyNAG(nags[0]);
+                    Game.AddNag(new NumericAnnotation(nags[0]));
                 }
                 else
                 {
@@ -288,7 +288,8 @@ namespace ChessLib.Parse.PGN.Base
         {
             var nagBuffer = ReadUntil(reader, TokensChars);
             nagBuffer = nagBuffer.TrimStart('$');
-            Game.ApplyNAG(Convert.ToInt32(nagBuffer));
+            var nag = Convert.ToInt32(nagBuffer);
+            Game.AddNag(new NumericAnnotation(nag));
         }
 
         private bool VisitSanMove(in StringReader reader, PGNParserOptions options)
@@ -316,7 +317,7 @@ namespace ChessLib.Parse.PGN.Base
                 return true;
             }
 
-            var move = Game.ApplySanMove(buffer, strategy);
+            var move = Game.ApplyMove(buffer, strategy);
             _plyCount = Game.PlyCount;
 
             if (move != null && options.ShouldFilterDuringParsing)

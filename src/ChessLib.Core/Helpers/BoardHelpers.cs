@@ -365,7 +365,7 @@ namespace ChessLib.Core.Helpers
         {
             var hmClock = previousState.HalfMoveClock;
             var epSquare = previousState.EnPassantIndex;
-            var pieces = UnapplyMoveFromBoard(currentBoard.Occupancy, previousState, move);
+            var pieces = UnapplyMoveFromBoard(currentBoard.Occupancy, previousState, move, currentBoard.PieceCaptured);
             var fullMove = currentBoard.ActivePlayer == Color.White
                 ? currentBoard.FullMoveCounter - 1
                 : currentBoard.FullMoveCounter;
@@ -377,7 +377,7 @@ namespace ChessLib.Core.Helpers
             return board;
         }
 
-        private static ulong[][] UnapplyMoveFromBoard(in ulong[][] preMoveBoard, in BoardState previousBoardState, in Move move)
+        private static ulong[][] UnapplyMoveFromBoard(in ulong[][] preMoveBoard, in BoardState previousBoardState, in Move move, Piece? capturedPieceType)
         {
             var piece = move.MoveType == MoveType.Promotion
                ? Piece.Pawn
@@ -389,8 +389,7 @@ namespace ChessLib.Core.Helpers
             var activeColor = (int)previousBoardState.ActivePlayer;
             var opponentColor = activeColor ^ 1;
             var piecePlacement = preMoveBoard;
-            var capturedPieceType = previousBoardState.PieceCaptured;
-
+            
 
             piecePlacement[activeColor][(int)piece.Value] = piecePlacement[activeColor][(int)piece] | destinationSquareValue;
             piecePlacement[activeColor][(int)piece.Value] = piecePlacement[activeColor][(int)piece] & ~sourceSquareValue;

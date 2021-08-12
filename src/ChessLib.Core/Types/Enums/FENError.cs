@@ -6,6 +6,17 @@ namespace ChessLib.Core.Types.Enums
     // ReSharper disable InconsistentNaming
     // ReSharper restore InconsistentNaming
 
+    public enum GameError
+    {
+        /// <summary>
+        /// When no continuations exist
+        /// </summary>
+        NoContinuation,
+        /// <summary>
+        /// Already at initial state (root)
+        /// </summary>
+        AtInitialState,
+    }
 
     [Flags]
     public enum FENError

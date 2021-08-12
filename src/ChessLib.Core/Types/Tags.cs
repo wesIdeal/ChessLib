@@ -12,6 +12,7 @@ namespace ChessLib.Core.Types
         public readonly string[] RequiredTagKeys = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
         public OnFenChangedCallback OnFenChanged;
 
+
         public Tags(OnFenChangedCallback onFenChanged = null)
         {
             OnFenChanged = onFenChanged;
@@ -28,6 +29,18 @@ namespace ChessLib.Core.Types
         /// <param name="tags"></param>
         public Tags(Tags tags) : base(tags)
         {
+        }
+
+        public Tags(string fen) : this(fen, null)
+        {
+
+        }
+        public Tags(string fen, Tags tags) : this(tags ?? new Tags())
+        {
+            if (fen != BoardConstants.FenStartingPosition)
+            {
+                SetFen(fen);
+            }
         }
 
         public string Event
@@ -157,7 +170,7 @@ namespace ChessLib.Core.Types
                 return false;
             }
             var theseKeys = Keys.OrderBy(x => x);
-           
+
             foreach (var key in theseKeys)
             {
                 if (!other.ContainsKey(key))
@@ -180,7 +193,7 @@ namespace ChessLib.Core.Types
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((Tags) obj);
+            return Equals((Tags)obj);
         }
 
         public override int GetHashCode()

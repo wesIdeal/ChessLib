@@ -62,7 +62,7 @@ namespace ChessLib.Core
         public ulong[] WhiteOccupancy => Occupancy[(int)Color.White];
         public Color OpponentColor => ActivePlayer.Toggle();
 
-        public string CurrentFEN => this.FENFromBoard();
+        public string Fen => this.FENFromBoard();
 
 
         public object Clone()
@@ -167,7 +167,7 @@ namespace ChessLib.Core
 
         public override string ToString()
         {
-            return CurrentFEN;
+            return Fen;
         }
 
 

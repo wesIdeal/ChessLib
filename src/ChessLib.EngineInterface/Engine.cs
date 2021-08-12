@@ -152,7 +152,7 @@ namespace ChessLib.EngineInterface
             Moves.Clear();
             Moves.AddRange(moves);
             var board = CurrentBoard;
-            CurrentFEN = board.CurrentFEN;
+            CurrentFEN = board.Fen;
         }
 
         /// <summary>

@@ -7,7 +7,7 @@ namespace ChessLib.Core
 {
     public class Move : IMove, ICloneable, IEquatable<Move>
     {
-        protected const int NullMoveValue = 0;
+        internal const int NullMoveValue = 0;
 
         internal Move()
         {

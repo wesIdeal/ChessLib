@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using ChessLib.Core.Types.Enums;
 
 [assembly: InternalsVisibleTo("ChessLib.Core.Tests.Helpers")]
 
@@ -14,5 +15,17 @@ namespace ChessLib.Core.Types.Exceptions
         {
             ExcessiveMoveCount = moveCount;
         }
+    }
+
+    public class GameException : Exception
+    {
+
+        public uint ExcessiveMoveCount { get; private set; }
+        public GameException(GameError error) : base($"Game error {error} occurred.")
+        {
+            Error = error;
+        }
+
+        public GameError Error { get; }
     }
 }

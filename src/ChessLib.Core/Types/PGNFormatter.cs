@@ -33,9 +33,9 @@ namespace ChessLib.Core.Types
         public string BuildPgn(Game game)
         {
             _game = game;
-            _initialFEN = game.TagSection.FENStart;
-            var tagSection = BuildTags(_game.TagSection);
-            var tree = _game.Continuations;
+            _initialFEN = game.Tags.FENStart;
+            var tagSection = BuildTags(_game.Tags);
+            var tree = _game.Variations.Variations;
             var moveSection = BuildMoveTree(tree, _initialFEN);
             return tagSection + NewLine + moveSection + NewLine + game.Result + NewLine;
         }
@@ -83,7 +83,7 @@ namespace ChessLib.Core.Types
         }
 
 
-        private string BuildMoveTree(in IEnumerable<MoveNode> tree, string fen, uint indentLevel = 0)
+        private string BuildMoveTree(in IEnumerable<PostMoveState> tree, string fen, uint indentLevel = 0)
         {
             var sb = new StringBuilder();
             var game = new Game(fen);
@@ -99,7 +99,7 @@ namespace ChessLib.Core.Types
 
             while (currentNode != null)
             {
-                var previousMove = currentNode.Previous;
+                var previousMove = currentNode.ParentNode;
                 var move = currentNode;
 
 
@@ -123,41 +123,41 @@ namespace ChessLib.Core.Types
             return strPgn;
         }
 
-        private string GetFormattedPly(MoveNode node)
+        private string GetFormattedPly(PostMoveState state)
         {
-            var boardState = node.BoardState;
-            var move = node.Move;
-            var strMoveNumber = GetFormattedMoveNumber(boardState, node.Previous);
+            var boardState = state.BoardState;
+            var move = state.Move;
+            var strMoveNumber = GetFormattedMoveNumber(boardState, state.ParentNode);
             var strMoveText = move.SAN;
             var moveEndingCharacter = GetEndOfMoveWhitespace(boardState.ActivePlayer);
-            var formattedComment = GetFormattedComment(node.PostMoveComment);
-            var annotation = GetFormattedAnnotation(node);
+            var formattedComment = GetFormattedComment(state.PostMoveComment);
+            var annotation = GetFormattedAnnotation(state);
             var moveText = $"{strMoveNumber}{strMoveText}{moveEndingCharacter}{annotation}{formattedComment}";
 
             return moveText;
         }
 
-        private string GetFormattedAnnotation(MoveNode move)
+        private string GetFormattedAnnotation(PostMoveState postMove)
         {
-            if (move.Annotation != null)
+            if (postMove.Annotation != null)
             {
                 if (_options.AnnotationStyle == AnnotationStyle.PGNSpec)
                 {
-                    return $"{move.Annotation.ToNAGString()} ";
+                    return $"{postMove.Annotation.ToNAGString()} ";
                 }
 
-                return $"{move.Annotation} ";
+                return $"{postMove.Annotation} ";
             }
 
             return "";
         }
 
-        private string GetFormattedMoveNumber(BoardState bi, MoveNode previousMove)
+        private string GetFormattedMoveNumber(BoardState bi, PostMoveState previousPostMove)
         {
-            if (ShouldWriteMoveNumber(bi.ActivePlayer, previousMove))
+            if (ShouldWriteMoveNumber(bi.ActivePlayer, previousPostMove))
             {
                 return FormatMoveNumber(bi.FullMoveCounter,
-                    UseEllipses(previousMove, bi.ActivePlayer));
+                    UseEllipses(previousPostMove, bi.ActivePlayer));
             }
 
             return "";
@@ -195,19 +195,19 @@ namespace ChessLib.Core.Types
             return _options.ExportFormat ? ' ' : _options.NewlineEachMove && activeColor == Color.Black ? NewLine : ' ';
         }
 
-        private static bool ShouldWriteMoveNumber(Color activeColor, MoveNode previousMove)
+        private static bool ShouldWriteMoveNumber(Color activeColor, PostMoveState previousPostMove)
         {
             if (activeColor == Color.White)
             {
                 return true;
             }
 
-            if (previousMove == null)
+            if (previousPostMove == null)
             {
                 return true;
             }
 
-            if (!string.IsNullOrWhiteSpace(previousMove.PostMoveComment))
+            if (!string.IsNullOrWhiteSpace(previousPostMove.PostMoveComment))
             {
                 return true;
             }
@@ -215,9 +215,9 @@ namespace ChessLib.Core.Types
             return false;
         }
 
-        private bool UseEllipses(MoveNode previousMove, Color activeColor)
+        private bool UseEllipses(PostMoveState previousPostMove, Color activeColor)
         {
-            return (previousMove == null || !string.IsNullOrWhiteSpace(previousMove.PostMoveComment)) &&
+            return (previousPostMove == null || !string.IsNullOrWhiteSpace(previousPostMove.PostMoveComment)) &&
                    activeColor == Color.Black;
         }
 

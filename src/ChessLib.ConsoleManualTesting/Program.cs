@@ -41,15 +41,15 @@ namespace ChessLib.ConsoleManualTesting
             var graphics = new Imaging();
             var game = games[0];
             var botvinnik = games.Where(x =>
-                    (x.TagSection["Black"].Contains("Botvinnik") || x.TagSection["White"].Contains("Botvinnik"))
-                    && x.TagSection["Date"].Contains("1960"))
-                .Where(x => x.TagSection["Round"] == "2");
+                    (x.Tags["Black"].Contains("Botvinnik") || x.Tags["White"].Contains("Botvinnik"))
+                    && x.Tags["Date"].Contains("1960"))
+                .Where(x => x.Tags["Round"] == "2");
             game = botvinnik.FirstOrDefault() ?? game;
 
             var bi = new Board();
-            var round = game.TagSection["Round"];
-            var black = game.TagSection["Black"];
-            var white = game.TagSection["White"];
+            var round = game.Tags["Round"];
+            var black = game.Tags["Black"];
+            var white = game.Tags["White"];
 
             var fnP = $"{white}-{black}par.gif";
 

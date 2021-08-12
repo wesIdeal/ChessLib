@@ -15,7 +15,7 @@ namespace ChessLib.Core.Tests
         public static readonly Board EnglishTabiyaBoard = new FenTextToBoard().Translate(EnglishTabiyaFen);
         public static readonly Move EnglishTabiyaNextMove = MoveHelpers.GenerateMove(14, 22);
         public const string EnglishTabiyaNextMoveSan = "g3";
-        public static readonly Move EnglishTabiyaNextMoveAlternate = MoveHelpers.GenerateMove(11, 29);
+        public static readonly Move EnglishTabiyaNextMoveAlternate = MoveHelpers.GenerateMove(11, 27);
         public const string EnglishTabiyaPostMove =
             "r1bqkb1r/pppp1ppp/2n2n2/4p3/2P5/2N2NP1/PP1PPP1P/R1BQKB1R b KQkq - 0 4";
 
