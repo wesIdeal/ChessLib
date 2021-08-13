@@ -58,6 +58,14 @@ namespace ChessLib.Core
             return MoveValue == other;
         }
 
+        public static implicit operator Move(ushort uMove)
+        {
+            return new Move(uMove);
+        }
+
+        public static implicit operator ushort(Move move) => move.MoveValue;
+       
+
         public override string ToString()
         {
             if (IsNullMove)
@@ -83,7 +91,7 @@ namespace ChessLib.Core
         public ushort MoveValue { get; }
 
         public bool IsNullMove => MoveValue == NullMoveValue;
-        public static Move NullMove => new Move(NullMoveValue);
+        public static Move NullMove => NullMoveValue;
 
         public override bool Equals(object obj)
         {

@@ -1,199 +1,250 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
+using Moq;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
 
 namespace ChessLib.Core.Tests
 {
-  
-
     [TestFixture(TestOf = typeof(PostMoveState))]
     public class PostMoveNodeTests
     {
-
     }
 
-    [TestFixture(TestOf = typeof(Game))]
+    [TestFixture(TestOf = typeof(Game), Category = "External")]
     public class GameTests
     {
-        //[SetUp]
-        //public void Setup()
-        //{
-        //    var fen = CoreTestConstants.EnglishTabiyaFen;
-        //    var tags = new Tags { Event = "Unit Testing" };
-        //    _game = new Game(fen, tags);
-        //    //_moveNodePostMove = _game.AddMove(CoreTestConstants.EnglishTabiyaNextMove);
-        //    _game.AddParsingLogItem(new PgnParsingLog(ParsingErrorLevel.Info,
-        //        $"Unit test commenced on {DateTime.Now}"));
-        //}
+        [Test]
+        public void DefaultConstructor_ShouldMakeInitialBoard()
+        {
+            var expected = new Board();
+            var game = new Game();
+            Assert.AreEqual(expected, game.InitialNode.Board);
+            Assert.IsTrue(((Move)game.InitialNode.Value.MoveValue).IsNullMove);
+            Assert.AreEqual(string.Empty, game.InitialNode.Value.San);
+            Assert.AreEqual(string.Empty, game.InitialNode.Value.Comment);
+            Assert.AreEqual(null, game.InitialNode.Value.Annotation);
+        }
 
-        //protected Game GetEnglishMainLine
-        //{
-        //    get
-        //    {
-        //        var g = new Game();
-        //        foreach (var move in CoreTestConstants.EnglishTabiyaMoves)
-        //        {
-        //            g.ApplySanMove(move, MoveApplicationStrategy.ContinueMainLine);
-        //        }
-
-        //        return g;
-        //    }
-        //}
+        [TestCaseSource(nameof(GetConstructorTestCases))]
+        public void Constructors_ShouldSetCurrentToInitialReference(Game game)
+        {
+            Assert.IsNotNull(game.InitialNode);
+            Assert.AreSame(game.InitialNode, game.Current);
+        }
 
 
-        //private Game _game;
-
-        //[Test]
-        //public void CopyConstructor_Test()
-        //{
-        //    var gameCopy = new Game(_game);
-        //    Assert.IsTrue(_game.Equals(gameCopy));
-
-        //    Assert.AreNotSame(_game, gameCopy);
-        //    Assert.AreNotSame(_game.TagSection, gameCopy.TagSection,
-        //        "TagSection should not point to the same object when copied.");
-        //    Assert.AreNotSame(_game.Continuations, gameCopy.Continuations,
-        //        "MainMoveTree should not point to the same object when copied.");
-        //    Assert.AreNotSame(_game.ParsingLog, gameCopy.ParsingLog,
-        //        "Parsing should not point to the same object when copied.");
-        //}
+        public static IEnumerable<Game> GetConstructorTestCases()
+        {
+            yield return new Game();
+            yield return new Game(CoreTestConstants.EnglishTabiyaFen);
+            yield return new Game(CoreTestConstants.EnglishTabiyaFen, new Tags());
+        }
 
 
-        //[Test]
-        //public void ApplySanMoveTest_NormalMove()
-        //{
-        //    _game = new Game(CoreTestConstants.EnglishTabiyaFen);
-        //    var postMoveNode = _game.ApplySanMove(CoreTestConstants.EnglishTabiyaNextMoveSan,
-        //        MoveApplicationStrategy.ContinueMainLine);
+        [Test]
+        public void ParameterizedConstructor_ShouldMakeNonStandardStartingPosition()
+        {
+            var board = fenTextToBoard.Translate(CoreTestConstants.EnglishTabiyaFen);
+            var game = new Game(board.Fen);
+            Assert.AreEqual(board, game.InitialNode.Board);
+        }
 
-        //    Assert.AreEqual(CoreTestConstants.EnglishTabiyaPostMove, _game.Fen);
-        //    Assert.AreEqual(CoreTestConstants.EnglishTabiyaNextMoveSan, _game.CurrentBoard.San);
-        //}
+        private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
 
-        //[Test]
-        //public void ApplySanMoveTest_Variation()
-        //{
-        //    _game.MovePrevious();
-        //    Console.WriteLine(_game.Fen);
-        //    _game.ApplySanMove("d4", MoveApplicationStrategy.Variation);
-        //    Assert.AreEqual(CoreTestConstants.EnglishTabiyaPostMoveAlternate, _game.Fen);
-        //}
+        [TestCaseSource(nameof(MakeTagTestCases), new object[] { CoreTestConstants.EnglishTabiyaFen })]
+        public void ParameterizedConstructor_ShouldRetainTagsFromParameter(Tags tags)
+        {
+            var board = fenTextToBoard.Translate(CoreTestConstants.EnglishTabiyaFen);
+            var game = new Game(board.Fen, tags);
+            Assert.AreEqual(tags, game.Tags);
+            Assert.AreNotSame(tags, game.Tags);
+        }
 
-        //[Test]
-        //public void ExitVariation_ShouldReverseOutOfVariationToParent()
-        //{
-        //    var g = GetEnglishMainLine;
+        [TestFixture]
+        [Category("Game Traversal")]
+        public class GameTraversalTests
+        {
+            [SetUp]
+            public void SetUp()
+            {
+                game = new Game();
+                mockGame = new Mock<Game>();
+            }
 
-        //    foreach (var mv in CoreTestConstants.EnglishTabiyaContinuation)
-        //    {
-        //        g.ApplySanMove(mv, MoveApplicationStrategy.NewMainLine);
-        //    }
+            private Game game;
+            private Mock<Game> mockGame;
 
-        //    for (var i = 0; i < CoreTestConstants.EnglishTabiyaContinuation.Length; i++)
-        //    {
-        //        g.MovePrevious();
-        //    }
+            [Test]
+            public void MoveNext_ShouldCallParameterizedVersionWith0()
+            {
+                const int expectedIndex = 0;
+                mockGame.Setup(t => t.MoveNext(It.Is<int>(p => p == expectedIndex)))
+                    .Returns(true)
+                    .Verifiable($"Expected MoveNext to be called with {expectedIndex}");
+                mockGame.Object.MoveNext();
+                mockGame.Verify();
+            }
 
-        //    Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, g.Fen);
-        //    Console.WriteLine($"Current FEN after exiting variation: {g.Fen}");
-        //    g.ApplySanMove(CoreTestConstants.EnglishTabiyaVariation[0], MoveApplicationStrategy.Variation);
-        //    for (var i = 1; i < CoreTestConstants.EnglishTabiyaVariation.Length; i++)
-        //    {
-        //        var mv = CoreTestConstants.EnglishTabiyaVariation[i];
-        //        g.ApplySanMove(mv, MoveApplicationStrategy.ContinueMainLine);
-        //    }
+            [Test]
+            public void MovePrevious_ShouldSetBoardToPreviousState()
+            {
+                var expectedFen = game.Current.Fen;
+                game.ApplyMove("c4", MoveApplicationStrategy.ContinueMainLine);
+                var success = game.MovePrevious();
+                Assert.IsTrue(success, "MovePrevious() returned false.");
+                Assert.AreEqual(expectedFen, game.Current.Fen);
+            }
 
-        //    g.ExitVariation();
+            [Test]
+            public void ApplyMove_WhenVariation_ShouldFollowVariationTree()
+            {
+                var expectedFen = game.Current.Fen;
+                game.ApplyMove("c4", MoveApplicationStrategy.ContinueMainLine);
+                game.MovePrevious();
+                var firstMove = true;
+                foreach (var move in CoreTestConstants.d4Variation)
+                {
+                    game.ApplyMove(move, firstMove ? MoveApplicationStrategy.Variation : MoveApplicationStrategy.ContinueMainLine);
+                    firstMove = false;
+                }
+                Assert.AreEqual(CoreTestConstants.d4VariationFen, game.Current.Fen);
+            }
 
-        //    Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, g.Fen);
-        //}
+            [Test]
+            public void ExitVariation_ShouldReturnToVariationParentBoard()
+            {
+                ApplyEnglishTabiya();
+                game.MovePrevious();
+                var expectedFen = game.Current.Fen;
+                ApplyEnglishTabiyaAltContinuation();
+                game.ExitVariation();
+                Assert.AreEqual(expectedFen, game.Current.Fen);
+            }
 
-        //[Test]
-        //public void ExitVariation_ShouldReturnToParentNode_WhenInVariation()
-        //{
-        //    var g = GetEnglishMainLine;
-        //    AddContinuation(g, CoreTestConstants.EnglishTabiyaContinuation, MoveApplicationStrategy.ContinueMainLine);
-        //    g.MovePrevious();
-        //    g.AddContinuation(CoreTestConstants.EnglishTabiyaNextMoveAlternate);
-        //    g.ExitVariation();
-        //    Assert.AreEqual(CoreTestConstants.EnglishTabiyaFen, g.Fen);
-        //}
+            [Test]
+            public void ExitVariation_WhenMainLine_ShouldReturnToInitialBoard()
+            {
+                ApplyEnglishTabiya();
+                game.ExitVariation();
+                game.ExitVariation();
+                Applyd4Variation();
+                Assert.AreEqual(CoreTestConstants.d4VariationFen, game.Current.Fen);
+                game.ExitVariation();
+                Assert.IsTrue(game.MoveNext());
+                Assert.IsTrue(game.MoveNext());
+                game.ExitVariation();
+                Assert.AreEqual(game.InitialNode, game.Current);
+            }
 
-        //[Test]
-        //public void ExitVariation_ShouldReturnToInitialBoard_WhenNotInVariation()
-        //{
-        //    var g = GetEnglishMainLine;
-        //    AddContinuation(g, CoreTestConstants.EnglishTabiyaContinuation, MoveApplicationStrategy.ContinueMainLine);
-        //    g.ExitVariation();
-        //    Assert.AreEqual(BoardConstants.FenStartingPosition, g.Fen);
-        //}
+            private void ApplyEnglishTabiya()
+            {
+                ApplyMoves(CoreTestConstants.EnglishTabiyaMoves);
+            }
 
-        //private Game Traverse(Game game, string[] englishMainLineContinuation)
-        //{
-        //    for (var i = 0; i < englishMainLineContinuation.Length; i++)
-        //    {
-        //        var fromMove = game.CurrentBoard.San;
-        //        game.MovePrevious();
-        //        var toMove = game.CurrentBoard.San;
-        //        Console.WriteLine($"Moving backward, from state {fromMove} to state {toMove}");
-        //    }
+            private void Applyd4Variation()
+            {
+                ApplyMoves(CoreTestConstants.d4Variation);
+            }
+            private void ApplyEnglishTabiyaAltContinuation()
+            {
+                ApplyMoves(CoreTestConstants.EnglishTabiyaAlternateContinuation);
+            }
 
-        //    return game;
-        //}
+            private void ApplyAsVariation(string[] moves)
+            {
+                Debug.Assert(moves.Any());
+                game.ApplyMove(moves[0], MoveApplicationStrategy.Variation);
+                var remaining = moves.Skip(1).ToArray();
+                if (remaining.Any())
+                {
+                    ApplyMoves(remaining);
+                }
+            }
 
-        //[Test]
-        //public void AddParsingLogItemTest_ConstructedFromParams()
-        //{
-        //    var level = ParsingErrorLevel.Warning;
-        //    var msg = "Warning issued.";
-        //    var parseInput = "1. e4";
-        //    _game.ClearParsingLog();
-        //    _game.AddParsingLogItem(level, msg, parseInput);
-        //    var addedItem = _game.ParsingLog.First();
-        //    Assert.AreEqual(level, addedItem.ParsingErrorLevel);
-        //    Assert.AreEqual(msg, addedItem.Message);
-        //    Assert.AreEqual(parseInput, addedItem.ParseInput);
-        //}
+            private void ApplyMoves(string[] moves)
+            {
+                foreach (var move in moves)
+                {
+                    game.ApplyMove(move, MoveApplicationStrategy.ContinueMainLine);
+                }
+            }
 
-        //[Test]
-        //public void AddParsingLogItemTest_FromParams()
-        //{
-        //    var level = ParsingErrorLevel.Warning;
-        //    var msg = "Warning issued.";
-        //    var parseInput = "1. e4";
-        //    var itemToAdd = new PgnParsingLog(level, msg, parseInput);
-        //    _game.ClearParsingLog();
-        //    _game.AddParsingLogItem(itemToAdd);
-        //    var addedItem = _game.ParsingLog.First();
-        //    Assert.AreEqual(level, addedItem.ParsingErrorLevel);
-        //    Assert.AreEqual(msg, addedItem.Message);
-        //    Assert.AreEqual(parseInput, addedItem.ParseInput);
-        //}
+            [Test]
+            public void MovePrevious_FromRootNode_ShouldReturnFalse()
+            {
+                var success = game.MovePrevious();
+                Assert.IsFalse(success, "MovePrevious() should have returned false from the root.");
+            }
 
-        //[Test]
-        //public void ShouldReturnEqualForSameGame()
-        //{
-        //    _game.MovePrevious();
-        //    _game.ApplySanMove("d4", MoveApplicationStrategy.Variation);
-        //    var game2 = new Game(_game);
-        //    Assert.IsTrue(_game.IsMainLineEqual(game2));
-        //    Assert.IsTrue(_game.Equals(game2));
-        //}
+            [Test]
+            public void MovePrevious_FromRootNode_ShouldNotChangeCurrentNode()
+            {
+                game.ApplyMove("c4", MoveApplicationStrategy.ContinueMainLine);
+                game.MovePrevious();
+                var success = game.MovePrevious();
+                Assert.AreEqual(game.InitialNode, game.Current);
+            }
 
-        //[Test]
-        //public void ShouldReturnCorrectValueSameGame_VariationAndNoVariation()
-        //{
-        //    var game1 = new Game(CoreTestConstants.EnglishTabiyaFen);
-        //    game1.ApplySanMove(CoreTestConstants.EnglishTabiyaNextMoveSan, MoveApplicationStrategy.ContinueMainLine);
-        //    var game2 = new Game(game1);
-        //    game1.MovePrevious();
-        //    game1.ApplySanMove("d4", MoveApplicationStrategy.Variation);
+            [TestCaseSource(nameof(GetBadContinuationIndices))]
+            public void MoveNext_ParameterizedVersion_WhenVariationNotPresent_ShouldReturnFalse(int index)
+            {
+                Assert.IsFalse(game.MoveNext(index));
+            }
 
-        //    Assert.IsTrue(game1.IsMainLineEqual(game2), "Should return true, ignoring variations.");
-        //    Assert.IsFalse(game1.Equals(game2), "Should return false when including variations");
-        //}
+            protected static IEnumerable<int> GetBadContinuationIndices => Enumerable.Range(0, 10);
+            protected static IEnumerable<int> GetGoodContinuationIndices => Enumerable.Range(0, 1);
+
+            protected static IEnumerable<(int Index, bool ExpectedResult, Game Game)> GetMoveNextContinuationTestCases()
+            {
+                var game = new Game();
+                foreach (var badContinuation in GetBadContinuationIndices)
+                {
+                    yield return (badContinuation, false, game);
+                }
+            }
+        }
+
+        [TestFixture]
+        [Category("Game Move Application")]
+        public class GameMoveApplication
+        {
+            [SetUp]
+            public void SetUp()
+            {
+                game = new Game();
+                Debug.Assert(game.Current != null);
+            }
+
+            private Game game;
+
+            [Test]
+            public void ApplyMove_ShouldSetCurrentBoardToNewState()
+            {
+                game.ApplyMove("c4", MoveApplicationStrategy.ContinueMainLine);
+                Assert.IsNotNull(game.Current);
+                Assert.AreEqual("rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1", game.Current.Board.Fen);
+            }
+
+
+        }
+
+        protected static IEnumerable<Tags> MakeTagTestCases(string fen)
+        {
+            yield return new Tags(fen);
+            var tags = new Tags(fen)
+            {
+                Event = "Test",
+                Black = "GreenResult",
+                White = "RedResult",
+                Date = "2021.10.31",
+                Result = "1-0"
+            };
+            yield return tags;
+        }
     }
 }

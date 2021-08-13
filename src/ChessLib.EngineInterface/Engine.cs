@@ -252,8 +252,8 @@ namespace ChessLib.EngineInterface
             get
             {
                 var board = StartingBoard;
-                Moves.ForEach(mv => { board.AddContinuation(mv); });
-                return (Board) StartingBoard.CurrentBoard.BoardState.Clone();
+                Moves.ForEach(mv => { board.ApplyMove(mv); });
+                return (Board) StartingBoard.InitialNode.Board.Clone();
             }
         }
 

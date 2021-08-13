@@ -327,7 +327,7 @@ namespace ChessLib.Core.Helpers
                     {
                         foreach (var index in piecePlacement.GetSetBits())
                         {
-                            var poc = new PieceOfColor { Color = (Color)color, Piece = (Piece)piece };
+                            var poc = new PieceOfColor {Color = (Color) color, Piece = (Piece) piece};
                             acc ^= GetPieceValue(poc, index);
                         }
                     }
@@ -349,6 +349,11 @@ namespace ChessLib.Core.Helpers
 
     public class PolyglotMove
     {
+        public ushort Move { get; }
+
+        public ushort SourceIndex => (ushort) (((Move >> 9) & 255) * 8 + ((Move >> 6) & 255));
+        public ushort DestIndex => (ushort) (((Move >> 6) & 255) * 8 + (Move & 255));
+
         public PolyglotMove(ushort polyglotMove)
         {
             Move = polyglotMove;
@@ -359,16 +364,6 @@ namespace ChessLib.Core.Helpers
             Move = GetEncodedMove(move);
         }
 
-        public ushort Move { get; }
-
-        public ushort SourceIndex => (ushort)(((Move >> 9) & 255) * 8 + ((Move >> 6) & 255));
-        public ushort DestIndex => (ushort)(((Move >> 6) & 255) * 8 + (Move & 255));
-
-        public PolyglotMove FromUshortMove(ushort move)
-        {
-            var mv = new Move(move);
-            return new PolyglotMove(mv);
-        }
 
         /// <summary>
         ///     Gets an encoded move that is standard to polyglot specifications
@@ -394,11 +389,11 @@ namespace ChessLib.Core.Helpers
             }
 
             var promotionPiece = GetEncodedPromotionPiece(move);
-            var rv = (ushort)0;
-            rv |= (ushort)(promotionPiece << 12);
-            rv |= (ushort)(fromRank << 9);
-            rv |= (ushort)(fromFile << 6);
-            rv |= (ushort)(toRank << 3);
+            var rv = (ushort) 0;
+            rv |= (ushort) (promotionPiece << 12);
+            rv |= (ushort) (fromRank << 9);
+            rv |= (ushort) (fromFile << 6);
+            rv |= (ushort) (toRank << 3);
             rv |= toFile;
             return rv;
         }
@@ -434,8 +429,8 @@ namespace ChessLib.Core.Helpers
                 return 0;
             }
 
-            var promotionPiece = (int)move.PromotionPiece;
-            return (ushort)(promotionPiece + 1);
+            var promotionPiece = (int) move.PromotionPiece;
+            return (ushort) (promotionPiece + 1);
         }
 
         public override string ToString()

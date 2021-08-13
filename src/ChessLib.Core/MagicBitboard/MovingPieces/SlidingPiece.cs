@@ -1,7 +1,6 @@
 ﻿#region
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.MagicBitboard.Storage;
@@ -13,10 +12,10 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
 {
     internal abstract class SlidingPiece : MovingPiece
     {
-        public MoveObstructionBoard[][] MoveObstructionBoards = new MoveObstructionBoard[64][];
         public Storage.MagicBitboard[] MagicBitboard { get; private set; }
         protected abstract Func<ulong, ulong>[] MoveShifts { get; }
         protected abstract Func<ulong, ulong>[] AttackShifts { get; }
+        public MoveObstructionBoard[][] MoveObstructionBoards = new MoveObstructionBoard[64][];
 
         public override void Initialize()
         {
@@ -38,10 +37,6 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             for (var index = 0; index < 64; index++)
             {
                 var obstructionBoard = MoveObstructionBoards[index];
-                var message =
-                    $"Square {index}, {obstructionBoard.Length} boards. MoveValue board is {obstructionBoard.First().MoveBoard}, occupancy board is {obstructionBoard.First().Occupancy}";
-                Console.WriteLine(message);
-                Debug.WriteLine(message);
                 rv[index] = generator.GenerateMagicKey(obstructionBoard);
             }
 

@@ -12,7 +12,11 @@ namespace ChessLib.Core
 {
     public class Board : BoardState, IEquatable<Board>, IBoard
     {
-        protected readonly IBoardValidator BoardValidator;
+        public ulong[] BlackOccupancy => Occupancy[(int) Color.Black];
+        public ulong[] WhiteOccupancy => Occupancy[(int) Color.White];
+        public Color OpponentColor => ActivePlayer.Toggle();
+
+        public string Fen => this.FENFromBoard();
 
         public Board(IBoardValidator boardValidator = null) : base(BoardConstants.FenStartingPosition, false)
         {
@@ -22,13 +26,9 @@ namespace ChessLib.Core
             BoardValidator = boardValidator ?? new BoardValidator();
         }
 
-        public Board(string fen) : base(fen, false)
-        {
 
-        }
         internal Board(string fen, bool bypassValidation) : base(fen, bypassValidation)
         {
-
         }
 
         internal Board(ulong[][] occupancy, byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
@@ -45,7 +45,6 @@ namespace ChessLib.Core
             }
         }
 
-       
 
         public Board(Board board)
         {
@@ -58,14 +57,10 @@ namespace ChessLib.Core
             FullMoveCounter = board.FullMoveCounter;
         }
 
-        public ulong[] BlackOccupancy => Occupancy[(int)Color.Black];
-        public ulong[] WhiteOccupancy => Occupancy[(int)Color.White];
-        public Color OpponentColor => ActivePlayer.Toggle();
-
-        public string Fen => this.FENFromBoard();
+        protected readonly IBoardValidator BoardValidator;
 
 
-        public object Clone()
+        public new object Clone()
         {
             var clonedOccupancy = CloneOccupancy();
             var activePlayerColor = ActivePlayer;
@@ -173,30 +168,30 @@ namespace ChessLib.Core
 
         private void InitializeOccupancy()
         {
-            Occupancy[(int)Color.Black] = new ulong[6];
-            Occupancy[(int)Color.White] = new ulong[6];
+            Occupancy[(int) Color.Black] = new ulong[6];
+            Occupancy[(int) Color.White] = new ulong[6];
             InitializeBlackOccupancy();
             InitializeWhiteOccupancy();
         }
 
         private void InitializeBlackOccupancy()
         {
-            BlackOccupancy[(int)Piece.Pawn] = 0xff000000000000;
-            BlackOccupancy[(int)Piece.Knight] = 0x4200000000000000;
-            BlackOccupancy[(int)Piece.Bishop] = 0x2400000000000000;
-            BlackOccupancy[(int)Piece.Rook] = 0x8100000000000000;
-            BlackOccupancy[(int)Piece.Queen] = 0x800000000000000;
-            BlackOccupancy[(int)Piece.King] = 0x1000000000000000;
+            BlackOccupancy[(int) Piece.Pawn] = 0xff000000000000;
+            BlackOccupancy[(int) Piece.Knight] = 0x4200000000000000;
+            BlackOccupancy[(int) Piece.Bishop] = 0x2400000000000000;
+            BlackOccupancy[(int) Piece.Rook] = 0x8100000000000000;
+            BlackOccupancy[(int) Piece.Queen] = 0x800000000000000;
+            BlackOccupancy[(int) Piece.King] = 0x1000000000000000;
         }
 
         private void InitializeWhiteOccupancy()
         {
-            WhiteOccupancy[(int)Piece.Pawn] = 0xff00;
-            WhiteOccupancy[(int)Piece.Knight] = 0x42;
-            WhiteOccupancy[(int)Piece.Bishop] = 0x24;
-            WhiteOccupancy[(int)Piece.Rook] = 0x81;
-            WhiteOccupancy[(int)Piece.Queen] = 0x8;
-            WhiteOccupancy[(int)Piece.King] = 0x10;
+            WhiteOccupancy[(int) Piece.Pawn] = 0xff00;
+            WhiteOccupancy[(int) Piece.Knight] = 0x42;
+            WhiteOccupancy[(int) Piece.Bishop] = 0x24;
+            WhiteOccupancy[(int) Piece.Rook] = 0x81;
+            WhiteOccupancy[(int) Piece.Queen] = 0x8;
+            WhiteOccupancy[(int) Piece.King] = 0x10;
         }
 
         public override bool Equals(object obj)

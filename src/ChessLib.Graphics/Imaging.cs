@@ -184,20 +184,20 @@ namespace ChessLib.Graphics
             ImageOptions imageOpts = null, AnimatedFormat animatedFormat = AnimatedFormat.GIF)
         {
             var format = MagickFormat.Gif;
-            var initialFen = game.TagSection.ContainsKey("FEN")
-                ? game.TagSection["FEN"]
+            var initialFen = game.Tags.ContainsKey("FEN")
+                ? game.Tags["FEN"]
                 : BoardConstants.FenStartingPosition;
-            var moves = game.Continuations;
+            var moves = game.NextMoves;
             _imageOptions = imageOpts = imageOpts ?? new ImageOptions();
             _squareSize = imageOpts.SquareSize;
             _offset = _squareSize;
             InitPieces(imageOpts.SquareSize);
             var delay = SecondsToHundredths(positionDelayInSeconds);
-            using (var boardImage = MakeBoardInstance(imageOpts, game.TagSection))
+            using (var boardImage = MakeBoardInstance(imageOpts, game.Tags))
             {
                 using (var imageList = new MagickImageCollection())
                 {
-                    using (var firstImage = MakeBoardFromFen(initialFen, boardImage, game.TagSection, null))
+                    using (var firstImage = MakeBoardFromFen(initialFen, boardImage, game.Tags, null))
                     {
                         firstImage.AnimationDelay = delay * 2;
                         imageList.Add(firstImage);

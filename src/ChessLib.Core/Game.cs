@@ -1,95 +1,76 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
-using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Tree;
+using ChessLib.Core.Types.GameTree;
 
 namespace ChessLib.Core
 {
-    public class InitialPosition : TreeRoot<PostMoveState>
-    {
-        public Board Board { get; }
-        public InitialPosition(Board initialBoard) : base(new PostMoveState(initialBoard.BoardStateStorage))
-        {
-            Board = initialBoard;
-        }
-    }
-
-    public class CurrentPosition : InitialPosition
-    {
-        public CurrentPosition(Board initialBoard) : base(initialBoard)
-        {
-        }
-    }
-
-  
-    public class Game
+    public class Game : GameBuilder
     {
         private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
-        private Tags tags;
+        
+        public BoardNode InitialNode { get; }
 
-        public CurrentPosition CurrentState { get; private set; }
+        public PostMoveState[] NextMoves => Current?.Continuations.Select(x => x.Value).ToArray();
+        public GameResult GameResult { get; set; }
+        public string Result { get; set; }
+        public int PlyCount => throw new NotImplementedException();
+
+        public Tags Tags { get; }
+
+        public Game() : this(BoardConstants.FenStartingPosition, new Tags())
+        {
+        }
+
+        public Game(string fen, Tags tags = null)
+        {
+            var board = fenTextToBoard.Translate(fen);
+            InitialNode = new BoardNode(board);
+            Current = InitialNode;
+            Tags = new Tags(fen, tags);
+            ParsingLogs = new List<PgnParsingLog>();
+        }
 
 
-        public InitialPosition InitialPosition { get; }
-
-        public PostMoveState[] NextMoves => CurrentState.Continuations.Select(x => x.Value).ToArray();
-        public void AddParsingLogItem(ParsingErrorLevel errorLevel, string Message, string inputFromParser)
+        public override void Reset()
         {
             throw new NotImplementedException();
         }
+
+
+        public void AddParsingLogItem(ParsingErrorLevel errorLevel, string Message, string inputFromParser = "")
+        {
+            this.AddParsingLogItem(new PgnParsingLog(errorLevel,Message, inputFromParser));
+        }
+
+        public void AddParsingLogItem(PgnParsingLog logEntry) => this.ParsingLogs.Add(logEntry);
+        public List<PgnParsingLog> ParsingLogs { get; set; }
 
         public void AddNag(NumericAnnotation nag)
         {
             throw new NotImplementedException();
         }
 
-        public int PlyCount => throw new NotImplementedException();
-        public Game(string fen, Tags tags = null)
-        {
-            var board = fenTextToBoard.Translate(fen);
-            InitialPosition = new InitialPosition(board);
-            CurrentState = (CurrentPosition)InitialPosition;
-            Tags = new Tags(fen, tags);
-        }
-
-        public Tags Tags { get; }
 
         /// <summary>
-        /// Move to the next continuation. 0 represents the main line continuation.
+        ///     Exits the current variation, traversing to it's parent variation. If node is on the main line, the current board is
+        ///     set to the initial.
         /// </summary>
-        /// <param name="index">index of variation to move to. [default: 0]</param>
-        /// <returns>An object with the current position's information. <see cref="CurrentState"/></returns>
-        /// <exception cref="GameException"><see cref="GameError.NoContinuation"/> thrown when already at last move.</exception>
-        public CurrentPosition MoveNext(int index = 0)
+        public void ExitVariation()
         {
-            throw new NotImplementedException();
+            var currentBoardStateHash = Current.Value.BoardStateHash;
+
+            while (MovePrevious() &&
+                   !Current.Variations.Select(x => x.Value.BoardStateHash).Contains(currentBoardStateHash))
+            {
+                currentBoardStateHash = Current.Value.BoardStateHash;
+            }
         }
-
-        /// <summary>
-        /// Move to the previous board state.
-        /// </summary>
-        /// <returns>An object with the parent (previous) position's information. <see cref="CurrentState"/></returns>
-        /// <exception cref="GameException"><see cref="GameError.AtInitialState"/> thrown when already at first move.</exception>
-        public Board MovePrevious()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Board ApplyMove(string san, MoveApplicationStrategy moveApplicationStrategy)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
 
 
         public void SetComment(string comment)

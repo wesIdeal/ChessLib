@@ -6,6 +6,15 @@ namespace ChessLib.Core.Types.Tree
 {
     public abstract class NodeBase<T> : INode<T>
     {
+        /// <summary>
+        ///     Constructs a NodeBase object from an existing NodeBase object
+        /// </summary>
+        /// <param name="value"></param>
+        protected NodeBase(INode<T> value) : this(value.Value, value.Previous)
+        {
+            Continuations = value.Continuations;
+        }
+
         protected NodeBase(T value, INode<T> parent) : this()
         {
             Value = value;

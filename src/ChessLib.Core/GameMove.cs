@@ -17,7 +17,7 @@ namespace ChessLib.Core
         /// <summary>
         ///     Makes a NULL move node for head of move list
         /// </summary>
-        internal GameMove() : base(NullMoveValue)
+        internal GameMove() : base(NullMove)
         {
         }
 
@@ -36,7 +36,7 @@ namespace ChessLib.Core
             : base(move)
         {
             Board = new Board(boardInfo);
-            BoardStateHash = PolyglotHelpers.GetBoardStateHash(boardInfo);
+            //BoardStateHash = PolyglotHelpers.GetBoardStateHash(boardInfo);
             Id = Guid.NewGuid();
         }
 
@@ -47,7 +47,7 @@ namespace ChessLib.Core
 
         public Board Board { get; }
 
-        public ulong BoardStateHash { get; }
+       
 
         public string Comment { get; set; }
         public bool Validated { get; set; }
@@ -62,7 +62,7 @@ namespace ChessLib.Core
                 return false;
             }
 
-            var baseEq = base.Equals(other);
+            var baseEq = base.Equals(other.MoveValue);
             var boardEq = Board.Equals(other.Board);
             return baseEq && boardEq;
         }

@@ -19,7 +19,7 @@ namespace ChessLib.Parse.PGN.Base
         protected const char TokenCommentEnd = '}';
         private const string MoveRegEx = "[a-h]|[x]|[O-O]|[O-O-O]|[KNBQR]|[1-8]|[=Q|=R|=B|=N]|[+|#]";
 
-        private static readonly char[] TokensChars = {' ', ')', '(', '{', '}'};
+        private static readonly char[] TokensChars = { ' ', ')', '(', '{', '}' };
         private readonly Regex _moveRegex = new Regex(MoveRegEx);
         private bool _foundGame;
 
@@ -48,7 +48,7 @@ namespace ChessLib.Parse.PGN.Base
             int nNextCharacter;
             while ((nNextCharacter = reader.Peek()) != -1)
             {
-                var nextChar = (char) nNextCharacter;
+                var nextChar = (char)nNextCharacter;
                 if (char.IsLetter(nextChar))
                 {
                     if (!VisitSanMove(reader, options))
@@ -158,10 +158,10 @@ namespace ChessLib.Parse.PGN.Base
         protected int[] GetNAGSymbolMatches(string possibleNagStart)
         {
             var rv = new List<int>();
-            rv.AddRange(MoveNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
-            rv.AddRange(PositionalNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
-            rv.AddRange(TimeTroubleNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
-            rv.AddRange(NonStandardNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int) x.Item2));
+            rv.AddRange(MoveNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
+            rv.AddRange(PositionalNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
+            rv.AddRange(TimeTroubleNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
+            rv.AddRange(NonStandardNags.Where(x => x.Item1 == possibleNagStart).Select(x => (int)x.Item2));
             return rv.ToArray();
         }
 
@@ -171,7 +171,7 @@ namespace ChessLib.Parse.PGN.Base
             int nNextChar;
             while ((nNextChar = reader.Peek()) != -1)
             {
-                var readChar = (char) nNextChar;
+                var readChar = (char)nNextChar;
                 if (c.Contains(readChar))
                 {
                     break;
@@ -240,7 +240,7 @@ namespace ChessLib.Parse.PGN.Base
         {
             if (!_foundGame)
             {
-                if (Game.CurrentBoard.BoardStateHash == options.BoardStateHash)
+                if (Game.InitialNode.Board == options.BoardStateHash)
                 {
                     _foundGame = true;
                 }
@@ -298,7 +298,7 @@ namespace ChessLib.Parse.PGN.Base
             int nReadChar;
             while ((nReadChar = reader.Peek()) != -1)
             {
-                var c = (char) nReadChar;
+                var c = (char)nReadChar;
                 if (!_moveRegex.IsMatch(c.ToString()))
                 {
                     break;
@@ -317,10 +317,10 @@ namespace ChessLib.Parse.PGN.Base
                 return true;
             }
 
-            var move = Game.ApplyMove(buffer, strategy);
+            Game.ApplyMove(buffer, strategy);
             _plyCount = Game.PlyCount;
 
-            if (move != null && options.ShouldFilterDuringParsing)
+            if (options.ShouldFilterDuringParsing)
             {
                 if (options.ShouldUseFenFilter)
                 {

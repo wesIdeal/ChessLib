@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using ChessLib.Core.Types.Enums;
 using EnumsNET;
 
 namespace ChessLib.Core.Types
 {
     public class PgnFormatter<TS> where TS : Move, IEquatable<TS>
     {
+        private const char NewLine = '\n';
+
         public PgnFormatter(PGNFormatterOptions options)
         {
             if (!options.KeepAllTags)
@@ -24,7 +24,6 @@ namespace ChessLib.Core.Types
             _options = options;
         }
 
-        private const char NewLine = '\n';
         private readonly PGNFormatterOptions _options;
         private readonly List<string> _tagsToKeep = new List<string>();
         private Game _game;
@@ -34,10 +33,11 @@ namespace ChessLib.Core.Types
         {
             _game = game;
             _initialFEN = game.Tags.FENStart;
-            var tagSection = BuildTags(_game.Tags);
-            var tree = _game.Variations.Variations;
-            var moveSection = BuildMoveTree(tree, _initialFEN);
-            return tagSection + NewLine + moveSection + NewLine + game.Result + NewLine;
+            //var tagSection = BuildTags(_game.Tags);
+            //var treeRoot = _game.InitialPosition;
+            //var moveSection = BuildMoveTree(treeRoot, _initialFEN);
+            //return tagSection + NewLine + moveSection + NewLine + game.Result + NewLine;
+            return "";
         }
 
         private bool KeepTag(in KeyValuePair<string, string> tag)
@@ -83,154 +83,154 @@ namespace ChessLib.Core.Types
         }
 
 
-        private string BuildMoveTree(in IEnumerable<PostMoveState> tree, string fen, uint indentLevel = 0)
-        {
-            var sb = new StringBuilder();
-            var game = new Game(fen);
+        //private string BuildMoveTree(in IEnumerable<PostMoveState> tree, string fen, uint indentLevel = 0)
+        //{
+        //    var sb = new StringBuilder();
+        //    var game = new Game(fen);
 
-            var bi = game.CurrentBoard;
-            //if (tree.HasGameComment)
-            //{
-            //    sb.Append(IndentText(indentLevel) + GetFormattedComment(tree.GameComment));
-            //}
+        //    var bi = game.InitialPosition.Board;
+        //    //if (tree.HasGameComment)
+        //    //{
+        //    //    sb.Append(IndentText(indentLevel) + GetFormattedComment(tree.GameComment));
+        //    //}
 
-            var currentNode = tree.First();
-
-
-            while (currentNode != null)
-            {
-                var previousMove = currentNode.ParentNode;
-                var move = currentNode;
+        //    var currentNode = tree.First();
 
 
-                var plySequence = GetFormattedPly(currentNode);
-                sb.Append(plySequence);
-                if (move.Variations.Any())
-                {
-                    var lstVariations = new List<string>();
-                    foreach (var variation in move.Variations)
-                    {
-                        lstVariations.Add(BuildMoveTree(variation.MainLine, bi.Fen, indentLevel++));
-                    }
+        //    while (currentNode != null)
+        //    {
+        //        var previousMove = currentNode;
+        //        var move = currentNode;
 
-                    sb.Append(GetFormattedVariations(lstVariations, indentLevel++));
-                }
 
-                currentNode = currentNode.Next;
-            }
+        //        var plySequence = GetFormattedPly(currentNode);
+        //        sb.Append(plySequence);
+        //        if (move.Variations.Any())
+        //        {
+        //            var lstVariations = new List<string>();
+        //            foreach (var variation in move.Variations)
+        //            {
+        //                lstVariations.Add(BuildMoveTree(variation.MainLine, bi.Fen, indentLevel++));
+        //            }
 
-            var strPgn = sb.ToString().Trim();
-            return strPgn;
-        }
+        //            sb.Append(GetFormattedVariations(lstVariations, indentLevel++));
+        //        }
 
-        private string GetFormattedPly(PostMoveState state)
-        {
-            var boardState = state.BoardState;
-            var move = state.Move;
-            var strMoveNumber = GetFormattedMoveNumber(boardState, state.ParentNode);
-            var strMoveText = move.SAN;
-            var moveEndingCharacter = GetEndOfMoveWhitespace(boardState.ActivePlayer);
-            var formattedComment = GetFormattedComment(state.PostMoveComment);
-            var annotation = GetFormattedAnnotation(state);
-            var moveText = $"{strMoveNumber}{strMoveText}{moveEndingCharacter}{annotation}{formattedComment}";
+        //        currentNode = currentNode.Next;
+        //    }
 
-            return moveText;
-        }
+        //    var strPgn = sb.ToString().Trim();
+        //    return strPgn;
+        //}
 
-        private string GetFormattedAnnotation(PostMoveState postMove)
-        {
-            if (postMove.Annotation != null)
-            {
-                if (_options.AnnotationStyle == AnnotationStyle.PGNSpec)
-                {
-                    return $"{postMove.Annotation.ToNAGString()} ";
-                }
+        //private string GetFormattedPly(PostMoveState state)
+        //{
+        //    var boardState = state.BoardState;
+        //    var move = state.Move;
+        //    var strMoveNumber = GetFormattedMoveNumber(boardState, state.ParentNode);
+        //    var strMoveText = move.SAN;
+        //    var moveEndingCharacter = GetEndOfMoveWhitespace(boardState.ActivePlayer);
+        //    var formattedComment = GetFormattedComment(state.PostMoveComment);
+        //    var annotation = GetFormattedAnnotation(state);
+        //    var moveText = $"{strMoveNumber}{strMoveText}{moveEndingCharacter}{annotation}{formattedComment}";
 
-                return $"{postMove.Annotation} ";
-            }
+        //    return moveText;
+        //}
 
-            return "";
-        }
+        //private string GetFormattedAnnotation(PostMoveState postMove)
+        //{
+        //    if (postMove.Annotation != null)
+        //    {
+        //        if (_options.AnnotationStyle == AnnotationStyle.PGNSpec)
+        //        {
+        //            return $"{postMove.Annotation.ToNAGString()} ";
+        //        }
 
-        private string GetFormattedMoveNumber(BoardState bi, PostMoveState previousPostMove)
-        {
-            if (ShouldWriteMoveNumber(bi.ActivePlayer, previousPostMove))
-            {
-                return FormatMoveNumber(bi.FullMoveCounter,
-                    UseEllipses(previousPostMove, bi.ActivePlayer));
-            }
+        //        return $"{postMove.Annotation} ";
+        //    }
 
-            return "";
-        }
+        //    return "";
+        //}
 
-        private string GetFormattedComment(string comment)
-        {
-            if (_options.KeepComments && !string.IsNullOrEmpty(comment))
-            {
-                return $"{Environment.NewLine}    {{{comment.Trim()}}}{Environment.NewLine}";
-            }
+        //private string GetFormattedMoveNumber(BoardState bi, PostMoveState previousPostMove)
+        //{
+        //    if (ShouldWriteMoveNumber(bi.ActivePlayer, previousPostMove))
+        //    {
+        //        return FormatMoveNumber(bi.FullMoveCounter,
+        //            UseEllipses(previousPostMove, bi.ActivePlayer));
+        //    }
 
-            return "";
-        }
+        //    return "";
+        //}
 
-        private string GetFormattedVariations(List<string> lstVariations, uint depth)
-        {
-            if (_options.IndentVariations)
-            {
-                var formattedPgn = string.Join("", lstVariations.Select(v => $"{NewLine}( {v} )"));
-                formattedPgn = formattedPgn.Replace(NewLine.ToString(), NewLine + IndentText(depth));
-                return formattedPgn + NewLine;
-            }
+        //private string GetFormattedComment(string comment)
+        //{
+        //    if (_options.KeepComments && !string.IsNullOrEmpty(comment))
+        //    {
+        //        return $"{Environment.NewLine}    {{{comment.Trim()}}}{Environment.NewLine}";
+        //    }
 
-            return string.Join("", lstVariations.Select(v => $"( {v} ) "));
-        }
+        //    return "";
+        //}
 
-        private static string IndentText(uint depth)
-        {
-            return depth == 0 ? " " : new string(' ', (int) depth * 4);
-        }
+        //private string GetFormattedVariations(List<string> lstVariations, uint depth)
+        //{
+        //    if (_options.IndentVariations)
+        //    {
+        //        var formattedPgn = string.Join("", lstVariations.Select(v => $"{NewLine}( {v} )"));
+        //        formattedPgn = formattedPgn.Replace(NewLine.ToString(), NewLine + IndentText(depth));
+        //        return formattedPgn + NewLine;
+        //    }
 
-        private char GetEndOfMoveWhitespace(Color activeColor)
-        {
-            return _options.ExportFormat ? ' ' : _options.NewlineEachMove && activeColor == Color.Black ? NewLine : ' ';
-        }
+        //    return string.Join("", lstVariations.Select(v => $"( {v} ) "));
+        //}
 
-        private static bool ShouldWriteMoveNumber(Color activeColor, PostMoveState previousPostMove)
-        {
-            if (activeColor == Color.White)
-            {
-                return true;
-            }
+        //private static string IndentText(uint depth)
+        //{
+        //    return depth == 0 ? " " : new string(' ', (int)depth * 4);
+        //}
 
-            if (previousPostMove == null)
-            {
-                return true;
-            }
+        //private char GetEndOfMoveWhitespace(Color activeColor)
+        //{
+        //    return _options.ExportFormat ? ' ' : _options.NewlineEachMove && activeColor == Color.Black ? NewLine : ' ';
+        //}
 
-            if (!string.IsNullOrWhiteSpace(previousPostMove.PostMoveComment))
-            {
-                return true;
-            }
+        //private static bool ShouldWriteMoveNumber(Color activeColor, PostMoveState previousPostMove)
+        //{
+        //    if (activeColor == Color.White)
+        //    {
+        //        return true;
+        //    }
 
-            return false;
-        }
+        //    if (previousPostMove == null)
+        //    {
+        //        return true;
+        //    }
 
-        private bool UseEllipses(PostMoveState previousPostMove, Color activeColor)
-        {
-            return (previousPostMove == null || !string.IsNullOrWhiteSpace(previousPostMove.PostMoveComment)) &&
-                   activeColor == Color.Black;
-        }
+        //    if (!string.IsNullOrWhiteSpace(previousPostMove.PostMoveComment))
+        //    {
+        //        return true;
+        //    }
 
-        private string FormatMoveNumber(uint moveNumber, bool threePeriods)
-        {
-            var moveNumberText = moveNumber + (threePeriods ? "..." : ".");
+        //    return false;
+        //}
 
-            if (_options.SpaceAfterMoveNumber && !_options.ExportFormat)
-            {
-                moveNumberText += " ";
-            }
+        //private bool UseEllipses(PostMoveState previousPostMove, Color activeColor)
+        //{
+        //    return (previousPostMove == null || !string.IsNullOrWhiteSpace(previousPostMove.PostMoveComment)) &&
+        //           activeColor == Color.Black;
+        //}
 
-            return moveNumberText;
-        }
+        //private string FormatMoveNumber(uint moveNumber, bool threePeriods)
+        //{
+        //    var moveNumberText = moveNumber + (threePeriods ? "..." : ".");
+
+        //    if (_options.SpaceAfterMoveNumber && !_options.ExportFormat)
+        //    {
+        //        moveNumberText += " ";
+        //    }
+
+        //    return moveNumberText;
+        //}
     }
 }
