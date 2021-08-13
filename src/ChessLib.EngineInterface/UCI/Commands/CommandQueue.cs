@@ -56,7 +56,7 @@ namespace ChessLib.EngineInterface.UCI.Commands
             base.Enqueue(item);
             InterruptIssued.Set();
         }
-        public void Clear()
+        public new void Clear()
         {
             while (TryDequeue(out var command))
             {

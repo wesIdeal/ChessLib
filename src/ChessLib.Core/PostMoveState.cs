@@ -21,13 +21,14 @@ namespace ChessLib.Core
 
     public static class BoardNodeFactory
     {
-        private readonly static MoveToSan moveToSan = new MoveToSan();
+        private static readonly MoveToSan moveToSan = new MoveToSan();
+
         public static BoardNode ApplyMoveToBoard(BoardNode board, Move moveToApply)
         {
             var postMoveBoard = board.Board.ApplyMoveToBoard(moveToApply);
             var san = moveToSan.Translate(moveToApply, board.Board, postMoveBoard);
-            var postMoveState = new PostMoveState(postMoveBoard, moveToApply, san);//TODO: Get real san, here
-            var node = new TreeNode<PostMoveState>(postMoveState, board.Node);
+            var postMoveState = new PostMoveState(postMoveBoard, moveToApply, san); //TODO: Get real san, here
+            var node = new MoveTreeNode<PostMoveState>(postMoveState, board.Node);
             return new BoardNode(postMoveBoard, node);
         }
 
@@ -51,16 +52,9 @@ namespace ChessLib.Core
     /// </summary>
     public readonly struct PostMoveState : IEquatable<PostMoveState>
     {
-        public PostMoveState(Board initialBoard) : this(initialBoard, Move.NullMove, "")
-        {
-        }
-
-        public PostMoveState(Board postMoveBoard, ushort moveValue, string san, string comment = "",
-            NumericAnnotation annotation = null)
+        public PostMoveState(Board postMoveBoard, ushort moveValue, string san)
         {
             BoardState = postMoveBoard;
-            Comment = comment;
-            Annotation = annotation;
             MoveValue = moveValue;
             San = san;
             BoardStateHash = PolyglotHelpers.GetBoardStateHash(postMoveBoard);
@@ -71,14 +65,12 @@ namespace ChessLib.Core
         public string San { get; }
 
         public ulong BoardStateHash { get; }
-        public string Comment { get; }
-        public NumericAnnotation Annotation { get; }
+
 
         public bool Equals(PostMoveState other)
         {
             return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San &&
-                   BoardStateHash == other.BoardStateHash && Comment == other.Comment &&
-                   Equals(Annotation, other.Annotation);
+                   BoardStateHash == other.BoardStateHash;
         }
 
         public override bool Equals(object obj)
@@ -94,8 +86,6 @@ namespace ChessLib.Core
                 hashCode = (hashCode * 397) ^ MoveValue.GetHashCode();
                 hashCode = (hashCode * 397) ^ (San != null ? San.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ BoardStateHash.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Comment != null ? Comment.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Annotation != null ? Annotation.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -109,5 +99,8 @@ namespace ChessLib.Core
         {
             return !left.Equals(right);
         }
+
+
+
     }
 }

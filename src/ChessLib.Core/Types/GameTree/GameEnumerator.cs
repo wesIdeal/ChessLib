@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using ChessLib.Core.Helpers;
-using ChessLib.Core.Types.Tree;
 
 namespace ChessLib.Core.Types.GameTree
 {
@@ -58,11 +56,6 @@ namespace ChessLib.Core.Types.GameTree
             return false;
         }
 
-        public virtual bool MoveNext(ushort move)
-        {
-            var index = Current.Node.Continuations.FindIndex(0, x => x.Value.MoveValue == move);
-            return index >= 0 && MoveNext(index);
-        }
 
         /// <summary>
         ///     Will move to the previous board state, if available.
@@ -76,6 +69,7 @@ namespace ChessLib.Core.Types.GameTree
             {
                 return false;
             }
+
             Current = BoardNodeFactory.UnapplyMoveFromBoard(Current);
             return true;
         }

@@ -37,7 +37,7 @@ namespace ChessLib.Core.Types.Tree
 
         public virtual INode<T> AddNode(T nodeValue)
         {
-            var childNode = new TreeNode<T>(nodeValue, this);
+            var childNode = new MoveTreeNode<T>(nodeValue, this);
             return AddNode(childNode);
         }
 

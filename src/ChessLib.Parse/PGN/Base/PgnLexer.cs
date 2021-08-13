@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using ChessLib.Core;
 using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Parse.PGN.Base
 {
