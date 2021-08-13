@@ -9,14 +9,6 @@ namespace ChessLib.Core.Types.Tree
         public string Comment { get; internal set; } = string.Empty;
         public NumericAnnotation Annotation { get; } = new NumericAnnotation();
 
-        /// <summary>
-        ///     Constructs a TreeNode from a NodeBase object, using it's values to initialize the node.
-        /// </summary>
-        /// <param name="value"></param>
-        public MoveTreeNode(INode<T> value) : base(value)
-        {
-        }
-
         public MoveTreeNode(T value, INode<T> parent) : base(value, parent)
         {
         }

@@ -5,7 +5,6 @@ namespace ChessLib.Core.Types.Interfaces
 {
     public interface IMove : IEquatable<IMove>
     {
-        bool IsNullMove { get; }
         ushort DestinationIndex { get; }
         ulong DestinationValue { get; }
         ushort MoveValue { get; }
