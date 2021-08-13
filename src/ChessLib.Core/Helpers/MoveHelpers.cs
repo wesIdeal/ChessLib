@@ -7,6 +7,12 @@ namespace ChessLib.Core.Helpers
 {
     public static class MoveHelpers
     {
+        public static readonly Move
+            BlackCastleKingSide,
+            BlackCastleQueenSide,
+            WhiteCastleKingSide,
+            WhiteCastleQueenSide;
+
         public static IEnumerable<IMove> WhiteCastlingMoves
         {
             get
@@ -24,16 +30,7 @@ namespace ChessLib.Core.Helpers
                 yield return BlackCastleQueenSide;
             }
         }
-        public static readonly Move
-            BlackCastleKingSide,
-            BlackCastleQueenSide,
-            WhiteCastleKingSide,
-            WhiteCastleQueenSide;
 
-        private static readonly Move BlackCastleKingSideRookMove,
-            BlackCastleQueenSideRookMove,
-            WhiteCastleKingSideRookMove,
-            WhiteCastleQueenSideRookMove;
 
         static MoveHelpers()
         {
@@ -41,10 +38,6 @@ namespace ChessLib.Core.Helpers
             BlackCastleQueenSide = GenerateMove(60, 58, MoveType.Castle);
             WhiteCastleKingSide = GenerateMove(4, 6, MoveType.Castle);
             WhiteCastleQueenSide = GenerateMove(4, 2, MoveType.Castle);
-            BlackCastleKingSideRookMove = GenerateMove(63, 61);
-            BlackCastleQueenSideRookMove = GenerateMove(56, 59);
-            WhiteCastleKingSideRookMove = GenerateMove(7, 5);
-            WhiteCastleQueenSideRookMove = GenerateMove(0, 3);
         }
 
         /// <summary>
@@ -55,11 +48,11 @@ namespace ChessLib.Core.Helpers
         public static Move GenerateMove(ushort fromIdx, ushort toIdx, MoveType moveType = MoveType.Normal,
             PromotionPiece promotionPiece = 0)
         {
-            var mt = (ushort)moveType << 14;
-            var pp = (ushort)promotionPiece << 12;
+            var mt = (ushort) moveType << 14;
+            var pp = (ushort) promotionPiece << 12;
             var origin = fromIdx << 6;
             var dest = toIdx << 0;
-            return new Move((ushort)(mt | pp | origin | dest));
+            return new Move((ushort) (mt | pp | origin | dest));
         }
 
         public static IMove GetRookMoveForCastleMove(in IMove move)

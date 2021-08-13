@@ -28,7 +28,7 @@ namespace ChessLib.Core.Types.Tree
 
         public new MoveTreeNode<T> AddNode(T nodeValue)
         {
-            return (MoveTreeNode<T>)base.AddNode(nodeValue);
+            return (MoveTreeNode<T>) base.AddNode(nodeValue);
         }
 
         public override bool Equals(object obj)
@@ -36,7 +36,7 @@ namespace ChessLib.Core.Types.Tree
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((MoveTreeNode<T>)obj);
+            return Equals((MoveTreeNode<T>) obj);
         }
 
         public override int GetHashCode()

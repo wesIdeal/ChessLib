@@ -7,7 +7,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
     public class HasCastlingAvailability : IMoveRule
     {
         /// <summary>
-        /// Validates castling move with availability flags
+        ///     Validates castling move with availability flags
         /// </summary>
         public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
@@ -27,15 +27,16 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
                     castleChar = CastlingAvailability.WhiteKingside;
                     break;
                 default:
-                    throw new MoveException("Bad destination square for castling move.", MoveError.CastleBadDestinationSquare, move, boardInfo.ActivePlayer);
+                    throw new MoveException("Bad destination square for castling move.",
+                        MoveError.CastleBadDestinationSquare, move, boardInfo.ActivePlayer);
             }
 
             if (!boardInfo.CastlingAvailability.HasFlag(castleChar.Value))
             {
                 return MoveError.CastleUnavailable;
             }
-            return MoveError.NoneSet;
 
+            return MoveError.NoneSet;
         }
     }
 }

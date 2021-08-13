@@ -57,7 +57,8 @@ namespace ChessLib.Core.Types.Enums.NAG
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return AnnotationText == other.AnnotationText && MoveNAG == other.MoveNAG &&
-                   PositionalNAGs.SequenceEqual(other.PositionalNAGs) && NonStandardNAGs.SequenceEqual(other.NonStandardNAGs) &&
+                   PositionalNAGs.SequenceEqual(other.PositionalNAGs) &&
+                   NonStandardNAGs.SequenceEqual(other.NonStandardNAGs) &&
                    TimeTroubleNAG == other.TimeTroubleNAG && LastError == other.LastError;
         }
 
@@ -176,36 +177,5 @@ namespace ChessLib.Core.Types.Enums.NAG
             }
         }
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((NumericAnnotation) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = AnnotationText != null ? AnnotationText.GetHashCode() : 0;
-                hashCode = (hashCode * 397) ^ (int) MoveNAG;
-                hashCode = (hashCode * 397) ^ (PositionalNAGs != null ? PositionalNAGs.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (NonStandardNAGs != null ? NonStandardNAGs.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int) TimeTroubleNAG;
-                hashCode = (hashCode * 397) ^ (LastError != null ? LastError.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(NumericAnnotation left, NumericAnnotation right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(NumericAnnotation left, NumericAnnotation right)
-        {
-            return !Equals(left, right);
-        }
     }
 }

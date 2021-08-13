@@ -1,24 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Translate;
-using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.GameTree;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Types.Tree;
 
 namespace ChessLib.Core
 {
-    public class MoveTree : List<PostMoveState>
-    {
-        public int NodeDepth { get; internal set; }
-
-        public MoveTree(int depth)
-        {
-            NodeDepth = depth;
-        }
-    }
-
     public static class BoardNodeFactory
     {
         private static readonly MoveToSan moveToSan = new MoveToSan();
@@ -27,7 +15,7 @@ namespace ChessLib.Core
         {
             var postMoveBoard = board.Board.ApplyMoveToBoard(moveToApply);
             var san = moveToSan.Translate(moveToApply, board.Board, postMoveBoard);
-            var postMoveState = new PostMoveState(postMoveBoard, moveToApply, san); //TODO: Get real san, here
+            var postMoveState = new PostMoveState(postMoveBoard, moveToApply, san); 
             var node = new MoveTreeNode<PostMoveState>(postMoveState, board.Node);
             return new BoardNode(postMoveBoard, node);
         }
@@ -38,10 +26,10 @@ namespace ChessLib.Core
             return new BoardNode(postMoveBoard, nodeToApply);
         }
 
-        public static BoardNode UnapplyMoveFromBoard(BoardNode currentBoardNode)
+        public static BoardNode UnApplyMoveFromBoard(BoardNode currentBoardNode)
         {
             var previousState = currentBoardNode.Node.Previous;
-            var unDoneBoard = currentBoardNode.Board.UnapplyMoveFromBoard((BoardState)previousState.Value.BoardState,
+            var unDoneBoard = currentBoardNode.Board.UnapplyMoveFromBoard((BoardState) previousState.Value.BoardState,
                 currentBoardNode.Node.Value.MoveValue);
             return new BoardNode(unDoneBoard, previousState);
         }
@@ -82,7 +70,7 @@ namespace ChessLib.Core
         {
             unchecked
             {
-                var hashCode = (int)BoardState;
+                var hashCode = (int) BoardState;
                 hashCode = (hashCode * 397) ^ MoveValue.GetHashCode();
                 hashCode = (hashCode * 397) ^ (San != null ? San.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ BoardStateHash.GetHashCode();
@@ -99,8 +87,5 @@ namespace ChessLib.Core
         {
             return !left.Equals(right);
         }
-
-
-
     }
 }

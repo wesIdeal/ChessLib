@@ -6,25 +6,31 @@ namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
 {
     public class CastlingAvailabilityRule : IFENRule
     {
-        private static readonly char[] ValidCastlingStringChars = { 'k', 'K', 'q', 'Q' };
+        private static readonly char[] ValidCastlingStringChars = {'k', 'K', 'q', 'Q'};
+
         public FENError Validate(string fen)
         {
             var castlingAvailability = fen.GetFENPiece(FENPieces.CastlingAvailability);
             return ValidateCastlingAvailabilityString(castlingAvailability);
         }
+
         private static FENError ValidateCastlingAvailabilityString(string castleAvailability)
         {
-            FENError fenError = FENError.None;
+            var fenError = FENError.None;
             if (string.IsNullOrWhiteSpace(castleAvailability))
             {
                 return FENError.CastlingNoStringPresent;
             }
+
             if (castleAvailability == "-") return fenError;
 
             var castlingChars = castleAvailability.ToCharArray();
             var notAllowed = castlingChars.Where(c => !ValidCastlingStringChars.Contains(c));
 
-            if (notAllowed.Any()) { fenError |= FENError.CastlingUnrecognizedChar; }
+            if (notAllowed.Any())
+            {
+                fenError |= FENError.CastlingUnrecognizedChar;
+            }
             else
             {
                 var castleAvailabilityArray = castleAvailability.ToArray();
@@ -33,8 +39,8 @@ namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
                     fenError |= FENError.CastlingStringRepetition;
                 }
             }
+
             return fenError;
         }
     }
 }
-

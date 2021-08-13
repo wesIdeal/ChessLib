@@ -9,7 +9,6 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
     {
         public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
-
             var piece = BoardHelpers.GetPieceAtIndex(boardInfo.Occupancy, move.SourceIndex);
             if (piece == null)
             {
@@ -17,11 +16,9 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
             }
 
             var moves = Bitboard.Instance.GetPseudoLegalMoves(move.SourceIndex, piece.Value, boardInfo.ActivePlayer,
-                 boardInfo.Occupancy.Occupancy());
+                boardInfo.Occupancy.Occupancy());
             var isInMoveList = (moves & move.DestinationValue) == move.DestinationValue;
             return isInMoveList ? MoveError.NoneSet : MoveError.BadDestination;
         }
-
-
     }
 }

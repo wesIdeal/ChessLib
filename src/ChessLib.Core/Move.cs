@@ -100,7 +100,7 @@ namespace ChessLib.Core
                 return false;
             }
 
-            return base.Equals(obj);
+            return MoveValue == (obj as Move);
         }
 
         public override int GetHashCode()

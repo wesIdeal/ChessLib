@@ -12,12 +12,6 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
 {
     public class MoveValidator
     {
-
-        readonly List<IMoveRule> _rules = new List<IMoveRule>();
-        public readonly ulong[][] PostMoveBoard;
-        private readonly Board _board;
-        private readonly IMove _move;
-
         public MoveValidator(in Board board, in IMove move)
         {
             _board = board;
@@ -54,6 +48,12 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
             }
         }
 
+        private readonly Board _board;
+        private readonly IMove _move;
+
+        private readonly List<IMoveRule> _rules = new List<IMoveRule>();
+        public readonly ulong[][] PostMoveBoard;
+
         public MoveError Validate()
         {
             foreach (var rule in _rules)
@@ -68,6 +68,4 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
             return MoveError.NoneSet;
         }
     }
-
-
 }

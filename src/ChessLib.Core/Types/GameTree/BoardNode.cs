@@ -9,7 +9,7 @@ namespace ChessLib.Core.Types.GameTree
     public class BoardNode : IEquatable<BoardNode>
     {
         public Board Board { get; protected set; }
-        public MoveTreeNode<PostMoveState> Node { get; protected set; }
+        public MoveTreeNode<PostMoveState> Node { get; }
         public string Fen => Board.Fen;
 
 
@@ -29,7 +29,7 @@ namespace ChessLib.Core.Types.GameTree
         public BoardNode(Board board, INode<PostMoveState> postMoveStateNode)
         {
             Board = (Board)board.Clone();
-            Node = (MoveTreeNode<PostMoveState>) postMoveStateNode;
+            Node = (MoveTreeNode<PostMoveState>)postMoveStateNode;
         }
 
         public bool Equals(BoardNode other)
@@ -49,7 +49,7 @@ namespace ChessLib.Core.Types.GameTree
 
         public override int GetHashCode()
         {
-            return Board != null ? Board.GetHashCode() : 0;
+            return (int)Node.Value.BoardStateHash;
         }
 
         public static bool operator ==(BoardNode left, BoardNode right)

@@ -48,9 +48,8 @@ namespace ChessLib.Core
 
         public Board(Board board)
         {
-            var clonedOccupancy = board.CloneOccupancy();
             ActivePlayer = board.ActivePlayer;
-            Occupancy = board.Occupancy;
+            Occupancy = ((Board) board.Clone()).Occupancy;
             HalfMoveClock = board.HalfMoveClock;
             PieceCaptured = board.PieceCaptured;
             CastlingAvailability = board.CastlingAvailability;

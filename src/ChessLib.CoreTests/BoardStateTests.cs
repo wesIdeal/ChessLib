@@ -78,7 +78,27 @@ namespace ChessLib.Core.Tests
                 Assert.AreEqual(testCase.TestMethodInputValue, boardState.PieceCaptured);
             }
         }
-
+        [Test]
+        public void IsEndOfGame_WhenStalemate_ReturnsTrue()
+        {
+            var board = new Mock<BoardState>();
+            board.SetupGet(t => t.GameState).Returns(GameState.StaleMate);
+            Assert.IsTrue(board.Object.IsEndOfGame);
+        }
+        [Test]
+        public void IsEndOfGame_WhenCheckmate_ReturnsTrue()
+        {
+            var board = new Mock<BoardState>();
+            board.SetupGet(t => t.GameState).Returns(GameState.Checkmate);
+            Assert.IsTrue(board.Object.IsEndOfGame);
+        }
+        [Test]
+        public void IsEndOfGame_WhenNotStalemateOrCheckmate_ReturnsFalse()
+        {
+            var board = new Mock<BoardState>();
+            board.SetupGet(t => t.GameState).Returns(GameState.None);
+            Assert.IsFalse(board.Object.IsEndOfGame);
+        }
         protected static IEnumerable<TestCase<bool, Piece?>> GetPieceCapturedTestCases()
         {
             foreach (var piece in Enums.GetValues<Piece>())

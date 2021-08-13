@@ -14,4 +14,4 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
                 activeColorOccupiesSquare ? MoveError.NoneSet : MoveError.ActivePlayerHasNoPieceOnSourceSquare;
         }
     }
-};
+}

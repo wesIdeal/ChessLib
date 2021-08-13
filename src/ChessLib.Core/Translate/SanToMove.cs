@@ -59,10 +59,10 @@ namespace ChessLib.Core.Translate
                         board);
                 }
 
-               
+
 
                 var attackerIndices = activePieces.GetSetBits();
-                
+
 
                 if (attackerIndices.Length == 0)
                 {
@@ -94,8 +94,8 @@ namespace ChessLib.Core.Translate
 
         private string StripNonMoveInfoFromMove(in string move)
         {
-            var nmi = new[] {"#", "+", "1/2-1/2", "1-0", "0-1"};
-            var mv = (string) move.Clone();
+            var nmi = new[] { "#", "+", "1/2-1/2", "1-0", "0-1" };
+            var mv = (string)move.Clone();
             foreach (var s in nmi)
             {
                 mv = mv.Replace(s, "");
@@ -180,7 +180,6 @@ namespace ChessLib.Core.Translate
         {
             var promotionPiece = PromotionPiece.Knight;
             var colorMoving = preMoveBoard.ActivePlayer;
-            var pawnBitBoard = preMoveBoard.Occupancy.Occupancy(colorMoving);
 
             var moveLength = move.Length;
             var isCapture = move.Contains("x");
@@ -190,7 +189,7 @@ namespace ChessLib.Core.Translate
             var moveType = MoveType.Normal;
             if (isCapture)
             {
-                startingFile = (ushort) (move[0] - 'a');
+                startingFile = (ushort)(move[0] - 'a');
                 move = move.Substring(2, moveLength - 2);
                 if (preMoveBoard.EnPassantIndex.HasValue)
                 {
@@ -212,7 +211,7 @@ namespace ChessLib.Core.Translate
                 throw new NoNullAllowedException("MoveTranslatorService: destIndex should not be null.");
             }
 
-            var likelyStartingSq = (ushort) (colorMoving == Color.White ? destIndex.Value - 8 : destIndex.Value + 8);
+            var likelyStartingSq = (ushort)(colorMoving == Color.White ? destIndex.Value - 8 : destIndex.Value + 8);
             var sourceIndex = likelyStartingSq;
             Debug.Assert(destIndex.HasValue);
 
@@ -224,12 +223,12 @@ namespace ChessLib.Core.Translate
                 if (colorMoving == Color.White)
                 {
                     var modifier = destinationFile - startingFile + 8;
-                    sourceIndex = (ushort) (destIndex.Value - modifier);
+                    sourceIndex = (ushort)(destIndex.Value - modifier);
                 }
                 else
                 {
                     var modifier = startingFile - destinationFile + 8;
-                    sourceIndex = (ushort) (destIndex.Value + modifier);
+                    sourceIndex = (ushort)(destIndex.Value + modifier);
                 }
             }
             else if (isPossibleInitialMove)

@@ -26,14 +26,14 @@ namespace ChessLib.Core.Types
         {
             if (ReferenceEquals(null, obj)) return false;
             if (obj.GetType() != GetType()) return false;
-            return Equals((PgnParsingLog)obj);
+            return Equals((PgnParsingLog) obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = (int)ParsingErrorLevel;
+                var hashCode = (int) ParsingErrorLevel;
                 hashCode = (hashCode * 397) ^ (Message != null ? Message.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ParseInput != null ? ParseInput.GetHashCode() : 0);
                 return hashCode;

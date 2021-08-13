@@ -25,11 +25,13 @@ namespace ChessLib.Core.Types.Exceptions
         EpNotAttackedBySource,
         Stalemate
     }
+
     [Serializable]
     public class MoveException : Exception
     {
         public IBoard Board { get; set; }
         public MoveError Error { get; set; }
+
         public MoveException()
         {
             Error = MoveError.NoneSet;
@@ -53,7 +55,7 @@ namespace ChessLib.Core.Types.Exceptions
         }
 
         public MoveException(string message, MoveError type, IMove move, Color activePlayer, IBoard board = null)
-           : this(message + $"\r\n{activePlayer.ToString()}'s move: {move.ToString()}", board)
+            : this(message + $"\r\n{activePlayer.ToString()}'s move: {move.ToString()}", board)
         {
             Error = type;
         }

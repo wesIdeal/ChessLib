@@ -10,21 +10,8 @@ namespace ChessLib.Core.Types.Exceptions
     [Serializable]
     public class FENException : Exception
     {
-        public readonly FENError FENError;
-        private static string GetFormattedMessage(FENError e) => "* " + e.AsString(EnumFormat.Description);
-        private static string FormatFENError(string fen, FENError e)
-        {
-            if (e == FENError.None) return "";
-            var sb = new StringBuilder($"PremoveFEN Errors Found ({fen}):\r\n");
-            foreach (var error in Enumerable.Select(e.GetFlags(), x => new { error = x, message = GetFormattedMessage(x) }))
-            {
-                sb.AppendLine(error.message);
-            }
-            return sb.ToString();
-        }
-
         public FENException(string fen, FENError fenError)
-                   : base(FormatFENError(fen, fenError))
+            : base(FormatFENError(fen, fenError))
         {
             FENError = fenError;
         }
@@ -35,16 +22,40 @@ namespace ChessLib.Core.Types.Exceptions
             FENError = fenError;
         }
 
-        protected FENException(SerializationInfo serializationInfo, StreamingContext context) : base(serializationInfo, context)
+        protected FENException(SerializationInfo serializationInfo, StreamingContext context) : base(serializationInfo,
+            context)
         {
         }
 
-        public FENException() { }
+        public FENException()
+        {
+        }
 
-        public FENException(string message) : base(message) { }
+        public FENException(string message) : base(message)
+        {
+        }
 
         public FENException(string message, Exception innerException) : base(message, innerException)
         {
+        }
+
+        public readonly FENError FENError;
+
+        private static string GetFormattedMessage(FENError e)
+        {
+            return "* " + e.AsString(EnumFormat.Description);
+        }
+
+        private static string FormatFENError(string fen, FENError e)
+        {
+            if (e == FENError.None) return "";
+            var sb = new StringBuilder($"PremoveFEN Errors Found ({fen}):\r\n");
+            foreach (var error in e.GetFlags().Select(x => new {error = x, message = GetFormattedMessage(x)}))
+            {
+                sb.AppendLine(error.message);
+            }
+
+            return sb.ToString();
         }
     }
 }

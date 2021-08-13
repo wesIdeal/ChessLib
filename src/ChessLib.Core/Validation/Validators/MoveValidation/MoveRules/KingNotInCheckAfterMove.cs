@@ -10,9 +10,10 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
     {
         public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
-            var activeKingIndex = postMoveBoard[(int)boardInfo.ActivePlayer][(int)Piece.King].GetSetBits()[0];
+            var activeKingIndex = postMoveBoard[(int) boardInfo.ActivePlayer][(int) Piece.King].GetSetBits()[0];
             var isKingSquareAttacked =
-                Bitboard.Instance.IsSquareAttackedByColor(activeKingIndex, boardInfo.ActivePlayer.Toggle(), postMoveBoard);
+                Bitboard.Instance.IsSquareAttackedByColor(activeKingIndex, boardInfo.ActivePlayer.Toggle(),
+                    postMoveBoard);
             return isKingSquareAttacked ? MoveError.MoveLeavesKingInCheck : MoveError.NoneSet;
         }
     }

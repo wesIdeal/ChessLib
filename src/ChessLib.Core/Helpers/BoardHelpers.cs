@@ -176,11 +176,7 @@ namespace ChessLib.Core.Helpers
 
                 if (piecePosition != null)
                 {
-                    return new PieceOfColor
-                    {
-                        Piece = piecePosition.Piece,
-                        Color = piecePosition.Color
-                    };
+                    return new PieceOfColor(piecePosition.Piece, piecePosition.Color);
                 }
             }
 
@@ -350,7 +346,7 @@ namespace ChessLib.Core.Helpers
             var activePlayer = board.ActivePlayer.Toggle();
             return new Board(moveValidator.PostMoveBoard, (byte) halfMoveClock, enPassantIndex, capturedPiece,
                 castlingAvailability, activePlayer,
-                (ushort) fullMoveCounter, true);
+                (ushort) fullMoveCounter);
         }
 
 

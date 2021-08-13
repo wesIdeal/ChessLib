@@ -5,7 +5,10 @@ namespace ChessLib.Core.Types.Exceptions
 {
     public class MoveTraversalException : Exception
     {
-       
+        protected MoveTraversalException(string message) : base(message)
+        {
+        }
+
 
         public static MoveTraversalException NextMoveNotFoundException(IMove move)
         {
@@ -13,11 +16,8 @@ namespace ChessLib.Core.Types.Exceptions
             {
                 return new MoveTraversalException($"MoveValue {move} not found. ");
             }
-            return NextMoveNotFoundException(move);
-        }
 
-        protected MoveTraversalException(string message) : base(message)
-        {
+            return NextMoveNotFoundException(move);
         }
     }
 }

@@ -7,4 +7,3 @@ namespace ChessLib.Core.Validation.Validators.FENValidation
         FENError Validate(string fen);
     }
 }
-

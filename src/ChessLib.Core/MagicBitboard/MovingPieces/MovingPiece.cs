@@ -13,17 +13,7 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
 
     internal abstract class MovingPiece : IMovingPiece
     {
-        public readonly ulong[] MagicKey = new ulong[64];
-        protected ulong[] AttackMask;
-        protected ulong[] MoveMask;
-        protected MovingPieceService MovingPieceSvc;
-
-        protected IEnumerable<ushort> AllSquares => Enumerable.Range(0, 64).Select(x=>(ushort)x);
-
-        protected MovingPiece()
-        {
-            MovingPieceSvc = new MovingPieceService();
-        }
+        protected IEnumerable<ushort> AllSquares => Enumerable.Range(0, 64).Select(x => (ushort) x);
 
         private ulong[] MovesAndAttacks
         {
@@ -38,14 +28,18 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             }
         }
 
+        protected MovingPiece()
+        {
+            MovingPieceSvc = new MovingPieceService();
+        }
+
+        public readonly ulong[] MagicKey = new ulong[64];
+        protected ulong[] AttackMask;
+        protected ulong[] MoveMask;
+        protected MovingPieceService MovingPieceSvc;
+
         public abstract ulong GetPseudoLegalMoves(ushort square, Color playerColor, ulong occupancy);
 
         public abstract void Initialize();
-
-        public ulong GetMovesFromSquare(ushort squareIndex)
-        {
-            return MoveMask[squareIndex];
-        }
-        
     }
 }

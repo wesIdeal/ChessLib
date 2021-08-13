@@ -10,9 +10,8 @@ namespace ChessLib.Core.Translate
         public ushort? EnPassantIndex;
         public byte HalfmoveClock;
         public uint FullmoveClock;
-        public uint TotalPlies => (uint) ((2 * FullmoveClock) - (ActiveColor == Color.White ? 2 : 1));
 
         public Board AsBoard => new Board(PiecePlacement, HalfmoveClock, EnPassantIndex, null, CastlingAvailability,
-            ActiveColor, FullmoveClock, true, null);
+            ActiveColor, FullmoveClock);
     }
 }

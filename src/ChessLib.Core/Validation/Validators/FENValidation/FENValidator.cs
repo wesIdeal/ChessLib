@@ -8,8 +8,6 @@ namespace ChessLib.Core.Validation.Validators.FENValidation
 {
     public class FENValidator
     {
-        private readonly List<IFENRule> _rules = new List<IFENRule>();
-
         public FENValidator()
             : this(new PiecePlacementRule(),
                 new ActiveColorRule(),
@@ -25,6 +23,8 @@ namespace ChessLib.Core.Validation.Validators.FENValidation
         {
             _rules.AddRange(fenRules);
         }
+
+        private readonly List<IFENRule> _rules = new List<IFENRule>();
 
         public FENError Validate(string fen)
         {

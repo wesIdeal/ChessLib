@@ -327,7 +327,7 @@ namespace ChessLib.Core.Helpers
                     {
                         foreach (var index in piecePlacement.GetSetBits())
                         {
-                            var poc = new PieceOfColor {Color = (Color) color, Piece = (Piece) piece};
+                            var poc = new PieceOfColor((Piece) piece, (Color) color);
                             acc ^= GetPieceValue(poc, index);
                         }
                     }
@@ -359,11 +359,7 @@ namespace ChessLib.Core.Helpers
             Move = polyglotMove;
         }
 
-        public PolyglotMove(IMove move)
-        {
-            Move = GetEncodedMove(move);
-        }
-
+        
 
         /// <summary>
         ///     Gets an encoded move that is standard to polyglot specifications

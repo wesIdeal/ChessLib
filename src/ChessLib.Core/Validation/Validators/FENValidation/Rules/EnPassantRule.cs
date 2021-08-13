@@ -15,16 +15,16 @@ namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
         {
             if (v == "-") return FENError.None;
             const FENError error = FENError.InvalidEnPassantSquare;
-            bool valid = true;
+            var valid = true;
             if (v.Length != 2) return error;
-            valid &= (char.IsLetter(v[0]) && char.IsLower(v[0]) && (v[0] >= 'a' && v[0] <= 'h'));
-            valid &= ushort.TryParse(v[1].ToString(), out ushort rank);
+            valid &= char.IsLetter(v[0]) && char.IsLower(v[0]) && v[0] >= 'a' && v[0] <= 'h';
+            valid &= ushort.TryParse(v[1].ToString(), out var rank);
             if (valid)
             {
-                valid &= (rank >= 1 && rank <= 8);
+                valid &= rank >= 1 && rank <= 8;
             }
+
             return valid ? FENError.None : error;
         }
     }
 }
-

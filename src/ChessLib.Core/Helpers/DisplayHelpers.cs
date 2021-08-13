@@ -9,7 +9,8 @@ namespace ChessLib.Core.Helpers
 {
     public static class DisplayHelpers
     {
-        public static readonly Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations = new Dictionary<Color, Dictionary<Piece, string>>();
+        public static readonly Dictionary<Color, Dictionary<Piece, string>> HtmlPieceRepresentations =
+            new Dictionary<Color, Dictionary<Piece, string>>();
 
         static DisplayHelpers()
         {
@@ -22,12 +23,13 @@ namespace ChessLib.Core.Helpers
             HtmlPieceRepresentations.Add(Color.Black, new Dictionary<Piece, string>());
             var whiteStart = 9817;
             var blackStart = 9823;
-            foreach (var p in (Piece[])Enum.GetValues(typeof(Piece)))
+            foreach (var p in (Piece[]) Enum.GetValues(typeof(Piece)))
             {
                 HtmlPieceRepresentations[Color.White].Add(p, $"&#{whiteStart};");
                 whiteStart--;
             }
-            foreach (var p in (Piece[])Enum.GetValues(typeof(Piece)))
+
+            foreach (var p in (Piece[]) Enum.GetValues(typeof(Piece)))
             {
                 HtmlPieceRepresentations[Color.Black].Add(p, $"&#{blackStart};");
                 blackStart--;
@@ -36,12 +38,13 @@ namespace ChessLib.Core.Helpers
 
         public static string GetDisplayBits(this ulong u)
         {
-            var str = Convert.ToString((long)u, 2).PadLeft(64, '0');
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 8; i++)
+            var str = Convert.ToString((long) u, 2).PadLeft(64, '0');
+            var sb = new StringBuilder();
+            for (var i = 0; i < 8; i++)
             {
                 sb.AppendLine(string.Join(" ", str.Skip(i * 8).Take(8).Reverse().ToArray()));
             }
+
             return sb.ToString();
         }
 
@@ -52,20 +55,34 @@ namespace ChessLib.Core.Helpers
             Piece piece;
             switch (char.ToLower(fenChar.Value))
             {
-                case 'p': piece = Piece.Pawn; break;
-                case 'n': piece = Piece.Knight; break;
-                case 'b': piece = Piece.Bishop; break;
-                case 'r': piece = Piece.Rook; break;
-                case 'q': piece = Piece.Queen; break;
-                case 'k': piece = Piece.King; break;
+                case 'p':
+                    piece = Piece.Pawn;
+                    break;
+                case 'n':
+                    piece = Piece.Knight;
+                    break;
+                case 'b':
+                    piece = Piece.Bishop;
+                    break;
+                case 'r':
+                    piece = Piece.Rook;
+                    break;
+                case 'q':
+                    piece = Piece.Queen;
+                    break;
+                case 'k':
+                    piece = Piece.King;
+                    break;
                 default: throw new Exception("Unexpected PremoveFEN char passed into method GetHtmlRepresentation()");
             }
+
             return HtmlPieceRepresentations[color][piece];
         }
 
-        public static string MakeBoardTable(this ulong u, ushort pieceIndex, string header = "", string pieceRep = "^", string attackSquareRep = "*")
+        public static string MakeBoardTable(this ulong u, ushort pieceIndex, string header = "", string pieceRep = "^",
+            string attackSquareRep = "*")
         {
-            string boardBits = Convert.ToString((long)u, 2).PadLeft(64, '0');
+            var boardBits = Convert.ToString((long) u, 2).PadLeft(64, '0');
             var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
             if (string.IsNullOrWhiteSpace(header))
             {
@@ -75,20 +92,19 @@ namespace ChessLib.Core.Helpers
             sb.AppendLine($"<caption>{header}<br/>{boardBits}</caption>");
             const string squareFormat = "<td id=\"{1}{0}\" class=\"{3}\">{2}</td>";
 
-            var array = new List<string>();
+
             var replacementRank = pieceIndex / 8;
             var replacementFile = pieceIndex % 8;
-            for (int r = 7; r >= 0; r--)
+            for (var r = 7; r >= 0; r--)
             {
-
                 var shiftNumber = r * 8;
                 var shifted = u >> shiftNumber;
-                var rank = Convert.ToString((ushort)shifted & 0xff, 2).PadLeft(8, '0').Reverse();
+                var rank = Convert.ToString((ushort) shifted & 0xff, 2).PadLeft(8, '0').Reverse();
                 var file = 0;
 
                 foreach (var p in rank)
                 {
-                    string squareContents = "";
+                    var squareContents = "";
                     if (r == replacementRank && file == replacementFile)
                     {
                         squareContents = pieceRep;
@@ -97,9 +113,11 @@ namespace ChessLib.Core.Helpers
                     {
                         squareContents = attackSquareRep;
                     }
+
                     sb.AppendFormat(squareFormat, file, r, squareContents, "");
                     file++;
                 }
+
                 sb.Append("\r\n</tr>\r\n");
             }
 
@@ -113,14 +131,14 @@ namespace ChessLib.Core.Helpers
                 header = header + "\r\n";
             var sb = new StringBuilder(header + " - ");
 
-            var str = Convert.ToString((long)u, 2).PadLeft(64, '0');
+            var str = Convert.ToString((long) u, 2).PadLeft(64, '0');
             sb.Append(str + "\r\n");
 
-            
+
             var footerHeader = "";
 
-            for (char c = 'a'; c <= 'h'; c++)
-                footerHeader += "  " + c.ToString();
+            for (var c = 'a'; c <= 'h'; c++)
+                footerHeader += "  " + c;
             var boardBorder = string.Concat(Enumerable.Repeat("-", footerHeader.Length + 3));
             footerHeader = " " + footerHeader;
             sb.AppendLine(footerHeader);
@@ -132,6 +150,7 @@ namespace ChessLib.Core.Helpers
                 var rank = str.Skip(i * 8).Take(8).Select(x => x.ToString().Replace('1', replaceOnesWith)).Reverse();
                 sb.AppendLine(rankString + " | " + string.Join(" | ", rank) + " |");
             }
+
             sb.AppendLine(boardBorder);
             sb.AppendLine(footerHeader);
             return sb.ToString();
@@ -145,29 +164,33 @@ namespace ChessLib.Core.Helpers
 
         public static string MakeBoardTable(this ulong u, string header = "", string pieceRep = "*")
         {
-            string board = Convert.ToString((long)u, 2).PadLeft(64, '0');
+            var board = Convert.ToString((long) u, 2).PadLeft(64, '0');
             var sb = new StringBuilder("<table class=\"chessboard\">\r\n");
             if (!string.IsNullOrWhiteSpace(header))
             {
                 sb.AppendLine($"<caption>{header}<br/>{board}</caption>");
             }
+
             const string squareFormat = "<td id=\"{1}{0}\" class=\"{3}\">{2}</td>";
 
-            for (Rank r = Rank.R8; r >= Rank.R1; r--)
+            for (var r = Rank.R8; r >= Rank.R1; r--)
             {
                 var rank = (ushort) r;
                 sb.AppendLine($"<tr id=\"rank{rank}\">");
 
-                for (File f = File.A; f <= File.H; f++)
+                for (var f = File.A; f <= File.H; f++)
                 {
-                    var file = (ushort)f;
-                    var squareIndex = (rank * 8) + file;
+                    var file = (ushort) f;
+                    var squareIndex = rank * 8 + file;
                     var strIndex = 63 - squareIndex;
                     var pieceAtSquare = board[strIndex] == '1' ? pieceRep : "&nbsp;";
-                    sb.AppendFormat(squareFormat, f.ToString(), rank, pieceAtSquare, board[(rank * 8) + file] == '1' ? "altColor" : "");
+                    sb.AppendFormat(squareFormat, f.ToString(), rank, pieceAtSquare,
+                        board[rank * 8 + file] == '1' ? "altColor" : "");
                 }
+
                 sb.Append("\r\n</tr>\r\n");
             }
+
             sb.AppendLine("</table>");
             return sb.ToString();
         }
@@ -179,58 +202,76 @@ namespace ChessLib.Core.Helpers
             {
                 sb.AppendLine($"<caption>{header}</caption>");
             }
+
             const string squareFormat = "<td id=\"{0}\">{1}</td>";
 
-            for (Rank r = Rank.R8; r >= Rank.R1; r--)
+            for (var r = Rank.R8; r >= Rank.R1; r--)
             {
-                var rank = ((ushort)r).RankCompliment();
+                var rank = ((ushort) r).RankCompliment();
                 sb.AppendLine($"<tr id=\"rank{rank}\">");
 
-                for (File f = File.A; f <= File.H; f++)
+                for (var f = File.A; f <= File.H; f++)
                 {
-                    var file = (int)f;
-                    var piece = fen[(BoardHelpers.RankCompliment((ushort)r) * 8) + (ushort)f];
+                    var file = (int) f;
+                    var piece = fen[((ushort) r).RankCompliment() * 8 + (ushort) f];
                     var pieceRep = GetHtmlRepresentation(piece);
 
-                    sb.AppendFormat(squareFormat, f.ToString() + r.ToString(), pieceRep ?? "&nbsp;");
+                    sb.AppendFormat(squareFormat, f + r.ToString(), pieceRep ?? "&nbsp;");
                 }
+
                 sb.Append("\r\n</tr>\r\n");
             }
+
             sb.AppendLine("</table>");
             return sb.ToString();
         }
 
-        public static string MakeBoardTable(this ulong[] uArr, ushort pieceIndex, string header = "", string pieceRep = "^", string attackSquareRep = "*")
+        public static string MakeBoardTable(this ulong[] uArr, ushort pieceIndex, string header = "",
+            string pieceRep = "^", string attackSquareRep = "*")
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             uArr.ToList().ForEach(x => sb.AppendLine(x.MakeBoardTable(pieceIndex, header, pieceRep, attackSquareRep)));
             return PrintBoardHtml(sb.ToString());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static char IndexToFileDisplay(this ushort i) => (char)('a' + (i % 8));
+        public static char IndexToFileDisplay(this ushort i)
+        {
+            return (char) ('a' + i % 8);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static char IndexToRankDisplay(this ushort i) => (char)('1' + (i / 8));
+        public static char IndexToRankDisplay(this ushort i)
+        {
+            return (char) ('1' + i / 8);
+        }
 
         /// <summary>
-        /// Gets a human-readable square display based on the board index.
+        ///     Gets a human-readable square display based on the board index.
         /// </summary>
         /// <param name="i">Index of square, from 0(A1) to 63(H8)</param>
         /// <returns>A square display; ex. a2, c4, f6</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string IndexToSquareDisplay(this ushort i) => $"{i.IndexToFileDisplay()}{i.IndexToRankDisplay()}";
+        public static string IndexToSquareDisplay(this ushort i)
+        {
+            return $"{i.IndexToFileDisplay()}{i.IndexToRankDisplay()}";
+        }
 
         /// <summary>
-        /// Gets a human-readable square display based on the board index.
+        ///     Gets a human-readable square display based on the board index.
         /// </summary>
         /// <param name="i">Index of square, from 0(A1) to 63(H8)</param>
         /// <returns>A square display; ex. a2, c4, f6</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string IndexToSquareDisplay(this int i) => $"{((ushort)i).IndexToFileDisplay()}{((ushort)i).IndexToRankDisplay()}";
+        public static string IndexToSquareDisplay(this int i)
+        {
+            return $"{((ushort) i).IndexToFileDisplay()}{((ushort) i).IndexToRankDisplay()}";
+        }
 
 
         #region Html Strings
-        const string HtmlMain = @"<!DOCTYPE html>
+
+        private const string HtmlMain = @"<!DOCTYPE html>
 <html>
     <head>
         <title>Chess Boards</title>
@@ -240,6 +281,7 @@ namespace ChessLib.Core.Helpers
     {1}
     </body>
 </html>";
+
         private const string HtmlStyles = @"
 <style>
     * 
@@ -279,7 +321,7 @@ namespace ChessLib.Core.Helpers
 
 </style>
 ";
-        #endregion
 
+        #endregion
     }
 }

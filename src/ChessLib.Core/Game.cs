@@ -8,6 +8,7 @@ using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.GameTree;
 using ChessLib.Core.Types.Interfaces;
+// ReSharper disable PossibleNullReferenceException
 
 namespace ChessLib.Core
 {
@@ -80,10 +81,17 @@ namespace ChessLib.Core
             ParsingLogs.Add(logEntry);
         }
 
+        public NumericAnnotation CurrentAnnotation => Current.Node.Annotation;
+        public string CurrentComment
+        {
+            get => Current.Node.Comment;
+            set => Current.Node.Comment = value;
+        }
 
+        public Move CurrentMove => Current.Node.Value.MoveValue;
         public void AddNag(NumericAnnotation nag)
         {
-            Current.Node.Annotation.ApplyNag(nag);
+           CurrentAnnotation.ApplyNag(nag);
         }
 
         /// <summary>
@@ -116,18 +124,18 @@ namespace ChessLib.Core
         /// </summary>
         public void ExitVariation()
         {
-            var currentMoveValue = Current.Node.Value.MoveValue;
+            var currentMoveValue = CurrentMove;
 
             while (MovePrevious() && (FindMoveIndexInContinuations(currentMoveValue)) < 1)
             {
-                currentMoveValue = Current.Node.Value.MoveValue;
+                currentMoveValue = CurrentMove;
             }
         }
 
 
         public void SetComment(string comment)
         {
-            Current.Node.Comment = comment;
+            CurrentComment = comment;
         }
     }
 }

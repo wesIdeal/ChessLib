@@ -14,10 +14,12 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
             {
                 return MoveError.CastleThroughCheck;
             }
+
             return MoveError.NoneSet;
         }
+
         /// <summary>
-        /// Returns a boolean representing if castling path is attacked
+        ///     Returns a boolean representing if castling path is attacked
         /// </summary>
         /// <param name="opponentColor"></param>
         /// <param name="occupancy"></param>
@@ -34,8 +36,10 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
                 {
                     return true;
                 }
+
                 squaresBetween &= squaresBetween - 1;
             }
+
             return false;
         }
     }

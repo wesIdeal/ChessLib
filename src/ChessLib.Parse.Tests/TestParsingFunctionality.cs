@@ -228,9 +228,9 @@ namespace ChessLib.Parse.Tests
             var parserOptions = new PGNParserOptions { IgnoreVariations = true };
             var parser = new PGNParser(parserOptions);
             var largeDb = parser.GetGamesFromPGNAsync(pgnDb).Result.ToArray();
-            foreach (var move in largeDb.First().Continuations)
+            foreach (var move in largeDb.First().MainLine())
             {
-                Assert.IsEmpty(move.Variations, $"Found a variation on move {move.San} and shouldn't have any.");
+                Assert.IsEmpty(move.Continuations, $"Found a variation on move {move.Value.San} and shouldn't have any.");
             }
         }
 

@@ -10,7 +10,10 @@ namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
             var hmClock = fen.GetFENPiece(FENPieces.HalfmoveClock);
             return ValidateHalfmoveClock(hmClock);
         }
-        private static FENError ValidateHalfmoveClock(string n) => uint.TryParse(n, out _) ? FENError.None : FENError.HalfmoveClock;
+
+        private static FENError ValidateHalfmoveClock(string n)
+        {
+            return uint.TryParse(n, out _) ? FENError.None : FENError.HalfmoveClock;
+        }
     }
 }
-

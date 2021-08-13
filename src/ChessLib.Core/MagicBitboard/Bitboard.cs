@@ -16,13 +16,20 @@ namespace ChessLib.Core.MagicBitboard
 {
     public sealed class Bitboard
     {
+        // ReSharper disable once CollectionNeverUpdated.Local - used as lock
         private static readonly List<string> LLock = new List<string>();
         private static Bitboard instance;
-        private readonly IMovingPiece _king;
-        private readonly Knight _knight;
-        private readonly Pawn _pawn;
-        internal readonly SlidingPiece Bishop;
-        internal readonly SlidingPiece Rook;
+
+        public static Bitboard Instance
+        {
+            get
+            {
+                lock (LLock)
+                {
+                    return instance ??= new Bitboard();
+                }
+            }
+        }
 
         private Bitboard()
         {
@@ -33,16 +40,11 @@ namespace ChessLib.Core.MagicBitboard
             _knight = new Knight();
         }
 
-        public static Bitboard Instance
-        {
-            get
-            {
-                lock (LLock)
-                {
-                    return instance ?? (instance = new Bitboard());
-                }
-            }
-        }
+        private readonly IMovingPiece _king;
+        private readonly Knight _knight;
+        private readonly Pawn _pawn;
+        internal readonly SlidingPiece Bishop;
+        internal readonly SlidingPiece Rook;
 
         public IEnumerable<IMove> GetLegalMoves(ushort squareIndex, ulong[][] occupancy, ushort? enPassantIdx,
             CastlingAvailability castlingAvailability)
@@ -78,7 +80,8 @@ namespace ChessLib.Core.MagicBitboard
             foreach (var move in moves)
             {
                 var moveValidator =
-                    new MoveValidator(new Board(occupancy, 0, enPassantIdx, null, castlingAvailability, color, 0, false),
+                    new MoveValidator(
+                        new Board(occupancy, 0, enPassantIdx, null, castlingAvailability, color, 0, false),
                         move);
                 var validationResult = moveValidator.Validate();
                 if (validationResult == MoveError.NoneSet)

@@ -7,11 +7,7 @@ namespace ChessLib.Core.Helpers
     public static class PieceHelpers
     {
         internal static readonly int King = (int) Piece.King;
-        internal static readonly int Queen = (int) Piece.Queen;
-        internal static readonly int Rook = (int) Piece.Rook;
-        internal static readonly int Bishop = (int) Piece.Bishop;
-        internal static readonly int Knight = (int) Piece.Knight;
-        internal static readonly int Pawn = (int) Piece.Pawn;
+
 
 
         /// <summary>
@@ -115,7 +111,7 @@ namespace ChessLib.Core.Helpers
         /// <returns></returns>
         public static PieceOfColor GetPieceOfColor(char p)
         {
-            var poc = new PieceOfColor {Color = char.IsUpper(p) ? Color.White : Color.Black, Piece = GetPiece(p)};
+            var poc = new PieceOfColor(GetPiece(p), char.IsUpper(p) ? Color.White : Color.Black);
             return poc;
         }
 

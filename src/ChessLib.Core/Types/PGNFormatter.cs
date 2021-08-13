@@ -26,13 +26,9 @@ namespace ChessLib.Core.Types
 
         private readonly PGNFormatterOptions _options;
         private readonly List<string> _tagsToKeep = new List<string>();
-        private Game _game;
-        private string _initialFEN;
 
         public string BuildPgn(Game game)
         {
-            _game = game;
-            _initialFEN = game.Tags.FENStart;
             //var tagSection = BuildTags(_game.Tags);
             //var treeRoot = _game.InitialPosition;
             //var moveSection = BuildMoveTree(treeRoot, _initialFEN);

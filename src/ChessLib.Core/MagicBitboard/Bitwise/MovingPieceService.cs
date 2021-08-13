@@ -232,7 +232,6 @@ namespace ChessLib.Core.MagicBitboard.Bitwise
             return (ulong) 1 << idx;
         }
 
-       
 
         /// <summary>
         ///     Sets a bit (specified by <paramref name="boardIndex">bitIndex</paramref>) on a ulong by ORing the value with 1 SHL
@@ -262,8 +261,8 @@ namespace ChessLib.Core.MagicBitboard.Bitwise
         {
             return boardRep & ~(1ul << bitIndex);
         }
-        
-       
+
+
         private void Initialize()
         {
         }
@@ -275,13 +274,11 @@ namespace ChessLib.Core.MagicBitboard.Bitwise
             var index = idx + 1;
             if (index < setBits.Length)
             {
-                using (var occupancyPermutations =
-                    GetAllPermutationsOfSetBits(setBits, index, value).GetEnumerator())
+                using var occupancyPermutations =
+                    GetAllPermutationsOfSetBits(setBits, index, value).GetEnumerator();
+                while (occupancyPermutations.MoveNext())
                 {
-                    while (occupancyPermutations.MoveNext())
-                    {
-                        yield return occupancyPermutations.Current;
-                    }
+                    yield return occupancyPermutations.Current;
                 }
             }
 
@@ -289,14 +286,12 @@ namespace ChessLib.Core.MagicBitboard.Bitwise
             yield return value;
             if (index < setBits.Length)
             {
-                using (var occupancyPermutations =
+                using var occupancyPermutations =
                     GetAllPermutationsOfSetBits(setBits, index, value)
-                        .GetEnumerator())
+                        .GetEnumerator();
+                while (occupancyPermutations.MoveNext())
                 {
-                    while (occupancyPermutations.MoveNext())
-                    {
-                        yield return occupancyPermutations.Current;
-                    }
+                    yield return occupancyPermutations.Current;
                 }
             }
         }

@@ -10,7 +10,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.EnPassantRules
         {
             var rank = move.SourceIndex / 8;
             var error = MoveError.EpWrongSourceRank;
-            return (boardInfo.ActivePlayer == Color.Black && rank == 3) ||
+            return boardInfo.ActivePlayer == Color.Black && rank == 3 ||
                    boardInfo.ActivePlayer == Color.White && rank == 4
                 ? MoveError.NoneSet
                 : error;

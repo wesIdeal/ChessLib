@@ -41,10 +41,10 @@ namespace ChessLib.Core.Types.Enums.NAG
         BlackWinning = 21,
 
         [Symbol("⨀")] [Description("White is in zugzwang")]
-        WhiteZugZwang = 22,
+        WhiteZugzwang = 22,
 
         [Symbol("⨀")] [Description("Black is in zugzwang")]
-        BlackZugZwang = 23,
+        BlackZugzwang = 23,
 
         [Symbol("")] [Description("White has a slight space advantage")]
         WhiteSlightSpaceAdvantage = 24,

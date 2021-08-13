@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.BoardValidation.Rules;
 
 namespace ChessLib.Core.Validation.Validators.BoardValidation
@@ -13,14 +12,12 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation
 
     public class BoardValidator : IBoardValidator
     {
-        private readonly List<IBoardRule> _rules = new List<IBoardRule>();
-
         /// <summary>
         ///     BoardValidator constructor
         /// </summary>
-        /// <param name="board"></param>
         public BoardValidator() :
-            this(new PawnCountRule(), new PieceCountRule(), new EnPassantPositionRule(), new EnPassantSquareIndexRule(), new OpponentInCheckRule(), new EndOfGameRule())
+            this(new PawnCountRule(), new PieceCountRule(), new EnPassantPositionRule(), new EnPassantSquareIndexRule(),
+                new OpponentInCheckRule(), new EndOfGameRule())
         {
         }
 
@@ -28,6 +25,9 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation
         {
             _rules.AddRange(boardRules.Where(x => x != null));
         }
+
+        private readonly List<IBoardRule> _rules = new List<IBoardRule>();
+
         public BoardExceptionType Validate(in Board board)
         {
             var rv = BoardExceptionType.None;
@@ -49,7 +49,5 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation
 
             return rv;
         }
-
-
     }
 }

@@ -3,11 +3,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Interfaces;
-using ChessLib.Core.Validation.Validators.FENValidation;
 using EnumsNET;
+
 [assembly: InternalsVisibleTo("ChessLib.Core.Tests")]
+
 namespace ChessLib.Core.Helpers
 {
     public static class FENHelpers
@@ -15,7 +14,6 @@ namespace ChessLib.Core.Helpers
         internal static readonly char[] ValidFENChars =
             {'/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8'};
 
-      
 
         internal static string FENFromBoard(this Board board)
         {
@@ -46,8 +44,6 @@ namespace ChessLib.Core.Helpers
             return ranks;
         }
 
-      
-
 
         /// <summary>
         ///     Converts a board Index (0 = 1st Rank) to the PremoveFEN Index (7 = 1st Rank)
@@ -56,11 +52,9 @@ namespace ChessLib.Core.Helpers
         /// <returns>the corresponding board index</returns>
         internal static int BoardIndexToFENIndex(ushort idx)
         {
-            var rankOffset = ((ushort)(idx / 8)).RankCompliment();
+            var rankOffset = ((ushort) (idx / 8)).RankCompliment();
             return rankOffset * 8 + idx % 8;
         }
-
-
 
 
         /// <summary>
@@ -72,7 +66,7 @@ namespace ChessLib.Core.Helpers
         internal static string GetFENPiece(this string fen, FENPieces piece)
         {
             var fenPieces = fen.Split(' ');
-            return fenPieces[(int)piece];
+            return fenPieces[(int) piece];
         }
 
 
@@ -80,18 +74,18 @@ namespace ChessLib.Core.Helpers
         {
             var pieceSection = new char[64];
             for (var iColor = 0; iColor < 2; iColor++)
-                for (var iPiece = 0; iPiece < 6; iPiece++)
+            for (var iPiece = 0; iPiece < 6; iPiece++)
+            {
+                var pieceArray = piecesOnBoard[iColor][iPiece];
+                var charRepForPieceOfColor = PieceHelpers.GetFENCharPieceRepresentation((Color) iColor, (Piece) iPiece);
+                while (pieceArray != 0)
                 {
-                    var pieceArray = piecesOnBoard[iColor][iPiece];
-                    var charRepForPieceOfColor = PieceHelpers.GetFENCharPieceRepresentation((Color)iColor, (Piece)iPiece);
-                    while (pieceArray != 0)
-                    {
-                        var squareIndex = BitHelpers.BitScanForward(pieceArray);
-                        var fenIndex = BoardIndexToFENIndex(squareIndex);
-                        pieceSection[fenIndex] = charRepForPieceOfColor;
-                        pieceArray &= pieceArray - 1;
-                    }
+                    var squareIndex = BitHelpers.BitScanForward(pieceArray);
+                    var fenIndex = BoardIndexToFENIndex(squareIndex);
+                    pieceSection[fenIndex] = charRepForPieceOfColor;
+                    pieceArray &= pieceArray - 1;
                 }
+            }
 
             var sb = new StringBuilder();
             for (var rank = 0; rank < 8; rank++) //start at PremoveFEN Rank of zero -> 7
@@ -144,12 +138,11 @@ namespace ChessLib.Core.Helpers
             return s;
         }
 
-       
 
         public static string SanitizeFenString(string fen)
         {
             fen = fen.Trim();
-            Regex regex = new Regex("[ ]{2,}", RegexOptions.None);
+            var regex = new Regex("[ ]{2,}", RegexOptions.None);
             fen = regex.Replace(fen, " ");
             return fen;
         }

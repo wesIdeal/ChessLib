@@ -11,6 +11,7 @@ namespace ChessLib.Core.Types.GameTree
     /// <remarks>Dispose is empty and unnecessary.</remarks>
     public abstract class GameEnumerator : IEnumerator<BoardNode>
     {
+        private BoardNode _current;
         protected const int MainLineIndex = 0;
 
         public bool MoveNext()
@@ -20,7 +21,15 @@ namespace ChessLib.Core.Types.GameTree
 
         public abstract void Reset();
 
-        public BoardNode Current { get; protected set; }
+        public BoardNode Current
+        {
+            get
+            {
+                Debug.Assert(_current != null, $"{nameof(Current)} cannot be null.");
+                return _current;
+            }
+            protected set => _current = value;
+        }
 
         object IEnumerator.Current => Current;
 
@@ -70,7 +79,7 @@ namespace ChessLib.Core.Types.GameTree
                 return false;
             }
 
-            Current = BoardNodeFactory.UnapplyMoveFromBoard(Current);
+            Current = BoardNodeFactory.UnApplyMoveFromBoard(Current);
             return true;
         }
     }

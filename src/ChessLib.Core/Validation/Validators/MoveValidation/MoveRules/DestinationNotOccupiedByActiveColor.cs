@@ -1,5 +1,4 @@
-﻿using System;
-using ChessLib.Core.Helpers;
+﻿using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 

@@ -1,12 +1,10 @@
 ﻿using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 {
     public class CastlingAvailabilityRule : IBoardRule
     {
-
         public BoardExceptionType Validate(in Board boardInfo)
         {
             var rv = BoardExceptionType.None;

@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-using ChessLib.Core.Helpers;
-using ChessLib.Core.Translate;
+﻿using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.GameTree;
 using ChessLib.Core.Types.Tree;
+
+// ReSharper disable PossibleNullReferenceException
 
 namespace ChessLib.Core
 {
@@ -22,7 +22,6 @@ namespace ChessLib.Core
         /// </remarks>
         public void ApplyMove(string san, MoveApplicationStrategy moveApplicationStrategy)
         {
-            Debug.Assert(Current != null);
             var move = sanToMove.GetMoveFromSAN(Current.Board, san);
             ApplyMove(move, moveApplicationStrategy);
         }

@@ -4,8 +4,20 @@ using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Core.MagicBitboard.MovingPieces
 {
-   internal class King: MovingPiece
+    internal class King : MovingPiece
     {
+        private readonly Func<ulong, ulong>[] _kingDirectionMethods =
+        {
+            MovingPieceService.ShiftN,
+            MovingPieceService.ShiftS,
+            MovingPieceService.ShiftW,
+            MovingPieceService.ShiftE,
+            MovingPieceService.ShiftNE,
+            MovingPieceService.ShiftNW,
+            MovingPieceService.ShiftSW,
+            MovingPieceService.ShiftSE
+        };
+
         public override ulong GetPseudoLegalMoves(ushort square, Color playerColor, ulong occupancy)
         {
             return GetMoves(square);
@@ -18,12 +30,13 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
 
         internal ulong GetMoves(ushort square)
         {
-            ulong squareValue = MovingPieceService.GetBoardValueOfIndex(square);
+            var squareValue = MovingPieceService.GetBoardValueOfIndex(square);
             ulong squares = 0;
             foreach (var shift in _kingDirectionMethods)
             {
                 squares |= shift(squareValue);
             }
+
             return squares;
         }
 
@@ -39,17 +52,5 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
                     throw new ArgumentOutOfRangeException(nameof(color), color, null);
             }
         }
-
-        private readonly Func<ulong, ulong>[] _kingDirectionMethods =
-            {
-                MovingPieceService.ShiftN,
-                MovingPieceService.ShiftS,
-                MovingPieceService.ShiftW,
-                MovingPieceService.ShiftE,
-                MovingPieceService.ShiftNE,
-                MovingPieceService.ShiftNW,
-                MovingPieceService.ShiftSW,
-                MovingPieceService.ShiftSE
-            };
     }
 }

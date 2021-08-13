@@ -9,40 +9,6 @@ namespace ChessLib.Core.Types
 
     public class Tags : Dictionary<string, string>, IEquatable<Tags>
     {
-        public readonly string[] RequiredTagKeys = { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
-        public OnFenChangedCallback OnFenChanged;
-
-
-        public Tags(OnFenChangedCallback onFenChanged = null)
-        {
-            OnFenChanged = onFenChanged;
-            foreach (var requiredTag in RequiredTagKeys)
-            {
-                Add(requiredTag, "?");
-            }
-            OnFENChanged(FENStart);
-        }
-
-        /// <summary>
-        ///     Copies the elements from <paramref name="tags" /> into a new object.
-        /// </summary>
-        /// <param name="tags"></param>
-        public Tags(Tags tags) : base(tags)
-        {
-        }
-
-        public Tags(string fen) : this(fen, null)
-        {
-
-        }
-        public Tags(string fen, Tags tags) : this(tags ?? new Tags())
-        {
-            if (fen != BoardConstants.FenStartingPosition)
-            {
-                SetFen(fen);
-            }
-        }
-
         public string Event
         {
             get => ContainsKey("Event") ? this["Event"] : "";
@@ -94,6 +60,7 @@ namespace ChessLib.Core.Types
         }
 
         public bool HasSetup => ContainsKey("FEN") || ContainsKey("SetUp") && this["SetUp"] == "1";
+
         public string FENStart
         {
             get
@@ -122,6 +89,66 @@ namespace ChessLib.Core.Types
         {
             get => ContainsKey("Black") ? this["Black"] : "";
             set => Add("Black", value);
+        }
+
+
+        public Tags(OnFenChangedCallback onFenChanged = null)
+        {
+            OnFenChanged = onFenChanged;
+            foreach (var requiredTag in RequiredTagKeys)
+            {
+                Add(requiredTag, "?");
+            }
+
+            OnFENChanged(FENStart);
+        }
+
+        /// <summary>
+        ///     Copies the elements from <paramref name="tags" /> into a new object.
+        /// </summary>
+        /// <param name="tags"></param>
+        public Tags(Tags tags) : base(tags)
+        {
+        }
+
+        public Tags(string fen) : this(fen, null)
+        {
+        }
+
+        public Tags(string fen, Tags tags) : this(tags ?? new Tags())
+        {
+            if (fen != BoardConstants.FenStartingPosition)
+            {
+                SetFen(fen);
+            }
+        }
+
+        public readonly string[] RequiredTagKeys = {"Event", "Site", "Date", "Round", "White", "Black", "Result"};
+        public OnFenChangedCallback OnFenChanged;
+
+        public bool Equals(Tags other)
+        {
+            if (other == null || Keys.Count != other.Keys.Count)
+            {
+                return false;
+            }
+
+            var theseKeys = Keys.OrderBy(x => x);
+
+            foreach (var key in theseKeys)
+            {
+                if (!other.ContainsKey(key))
+                {
+                    return false;
+                }
+
+                if (this[key] != other[key])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public string Get(string key)
@@ -163,37 +190,12 @@ namespace ChessLib.Core.Types
             OnFenChanged?.Invoke(fen);
         }
 
-        public bool Equals(Tags other)
-        {
-            if (other == null || Keys.Count != other.Keys.Count)
-            {
-                return false;
-            }
-            var theseKeys = Keys.OrderBy(x => x);
-
-            foreach (var key in theseKeys)
-            {
-                if (!other.ContainsKey(key))
-                {
-                    return false;
-                }
-
-                if (this[key] != other[key])
-                {
-                    return false;
-                }
-
-            }
-
-            return true;
-        }
-
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((Tags)obj);
+            if (obj.GetType() != GetType()) return false;
+            return Equals((Tags) obj);
         }
 
         public override int GetHashCode()

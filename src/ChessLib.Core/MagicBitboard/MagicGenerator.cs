@@ -10,7 +10,7 @@ namespace ChessLib.Core.MagicBitboard
         /// </summary>
         /// <param name="moveObstructionBoards">The object containing occupancy and resultant moves</param>
         /// <returns>The magic key which was found</returns>
-        public Core.MagicBitboard.Storage.MagicBitboard GenerateMagicKey(MoveObstructionBoard[] moveObstructionBoards)
+        public Storage.MagicBitboard GenerateMagicKey(MoveObstructionBoard[] moveObstructionBoards)
         {
             var countOfSetBits = 12;
             var maxMoves = 1 << countOfSetBits;
@@ -18,7 +18,7 @@ namespace ChessLib.Core.MagicBitboard
             var attackArray = new ulong[maxMoves];
             Array.Copy(emptyArray, attackArray, maxMoves);
 
-            var key = (ulong)0;
+            var key = (ulong) 0;
             var foundCollision = true;
             while (foundCollision)
             {
@@ -38,7 +38,7 @@ namespace ChessLib.Core.MagicBitboard
                 }
             }
 
-            return new Core.MagicBitboard.Storage.MagicBitboard(key, attackArray);
+            return new Storage.MagicBitboard(key, attackArray);
         }
 
         #region Random Number Helpers
@@ -47,8 +47,8 @@ namespace ChessLib.Core.MagicBitboard
 
         public ulong NextRandom()
         {
-            var leftPart = (ulong)_random.Next() << 32;
-            var rightPart = (ulong)_random.Next();
+            var leftPart = (ulong) _random.Next() << 32;
+            var rightPart = (ulong) _random.Next();
             return leftPart | rightPart;
         }
 

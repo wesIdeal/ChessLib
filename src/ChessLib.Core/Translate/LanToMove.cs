@@ -1,24 +1,26 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 
 [assembly: InternalsVisibleTo("ChessLib.EngineInterface.UCI")]
+
 namespace ChessLib.Core.Translate
 {
     public class LanVariationToMoves : ChessDto<IEnumerable<string>, IEnumerable<Move>>
     {
         private static readonly LanToMove lanToMove = new LanToMove();
+
         public override IEnumerable<Move> Translate(IEnumerable<string> strMoves)
         {
             foreach (var move in strMoves)
             {
-                yield return LanVariationToMoves.lanToMove.Translate(move);
+                yield return lanToMove.Translate(move);
             }
         }
     }
+
     public class LanToMove : ChessDto<string, Move>
     {
         /// <summary>

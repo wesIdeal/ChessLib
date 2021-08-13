@@ -28,8 +28,7 @@ namespace ChessLib.Core
             new Dictionary<string, BoardStateBitHelpers>();
 
 
-        protected EndOfGameRule EndOfGameRule = new EndOfGameRule();
-        private readonly bool _bypassValidation = false;
+        private readonly bool _bypassValidation;
 
         static BoardState()
         {
@@ -73,10 +72,7 @@ namespace ChessLib.Core
             
         }
 
-        public BoardState(BoardState nodeBoardState):this()
-        {
-            BoardStateStorage = nodeBoardState?.BoardStateStorage ?? 0;
-        }
+
 
         public bool IsEndOfGame
         {

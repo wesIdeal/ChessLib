@@ -1,28 +1,31 @@
-﻿using ChessLib.Core.Helpers;
-using ChessLib.Core.Types.Enums;
+﻿using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Core
 {
-    public struct PieceOfColor
+    public readonly struct PieceOfColor
     {
-        public Color Color { get; set; }
-        public Piece Piece { get; set; }
+        public Color Color { get;  }
+        public Piece Piece { get;  }
 
+        public PieceOfColor(Piece piece, Color color)
+        {
+            Piece = piece;
+            Color = color;
+        }
         public override bool Equals(object obj)
         {
-            if (!(obj is PieceOfColor))
+            if (!(obj is PieceOfColor actual))
             {
                 return false;
             }
 
-            var actual = (PieceOfColor)obj;
             return Color == actual.Color &&
                    Piece == actual.Piece;
         }
 
         public override int GetHashCode()
         {
-            return (int)Color ^ (int)Piece;
+            return (int) Color ^ (int) Piece;
         }
 
         public override string ToString()
@@ -42,18 +45,18 @@ namespace ChessLib.Core
 
         public static ulong GetPieceHashValue(Color c, Piece p)
         {
-            var nPiece = (int)p * 2;
+            var nPiece = (int) p * 2;
             if (c == Color.White)
             {
                 nPiece += 1;
             }
 
-            return (ulong)nPiece;
+            return (ulong) nPiece;
         }
 
         public ulong GetPieceHashValue()
         {
-            return GetPieceHashValue(this.Color, this.Piece);
+            return GetPieceHashValue(Color, Piece);
         }
     }
 }
