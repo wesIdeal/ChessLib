@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Types.Tree;
 
 namespace ChessLib.Core.Types.GameTree
 {
@@ -47,11 +48,10 @@ namespace ChessLib.Core.Types.GameTree
         public virtual bool MoveNext(int continuationIndex)
         {
             Debug.Assert(Current != null);
-            if (continuationIndex < Current.Continuations.Count)
+            if (continuationIndex < Current.Node.Continuations.Count)
             {
-                var continuation = Current.Continuations[continuationIndex];
-                var postMoveBoard = Current.Board.ApplyMoveToBoard(continuation.Value.MoveValue);
-                Current = new BoardNode(postMoveBoard, continuation);
+                var continuation = Current.Node.Continuations[continuationIndex];
+                Current = BoardNodeFactory.ApplyExistingNode(Current.Board, continuation);
                 return true;
             }
 
@@ -60,7 +60,7 @@ namespace ChessLib.Core.Types.GameTree
 
         public virtual bool MoveNext(ushort move)
         {
-            var index = Current.Continuations.FindIndex(0, x => x.Value.MoveValue == move);
+            var index = Current.Node.Continuations.FindIndex(0, x => x.Value.MoveValue == move);
             return index >= 0 && MoveNext(index);
         }
 
@@ -72,15 +72,11 @@ namespace ChessLib.Core.Types.GameTree
         public bool MovePrevious()
         {
             Debug.Assert(Current != null);
-            if (Current.Previous == null)
+            if (Current.Node.Previous == null)
             {
                 return false;
             }
-
-            var previousBoard = Current.Board.UnapplyMoveFromBoard((BoardState) Current.Previous.Value.BoardState,
-                Current.Value.MoveValue);
-            var previousBoardNode = new BoardNode(previousBoard, Current.Previous);
-            Current = previousBoardNode;
+            Current = BoardNodeFactory.UnapplyMoveFromBoard(Current);
             return true;
         }
     }

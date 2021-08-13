@@ -27,11 +27,11 @@ namespace ChessLib.Core
             ApplyMove(move, moveApplicationStrategy);
         }
 
-        internal void ApplyMove(Move move, MoveApplicationStrategy moveApplicationStrategy)
+        public void ApplyMove(Move move, MoveApplicationStrategy moveApplicationStrategy)
         {
-            var postMoveBoard = Current?.Board.ApplyMoveToBoard(move);
-            var postMoveNode = Current?.AddNode(new PostMoveState(postMoveBoard, move, ""));
-            Current = new BoardNode(postMoveBoard, postMoveNode);
+            var postMoveBoardNode = BoardNodeFactory.ApplyMoveToBoard(Current, move);
+            Current.Node.AddNode(postMoveBoardNode.Node);
+            Current = postMoveBoardNode;
         }
     }
 }

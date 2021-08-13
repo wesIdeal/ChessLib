@@ -16,7 +16,7 @@ namespace ChessLib.Core
         
         public BoardNode InitialNode { get; }
 
-        public PostMoveState[] NextMoves => Current?.Continuations.Select(x => x.Value).ToArray();
+        public PostMoveState[] NextMoves => Current?.Node.Continuations.Select(x => x.Value).ToArray();
         public GameResult GameResult { get; set; }
         public string Result { get; set; }
         public int PlyCount => throw new NotImplementedException();
@@ -63,12 +63,12 @@ namespace ChessLib.Core
         /// </summary>
         public void ExitVariation()
         {
-            var currentBoardStateHash = Current.Value.BoardStateHash;
+            var currentBoardStateHash = Current.Node.Value.BoardStateHash;
 
             while (MovePrevious() &&
                    !Current.Variations.Select(x => x.Value.BoardStateHash).Contains(currentBoardStateHash))
             {
-                currentBoardStateHash = Current.Value.BoardStateHash;
+                currentBoardStateHash = Current.Node.Value.BoardStateHash;
             }
         }
 

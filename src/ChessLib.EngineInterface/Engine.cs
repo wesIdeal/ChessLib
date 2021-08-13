@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ChessLib.Core;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
+using ChessLib.Core.Types.Enums;
 using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands;
 
@@ -252,7 +253,7 @@ namespace ChessLib.EngineInterface
             get
             {
                 var board = StartingBoard;
-                Moves.ForEach(mv => { board.ApplyMove(mv); });
+                Moves.ForEach(mv => { board.ApplyMove(mv, MoveApplicationStrategy.ContinueMainLine); });
                 return (Board) StartingBoard.InitialNode.Board.Clone();
             }
         }

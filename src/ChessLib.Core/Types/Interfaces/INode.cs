@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ChessLib.Core.Types.Tree;
 
 namespace ChessLib.Core.Types.Interfaces
 {
@@ -9,5 +10,6 @@ namespace ChessLib.Core.Types.Interfaces
         T Value { get; }
         List<INode<T>> Continuations { get; }
         INode<T> AddNode(T nodeValue);
+        INode<T> AddNode(INode<T> nodeValue);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
 namespace ChessLib.Core.Tests
@@ -15,7 +16,7 @@ namespace ChessLib.Core.Tests
             var game = new Game(fen);
             var lanToMove = new LanToMove();
             var move = lanToMove.Translate(lan);
-            game.AddContinuation(move);
+            game.ApplyMove(move, MoveApplicationStrategy.ContinueMainLine);
             var pgnOutput = _moveFormatter.BuildPgn(game);
             Assert.AreEqual(expected, pgnOutput);
         }

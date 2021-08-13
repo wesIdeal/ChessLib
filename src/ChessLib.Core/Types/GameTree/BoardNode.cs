@@ -6,15 +6,19 @@ using ChessLib.Core.Types.Tree;
 
 namespace ChessLib.Core.Types.GameTree
 {
-    public class BoardNode : TreeNode<PostMoveState>, IEquatable<BoardNode>
+    public class BoardNode : IEquatable<BoardNode>
     {
         public Board Board { get; protected set; }
+        public INode<PostMoveState> Node { get; protected set; }
         public string Fen => Board.Fen;
-        public List<INode<PostMoveState>> Variations => Continuations.Skip(1).ToList();
 
-        public BoardNode(Board initialBoard) : base(new PostMoveState(initialBoard), null)
+
+        public List<INode<PostMoveState>> Variations => Node.Continuations.Skip(1).ToList();
+
+        public BoardNode(Board rootNodeBoard)
         {
-            Board = (Board) initialBoard.Clone();
+            Board = (Board)rootNodeBoard.Clone();
+            Node = new TreeNode<PostMoveState>(new PostMoveState(Board, Move.NullMove, ""), null);
         }
 
         /// <summary>
@@ -22,16 +26,17 @@ namespace ChessLib.Core.Types.GameTree
         /// </summary>
         /// <param name="board"></param>
         /// <param name="postMoveStateNode"></param>
-        public BoardNode(Board board, INode<PostMoveState> postMoveStateNode) : base(postMoveStateNode)
+        public BoardNode(Board board, INode<PostMoveState> postMoveStateNode)
         {
-            Board = (Board) board.Clone();
+            Board = (Board)board.Clone();
+            Node = postMoveStateNode;
         }
 
         public bool Equals(BoardNode other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(Board, other.Board) && Value.Equals(other.Value);
+            return Equals(Board, other.Board) && Node.Equals(other.Node);
         }
 
         public override bool Equals(object obj)
@@ -39,7 +44,7 @@ namespace ChessLib.Core.Types.GameTree
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((BoardNode) obj);
+            return Equals((BoardNode)obj);
         }
 
         public override int GetHashCode()

@@ -24,10 +24,10 @@ namespace ChessLib.Core.Tests
             var expected = new Board();
             var game = new Game();
             Assert.AreEqual(expected, game.InitialNode.Board);
-            Assert.IsTrue(((Move)game.InitialNode.Value.MoveValue).IsNullMove);
-            Assert.AreEqual(string.Empty, game.InitialNode.Value.San);
-            Assert.AreEqual(string.Empty, game.InitialNode.Value.Comment);
-            Assert.AreEqual(null, game.InitialNode.Value.Annotation);
+            Assert.IsTrue(((Move)game.InitialNode.Node.Value.MoveValue).IsNullMove);
+            Assert.AreEqual(string.Empty, game.InitialNode.Node.Value.San);
+            Assert.AreEqual(string.Empty, game.InitialNode.Node.Value.Comment);
+            Assert.AreEqual(null, game.InitialNode.Node.Value.Annotation);
         }
 
         [TestCaseSource(nameof(GetConstructorTestCases))]
