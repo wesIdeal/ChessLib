@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
@@ -9,11 +10,16 @@ using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.GameTree;
 using ChessLib.Core.Types.Interfaces;
 // ReSharper disable PossibleNullReferenceException
-
+[assembly: InternalsVisibleTo("ChessLib.Parse.Tests")]
 namespace ChessLib.Core
 {
     public static class GameHelpers
     {
+        /// <summary>
+        /// Returns the complete main line of the game, not jumping to variation branches.
+        /// </summary>
+        /// <param name="game">The game to get the main line from</param>
+        /// <returns>Returns a collection of <see cref="PostMoveState"/> objects containing board and move information for each move of the game.</returns>
         public static IEnumerable<INode<PostMoveState>> MainLine(this Game game)
         {
             var mainLine = game.InitialNode.Node.Continuations.MainLine();
@@ -89,6 +95,8 @@ namespace ChessLib.Core
         }
 
         public Move CurrentMove => Current.Node.Value.MoveValue;
+        public string CurrentSan => Current.Node.Value.San;
+
         public void AddNag(NumericAnnotation nag)
         {
            CurrentAnnotation.ApplyNag(nag);
