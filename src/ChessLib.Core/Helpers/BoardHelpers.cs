@@ -787,7 +787,7 @@ namespace ChessLib.Core.Helpers
         }
 
         /// <summary>
-        ///     Gets a Rank basked on boardIndex index
+        ///     Gets a Rank basked on boardIndex index, 0-7 [ranks 1 - 8]
         /// </summary>
         /// <exception cref="ArgumentException">
         ///     if

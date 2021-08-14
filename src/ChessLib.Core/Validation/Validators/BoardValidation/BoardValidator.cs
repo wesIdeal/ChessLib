@@ -16,7 +16,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation
         ///     BoardValidator constructor
         /// </summary>
         public BoardValidator() :
-            this(new PawnCountRule(), new PieceCountRule(), new EnPassantPositionRule(), new EnPassantSquareIndexRule(),
+            this(new PawnCountRule(), new PieceCountRule(), new EnPassantPositionRule(),
                 new OpponentInCheckRule(), new EndOfGameRule())
         {
         }

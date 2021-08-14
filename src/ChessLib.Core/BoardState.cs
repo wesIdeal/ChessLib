@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using ChessLib.Core.Helpers;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Validation.Validators.BoardValidation.Rules;
 using EnumsNET;
 
 [assembly: InternalsVisibleTo("ChessLib.Core.Tests.Helpers")]
@@ -28,57 +26,11 @@ namespace ChessLib.Core
             new Dictionary<string, BoardStateBitHelpers>();
 
 
-        private readonly bool _bypassValidation;
-
-        static BoardState()
-        {
-            InitializeMasks();
-        }
-        internal BoardState()
-        {
-            BoardStateStorage = 0;
-            
-        }
-
-        /// <summary>
-        ///     Makes an archival board state
-        /// </summary>
-        /// <param name="halfMoveClock">Half move clock. Must be less than 256</param>
-        /// <param name="enPassantIndex">Board index (a1 = 0, h8 = 63) of the EP square, if any</param>
-        /// <param name="capturedPiece">The piece that was captured, if any</param>
-        /// <param name="castlingAvailability">Castling Availability</param>
-        /// <param name="activePlayer">Player to move</param>
-        /// <param name="fullMoveCounter">Number of whole moves played</param>
-        /// <param name="gameState">Game state of current board. </param>
-        protected BoardState(byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
-            CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
-            GameState gameState = GameState.None) : this()
-        {
-            SetBoardState(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer,
-                fullMoveCounter, gameState);
-        }
-
-        protected BoardState(string strFen, bool bypassValidation) : this()
-        {
-            _bypassValidation = bypassValidation;
-            var fen = new FenTextToBoard() { BypassValidation = bypassValidation }.Translate(strFen);
-            SetBoardState(fen.HalfMoveClock, fen.EnPassantIndex, null, fen.CastlingAvailability, fen.ActivePlayer,
-                fen.FullMoveCounter);
-        }
-
-        public BoardState(uint boardStateStorage) :this()
-        {
-            BoardStateStorage = boardStateStorage;
-            
-        }
-
-
-
         public bool IsEndOfGame
         {
             get
             {
-                var endOfGameStates = new[] { GameState.Checkmate, GameState.StaleMate };
+                var endOfGameStates = new[] {GameState.Checkmate, GameState.StaleMate};
                 return endOfGameStates.Contains(GameState);
             }
         }
@@ -102,7 +54,7 @@ namespace ChessLib.Core
             {
                 var gsInfo = Positions[GameStateKey];
                 var unmasked = (BoardStateStorage & gsInfo.Mask) >> gsInfo.Offset;
-                return (GameState)unmasked;
+                return (GameState) unmasked;
             }
             set
             {
@@ -121,7 +73,7 @@ namespace ChessLib.Core
             {
                 var maskedVal = (BoardStateStorage & Positions[CastlingAvailabilityKey].Mask) >>
                                 Positions[CastlingAvailabilityKey].Offset;
-                return (CastlingAvailability)maskedVal;
+                return (CastlingAvailability) maskedVal;
             }
             set
             {
@@ -137,7 +89,7 @@ namespace ChessLib.Core
             {
                 var activePlayerInfo = Positions[ActivePlayerKey];
                 var unmasked = (BoardStateStorage & activePlayerInfo.Mask) >> activePlayerInfo.Offset;
-                return (Color)unmasked;
+                return (Color) unmasked;
             }
             set
             {
@@ -155,7 +107,7 @@ namespace ChessLib.Core
                 var pieceCapturedInfo = Positions[PieceCapturedKey];
                 var unmasked = BoardStateStorage & pieceCapturedInfo.Mask;
                 var notOffset = unmasked >> pieceCapturedInfo.Offset;
-                return notOffset == 0 ? (Piece?)null : (Piece)(notOffset - 1);
+                return notOffset == 0 ? (Piece?) null : (Piece) (notOffset - 1);
             }
             set
             {
@@ -177,14 +129,13 @@ namespace ChessLib.Core
 
                 if (idx <= 8)
                 {
-                    return (ushort?)(idx + 15);
+                    return (ushort?) (idx + 15);
                 }
 
-                return (ushort?)(idx + 31);
+                return (ushort?) (idx + 31);
             }
             set
             {
-                ValidateEnPassantSquare(value);
                 var clearValue = GetClearValue(EnPassantIndexKey);
                 var clearedEnPassantValue = clearValue & BoardStateStorage;
                 var storageValue = GetEnPassantStorageValue(value);
@@ -198,7 +149,7 @@ namespace ChessLib.Core
             get
             {
                 var hmInfo = Positions[HalfMoveClockKey];
-                return (byte)((BoardStateStorage & hmInfo.Mask) >> hmInfo.Offset);
+                return (byte) ((BoardStateStorage & hmInfo.Mask) >> hmInfo.Offset);
             }
             set
             {
@@ -226,6 +177,52 @@ namespace ChessLib.Core
         }
 
 
+        static BoardState()
+        {
+            InitializeMasks();
+        }
+
+        internal BoardState()
+        {
+            BoardStateStorage = 0;
+        }
+
+        /// <summary>
+        ///     Makes an archival board state
+        /// </summary>
+        /// <param name="halfMoveClock">Half move clock. Must be less than 256</param>
+        /// <param name="enPassantIndex">Board index (a1 = 0, h8 = 63) of the EP square, if any</param>
+        /// <param name="capturedPiece">The piece that was captured, if any</param>
+        /// <param name="castlingAvailability">Castling Availability</param>
+        /// <param name="activePlayer">Player to move</param>
+        /// <param name="fullMoveCounter">Number of whole moves played</param>
+        /// <param name="gameState">Game state of current board. </param>
+        protected BoardState(byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
+            CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
+            GameState gameState = GameState.None) : this()
+        {
+            SetBoardState(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer,
+                fullMoveCounter, gameState);
+        }
+
+        protected BoardState(string strFen) : this()
+        {
+            var fen = new FenTextToBoard().Translate(strFen);
+            SetBoardState(fen.HalfMoveClock, fen.EnPassantIndex, null, fen.CastlingAvailability, fen.ActivePlayer,
+                fen.FullMoveCounter);
+        }
+
+        public BoardState(uint boardStateStorage) : this()
+        {
+            BoardStateStorage = boardStateStorage;
+        }
+
+        public object Clone()
+        {
+            return new BoardState(BoardStateStorage);
+        }
+
+
         /// <summary>
         ///     Represents the player who is about to move.
         /// </summary>
@@ -243,30 +240,10 @@ namespace ChessLib.Core
         {
             var epInfo = Positions[EnPassantIndexKey];
             var unMasked = BoardStateStorage & epInfo.Mask;
-            var idx = (ushort)(unMasked >> epInfo.Offset);
+            var idx = (ushort) (unMasked >> epInfo.Offset);
             return idx;
         }
 
-        internal virtual void ValidateEnPassantSquare(ushort? value)
-        {
-            if (_bypassValidation)
-            {
-                return;
-            }
-            if (value != null)
-            {
-                var enPassantIndexValidator = new EnPassantSquareIndexRule();
-                var valid = enPassantIndexValidator.Validate(value, ActivePlayer) == BoardExceptionType.None;
-                if (!valid)
-                {
-                    var square = value.Value.IndexToSquareDisplay();
-                    var message =
-                        $"{square} is not a valid en passant square with {ActivePlayer.AsString()} to play. Found in BoardState.ValidateEnPassant.";
-                    throw new BoardException(BoardExceptionType.BadEnPassant,
-                        message);
-                }
-            }
-        }
 
         public static void InitializeMasks()
         {
@@ -309,7 +286,7 @@ namespace ChessLib.Core
 
         private uint GetGameStateStorageValue(GameState state)
         {
-            return (uint)state << Positions[GameStateKey].Offset;
+            return (uint) state << Positions[GameStateKey].Offset;
         }
 
         private uint GetClearValue(string key)
@@ -320,12 +297,12 @@ namespace ChessLib.Core
 
         private uint GetActivePlayerStorageValue(Color activePlayerColor)
         {
-            return (uint)activePlayerColor << Positions[ActivePlayerKey].Offset;
+            return (uint) activePlayerColor << Positions[ActivePlayerKey].Offset;
         }
 
         private uint GetCastlingRightsStorageValue(CastlingAvailability ca)
         {
-            return (uint)ca << Positions[CastlingAvailabilityKey].Offset;
+            return (uint) ca << Positions[CastlingAvailabilityKey].Offset;
         }
 
         private uint GetPieceCapturedStorageValue(Piece? p)
@@ -341,7 +318,7 @@ namespace ChessLib.Core
                 throw new ArgumentException("Error archiving board - the King cannot be captured.");
             }
 
-            var encodedPiece = ((uint)p.Value + 1) << pieceCapturedInfo.Offset;
+            var encodedPiece = ((uint) p.Value + 1) << pieceCapturedInfo.Offset;
             return encodedPiece;
         }
 
@@ -355,7 +332,7 @@ namespace ChessLib.Core
 
             // if the index is on board rank 3, get offset by subtracting 16, else subtract 32 for offset
             var convertedIndex = epIndex <= 23 ? epIndex - 15 : epIndex - 31;
-            var value = (uint)(convertedIndex << 8);
+            var value = (uint) (convertedIndex << 8);
             return value;
         }
 
@@ -405,11 +382,6 @@ namespace ChessLib.Core
             sb.AppendLine($"En Passant: {EnPassantIndex}");
             sb.AppendLine($"Captured Piece: {PieceCaptured}");
             return sb.ToString();
-        }
-
-        public object Clone()
-        {
-            return new BoardState(BoardStateStorage);
         }
     }
 

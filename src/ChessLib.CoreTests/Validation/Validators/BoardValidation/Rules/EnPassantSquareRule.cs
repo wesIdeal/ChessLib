@@ -1,5 +1,7 @@
 ﻿#region
 
+using System.Collections.Generic;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
@@ -10,34 +12,61 @@ using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
 {
+
     [TestFixture]
-    public sealed class EnPassantSquareRule
+    public class EnPassantSquareRuleTests
     {
-        [TestCase(BoardConstants.FenStartingPosition, BoardExceptionType.None)]
-        [TestCase("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a4 0 1", BoardExceptionType.BadEnPassant)]
-        [TestCase("rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR w KQkq a5 0 2", BoardExceptionType.BadEnPassant)]
-        [TestCase("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a2 0 1", BoardExceptionType.BadEnPassant)]
-        [TestCase("rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR w KQkq a7 0 2", BoardExceptionType.BadEnPassant)]
-        [TestCase("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq f3 0 1", BoardExceptionType.BadEnPassant)]
-        [TestCase("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 2", BoardExceptionType.BadEnPassant)]
-        [TestCase("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2", BoardExceptionType.None)]
-        [TestCase("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", BoardExceptionType.None)]
-        [TestCase("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 0 2", BoardExceptionType.BadEnPassant)]
-        [TestCase("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e3 0 1", BoardExceptionType.BadEnPassant)]
-        public static void TestEnPassant(string fen, BoardExceptionType expectedException)
-        {
-            var enPassantValidator =
-                new EnPassantPositionRule();
-            var board = new Board(fen, true);
-            var actualExceptionType = enPassantValidator.Validate(board);
-            Assert.AreEqual(expectedException, actualExceptionType);
-        }
+        private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
+        private EnPassantPositionRule rule = new EnPassantPositionRule();
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
-            FenReader.BypassValidation = true;
+            rule = new EnPassantPositionRule();
         }
-        private static readonly FenTextToBoard FenReader = new FenTextToBoard();
+
+        //[TestCaseSource(nameof(GetSquareTestCases))]
+
+        public void IsEnPassantSquareCorrectForActive(EnPassantSquareLocationTestCase testCase)
+        {
+            var result = rule.IsEnPassantSquareCorrectForActive(testCase.ActivePlayerColor, testCase.SquareIndex);
+            Assert.AreEqual(testCase.ExpectedValue, rule, testCase.Description);
+        }
+
+        public static IEnumerable<EnPassantSquareLocationTestCase> GetSquareTestCases()
+        {
+            yield return new EnPassantSquareLocationTestCase("d5".SquareTextToIndex(), Color.Black, false,
+                "Non-en passant square(d5), black to move.");
+            yield return new EnPassantSquareLocationTestCase("d5".SquareTextToIndex(), Color.White, false,
+                "Non-en passant square(d5), white to move.");
+            yield return new EnPassantSquareLocationTestCase("h8".SquareTextToIndex(), Color.Black, false,
+                "Non-en passant square(h8), black to move.");
+            yield return new EnPassantSquareLocationTestCase("h1".SquareTextToIndex(), Color.White, false,
+                "Non-en passant square(h1), white to move.");
+            yield return new EnPassantSquareLocationTestCase("e3".SquareTextToIndex(), Color.White, false,
+                "En passant square(e3), wrong color (white to move).");
+            yield return new EnPassantSquareLocationTestCase("e6".SquareTextToIndex(), Color.Black, false,
+                "En passant square(e6), wrong color (black to move).");
+            yield return new EnPassantSquareLocationTestCase("e3".SquareTextToIndex(), Color.Black, true,
+                "En passant square(e3), correct color (black to move).");
+            yield return new EnPassantSquareLocationTestCase("e6".SquareTextToIndex(), Color.White, true,
+                "En passant square(e6), correct color (white to move).");
+        }
+    }
+
+    public class EnPassantSquareLocationTestCase
+    {
+        public EnPassantSquareLocationTestCase(ushort squareIndex, Color activePlayerColor, bool expectedValue, string description)
+        {
+            SquareIndex = squareIndex;
+            ActivePlayerColor = activePlayerColor;
+            ExpectedValue = expectedValue;
+            Description = description;
+        }
+        public string Description { get; }
+        public bool ExpectedValue { get; }
+        public ushort SquareIndex { get; }
+        public Color ActivePlayerColor { get; }
+
     }
 }

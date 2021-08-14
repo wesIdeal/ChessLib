@@ -18,31 +18,24 @@ namespace ChessLib.Core
 
         public string Fen => this.FENFromBoard();
 
-        public Board(IBoardValidator boardValidator = null) : base(BoardConstants.FenStartingPosition, false)
+        public Board() : base(BoardConstants.FenStartingPosition)
         {
-            BoardValidator = boardValidator ?? new BoardValidator();
             Occupancy = new ulong[2][];
             InitializeOccupancy();
-            BoardValidator = boardValidator ?? new BoardValidator();
+            BoardValidator = new BoardValidator();
         }
 
 
-        internal Board(string fen, bool bypassValidation) : base(fen, bypassValidation)
+        internal Board(string fen) : base(fen)
         {
         }
 
         internal Board(ulong[][] occupancy, byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
-            CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter,
-            bool validateBoard = true,
-            IBoardValidator boardValidator = null)
+            CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter)
             : base(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter)
         {
-            BoardValidator = boardValidator ?? new BoardValidator();
             Occupancy = CloneOccupancy(occupancy);
-            if (validateBoard)
-            {
-                Validate();
-            }
+            Validate();
         }
 
 
@@ -56,7 +49,7 @@ namespace ChessLib.Core
             FullMoveCounter = board.FullMoveCounter;
         }
 
-        protected readonly IBoardValidator BoardValidator;
+        protected readonly IBoardValidator BoardValidator = new BoardValidator();
 
 
         public new object Clone()
@@ -64,16 +57,11 @@ namespace ChessLib.Core
             var clonedOccupancy = CloneOccupancy();
             var activePlayerColor = ActivePlayer;
             return new Board(clonedOccupancy, HalfMoveClock, EnPassantIndex, PieceCaptured, CastlingAvailability,
-                activePlayerColor, FullMoveCounter, false, BoardValidator);
+                activePlayerColor, FullMoveCounter);
         }
 
 
         public ulong[][] Occupancy { get; }
-
-        public ulong[][] CloneOccupancy()
-        {
-            return CloneOccupancy(Occupancy);
-        }
 
 
         public virtual bool Equals(Board otherBoard)
@@ -107,6 +95,11 @@ namespace ChessLib.Core
             });
             returnValue &= base.Equals(otherBoard);
             return returnValue;
+        }
+
+        public ulong[][] CloneOccupancy()
+        {
+            return CloneOccupancy(Occupancy);
         }
 
         private static bool CheckPieceEquality(ulong[] thesePieces, ulong[] otherPieces)
