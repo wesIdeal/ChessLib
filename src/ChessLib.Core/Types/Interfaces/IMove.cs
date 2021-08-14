@@ -12,7 +12,6 @@ namespace ChessLib.Core.Types.Interfaces
         PromotionPiece PromotionPiece { get; }
         ushort SourceIndex { get; }
         ulong SourceValue { get; }
-        bool Equals(ushort other);
-        string ToString();
+        
     }
 }
