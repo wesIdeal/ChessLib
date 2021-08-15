@@ -1,0 +1,22 @@
+ <RunSettings>
+  <Python>
+    <TestCases />
+  </Python>
+  <BoostTestInternalSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <VSProcessId>17944</VSProcessId>
+  </BoostTestInternalSettings>
+  <RunConfiguration>
+    <ResultsDirectory>C:\Users\wesid\source\repos\ChessLib\src\TestResults</ResultsDirectory>
+    <SolutionDirectory>C:\Users\wesid\source\repos\ChessLib\src\</SolutionDirectory>
+    <CollectSourceInformation>False</CollectSourceInformation>
+	<IncludeStackTraceForSuites>true</IncludeStackTraceForSuites>
+	<InternalTraceLevel>Debug</InternalTraceLevel>
+	<Verbosity>5</Verbosity>
+  </RunConfiguration>
+  <GoogleTestAdapterSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <SolutionSettings>
+      <Settings />
+    </SolutionSettings>
+    <ProjectSettings />
+  </GoogleTestAdapterSettings>
+</RunSettings>

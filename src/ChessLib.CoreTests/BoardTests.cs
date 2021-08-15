@@ -2,17 +2,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Tests.Helpers;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using EnumsNET;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Moq;
 using NUnit.Framework;
 
 namespace ChessLib.Core.Tests
 {
+   
     [TestFixture]
     public class BoardTests
     {

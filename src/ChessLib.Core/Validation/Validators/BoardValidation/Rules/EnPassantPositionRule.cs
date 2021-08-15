@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
@@ -14,6 +16,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
     {
         public virtual BoardExceptionType Validate(in Board boardInfo)
         {
+            Debug.WriteLine("Here in Board Validation->EP Validation");
             var enPassantSquare = boardInfo.EnPassantIndex;
             var returnVal = BoardExceptionType.BadEnPassant;
             if (enPassantSquare == null)
@@ -23,7 +26,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 
 
             var opponentPawnOccupancy = boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer.Toggle(), Piece.Pawn);
-            var isSquareOnCorrectRank = !IsEnPassantSquareCorrectForActive(boardInfo.ActivePlayer, enPassantSquare.Value);
+            var isSquareOnCorrectRank = IsEnPassantSquareCorrectForActive(boardInfo.ActivePlayer, enPassantSquare.Value);
             if (isSquareOnCorrectRank)
             {
                 if (IsPawnPresentNorthOfEnPassantSquare(opponentPawnOccupancy, enPassantSquare.Value))
@@ -35,23 +38,24 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
             return returnVal;
         }
 
-        internal bool IsEnPassantSquareCorrectForActive(Color boardInfoActivePlayer, ushort enPassantSquare)
+        internal virtual bool IsEnPassantSquareCorrectForActive(Color boardInfoActivePlayer, ushort enPassantSquare)
         {
             var opponentColor = boardInfoActivePlayer.Toggle();
             //Should be the third rank, relative to opponent's perspective.
             var rank = enPassantSquare.GetRank();
-            return opponentColor == Color.Black && rank == (ushort)Rank.R6 ||
-                   opponentColor == Color.White && rank == (ushort)Rank.R3;
+            var isCorrect = (opponentColor == Color.Black && rank == (ushort)Rank.R6);
+            isCorrect |= (opponentColor == Color.White && rank == (ushort)Rank.R3);
+            return isCorrect;
         }
 
 
 
-        internal virtual bool IsPawnPresentNorthOfEnPassantSquare(ulong occupancy, ushort enPassantSquare)
+        internal virtual bool IsPawnPresentNorthOfEnPassantSquare(ulong opponentPawnOccupancy, ushort enPassantSquare)
         {
             var epRank = enPassantSquare.GetRank();
             var epValue = enPassantSquare.GetBoardValueOfIndex();
             var possiblePawnLocation = epRank == (ushort)Rank.R3 ? epValue.ShiftN() : epValue.ShiftS();
-            var isPawnPresentNorthOfEnPassantSquare = (occupancy & possiblePawnLocation) != 0;
+            var isPawnPresentNorthOfEnPassantSquare = (opponentPawnOccupancy & possiblePawnLocation) != 0;
             return isPawnPresentNorthOfEnPassantSquare;
         }
     }

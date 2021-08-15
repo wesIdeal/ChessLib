@@ -12,6 +12,6 @@ namespace ChessLib.Core.Translate
         public uint FullmoveClock;
 
         public Board AsBoard => new Board(PiecePlacement, HalfmoveClock, EnPassantIndex, null, CastlingAvailability,
-            ActiveColor, FullmoveClock);
+            ActiveColor, FullmoveClock, false);
     }
 }

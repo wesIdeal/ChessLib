@@ -48,7 +48,7 @@ namespace ChessLib.Core
         /// </summary>
         public uint BoardStateStorage { get; set; }
 
-        public GameState GameState
+        public virtual GameState GameState
         {
             get
             {
