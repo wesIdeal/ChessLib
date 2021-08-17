@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using ChessLib.Core.Types.Tree;
 
 namespace ChessLib.Core.Types.Interfaces
 {
-    public interface INode<T>
+    public interface INode<T> : ICloneable
     {
         INode<T> Previous { get; }
         T Value { get; }

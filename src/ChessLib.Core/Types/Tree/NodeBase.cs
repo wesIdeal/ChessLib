@@ -4,27 +4,45 @@ using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Types.Tree
 {
-    public abstract class NodeBase<T> : INode<T>, IEquatable<NodeBase<T>>
+    public abstract class NodeBase<T> : ICloneable, INode<T>, IEquatable<NodeBase<T>>
+        where T : ICloneable, IEquatable<T>
     {
         /// <summary>
-        ///     Constructs a NodeBase object from an existing NodeBase object
+        /// Constructs a NodeBase object from an existing NodeBase object
         /// </summary>
         /// <param name="value"></param>
         protected NodeBase(INode<T> value) : this(value.Value, value.Previous)
         {
-            Continuations = value.Continuations;
+            value.Continuations.ForEach(c => { Continuations.Add((INode<T>)value.Clone()); });
         }
 
+        /// <summary>
+        /// Creates a NodeBase from a value and a parent node.
+        /// </summary>
+        /// <param name="value">Value of the data contained in node</param>
+        /// <param name="parent">Parent / Previous node</param>
         protected NodeBase(T value, INode<T> parent) : this()
         {
-            Value = value;
+            Value = (T)value.Clone();
             Previous = parent;
+        }
+
+        protected NodeBase(NodeBase<T> nodeBase, NodeBase<T> nodeBaseParent) : this(nodeBase.Value, nodeBaseParent)
+        {
+            foreach (var continuationNode in nodeBase.Continuations)
+            {
+                var clone = (INode<T>)continuationNode.Clone();
+                Continuations.Add(clone);
+            }
         }
 
         private NodeBase()
         {
             Continuations = new List<INode<T>>();
         }
+
+        public abstract object Clone();
+
 
         public bool Equals(NodeBase<T> other)
         {
@@ -37,7 +55,12 @@ namespace ChessLib.Core.Types.Tree
 
         public INode<T> Previous { get; }
 
+        /// <summary>
+        ///     The value / data contained within the node.
+        /// </summary>
+        /// <remarks>Must implement ICloneable to ensure a deep copy can be made.</remarks>
         public T Value { get; }
+
         public List<INode<T>> Continuations { get; }
 
 
@@ -47,7 +70,7 @@ namespace ChessLib.Core.Types.Tree
             return AddNode(childNode);
         }
 
-        public INode<T> AddNode(INode<T> nodeValue)
+        public virtual INode<T> AddNode(INode<T> nodeValue)
         {
             Continuations.Add(nodeValue);
             return nodeValue;
@@ -58,8 +81,9 @@ namespace ChessLib.Core.Types.Tree
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((NodeBase<T>) obj);
+            return Equals((NodeBase<T>)obj);
         }
+
 
         public override int GetHashCode()
         {

@@ -15,7 +15,7 @@ namespace ChessLib.Core
         {
             var postMoveBoard = board.Board.ApplyMoveToBoard(moveToApply);
             var san = moveToSan.Translate(moveToApply, board.Board, postMoveBoard);
-            var postMoveState = new PostMoveState(postMoveBoard, moveToApply, san); 
+            var postMoveState = new PostMoveState(postMoveBoard, moveToApply, san);
             var node = new MoveTreeNode<PostMoveState>(postMoveState, board.Node);
             return new BoardNode(postMoveBoard, node);
         }
@@ -29,7 +29,7 @@ namespace ChessLib.Core
         public static BoardNode UnApplyMoveFromBoard(BoardNode currentBoardNode)
         {
             var previousState = currentBoardNode.Node.Previous;
-            var unDoneBoard = currentBoardNode.Board.UnapplyMoveFromBoard((BoardState) previousState.Value.BoardState,
+            var unDoneBoard = currentBoardNode.Board.UnapplyMoveFromBoard((BoardState)previousState.Value.BoardState,
                 currentBoardNode.Node.Value.MoveValue);
             return new BoardNode(unDoneBoard, previousState);
         }
@@ -38,7 +38,7 @@ namespace ChessLib.Core
     /// <summary>
     ///     A move that was applied to a board, resulting in <see cref="BoardState" />
     /// </summary>
-    public readonly struct PostMoveState : IEquatable<PostMoveState>
+    public readonly struct PostMoveState : IPostMoveState, IEquatable<PostMoveState>
     {
         public PostMoveState(Board postMoveBoard, ushort moveValue, string san)
         {
@@ -48,17 +48,33 @@ namespace ChessLib.Core
             BoardStateHash = PolyglotHelpers.GetBoardStateHash(postMoveBoard);
         }
 
+        private PostMoveState(uint postMoveBoardState, ushort moveValue, ulong boardStateHash, string san)
+        {
+            BoardState = postMoveBoardState;
+            MoveValue = moveValue;
+            BoardStateHash = boardStateHash;
+            San = san;
+        }
+
         public uint BoardState { get; }
         public ushort MoveValue { get; }
         public string San { get; }
-
         public ulong BoardStateHash { get; }
 
 
         public bool Equals(PostMoveState other)
         {
-            return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San &&
-                   BoardStateHash == other.BoardStateHash;
+            return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San && BoardStateHash == other.BoardStateHash;
+        }
+
+        public bool Equals(IPostMoveState other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San;
+
         }
 
         public override bool Equals(object obj)
@@ -70,7 +86,7 @@ namespace ChessLib.Core
         {
             unchecked
             {
-                var hashCode = (int) BoardState;
+                var hashCode = (int)BoardState;
                 hashCode = (hashCode * 397) ^ MoveValue.GetHashCode();
                 hashCode = (hashCode * 397) ^ (San != null ? San.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ BoardStateHash.GetHashCode();
@@ -78,9 +94,19 @@ namespace ChessLib.Core
             }
         }
 
+        public object Clone()
+        {
+            return new PostMoveState(this.BoardState, MoveValue, BoardStateHash, San);
+        }
+
         public static bool operator ==(PostMoveState left, PostMoveState right)
         {
             return left.Equals(right);
+        }
+
+        public override string ToString()
+        {
+            return San;
         }
 
         public static bool operator !=(PostMoveState left, PostMoveState right)

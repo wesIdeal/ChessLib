@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Types.Tree;
 
 namespace ChessLib.Core.Types.GameTree
 {
-    public class BoardNode : IEquatable<BoardNode>
+    public class BoardNode : ICloneable, IEquatable<BoardNode>
     {
         public Board Board { get; protected set; }
         public MoveTreeNode<PostMoveState> Node { get; }
         public string Fen => Board.Fen;
-
 
         public List<INode<PostMoveState>> Variations => Node.Continuations.Skip(1).ToList();
 
@@ -32,6 +32,12 @@ namespace ChessLib.Core.Types.GameTree
             Node = (MoveTreeNode<PostMoveState>)postMoveStateNode;
         }
 
+        public BoardNode(BoardNode boardNode)
+        {
+            Node = (MoveTreeNode<PostMoveState>)boardNode.Node.Clone();
+            Board = (Board)boardNode.Board.Clone();
+        }
+
         public bool Equals(BoardNode other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -50,6 +56,11 @@ namespace ChessLib.Core.Types.GameTree
         public override int GetHashCode()
         {
             return (int)Node.Value.BoardStateHash;
+        }
+
+        public object Clone()
+        {
+            return new BoardNode(this);
         }
 
         public static bool operator ==(BoardNode left, BoardNode right)

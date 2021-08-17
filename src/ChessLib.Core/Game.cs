@@ -2,46 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.GameTree;
-using ChessLib.Core.Types.Interfaces;
+
 // ReSharper disable PossibleNullReferenceException
 [assembly: InternalsVisibleTo("ChessLib.Parse.Tests")]
+
 namespace ChessLib.Core
 {
-    public static class GameHelpers
-    {
-        /// <summary>
-        /// Returns the complete main line of the game, not jumping to variation branches.
-        /// </summary>
-        /// <param name="game">The game to get the main line from</param>
-        /// <returns>Returns a collection of <see cref="PostMoveState"/> objects containing board and move information for each move of the game.</returns>
-        public static IEnumerable<INode<PostMoveState>> MainLine(this Game game)
-        {
-            var mainLine = game.InitialNode.Node.Continuations.MainLine();
-            return mainLine;
-        }
-
-        private static IEnumerable<INode<PostMoveState>> MainLine(this IEnumerable<INode<PostMoveState>> continuations,
-            List<INode<PostMoveState>> aggregator = null)
-        {
-            aggregator ??= new List<INode<PostMoveState>>();
-            var nextMove = continuations.FirstOrDefault();
-            if (nextMove == null)
-            {
-                return aggregator;
-            }
-
-            aggregator.Add(nextMove);
-            return nextMove.Continuations.MainLine(aggregator);
-        }
-    }
-
-    public class Game : GameBuilder
+    public class Game : GameBuilder, ICloneable
     {
         private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
 
@@ -50,12 +24,65 @@ namespace ChessLib.Core
         public virtual PostMoveState[] NextMoves => Current?.Node.Continuations.Select(x => x.Value).ToArray() ??
                                                     throw new Exception("Current can never be null.");
 
-        public GameResult GameResult { get; set; }
-        public string Result { get; set; }
+        public GameResult GameResult { get; set; } = GameResult.None;
+
+        public string Result
+        {
+            get
+            {
+                string rv;
+                switch (GameResult)
+                {
+                    case GameResult.WhiteWins:
+                        rv = "1-0";
+                        break;
+                    case GameResult.BlackWins:
+                        rv = "0-1";
+                        break;
+                    case GameResult.Draw:
+                        rv = "1/2-1/2";
+                        break;
+                    default:
+                        rv = "*";
+                        break;
+                }
+
+                return rv;
+            }
+            set
+            {
+                switch (value.Trim())
+                {
+                    case "1-0":
+                        GameResult = GameResult.WhiteWins;
+                        break;
+                    case "0-1":
+                        GameResult = GameResult.BlackWins;
+                        break;
+                    case "1/2-1/2":
+                        GameResult = GameResult.Draw;
+                        break;
+                    default:
+                        GameResult = GameResult.None;
+                        break;
+                }
+            }
+        }
         public int PlyCount => this.MainLine()?.Count() ?? 0;
 
         public Tags Tags { get; }
         public List<PgnParsingLog> ParsingLogs { get; set; }
+
+        public NumericAnnotation CurrentAnnotation => Current.Node.Annotation;
+
+        public string CurrentComment
+        {
+            get => Current.Node.Comment;
+            set => Current.Node.Comment = value;
+        }
+
+        public Move CurrentMove => Current.Node.Value.MoveValue;
+        public string CurrentSan => Current.Node.Value.San;
 
         public Game() : this(BoardConstants.FenStartingPosition, new Tags())
         {
@@ -68,6 +95,31 @@ namespace ChessLib.Core
             Current = InitialNode;
             Tags = new Tags(fen, tags);
             ParsingLogs = new List<PgnParsingLog>();
+        }
+
+        /// <summary>
+        ///     Used to clone <paramref name="game" /> to a new <see cref="Game" />
+        /// </summary>
+        /// <param name="game">Game to clone</param>
+        /// <remarks>Creates a deep copy of <paramref name="game" /> into a new game.</remarks>
+        public Game(Game game)
+        {
+            Tags = new Tags(game.Tags);
+            GameResult = game.GameResult;
+            ParsingLogs = game.ParsingLogs.Select(p => new PgnParsingLog(p.ParsingErrorLevel, p.Message, p.ParseInput))
+                .ToList();
+            Result = game.Result;
+            InitialNode = (BoardNode)game.InitialNode.Clone();
+            Current = InitialNode;
+        }
+
+        /// <summary>
+        ///     Uses copy constructor to clone a deep copy of <see cref="GameResult" />
+        /// </summary>
+        /// <returns>An object of type Game containing a clone of the current game.</returns>
+        public object Clone()
+        {
+            return new Game(this);
         }
 
 
@@ -87,19 +139,9 @@ namespace ChessLib.Core
             ParsingLogs.Add(logEntry);
         }
 
-        public NumericAnnotation CurrentAnnotation => Current.Node.Annotation;
-        public string CurrentComment
-        {
-            get => Current.Node.Comment;
-            set => Current.Node.Comment = value;
-        }
-
-        public Move CurrentMove => Current.Node.Value.MoveValue;
-        public string CurrentSan => Current.Node.Value.San;
-
         public void AddNag(NumericAnnotation nag)
         {
-           CurrentAnnotation.ApplyNag(nag);
+            CurrentAnnotation.ApplyNag(nag);
         }
 
         /// <summary>
@@ -134,7 +176,7 @@ namespace ChessLib.Core
         {
             var currentMoveValue = CurrentMove;
 
-            while (MovePrevious() && (FindMoveIndexInContinuations(currentMoveValue)) < 1)
+            while (MovePrevious() && FindMoveIndexInContinuations(currentMoveValue) < 1)
             {
                 currentMoveValue = CurrentMove;
             }
