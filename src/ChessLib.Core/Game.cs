@@ -68,6 +68,7 @@ namespace ChessLib.Core
                 }
             }
         }
+
         public int PlyCount => this.MainLine()?.Count() ?? 0;
 
         public Tags Tags { get; }
@@ -83,6 +84,7 @@ namespace ChessLib.Core
 
         public Move CurrentMove => Current.Node.Value.MoveValue;
         public string CurrentSan => Current.Node.Value.San;
+
 
         public Game() : this(BoardConstants.FenStartingPosition, new Tags())
         {
