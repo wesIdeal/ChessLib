@@ -152,6 +152,43 @@ namespace ChessLib.Core.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 
+        ///    ( 3...d6 )
+        ///*.
+        /// </summary>
+        internal static string PgnFormatterVariationEnd {
+            get {
+                return ResourceManager.GetString("PgnFormatterVariationEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]{0}[Site &quot;?&quot;]{0}[Date &quot;????.??.??&quot;]{0}[Round &quot;?&quot;]{0}[White &quot;?&quot;]{0}[Black &quot;?&quot;]{0}[Result &quot;*&quot;]{0}{0}1.c4 {0}    ( 1.d4 ){0}*{0}.
+        /// </summary>
+        internal static string PgnFormatterVariationInitial {
+            get {
+                return ResourceManager.GetString("PgnFormatterVariationInitial", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]{0}[Site &quot;?&quot;]{0}[Date &quot;????.??.??&quot;]{0}[Round &quot;?&quot;]{0}[White &quot;?&quot;]{0}[Black &quot;?&quot;]{0}[Result &quot;*&quot;]{0}{0}1.c4 g6 2.Nc3 {0}    ( 2.d4 Bg7 3.Nc3 ){0}*{0}.
+        /// </summary>
+        internal static string PgnFormatterVariationMiddle {
+            get {
+                return ResourceManager.GetString("PgnFormatterVariationMiddle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot; White to move.&quot;]
         ///[Site &quot;?&quot;]
         ///[Date &quot;1998.??.??&quot;]

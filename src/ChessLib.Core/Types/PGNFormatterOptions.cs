@@ -1,13 +1,8 @@
 ﻿using System.Collections.Generic;
+using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Core.Types
 {
-    public enum AnnotationStyle
-    {
-        PGNSpec,
-        Symbolic
-    }
-
     public class PGNFormatterOptions
     {
         public static PGNFormatterOptions ExportFormatOptions => new PGNFormatterOptions {ExportFormat = true};
@@ -43,6 +38,7 @@ namespace ChessLib.Core.Types
 
         public bool KeepAllTags => TagsToKeep.HasFlag(TagKeys.All);
         public bool KeepComments { get; set; }
+        public bool ResultOnNewLine { get; set; }
 
         public PGNFormatterOptions()
         {

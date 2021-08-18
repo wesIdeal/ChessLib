@@ -9,33 +9,36 @@ namespace ChessLib.Core.Types
 
     public class Tags : Dictionary<string, string>, IEquatable<Tags>
     {
+        public static readonly string[] RequiredTagKeys =
+            { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
+
         public string Event
         {
-            get => ContainsKey("Event") ? this["Event"] : "";
+            get => ContainsKey("Event") ? this["Event"] : "?";
             set => Add("Event", value);
         }
 
         public string Site
         {
-            get => ContainsKey("Site") ? this["Site"] : "";
+            get => ContainsKey("Site") ? this["Site"] : "?";
             set => Add("Site", value);
         }
 
         public string Date
         {
-            get => ContainsKey("Date") ? this["Date"] : "";
+            get => ContainsKey("Date") ? this["Date"] : "????.??.??";
             set => Add("Date", value);
         }
 
         public string Round
         {
-            get => ContainsKey("Round") ? this["Round"] : "";
+            get => ContainsKey("Round") ? this["Round"] : "?";
             set => Add("Round", value);
         }
 
         public string Result
         {
-            get => ContainsKey("Result") ? this["Result"] : "";
+            get => ContainsKey("Result") ? this["Result"] : "*";
             set => Add("Result", value);
         }
 
@@ -44,17 +47,29 @@ namespace ChessLib.Core.Types
         {
             get
             {
-                var requiredTagKeys = RequiredTagKeys;
-                return requiredTagKeys.Select(t => new KeyValuePair<string, string>(t, Get(t)));
+                yield return new KeyValuePair<string, string>("Event", Event);
+                yield return new KeyValuePair<string, string>("Site", Site);
+                yield return new KeyValuePair<string, string>("Date", Date);
+                yield return new KeyValuePair<string, string>("Round", Round);
+                yield return new KeyValuePair<string, string>("White", White);
+                yield return new KeyValuePair<string, string>("Black", Black);
+                yield return new KeyValuePair<string, string>("Result", Result);
+                if (HasSetup)
+                {
+                    yield return new KeyValuePair<string, string>("SetUp", "1");
+                    yield return new KeyValuePair<string, string>("FEN", FENStart);
+                }
             }
         }
 
-
+        private string[] AltStartingPositionTags = new[] { "SetUp", "FEN" };
         public IEnumerable<KeyValuePair<string, string>> SupplementalTags
         {
             get
             {
-                var suppTags = Keys.Where(k => !RequiredTagKeys.Contains(k));
+                var excludedTags = RequiredTags.Select(x => x.Key);
+               
+                var suppTags = Keys.Where(k => !excludedTags.Contains(k));
                 return suppTags.Select(t => new KeyValuePair<string, string>(t, Get(t)));
             }
         }
@@ -81,13 +96,13 @@ namespace ChessLib.Core.Types
 
         public string White
         {
-            get => ContainsKey("White") ? this["White"] : "";
+            get => ContainsKey("White") ? this["White"] : "?";
             set => Add("White", value);
         }
 
         public string Black
         {
-            get => ContainsKey("Black") ? this["Black"] : "";
+            get => ContainsKey("Black") ? this["Black"] : "?";
             set => Add("Black", value);
         }
 
@@ -95,10 +110,6 @@ namespace ChessLib.Core.Types
         public Tags(OnFenChangedCallback onFenChanged = null)
         {
             OnFenChanged = onFenChanged;
-            foreach (var requiredTag in RequiredTagKeys)
-            {
-                Add(requiredTag, "?");
-            }
 
             OnFENChanged(FENStart);
         }
@@ -123,7 +134,6 @@ namespace ChessLib.Core.Types
             }
         }
 
-        public readonly string[] RequiredTagKeys = {"Event", "Site", "Date", "Round", "White", "Black", "Result"};
         public OnFenChangedCallback OnFenChanged;
 
         public bool Equals(Tags other)
@@ -195,7 +205,7 @@ namespace ChessLib.Core.Types
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Tags) obj);
+            return Equals((Tags)obj);
         }
 
         public override int GetHashCode()

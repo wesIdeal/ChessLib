@@ -62,26 +62,34 @@ namespace ChessLib.Core.Types.Enums.NAG
                    TimeTroubleNAG == other.TimeTroubleNAG && LastError == other.LastError;
         }
 
+        public bool Any()
+        {
+            return MoveNAG != MoveNAG.Null ||
+                   PositionalNAGs.Any() ||
+                   TimeTroubleNAG != TimeTroubleNAG.Null ||
+                   NonStandardNAGs.Any();
+        }
+
         public IEnumerable<int> All()
         {
             if (MoveNAG != MoveNAG.Null)
             {
-                yield return (int) MoveNAG;
+                yield return (int)MoveNAG;
             }
 
             foreach (var positionalNAG in PositionalNAGs)
             {
-                yield return (int) positionalNAG;
+                yield return (int)positionalNAG;
             }
 
             if (TimeTroubleNAG != TimeTroubleNAG.Null)
             {
-                yield return (int) TimeTroubleNAG;
+                yield return (int)TimeTroubleNAG;
             }
 
             foreach (var nonStandardNAG in NonStandardNAGs)
             {
-                yield return (int) nonStandardNAG;
+                yield return (int)nonStandardNAG;
             }
         }
 
@@ -102,22 +110,22 @@ namespace ChessLib.Core.Types.Enums.NAG
             var sb = new StringBuilder();
             if (MoveNAG != MoveNAG.Null)
             {
-                sb.Append(" $" + (int) MoveNAG);
+                sb.Append(" $" + (int)MoveNAG);
             }
 
             foreach (var positionalNAG in PositionalNAGs)
             {
-                sb.Append(" $" + (int) positionalNAG);
+                sb.Append(" $" + (int)positionalNAG);
             }
 
             if (TimeTroubleNAG != TimeTroubleNAG.Null)
             {
-                sb.Append(" $" + (int) TimeTroubleNAG);
+                sb.Append(" $" + (int)TimeTroubleNAG);
             }
 
             foreach (var nonStandardNAG in NonStandardNAGs)
             {
-                sb.Append(" $" + (int) nonStandardNAG);
+                sb.Append(" $" + (int)nonStandardNAG);
             }
 
             return sb.ToString().Trim();
@@ -154,20 +162,20 @@ namespace ChessLib.Core.Types.Enums.NAG
             {
                 if (nag >= 1 && nag <= 9)
                 {
-                    MoveNAG = (MoveNAG) nag;
+                    MoveNAG = (MoveNAG)nag;
                 }
                 else if (nag >= 10 && nag <= 135)
                 {
-                    PositionalNAGs.Add((PositionalNAG) nag);
+                    PositionalNAGs.Add((PositionalNAG)nag);
                     PositionalNAGs = PositionalNAGs.Distinct().ToList();
                 }
                 else if (nag >= 136 && nag <= 139)
                 {
-                    TimeTroubleNAG = (TimeTroubleNAG) nag;
+                    TimeTroubleNAG = (TimeTroubleNAG)nag;
                 }
                 else
                 {
-                    NonStandardNAGs.Add((NonStandardNAG) nag);
+                    NonStandardNAGs.Add((NonStandardNAG)nag);
                     NonStandardNAGs = NonStandardNAGs.Distinct().ToList();
                 }
             }

@@ -178,6 +178,25 @@
     ( 2...g6 3.f3 )
 *</value>
   </data>
+  <data name="PgnFormatterVariationEnd" xml:space="preserve">
+    <value>[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 
+    ( 3...d6 )
+*</value>
+  </data>
+  <data name="PgnFormatterVariationInitial" xml:space="preserve">
+    <value>[Event "?"]{0}[Site "?"]{0}[Date "????.??.??"]{0}[Round "?"]{0}[White "?"]{0}[Black "?"]{0}[Result "*"]{0}{0}1.c4 {0}    ( 1.d4 ){0}*{0}</value>
+  </data>
+  <data name="PgnFormatterVariationMiddle" xml:space="preserve">
+    <value>[Event "?"]{0}[Site "?"]{0}[Date "????.??.??"]{0}[Round "?"]{0}[White "?"]{0}[Black "?"]{0}[Result "*"]{0}{0}1.c4 g6 2.Nc3 {0}    ( 2.d4 Bg7 3.Nc3 ){0}*{0}</value>
+  </data>
   <data name="Puzzle" xml:space="preserve">
     <value>[Event " White to move."]
 [Site "?"]

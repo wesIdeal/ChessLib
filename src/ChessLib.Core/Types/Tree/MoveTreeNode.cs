@@ -14,6 +14,7 @@ namespace ChessLib.Core.Types.Tree
         {
         }
 
+        public MoveTreeNode<T> Next => (MoveTreeNode<T>)Continuations.FirstOrDefault();
         internal MoveTreeNode(MoveTreeNode<T> value, MoveTreeNode<T> parent) : base(value, parent)
         {
             Comment = value.Comment;
