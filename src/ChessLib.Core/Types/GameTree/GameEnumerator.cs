@@ -28,7 +28,7 @@ namespace ChessLib.Core.Types.GameTree
                 Debug.Assert(_current != null, $"{nameof(Current)} cannot be null.");
                 return _current;
             }
-            protected set => _current = value;
+            protected internal set => _current = value;
         }
 
         object IEnumerator.Current => Current;

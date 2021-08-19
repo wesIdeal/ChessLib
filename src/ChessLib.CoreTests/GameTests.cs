@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
@@ -436,7 +437,7 @@ namespace ChessLib.Core.Tests
         }
     }
 
-    [TestFixture(TestOf = typeof(GameBuilder), Category = "External, Game, Tree Building")]
+    [TestFixture(TestOf = typeof(GameEnumerator), Category = "External, Game, Tree Building")]
     public class GameMoveApplication : GameTests
     {
         [SetUp]

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Tree;
 using EnumsNET;
@@ -60,11 +61,12 @@ namespace ChessLib.Core.Types
         {
             //Get the next node's move recorded to text
             var mainContinuation = rootNode.Continuations.FirstOrDefault();
-            var variationsText = GetVariationText(rootNode, indentLevel + 1);
+            var variationsList = GetVariationText(rootNode, indentLevel + 1);
+            var variationsText = GetFormattedVariations(variationsList, indentLevel + 1);
             if (mainContinuation != null)
             {
                 var move = mainContinuation.Value;
-                var moveText = GetFormattedPly((MoveTreeNode<PostMoveState>)mainContinuation, false) + " ";
+                var moveText = GetFormattedPly((MoveTreeNode<PostMoveState>)mainContinuation) + " ";
                 stringBuilder.Append(moveText).Append(variationsText);
                 BuildMoveTree((MoveTreeNode<PostMoveState>)mainContinuation, ref stringBuilder, indentLevel);
             }
@@ -74,27 +76,25 @@ namespace ChessLib.Core.Types
             }
         }
 
-        private string GetVariationText(MoveTreeNode<PostMoveState> rootNode, int indent)
+        private List<string> GetVariationText(MoveTreeNode<PostMoveState> rootNode, int indent)
         {
             var continuations = rootNode.Continuations.Skip(1).ToArray();
 
             if (!continuations.Any())
             {
-                return string.Empty;
+                return new List<string>();
             }
 
             var variationsText = new List<string>(continuations.Count());
             foreach (var continuation in continuations)
             {
-                var variationText = GetFormattedPly((MoveTreeNode<PostMoveState>)continuation, true) + " ";
+                var variationText = GetFormattedPly((MoveTreeNode<PostMoveState>)continuation) + " ";
                 var sb = new StringBuilder(variationText);
                 BuildMoveTree((MoveTreeNode<PostMoveState>)continuation, ref sb, indent);
                 variationsText.Add(sb.ToString().Trim());
             }
 
-            var rv = GetFormattedVariations(variationsText, indent);
-
-            return rv;
+            return variationsText;
         }
 
 
@@ -140,10 +140,11 @@ namespace ChessLib.Core.Types
             return "";
         }
 
-        private string GetFormattedPly(MoveTreeNode<PostMoveState> currentState, bool isContinuationVariation)
+        private string GetFormattedPly(MoveTreeNode<PostMoveState> currentState)
         {
             var boardState = (BoardState)currentState.Value.BoardState;
-            var strMoveNumber = GetFormattedMoveNumber(boardState, (MoveTreeNode<PostMoveState>)currentState.Previous, isContinuationVariation);
+
+            var strMoveNumber = GetFormattedMoveNumber((MoveTreeNode<PostMoveState>)currentState);
             var strMoveText = currentState.Value.San;
             var moveEndingCharacter = GetEndOfMoveWhitespace(boardState.ActivePlayer);
             var formattedComment = GetFormattedComment(currentState.Comment);
@@ -165,13 +166,18 @@ namespace ChessLib.Core.Types
             return string.Join("", lstVariations.Select(v => $"( {v.Trim()} )"));
         }
 
-        private string GetFormattedMoveNumber(BoardState bi, MoveTreeNode<PostMoveState> previousMove, bool isContinuationVariation)
+        private string GetFormattedMoveNumber( MoveTreeNode<PostMoveState> currentNode)
         {
-            if (ShouldWriteMoveNumber(previousMove, isContinuationVariation))
+            if (ShouldWriteMoveNumber(currentNode))
             {
-                var shouldUseEllipses = UseEllipses(previousMove, bi.ActivePlayer);
-                return FormatMoveNumber(bi.FullMoveCounter,
-                    shouldUseEllipses);
+                var bi = (BoardState)currentNode?.Previous.Value.BoardState;
+                var activeColor = bi.ActivePlayer;
+                var shouldUseEllipses = activeColor == Color.Black;
+                var currentCounter = ((BoardState)currentNode.Value.BoardState).FullMoveCounter;
+                var moveNumber = activeColor == Color.Black
+                    ? currentCounter - 1
+                    : currentCounter;
+                return FormatMoveNumber(moveNumber, shouldUseEllipses);
             }
 
             return "";
@@ -220,16 +226,47 @@ namespace ChessLib.Core.Types
         }
 
 
-        private static bool ShouldWriteMoveNumber(MoveTreeNode<PostMoveState> previousNode, bool isVariationContinuation)
+        private static bool ShouldWriteMoveNumber(MoveTreeNode<PostMoveState> currentNode)
         {
-            var moveColor = ((BoardState)previousNode.Value.BoardState).ActivePlayer;
-            if ((moveColor == Color.White || //if the last move was White's move
-                 previousNode?.Previous == null || // or if this is the first move of the game
-                 !string.IsNullOrWhiteSpace(previousNode.Comment)) || isVariationContinuation) //or if the last thing written was a comment
+            var preMoveNode = currentNode?.Previous;
+            var preMoveBoardState = ((BoardState)preMoveNode?.Value.BoardState);
+            if (preMoveNode == null)
+            {
+                return false;
+
+            }
+            //If the move is the initial move
+            if ( preMoveNode.Value.MoveValue == Move.NullMove)
+            {
+                return true;
+            }
+            
+            //If it's white to move
+            if (preMoveBoardState.ActivePlayer == Color.White)
             {
                 return true;
             }
 
+            var previousMoveNode = preMoveNode.Previous;
+            //if current is a variation of the parent
+            if (preMoveNode.Continuations.Skip(1).Select(x => x.Value.MoveValue).Contains(currentNode.Value.MoveValue))
+            {
+                return true;
+            }
+            //if the last move had variations
+            
+            if (previousMoveNode != null)
+            {
+                if (previousMoveNode.Continuations.Count > 1)
+                {
+                    //and this node is the main line of the last
+                    if (previousMoveNode.Continuations.First().Value.MoveValue == preMoveNode.Value.MoveValue)
+                    {
+                        return true;
+
+                    }
+                }
+            }
             return false;
         }
 
@@ -260,9 +297,9 @@ namespace ChessLib.Core.Types
             return _options.ExportFormat ? " " : _options.NewlineEachMove && activeColor == Color.Black ? NewLine : " ";
         }
 
-        private bool UseEllipses(MoveTreeNode<PostMoveState> previousMove, Color activeColor)
+        private bool UseEllipses(MoveTreeNode<PostMoveState> previousMove, Color activeColor, bool isVariation)
         {
-            return (previousMove == null || !string.IsNullOrWhiteSpace(previousMove.Comment)) &&
+            return (previousMove == null || !string.IsNullOrWhiteSpace(previousMove.Comment) || isVariation || previousMove.Continuations.Count > 1) &&
                    activeColor == Color.Black;
         }
 

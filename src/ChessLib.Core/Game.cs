@@ -15,7 +15,7 @@ using ChessLib.Core.Types.GameTree;
 
 namespace ChessLib.Core
 {
-    public class Game : GameBuilder, ICloneable
+    public class Game : GameEnumerator, ICloneable
     {
         private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
 
@@ -25,6 +25,11 @@ namespace ChessLib.Core
                                                     throw new Exception("Current can never be null.");
 
         public GameResult GameResult { get; set; } = GameResult.None;
+        public override string ToString()
+        {
+            var str = CurrentMove == Move.NullMove ? "Initial Board" : CurrentSan;
+            return str;
+        }
 
         public string Result
         {
@@ -66,6 +71,8 @@ namespace ChessLib.Core
                         GameResult = GameResult.None;
                         break;
                 }
+
+                this.Tags.Result = Result;
             }
         }
 

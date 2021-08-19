@@ -69,7 +69,7 @@ namespace ChessLib.Core.Types
             {
                 var excludedTags = RequiredTags.Select(x => x.Key);
                
-                var suppTags = Keys.Where(k => !excludedTags.Contains(k));
+                var suppTags = Keys.Where(k => !excludedTags.Contains(k)).OrderBy(x=>x);
                 return suppTags.Select(t => new KeyValuePair<string, string>(t, Get(t)));
             }
         }

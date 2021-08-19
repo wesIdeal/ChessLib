@@ -152,6 +152,24 @@ namespace ChessLib.Core.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;The Mediocre of Chess&quot;]{0}[Site &quot;New York City, NY USA&quot;]{0}[Date &quot;2021.08.18&quot;]{0}[Round &quot;2&quot;]{0}[White &quot;GoodPlayer, One&quot;]{0}[Black &quot;DecentPlayer, A.&quot;]{0}[Result &quot;1-0&quot;]{0}[ECO &quot;D51&quot;]{0}[EventDate &quot;2021.08.16&quot;]{0}{0}1.c4 Nf6 2.Nc3 {0}    ( 2.g3 ){0}2...e6 {0}    ( 2...e5 3.Nf3 ){0}3.Nf3 d5 4.d4 {0}    ( 4.cxd5 exd5 5.d4 {0}        ( 5.e3 Bd6 $15 {0}            ( 5...c6 $6 ){0}        ){0}    ){0}4...Nbd7 5.Bg5 h6 {0}    ( 5...c6 ){0}    ( 5...Bb4 6.cxd5 exd5 {{Best move.}} 7.e3 {{White has a slight adv [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string PgnFormatterAllAccoutrements {
+            get {
+                return ResourceManager.GetString("PgnFormatterAllAccoutrements", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]{0}[Site &quot;?&quot;]{0}[Date &quot;????.??.??&quot;]{0}[Round &quot;?&quot;]{0}[White &quot;?&quot;]{0}[Black &quot;?&quot;]{0}[Result &quot;*&quot;]{0}[SetUp &quot;1&quot;]{0}[FEN &quot;2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23&quot;]{0}{0}23.Bxf7+{0}*{0}.
+        /// </summary>
+        internal static string PgnFormatterCaptureWithCheck {
+            get {
+                return ResourceManager.GetString("PgnFormatterCaptureWithCheck", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;?&quot;]
         ///[Site &quot;?&quot;]
         ///[Date &quot;????.??.??&quot;]

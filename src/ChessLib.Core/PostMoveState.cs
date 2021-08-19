@@ -106,7 +106,7 @@ namespace ChessLib.Core
 
         public override string ToString()
         {
-            return San;
+            return MoveValue == Move.NullMove ? "[Initial]" : San;
         }
 
         public static bool operator !=(PostMoveState left, PostMoveState right)

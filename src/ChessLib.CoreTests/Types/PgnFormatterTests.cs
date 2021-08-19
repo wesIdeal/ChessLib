@@ -1,94 +1,124 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Enums.NAG;
 using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Types
 {
     [TestFixture]
-    public class _moveFormatterTests
+    public class PgnFormatterTests
     {
         private readonly PgnFormatter _moveFormatter =
             new PgnFormatter(new PGNFormatterOptions { ResultOnNewLine = true });
 
-        [TestCase("2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23", "d5f7", "23. Bxf7+")]
-        public void TestCheckDisplay(string fen, string lan, string expected)
-        {
-            var game = new Game(fen);
-            var lanToMove = new LanToMove();
-            var move = lanToMove.Translate(lan);
-            game.ApplyMove(move, MoveApplicationStrategy.ContinueMainLine);
-            var expectedOutput =
-                string.Format("[Event \"?\"]{0}[Site \"?\"]{0}[Date \"????.??.??\"]{0}[Round \"?\"]{0}[White \"?\"]{0}[Black \"?\"]{0}[Result \"*\"]{0}[SetUp \"1\"]{0}[FEN \"2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23\"]{0}{0}23.Bxf7+{0}*{0}", _moveFormatter.NewLine);
-            var pgnOutput = _moveFormatter.BuildPgn(game);
-            Debug.WriteLine(pgnOutput);
-            Assert.AreEqual(expectedOutput, pgnOutput);
-        }
-
-        [Test]
-        public void TestPgnWithVariations()
-        {
-            var expectedOutput =
-                string.Format("[Event \"?\"]{0}[Site \"?\"]{0}[Date \"????.??.??\"]{0}[Round \"?\"]{0}[White \"?\"]{0}[Black \"?\"]{0}[Result \"*\"]{0}{0}1.c4 g6 2.Nc3 {0}    ( 2.d4 Bg7 3.Nc3 ){0}*{0}", _moveFormatter.NewLine);
-            var game = new Game();
-            string[] main = { "c4", "g6", "Nc3" };
-            string[] variation = { "d4", "Bg7", "Nc3" };
-            AddLineToGame(game, main);
-            game.MoveNext();
-            game.MoveNext();
-            AddLineToGame(game, variation);
-            var output = _moveFormatter.BuildPgn(game);
-            Debug.WriteLine(new string('*', 80));
-            Debug.WriteLine(output);
-            Debug.WriteLine(new string('*', 80));
-
-            Assert.AreEqual(expectedOutput, output);
-        }
-
-        [Test]
-        public void BuildPgn_VariationOnInitialMove()
-        {
-            var expected =
-                string.Format("", _moveFormatter.NewLine);
-            var game = new Game();
-            game.ApplyMove("c4", MoveApplicationStrategy.ContinueMainLine);
-            game.ExitVariation();
-            game.ApplyMove("d4", MoveApplicationStrategy.ContinueMainLine);
-            var actual = _moveFormatter.BuildPgn(game);
-            Assert.AreEqual(expected, actual);
-        }
-
         [TestCaseSource(nameof(GetVariationTestCases))]
-        public void BuildPgn_VariationOnInitialMove(PgnFormatterVariationTestCase testCase)
+        public void BuildPgn_TestVariousPositionsAndVariations(PgnFormatterVariationTestCase testCase)
         {
+            Console.WriteLine(testCase.ExpectedPgn);
             var expected = string.Format(testCase.ExpectedPgn, _moveFormatter.NewLine);
             var actual = _moveFormatter.BuildPgn(testCase.Game);
+            Console.WriteLine(actual);
             Assert.AreEqual(expected, actual, testCase.ToString());
         }
 
         protected static IEnumerable<PgnFormatterVariationTestCase> GetVariationTestCases()
         {
             yield return new PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
-                ChessLib.Core.Tests.PGN.PgnFormatterVariationMiddle,
-                new string[] { "c4", "g6", "Nc3" },
-                new string[] { "d4", "Bg7", "Nc3" },
-                2, "Variation in middle of game"
+                PGN.PgnFormatterVariationMiddle,
+                new[] { "c4", "g6", "Nc3" },
+                new[] { "d4", "Bg7", "Nc3" },
+                2, "Variation in middle of game - 3. Nc3 (3. d4 Bg7 4. Nc3)"
             );
             yield return new PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
                 PGN.PgnFormatterVariationInitial,
-                new[] { "c4" }, new[] { "d4" }, 0, "Variation on initial position");
+                new[] { "c4" },
+                new[] { "d4" },
+                0,
+                "Variation on initial position - 1. c4 (1. d4)");
 
             yield return new PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
-                PGN.PgnFormatterVariationEnd,
-                new[] { "c4", "e5", "Nc3", "Nf6", "Nf3", "Nc6" }, new[] { "d6" }, 5, "Variation on last position");
+                PGN.PgnFormatterVariationMiddle,
+                new[] { "c4", "e5", "Nc3", "Nf6", "Nf3", "Nc6" },
+                new[] { "d6" }, 5,
+                "Black defends e5 with 3...Nc6 (3...d6)");
+
+            yield return new PgnFormatterVariationTestCase(
+                "2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23",
+                PGN.PgnFormatterCaptureWithCheck,
+                new[] { "Bxf7" }, "Alternate starting position with 23. Bxf7+");
+            yield return GetLongVariation();
+        }
+
+        private static PgnFormatterVariationTestCase GetLongVariation()
+        {
+            var moveset = new[] {"c4", "Nf6", "Nc3", "e6", "Nf3", "d5", "d4", "Nbd7", "Bg5", "h6" };
+
+            var testCase = new PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
+                PGN.PgnFormatterAllAccoutrements,
+                moveset, "Game with comments, multiple variations on variations, annotations, tags filled");
+                SetupLongGame(testCase);
+                testCase.Game.Tags.Event = "The Mediocre of Chess";
+                testCase.Game.Tags.White = "GoodPlayer, One";
+                testCase.Game.Tags.Black = "DecentPlayer, A.";
+                testCase.Game.Tags.Site = "New York City, NY USA";
+                testCase.Game.Tags.Date = "2021.08.18";
+                testCase.Game.Tags.Round = "2";
+                testCase.Game.Tags["EventDate"] = "2021.08.16";
+                testCase.Game.GameResult = GameResult.WhiteWins;
+                testCase.Game.Tags["ECO"] = "D51";
+
+            return testCase;
+        }
+
+        private static void SetupLongGame(PgnFormatterVariationTestCase testCase)
+        {
+            testCase.Game.Reset();
+            testCase.Game.MoveNext();
+            testCase.Game.MoveNext();
+            testCase.Game.ApplyMove("g3", MoveApplicationStrategy.ContinueMainLine);
+            testCase.Game.ExitVariation();
+            testCase.Game.MoveNext();
+            testCase.Game.ApplyMove("e5", MoveApplicationStrategy.ContinueMainLine)
+                .ApplyMove("Nf3", MoveApplicationStrategy.ContinueMainLine);
+            testCase.Game.ExitVariation();
+            testCase.Game.MoveNext();
+            testCase.Game.MoveNext();
+            testCase.Game.MoveNext();
+
+            testCase.Game.ApplyMove("cxd5", "exd5", "d4");
+            testCase.Game.MovePrevious();
+            testCase.Game.ApplyMove("e3", "Bd6");
+            testCase.Game.Current.Node.Annotation.ApplyNag("=+");
+            testCase.Game.MovePrevious();
+            testCase.Game.ApplyMove("c6");
+            testCase.Game.AddNag(new NumericAnnotation("?!"));
+            testCase.Game.ExitVariation();
+            testCase.Game.ExitVariation();
+            testCase.Game.ExitVariation();
+            testCase.Game.MoveNext();
+            testCase.Game.MoveNext();
+            testCase.Game.MoveNext();
+            testCase.Game.ApplyMove("c6", MoveApplicationStrategy.ContinueMainLine);
+            testCase.Game.MovePrevious();
+            testCase.Game.ApplyMove("Bb4", "cxd5", "exd5");
+            testCase.Game.Current.Node.Comment = "Best move";
+            testCase.Game.ApplyMove("e3", MoveApplicationStrategy.ContinueMainLine);
+            testCase.Game.Current.Node.Comment = "White has a slight advantage.";
+            testCase.Game.MovePrevious();
+            testCase.Game.ApplyMove("Qc2", "h6");
+            testCase.Game.AddNag(new NumericAnnotation("+="));
         }
 
 
-        /// <summary>.
+        /// <summary>
+        ///     .
         ///     Make a node tree on a game
         /// </summary>
         /// <param name="game">Game with CurrentNode set to correct position</param>
@@ -101,30 +131,41 @@ namespace ChessLib.Core.Tests.Types
 
         public class PgnFormatterVariationTestCase
         {
-            private readonly string description;
             public Game Game { get; }
             public string Fen { get; }
             public string ExpectedPgn { get; }
-            public override string ToString()
+
+            public PgnFormatterVariationTestCase(string fen, string expectedPgn, string[] main,
+                string[] variation = null,
+                int variationMoveOffset = -1, string description = "") : this(fen, expectedPgn, main, description)
             {
-                return description;
+                AddVariationAtIndex(variation, variationMoveOffset);
+                Game.ExitVariation();
             }
 
-            public PgnFormatterVariationTestCase(string fen, string expectedPgn, string[] main, string[] variation = null,
-                int variationMoveOffset = -1, string description = "")
+            public PgnFormatterVariationTestCase(string fen, string expectedPgn, string[] main,
+                string description = "") : this(fen, expectedPgn, description)
             {
-                Fen = fen;
-                ExpectedPgn = expectedPgn;
-                this.description = description;
-                Game = new Game(fen);
                 foreach (var move in main)
                 {
                     Game.ApplyMove(move, MoveApplicationStrategy.ContinueMainLine);
                 }
 
                 Game.ExitVariation();
-                AddVariationAtIndex(variation, variationMoveOffset);
-                Game.ExitVariation();
+            }
+
+            private PgnFormatterVariationTestCase(string fen, string expectedPgn, string description)
+            {
+                this.Description = description;
+                this.ExpectedPgn = expectedPgn;
+                this.Fen = fen;
+                Game = new Game(fen);
+            }
+            public string Description { get; }
+
+            public override string ToString()
+            {
+                return Description;
             }
 
             private void AddVariationAtIndex(string[] variation, int variationMoveOffset)
@@ -141,6 +182,4 @@ namespace ChessLib.Core.Tests.Types
             }
         }
     }
-
- 
 }

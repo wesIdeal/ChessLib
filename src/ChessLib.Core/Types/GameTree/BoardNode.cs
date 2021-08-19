@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Types.Tree;
@@ -38,11 +37,21 @@ namespace ChessLib.Core.Types.GameTree
             Board = (Board)boardNode.Board.Clone();
         }
 
+        public object Clone()
+        {
+            return new BoardNode(this);
+        }
+
         public bool Equals(BoardNode other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return Equals(Board, other.Board) && Node.Equals(other.Node);
+        }
+
+        public override string ToString()
+        {
+            return Node.Value.MoveValue == Move.NullMove ? "Initial" : Node.Value.San;
         }
 
         public override bool Equals(object obj)
@@ -56,11 +65,6 @@ namespace ChessLib.Core.Types.GameTree
         public override int GetHashCode()
         {
             return (int)Node.Value.BoardStateHash;
-        }
-
-        public object Clone()
-        {
-            return new BoardNode(this);
         }
 
         public static bool operator ==(BoardNode left, BoardNode right)
