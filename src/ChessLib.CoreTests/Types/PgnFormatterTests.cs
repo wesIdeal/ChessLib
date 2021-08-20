@@ -15,14 +15,14 @@ namespace ChessLib.Core.Tests.Types
     [TestFixture]
     public class PgnFormatterTests
     {
-        private readonly PgnFormatter _moveFormatter =
-            new PgnFormatter(new PGNFormatterOptions { ResultOnNewLine = true });
+        private static readonly PGNFormatterOptions options = new PGNFormatterOptions { ExportFormat = true, ExportFormatNewLineOverride = Environment.NewLine};
+        private readonly PgnFormatter _moveFormatter = new PgnFormatter(options);
 
         [TestCaseSource(nameof(GetVariationTestCases))]
         public void BuildPgn_TestVariousPositionsAndVariations(PgnFormatterVariationTestCase testCase)
         {
             Console.WriteLine(testCase.ExpectedPgn);
-            var expected = string.Format(testCase.ExpectedPgn, _moveFormatter.NewLine);
+            var expected = string.Format(testCase.ExpectedPgn, options.NewLine);
             var actual = _moveFormatter.BuildPgn(testCase.Game);
             Console.WriteLine(actual);
             Assert.AreEqual(expected, actual, testCase.ToString());
@@ -31,7 +31,7 @@ namespace ChessLib.Core.Tests.Types
         protected static IEnumerable<PgnFormatterVariationTestCase> GetVariationTestCases()
         {
             yield return new PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
-                PGN.PgnFormatterVariationMiddle,
+                PGN.PgnFormatterd4Variation,
                 new[] { "c4", "g6", "Nc3" },
                 new[] { "d4", "Bg7", "Nc3" },
                 2, "Variation in middle of game - 3. Nc3 (3. d4 Bg7 4. Nc3)"
@@ -44,7 +44,7 @@ namespace ChessLib.Core.Tests.Types
                 "Variation on initial position - 1. c4 (1. d4)");
 
             yield return new PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
-                PGN.PgnFormatterVariationMiddle,
+                PGN.PgnFormatterVariationDefende5,
                 new[] { "c4", "e5", "Nc3", "Nf6", "Nf3", "Nc6" },
                 new[] { "d6" }, 5,
                 "Black defends e5 with 3...Nc6 (3...d6)");
@@ -58,21 +58,21 @@ namespace ChessLib.Core.Tests.Types
 
         private static PgnFormatterVariationTestCase GetLongVariation()
         {
-            var moveset = new[] {"c4", "Nf6", "Nc3", "e6", "Nf3", "d5", "d4", "Nbd7", "Bg5", "h6" };
+            var moveset = new[] { "c4", "Nf6", "Nc3", "e6", "Nf3", "d5", "d4", "Nbd7", "Bg5", "h6" };
 
             var testCase = new PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
                 PGN.PgnFormatterAllAccoutrements,
                 moveset, "Game with comments, multiple variations on variations, annotations, tags filled");
-                SetupLongGame(testCase);
-                testCase.Game.Tags.Event = "The Mediocre of Chess";
-                testCase.Game.Tags.White = "GoodPlayer, One";
-                testCase.Game.Tags.Black = "DecentPlayer, A.";
-                testCase.Game.Tags.Site = "New York City, NY USA";
-                testCase.Game.Tags.Date = "2021.08.18";
-                testCase.Game.Tags.Round = "2";
-                testCase.Game.Tags["EventDate"] = "2021.08.16";
-                testCase.Game.GameResult = GameResult.WhiteWins;
-                testCase.Game.Tags["ECO"] = "D51";
+            SetupLongGame(testCase);
+            testCase.Game.Tags.Event = "The Mediocre of Chess";
+            testCase.Game.Tags.White = "GoodPlayer, One";
+            testCase.Game.Tags.Black = "DecentPlayer, A.";
+            testCase.Game.Tags.Site = "New York City, NY USA";
+            testCase.Game.Tags.Date = "2021.08.18";
+            testCase.Game.Tags.Round = "2";
+            testCase.Game.Tags["EventDate"] = "2021.08.16";
+            testCase.Game.GameResult = GameResult.WhiteWins;
+            testCase.Game.Tags["ECO"] = "D51";
 
             return testCase;
         }

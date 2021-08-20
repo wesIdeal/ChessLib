@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Core.Types
 {
     public class PGNFormatterOptions
     {
-        public static PGNFormatterOptions ExportFormatOptions => new PGNFormatterOptions {ExportFormat = true};
+        public static PGNFormatterOptions ExportFormatOptions => new PGNFormatterOptions { ExportFormat = true };
 
         /// <summary>
         ///     Keeps tags with values equal to '?' if set to true. Otherwise discard them.
@@ -16,9 +17,32 @@ namespace ChessLib.Core.Types
         public AnnotationStyle AnnotationStyle { get; set; }
 
         /// <summary>
+        /// Used to override the export format's designated new line <value>\n</value>.
+        /// </summary>
+        public string ExportFormatNewLineOverride { get; set; } = "\n";
+
+        /// <summary>
         ///     Sets the option for the Export Format Standard for PGN. Overrides all other options.
         /// </summary>
-        public bool ExportFormat { get; set; }
+        public bool ExportFormat
+        {
+            get
+            {
+                return NewlineEachMove == false &&
+                       SpaceAfterMoveNumber == false &&
+                       IndentVariations == false &&
+                       ResultOnNewLine == false &&
+                       NewlineAfterBlackMove == false;
+            }
+            set
+            {
+                NewlineEachMove = false;
+                SpaceAfterMoveNumber = false;
+                IndentVariations = false;
+                ResultOnNewLine = false;
+                NewlineAfterBlackMove = false;
+            }
+        }
 
         public bool NewlineEachMove { get; set; }
         public bool SpaceAfterMoveNumber { get; set; }
@@ -39,7 +63,9 @@ namespace ChessLib.Core.Types
         public bool KeepAllTags => TagsToKeep.HasFlag(TagKeys.All);
         public bool KeepComments { get; set; }
         public bool ResultOnNewLine { get; set; }
+        public bool NewlineAfterBlackMove { get; set; }
 
+        public string NewLine => ExportFormat ? ExportFormatNewLineOverride : Environment.NewLine;
         public PGNFormatterOptions()
         {
             IndentVariations = true;

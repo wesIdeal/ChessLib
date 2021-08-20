@@ -182,7 +182,25 @@
     <value>[Event "The Mediocre of Chess"]{0}[Site "New York City, NY USA"]{0}[Date "2021.08.18"]{0}[Round "2"]{0}[White "GoodPlayer, One"]{0}[Black "DecentPlayer, A."]{0}[Result "1-0"]{0}[ECO "D51"]{0}[EventDate "2021.08.16"]{0}{0}1.c4 Nf6 2.Nc3 {0}    ( 2.g3 ){0}2...e6 {0}    ( 2...e5 3.Nf3 ){0}3.Nf3 d5 4.d4 {0}    ( 4.cxd5 exd5 5.d4 {0}        ( 5.e3 Bd6 $15 {0}            ( 5...c6 $6 ){0}        ){0}    ){0}4...Nbd7 5.Bg5 h6 {0}    ( 5...c6 ){0}    ( 5...Bb4 6.cxd5 exd5 {{Best move.}} 7.e3 {{White has a slight advantage.}} {0}        ( 7.Qc2 h6 $14 ){0}    ){0}1-0{0}</value>
   </data>
   <data name="PgnFormatterCaptureWithCheck" xml:space="preserve">
-    <value>[Event "?"]{0}[Site "?"]{0}[Date "????.??.??"]{0}[Round "?"]{0}[White "?"]{0}[Black "?"]{0}[Result "*"]{0}[SetUp "1"]{0}[FEN "2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23"]{0}{0}23.Bxf7+{0}*{0}</value>
+    <value>[Event "?"]{0}[Site "?"]{0}[Date "????.??.??"]{0}[Round "?"]{0}[White "?"]{0}[Black "?"]{0}[Result "*"]{0}[SetUp "1"]{0}[FEN "2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23"]{0}{0}23.Bxf7+ *
+</value>
+  </data>
+  <data name="PgnFormatterLongMainLine" xml:space="preserve">
+    <value>[Event "Hallsberg opJ"]
+[Site "Hallsberg"]
+[Date "1975.??.??"]
+[Round "1"]
+[White "Aperia, T."]
+[Black "Benjamin, Joel"]
+[Result "1/2-1/2"]
+[WhiteElo ""]
+[BlackElo ""]
+[ECO "B22"]
+
+1.e4 c5 2.c3 d5 3.exd5 Qxd5 4.d4 cxd4 5.cxd4 Nf6 6.Nc3 Qd8 7.Nf3 Bg4 8.Qb3 Bxf3
+9.gxf3 Qb6 10.Qxb6 axb6 11.Bb5+ Kd8 12.Be3 Nbd7 13.Ke2 e6 14.Rhd1 Bd6 15.d5 e5
+16.Na4 Bc5 17.Nxc5 bxc5 18.a4 b6 19.b4 cxb4 20.Rab1 Nc5 21.Rxb4 Nfd7 22.d6 Kc8
+23.Rc1 Ra7 24.Bc6 Ra5 25.Kf1 Nd3  1/2-1/2</value>
   </data>
   <data name="PgnFormatterVariationEnd" xml:space="preserve">
     <value>[Event "?"]
@@ -195,13 +213,23 @@
 
 1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 
     ( 3...d6 )
-*</value>
+*
+</value>
   </data>
   <data name="PgnFormatterVariationInitial" xml:space="preserve">
     <value>[Event "?"]{0}[Site "?"]{0}[Date "????.??.??"]{0}[Round "?"]{0}[White "?"]{0}[Black "?"]{0}[Result "*"]{0}{0}1.c4 {0}    ( 1.d4 ){0}*{0}</value>
   </data>
-  <data name="PgnFormatterVariationMiddle" xml:space="preserve">
-    <value>[Event "?"]{0}[Site "?"]{0}[Date "????.??.??"]{0}[Round "?"]{0}[White "?"]{0}[Black "?"]{0}[Result "*"]{0}{0}1.c4 g6 2.Nc3 {0}    ( 2.d4 Bg7 3.Nc3 ){0}*{0}</value>
+  <data name="PgnFormatterVariationDefende5" xml:space="preserve">
+    <value>[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 ( 3...d6) *
+</value>
   </data>
   <data name="Puzzle" xml:space="preserve">
     <value>[Event " White to move."]
@@ -274,5 +302,17 @@
     ( 1...e6 )
     ( 1...c5 )
 2.Nc3 *</value>
+  </data>
+  <data name="PgnFormatterd4Variation" xml:space="preserve">
+    <value>[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1. c4 g6 2. Nc3 ( 2. d4 Bg7 3. Nc3 ) *
+</value>
   </data>
 </root>

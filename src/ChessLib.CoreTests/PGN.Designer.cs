@@ -161,7 +161,8 @@ namespace ChessLib.Core.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [Event &quot;?&quot;]{0}[Site &quot;?&quot;]{0}[Date &quot;????.??.??&quot;]{0}[Round &quot;?&quot;]{0}[White &quot;?&quot;]{0}[Black &quot;?&quot;]{0}[Result &quot;*&quot;]{0}[SetUp &quot;1&quot;]{0}[FEN &quot;2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23&quot;]{0}{0}23.Bxf7+{0}*{0}.
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]{0}[Site &quot;?&quot;]{0}[Date &quot;????.??.??&quot;]{0}[Round &quot;?&quot;]{0}[White &quot;?&quot;]{0}[Black &quot;?&quot;]{0}[Result &quot;*&quot;]{0}[SetUp &quot;1&quot;]{0}[FEN &quot;2bq1rk1/3p1npp/p1p3N1/1rbB1Pp1/1pQ5/P5N1/1PP3PP/R3R2K w - - 0 23&quot;]{0}{0}23.Bxf7+ *
+        ///.
         /// </summary>
         internal static string PgnFormatterCaptureWithCheck {
             get {
@@ -178,9 +179,69 @@ namespace ChessLib.Core.Tests {
         ///[Black &quot;?&quot;]
         ///[Result &quot;*&quot;]
         ///
+        ///1. c4 g6 2. Nc3 ( 2. d4 Bg7 3. Nc3 ) *
+        ///.
+        /// </summary>
+        internal static string PgnFormatterd4Variation {
+            get {
+                return ResourceManager.GetString("PgnFormatterd4Variation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;Hallsberg opJ&quot;]
+        ///[Site &quot;Hallsberg&quot;]
+        ///[Date &quot;1975.??.??&quot;]
+        ///[Round &quot;1&quot;]
+        ///[White &quot;Aperia, T.&quot;]
+        ///[Black &quot;Benjamin, Joel&quot;]
+        ///[Result &quot;1/2-1/2&quot;]
+        ///[WhiteElo &quot;&quot;]
+        ///[BlackElo &quot;&quot;]
+        ///[ECO &quot;B22&quot;]
+        ///
+        ///1.e4 c5 2.c3 d5 3.exd5 Qxd5 4.d4 cxd4 5.cxd4 Nf6 6.Nc3 Qd8 7.Nf3 Bg4 8.Qb3 Bxf3
+        ///9.gxf3 Qb6 10.Qxb6 axb6 11.Bb5+ Kd8 12.Be3 Nbd7 13.Ke2 e6 14.Rhd1 Bd6 15.d5 e5
+        ///16.Na4 Bc5 17.Nxc5 bxc5 18.a4 b6 19.b4 cxb4 20.Rab1 Nc5 21.Rxb4 Nfd7 22.d6 Kc8
+        ///23.Rc1 Ra7 24.Bc6 Ra5 25.Kf1 Nd3  1/2-1/2.
+        /// </summary>
+        internal static string PgnFormatterLongMainLine {
+            get {
+                return ResourceManager.GetString("PgnFormatterLongMainLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
+        ///1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 ( 3...d6) *
+        ///.
+        /// </summary>
+        internal static string PgnFormatterVariationDefende5 {
+            get {
+                return ResourceManager.GetString("PgnFormatterVariationDefende5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]
+        ///[Site &quot;?&quot;]
+        ///[Date &quot;????.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;?&quot;]
+        ///[Black &quot;?&quot;]
+        ///[Result &quot;*&quot;]
+        ///
         ///1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 
         ///    ( 3...d6 )
-        ///*.
+        ///*
+        ///.
         /// </summary>
         internal static string PgnFormatterVariationEnd {
             get {
@@ -194,15 +255,6 @@ namespace ChessLib.Core.Tests {
         internal static string PgnFormatterVariationInitial {
             get {
                 return ResourceManager.GetString("PgnFormatterVariationInitial", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [Event &quot;?&quot;]{0}[Site &quot;?&quot;]{0}[Date &quot;????.??.??&quot;]{0}[Round &quot;?&quot;]{0}[White &quot;?&quot;]{0}[Black &quot;?&quot;]{0}[Result &quot;*&quot;]{0}{0}1.c4 g6 2.Nc3 {0}    ( 2.d4 Bg7 3.Nc3 ){0}*{0}.
-        /// </summary>
-        internal static string PgnFormatterVariationMiddle {
-            get {
-                return ResourceManager.GetString("PgnFormatterVariationMiddle", resourceCulture);
             }
         }
         

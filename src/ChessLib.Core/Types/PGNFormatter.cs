@@ -3,22 +3,65 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.Tree;
 using EnumsNET;
 
 [assembly: InternalsVisibleTo("ChessLib.Core.Tests.Types")]
+
 namespace ChessLib.Core.Types
 {
+    internal struct MoveInformation
+    {
+        public MoveInformation(MoveTreeNode<PostMoveState> postMoveTreeNode)
+        {
+            PreMoveBoardState = (MoveTreeNode<PostMoveState>)postMoveTreeNode.Previous;
+            PostMoveState = postMoveTreeNode;
+        }
+
+
+        public uint MoveNumber => (uint)(((BoardState)PostMoveState.Value.BoardState).FullMoveCounter -
+                                         (ActiveColor == Color.Black ? 1 : 0));
+
+        public bool IsInitialBoard => Move.IsNullMove;
+        public Color ActiveColor => ((BoardState)PreMoveBoardState.Value.BoardState).ActivePlayer;
+
+        public bool IsFirstMoveOfVariation()
+        {
+            MoveInformation moveInfo = this;
+            var any = !moveInfo.IsMainLine;
+            return any;
+        }
+
+        public MoveTreeNode<PostMoveState> PostMoveState { get; }
+        public MoveTreeNode<PostMoveState> PreMoveBoardState { get; }
+        public Move Move => PostMoveState.Value.MoveValue;
+        public Move ParentMove => PreMoveBoardState?.Value.MoveValue;
+        public bool IsMainLine => SiblingVariations.First().MoveValue == Move;
+        public string San => PostMoveState.Value.San;
+
+        public override string ToString()
+        {
+            return San;
+        }
+
+        public Move[] SiblingVariations =>
+            PreMoveBoardState.Continuations.Select(x => (Move)x.Value.MoveValue).ToArray();
+
+        public Move[] ParentVariations =>
+            PreMoveBoardState?.Previous?.Continuations.Select(x => (Move)x.Value.MoveValue).ToArray();
+
+        public string Comment => PostMoveState.Comment;
+        public NumericAnnotation Annotation => PostMoveState.Annotation;
+    }
+
     public class PgnFormatter
     {
         internal static readonly string LineFeed = $"{0x0a}";
 
-        internal string NewLine =>
-            _options.ExportFormat ? LineFeed : Environment.NewLine;
 
-        private string ResultMoveSeparator => _options.ExportFormat || !_options.ResultOnNewLine ? " " : NewLine;
+        private string ResultMoveSeparator => _options.ResultOnNewLine ? _options.NewLine : " ";
 
         public PgnFormatter(PGNFormatterOptions options)
         {
@@ -44,19 +87,19 @@ namespace ChessLib.Core.Types
             var tagSection = BuildTags(gameClone.Tags);
             var treeRoot = gameClone.InitialNode;
             var moveSection = BuildMoveTree(treeRoot.Node, 0);
-            return tagSection + NewLine + moveSection + ResultMoveSeparator + game.Result + NewLine;
+            return tagSection + _options.NewLine + moveSection + ResultMoveSeparator + game.Result + _options.NewLine;
         }
 
 
         private string BuildMoveTree(MoveTreeNode<PostMoveState> rootNode, int indentLevel)
         {
             //Get the next node's move recorded to text
-            var stringBuilder = new StringBuilder();
+            var stringBuilder = new PgnBuilder();
             BuildMoveTree(rootNode, ref stringBuilder, 0);
             return stringBuilder.ToString().Trim();
         }
 
-        private void BuildMoveTree(MoveTreeNode<PostMoveState> rootNode, ref StringBuilder stringBuilder,
+        private void BuildMoveTree(MoveTreeNode<PostMoveState> rootNode, ref PgnBuilder stringBuilder,
             int indentLevel)
         {
             //Get the next node's move recorded to text
@@ -65,9 +108,9 @@ namespace ChessLib.Core.Types
             var variationsText = GetFormattedVariations(variationsList, indentLevel + 1);
             if (mainContinuation != null)
             {
-                var move = mainContinuation.Value;
-                var moveText = GetFormattedPly((MoveTreeNode<PostMoveState>)mainContinuation) + " ";
-                stringBuilder.Append(moveText).Append(variationsText);
+                var moveInfo = new MoveInformation((MoveTreeNode<PostMoveState>)mainContinuation);
+                var moveText = GetFormattedPly(moveInfo) + " ";
+                stringBuilder.Append(moveText).Append(variationsText.Trim());
                 BuildMoveTree((MoveTreeNode<PostMoveState>)mainContinuation, ref stringBuilder, indentLevel);
             }
             else
@@ -86,49 +129,19 @@ namespace ChessLib.Core.Types
             }
 
             var variationsText = new List<string>(continuations.Count());
-            foreach (var continuation in continuations)
+            foreach (var node in continuations)
             {
-                var variationText = GetFormattedPly((MoveTreeNode<PostMoveState>)continuation) + " ";
-                var sb = new StringBuilder(variationText);
-                BuildMoveTree((MoveTreeNode<PostMoveState>)continuation, ref sb, indent);
+                var continuation = (MoveTreeNode<PostMoveState>)node;
+                var moveInfo = new MoveInformation(continuation);
+                var variationText = GetFormattedPly(moveInfo) + " ";
+                var sb = new PgnBuilder(variationText);
+                BuildMoveTree(continuation, ref sb, indent);
                 variationsText.Add(sb.ToString().Trim());
             }
 
             return variationsText;
         }
 
-
-        //private string BuildMoveTree(in IEnumerable<PostMoveState> tree, string fen, uint indentLevel = 0)
-        //{
-        //    var sb = new StringBuilder();
-        //    var game = new Game(fen);
-        //    var currentNode = tree.First();
-
-        //    while (currentNode != null)
-        //    {
-        //        var previousMove = currentNode;
-        //        var move = currentNode;
-
-
-        //        var plySequence = GetFormattedPly(currentNode);
-        //        sb.Append(plySequence);
-        //        if (move.Variations.Any())
-        //        {
-        //            var lstVariations = new List<string>();
-        //            foreach (var variation in move.Variations)
-        //            {
-        //                lstVariations.Add(BuildMoveTree(variation.MainLine, bi.Fen, indentLevel++));
-        //            }
-
-        //            sb.Append(GetFormattedVariations(lstVariations, indentLevel++));
-        //        }
-
-        //        currentNode = currentNode.Next;
-        //    }
-
-        //    var strPgn = sb.ToString().Trim();
-        //    return strPgn;
-        //}
 
         private string GetFormattedComment(string comment)
         {
@@ -140,48 +153,25 @@ namespace ChessLib.Core.Types
             return "";
         }
 
-        private string GetFormattedPly(MoveTreeNode<PostMoveState> currentState)
+        private string GetFormattedPly(MoveInformation moveInfo)
         {
-            var boardState = (BoardState)currentState.Value.BoardState;
-
-            var strMoveNumber = GetFormattedMoveNumber((MoveTreeNode<PostMoveState>)currentState);
-            var strMoveText = currentState.Value.San;
-            var moveEndingCharacter = GetEndOfMoveWhitespace(boardState.ActivePlayer);
-            var formattedComment = GetFormattedComment(currentState.Comment);
-            var annotation = GetFormattedAnnotation(currentState);
-            var moveText = $"{strMoveNumber}{strMoveText}{moveEndingCharacter}{annotation}{formattedComment}".Trim();
-
+            var moveText = moveInfo.ToPgn(_options);
             return moveText;
         }
 
-        private string GetFormattedVariations(List<string> lstVariations, int depth)
+        private string GetFormattedVariations(IReadOnlyCollection<string> lstVariations, int depth)
         {
-            if (_options.IndentVariations)
+            if (_options.IndentVariations && lstVariations.Any())
             {
-                var formattedPgn = string.Join("", lstVariations.Select(v => $"{NewLine}( {v} )"));
-                formattedPgn = formattedPgn.Replace(NewLine, NewLine + IndentText(depth));
-                return formattedPgn + NewLine;
+                var formattedPgn = string.Join("", lstVariations.Select(v => $"{_options.NewLine}( {v} )"));
+                formattedPgn = formattedPgn.Replace(_options.NewLine, _options.NewLine + IndentText(depth));
+                return formattedPgn + _options.NewLine;
             }
 
             return string.Join("", lstVariations.Select(v => $"( {v.Trim()} )"));
         }
 
-        private string GetFormattedMoveNumber( MoveTreeNode<PostMoveState> currentNode)
-        {
-            if (ShouldWriteMoveNumber(currentNode))
-            {
-                var bi = (BoardState)currentNode?.Previous.Value.BoardState;
-                var activeColor = bi.ActivePlayer;
-                var shouldUseEllipses = activeColor == Color.Black;
-                var currentCounter = ((BoardState)currentNode.Value.BoardState).FullMoveCounter;
-                var moveNumber = activeColor == Color.Black
-                    ? currentCounter - 1
-                    : currentCounter;
-                return FormatMoveNumber(moveNumber, shouldUseEllipses);
-            }
-
-            return "";
-        }
+        
 
         private bool KeepTag(in KeyValuePair<string, string> tag)
         {
@@ -210,7 +200,7 @@ namespace ChessLib.Core.Types
             {
                 if (KeepTag(requiredTag))
                 {
-                    sb.Append($"[{requiredTag.Key} \"{requiredTag.Value}\"]{NewLine}");
+                    sb.Append($"[{requiredTag.Key} \"{requiredTag.Value}\"]{_options.NewLine}");
                 }
             }
 
@@ -218,72 +208,11 @@ namespace ChessLib.Core.Types
             {
                 if (KeepTag(supplementalTag))
                 {
-                    sb.Append($"[{supplementalTag.Key} \"{supplementalTag.Value}\"]{NewLine}");
+                    sb.Append($"[{supplementalTag.Key} \"{supplementalTag.Value}\"]{_options.NewLine}");
                 }
             }
 
             return sb.ToString();
-        }
-
-
-        private static bool ShouldWriteMoveNumber(MoveTreeNode<PostMoveState> currentNode)
-        {
-            var preMoveNode = currentNode?.Previous;
-            var preMoveBoardState = ((BoardState)preMoveNode?.Value.BoardState);
-            if (preMoveNode == null)
-            {
-                return false;
-
-            }
-            //If the move is the initial move
-            if ( preMoveNode.Value.MoveValue == Move.NullMove)
-            {
-                return true;
-            }
-            
-            //If it's white to move
-            if (preMoveBoardState.ActivePlayer == Color.White)
-            {
-                return true;
-            }
-
-            var previousMoveNode = preMoveNode.Previous;
-            //if current is a variation of the parent
-            if (preMoveNode.Continuations.Skip(1).Select(x => x.Value.MoveValue).Contains(currentNode.Value.MoveValue))
-            {
-                return true;
-            }
-            //if the last move had variations
-            
-            if (previousMoveNode != null)
-            {
-                if (previousMoveNode.Continuations.Count > 1)
-                {
-                    //and this node is the main line of the last
-                    if (previousMoveNode.Continuations.First().Value.MoveValue == preMoveNode.Value.MoveValue)
-                    {
-                        return true;
-
-                    }
-                }
-            }
-            return false;
-        }
-
-
-        private string GetFormattedAnnotation(MoveTreeNode<PostMoveState> postMove)
-        {
-            if (postMove.Annotation != null && postMove.Annotation.Any())
-            {
-                if (_options.AnnotationStyle == AnnotationStyle.PGNSpec)
-                {
-                    return $"{postMove.Annotation.ToNAGString()} ";
-                }
-
-                return $"{postMove.Annotation} ";
-            }
-
-            return "";
         }
 
 
@@ -292,27 +221,42 @@ namespace ChessLib.Core.Types
             return depth == 0 ? " " : new string(' ', depth * 4);
         }
 
-        private string GetEndOfMoveWhitespace(Color activeColor)
+        private class PgnBuilder
         {
-            return _options.ExportFormat ? " " : _options.NewlineEachMove && activeColor == Color.Black ? NewLine : " ";
-        }
+            private StringBuilder Accumulator { get; }
 
-        private bool UseEllipses(MoveTreeNode<PostMoveState> previousMove, Color activeColor, bool isVariation)
-        {
-            return (previousMove == null || !string.IsNullOrWhiteSpace(previousMove.Comment) || isVariation || previousMove.Continuations.Count > 1) &&
-                   activeColor == Color.Black;
-        }
+            private StringBuilder StringBuilder { get; }
 
-        private string FormatMoveNumber(uint moveNumber, bool threePeriods)
-        {
-            var moveNumberText = moveNumber + (threePeriods ? "..." : ".");
-
-            if (_options.SpaceAfterMoveNumber && !_options.ExportFormat)
+            public PgnBuilder()
             {
-                moveNumberText += " ";
+                StringBuilder = new StringBuilder();
+                Accumulator = new StringBuilder();
             }
 
-            return moveNumberText;
+            public PgnBuilder(string variationText) : this()
+            {
+                Append(variationText);
+            }
+
+            public override string ToString()
+            {
+                var strReturnValue = StringBuilder + Accumulator.ToString();
+                return strReturnValue;
+            }
+
+            public PgnBuilder Append(string value)
+            {
+                var valueLength = value.Length;
+                var accumulatorLength = Accumulator.Length;
+                if (valueLength + accumulatorLength > 80)
+                {
+                    StringBuilder.Append(Accumulator);
+                    Accumulator.Clear();
+                }
+
+                Accumulator.Append(value);
+                return this;
+            }
         }
     }
 }

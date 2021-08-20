@@ -4,8 +4,8 @@ using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Types.Tree
 {
-    public abstract class NodeBase<T> : ICloneable, INode<T>, IEquatable<NodeBase<T>>
-        where T : ICloneable, IEquatable<T>
+    public abstract class NodeBase<T> : INode<T>, IEquatable<NodeBase<T>>
+        where T : IPostMoveState
     {
         /// <summary>
         /// Constructs a NodeBase object from an existing NodeBase object
