@@ -152,7 +152,21 @@ namespace ChessLib.Core.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [Event &quot;The Mediocre of Chess&quot;]{0}[Site &quot;New York City, NY USA&quot;]{0}[Date &quot;2021.08.18&quot;]{0}[Round &quot;2&quot;]{0}[White &quot;GoodPlayer, One&quot;]{0}[Black &quot;DecentPlayer, A.&quot;]{0}[Result &quot;1-0&quot;]{0}[ECO &quot;D51&quot;]{0}[EventDate &quot;2021.08.16&quot;]{0}{0}1.c4 Nf6 2.Nc3 {0}    ( 2.g3 ){0}2...e6 {0}    ( 2...e5 3.Nf3 ){0}3.Nf3 d5 4.d4 {0}    ( 4.cxd5 exd5 5.d4 {0}        ( 5.e3 Bd6 $15 {0}            ( 5...c6 $6 ){0}        ){0}    ){0}4...Nbd7 5.Bg5 h6 {0}    ( 5...c6 ){0}    ( 5...Bb4 6.cxd5 exd5 {{Best move.}} 7.e3 {{White has a slight adv [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to [Event &quot;The Mediocre of Chess&quot;]
+        ///[Site &quot;New York City, NY USA&quot;]
+        ///[Date &quot;2021.08.18&quot;]
+        ///[Round &quot;2&quot;]
+        ///[White &quot;GoodPlayer, One&quot;]
+        ///[Black &quot;DecentPlayer, A.&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[ECO &quot;D51&quot;]
+        ///[EventDate &quot;2021.08.16&quot;]
+        ///
+        ///1.c4 Nf6 2.Nc3 (2.g3) 2...e6 (2...e5 3.Nf3) 3.Nf3 d5 4.d4 (4.cxd5
+        ///exd5 5.d4 (5.e3 Bd6 $15 (5...c6 $6))) 4...Nbd7 5.Bg5 h6 (5...c6) (
+        ///5...Bb4 6.cxd5 exd5 {{ Best move.}} 7.e3 {{ White has a slight advantage.
+        ///}} (7.Qc2 h6 $14)) 1-0
+        ///.
         /// </summary>
         internal static string PgnFormatterAllAccoutrements {
             get {
@@ -220,7 +234,7 @@ namespace ChessLib.Core.Tests {
         ///[Black &quot;?&quot;]
         ///[Result &quot;*&quot;]
         ///
-        ///1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 ( 3...d6) *
+        ///1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 (3...d6) *
         ///.
         /// </summary>
         internal static string PgnFormatterVariationDefende5 {

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
-using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
@@ -15,7 +12,9 @@ namespace ChessLib.Core.Tests.Types
     [TestFixture]
     public class PgnFormatterTests
     {
-        private static readonly PGNFormatterOptions options = new PGNFormatterOptions { ExportFormat = true, ExportFormatNewLineOverride = Environment.NewLine};
+        private static readonly PGNFormatterOptions options = new PGNFormatterOptions
+            { NewLine = Environment.NewLine };
+
         private readonly PgnFormatter _moveFormatter = new PgnFormatter(options);
 
         [TestCaseSource(nameof(GetVariationTestCases))]
@@ -58,11 +57,11 @@ namespace ChessLib.Core.Tests.Types
 
         private static PgnFormatterVariationTestCase GetLongVariation()
         {
-            var moveset = new[] { "c4", "Nf6", "Nc3", "e6", "Nf3", "d5", "d4", "Nbd7", "Bg5", "h6" };
+            var moveSet = new[] { "c4", "Nf6", "Nc3", "e6", "Nf3", "d5", "d4", "Nbd7", "Bg5", "h6" };
 
             var testCase = new PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
                 PGN.PgnFormatterAllAccoutrements,
-                moveset, "Game with comments, multiple variations on variations, annotations, tags filled");
+                moveSet, "Game with comments, multiple variations on variations, annotations, tags filled");
             SetupLongGame(testCase);
             testCase.Game.Tags.Event = "The Mediocre of Chess";
             testCase.Game.Tags.White = "GoodPlayer, One";
@@ -117,23 +116,12 @@ namespace ChessLib.Core.Tests.Types
         }
 
 
-        /// <summary>
-        ///     .
-        ///     Make a node tree on a game
-        /// </summary>
-        /// <param name="game">Game with CurrentNode set to correct position</param>
-        /// <param name="moves">Moves to add</param>
-        private void AddLineToGame(Game game, string[] moves)
-        {
-            moves.ToList().ForEach(m => game.ApplyMove(m, MoveApplicationStrategy.ContinueMainLine));
-            game.ExitVariation();
-        }
-
         public class PgnFormatterVariationTestCase
         {
             public Game Game { get; }
             public string Fen { get; }
             public string ExpectedPgn { get; }
+            public string Description { get; }
 
             public PgnFormatterVariationTestCase(string fen, string expectedPgn, string[] main,
                 string[] variation = null,
@@ -156,12 +144,11 @@ namespace ChessLib.Core.Tests.Types
 
             private PgnFormatterVariationTestCase(string fen, string expectedPgn, string description)
             {
-                this.Description = description;
-                this.ExpectedPgn = expectedPgn;
-                this.Fen = fen;
+                Description = description;
+                ExpectedPgn = expectedPgn;
+                Fen = fen;
                 Game = new Game(fen);
             }
-            public string Description { get; }
 
             public override string ToString()
             {
