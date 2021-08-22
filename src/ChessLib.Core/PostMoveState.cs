@@ -1,6 +1,7 @@
 ﻿using System;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Translate;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.GameTree;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Types.Tree;
@@ -62,9 +63,24 @@ namespace ChessLib.Core
         public ulong BoardStateHash { get; }
 
 
+        /// <summary>
+        ///     <see cref="Color" /> of side making the <see cref="Move" /> that resulted in <see cref="BoardState" />.
+        /// </summary>
+        public Color ColorMakingMove => ((BoardState)BoardState).ActivePlayer.Toggle();
+
+        /// <summary>
+        ///     Gets the full whole-move count of this move.
+        /// </summary>
+        /// <remarks>
+        ///     If the last move was from <see cref="Color.Black" />, then the move is actually the board state move minus
+        ///     one.
+        /// </remarks>
+        public uint MoveNumber => (uint)(((BoardState)(BoardState)).FullMoveCounter - (ColorMakingMove == Color.Black ? 1 : 0));
+
         public bool Equals(PostMoveState other)
         {
-            return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San && BoardStateHash == other.BoardStateHash;
+            return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San &&
+                   BoardStateHash == other.BoardStateHash;
         }
 
         public bool Equals(IPostMoveState other)
@@ -73,8 +89,8 @@ namespace ChessLib.Core
             {
                 return false;
             }
-            return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San;
 
+            return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San;
         }
 
         public override bool Equals(object obj)
@@ -96,7 +112,7 @@ namespace ChessLib.Core
 
         public object Clone()
         {
-            return new PostMoveState(this.BoardState, MoveValue, BoardStateHash, San);
+            return new PostMoveState(BoardState, MoveValue, BoardStateHash, San);
         }
 
         public static bool operator ==(PostMoveState left, PostMoveState right)

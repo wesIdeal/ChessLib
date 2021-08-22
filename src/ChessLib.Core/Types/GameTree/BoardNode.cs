@@ -12,6 +12,9 @@ namespace ChessLib.Core.Types.GameTree
         public MoveTreeNode<PostMoveState> Node { get; }
         public string Fen => Board.Fen;
 
+        /// <summary>
+        /// Gets the variations from this board state.
+        /// </summary>
         public List<INode<PostMoveState>> Variations => Node.Continuations.Skip(1).ToList();
 
         public BoardNode(Board rootNodeBoard)

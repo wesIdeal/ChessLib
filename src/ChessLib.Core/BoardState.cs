@@ -30,7 +30,7 @@ namespace ChessLib.Core
         {
             get
             {
-                var endOfGameStates = new[] {GameState.Checkmate, GameState.StaleMate};
+                var endOfGameStates = new[] { GameState.Checkmate, GameState.StaleMate };
                 return endOfGameStates.Contains(GameState);
             }
         }
@@ -54,7 +54,7 @@ namespace ChessLib.Core
             {
                 var gsInfo = Positions[GameStateKey];
                 var unmasked = (BoardStateStorage & gsInfo.Mask) >> gsInfo.Offset;
-                return (GameState) unmasked;
+                return (GameState)unmasked;
             }
             set
             {
@@ -73,7 +73,7 @@ namespace ChessLib.Core
             {
                 var maskedVal = (BoardStateStorage & Positions[CastlingAvailabilityKey].Mask) >>
                                 Positions[CastlingAvailabilityKey].Offset;
-                return (CastlingAvailability) maskedVal;
+                return (CastlingAvailability)maskedVal;
             }
             set
             {
@@ -89,7 +89,7 @@ namespace ChessLib.Core
             {
                 var activePlayerInfo = Positions[ActivePlayerKey];
                 var unmasked = (BoardStateStorage & activePlayerInfo.Mask) >> activePlayerInfo.Offset;
-                return (Color) unmasked;
+                return (Color)unmasked;
             }
             set
             {
@@ -107,7 +107,7 @@ namespace ChessLib.Core
                 var pieceCapturedInfo = Positions[PieceCapturedKey];
                 var unmasked = BoardStateStorage & pieceCapturedInfo.Mask;
                 var notOffset = unmasked >> pieceCapturedInfo.Offset;
-                return notOffset == 0 ? (Piece?) null : (Piece) (notOffset - 1);
+                return notOffset == 0 ? (Piece?)null : (Piece)(notOffset - 1);
             }
             set
             {
@@ -129,10 +129,10 @@ namespace ChessLib.Core
 
                 if (idx <= 8)
                 {
-                    return (ushort?) (idx + 15);
+                    return (ushort?)(idx + 15);
                 }
 
-                return (ushort?) (idx + 31);
+                return (ushort?)(idx + 31);
             }
             set
             {
@@ -149,7 +149,7 @@ namespace ChessLib.Core
             get
             {
                 var hmInfo = Positions[HalfMoveClockKey];
-                return (byte) ((BoardStateStorage & hmInfo.Mask) >> hmInfo.Offset);
+                return (byte)((BoardStateStorage & hmInfo.Mask) >> hmInfo.Offset);
             }
             set
             {
@@ -240,8 +240,13 @@ namespace ChessLib.Core
         {
             var epInfo = Positions[EnPassantIndexKey];
             var unMasked = BoardStateStorage & epInfo.Mask;
-            var idx = (ushort) (unMasked >> epInfo.Offset);
+            var idx = (ushort)(unMasked >> epInfo.Offset);
             return idx;
+        }
+
+        public static implicit operator BoardState(ushort uMove)
+        {
+            return new BoardState(uMove);
         }
 
 
@@ -286,7 +291,7 @@ namespace ChessLib.Core
 
         private uint GetGameStateStorageValue(GameState state)
         {
-            return (uint) state << Positions[GameStateKey].Offset;
+            return (uint)state << Positions[GameStateKey].Offset;
         }
 
         private uint GetClearValue(string key)
@@ -297,12 +302,12 @@ namespace ChessLib.Core
 
         private uint GetActivePlayerStorageValue(Color activePlayerColor)
         {
-            return (uint) activePlayerColor << Positions[ActivePlayerKey].Offset;
+            return (uint)activePlayerColor << Positions[ActivePlayerKey].Offset;
         }
 
         private uint GetCastlingRightsStorageValue(CastlingAvailability ca)
         {
-            return (uint) ca << Positions[CastlingAvailabilityKey].Offset;
+            return (uint)ca << Positions[CastlingAvailabilityKey].Offset;
         }
 
         private uint GetPieceCapturedStorageValue(Piece? p)
@@ -318,7 +323,7 @@ namespace ChessLib.Core
                 throw new ArgumentException("Error archiving board - the King cannot be captured.");
             }
 
-            var encodedPiece = ((uint) p.Value + 1) << pieceCapturedInfo.Offset;
+            var encodedPiece = ((uint)p.Value + 1) << pieceCapturedInfo.Offset;
             return encodedPiece;
         }
 
@@ -332,7 +337,7 @@ namespace ChessLib.Core
 
             // if the index is on board rank 3, get offset by subtracting 16, else subtract 32 for offset
             var convertedIndex = epIndex <= 23 ? epIndex - 15 : epIndex - 31;
-            var value = (uint) (convertedIndex << 8);
+            var value = (uint)(convertedIndex << 8);
             return value;
         }
 

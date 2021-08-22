@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core.Helpers;
@@ -9,7 +8,6 @@ using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.GameTree;
-using ChessLib.Core.Types.Interfaces;
 using Moq;
 using NUnit.Framework;
 
@@ -35,48 +33,50 @@ namespace ChessLib.Core.Tests
         public void FindMoveIndexInContinuations_WhenMoveIsInContinuation_ShouldReturnZero()
         {
             const int returnVal = 0;
-            var mock = new Mock<Game>() { CallBase = true };
+            var mock = new Mock<Game> { CallBase = true };
             mock.Object.ApplyMove("c4", MoveApplicationStrategy.ContinueMainLine);
             mock.Object.MovePrevious();
 
-            mock.SetupGet(x => x.NextMoves).Returns(new PostMoveState[]
-                {new PostMoveState(new Board(), Move.NullMove, "null")});
+            mock.SetupGet(x => x.NextMoves).Returns(new[]
+                { new PostMoveState(new Board(), Move.NullMove, "null") });
             var actual = mock.Object.FindMoveIndexInContinuations(Move.NullMove);
             Assert.AreEqual(returnVal, actual);
         }
+
         [Test]
         public void FindMoveIndexInContinuations_WhenMoveIsNotInContinuation_ShouldReturnNeg1()
         {
             const int returnVal = -1;
-            var mock = new Mock<Game>() { CallBase = true };
+            var mock = new Mock<Game> { CallBase = true };
             mock.Object.ApplyMove("c4", MoveApplicationStrategy.ContinueMainLine);
             mock.Object.MovePrevious();
 
-            mock.SetupGet(x => x.NextMoves).Returns(new PostMoveState[]
-                {new PostMoveState(new Board(), Move.NullMove, "null")});
+            mock.SetupGet(x => x.NextMoves).Returns(new[]
+                { new PostMoveState(new Board(), Move.NullMove, "null") });
             var actual = mock.Object.FindMoveIndexInContinuations(1);
             Assert.AreEqual(returnVal, actual);
         }
+
         [Test]
         public void MoveNext_WhenMoveNotFound_ShouldReturnFalse()
         {
-            var mock = new Mock<Game>(){CallBase = true};
-            mock.Object.ApplyMove("c4",MoveApplicationStrategy.ContinueMainLine);
+            var mock = new Mock<Game> { CallBase = true };
+            mock.Object.ApplyMove("c4", MoveApplicationStrategy.ContinueMainLine);
             mock.Object.MovePrevious();
             mock.Setup(t => t.MoveNext(It.IsAny<int>())).Returns(true).Verifiable();
             mock.Setup(t => t.FindMoveIndexInContinuations(It.IsAny<ushort>())).Returns(-1); //Move not found
-            var actual = mock.Object.MoveNext((ushort)666);
+            var actual = mock.Object.MoveNext(666);
             Assert.IsFalse(actual);
         }
 
         [Test]
         public void MoveNext_WhenMoveFound_ShouldReturnTrue()
         {
-            var mock = new Mock<Game>(){CallBase = true};
+            var mock = new Mock<Game> { CallBase = true };
             ushort move = 600;
             mock.Object.ApplyMove("c4", MoveApplicationStrategy.ContinueMainLine);
             mock.Object.MovePrevious();
-            mock.Setup(t => t.MoveNext(It.Is<int>(x=>x==0))).Returns(true).Verifiable();
+            mock.Setup(t => t.MoveNext(It.Is<int>(x => x == 0))).Returns(true).Verifiable();
             mock.Setup(t => t.FindMoveIndexInContinuations(It.IsAny<ushort>())).Returns(0); //Move at [0]
             var actual = mock.Object.MoveNext(move);
             Assert.True(actual);
@@ -104,13 +104,13 @@ namespace ChessLib.Core.Tests
         public void SetComment_ShouldCorrectlySetCommentForMove()
         {
             game.ApplyMove("c4", MoveApplicationStrategy.ContinueMainLine);
-            var comment = $"Great move!";
+            var comment = "Great move!";
             game.SetComment(comment);
             Assert.AreEqual(comment, game.Current.Node.Comment);
             game.SetComment(string.Empty);
             Assert.AreEqual(string.Empty, game.Current.Node.Comment);
-
         }
+
         public static IEnumerable<Game> GetConstructorTestCases()
         {
             yield return new Game();
@@ -210,22 +210,25 @@ namespace ChessLib.Core.Tests
 
             Debug.Assert(game.PlyCount != 0);
             Debug.Assert(game.InitialNode.Variations.Count == 1);
-            yield return (game, description: $"English Tabiya and 1.d4 variation Applied to {BoardConstants.FenStartingPosition}.");
+            yield return (game,
+                description: $"English Tabiya and 1.d4 variation Applied to {BoardConstants.FenStartingPosition}.");
 
             game = new Game();
             ApplyEnglishTabiya(game);
             game.MovePrevious();
             ApplyEnglishTabiyaAltContinuation(game);
             Debug.Assert(game.PlyCount != 0);
-            yield return (game, description: $"English Tabiya to 4.g3 and 4.d4 variation Applied to {BoardConstants.FenStartingPosition}.");
+            yield return (game,
+                description:
+                $"English Tabiya to 4.g3 and 4.d4 variation Applied to {BoardConstants.FenStartingPosition}.");
 
             game = new Game(CoreTestConstants.EnglishTabiyaFen);
             game.ApplyMove("g3", MoveApplicationStrategy.ContinueMainLine);
             game.MovePrevious();
             ApplyEnglishTabiyaAltContinuation(game);
             Debug.Assert(game.PlyCount != 0);
-            yield return (game, description: $"4.g3 and 4.d4 variation Applied to {CoreTestConstants.EnglishTabiyaFen}.");
-
+            yield return (game,
+                description: $"4.g3 and 4.d4 variation Applied to {CoreTestConstants.EnglishTabiyaFen}.");
         }
 
         [Test]
@@ -240,6 +243,7 @@ namespace ChessLib.Core.Tests
             game.AddNag(numericAnnotation);
             Assert.AreEqual(numericAnnotation, game.Current.Node.Annotation);
         }
+
         protected static IEnumerable<(ushort[] expectedNextMoves, ushort[] currentNextMoves)> GetNextMovesTestCases()
         {
             var game = new Game();
@@ -268,7 +272,7 @@ namespace ChessLib.Core.Tests
                 Black = "GreenResult",
                 White = "RedResult",
                 Date = "2021.10.31",
-                Result = "1-0"
+                GameResult = GameResult.WhiteWins
             };
             yield return tags;
         }
@@ -312,6 +316,7 @@ namespace ChessLib.Core.Tests
         {
             ApplyMoves(game, CoreTestConstants.EnglishTabiyaAlternateContinuation);
         }
+
         private void ApplyMoves(string[] moves)
         {
             ApplyMoves(game, moves);
@@ -393,7 +398,6 @@ namespace ChessLib.Core.Tests
             game.ExitVariation();
             Assert.AreEqual(game.InitialNode, game.Current);
         }
-
 
 
         [Test]

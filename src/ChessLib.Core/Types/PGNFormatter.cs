@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
+using ChessLib.Core.Types.PgnExport;
 using ChessLib.Core.Types.Tree;
 using EnumsNET;
 
@@ -13,52 +13,45 @@ using EnumsNET;
 
 namespace ChessLib.Core.Types
 {
-    internal readonly struct MoveInformation
+    public class MoveInformation : IEquatable<MoveInformation>, ICloneable
     {
-        public MoveInformation(MoveTreeNode<PostMoveState> postMoveTreeNode)
-        {
-            PreMoveBoardState = (MoveTreeNode<PostMoveState>)postMoveTreeNode.Previous;
-            PostMoveState = postMoveTreeNode;
-        }
-
-
+        /// <summary>
+        ///     Gets the full whole-move count of this move.
+        /// </summary>
         public uint MoveNumber => (uint)(((BoardState)PostMoveState.Value.BoardState).FullMoveCounter -
                                          (ActiveColor == Color.Black ? 1 : 0));
 
         public bool IsInitialBoard => Move.IsNullMove;
-        public Color ActiveColor => ((BoardState)PreMoveBoardState.Value.BoardState).ActivePlayer;
 
-        public bool IsFirstMoveOfVariation()
-        {
-            var moveInfo = this;
-            var any = !moveInfo.IsMainLine;
-            return any;
-        }
+        /// <summary>
+        ///     Get the active player's color for this move.
+        /// </summary>
+        public Color ActiveColor => ((BoardState)PreMoveBoardState.Value.BoardState).ActivePlayer;
 
         public MoveTreeNode<PostMoveState> PostMoveState { get; }
         public MoveTreeNode<PostMoveState> PreMoveBoardState { get; }
         public Move Move => PostMoveState.Value.MoveValue;
         public Move ParentMove => PreMoveBoardState?.Value.MoveValue;
-        public bool IsMainLine => PreMoveBoardState.Continuations.First().Value.MoveValue == Move;
-        public string San => PostMoveState.Value.San;
-
-        public override string ToString()
-        {
-            return San;
-        }
 
         /// <summary>
-        ///     Gets sibling continuations which are not the mainline
+        ///     Is the current node the main continuation from parent.
         /// </summary>
-        /// <returns></returns>
-        public IEnumerable<MoveTreeNode<PostMoveState>> SiblingVariationNodes()
-        {
-            var moveInfo = this;
-            return moveInfo.PreMoveBoardState?.Continuations
-                .Skip(1)
-                .Cast<MoveTreeNode<PostMoveState>>()
-                .Where(x=>x.Value.MoveValue != moveInfo.Move);
-        }
+        public bool IsMainLineContinuation =>
+            PreMoveBoardState?.Continuations.FirstOrDefault()?.Value.MoveValue == Move;
+
+        public string San => PostMoveState.Value.San;
+
+        public virtual IEnumerable<MoveTreeNode<PostMoveState>> CurrentContinuations =>
+            PostMoveState.Continuations.Cast<MoveTreeNode<PostMoveState>>();
+
+        /// <summary>
+        ///     Gets the next main line continuation, or
+        ///     <value>null</value>
+        ///     if none exist.
+        /// </summary>
+        public MoveTreeNode<PostMoveState> NextMove => CurrentContinuations.FirstOrDefault();
+
+        public virtual bool IsLastMove => NextMove == null;
 
         public Move[] SiblingVariations => SiblingVariationNodes()
             .Select(x => (Move)x.Value.MoveValue).ToArray();
@@ -68,11 +61,74 @@ namespace ChessLib.Core.Types
 
         public string Comment => PostMoveState.Comment;
         public NumericAnnotation Annotation => PostMoveState.Annotation;
+
+        public MoveInformation PreviousMoveInformation
+            => PreMoveBoardState != null ? new MoveInformation(PreMoveBoardState) : null;
+
+        /// <summary>
+        ///     Provided <see cref="NextMove" /> isn't null, it creates an information object for the next node. Otherwise, null.
+        /// </summary>
+        public MoveInformation NextMoveInformation => NextMove != null ? new MoveInformation(NextMove) : null;
+
+        public MoveInformation(MoveTreeNode<PostMoveState> postMoveTreeNode)
+        {
+            PreMoveBoardState = (MoveTreeNode<PostMoveState>)postMoveTreeNode.Previous;
+            PostMoveState = postMoveTreeNode;
+            bufferLength = 0;
+        }
+
+        protected MoveInformation()
+        {
+            //for unit test mocking
+        }
+
+        private int bufferLength;
+
+        public object Clone()
+        {
+            return new MoveInformation((MoveTreeNode<PostMoveState>)PostMoveState.Clone());
+        }
+
+        public bool Equals(MoveInformation other)
+        {
+            return other != null &&
+                   PostMoveState.Equals(other.PostMoveState);
+        }
+
+        public bool IsFirstMoveOfVariation()
+        {
+            var moveInfo = this;
+            var any = !moveInfo.IsMainLineContinuation;
+            return any;
+        }
+
+        public override string ToString()
+        {
+            return string.IsNullOrWhiteSpace(San) ? Move.ToString() : San;
+        }
+
+        /// <summary>
+        ///     Gets sibling continuations which are not the mainline
+        /// </summary>
+        /// <returns></returns>
+        public virtual IEnumerable<MoveTreeNode<PostMoveState>> SiblingVariationNodes()
+        {
+            var moveInfo = this;
+            if (IsFirstMoveOfVariation())
+            {
+                return new List<MoveTreeNode<PostMoveState>>();
+            }
+
+            return moveInfo.PreMoveBoardState?.Continuations
+                       .Skip(1)
+                       .Cast<MoveTreeNode<PostMoveState>>()
+                   ?? new List<MoveTreeNode<PostMoveState>>();
+        }
     }
 
     public class PgnFormatter
     {
-        private string ResultMoveSeparator => options.ResultOnNewLine ? options.NewLine : " ";
+        private string ResultMoveSeparator => options.ResultOnNewLine ? options.NewLineIndicator : " ";
 
         public PgnFormatter(PGNFormatterOptions options)
         {
@@ -87,7 +143,8 @@ namespace ChessLib.Core.Types
             var tagSection = BuildTags(gameClone.Tags);
             var treeRoot = gameClone.InitialNode;
             var moveSection = BuildMoveTree(treeRoot.Node);
-            return tagSection + options.NewLine + moveSection + ResultMoveSeparator + game.Result + options.NewLine;
+            return tagSection + options.NewLineIndicator + moveSection + ResultMoveSeparator + game.Result +
+                   options.NewLineIndicator;
         }
 
 
@@ -100,7 +157,7 @@ namespace ChessLib.Core.Types
         }
 
         private void BuildMoveTree(MoveTreeNode<PostMoveState> rootNode, ref PgnBuilder stringBuilder,
-            ContinuationType continuationType = ContinuationType.MainLine)
+            PgnWriter.ContinuationType continuationType = PgnWriter.ContinuationType.MainLine)
         {
             if (rootNode == null)
             {
@@ -111,17 +168,17 @@ namespace ChessLib.Core.Types
             var nextNode = rootNode.Continuations.FirstOrDefault();
             if (nextNode == null)
             {
-                continuationType = (continuationType.RemoveFlags(ContinuationType.MainLine)) | ContinuationType.EndVariation;
+                continuationType = continuationType.RemoveFlags(PgnWriter.ContinuationType.MainLine) |
+                                   PgnWriter.ContinuationType.EndVariation;
             }
-            stringBuilder.AppendMove(moveInfo.ToPgn(options), moveInfo.ActiveColor,
-                continuationType);
+
+            //stringBuilder.AppendMove(PgnMove.ToPgn(moveInfo, options), moveInfo.IsLastMove);
+
             AppendCurrentSiblings(ref stringBuilder, moveInfo.SiblingVariationNodes().ToArray());
             if (nextNode != null)
             {
                 BuildMoveTree((MoveTreeNode<PostMoveState>)nextNode, ref stringBuilder);
             }
-
-            return;
         }
 
         private void AppendCurrentSiblings(ref PgnBuilder pgnBuilder,
@@ -134,7 +191,7 @@ namespace ChessLib.Core.Types
 
             foreach (var variation in moveInfoSiblingVariations)
             {
-                BuildMoveTree(variation, ref pgnBuilder, ContinuationType.Variation);
+                BuildMoveTree(variation, ref pgnBuilder, PgnWriter.ContinuationType.Variation);
             }
         }
 
@@ -149,36 +206,24 @@ namespace ChessLib.Core.Types
             return "";
         }
 
-        private string GetFormattedPly(MoveInformation moveInfo)
-        {
-            var moveText = moveInfo.ToPgn(options);
-            return moveText;
-        }
-
 
         private string BuildTags(in Tags tags)
         {
             var sb = new StringBuilder();
             foreach (var requiredTag in tags.RequiredTags)
             {
-                sb.Append($"[{requiredTag.Key} \"{requiredTag.Value}\"]{options.NewLine}");
+                sb.Append($"[{requiredTag.Key} \"{requiredTag.Value}\"]{options.NewLineIndicator}");
             }
 
             foreach (var supplementalTag in tags.SupplementalTags)
             {
-                sb.Append($"[{supplementalTag.Key} \"{supplementalTag.Value}\"]{options.NewLine}");
+                sb.Append($"[{supplementalTag.Key} \"{supplementalTag.Value}\"]{options.NewLineIndicator}");
             }
 
             return sb.ToString();
         }
 
-        [Flags]
-        internal enum ContinuationType
-        {
-            MainLine,
-            Variation,
-            EndVariation
-        }
+       
 
         internal class PgnBuilder
         {
@@ -186,6 +231,8 @@ namespace ChessLib.Core.Types
 
             private StringBuilder StringBuilder { get; } = new StringBuilder();
             private Stack<int> IndentationStack { get; } = new Stack<int>();
+
+            public int? CurrentDepth => IndentationStack.Any() ? IndentationStack.Peek() : (int?)null;
 
             public PgnBuilder(PGNFormatterOptions formatterOptions)
             {
@@ -202,44 +249,40 @@ namespace ChessLib.Core.Types
                 return strReturnValue;
             }
 
-            public PgnBuilder AppendMove(string value, Color activeColor, ContinuationType nodeType)
+            public PgnBuilder AppendMoveAsVariation(string value)
             {
-                string formattedValue = value;
-                var postMoveString = options.GetPostMoveString(activeColor);
-                var indentation = options.GetIndentation(IndentationStack.Peek());
-                if (nodeType == ContinuationType.MainLine)
-                {
-                    formattedValue = $"{value}{postMoveString}";
-                }
-                else if (nodeType == (ContinuationType.Variation | ContinuationType.EndVariation))
-                {
-                    formattedValue = $"{indentation}({options.VariationPadding()}{value}{options.VariationPadding()})";
-                }
-                else if (nodeType == ContinuationType.Variation)
-                {
-                    formattedValue = $"{indentation}({options.VariationPadding()}{value}";
-                    if (options.IndentVariations)
-                    {
-                        FlushAccumulator();
-                        IndentationStack.Push(IndentationStack.Peek() + 1);
-                    }
-                }
-                else if (nodeType == ContinuationType.EndVariation)
-                {
-                    formattedValue = $"{value}{options.VariationPadding()})";
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException(nameof(nodeType), nodeType, null);
-                }
-
-                AddMoveToAccumulator(formattedValue);
-                if (nodeType == ContinuationType.EndVariation && options.IndentVariations)
+                IndentationStack.Push(CurrentDepth.Value + 1);
+                if (options.IndentVariations)
                 {
                     FlushAccumulator();
-                    IndentationStack.Pop();
                 }
 
+                return AppendMove("(" + options.GetVariationPadding() + value, false);
+            }
+
+            public PgnBuilder AppendMoveAsEndOfLine(string value)
+            {
+                var lineEndingIndication = CurrentDepth > 0 ? ")" : "";
+                var moveValue = AppendMove(value + options.GetVariationPadding() + ")", true);
+                IndentationStack.Pop();
+                return moveValue;
+            }
+
+            public PgnBuilder AppendMove(string value, bool endOfLine)
+            {
+                if (endOfLine)
+                {
+                    Accumulator.Append(value);
+                    FlushAccumulator();
+                    return this;
+                }
+
+                if (Accumulator.Length + value.Length > options.MaxCharsPerLine)
+                {
+                    FlushAccumulator();
+                }
+
+                Accumulator.Append(value);
                 return this;
             }
 
@@ -264,8 +307,10 @@ namespace ChessLib.Core.Types
                     return;
                 }
 
-                StringBuilder.AppendLine(Accumulator.ToString());
-                Accumulator.Clear();
+                var accumulatorValue = Accumulator.ToString().TrimEnd() + options.NewLineIndicator;
+                StringBuilder.Append(accumulatorValue);
+                var indentation = options.GetIndentation(CurrentDepth.Value);
+                Accumulator.Clear().Append(indentation);
             }
         }
     }

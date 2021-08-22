@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.PgnExport;
+using EnumsNET;
 
 namespace ChessLib.Core.Types
 {
@@ -9,9 +13,6 @@ namespace ChessLib.Core.Types
 
     public class Tags : Dictionary<string, string>, IEquatable<Tags>
     {
-        public static readonly string[] RequiredTagKeys =
-            { "Event", "Site", "Date", "Round", "White", "Black", "Result" };
-
         public string Event
         {
             get => ContainsKey("Event") ? this["Event"] : "?";
@@ -36,11 +37,8 @@ namespace ChessLib.Core.Types
             set => Add("Round", value);
         }
 
-        public string Result
-        {
-            get => ContainsKey("Result") ? this["Result"] : "*";
-            set => Add("Result", value);
-        }
+        public string Result => GameResult.AsString(EnumFormat.Description);
+        public GameResult GameResult { get; set; } = GameResult.None;
 
 
         public IEnumerable<KeyValuePair<string, string>> RequiredTags
@@ -62,14 +60,13 @@ namespace ChessLib.Core.Types
             }
         }
 
-        private string[] AltStartingPositionTags = new[] { "SetUp", "FEN" };
         public IEnumerable<KeyValuePair<string, string>> SupplementalTags
         {
             get
             {
                 var excludedTags = RequiredTags.Select(x => x.Key);
-               
-                var suppTags = Keys.Where(k => !excludedTags.Contains(k)).OrderBy(x=>x);
+
+                var suppTags = Keys.Where(k => !excludedTags.Contains(k)).OrderBy(x => x);
                 return suppTags.Select(t => new KeyValuePair<string, string>(t, Get(t)));
             }
         }
@@ -188,6 +185,12 @@ namespace ChessLib.Core.Types
             }
         }
 
+        public override string ToString()
+        {
+            var tagSerializer = new TagSerializer();
+            return string.Join(Environment.NewLine, tagSerializer.Convert(this));
+        }
+
 
         internal void SetFen(string fen)
         {
@@ -200,27 +203,9 @@ namespace ChessLib.Core.Types
             OnFenChanged?.Invoke(fen);
         }
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((Tags)obj);
-        }
 
-        public override int GetHashCode()
-        {
-            throw new NotImplementedException();
-        }
 
-        public static bool operator ==(Tags left, Tags right)
-        {
-            return Equals(left, right);
-        }
 
-        public static bool operator !=(Tags left, Tags right)
-        {
-            return !Equals(left, right);
-        }
+
     }
 }

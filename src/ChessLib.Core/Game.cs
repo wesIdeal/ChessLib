@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
@@ -9,12 +11,14 @@ using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.GameTree;
+using EnumsNET;
 
 // ReSharper disable PossibleNullReferenceException
 [assembly: InternalsVisibleTo("ChessLib.Parse.Tests")]
 
 namespace ChessLib.Core
 {
+   
     public class Game : GameEnumerator, ICloneable
     {
         private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
@@ -24,55 +28,25 @@ namespace ChessLib.Core
         public virtual PostMoveState[] NextMoves => Current?.Node.Continuations.Select(x => x.Value).ToArray() ??
                                                     throw new Exception("Current can never be null.");
 
-        public GameResult GameResult { get; set; } = GameResult.None;
-        public override string ToString()
+        public GameResult GameResult
         {
-            var str = CurrentMove == Move.NullMove ? "Initial Board" : CurrentSan;
-            return str;
+            get => _gameResult;
+            set
+            {
+                _gameResult = value;
+                Tags.GameResult = _gameResult;
+            }
         }
 
         public string Result
         {
-            get
-            {
-                string rv;
-                switch (GameResult)
-                {
-                    case GameResult.WhiteWins:
-                        rv = "1-0";
-                        break;
-                    case GameResult.BlackWins:
-                        rv = "0-1";
-                        break;
-                    case GameResult.Draw:
-                        rv = "1/2-1/2";
-                        break;
-                    default:
-                        rv = "*";
-                        break;
-                }
-
-                return rv;
-            }
+            get => GameResult.AsString(EnumFormat.Description);
             set
             {
-                switch (value.Trim())
-                {
-                    case "1-0":
-                        GameResult = GameResult.WhiteWins;
-                        break;
-                    case "0-1":
-                        GameResult = GameResult.BlackWins;
-                        break;
-                    case "1/2-1/2":
-                        GameResult = GameResult.Draw;
-                        break;
-                    default:
-                        GameResult = GameResult.None;
-                        break;
-                }
-
-                this.Tags.Result = Result;
+                var result = Regex.Replace(value, @"\s+", "");
+                var resultDictionary = Enums
+                    .GetMembers(typeof(GameResult)).SingleOrDefault(x => x.AsString(EnumFormat.Description) == result);
+                GameResult = (GameResult)resultDictionary.Value;
             }
         }
 
@@ -122,6 +96,8 @@ namespace ChessLib.Core
             Current = InitialNode;
         }
 
+        private GameResult _gameResult = GameResult.None;
+
         /// <summary>
         ///     Uses copy constructor to clone a deep copy of <see cref="GameResult" />
         /// </summary>
@@ -129,6 +105,12 @@ namespace ChessLib.Core
         public object Clone()
         {
             return new Game(this);
+        }
+
+        public override string ToString()
+        {
+            var str = CurrentMove.Equals(Move.NullMove) ? "Initial Board" : CurrentSan;
+            return str;
         }
 
 

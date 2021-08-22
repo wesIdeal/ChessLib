@@ -5,12 +5,17 @@ namespace ChessLib.Core.Types
 {
     public class PGNFormatterOptions
     {
+
+        // Defines options available to control exporting tags.
+        #region Tag Options
         /// <summary>
         ///     Keeps tags with values equal to '?' if set to true. Otherwise discard them.
         ///     <remarks>This should be left untouched if exporting PGN for other applications.</remarks>
         /// </summary>
-        public bool KeepTagsWithUnknownValues { get; set; }
+        public bool KeepOnlyRequiredTags { get; set; } = false;
 
+        public char KeyValueWhitespaceSeparator { get; set; } = ' ';
+        #endregion Tag Options
         /// <summary>
         ///     Alternative character to use for whitespace.
         /// </summary>
@@ -27,7 +32,7 @@ namespace ChessLib.Core.Types
         ///     <value>\n</value>
         ///     .
         /// </summary>
-        public string NewLine { get; set; } = Environment.NewLine;
+        public string NewLineIndicator { get; set; } = Environment.NewLine;
 
 
 
@@ -52,27 +57,63 @@ namespace ChessLib.Core.Types
         public bool IsVariationPadded { get; set; }
 
 
-
+        /// <summary>
+        ///     Gets and sets ExportFormat, basically resetting all options.
+        /// </summary>
+        /// <remarks>Practically, the set only affects the options when true. Setting all properties to true would make little sense.</remarks>
+        public bool ExportFormat
+        {
+            get =>
+                NewlineEachMove == false &&
+                SpaceAfterMoveNumber == false &&
+                IndentVariations == false &&
+                ResultOnNewLine == false &&
+                NewlineAfterBlackMove == false &&
+                IsVariationPadded == false &&
+                WhitespaceSeparator == ' ';
+            set
+            {
+                if (!value)
+                {
+                    // do nothing if false
+                    return;
+                }
+                NewlineEachMove = false;
+                SpaceAfterMoveNumber = false;
+                IndentVariations = false;
+                ResultOnNewLine = false;
+                NewlineAfterBlackMove = false;
+                IsVariationPadded = false;
+                WhitespaceSeparator = ' ';
+            }
+        }
 
 
         public int SpacesPerTab { get; set; } = 4;
 
         public bool IndentComments { get; set; }
 
+        /// <summary>
+        /// Defines the maximum width of each line in PGN export
+        /// </summary>
+        public int MaxCharsPerLine { get; set; } = 80;
+
+
+
         public PGNFormatterOptions()
         {
             this.ResetToExportFormat();
         }
-       
+
 
     }
 
     internal static class PgnFormatterOptionsHelper
     {
         /// <summary>
-        ///     Gets the padding (if any) for the variation.
+        ///     Gets the padding (if any) for the variation's first and last moves.
         /// </summary>
-        public static string VariationPadding(this PGNFormatterOptions options)
+        public static string GetVariationPadding(this PGNFormatterOptions options)
         {
             return options.IsVariationPadded ? options.WhitespaceSeparator.ToString() : string.Empty;
         }
@@ -107,7 +148,7 @@ namespace ChessLib.Core.Types
         {
             if (!options.IndentVariations && !options.IndentComments)
             {
-                return " ";
+                return "";
             }
 
             var repetitionCount = indent * options.SpacesPerTab;
@@ -119,19 +160,8 @@ namespace ChessLib.Core.Types
             return new string(options.WhitespaceSeparator, repetitionCount);
         }
 
-        /// <summary>
-        ///     Sets the option for the Export Format Standard for PGN. Overrides all other options.
-        /// </summary>
-        public static bool ExportFormat(this PGNFormatterOptions options)
-        {
-            return options.NewlineEachMove == false &&
-                   options.SpaceAfterMoveNumber == false &&
-                   options.IndentVariations == false &&
-                   options.ResultOnNewLine == false &&
-                   options.NewlineAfterBlackMove == false &&
-                   options.IsVariationPadded == false &&
-                   options.WhitespaceSeparator == ' ';
-        }
+
+
 
         /// <summary>
         ///     Gets the Move Separator string that is used to divide move objects in PGN.
@@ -139,30 +169,19 @@ namespace ChessLib.Core.Types
         /// <param name="options"></param>
         /// <param name="activeColor">Side which made the move.</param>
         /// <returns>
-        ///     A <see cref="PGNFormatterOptions.NewLine" /> or <see cref="PGNFormatterOptions.WhitespaceSeparator" />,
+        ///     A <see cref="PGNFormatterOptions.NewLineIndicator" /> or <see cref="PGNFormatterOptions.WhitespaceSeparator" />,
         ///     depending on the options.
         /// </returns>
         public static string GetPostMoveString(this PGNFormatterOptions options, Color activeColor)
         {
             if (options.NewlineAfterBlackMove && activeColor == Color.Black)
             {
-                return options.NewLine;
+                return options.NewLineIndicator;
             }
 
             return options.WhitespaceSeparator.ToString();
         }
 
 
-        /// <summary>
-        /// Used to get the characters that wrap the variation
-        /// </summary>
-        /// <param name="options"></param>
-        /// <returns>If <see cref="PGNFormatterOptions.IndentVariations"/> is true, then a <see cref="PGNFormatterOptions.NewLine"/> is returned, else <see cref="PGNFormatterOptions.WhitespaceSeparator"/></returns>
-        public static string VariationBookends(this PGNFormatterOptions options)
-        {
-            return options.IndentVariations
-                ? options.NewLine
-                : options.WhitespaceSeparator.ToString();
-        }
     }
 }

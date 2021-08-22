@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Types.Tree
@@ -48,8 +49,11 @@ namespace ChessLib.Core.Types.Tree
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(Previous, other.Previous) && EqualityComparer<T>.Default.Equals(Value, other.Value) &&
-                   Equals(Continuations, other.Continuations);
+            var previousEqual = Equals(Previous, other.Previous);
+            var valuesEqual = EqualityComparer<T>.Default.Equals(Value, other.Value);
+            var continuationsEqual = Continuations.Zip(other.Continuations, (t, oth) => t.Equals(oth)).All(x=>x == true);
+            return previousEqual && valuesEqual &&
+                   continuationsEqual;
         }
 
 
