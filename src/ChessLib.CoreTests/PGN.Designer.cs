@@ -239,6 +239,7 @@ namespace ChessLib.Core.Tests {
         ///[Result &quot;*&quot;]
         ///
         ///1.c4 e5 2.Nc3 Nf6 3.Nf3 Nc6 (3...d6) *
+        ///
         ///.
         /// </summary>
         internal static string PgnFormatterVariationDefende5 {

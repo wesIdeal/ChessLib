@@ -16,7 +16,7 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
     {
         public virtual BoardExceptionType Validate(in Board boardInfo)
         {
-            Debug.WriteLine("Here in Board Validation->EP Validation");
+            //Debug.WriteLine("Here in Board Validation->EP Validation");
             var enPassantSquare = boardInfo.EnPassantIndex;
             var returnVal = BoardExceptionType.BadEnPassant;
             if (enPassantSquare == null)

@@ -35,6 +35,7 @@ namespace ChessLib.Core.Types.PgnExport
             {
                 Serialize(writer, Convert(tagsToSerialize.SupplementalTags));
             }
+            writer.WriteNewLine();
         }
 
         public IEnumerable<string> Convert(IEnumerable<KeyValuePair<string, string>> tags)
@@ -57,8 +58,6 @@ namespace ChessLib.Core.Types.PgnExport
             {
                 writer.WriteTag(tag);
             }
-
-            writer.WriteNewLine();
         }
     }
 }

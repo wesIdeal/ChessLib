@@ -25,7 +25,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
         [SetUp]
         public void SetUp()
         {
-            Debug.WriteLine("Setting up ep tests.");
+            //Debug.WriteLine("Setting up ep tests.");
             rule = new EnPassantPositionRule();
 
         }

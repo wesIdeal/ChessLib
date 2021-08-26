@@ -23,29 +23,29 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
 
         private static readonly string[] SimpleMainLine = new string[4] { "c4", "e5", "Nc3", "Nf6" };
 
-        [TestCaseSource(nameof(GetTestCases))]
-        public void MoveNext_ShouldReadLineInCorrectOrder(PgnFormatterTests.PgnTraversalTestCase testCase)
-        {
-            PgnEnumerator = new GameToPgnEnumerator(testCase.Game);
-            var index = 0;
-            var strExpected = string.Join(",", testCase.ExpectedMoveTraversal);
-            Console.WriteLine("Expected");
-            Console.WriteLine(new string('-',20));
-            Console.WriteLine(strExpected);
-            Console.WriteLine(new string('-', 20));
-            Console.WriteLine("Actual");
-            Console.WriteLine(new string('-', 20));
-            while (PgnEnumerator.MoveNext())
-            {
-                var expected = testCase.ExpectedMoveTraversal[index];
-                var actual = PgnEnumerator.Current.San;
+        //[TestCaseSource(nameof(GetTestCases))]
+        //public void MoveNext_ShouldReadLineInCorrectOrder(PgnFormatterTests.PgnTraversalTestCase testCase)
+        //{
+        //    PgnEnumerator = new GameToPgnEnumerator(testCase.Game);
+        //    var index = 0;
+        //    var strExpected = string.Join(",", testCase.ExpectedMoveTraversal);
+        //    Console.WriteLine("Expected");
+        //    Console.WriteLine(new string('-',20));
+        //    Console.WriteLine(strExpected);
+        //    Console.WriteLine(new string('-', 20));
+        //    Console.WriteLine("Actual");
+        //    Console.WriteLine(new string('-', 20));
+        //    while (PgnEnumerator.MoveNext())
+        //    {
+        //        var expected = testCase.ExpectedMoveTraversal[index];
+        //        var actual = PgnEnumerator.Current.Value.San;
                 
-                Console.WriteLine(actual);
+        //        Console.WriteLine(actual);
                 
-                Assert.AreEqual(expected, actual, testCase.ToString());
-                index++;
-            }
-        }
+        //        Assert.AreEqual(expected, actual, testCase.ToString());
+        //        index++;
+        //    }
+        //}
 
         
 
@@ -83,6 +83,31 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
             yield return new PgnFormatterTests.PgnTraversalTestCase(BoardConstants.FenStartingPosition,
                 "Variation on initial node",
                 new string[] { "c4", "e5" }, new string[] { "d4", "Nf6" }, 0);
+        }
+    }
+
+    [TestFixture(TestOf = (typeof(PgnNode)))]
+    public class PgnNodeTest
+    {
+        [Test(Description = "Test MovePair partitioning")]
+        public void GetMovePairs_WWB_ShouldReturn2Nodes()
+        {
+            var game = new Game("rnbqkb1r/pppppppp/5n2/8/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 2 2");
+            game.ApplyMove("e6").MovePrevious();
+            game.ApplyMove("e5").ApplyMove("Nf3").ExitVariation();
+            game.MoveNext();
+            game.ApplyMove("Nf3");
+
+            var pgnNode = new PgnNode(game.InitialNode.Node);
+            var flattened = pgnNode.Flattened();
+            var pairs = pgnNode.GetMovePairs(flattened).ToArray();
+            Assert.IsNull(pairs.First().WhiteNode);
+            Assert.AreEqual("e6", pairs.First().BlackNode.Value.San);
+            Assert.IsNull(pairs[1].WhiteNode);
+            Assert.AreEqual("e5", pairs[1].BlackNode.Value.San);
+            Assert.AreEqual("Nf3", pairs[2].WhiteNode.Value.San);
+            Assert.IsNull(pairs[2].BlackNode);
+
         }
     }
 }

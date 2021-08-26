@@ -61,22 +61,7 @@ namespace ChessLib.Core
         public ushort MoveValue { get; }
         public string San { get; }
         public ulong BoardStateHash { get; }
-
-
-        /// <summary>
-        ///     <see cref="Color" /> of side making the <see cref="Move" /> that resulted in <see cref="BoardState" />.
-        /// </summary>
-        public Color ColorMakingMove => ((BoardState)BoardState).ActivePlayer.Toggle();
-
-        /// <summary>
-        ///     Gets the full whole-move count of this move.
-        /// </summary>
-        /// <remarks>
-        ///     If the last move was from <see cref="Color.Black" />, then the move is actually the board state move minus
-        ///     one.
-        /// </remarks>
-        public uint MoveNumber => (uint)(((BoardState)(BoardState)).FullMoveCounter - (ColorMakingMove == Color.Black ? 1 : 0));
-
+        
         public bool Equals(PostMoveState other)
         {
             return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San &&

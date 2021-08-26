@@ -42,7 +42,7 @@ namespace ChessLib.Core.Types
 
 
         public bool KeepComments { get; set; }
-        public bool ResultOnNewLine { get; set; }
+        public bool ResultOnNewLine { get; set; } = false;
         public bool NewlineAfterBlackMove { get; set; }
 
         /// <summary>
