@@ -1,4 +1,6 @@
-﻿namespace ChessLib.Core.Translate
+﻿using ChessLib.Core.Types;
+
+namespace ChessLib.Core.Translate
 {
     public abstract class ChessDto<TFrom, TTo>
     {

@@ -1,4 +1,5 @@
-﻿using ChessLib.Core.Types.Exceptions;
+﻿using ChessLib.Core.Types;
+using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Validation.Validators.MoveValidation.EnPassantRules

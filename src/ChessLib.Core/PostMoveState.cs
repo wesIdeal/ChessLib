@@ -1,6 +1,7 @@
 ﻿using System;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Translate;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.GameTree;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Types.Tree;

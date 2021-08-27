@@ -1,6 +1,7 @@
 ﻿using ChessLib.Core;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Translate;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Exceptions;
 using EnumsNET;
 

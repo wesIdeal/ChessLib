@@ -9,6 +9,7 @@ using ChessLib.Core;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands;

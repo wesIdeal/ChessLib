@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core.Translate;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
 

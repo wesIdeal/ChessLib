@@ -8,7 +8,7 @@ using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.BoardValidation;
 
-namespace ChessLib.Core
+namespace ChessLib.Core.Types
 {
     public class Board : BoardState, IEquatable<Board>, IBoard
     {

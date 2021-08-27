@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

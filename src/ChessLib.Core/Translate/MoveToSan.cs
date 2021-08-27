@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Core.Translate

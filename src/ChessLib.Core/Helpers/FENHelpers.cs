@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using EnumsNET;
 

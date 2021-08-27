@@ -4,6 +4,7 @@ using System.Text;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Core.Tests

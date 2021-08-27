@@ -2,6 +2,7 @@
 using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.Tests.Helpers;
 using ChessLib.Core.Translate;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 

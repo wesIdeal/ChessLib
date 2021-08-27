@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Tests.Helpers;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using EnumsNET;
 using Moq;
 using NUnit.Framework;
 
-namespace ChessLib.Core.Tests
+namespace ChessLib.Core.Tests.Types
 {
     [TestFixture(TestOf = typeof(BoardState), Category = "Base Functionality")]
+    [SuppressMessage("ReSharper", "PossibleInvalidOperationException")]
     public class BoardStateTests
     {
         [TestCaseSource(nameof(GetPieceCapturedTestCases))]

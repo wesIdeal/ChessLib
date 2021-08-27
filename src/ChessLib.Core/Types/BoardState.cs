@@ -10,7 +10,7 @@ using EnumsNET;
 
 [assembly: InternalsVisibleTo("ChessLib.Core.Tests.Helpers")]
 
-namespace ChessLib.Core
+namespace ChessLib.Core.Types
 {
     public class BoardState : ICloneable
     {
