@@ -61,7 +61,7 @@ namespace ChessLib.Core
         public ushort MoveValue { get; }
         public string San { get; }
         public ulong BoardStateHash { get; }
-        
+
         public bool Equals(PostMoveState other)
         {
             return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San &&
@@ -114,5 +114,8 @@ namespace ChessLib.Core
         {
             return !left.Equals(right);
         }
+
+        public Color ColorMakingMove => ActiveColor.Toggle();
+        public Color ActiveColor => ((BoardState)BoardState).ActivePlayer;
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.PgnExport;
 using ChessLib.Core.Types.Tree;
 

@@ -2,6 +2,7 @@
 using System.IO;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.GameTree.Traversal;
+using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Types.PgnExport
 {
@@ -27,6 +28,8 @@ namespace ChessLib.Core.Types.PgnExport
             NewLine = Options.NewLineIndicator;
             pgnMoveBuilder = new PgnMoveBuilder(Options);
         }
+
+        private readonly PgnMoveBuilder pgnMoveBuilder;
 
         private int _indentLevel;
         private int bufferLength;
@@ -55,7 +58,6 @@ namespace ChessLib.Core.Types.PgnExport
         ///     Writes PGN move, using buffer to limit line width using <see cref="PGNFormatterOptions.MaxCharsPerLine" />.
         /// </summary>
         /// <param name="move">The move to write.</param>
-        /// <param name="continuationType">Used to write variation markers</param>
         public void WriteMove(string move)
         {
             if (move.EndsWith(NewLine))
@@ -72,8 +74,9 @@ namespace ChessLib.Core.Types.PgnExport
             }
             else if (IsBufferOverfilledAfterMove(move))
             {
-                move = NewLine + move.TrimStart();
-                bufferLength = 0;
+                var trimmedMove = move.TrimStart();
+                move = NewLine + trimmedMove;
+                bufferLength = trimmedMove.Length;
             }
             else
             {
@@ -104,13 +107,11 @@ namespace ChessLib.Core.Types.PgnExport
         {
             WriteLine();
         }
-        PgnMoveBuilder pgnMoveBuilder;
-        private bool isBlackMoveNeeded = false;
 
-        public void WriteMove(MovePair<PgnMoveInformation?> move)
+        public void WriteMove(MovePair move)
         {
-            string whiteMove = string.Empty;
-            string blackMove = string.Empty;
+            var whiteMove = string.Empty;
+            var blackMove = string.Empty;
             if (!move.WhiteNode.HasValue && !move.BlackNode.HasValue)
             {
                 throw new ArgumentNullException(nameof(move), "Both white and black's move cannot be null.");
@@ -120,9 +121,10 @@ namespace ChessLib.Core.Types.PgnExport
             {
                 whiteMove = pgnMoveBuilder.BuildMove(move.WhiteNode.Value, true);
             }
+
             if (move.BlackNode.HasValue)
             {
-                blackMove = pgnMoveBuilder.BuildMove(move.BlackNode.Value, whiteMove == null);
+                blackMove = pgnMoveBuilder.BuildMove(move.BlackNode.Value, !move.WhiteNode.HasValue);
             }
 
 
@@ -131,76 +133,53 @@ namespace ChessLib.Core.Types.PgnExport
         }
     }
 
-    public readonly struct PgnMoveInformation
+    public readonly struct PgnMoveInformation : IHasColorMakingMove
     {
+        private readonly int _variationDepth;
         public string MoveNumber { get; }
-        public string MoveNumberDecimalMarker { get; }
-        public string PostMoveNumberSpace { get; }
         public string Comments { get; }
         public string NAG { get; }
         public string MoveSan { get; }
-        public Color ActiveColor { get; }
-        public GameMoveFlags ContinuationType { get; }
+
 
         /// <summary>
         ///     Creates object to hold PGN move information.
         /// </summary>
         /// <param name="activeColor">The side/color that made the move.</param>
         /// <param name="moveSan">The string representation of the move.</param>
-        /// <param name="continuationType">Sets the type of move this is. This is so that variations get written properly.</param>
-        /// <param name="moveNumber">
-        ///     Move number in game
-        ///     <remarks>Only set this if the number needs to be written.</remarks>
-        /// </param>
-        /// <param name="moveNumberDecimalMarker">
-        ///     <remarks>Not written if <paramref name="moveNumber" /> is null or whitespace.</remarks>
-        ///     In standard PGN, this will either be '...' (Black move) or '.' (White move).
-        /// </param>
-        /// <param name="postMoveNumberSpace">
-        ///     <remarks>Not written if <paramref name="moveNumber" /> is null or whitespace.</remarks>
-        ///     Indicates any characters written between the move number and move. (eg. Where 'this' is: 21.[this]Bxf7# )
-        /// </param>
+        /// <param name="moveNumber">Move number in game</param>
+        /// <param name="isLastMove">Is the last move in a continuation</param>
+        /// <param name="variationDepth">Depth from 0 of variation</param>
         /// <param name="comments">Post move comments.</param>
         /// <param name="nag">The move's Numeric Annotation Glyph</param>
-        /// <remarks>All parameters except <paramref name="postMoveNumberSpace" /> are trimmed.</remarks>
-        public PgnMoveInformation(Color activeColor, string moveSan, GameMoveFlags continuationType,
-            string moveNumber, string moveNumberDecimalMarker,
-            string postMoveNumberSpace, string comments = "", string nag = "")
+        /// <param name="isFirstGameMove">Is the first move in the game</param>
+        /// <remarks>All parameters are trimmed.</remarks>
+        public PgnMoveInformation(Color activeColor, string moveSan,
+            string moveNumber, bool isFirstGameMove, bool isLastMove, int variationDepth, bool firstMoveInVariation, string comments = "", string nag = "")
 
         {
-            ActiveColor = activeColor;
-            ContinuationType = continuationType;
-            if (!string.IsNullOrWhiteSpace(moveNumber))
-            {
-                MoveNumber = moveNumber.Trim();
-                MoveNumberDecimalMarker = moveNumberDecimalMarker.Trim();
-                PostMoveNumberSpace = postMoveNumberSpace;
-            }
-            else
-            {
-                MoveNumber = MoveNumberDecimalMarker = PostMoveNumberSpace = string.Empty;
-            }
+            ColorMakingMove = activeColor;
+            IsFirstGameMove = isFirstGameMove;
+            IsLastMove = isLastMove;
+            this._variationDepth = variationDepth;
+            FirstMoveInVariation = firstMoveInVariation;
+            MoveNumber = moveNumber.Trim();
 
             Comments = comments.Trim();
             NAG = nag.Trim();
             MoveSan = moveSan.Trim();
         }
-    }
 
-    /// <summary>
-    ///     Flags the move details as they relate to a game.
-    /// </summary>
-    [Flags]
-    public enum GameMoveFlags
-    {
-        NullMove = 0,
-        MainLine = 1 << 0,
-        LastMoveOfContinuation = 1 << 2,
-        InitialMove = 1 << 4,
-        Variation = 1 << 5,
-        BeginVariation = Variation | InitialMove,
-        FirstMoveInGame = InitialMove | MainLine,
-        LastMoveInVariation = LastMoveOfContinuation | Variation
+        public Color ColorMakingMove { get; }
+        public bool IsFirstGameMove { get; }
+        public bool IsLastMove { get;  }
+        public bool IsLastMoveInVariation => IsLastMove && _variationDepth > 0;
+        public bool FirstMoveInVariation { get; }
 
+        public override string ToString()
+        {
+            var decimalSeparator = ColorMakingMove == Color.Black ? "..." : ".";
+            return $"{MoveNumber}{decimalSeparator}{MoveSan}";
+        }
     }
 }

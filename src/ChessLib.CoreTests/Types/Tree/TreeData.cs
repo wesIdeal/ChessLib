@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.PgnExport;
 using NUnit.Framework;
 

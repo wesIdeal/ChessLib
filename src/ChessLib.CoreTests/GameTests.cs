@@ -374,6 +374,18 @@ namespace ChessLib.Core.Tests
         }
 
         [Test]
+        public void ExitVariation_SingleMoveVariation_ShouldReturnToMoveParent()
+        {
+            var game = new Game();
+            game.ApplyMove(new[] { "c4", "Nf6", "Nc3" });
+            game.MovePrevious();
+            var san = game.CurrentSan;
+            game.ApplyMove("g3");
+            game.ExitVariation();
+            Assert.AreEqual(san, game.CurrentSan);
+        }
+
+        [Test]
         public void ExitVariation_ShouldReturnToVariationParentBoard()
         {
             ApplyEnglishTabiya();

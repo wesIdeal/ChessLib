@@ -5,7 +5,6 @@ using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.Interfaces;
-using ChessLib.Core.Types.PgnExport;
 
 namespace ChessLib.Core.Types.Tree
 {
@@ -14,8 +13,9 @@ namespace ChessLib.Core.Types.Tree
         public string Comment { get; internal set; } = string.Empty;
         public NumericAnnotation Annotation { get; } = new NumericAnnotation();
 
-        public bool IsFirstMoveOfAContinuation => (MoveFlags & GameMoveFlags.InitialMove) != 0;
+        public bool IsFirstMoveOfAContinuation => Previous?.Continuations.Skip(1).ToList().Any(x=>x.Value.Equals(Value)) ?? false;
 
+        public bool IsVariation => VariationDepth != 0;
         public MoveTreeNode<T> Next => (MoveTreeNode<T>)Continuations.FirstOrDefault();
 
         /// <summary>
@@ -33,21 +33,18 @@ namespace ChessLib.Core.Types.Tree
         /// </summary>
         public Color ColorMakingMove => ((BoardState)Value.BoardState).ActivePlayer.Toggle();
 
-        public GameMoveFlags MoveFlags { get; private set; } = GameMoveFlags.NullMove;
 
         public IEnumerable<MoveTreeNode<T>> ParentContinuations =>
             Previous?.Previous?.Continuations.Cast<MoveTreeNode<T>>();
 
         public MoveTreeNode(T value, INode<T> parent) : base(value, parent)
         {
-            SetMoveDetailFlags();
         }
 
         internal MoveTreeNode(MoveTreeNode<T> value, MoveTreeNode<T> parent) : base(value, parent)
         {
             Comment = value.Comment;
             Annotation = value.Annotation;
-            SetMoveDetailFlags();
         }
 
         public bool Equals(MoveTreeNode<T> other)
@@ -67,76 +64,9 @@ namespace ChessLib.Core.Types.Tree
             return siblings?.Cast<MoveTreeNode<T>>() ?? new List<MoveTreeNode<T>>();
         }
 
-        public void SetMoveDetailFlags()
-        {
-            if (Value.MoveValue == Move.NullMove)
-            {
-                MoveFlags = GameMoveFlags.NullMove;
-                return;
-            }
+        
 
-            SetMainlineContinuationFlag();
-
-            SetInitialMoveFlag();
-
-            SetLastMoveFlag();
-
-            SetVariationMarker();
-        }
-
-        private void SetVariationMarker()
-        {
-            if (VariationDepth != 0)
-            {
-                MoveFlags |= GameMoveFlags.Variation;
-            }
-        }
-
-        private void SetLastMoveFlag()
-        {
-            if (IsLastMoveOfContinuation)
-            {
-                MoveFlags |= GameMoveFlags.LastMoveOfContinuation;
-            }
-            else
-            {
-                MoveFlags &= ~(GameMoveFlags.LastMoveOfContinuation);
-            }
-        }
-
-
-        private void SetInitialMoveFlag()
-        {
-            if (Previous == null)
-            {
-                return;
-            }
-
-            var initial = Previous.Value.MoveValue == Move.NullMove;
-
-            var continuations = Previous.Continuations.ToArray();
-            if (continuations.Any() && continuations.First().Value.MoveValue != Value.MoveValue)
-            {
-                initial = true;
-            }
-
-            if (initial)
-            {
-                MoveFlags |= GameMoveFlags.InitialMove;
-            }
-        }
-
-        private void SetMainlineContinuationFlag()
-        {
-            var parentMainLine = Previous?
-                .Continuations
-                .FirstOrDefault()?
-                .Value.MoveValue == Value.MoveValue;
-            if (parentMainLine)
-            {
-                MoveFlags |= GameMoveFlags.MainLine;
-            }
-        }
+       
 
         public override string ToString()
         {
@@ -149,18 +79,30 @@ namespace ChessLib.Core.Types.Tree
         /// <returns>A new MoveTreeNode that is a copy of the current.</returns>
         public override object Clone()
         {
-            return new MoveTreeNode<T>(this, (MoveTreeNode<T>)Previous);
+            var node = new MoveTreeNode<T>(this, (MoveTreeNode<T>)Previous);
+            return node;
         }
 
         #region MoveInformation
 
         public bool IsFirstMoveOfVariation =>
-            (MoveFlags & GameMoveFlags.BeginVariation) == GameMoveFlags.BeginVariation;
+            IsVariation && IsFirstMoveOfAContinuation;
 
         /// <summary>
         ///     Is the current node the main continuation from parent.
         /// </summary>
-        public bool IsMainLineContinuation => (MoveFlags & GameMoveFlags.Variation) != GameMoveFlags.Variation;
+        public bool IsMainLineContinuation
+
+        {
+            get
+            {
+                var parentMainLine = Previous?
+                    .Continuations
+                    .FirstOrDefault()?
+                    .Value.MoveValue == Value.MoveValue;
+                return parentMainLine;
+            }
+        }
 
 
         public int VariationDepth
@@ -186,8 +128,8 @@ namespace ChessLib.Core.Types.Tree
             }
         }
 
-        public bool IsFirstMoveInGame =>
-            (MoveFlags & GameMoveFlags.InitialMove) != 0 && IsMainLineContinuation;
+        public bool IsFirstMoveInGame => Previous?.Value.MoveValue == Move.NullMove &&
+                                         Previous?.Continuations[0].Value.MoveValue == Value.MoveValue;
 
         public virtual bool IsLastMoveOfContinuation => Continuations.FirstOrDefault() == null;
 

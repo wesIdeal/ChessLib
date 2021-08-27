@@ -28,17 +28,16 @@ namespace ChessLib.Core.Types.PgnExport
             if (isBlackMoveNeeded)
             {
                 moveTextBuilder.Append(pgnMoveInformation.MoveNumber)
-                       .Append(pgnMoveInformation.MoveNumberDecimalMarker)
-                       .Append(pgnMoveInformation.PostMoveNumberSpace);
-                isBlackMoveNeeded = false;
+                       .Append(pgnMoveInformation.ColorMakingMove == Color.Black ? "..." : ".")
+                       .Append(_options.SpaceAfterMoveNumber ? _options.WhitespaceSeparator.ToString() : "");
             }
-                moveTextBuilder.Append(pgnMoveInformation.MoveSan);
+            moveTextBuilder.Append(pgnMoveInformation.MoveSan);
             return this;
         }
 
         private PgnMoveBuilder BuildVariationStart(PgnMoveInformation pgnMoveInformation)
         {
-            if ((pgnMoveInformation.ContinuationType & GameMoveFlags.BeginVariation) == GameMoveFlags.BeginVariation)
+            if (pgnMoveInformation.FirstMoveInVariation)
             {
                 if (_options.IndentVariations)
                 {
@@ -56,16 +55,16 @@ namespace ChessLib.Core.Types.PgnExport
         private PgnMoveBuilder BuildMoveSeparator(PgnMoveInformation pgnMoveInformation)
         {
             //if a newline after Black's move is indicated, begin the line with it.
-            if (_options.NewlineAfterBlackMove && pgnMoveInformation.ActiveColor == Color.White)
+            if (_options.NewlineAfterBlackMove && pgnMoveInformation.ColorMakingMove == Color.White)
             {
                 moveTextBuilder.Append(_options.NewLineIndicator);
             }
             else
             {
                 //if the type is not a variation beginning and it's not the first move, prefix with a space
-                if ((pgnMoveInformation.ContinuationType & GameMoveFlags.BeginVariation) != GameMoveFlags.BeginVariation)
+                if (!pgnMoveInformation.FirstMoveInVariation)
                 {
-                    if ((pgnMoveInformation.ContinuationType & GameMoveFlags.FirstMoveInGame) != GameMoveFlags.FirstMoveInGame)
+                    if (!pgnMoveInformation.IsFirstGameMove)
                     {
                         moveTextBuilder.Append(_options.WhitespaceSeparator);
                     }
@@ -76,7 +75,7 @@ namespace ChessLib.Core.Types.PgnExport
         }
         private void BuildEndOfVariation(PgnMoveInformation pgnMoveInformation)
         {
-            if ((pgnMoveInformation.ContinuationType & GameMoveFlags.LastMoveInVariation) == GameMoveFlags.LastMoveInVariation)
+            if (pgnMoveInformation.IsLastMoveInVariation)
             {
                 moveTextBuilder.Append(_options.GetVariationPadding()).Append(")");
                 if (_options.IndentVariations)

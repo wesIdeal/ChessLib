@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Tests.Types.GameTree.Traversal;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
@@ -56,66 +57,6 @@ namespace ChessLib.Core.Tests.Types
                 PGN.PgnFormatterCaptureWithCheck,
                 new[] { "Bxf7" }, "Alternate starting position with 23. Bxf7+");
             yield return GetLongVariation();
-        }
-
-        private static PgnFormatterVariationTestCase GetLongVariation()
-        {
-            var moveSet = new[] { "c4", "Nf6", "Nc3", "e6", "Nf3", "d5", "d4", "Nbd7", "Bg5", "h6" };
-
-            var testCase = new PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
-                PGN.PgnFormatterAllAccoutrements,
-                moveSet, "Game with comments, multiple variations on variations, annotations, tags filled");
-            SetupLongGame(testCase);
-            testCase.Game.Tags.Event = "The Mediocre of Chess";
-            testCase.Game.Tags.White = "GoodPlayer, One";
-            testCase.Game.Tags.Black = "DecentPlayer, A.";
-            testCase.Game.Tags.Site = "New York City, NY USA";
-            testCase.Game.Tags.Date = "2021.08.18";
-            testCase.Game.Tags.Round = "2";
-            testCase.Game.Tags["EventDate"] = "2021.08.16";
-            testCase.Game.GameResult = GameResult.WhiteWins;
-            testCase.Game.Tags["ECO"] = "D51";
-
-            return testCase;
-        }
-
-        private static void SetupLongGame(PgnFormatterVariationTestCase testCase)
-        {
-            testCase.Game.Reset();
-            testCase.Game.MoveNext();
-            testCase.Game.MoveNext();
-            testCase.Game.ApplyMove("g3", MoveApplicationStrategy.ContinueMainLine);
-            testCase.Game.ExitVariation();
-            testCase.Game.MoveNext();
-            testCase.Game.ApplyMove("e5", MoveApplicationStrategy.ContinueMainLine)
-                .ApplyMove("Nf3", MoveApplicationStrategy.ContinueMainLine);
-            testCase.Game.ExitVariation();
-            testCase.Game.MoveNext();
-            testCase.Game.MoveNext();
-            testCase.Game.MoveNext();
-
-            testCase.Game.ApplyMove("cxd5", "exd5", "d4");
-            testCase.Game.MovePrevious();
-            testCase.Game.ApplyMove("e3", "Bd6");
-            testCase.Game.Current.Node.Annotation.ApplyNag("=+");
-            testCase.Game.MovePrevious();
-            testCase.Game.ApplyMove("c6");
-            testCase.Game.AddNag(new NumericAnnotation("?!"));
-            testCase.Game.ExitVariation();
-            testCase.Game.ExitVariation();
-            testCase.Game.ExitVariation();
-            testCase.Game.MoveNext();
-            testCase.Game.MoveNext();
-            testCase.Game.MoveNext();
-            testCase.Game.ApplyMove("c6", MoveApplicationStrategy.ContinueMainLine);
-            testCase.Game.MovePrevious();
-            testCase.Game.ApplyMove("Bb4", "cxd5", "exd5");
-            testCase.Game.Current.Node.Comment = "Best move";
-            testCase.Game.ApplyMove("e3", MoveApplicationStrategy.ContinueMainLine);
-            testCase.Game.Current.Node.Comment = "White has a slight advantage.";
-            testCase.Game.MovePrevious();
-            testCase.Game.ApplyMove("Qc2", "h6");
-            testCase.Game.AddNag(new NumericAnnotation("+="));
         }
 
         public class PgnTraversalTestCase
@@ -213,6 +154,27 @@ namespace ChessLib.Core.Tests.Types
             {
                 return Description;
             }
+        }
+
+        public static PgnFormatterTests.PgnFormatterVariationTestCase GetLongVariation()
+        {
+            
+
+            var testCase = new PgnFormatterTests.PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
+                PGN.PgnFormatterAllAccoutrements,
+                TraversalData.longGameMainLine, "Game with comments, multiple variations on variations, annotations, tags filled");
+            TraversalData.SetupLongGame(testCase);
+            testCase.Game.Tags.Event = "The Mediocre of Chess";
+            testCase.Game.Tags.White = "GoodPlayer, One";
+            testCase.Game.Tags.Black = "DecentPlayer, A.";
+            testCase.Game.Tags.Site = "New York City, NY USA";
+            testCase.Game.Tags.Date = "2021.08.18";
+            testCase.Game.Tags.Round = "2";
+            testCase.Game.Tags["EventDate"] = "2021.08.16";
+            testCase.Game.GameResult = GameResult.WhiteWins;
+            testCase.Game.Tags["ECO"] = "D51";
+
+            return testCase;
         }
     }
 }

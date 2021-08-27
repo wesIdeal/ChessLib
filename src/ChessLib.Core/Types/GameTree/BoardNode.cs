@@ -13,7 +13,7 @@ namespace ChessLib.Core.Types.GameTree
         public string Fen => Board.Fen;
 
         /// <summary>
-        /// Gets the variations from this board state.
+        ///     Gets the variations from this board state.
         /// </summary>
         public List<INode<PostMoveState>> Variations => Node.Continuations.Skip(1).ToList();
 

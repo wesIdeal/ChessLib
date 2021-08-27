@@ -1,17 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
-using ChessLib.Core.Types;
 using ChessLib.Core.Types.GameTree.Traversal;
-using ChessLib.Core.Types.Interfaces;
-using ChessLib.Core.Types.Tree;
-using Moq;
+using ChessLib.Core.Types.PgnExport;
 using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Types.GameTree.Traversal
 {
+    [TestFixture]
+    public class MovePairTests
+    {
+        [TestCaseSource(typeof(TraversalData), nameof(TraversalData.GetMovePairIsEmptyTests))]
+        public bool IsEmpty_Test(PgnMoveInformation? white, PgnMoveInformation? black)
+        {
+            var mp = new MovePair(white, black);
+            return mp.IsEmpty;
+        }
+
+        [TestCaseSource(typeof(TraversalData), nameof(TraversalData.GetMovePairIsFullTests))]
+        public bool IsFull_Test(PgnMoveInformation? white, PgnMoveInformation? black)
+        {
+            var mp = new MovePair(white, black);
+            return mp.IsFull;
+        }
+
+        [TestCaseSource(typeof(TraversalData), nameof(TraversalData.GetWhiteNodeTests))]
+        public void WhiteNode_GetAndSet(PgnMoveInformation? white)
+        {
+            var mp = new MovePair() { WhiteNode = white };
+            Assert.AreEqual(white, mp.WhiteNode);
+        }
+
+        [TestCaseSource(typeof(TraversalData), nameof(TraversalData.GetBlackNodeTests))]
+        public void BlackNode_GetAndSet(PgnMoveInformation? Black)
+        {
+            var mp = new MovePair() { BlackNode = Black };
+            Assert.AreEqual(Black, mp.BlackNode);
+        }
+
+    }
     [TestFixture]
     public class TraverseGameInPgnOrder
     {
@@ -21,7 +48,7 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
             PgnEnumerator = null;
         }
 
-        private static readonly string[] SimpleMainLine = new string[4] { "c4", "e5", "Nc3", "Nf6" };
+        private static readonly string[] SimpleMainLine = { "c4", "e5", "Nc3", "Nf6" };
 
         //[TestCaseSource(nameof(GetTestCases))]
         //public void MoveNext_ShouldReadLineInCorrectOrder(PgnFormatterTests.PgnTraversalTestCase testCase)
@@ -39,15 +66,14 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
         //    {
         //        var expected = testCase.ExpectedMoveTraversal[index];
         //        var actual = PgnEnumerator.Current.Value.San;
-                
+
         //        Console.WriteLine(actual);
-                
+
         //        Assert.AreEqual(expected, actual, testCase.ToString());
         //        index++;
         //    }
         //}
 
-        
 
         [Test]
         public void MoveNext_NoNextMove_ReturnsFalse()
@@ -56,7 +82,6 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
             var enumerator = new GameToPgnEnumerator(game.InitialNode.Node);
             var actual = enumerator.MoveNext();
             Assert.IsFalse(actual, "Node should return false when current move is last.");
-           
         }
 
         [Test]
@@ -66,7 +91,7 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
             var enumerator = new GameToPgnEnumerator(game);
             Assert.Throws<InvalidOperationException>(() =>
             {
-                var current = enumerator.Current;
+                var unused = enumerator.Current;
             });
         }
 
@@ -82,32 +107,9 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
                 SimpleMainLine);
             yield return new PgnFormatterTests.PgnTraversalTestCase(BoardConstants.FenStartingPosition,
                 "Variation on initial node",
-                new string[] { "c4", "e5" }, new string[] { "d4", "Nf6" }, 0);
+                new[] { "c4", "e5" }, new[] { "d4", "Nf6" }, 0);
         }
     }
 
-    [TestFixture(TestOf = (typeof(PgnNode)))]
-    public class PgnNodeTest
-    {
-        [Test(Description = "Test MovePair partitioning")]
-        public void GetMovePairs_WWB_ShouldReturn2Nodes()
-        {
-            var game = new Game("rnbqkb1r/pppppppp/5n2/8/2P5/2N5/PP1PPPPP/R1BQKBNR b KQkq - 2 2");
-            game.ApplyMove("e6").MovePrevious();
-            game.ApplyMove("e5").ApplyMove("Nf3").ExitVariation();
-            game.MoveNext();
-            game.ApplyMove("Nf3");
-
-            var pgnNode = new PgnNode(game.InitialNode.Node);
-            var flattened = pgnNode.Flattened();
-            var pairs = pgnNode.GetMovePairs(flattened).ToArray();
-            Assert.IsNull(pairs.First().WhiteNode);
-            Assert.AreEqual("e6", pairs.First().BlackNode.Value.San);
-            Assert.IsNull(pairs[1].WhiteNode);
-            Assert.AreEqual("e5", pairs[1].BlackNode.Value.San);
-            Assert.AreEqual("Nf3", pairs[2].WhiteNode.Value.San);
-            Assert.IsNull(pairs[2].BlackNode);
-
-        }
-    }
+    
 }
