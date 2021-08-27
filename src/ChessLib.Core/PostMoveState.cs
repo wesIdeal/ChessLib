@@ -1,7 +1,6 @@
 ﻿using System;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Translate;
-using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.GameTree;
 using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Types.Tree;
@@ -114,8 +113,5 @@ namespace ChessLib.Core
         {
             return !left.Equals(right);
         }
-
-        public Color ColorMakingMove => ActiveColor.Toggle();
-        public Color ActiveColor => ((BoardState)BoardState).ActivePlayer;
     }
 }
