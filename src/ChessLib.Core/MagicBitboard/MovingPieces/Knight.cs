@@ -23,11 +23,6 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             return GetMoves(square);
         }
 
-        public override void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
         internal ulong GetMoves(ushort square)
         {
             var squareValue = MovingPieceService.GetBoardValueOfIndex(square);

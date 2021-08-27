@@ -17,7 +17,7 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
         protected abstract Func<ulong, ulong>[] AttackShifts { get; }
         public MoveObstructionBoard[][] MoveObstructionBoards = new MoveObstructionBoard[64][];
 
-        public override void Initialize()
+        public virtual void Initialize()
         {
             SetAttacks();
             MoveObstructionBoards = GetObstructionsFromMoveMasks();

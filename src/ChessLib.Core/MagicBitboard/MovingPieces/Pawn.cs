@@ -3,29 +3,29 @@ using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Core.MagicBitboard.MovingPieces
 {
-    internal class Pawn : MovingPiece
+    internal sealed class Pawn : MovingPiece
     {
         public Pawn()
         {
             Initialize();
         }
 
-        protected new ulong[][] AttackMask;
-        protected new ulong[][] MoveMask;
+        internal new ulong[][] AttackMask;
+        internal new ulong[][] MoveMask;
 
         public ulong GetAttacksFromSquare(ushort squareIndex, Color color)
         {
-            return AttackMask[(int) color][squareIndex];
+            return AttackMask[(int)color][squareIndex];
         }
 
         public ulong GetMovesFromSquare(ushort squareIndex, Color color)
         {
-            return MoveMask[(int) color][squareIndex];
+            return MoveMask[(int)color][squareIndex];
         }
 
         public override ulong GetPseudoLegalMoves(ushort square, Color playerColor, ulong occupancy)
         {
-            var attacks = AttackMask[(int) playerColor][square] & occupancy;
+            var attacks = AttackMask[(int)playerColor][square] & occupancy;
             var moves = GetMovesFromOccupancy(square, playerColor, occupancy);
             var result = attacks | moves;
             return result;
@@ -35,7 +35,7 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
         private ulong GetMovesFromOccupancy(ushort squareIndex, Color color, ulong totalOccupancy)
         {
             var empty = ~totalOccupancy;
-            var openMoves = MoveMask[(int) color][squareIndex];
+            var openMoves = MoveMask[(int)color][squareIndex];
             var availableMoves = empty & openMoves;
 
             var dpRankMask = color == Color.Black ? BoardConstants.Rank5 : BoardConstants.Rank4;
@@ -55,7 +55,7 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             return (bv & secondRankMask) != 0;
         }
 
-        public sealed override void Initialize()
+        public void Initialize()
         {
             InitializeMasks();
             InitializeWhitePawnMovesAndAttacks();
@@ -67,9 +67,9 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             foreach (var square in BoardConstants.AllSquares)
             {
                 var squareValue = MovingPieceService.GetBoardValueOfIndex(square);
-                MoveMask[(int) Color.Black][square] =
+                MoveMask[(int)Color.Black][square] =
                     MovingPieceService.ShiftS(squareValue) | ((squareValue & BoardConstants.Rank7) >> 16);
-                AttackMask[(int) Color.Black][square] =
+                AttackMask[(int)Color.Black][square] =
                     MovingPieceService.ShiftSW(squareValue) | MovingPieceService.ShiftSE(squareValue);
             }
         }
@@ -79,9 +79,9 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             for (ushort square = 0; square < 64; square++)
             {
                 var squareValue = MovingPieceService.GetBoardValueOfIndex(square);
-                MoveMask[(int) Color.White][square] =
+                MoveMask[(int)Color.White][square] =
                     MovingPieceService.ShiftN(squareValue) | ((squareValue & BoardConstants.Rank2) << 16);
-                AttackMask[(int) Color.White][square] =
+                AttackMask[(int)Color.White][square] =
                     MovingPieceService.ShiftNW(squareValue) | MovingPieceService.ShiftNE(squareValue);
             }
         }

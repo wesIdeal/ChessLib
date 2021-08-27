@@ -44,11 +44,6 @@ namespace ChessLib.Core.Types.Enums
         [Description("Bad Castle Information- Black has no King on e8.")]
         BlackCastleMisplacedKing = 4096,
 
-        [Description("White should have one and only one King.")]
-        WhiteKingCount = 8192,
-
-        [Description("Black should have one and only one King.")]
-        BlackKingCount = 16384,
         [Description("No moves - Stalemate")] Stalemate = 32768,
         [Description("Mate")] Checkmate = 65536,
 

@@ -23,11 +23,6 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             return GetMoves(square);
         }
 
-        public override void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
         internal ulong GetMoves(ushort square)
         {
             var squareValue = MovingPieceService.GetBoardValueOfIndex(square);
@@ -38,19 +33,6 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             }
 
             return squares;
-        }
-
-        private bool IsKingSquare(ushort squareIndex, Color color)
-        {
-            switch (color)
-            {
-                case Color.White:
-                    return squareIndex == BoardConstants.WhiteKingSquare;
-                case Color.Black:
-                    return squareIndex == BoardConstants.BlackKingSquare;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(color), color, null);
-            }
         }
     }
 }

@@ -48,7 +48,6 @@ namespace ChessLib.Core.Types.GameTree.Traversal
             MoveTreeNode<PostMoveState> previous = null;
             while (nodeQueue.TryDequeue(out var moveNode))
             {
-
                 var currentDepth = moveNode.VariationDepth;
                 var hasNextNode = nodeQueue.TryPeek(out var nextNodeInQueue);
                 var depthDifferencePrevious = GetPreviousDepthDifference(moveNode, previous, lastLevel);
@@ -69,17 +68,16 @@ namespace ChessLib.Core.Types.GameTree.Traversal
                     }
 
                     pair = new MovePair(node);
-                   
                 }
                 else
                 {
-
                     pair.BlackNode = node;
                     yield return pair;
                     pair = new MovePair(null);
                 }
 
-                if ((node.VariationDepthFromNext != 0 || node.VariationDepthFromPrevious!= 0 || node.IsLastMove) && !pair.IsEmpty)
+                if ((node.VariationDepthFromNext != 0 || node.VariationDepthFromPrevious != 0 || node.IsLastMove) &&
+                    !pair.IsEmpty)
                 {
                     yield return pair;
                     pair = new MovePair(null);
@@ -87,13 +85,14 @@ namespace ChessLib.Core.Types.GameTree.Traversal
             }
         }
 
-        private static int GetPreviousDepthDifference(MoveTreeNode<PostMoveState> currentNode, MoveTreeNode<PostMoveState> previousNode, int currentDepth)
+        private static int GetPreviousDepthDifference(MoveTreeNode<PostMoveState> currentNode,
+            MoveTreeNode<PostMoveState> previousNode, int currentDepth)
         {
-
             if (previousNode == null)
             {
                 return 0;
             }
+
             var depthDiff = currentNode.VariationDepth - currentDepth;
             if (depthDiff == 0 &&
                 previousNode.ColorMakingMove == currentNode.ColorMakingMove &&
@@ -110,8 +109,9 @@ namespace ChessLib.Core.Types.GameTree.Traversal
         {
             if (nextNodeInQueue == null)
             {
-                return -(currentDepth);
+                return -currentDepth;
             }
+
             var diff = nextNodeInQueue.VariationDepth - currentDepth;
             if (diff == 0 &&
                 nextNodeInQueue.ColorMakingMove == currentNode.ColorMakingMove &&
@@ -127,11 +127,6 @@ namespace ChessLib.Core.Types.GameTree.Traversal
         {
             if (!string.IsNullOrWhiteSpace(Value.Value.San))
             {
-                var parentDepth = ((MoveTreeNode<PostMoveState>)Value.Previous)?.VariationDepth ?? 0;
-                var nextDepth = ((MoveTreeNode<PostMoveState>)Value.Previous)?.Continuations.Skip(1).Any() ?? false
-                    ? Value.VariationDepth + 1
-                    : Value.VariationDepth;
-
                 yield return Value;
             }
 

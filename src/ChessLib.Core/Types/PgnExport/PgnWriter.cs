@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.GameTree.Traversal;
-using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Types.PgnExport
 {
@@ -153,12 +151,11 @@ namespace ChessLib.Core.Types.PgnExport
             if (string.IsNullOrWhiteSpace(comment))
             {
                 return;
-
             }
 
             var words = ("{" + comment + "}").Split(" ");
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             foreach (var commentWord in words)
             {
                 if (string.IsNullOrWhiteSpace(commentWord))
@@ -175,7 +172,7 @@ namespace ChessLib.Core.Types.PgnExport
         }
     }
 
-    public readonly struct PgnMoveInformation : IHasColorMakingMove
+    public readonly struct PgnMoveInformation
     {
         /// <summary>
         ///     Creates object to hold PGN move information.
@@ -185,7 +182,10 @@ namespace ChessLib.Core.Types.PgnExport
         /// <param name="moveNumber">Move number in game</param>
         /// <param name="isLastMove">Is the last move in a continuation</param>
         /// <param name="depthDifferenceFromPrevious">Depth from 0 of variation</param>
-        /// <param name="depthDifferenceFromNext">Positive if the next move further away from the main branch, Negative if the next node is closer to main branch</param>
+        /// <param name="depthDifferenceFromNext">
+        ///     Positive if the next move further away from the main branch, Negative if the next
+        ///     node is closer to main branch
+        /// </param>
         /// <param name="comments">Post move comments.</param>
         /// <param name="nag">The move's Numeric Annotation Glyph</param>
         /// <param name="isFirstGameMove">Is the first move in the game</param>

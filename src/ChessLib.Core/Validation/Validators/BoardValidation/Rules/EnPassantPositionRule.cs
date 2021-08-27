@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using ChessLib.Core.Helpers;
-using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
@@ -26,7 +23,8 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
 
 
             var opponentPawnOccupancy = boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer.Toggle(), Piece.Pawn);
-            var isSquareOnCorrectRank = IsEnPassantSquareCorrectForActive(boardInfo.ActivePlayer, enPassantSquare.Value);
+            var isSquareOnCorrectRank =
+                IsEnPassantSquareCorrectForActive(boardInfo.ActivePlayer, enPassantSquare.Value);
             if (isSquareOnCorrectRank)
             {
                 if (IsPawnPresentNorthOfEnPassantSquare(opponentPawnOccupancy, enPassantSquare.Value))
@@ -43,11 +41,10 @@ namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
             var opponentColor = boardInfoActivePlayer.Toggle();
             //Should be the third rank, relative to opponent's perspective.
             var rank = enPassantSquare.GetRank();
-            var isCorrect = (opponentColor == Color.Black && rank == (ushort)Rank.R6);
-            isCorrect |= (opponentColor == Color.White && rank == (ushort)Rank.R3);
+            var isCorrect = opponentColor == Color.Black && rank == (ushort)Rank.R6;
+            isCorrect |= opponentColor == Color.White && rank == (ushort)Rank.R3;
             return isCorrect;
         }
-
 
 
         internal virtual bool IsPawnPresentNorthOfEnPassantSquare(ulong opponentPawnOccupancy, ushort enPassantSquare)

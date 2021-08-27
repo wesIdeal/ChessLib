@@ -9,16 +9,7 @@ namespace ChessLib.Core.Types.Tree
         where T : IPostMoveState
     {
         /// <summary>
-        /// Constructs a NodeBase object from an existing NodeBase object
-        /// </summary>
-        /// <param name="value"></param>
-        protected NodeBase(INode<T> value) : this(value.Value, value.Previous)
-        {
-            value.Continuations.ForEach(c => { Continuations.Add((INode<T>)value.Clone()); });
-        }
-
-        /// <summary>
-        /// Creates a NodeBase from a value and a parent node.
+        ///     Creates a NodeBase from a value and a parent node.
         /// </summary>
         /// <param name="value">Value of the data contained in node</param>
         /// <param name="parent">Parent / Previous node</param>
@@ -42,8 +33,6 @@ namespace ChessLib.Core.Types.Tree
             Continuations = new List<INode<T>>();
         }
 
-        public abstract object Clone();
-
 
         public bool Equals(NodeBase<T> other)
         {
@@ -51,10 +40,12 @@ namespace ChessLib.Core.Types.Tree
             if (ReferenceEquals(this, other)) return true;
             var previousEqual = Equals(Previous, other.Previous);
             var valuesEqual = EqualityComparer<T>.Default.Equals(Value, other.Value);
-            var continuationsEqual = Continuations.Zip(other.Continuations, (t, oth) => t.Equals(oth)).All(x=>x == true);
+            var continuationsEqual = Continuations.Zip(other.Continuations, (t, oth) => t.Equals(oth)).All(x => x);
             return previousEqual && valuesEqual &&
                    continuationsEqual;
         }
+
+        public abstract object Clone();
 
 
         public INode<T> Previous { get; }
@@ -67,12 +58,6 @@ namespace ChessLib.Core.Types.Tree
 
         public List<INode<T>> Continuations { get; }
 
-
-        public virtual INode<T> AddNode(T nodeValue)
-        {
-            var childNode = new MoveTreeNode<T>(nodeValue, this);
-            return AddNode(childNode);
-        }
 
         public virtual INode<T> AddNode(INode<T> nodeValue)
         {

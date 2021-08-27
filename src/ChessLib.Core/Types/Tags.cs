@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
@@ -202,10 +201,5 @@ namespace ChessLib.Core.Types
         {
             OnFenChanged?.Invoke(fen);
         }
-
-
-
-
-
     }
 }

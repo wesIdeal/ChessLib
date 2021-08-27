@@ -9,8 +9,6 @@ namespace ChessLib.Core.Types.Exceptions
     {
         NoneSet,
         CastleThroughCheck,
-        CastleKingNotOnStartingSquare,
-        CastleRookNotOnStartingSquare,
         ActivePlayerHasNoPieceOnSourceSquare,
         MoveLeavesKingInCheck,
         EpNotAvailable,
@@ -22,8 +20,7 @@ namespace ChessLib.Core.Types.Exceptions
         ActiveColorPieceAtDestination,
         EpSourceIsNotPawn,
         EpWrongSourceRank,
-        EpNotAttackedBySource,
-        Stalemate
+        EpNotAttackedBySource
     }
 
     [Serializable]
@@ -55,13 +52,13 @@ namespace ChessLib.Core.Types.Exceptions
         }
 
         public MoveException(string message, MoveError type, IMove move, Color activePlayer, IBoard board = null)
-            : this(message + $"\r\n{activePlayer.ToString()}'s move: {move.ToString()}", board)
+            : this(message + $"\r\n{activePlayer.ToString()}'s move: {move}", board)
         {
             Error = type;
         }
 
         public MoveException(string message, IMove move, Color activePlayer, IBoard board = null)
-            : this(message + $"\r\n{activePlayer.ToString()}'s move: {move.ToString()}", board)
+            : this(message + $"\r\n{activePlayer.ToString()}'s move: {move}", board)
         {
             Error = MoveError.NoneSet;
         }

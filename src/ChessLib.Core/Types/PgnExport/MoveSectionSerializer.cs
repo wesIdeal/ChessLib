@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Types.GameTree.Traversal;
+﻿using ChessLib.Core.Types.GameTree.Traversal;
 using ChessLib.Core.Types.Tree;
 
 namespace ChessLib.Core.Types.PgnExport
@@ -10,10 +7,8 @@ namespace ChessLib.Core.Types.PgnExport
     {
         public MoveSectionSerializer(PGNFormatterOptions options) : base(options)
         {
-            pgnMoveBuilder = new PgnMoveBuilder(Options);
+            
         }
-
-        private readonly PgnMoveBuilder pgnMoveBuilder;
 
         /// <summary>
         ///     Writes move section in PGN form.
@@ -30,13 +25,5 @@ namespace ChessLib.Core.Types.PgnExport
                 pgnWriter.WriteMove(move);
             }
         }
-
-        
-
-        
-
-
-
-       
     }
 }

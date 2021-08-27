@@ -26,7 +26,6 @@ namespace ChessLib.Core.Types.GameTree.Traversal
         /// <summary>
         ///     Places nodes in the correct locations
         /// </summary>
-        /// <param name="movePairs"></param>
         /// <param name="nodes">Nodes to convert to MovePair object</param>
         public MovePair(params PgnMoveInformation?[] nodes)
         {

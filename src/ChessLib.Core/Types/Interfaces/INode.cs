@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ChessLib.Core.Types.Tree;
 
 namespace ChessLib.Core.Types.Interfaces
 {

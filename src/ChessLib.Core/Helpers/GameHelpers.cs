@@ -35,6 +35,7 @@ namespace ChessLib.Core.Helpers
         /// <summary>
         ///     Applies a move to the current board.
         /// </summary>
+        /// <param name="game"></param>
         /// <param name="san">Simple Algebraic Notation of move.</param>
         /// <param name="moveApplicationStrategy">Strategy for how move should be applied</param>
         /// <remarks>
@@ -63,7 +64,7 @@ namespace ChessLib.Core.Helpers
             List<INode<PostMoveState>> aggregator = null)
         {
             aggregator ??= new List<INode<PostMoveState>>();
-            aggregator.ToList();
+            
             var nextMove = continuations.FirstOrDefault();
             if (nextMove == null)
             {

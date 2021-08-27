@@ -34,9 +34,6 @@ namespace ChessLib.Core.Types.Tree
         public Color ColorMakingMove => ((BoardState)Value.BoardState).ActivePlayer.Toggle();
 
 
-        public IEnumerable<MoveTreeNode<T>> ParentContinuations =>
-            Previous?.Previous?.Continuations.Cast<MoveTreeNode<T>>();
-
         public MoveTreeNode(T value, INode<T> parent) : base(value, parent)
         {
         }

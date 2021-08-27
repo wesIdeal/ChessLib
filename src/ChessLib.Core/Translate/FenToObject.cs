@@ -47,11 +47,10 @@ namespace ChessLib.Core.Translate
         /// <param name="enPassantSquareIndex"></param>
         /// <param name="halfmoveClock"></param>
         /// <param name="fullmoveClock"></param>
-        /// <param name="validate"></param>
         /// <returns></returns>
         private static ulong[][] BoardFromFen(string fen, out Color activePlayer,
             out CastlingAvailability castlingAvailability, out ushort? enPassantSquareIndex, out byte halfmoveClock,
-            out ushort fullmoveClock, bool validate = true)
+            out ushort fullmoveClock)
         {
             var fenPieces = fen.Split(' ');
             var pieces = BoardFromFen(fen);

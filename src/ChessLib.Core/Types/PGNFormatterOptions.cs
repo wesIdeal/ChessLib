@@ -132,56 +132,5 @@ namespace ChessLib.Core.Types
             options.IsVariationPadded = false;
             options.WhitespaceSeparator = ' ';
         }
-        /// <summary>
-        ///     Gets an indentation string, based on current indentation level / variation depth.
-        /// </summary>
-        /// <param name="options"></param>
-        /// <param name="indent"></param>
-        /// <returns>An indentation string, depending on options, to offset a variation or comment.</returns>
-        /// <remarks>
-        ///     If
-        ///     <value>'\t'</value>
-        ///     is received, that character is repeated <paramref name="indent" /> times. Otherwise, it is repeated
-        ///     <see cref="PGNFormatterOptions.SpacesPerTab" /> * <paramref name="indent" /> times.
-        /// </remarks>
-        public static string GetIndentation(this PGNFormatterOptions options, int indent)
-        {
-            if (!options.IndentVariations && !options.IndentComments)
-            {
-                return "";
-            }
-
-            var repetitionCount = indent * options.SpacesPerTab;
-            if (options.WhitespaceSeparator == '\t')
-            {
-                repetitionCount = indent;
-            }
-
-            return new string(options.WhitespaceSeparator, repetitionCount);
-        }
-
-
-
-
-        /// <summary>
-        ///     Gets the Move Separator string that is used to divide move objects in PGN.
-        /// </summary>
-        /// <param name="options"></param>
-        /// <param name="activeColor">Side which made the move.</param>
-        /// <returns>
-        ///     A <see cref="PGNFormatterOptions.NewLineIndicator" /> or <see cref="PGNFormatterOptions.WhitespaceSeparator" />,
-        ///     depending on the options.
-        /// </returns>
-        public static string GetPostMoveString(this PGNFormatterOptions options, Color activeColor)
-        {
-            if (options.NewlineAfterBlackMove && activeColor == Color.Black)
-            {
-                return options.NewLineIndicator;
-            }
-
-            return options.WhitespaceSeparator.ToString();
-        }
-
-
     }
 }
