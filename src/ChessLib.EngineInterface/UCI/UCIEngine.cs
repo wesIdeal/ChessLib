@@ -235,7 +235,10 @@ namespace ChessLib.EngineInterface.UCI
             var positionString = $"fen {StartingPositionFEN}";
             var moveString = "";
             if (moves.Any())
+            {
                 moveString = " moves " + string.Join(" ", moves.Select(MoveDisplayService.MoveToLan));
+            }
+
             QueueCommand(commandInfo, $"{positionString}{moveString}");
         }
 

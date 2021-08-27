@@ -163,8 +163,8 @@ namespace ChessLib.Core.Tests {
         ///[EventDate &quot;2021.08.16&quot;]
         ///
         ///1.c4 Nf6 2.Nc3 (2.g3) 2...e6 (2...e5 3.Nf3) 3.Nf3 d5 4.d4 (4.cxd5 exd5 5.d4
-        ///(5.e3 Bd6 $15 (5...c6 $6))) 4...Nbd7 5.Bg5 h6 (5...c6) (5...Bb4 6.cxd5 exd5 
-        ///{{ Best move.}} 7.e3 {{ White has a slight advantage.}} (7.Qc2 h6 $14)) 1-0
+        ///(5.e3 Bd6 $15 (5...c6 $6))) 4...Nbd7 5.Bg5 h6 (5...c6) (5...Bb4 6.cxd5 exd5
+        ///{{Best move.}} 7.e3 {{White has a slight advantage.}} (7.Qc2 h6 $14)) 1-0
         ///
         ///.
         /// </summary>
@@ -194,7 +194,7 @@ namespace ChessLib.Core.Tests {
         ///[Black &quot;?&quot;]
         ///[Result &quot;*&quot;]
         ///
-        ///1. c4 g6 2. Nc3 ( 2. d4 Bg7 3. Nc3 ) *
+        ///1.c4 g6 2.Nc3 (2.d4 Bg7 3.Nc3) *
         ///
         ///.
         /// </summary>
@@ -269,7 +269,7 @@ namespace ChessLib.Core.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [Event &quot;?&quot;]{0}[Site &quot;?&quot;]{0}[Date &quot;????.??.??&quot;]{0}[Round &quot;?&quot;]{0}[White &quot;?&quot;]{0}[Black &quot;?&quot;]{0}[Result &quot;*&quot;]{0}{0}1.c4 {0}    ( 1.d4 ){0}*{0}.
+        ///   Looks up a localized string similar to [Event &quot;?&quot;]{0}[Site &quot;?&quot;]{0}[Date &quot;????.??.??&quot;]{0}[Round &quot;?&quot;]{0}[White &quot;?&quot;]{0}[Black &quot;?&quot;]{0}[Result &quot;*&quot;]{0}{0}1.c4 (1.d4) *{0}{0}.
         /// </summary>
         internal static string PgnFormatterVariationInitial {
             get {

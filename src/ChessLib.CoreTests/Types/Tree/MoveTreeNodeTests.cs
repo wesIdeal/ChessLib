@@ -25,7 +25,11 @@ namespace ChessLib.Core.Tests.Types.Tree
             return g.Current.Node.IsVariation;
         }
 
-
+        [TestCaseSource(typeof(TreeData), nameof(TreeData.GetEndOfVariationTestCases))]
+        public bool LastContinuationMove_ShouldReturnCorrectValue(MoveTreeNode<PostMoveState> node)
+        {
+            return node.IsLastMoveOfContinuation;
+        }
 
     }
 }

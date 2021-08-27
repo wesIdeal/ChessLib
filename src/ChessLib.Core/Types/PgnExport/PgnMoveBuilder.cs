@@ -17,21 +17,46 @@ namespace ChessLib.Core.Types.PgnExport
         {
             BuildVariationStart(pgnMoveInformation).
             BuildMoveSeparator(pgnMoveInformation).
+            BuildMoveNumber(pgnMoveInformation);
             BuildMoveValue(pgnMoveInformation, isBlackMoveNeeded).
+                BuildNumericAnnotationGlyph(pgnMoveInformation).
             BuildEndOfVariation(pgnMoveInformation);
             var move = moveTextBuilder.ToString();
             moveTextBuilder.Clear();
             return move;
         }
+
+        private PgnMoveBuilder BuildNumericAnnotationGlyph(PgnMoveInformation pgnMoveInformation)
+        {
+            var nag = pgnMoveInformation.NAG?.ToString(_options.AnnotationFormat);
+            if (!string.IsNullOrWhiteSpace(nag))
+            {
+                moveTextBuilder.Append(_options.WhitespaceSeparator)
+                    .Append(nag);
+            }
+
+            return this;
+        }
+
         public PgnMoveBuilder BuildMoveValue(PgnMoveInformation pgnMoveInformation, bool isBlackMoveNeeded)
         {
-            if (isBlackMoveNeeded)
+            
+            moveTextBuilder.Append(pgnMoveInformation.MoveSan);
+            return this;
+        }
+
+        private PgnMoveBuilder BuildMoveNumber(PgnMoveInformation pgnMoveInformation)
+        {
+            var blackMoveNeeded = (pgnMoveInformation.ColorMakingMove == Color.Black &&
+                                   (pgnMoveInformation.VariationDepthFromPrevious != 0 ||
+                                    pgnMoveInformation.IsFirstGameMove));
+            if (pgnMoveInformation.ColorMakingMove == Color.White || blackMoveNeeded)
             {
                 moveTextBuilder.Append(pgnMoveInformation.MoveNumber)
-                       .Append(pgnMoveInformation.ColorMakingMove == Color.Black ? "..." : ".")
-                       .Append(_options.SpaceAfterMoveNumber ? _options.WhitespaceSeparator.ToString() : "");
+                    .Append(pgnMoveInformation.ColorMakingMove == Color.Black ? "..." : ".")
+                    .Append(_options.SpaceAfterMoveNumber ? _options.WhitespaceSeparator.ToString() : "");
             }
-            moveTextBuilder.Append(pgnMoveInformation.MoveSan);
+
             return this;
         }
 
@@ -75,7 +100,7 @@ namespace ChessLib.Core.Types.PgnExport
         }
         private void BuildEndOfVariation(PgnMoveInformation pgnMoveInformation)
         {
-            if (pgnMoveInformation.IsLastMoveInVariation)
+            for (var i = 0; i > pgnMoveInformation.VariationDepthFromNext; i--)
             {
                 moveTextBuilder.Append(_options.GetVariationPadding()).Append(")");
                 if (_options.IndentVariations)

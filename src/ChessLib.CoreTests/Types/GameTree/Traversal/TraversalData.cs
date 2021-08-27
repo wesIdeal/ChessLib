@@ -12,10 +12,10 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
     public class TraversalData
     {
         private static readonly PgnMoveInformation whiteNode =
-            new PgnMoveInformation(Color.White, "e4", "1", true, false,0, false);
+            new PgnMoveInformation(Color.White, "e4", 1, true, false,0, 0);
 
         private static readonly PgnMoveInformation blackNode =
-            new PgnMoveInformation(Color.Black, "e5",  "1", false, false,0, false);
+            new PgnMoveInformation(Color.Black, "e5",  1, false, false,0, 0);
 
         private static readonly (int[] nodeIndex, string[] variationText) LongVariation1 = (nodeIndex: new[] { 1 },
             variationText: new[]
@@ -139,10 +139,10 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
             testCase.Game.ApplyMove("cxd5", "exd5", "d4");
             testCase.Game.MovePrevious();
             testCase.Game.ApplyMove("e3", "Bd6");
-            testCase.Game.Current.Node.Annotation.ApplyNag("=+");
+            testCase.Game.Current.Node.Annotation.ApplyNag(15);
             testCase.Game.MovePrevious();
             testCase.Game.ApplyMove("c6");
-            testCase.Game.AddNag(new NumericAnnotation("?!"));
+            testCase.Game.AddNag(new NumericAnnotation(6));
             testCase.Game.ExitVariation();
             testCase.Game.ExitVariation();
             testCase.Game.ExitVariation();
@@ -152,12 +152,12 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
             testCase.Game.ApplyMove("c6", MoveApplicationStrategy.ContinueMainLine);
             testCase.Game.MovePrevious();
             testCase.Game.ApplyMove("Bb4", "cxd5", "exd5");
-            testCase.Game.Current.Node.Comment = "Best move";
+            testCase.Game.Current.Node.Comment = "Best move.";
             testCase.Game.ApplyMove("e3", MoveApplicationStrategy.ContinueMainLine);
             testCase.Game.Current.Node.Comment = "White has a slight advantage.";
             testCase.Game.MovePrevious();
             testCase.Game.ApplyMove("Qc2", "h6");
-            testCase.Game.AddNag(new NumericAnnotation("+="));
+            testCase.Game.AddNag(new NumericAnnotation(14));
         }
     }
 }

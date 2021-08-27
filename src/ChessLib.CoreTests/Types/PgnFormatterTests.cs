@@ -156,11 +156,11 @@ namespace ChessLib.Core.Tests.Types
             }
         }
 
-        public static PgnFormatterTests.PgnFormatterVariationTestCase GetLongVariation()
+        public static PgnFormatterVariationTestCase GetLongVariation()
         {
             
 
-            var testCase = new PgnFormatterTests.PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
+            var testCase = new PgnFormatterVariationTestCase(BoardConstants.FenStartingPosition,
                 PGN.PgnFormatterAllAccoutrements,
                 TraversalData.longGameMainLine, "Game with comments, multiple variations on variations, annotations, tags filled");
             TraversalData.SetupLongGame(testCase);

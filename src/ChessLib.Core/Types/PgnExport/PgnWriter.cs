@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Text;
 using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Enums.NAG;
 using ChessLib.Core.Types.GameTree.Traversal;
 using ChessLib.Core.Types.Interfaces;
 
@@ -111,7 +114,9 @@ namespace ChessLib.Core.Types.PgnExport
         public void WriteMove(MovePair move)
         {
             var whiteMove = string.Empty;
+            var whiteComment = string.Empty;
             var blackMove = string.Empty;
+            var blackComment = string.Empty;
             if (!move.WhiteNode.HasValue && !move.BlackNode.HasValue)
             {
                 throw new ArgumentNullException(nameof(move), "Both white and black's move cannot be null.");
@@ -120,28 +125,58 @@ namespace ChessLib.Core.Types.PgnExport
             if (move.WhiteNode.HasValue)
             {
                 whiteMove = pgnMoveBuilder.BuildMove(move.WhiteNode.Value, true);
+                whiteComment = move.WhiteNode.Value.Comments ?? "";
             }
 
             if (move.BlackNode.HasValue)
             {
                 blackMove = pgnMoveBuilder.BuildMove(move.BlackNode.Value, !move.WhiteNode.HasValue);
+                blackComment = move.BlackNode.Value.Comments ?? "";
             }
 
+            if (!string.IsNullOrEmpty(whiteComment))
+            {
+                WriteMove(whiteMove);
+                WriteComment(whiteComment);
+                WriteMove(blackMove);
+            }
+            else
+            {
+                WriteMove(whiteMove + blackMove);
+                WriteComment(blackComment);
+            }
+        }
 
-            var pgnMove = whiteMove + blackMove;
-            WriteMove(pgnMove);
+        private void WriteComment(string comment)
+        {
+            comment = comment.Trim();
+            if (string.IsNullOrWhiteSpace(comment))
+            {
+                return;
+
+            }
+
+            var words = ("{" + comment + "}").Split(" ");
+
+            StringBuilder sb = new StringBuilder();
+            foreach (var commentWord in words)
+            {
+                if (string.IsNullOrWhiteSpace(commentWord))
+                {
+                    sb.Append(commentWord);
+                }
+                else
+                {
+                    sb.Append(" " + commentWord);
+                    WriteMove(sb.ToString());
+                    sb.Clear();
+                }
+            }
         }
     }
 
     public readonly struct PgnMoveInformation : IHasColorMakingMove
     {
-        private readonly int _variationDepth;
-        public string MoveNumber { get; }
-        public string Comments { get; }
-        public string NAG { get; }
-        public string MoveSan { get; }
-
-
         /// <summary>
         ///     Creates object to hold PGN move information.
         /// </summary>
@@ -149,32 +184,43 @@ namespace ChessLib.Core.Types.PgnExport
         /// <param name="moveSan">The string representation of the move.</param>
         /// <param name="moveNumber">Move number in game</param>
         /// <param name="isLastMove">Is the last move in a continuation</param>
-        /// <param name="variationDepth">Depth from 0 of variation</param>
+        /// <param name="depthDifferenceFromPrevious">Depth from 0 of variation</param>
+        /// <param name="depthDifferenceFromNext">Positive if the next move further away from the main branch, Negative if the next node is closer to main branch</param>
         /// <param name="comments">Post move comments.</param>
         /// <param name="nag">The move's Numeric Annotation Glyph</param>
         /// <param name="isFirstGameMove">Is the first move in the game</param>
         /// <remarks>All parameters are trimmed.</remarks>
         public PgnMoveInformation(Color activeColor, string moveSan,
-            string moveNumber, bool isFirstGameMove, bool isLastMove, int variationDepth, bool firstMoveInVariation, string comments = "", string nag = "")
+            uint moveNumber, bool isFirstGameMove, bool isLastMove, int depthDifferenceFromPrevious,
+            int depthDifferenceFromNext, string comments = "", NumericAnnotation nag = null)
 
         {
             ColorMakingMove = activeColor;
             IsFirstGameMove = isFirstGameMove;
             IsLastMove = isLastMove;
-            this._variationDepth = variationDepth;
-            FirstMoveInVariation = firstMoveInVariation;
-            MoveNumber = moveNumber.Trim();
+            VariationDepthFromPrevious = depthDifferenceFromPrevious;
+            VariationDepthFromNext = depthDifferenceFromNext;
+            MoveNumber = moveNumber.ToString();
 
             Comments = comments.Trim();
-            NAG = nag.Trim();
+            NAG = nag;
             MoveSan = moveSan.Trim();
         }
 
+        public int VariationDepthFromPrevious { get; }
+
+        public string MoveNumber { get; }
+        public string Comments { get; }
+        public NumericAnnotation NAG { get; }
+        public string MoveSan { get; }
+
+
+        public int VariationDepthFromNext { get; }
+
         public Color ColorMakingMove { get; }
         public bool IsFirstGameMove { get; }
-        public bool IsLastMove { get;  }
-        public bool IsLastMoveInVariation => IsLastMove && _variationDepth > 0;
-        public bool FirstMoveInVariation { get; }
+        public bool IsLastMove { get; }
+        public bool FirstMoveInVariation => VariationDepthFromPrevious > 0;
 
         public override string ToString()
         {

@@ -32,8 +32,7 @@ namespace ChessLib.Core.Types.Enums.NAG
 
         public NumericAnnotation()
         {
-            _symbolFormat =
-                EnumsNET.Enums.RegisterCustomEnumFormat(member => member.Attributes.Get<SymbolAttribute>()?.Symbol);
+
             MoveNAG = MoveNAG.Null;
             TimeTroubleNAG = TimeTroubleNAG.Null;
             PositionalNAGs = new List<PositionalNAG>();
@@ -50,7 +49,8 @@ namespace ChessLib.Core.Types.Enums.NAG
             ApplyNag(nag);
         }
 
-        private readonly EnumFormat _symbolFormat;
+        private static readonly EnumFormat _symbolFormat =
+            EnumsNET.Enums.RegisterCustomEnumFormat(member => member.Attributes.Get<SymbolAttribute>()?.Symbol);
 
         public bool Equals(NumericAnnotation other)
         {
@@ -93,43 +93,63 @@ namespace ChessLib.Core.Types.Enums.NAG
             }
         }
 
-        public override string ToString()
+        public string ToString(AnnotationFormat format)
         {
-            var sb = new StringBuilder();
-            sb.Append(MoveNAG.AsString(_symbolFormat) + " ");
-            foreach (var positionalNAG in PositionalNAGs) sb.Append(positionalNAG.AsString(_symbolFormat) + " ");
-
-            sb.Append(TimeTroubleNAG.AsString(_symbolFormat) + " ");
-            foreach (var nonStandardNAG in NonStandardNAGs) sb.Append(nonStandardNAG.AsString(_symbolFormat) + " ");
-
-            return sb.ToString().Replace("  ", " ").Trim();
-        }
-
-        public string ToNAGString()
-        {
-            var sb = new StringBuilder();
-            if (MoveNAG != MoveNAG.Null)
-            {
-                sb.Append(" $" + (int)MoveNAG);
-            }
-
-            foreach (var positionalNAG in PositionalNAGs)
-            {
-                sb.Append(" $" + (int)positionalNAG);
-            }
-
-            if (TimeTroubleNAG != TimeTroubleNAG.Null)
-            {
-                sb.Append(" $" + (int)TimeTroubleNAG);
-            }
-
-            foreach (var nonStandardNAG in NonStandardNAGs)
-            {
-                sb.Append(" $" + (int)nonStandardNAG);
-            }
-
+            StringBuilder sb = new StringBuilder();
+            Format(sb, MoveNAG, format);
+            Format(sb, PositionalNAGs, format);
+            Format(sb, TimeTroubleNAG, format);
+            Format(sb, NonStandardNAGs, format);
             return sb.ToString().Trim();
         }
+
+        /// <summary>
+        /// Builds the Nag string, in a PGN-friendly format
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return ToString(AnnotationFormat.Symbolic);
+        }
+
+        /// <summary>
+        /// Builds the NAG to a standard string intended for import, formatted in order of annotation Type.
+        /// </summary>
+        /// <returns></returns>
+        public string ToNAGString()
+        {
+            return ToString(AnnotationFormat.PGNSpec);
+
+        }
+
+        private static void Format<T>(StringBuilder sb, IEnumerable<T> nags, AnnotationFormat annotationFormat)
+            where T : struct, Enum
+        {
+            foreach (var nag in nags)
+            {
+                Format(sb, nag, annotationFormat).Append(" ");
+            }
+        }
+
+        private static StringBuilder Format<T>(StringBuilder sb, T nag, AnnotationFormat annotationFormat)
+            where T : struct, Enum
+        {
+            var value = (int)EnumsNET.Enums.GetUnderlyingValue(nag);
+            if (value != 0)
+            {
+                var strNag = annotationFormat == AnnotationFormat.Symbolic
+                    ? nag.AsString(_symbolFormat)
+                    : "$" + EnumsNET.Enums.GetUnderlyingValue(nag);
+                if (!string.IsNullOrWhiteSpace(strNag))
+                {
+                    sb.Append(strNag).Append(" ");
+                }
+            }
+
+            return sb;
+        }
+
+       
 
         /// <summary>
         ///     Apply a Numeric Annotation Glyph (NAG) from a string representation, either format works- ${nagInt} or {nagInt}
@@ -186,4 +206,6 @@ namespace ChessLib.Core.Types.Enums.NAG
         }
 
     }
+
+
 }

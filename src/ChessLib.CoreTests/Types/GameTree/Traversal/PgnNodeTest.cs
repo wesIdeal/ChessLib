@@ -63,7 +63,7 @@ namespace ChessLib.Core.Tests.Types.GameTree.Traversal
             var pgnNode = new PgnNode(g.InitialNode.Node);
             var flattened = pgnNode.FlattenToPgnOrder();
             
-            var testCases = flattened.Zip(expected, (actual, expected) => new { Actual = actual.MoveSan, Expected = expected }).ToList();
+            var testCases = flattened.Zip(expected, (actual, expected) => new { Actual = actual.Value.San, Expected = expected }).ToList();
             foreach (var testCase in testCases)
             {
                 Assert.AreEqual(testCase.Expected, testCase.Actual);

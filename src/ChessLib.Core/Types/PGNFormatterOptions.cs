@@ -25,7 +25,7 @@ namespace ChessLib.Core.Types
         /// </remarks>
         public char WhitespaceSeparator { get; set; } = ' ';
 
-        public AnnotationStyle AnnotationStyle { get; set; }
+        public AnnotationFormat AnnotationFormat { get; set; }
 
         /// <summary>
         ///     Used to override the export format's designated new line

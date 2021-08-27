@@ -1,6 +1,6 @@
 ﻿namespace ChessLib.Core.Types.Enums
 {
-    public enum AnnotationStyle
+    public enum AnnotationFormat
     {
         PGNSpec,
         Symbolic

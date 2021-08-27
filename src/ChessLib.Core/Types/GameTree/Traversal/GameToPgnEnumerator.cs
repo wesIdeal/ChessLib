@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using ChessLib.Core.Types.Enums;
@@ -17,14 +18,17 @@ namespace ChessLib.Core.Types.GameTree.Traversal
     internal class PgnNode
     {
         public PgnNode[] SiblingNodes { get; } = Array.Empty<PgnNode>();
-        public PgnMoveInformation Value { get; }
+        public MoveTreeNode<PostMoveState> Value { get; }
         public PgnNode Next { get; }
+        public int VariationDepth { get; }
 
         public PgnNode(MoveTreeNode<PostMoveState> treeNode)
         {
+            Debug.Assert(treeNode != null);
+
             var node = (MoveTreeNode<PostMoveState>)treeNode.Clone();
-            Value = new PgnMoveInformation(node.ColorMakingMove, node.Value.San,
-                node.MoveNumber.ToString(), node.IsFirstMoveInGame, node.IsLastMoveOfContinuation, node.VariationDepth, node.IsFirstMoveOfVariation);
+            VariationDepth = treeNode.VariationDepth;
+            Value = node;
             if (!node.IsFirstMoveOfVariation)
             {
                 SiblingNodes = node.GetSiblingVariations().Select(x => new PgnNode(x)).ToArray();
@@ -39,11 +43,24 @@ namespace ChessLib.Core.Types.GameTree.Traversal
         {
             var pair = new MovePair(null);
             var flattenedTreeNodes = FlattenToPgnOrder();
-            var nodeQueue = new Queue<PgnMoveInformation>(flattenedTreeNodes);
-
-
-            while (nodeQueue.TryDequeue(out var node))
+            var nodeQueue = new Queue<MoveTreeNode<PostMoveState>>(flattenedTreeNodes);
+            var lastLevel = 0;
+            MoveTreeNode<PostMoveState> previous = null;
+            while (nodeQueue.TryDequeue(out var moveNode))
             {
+
+                var currentDepth = moveNode.VariationDepth;
+                var hasNextNode = nodeQueue.TryPeek(out var nextNodeInQueue);
+                var depthDifferencePrevious = GetPreviousDepthDifference(moveNode, previous, lastLevel);
+                var depthDifferenceNext = GetNextDepthDifference(moveNode, nextNodeInQueue, currentDepth);
+
+                var node = new PgnMoveInformation(moveNode.ColorMakingMove, moveNode.Value.San, moveNode.MoveNumber,
+                    moveNode.IsFirstMoveInGame, !hasNextNode, depthDifferencePrevious, depthDifferenceNext,
+                    moveNode.Comment, moveNode.Annotation);
+                lastLevel = currentDepth;
+
+                previous = moveNode;
+
                 if (node.ColorMakingMove == Color.White)
                 {
                     if (!pair.IsEmpty)
@@ -52,6 +69,7 @@ namespace ChessLib.Core.Types.GameTree.Traversal
                     }
 
                     pair = new MovePair(node);
+                   
                 }
                 else
                 {
@@ -61,7 +79,7 @@ namespace ChessLib.Core.Types.GameTree.Traversal
                     pair = new MovePair(null);
                 }
 
-                if (node.IsLastMove)
+                if ((node.VariationDepthFromNext != 0 || node.VariationDepthFromPrevious!= 0 || node.IsLastMove) && !pair.IsEmpty)
                 {
                     yield return pair;
                     pair = new MovePair(null);
@@ -69,10 +87,51 @@ namespace ChessLib.Core.Types.GameTree.Traversal
             }
         }
 
-        public IEnumerable<PgnMoveInformation> FlattenToPgnOrder()
+        private static int GetPreviousDepthDifference(MoveTreeNode<PostMoveState> currentNode, MoveTreeNode<PostMoveState> previousNode, int currentDepth)
         {
-            if (!string.IsNullOrWhiteSpace(Value.MoveSan))
+
+            if (previousNode == null)
             {
+                return 0;
+            }
+            var depthDiff = currentNode.VariationDepth - currentDepth;
+            if (depthDiff == 0 &&
+                previousNode.ColorMakingMove == currentNode.ColorMakingMove &&
+                currentNode.IsFirstMoveOfVariation)
+            {
+                return 1;
+            }
+
+            return depthDiff;
+        }
+
+        private static int GetNextDepthDifference(MoveTreeNode<PostMoveState> currentNode,
+            MoveTreeNode<PostMoveState> nextNodeInQueue, int currentDepth)
+        {
+            if (nextNodeInQueue == null)
+            {
+                return -(currentDepth);
+            }
+            var diff = nextNodeInQueue.VariationDepth - currentDepth;
+            if (diff == 0 &&
+                nextNodeInQueue.ColorMakingMove == currentNode.ColorMakingMove &&
+                currentNode.IsLastMoveOfContinuation)
+            {
+                return -1;
+            }
+
+            return diff;
+        }
+
+        public IEnumerable<MoveTreeNode<PostMoveState>> FlattenToPgnOrder()
+        {
+            if (!string.IsNullOrWhiteSpace(Value.Value.San))
+            {
+                var parentDepth = ((MoveTreeNode<PostMoveState>)Value.Previous)?.VariationDepth ?? 0;
+                var nextDepth = ((MoveTreeNode<PostMoveState>)Value.Previous)?.Continuations.Skip(1).Any() ?? false
+                    ? Value.VariationDepth + 1
+                    : Value.VariationDepth;
+
                 yield return Value;
             }
 
