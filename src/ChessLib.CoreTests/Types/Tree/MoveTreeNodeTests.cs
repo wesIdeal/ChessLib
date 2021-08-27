@@ -14,15 +14,15 @@ namespace ChessLib.Core.Tests.Types.Tree
     public class MoveTreeNodeTests
     {
         [TestCaseSource(typeof(TreeData), nameof(TreeData.GetInitialMoveSetTestCases))]
-        public GameMoveFlags InitialMoveFlag_OnVariationFirstNode_InitialMoveFlagShouldGetSet(Game g)
+        public bool InitialMoveFlag_OnVariationFirstNode_InitialMoveFlagShouldGetSet(Game g)
         {
-            return g.Current.Node.MoveFlags & GameMoveFlags.InitialMove;
+            return g.Current.Node.IsInitialMoveOfContinuation;
         }
 
         [TestCaseSource(typeof(TreeData), nameof(TreeData.GetVariationMoveSetTestCases))]
-        public GameMoveFlags VariationFlag_OnVariationFirstNode_ShouldGetSet(Game g)
+        public bool VariationFlag_OnVariationFirstNode_ShouldGetSet(Game g)
         {
-            return g.Current.Node.MoveFlags & GameMoveFlags.Variation;
+            return g.Current.Node.IsVariation;
         }
 
 

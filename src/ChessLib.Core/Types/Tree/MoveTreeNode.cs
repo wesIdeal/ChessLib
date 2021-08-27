@@ -135,6 +135,10 @@ namespace ChessLib.Core.Types.Tree
 
         public virtual bool IsLastMoveOfGame => IsLastMoveOfContinuation && VariationDepth == 0;
 
+        public bool IsInitialMoveOfContinuation => Previous?.Value.MoveValue == Move.NullMove ||
+                                                   Previous?.Continuations[0].Value.MoveValue != Value.MoveValue;
+        
+
         #endregion MoveInformation
     }
 }
