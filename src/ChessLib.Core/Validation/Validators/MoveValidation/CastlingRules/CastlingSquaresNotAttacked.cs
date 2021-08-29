@@ -11,7 +11,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
     {
         public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
-            if (IsKingsPathInCheck(boardInfo.ActivePlayer.Toggle(), boardInfo.Occupancy, move))
+            if (IsKingsPathInCheck(boardInfo.ActivePlayer.Toggle(), boardInfo.Occupancy, move, boardInfo.EnPassantIndex))
             {
                 return MoveError.CastleThroughCheck;
             }
@@ -26,14 +26,14 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
         /// <param name="occupancy"></param>
         /// <param name="move"></param>
         /// <returns></returns>
-        protected static bool IsKingsPathInCheck(in Color opponentColor, in ulong[][] occupancy, in IMove move)
+        protected static bool IsKingsPathInCheck(in Color opponentColor, in ulong[][] occupancy, in IMove move, ushort? enPassant)
         {
             var moveToAndFromValues = move.SourceValue | move.DestinationValue;
             var squaresBetween = BoardHelpers.InBetween(move.SourceIndex, move.DestinationIndex) | moveToAndFromValues;
             while (squaresBetween != 0)
             {
                 var square = BitHelpers.BitScanForward(squaresBetween);
-                if (Bitboard.Instance.IsSquareAttackedByColor(square, opponentColor, occupancy))
+                if (Bitboard.Instance.IsSquareAttackedByColor(square, opponentColor, occupancy, enPassant))
                 {
                     return true;
                 }

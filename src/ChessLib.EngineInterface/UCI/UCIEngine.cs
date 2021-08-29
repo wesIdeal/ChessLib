@@ -2,9 +2,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ChessLib.Core;
-using ChessLib.Core.IO;
 using ChessLib.Core.Translate;
+using ChessLib.Core.Types;
 using ChessLib.EngineInterface.UCI.Commands;
 using ChessLib.EngineInterface.UCI.Commands.ToEngine;
 
@@ -12,10 +11,9 @@ namespace ChessLib.EngineInterface.UCI
 {
     public sealed class UCIEngine : Engine
     {
-        [NonSerialized] private readonly LanToMove _lanToMove;
-        [NonSerialized] private bool _isDisposed;
-        [NonSerialized] private readonly LanVariationToMoves _lanVariationToMoves;
-        [NonSerialized] public UCIResponse EngineInformation;
+        public new UCIEngineStartupArgs UserSuppliedArgs { get; }
+        public override InterruptCommand QuitCommand { get; } = new InterruptCommand(AppToUCICommand.Quit);
+        public override InterruptCommand StopCommand { get; } = new InterruptCommand(AppToUCICommand.Stop);
 
         public UCIEngine(UCIEngineStartupArgs args)
             : base(args)
@@ -32,9 +30,10 @@ namespace ChessLib.EngineInterface.UCI
             UserSuppliedArgs = args;
         }
 
-        public new UCIEngineStartupArgs UserSuppliedArgs { get; }
-        public override InterruptCommand QuitCommand { get; } = new InterruptCommand(AppToUCICommand.Quit);
-        public override InterruptCommand StopCommand { get; } = new InterruptCommand(AppToUCICommand.Stop);
+        [NonSerialized] private readonly LanToMove _lanToMove;
+        [NonSerialized] private readonly LanVariationToMoves _lanVariationToMoves;
+        [NonSerialized] private bool _isDisposed;
+        [NonSerialized] public UCIResponse EngineInformation;
 
         public void ResponseReceived(EngineResponseArgs engineResponse)
         {
@@ -236,11 +235,13 @@ namespace ChessLib.EngineInterface.UCI
             var moveString = "";
             if (moves.Any())
             {
-                moveString = " moves " + string.Join(" ", moves.Select(MoveDisplayService.MoveToLan));
+                moveString = " moves " + string.Join(" ", moves.Select(moveToLan.Translate));
             }
 
             QueueCommand(commandInfo, $"{positionString}{moveString}");
         }
+
+        private readonly MoveToLan moveToLan = new MoveToLan();
 
         #endregion
 

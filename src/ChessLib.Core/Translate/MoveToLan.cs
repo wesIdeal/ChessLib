@@ -2,24 +2,11 @@
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 
-namespace ChessLib.Core.IO
+namespace ChessLib.Core.Translate
 {
-    public class MoveDisplayService
+    public class MoveToLan : ChessDto<Move, string>
     {
-        public MoveDisplayService(Board board)
-        {
-            Initialize(board);
-        }
-
-        protected Board Board;
-
-
-        public void Initialize(Board board)
-        {
-            Board = (Board) board.Clone();
-        }
-
-        public static string MoveToLan(Move move)
+        public override string Translate(Move move)
         {
             return
                 $"{move.SourceIndex.IndexToSquareDisplay()}{move.DestinationIndex.IndexToSquareDisplay()}{PromotionPieceChar(move)}";
@@ -29,7 +16,7 @@ namespace ChessLib.Core.IO
         {
             return move.MoveType == MoveType.Promotion
                 ? char.ToLower(PieceHelpers.GetCharFromPromotionPiece(move.PromotionPiece))
-                : (char?) null;
+                : (char?)null;
         }
     }
 }

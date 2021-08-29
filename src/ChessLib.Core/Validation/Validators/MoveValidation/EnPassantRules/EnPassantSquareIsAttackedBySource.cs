@@ -11,8 +11,9 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.EnPassantRules
     {
         public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
+            var occupancy = boardInfo.Occupancy.Occupancy() | ( boardInfo.EnPassantIndex?.GetBoardValueOfIndex() ?? 0);
             var pawnAttacksFromSquare = Bitboard.Instance.GetAttackedSquares(Piece.Pawn, move.SourceIndex,
-                boardInfo.Occupancy.Occupancy(), boardInfo.ActivePlayer);
+                occupancy, boardInfo.ActivePlayer);
             var isAttacked = (pawnAttacksFromSquare & move.DestinationValue) != 0;
             return isAttacked ? MoveError.NoneSet : MoveError.EpNotAttackedBySource;
         }

@@ -43,4 +43,10 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Validators\MoveValidation\CastlingRules\" />
+    <Folder Include="Validators\MoveValidation\EnPassantRules\" />
+    <Folder Include="Validators\MoveValidation\MoveRules\" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using ChessLib.Core;
+using ChessLib.Core.Types;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
 
 namespace ChessLib.EngineInterface.UCI

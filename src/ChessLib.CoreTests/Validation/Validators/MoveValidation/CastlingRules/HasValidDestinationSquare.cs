@@ -4,7 +4,7 @@ using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using NUnit.Framework;
 
-namespace ChessLib.Data.Validators.MoveValidation.CastlingRules.Tests
+namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
 {
     [TestFixture]
     public class

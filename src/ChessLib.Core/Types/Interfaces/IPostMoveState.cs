@@ -2,7 +2,7 @@
 
 namespace ChessLib.Core.Types.Interfaces
 {
-    public interface IPostMoveState : IEquatable<IPostMoveState>, ICloneable, IHasSan
+    public interface IPostMoveState : ICloneable, IHasSan
     {
         uint BoardState { get; }
         ushort MoveValue { get; }

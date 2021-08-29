@@ -1,6 +1,8 @@
-﻿using ChessLib.Core.Helpers;
+﻿using System.Linq;
+using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
 
@@ -18,6 +20,17 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
 
             var moves = Bitboard.Instance.GetPseudoLegalMoves(move.SourceIndex, piece.Value, boardInfo.ActivePlayer,
                 boardInfo.Occupancy.Occupancy());
+            if (piece == Piece.Pawn)
+            {
+                if (move.DestinationIndex.GetFile() != move.SourceIndex.GetFile())
+                {
+                    if ((boardInfo.Occupancy.Occupancy(boardInfo.OpponentColor) & move.DestinationValue) == 0)
+                    {
+                        return MoveError.BadDestination;
+                    }
+                }
+            }
+            var attemptedMove = move;
             var isInMoveList = (moves & move.DestinationValue) == move.DestinationValue;
             return isInMoveList ? MoveError.NoneSet : MoveError.BadDestination;
         }

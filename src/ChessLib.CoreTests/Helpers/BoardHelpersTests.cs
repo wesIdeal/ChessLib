@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
@@ -21,6 +22,8 @@ namespace ChessLib.Core.Tests.Helpers
     [TestFixture(Category = "Board Helpers", TestOf = typeof(BoardHelpers))]
     public class BoardHelpersTests
     {
+
+
         [TestCase(Color.Black, Color.White)]
         [TestCase(Color.White, Color.Black)]
         public void ToggleTest(Color from, Color to)
@@ -49,8 +52,8 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetOccupancyTestCases))]
         public void OccupancyTest(TestCase<ulong, ulong[][]> testCase)
         {
-            var color = (Color?) testCase.AdditionalInputs.FirstOrDefault();
-            var piece = (Piece?) testCase.AdditionalInputs?.Skip(1).FirstOrDefault();
+            var color = (Color?)testCase.AdditionalInputs.FirstOrDefault();
+            var piece = (Piece?)testCase.AdditionalInputs?.Skip(1).FirstOrDefault();
             var actual = testCase.TestMethodInputValue.Occupancy(color, piece);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.Description);
         }
@@ -124,7 +127,7 @@ namespace ChessLib.Core.Tests.Helpers
         {
             var occupancy = testCase.TestMethodInputValue.Occupancy;
             var currentCastlingAvailability = testCase.TestMethodInputValue.CastlingAvailability;
-            var move = (Move) testCase.AdditionalInputs.Single();
+            var move = (Move)testCase.AdditionalInputs.Single();
             var actual = BoardHelpers.GetCastlingAvailabilityPostMove(occupancy, move, currentCastlingAvailability);
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
@@ -289,7 +292,7 @@ namespace ChessLib.Core.Tests.Helpers
         {
             var actual =
                 BoardHelpers.GetEnPassantIndex(testCase.TestMethodInputValue,
-                    (IMove) testCase.AdditionalInputs.Single());
+                    (IMove)testCase.AdditionalInputs.Single());
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -316,7 +319,7 @@ namespace ChessLib.Core.Tests.Helpers
         {
             var expected = testCase.ExpectedValue;
             var actual =
-                testCase.TestMethodInputValue.ApplyMoveToBoard((Move) testCase.AdditionalInputs.Single());
+                testCase.TestMethodInputValue.ApplyMoveToBoard((Move)testCase.AdditionalInputs.Single());
             Assert.AreEqual(expected.Fen, actual.Fen, testCase.ToString());
         }
 
@@ -519,44 +522,82 @@ namespace ChessLib.Core.Tests.Helpers
 
 
         [TestCaseSource(nameof(GetMoveTypeTestCases))]
-        public void GetMoveTypeTest(TestCase<MoveType, Board> testCase)
+        public MoveType GetMoveTypeTest(Board board, ushort from, ushort to, ushort? epIndex)
         {
-            var actual = BoardHelpers.GetMoveType(testCase.TestMethodInputValue, (ushort) testCase.AdditionalInputs[0],
-                (ushort) testCase.AdditionalInputs[1]);
-            Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
+            return BoardHelpers.GetMoveType(board.Occupancy, (ushort)@from,
+                (ushort)to, (ushort?)epIndex);
         }
 
-        protected static IEnumerable<TestCase<MoveType, Board>> GetMoveTypeTestCases()
+        protected static IEnumerable GetMoveTypeTestCases()
         {
-            yield return new TestCase<MoveType, Board>(MoveType.Normal,
+
+            yield return new TestCaseData(
                 FenReader.Translate("rnbqkbnr/ppp1pppp/8/4P3/3p4/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"),
-                "Normal- White, c2-c4",
-                (ushort) 10, (ushort) 26);
-            yield return new TestCase<MoveType, Board>(MoveType.EnPassant,
-                FenReader.Translate("rnbqkbnr/ppp1pppp/8/4P3/2Pp4/8/PP1P1PPP/RNBQKBNR b KQkq c3 0 3"),
-                "Black makes En Passant Capture, dxc3",
-                (ushort) 27, (ushort) 18);
-            yield return new TestCase<MoveType, Board>(MoveType.Castle,
-                FenReader.Translate("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
-                "White Castles KS", MoveHelpers.WhiteCastleKingSide.SourceIndex,
-                MoveHelpers.WhiteCastleKingSide.DestinationIndex);
-            yield return new TestCase<MoveType, Board>(MoveType.Castle,
-                FenReader.Translate("r4n2/pp3kp1/2pbbn2/3p2B1/3P4/3B4/PPP2PPP/R3K2R w KQ - 3 19"),
-                "White Castles QS", MoveHelpers.WhiteCastleQueenSide.SourceIndex,
-                MoveHelpers.WhiteCastleQueenSide.DestinationIndex);
-            yield return new TestCase<MoveType, Board>(MoveType.Castle,
-                FenReader.Translate("rnbqk2r/pppp1ppp/5n2/4N3/1bP5/2N5/PP1PPPPP/R1BQKB1R b KQkq - 0 4"),
-                "Black Castles KS", MoveHelpers.BlackCastleKingSide.SourceIndex,
-                MoveHelpers.BlackCastleKingSide.DestinationIndex);
-            yield return new TestCase<MoveType, Board>(MoveType.Castle,
-                FenReader.Translate("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
-                "Black Castles QS", MoveHelpers.BlackCastleQueenSide.SourceIndex,
-                MoveHelpers.BlackCastleQueenSide.DestinationIndex);
-            yield return new TestCase<MoveType, Board>(MoveType.Promotion,
-                FenReader.Translate("8/3P4/8/1p6/8/P1p3P1/1k2p3/4K3 w - - 0 49"), "White promotion", (ushort) 51,
-                (ushort) 59);
-            yield return new TestCase<MoveType, Board>(MoveType.Promotion,
-                FenReader.Translate("6Q1/8/8/p7/5K2/k7/1p4P1/8 b - - 0 55"), "Black promotion", (ushort) 9, (ushort) 1);
+                "c2".SquareTextToIndex(),
+                "c4".SquareTextToIndex(),
+                (ushort?)null)
+                .SetDescription("Normal- White, c2-c4")
+                .SetName("GetMoveType - Normal")
+                .Returns(MoveType.Normal);
+
+            yield return new TestCaseData(
+                    FenReader.Translate("rnbqkbnr/ppp1pppp/8/4P3/2Pp4/8/PP1P1PPP/RNBQKBNR b KQkq c3 0 3"),
+                    "d4".SquareTextToIndex(),
+                    "c3".SquareTextToIndex(),
+                    "c3".SquareTextToIndex())
+                .SetDescription("En Passant capture from black")
+                .SetName("GetMoveType - En Passant")
+                .Returns(MoveType.EnPassant);
+
+            yield return new TestCaseData(FenReader.Translate("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
+                    MoveHelpers.WhiteCastleKingSide.SourceIndex,
+                    MoveHelpers.WhiteCastleKingSide.DestinationIndex,
+                    (ushort?)null)
+                    .SetDescription("Castles - White - Short")
+                    .SetName("GetMoveType - Castles")
+                    .Returns(MoveType.Castle);
+
+            yield return new TestCaseData(FenReader.Translate("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
+                    MoveHelpers.WhiteCastleQueenSide.SourceIndex,
+                    MoveHelpers.WhiteCastleQueenSide.DestinationIndex,
+                    (ushort?)null)
+                .SetDescription("Castles - White - Long")
+                .SetName("GetMoveType - Castles")
+                .Returns(MoveType.Castle);
+
+            yield return new TestCaseData(FenReader.Translate("rnbqk2r/pppp1ppp/5n2/4N3/1bP5/2N5/PP1PPPPP/R1BQKB1R b KQkq - 0 4"),
+                    MoveHelpers.BlackCastleKingSide.SourceIndex,
+                    MoveHelpers.BlackCastleKingSide.DestinationIndex,
+                    (ushort?)null)
+                .SetDescription("Castles - Black - Short")
+                .SetName("GetMoveType - Castles")
+                .Returns(MoveType.Castle);
+
+            yield return new TestCaseData(
+                    FenReader.Translate("r2qkbnr/ppp2ppp/2n1p3/1B2Pb2/8/2P2N2/P2P1PPP/RNBQK2R w KQkq - 0 7"),
+                    MoveHelpers.BlackCastleQueenSide.SourceIndex,
+                    MoveHelpers.BlackCastleQueenSide.DestinationIndex,
+                    (ushort?)null)
+                .SetDescription("Castles - Black - Long")
+                .SetName("GetMoveType - Castles")
+                .Returns(MoveType.Castle);
+
+            yield return new TestCaseData(FenReader.Translate("8/3P4/8/1p6/8/P1p3P1/1k2p3/4K3 w - - 0 49"),
+                    "d7".SquareTextToIndex(),
+                    "d8".SquareTextToIndex(),
+                    (ushort?)null)
+                .SetDescription("Promotion - White")
+                .SetName("GetMoveType - Promotion")
+                .Returns(MoveType.Promotion);
+
+            yield return new TestCaseData(FenReader.Translate("6Q1/8/8/p7/5K2/k7/1p4P1/8 b - - 0 55"),
+                    "b2".SquareTextToIndex(),
+                    "b1".SquareTextToIndex(),
+                    (ushort?)null)
+                .SetDescription("Promotion - Black")
+                .SetName("GetMoveType - Promotion")
+                .Returns(MoveType.Promotion);
+
         }
 
 
@@ -579,7 +620,7 @@ namespace ChessLib.Core.Tests.Helpers
         protected static IEnumerable<TestCase<ushort, string>> GetSquareToIndexTestCases()
         {
             foreach (var squareName in BoardConstants.SquareNames.Select(
-                (x, i) => new {square = x, index = (ushort) i}))
+                (x, i) => new { square = x, index = (ushort)i }))
             {
                 yield return new TestCase<ushort, string>(squareName.index, squareName.square);
             }
@@ -633,14 +674,14 @@ namespace ChessLib.Core.Tests.Helpers
         }
 
 
-        [TestCase((ushort) 0, (ushort) 7)]
-        [TestCase((ushort) 1, (ushort) 6)]
-        [TestCase((ushort) 2, (ushort) 5)]
-        [TestCase((ushort) 3, (ushort) 4)]
-        [TestCase((ushort) 4, (ushort) 3)]
-        [TestCase((ushort) 5, (ushort) 2)]
-        [TestCase((ushort) 6, (ushort) 1)]
-        [TestCase((ushort) 7, (ushort) 0)]
+        [TestCase((ushort)0, (ushort)7)]
+        [TestCase((ushort)1, (ushort)6)]
+        [TestCase((ushort)2, (ushort)5)]
+        [TestCase((ushort)3, (ushort)4)]
+        [TestCase((ushort)4, (ushort)3)]
+        [TestCase((ushort)5, (ushort)2)]
+        [TestCase((ushort)6, (ushort)1)]
+        [TestCase((ushort)7, (ushort)0)]
         public void RankComplimentTest(ushort rank, ushort expected)
         {
             var actual = rank.RankCompliment();

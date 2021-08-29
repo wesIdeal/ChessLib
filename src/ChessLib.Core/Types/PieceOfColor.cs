@@ -1,6 +1,6 @@
 ﻿using ChessLib.Core.Types.Enums;
 
-namespace ChessLib.Core
+namespace ChessLib.Core.Types
 {
     public readonly struct PieceOfColor
     {

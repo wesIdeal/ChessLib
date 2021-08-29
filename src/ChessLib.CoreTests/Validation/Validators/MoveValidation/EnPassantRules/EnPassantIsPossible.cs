@@ -1,9 +1,11 @@
 ﻿using ChessLib.Core.Helpers;
 using ChessLib.Core.Translate;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using NUnit.Framework;
+// ReSharper disable StringLiteralTypo
 
-namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
+namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.EnPassantRules
 {
     [TestFixture]
     internal class SourceIsPawn : Core.Validation.Validators.MoveValidation.EnPassantRules.SourceIsPawn
@@ -89,7 +91,7 @@ namespace ChessLib.Data.Validators.MoveValidation.EnPassantRules.Tests
         public void ShouldReturnNullWhenEnPassantIsAttackedBySource()
         {
             var board = FenReader.Translate("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
-            var move = MoveHelpers.GenerateMove(35, 44);
+            var move = MoveHelpers.GenerateMove("d5".SquareTextToIndex(), "e6".SquareTextToIndex(), MoveType.EnPassant);
             Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
     }

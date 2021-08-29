@@ -3,7 +3,7 @@ using ChessLib.Core.Helpers;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
 
-namespace ChessLib.Core
+namespace ChessLib.Core.Types
 {
     public class Move : IMove, ICloneable, IEquatable<Move>
     {

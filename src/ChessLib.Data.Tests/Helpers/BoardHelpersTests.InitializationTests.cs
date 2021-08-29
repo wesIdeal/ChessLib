@@ -249,7 +249,7 @@ namespace ChessLib.Data.Tests.Helpers
                 for (var i = 0; i < 64; i++)
                 {
                     sb.Append(
-                        $"0x{Convert.ToString((long) BoardConstants.IndividualSquares[i], 16)}, {(i != 0 && i % 7 == 0 ? "\r\n" : "")}");
+                        $"0x{Convert.ToString((long)BoardConstants.IndividualSquares[i], 16)}, {(i != 0 && i % 7 == 0 ? "\r\n" : "")}");
                 }
 
                 Console.WriteLine(sb.ToString());
@@ -261,7 +261,7 @@ namespace ChessLib.Data.Tests.Helpers
             {
                 for (var i = 0; i < 64; i++)
                 {
-                    var expected = (Rank) (i / 8);
+                    var expected = (Rank)(i / 8);
                     Assert.AreEqual(expected, i.GetRank());
                 }
             }
@@ -270,9 +270,9 @@ namespace ChessLib.Data.Tests.Helpers
             public static void FileToIntFunctionality_ShouldConvertFileEnumValueToInt()
             {
                 var c = 0;
-                foreach (var f in (File[]) Enum.GetValues(typeof(File)))
+                foreach (var f in (File[])Enum.GetValues(typeof(File)))
                 {
-                    Assert.AreEqual(c, (int) f);
+                    Assert.AreEqual(c, (int)f);
                     c++;
                 }
             }
@@ -281,9 +281,9 @@ namespace ChessLib.Data.Tests.Helpers
             public static void RankToIntFunctionality_ShouldConvertRankEnumValueToInt()
             {
                 var c = 0;
-                foreach (var r in (Rank[]) Enum.GetValues(typeof(Rank)))
+                foreach (var r in (Rank[])Enum.GetValues(typeof(Rank)))
                 {
-                    Assert.AreEqual(c, (int) r, $"Rank {r.ToString()} should convert to {c}");
+                    Assert.AreEqual(c, (int)r, $"Rank {r.ToString()} should convert to {c}");
                     c++;
                 }
             }
@@ -308,7 +308,7 @@ namespace ChessLib.Data.Tests.Helpers
             [Test]
             public static void InBetween_ShouldReturnZero_GivenTwoEWOneAnother()
             {
-                var expected = (ulong) 0x00;
+                var expected = (ulong)0x00;
                 var actual = BoardHelpers.InBetween(3, 4);
                 Assert.AreEqual(expected, actual,
                     "Should not be any squares between squares E+W of one another (d1-e1)");
@@ -317,7 +317,7 @@ namespace ChessLib.Data.Tests.Helpers
             [Test]
             public static void InBetween_ShouldReturnZero_GivenTwoNSOneAnother()
             {
-                var expected = (ulong) 0x00;
+                var expected = (ulong)0x00;
                 var actual = BoardHelpers.InBetween(1, 9);
                 Assert.AreEqual(expected, actual,
                     "Should not be any squares between squares N+S of ona another (b1-b2)");
@@ -326,7 +326,7 @@ namespace ChessLib.Data.Tests.Helpers
             [Test]
             public static void InBetween_ShouldReturnCorrectValue_GivenRandomPositions()
             {
-                var expected = (ulong) 0x00;
+                var expected = (ulong)0x00;
                 var actual = BoardHelpers.InBetween(3, 8);
                 Assert.AreEqual(expected, actual,
                     $"Should not be any squares between {3.IndexToSquareDisplay()}{8.IndexToSquareDisplay()}");

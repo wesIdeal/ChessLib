@@ -22,6 +22,11 @@ namespace ChessLib.Core.Types.Exceptions
         {
         }
 
+        public override string ToString()
+        {
+            return $"{ExceptionType} received while validating a board.{Environment.NewLine}{Message}";
+        }
+
         public readonly BoardExceptionType ExceptionType = BoardExceptionType.None;
 
         public static BoardException MakeBoardException(BoardExceptionType exceptionType)

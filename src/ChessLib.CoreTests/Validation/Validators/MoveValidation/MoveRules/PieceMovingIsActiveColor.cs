@@ -28,3 +28,7 @@
 //        }
 //    }
 //}
+
+namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
+{
+}

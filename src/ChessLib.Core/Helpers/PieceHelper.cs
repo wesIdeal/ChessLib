@@ -1,4 +1,5 @@
 ﻿using System;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 

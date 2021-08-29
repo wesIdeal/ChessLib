@@ -26,10 +26,6 @@ namespace ChessLib.Core.Types
         }
 
 
-        internal Board(string fen) : base(fen)
-        {
-        }
-
         internal Board(ulong[][] occupancy, byte halfMoveClock, ushort? enPassantIndex, Piece? capturedPiece,
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter, bool bypassValidation)
             : base(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter)
@@ -64,7 +60,10 @@ namespace ChessLib.Core.Types
         }
 
 
-        public ulong[][] Occupancy { get; }
+        /// <summary>
+        /// Stored as [Color][Piece]
+        /// </summary>
+        public ulong[][] Occupancy { get; } = new ulong[2][];
 
 
         public virtual bool Equals(Board otherBoard)
@@ -140,7 +139,7 @@ namespace ChessLib.Core.Types
                         GameState = GameState.StaleMate;
                         break;
                     default:
-                        throw new BoardException(validationResult, "Invalid board setup.");
+                        throw new BoardException(validationResult, $"{Fen} : Invalid board setup.");
                 }
             }
         }

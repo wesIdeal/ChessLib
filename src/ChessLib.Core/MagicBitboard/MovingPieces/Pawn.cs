@@ -1,4 +1,5 @@
-﻿using ChessLib.Core.MagicBitboard.Bitwise;
+﻿using ChessLib.Core.Helpers;
+using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 
 namespace ChessLib.Core.MagicBitboard.MovingPieces
@@ -23,9 +24,10 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             return MoveMask[(int)color][squareIndex];
         }
 
+
         public override ulong GetPseudoLegalMoves(ushort square, Color playerColor, ulong occupancy)
         {
-            var attacks = AttackMask[(int)playerColor][square] & occupancy;
+            var attacks = (AttackMask[(int)playerColor][square]) & occupancy;
             var moves = GetMovesFromOccupancy(square, playerColor, occupancy);
             var result = attacks | moves;
             return result;
@@ -96,5 +98,6 @@ namespace ChessLib.Core.MagicBitboard.MovingPieces
             AttackMask[0] = new ulong[64];
             AttackMask[1] = new ulong[64];
         }
+        
     }
 }

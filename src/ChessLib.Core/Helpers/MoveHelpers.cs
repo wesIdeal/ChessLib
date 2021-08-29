@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
@@ -41,18 +42,18 @@ namespace ChessLib.Core.Helpers
         }
 
         /// <summary>
-        ///     Creates a <see cref="ChessLib.Core.Move" /> object from move details.
+        ///     Creates a <see cref="Move" /> object from move details.
         /// </summary>
         /// <remarks>Basically makes a ushort from the 4 details needed to make a move</remarks>
         /// <returns></returns>
         public static Move GenerateMove(ushort fromIdx, ushort toIdx, MoveType moveType = MoveType.Normal,
             PromotionPiece promotionPiece = 0)
         {
-            var mt = (ushort) moveType << 14;
-            var pp = (ushort) promotionPiece << 12;
+            var mt = (ushort)moveType << 14;
+            var pp = (ushort)promotionPiece << 12;
             var origin = fromIdx << 6;
             var dest = toIdx << 0;
-            return new Move((ushort) (mt | pp | origin | dest));
+            return new Move((ushort)(mt | pp | origin | dest));
         }
 
         public static IMove GetRookMoveForCastleMove(in IMove move)

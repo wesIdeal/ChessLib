@@ -667,19 +667,16 @@ namespace ChessLib.Core.Helpers
         /// <summary>
         ///     Gets the type of move based on the current board and piece source/destination
         /// </summary>
-        /// <param name="boardInfo">Board information for current position</param>
-        /// <param name="source">Source Index</param>
-        /// <param name="dest">Destination Index</param>
         /// <returns>The type of move represented by the given parameters</returns>
         /// <exception cref="PieceException">Thrown if there is no piece on the source square.</exception>
-        public static MoveType GetMoveType(in Board boardInfo, ushort source, ushort dest)
+        public static MoveType GetMoveType(ulong[][] occupancy, ushort source, ushort dest, ushort? enPassantIndex)
         {
             var relevantPieces = new[] { Piece.Pawn, Piece.King };
-            var sourcePiece = GetPieceOfColorAtIndex(boardInfo.Occupancy, source);
+           
+            var sourcePiece = GetPieceOfColorAtIndex(occupancy, source);
             if (sourcePiece == null)
             {
-                var move = $"{source.IndexToSquareDisplay()}->{dest.IndexToSquareDisplay()}";
-                throw new PieceException("Error getting piece on source in Bitboard.GetMoveType(...):" + move);
+                throw new PieceException("Error getting piece on source in Bitboard.GetMoveType(...):" + source.IndexToSquareDisplay() + "-" + dest.IndexToSquareDisplay());
             }
 
             var piece = sourcePiece.Value.Piece;
@@ -689,7 +686,7 @@ namespace ChessLib.Core.Helpers
                 return MoveType.Normal;
             }
 
-            if (IsEnPassantCapture(piece, source, dest, boardInfo.EnPassantIndex))
+            if (IsEnPassantCapture(piece, source, dest, enPassantIndex))
             {
                 return MoveType.EnPassant;
             }
@@ -706,6 +703,7 @@ namespace ChessLib.Core.Helpers
 
             return MoveType.Normal;
         }
+
 
         private static bool IsPromotion(Color color, ushort source, ushort dest)
         {

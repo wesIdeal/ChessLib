@@ -3,7 +3,7 @@ using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Exceptions;
 using NUnit.Framework;
 
-namespace ChessLib.Data.Validators.MoveValidation.MoveRules.Tests
+namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
 {
     [TestFixture]
     internal class KingNotInCheckAfterMove : Core.Validation.Validators.MoveValidation.MoveRules.KingNotInCheckAfterMove

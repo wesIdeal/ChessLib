@@ -10,29 +10,7 @@
 //    [TestFixture]
 //    public class NodeBaseTests
 //    {
-//        [Test(TestOf = typeof(TreeRoot<>))]
-//        public void Constructor_Should_Throw_Exception_If_Given_Null_Starting_Node()
-//        {
-//            var exception = Assert.Throws<TreeException>(() =>
-//            {
-//                var temp = new TreeRoot<string>(null);
-//            });
-//        }
 
-//        [Test(TestOf = typeof(TreeRoot<>))]
-//        public void Constructor_Should_Throw_Correct_Exception_If_Given_Null_Starting_Node()
-//        {
-//            try
-//            {
-//                var tree = new TreeRoot<string>(null);
-//                throw new Exception("Tree should not be set.");
-//            }
-
-//            catch (TreeException treeException)
-//            {
-//                Assert.AreEqual(TreeErrorType.StartingNodeCannotBeNull, treeException.TreeErrorType);
-//            }
-//        }
 
 //        TreeRoot<string> tree;
 

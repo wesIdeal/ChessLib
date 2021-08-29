@@ -68,51 +68,12 @@ namespace ChessLib.Core
                    BoardStateHash == other.BoardStateHash;
         }
 
-        public bool Equals(IPostMoveState other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
+       
 
-            return BoardState == other.BoardState && MoveValue == other.MoveValue && San == other.San;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is PostMoveState other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (int)BoardState;
-                hashCode = (hashCode * 397) ^ MoveValue.GetHashCode();
-                hashCode = (hashCode * 397) ^ (San != null ? San.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ BoardStateHash.GetHashCode();
-                return hashCode;
-            }
-        }
 
         public object Clone()
         {
             return new PostMoveState(BoardState, MoveValue, BoardStateHash, San);
-        }
-
-        public static bool operator ==(PostMoveState left, PostMoveState right)
-        {
-            return left.Equals(right);
-        }
-
-        public override string ToString()
-        {
-            return MoveValue == Move.NullMove ? "[Initial]" : San;
-        }
-
-        public static bool operator !=(PostMoveState left, PostMoveState right)
-        {
-            return !left.Equals(right);
         }
     }
 }

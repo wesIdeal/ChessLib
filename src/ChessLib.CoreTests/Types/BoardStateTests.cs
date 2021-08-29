@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -106,16 +107,20 @@ namespace ChessLib.Core.Tests.Types
         }
 
         [TestCaseSource(nameof(GetHalfMoveClockTestCases))]
-        public void TestHalfMoveClockTestCases(TestCase<bool, byte> testCase)
+        public byte TestHalfMoveClockTestCases(int testCase)
         {
-            var boardState = new BoardState {HalfMoveClock = testCase.TestMethodInputValue};
-
-            Assert.AreEqual(testCase.TestMethodInputValue, boardState.HalfMoveClock, testCase.ToString());
+            var boardState = new BoardState {HalfMoveClock = (byte)testCase};
+            return boardState.HalfMoveClock;
         }
 
-        protected static IEnumerable<TestCase<bool, byte>> GetHalfMoveClockTestCases()
+        protected static IEnumerable GetHalfMoveClockTestCases()
         {
-            return Enumerable.Range(0, byte.MaxValue + 2).Select(x => new TestCase<bool, byte>(true, (byte) x));
+            foreach(var tc in Enumerable.Range(0, byte.MaxValue + 2))
+            {
+                yield return new TestCaseData(tc).Returns((byte)tc).SetDescription(tc.IndexToSquareDisplay());
+            }
+               
+
         }
 
         [TestCaseSource(nameof(GetFullMoveCounterTestCases))]

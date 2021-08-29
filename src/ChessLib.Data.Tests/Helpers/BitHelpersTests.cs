@@ -3,7 +3,6 @@ using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Types.Interfaces;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Tests.Helpers
@@ -60,8 +59,8 @@ namespace ChessLib.Data.Tests.Helpers
         [Test]
         public static void GetSetBits_ShouldReturnASquareIndexes_GivenManySquaresOfInput()
         {
-            var expectedR2 = new ushort[] {8, 9, 10, 11, 12, 13, 14, 15};
-            var expectedR7 = new ushort[] {48, 49, 50, 51, 52, 53, 54, 55};
+            var expectedR2 = new ushort[] { 8, 9, 10, 11, 12, 13, 14, 15 };
+            var expectedR7 = new ushort[] { 48, 49, 50, 51, 52, 53, 54, 55 };
             var rank2Value = BoardConstants.RankMasks[1];
             var rank2SetBits = rank2Value.GetSetBits();
             Assert.AreEqual(expectedR2, rank2SetBits);
@@ -72,7 +71,7 @@ namespace ChessLib.Data.Tests.Helpers
         public static void GetSetBits_ShouldReturnASquareIndexes_Given2SquaresOfInput()
         {
             ulong a = 0b1001;
-            var expected = new[] {0, 3};
+            var expected = new[] { 0, 3 };
             var bitIndices = a.GetSetBits();
             Assert.AreEqual(expected, bitIndices);
         }
@@ -81,7 +80,7 @@ namespace ChessLib.Data.Tests.Helpers
         public static void GetSetBits_ShouldReturnASquareIndexes_Given4SquaresOfInput()
         {
             ulong a = 0b1111;
-            var expected = new[] {0, 1, 2, 3};
+            var expected = new[] { 0, 1, 2, 3 };
             var bitIndices = a.GetSetBits();
             Assert.AreEqual(expected, bitIndices);
         }
@@ -97,9 +96,10 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase(FENQueenIsBlockedFromAttackingSquared4, 35, Color.Black, true)]
         public static void IsSquareAttackedByColor(string fen, int square, Color attackingColor, bool expected)
         {
-            IBoard boardInfo = FenReader.Translate(fen);
+            var boardInfo = FenReader.Translate(fen);
             var isAttacked =
-                Bitboard.Instance.IsSquareAttackedByColor((ushort) square, attackingColor, boardInfo.Occupancy);
+                Bitboard.Instance.IsSquareAttackedByColor((ushort)square, attackingColor, boardInfo.Occupancy,
+                    boardInfo.EnPassantIndex);
             Assert.AreEqual(expected, isAttacked);
         }
     }

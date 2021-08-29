@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.MagicBitboard.Bitwise;
@@ -11,6 +12,7 @@ using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.MoveValidation;
 
+[assembly: InternalsVisibleTo("ChessLib.Core.Tests")]
 namespace ChessLib.Core.Translate
 {
     internal class SanToMove

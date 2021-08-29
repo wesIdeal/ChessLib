@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ChessLib.Core;
+using ChessLib.Core.Types;
 
 namespace ChessLib.EngineInterface.UCI
 {
