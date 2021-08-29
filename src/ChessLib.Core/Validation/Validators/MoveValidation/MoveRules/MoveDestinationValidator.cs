@@ -38,12 +38,27 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
             var moves = _bitboard.GetPseudoLegalMoves(move.SourceIndex, piece.Value, boardInfo.ActivePlayer,
                 totalOccupancy);
             var isInMoveList = (moves & move.DestinationValue) == move.DestinationValue;
-            if (isInMoveList && piece == Piece.Pawn)
+            if (piece == Piece.Pawn && isInMoveList)
             {
+                // if this is a capture and nothing occupies the space, it could be invalid or en passant
                 if (move.DestinationIndex.GetFile() != move.SourceIndex.GetFile() &&
                     (boardInfo.Occupancy.Occupancy(boardInfo.OpponentColor) & move.DestinationValue) == 0)
                 {
-                    return MoveError.BadDestination;
+                    if (move.DestinationIndex == boardInfo.EnPassantIndex)
+                    {
+                        if (move.MoveType == MoveType.EnPassant)
+                        {
+                            isInMoveList = true;
+                        }
+                        else
+                        {
+                            return MoveError.EnPassantNotMarked;
+                        }
+                    }
+                    else
+                    {
+                        isInMoveList = false;
+                    }
                 }
             }
 

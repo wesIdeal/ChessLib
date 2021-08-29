@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Interfaces;
@@ -20,7 +21,9 @@ namespace ChessLib.Core.Types.Exceptions
         ActiveColorPieceAtDestination,
         EpSourceIsNotPawn,
         EpWrongSourceRank,
-        EpNotAttackedBySource
+        EpNotAttackedBySource,
+        [Description("Move must be marked as type EnPassant in order to make move.")]
+        EnPassantNotMarked
     }
 
     [Serializable]

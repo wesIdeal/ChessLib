@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
 {
     [TestFixture]
-    internal class KingNotInCheckAfterMove : Core.Validation.Validators.MoveValidation.MoveRules.KingNotInCheckAfterMove
+    internal class KingNotInCheckAfterMoveValidatorValidatorTests : Core.Validation.Validators.MoveValidation.MoveRules.KingNotInCheckAfterMoveValidator
     {
         private static readonly FenTextToBoard FenReader = new FenTextToBoard();
 

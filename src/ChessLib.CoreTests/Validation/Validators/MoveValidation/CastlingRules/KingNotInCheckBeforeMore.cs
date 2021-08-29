@@ -15,17 +15,17 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
         private readonly ulong[][] _postBoard = new ulong[2][];
         private readonly Board _biNotInCheck = fenToBoard.Translate("r3k2r/8/8/8/8/8/8/RRRRKRRR b KQkq - 0 1");
         private readonly Board _biInCheck = fenToBoard.Translate("r3k2r/8/8/8/8/8/4Q3/RRRRKRRR b KQkq - 0 1");
-        private readonly Move _move = MoveHelpers.GenerateMove(60, 62, MoveType.Castle);
+        private readonly Move _move = MoveHelpers.BlackCastleKingSide;
         [Test]
         public void Validate_ShouldReturnNullIfKingIsNotInCheckWhenCastling()
         {
-            Assert.AreEqual(MoveError.NoneSet, this.Validate(_biNotInCheck, _postBoard, _move));
+            Assert.AreEqual(MoveError.NoneSet, this.Validate(_biNotInCheck, _postBoard, MoveHelpers.BlackCastleKingSide));
         }
         [Test]
-        public void Validate_ShouldReturnErrorIfKingIsNotInCheckWhenCastling()
+        public void Validate_ShouldReturnErrorIfKingIsInCheckWhenCastling()
         {
             var expected = MoveError.CastleKingInCheck;
-            Assert.AreEqual(expected, Validate(_biInCheck, _postBoard, _move));
+            Assert.AreEqual(expected, Validate(_biInCheck, _postBoard, MoveHelpers.BlackCastleKingSide));
         }
     }
 }
