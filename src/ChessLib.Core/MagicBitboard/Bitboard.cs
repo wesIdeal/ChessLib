@@ -15,7 +15,7 @@ using EnumsNET;
 
 namespace ChessLib.Core.MagicBitboard
 {
-    public sealed class Bitboard
+    public sealed class Bitboard : IBitboard
     {
         // ReSharper disable once CollectionNeverUpdated.Local - used as lock
         private static readonly List<string> LLock = new List<string>();

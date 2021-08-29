@@ -10,7 +10,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
 {
     [TestFixture]
     internal partial class
-        PieceCanMoveToDestination : Core.Validation.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
+        PieceCanMoveToDestinationTests : Core.Validation.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination
     {
         protected static readonly SanToMove sanToMove = new SanToMove();
 

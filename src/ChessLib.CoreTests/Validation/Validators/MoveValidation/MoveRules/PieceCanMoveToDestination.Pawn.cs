@@ -2,19 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
+using ChessLib.Core.Validation.Validators.MoveValidation.MoveRules;
+using Moq;
 using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
 {
-    internal partial class PieceCanMoveToDestination
+    internal partial class PieceCanMoveToDestinationTests
     {
+       [TestFixture(TestOf = typeof(PieceCanMoveToDestination),Category = "Validation - Pawns")]
+
         private class PawnMoves
         {
             private const string InitialFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
             private Board _board;
-
+            public PieceCanMoveToDestination pieceCanMoveToDestinationValidator = new PieceCanMoveToDestination();
             [SetUp]
             public void Setup()
             {
@@ -23,13 +30,66 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
 
             #region Validation Errors
 
-            private readonly PieceCanMoveToDestination pieceCanMoveToDestinationValidator =
-                new PieceCanMoveToDestination();
-
-            [TestCaseSource(nameof(GetBadDestinationTestCases))]
-            public MoveError TestValidation(Board board, Move move)
+            [TestCaseSource(nameof(GetPawnTests))]
+            public MoveError TestValidation(PieceCanMoveToDestination validator, Board board, Move move)
             {
-                return pieceCanMoveToDestinationValidator.Validate(board, null, move);
+                return validator.Validate(board, null, move);
+            }
+
+
+            public static IEnumerable<TestCaseData> GetPawnTests()
+            {
+                var goodDestinationMock = new Mock<IBitboard>();
+                goodDestinationMock.Setup(x =>
+                        x.GetPseudoLegalMoves(It.IsAny<ushort>(), It.IsAny<Piece>(), It.IsAny<Color>(),
+                            It.IsAny<ulong>()))
+                    .Returns(0x1c0000000000)
+                    .Verifiable();
+                var badDestinationMock = new Mock<IBitboard>();
+                badDestinationMock.Setup(x =>
+                        x.GetPseudoLegalMoves(It.IsAny<ushort>(), It.IsAny<Piece>(), It.IsAny<Color>(),
+                            It.IsAny<ulong>()))
+                    .Returns(0x1b0000000000)
+                    .Verifiable();
+
+                var goodDestValidator =
+                    new Core.Validation.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination(
+                        goodDestinationMock.Object);
+                var badDestValidator =
+                    new Core.Validation.Validators.MoveValidation.MoveRules.PieceCanMoveToDestination(badDestinationMock
+                        .Object);
+                var board = fenTextToBoard.Translate("r1bqkbnr/pp1ppppp/2n5/2pN4/8/8/PPPPPPPP/R1BQKBNR w KQkq - 1 3");
+
+                var move = MoveHelpers.GenerateMove("a1".SquareTextToIndex(), "c6".SquareTextToIndex());
+                yield return new TestCaseData(goodDestValidator, board, move)
+                    .SetName("Validate Move Destination - should return no error when move is in the result set")
+                    .SetDescription("Should call to get pseudolegal moves")
+                    .Returns(MoveError.NoneSet);
+                yield return new TestCaseData(badDestValidator, board, move)
+                    .SetName("Validate Move Destination - should return MoveError.BadDestination when move is in the result set")
+                    .SetDescription("Should call to get pseudolegal moves")
+                    .Returns(MoveError.BadDestination);
+                move = MoveHelpers.GenerateMove("d5".SquareTextToIndex(), "c6".SquareTextToIndex(), MoveType.EnPassant);
+
+                board = fenTextToBoard.Translate("r1bqkbnr/pp1ppppp/8/n1pP4/1N6/8/PPP1PPPP/R1BQKBNR w KQkq - 1 3");
+                yield return new TestCaseData(goodDestValidator, board, move)
+                    .SetName(
+                        "Validate Move Destination - should return MoveError.BadDestination when pawn is capturing but nothing exists to capture")
+                    .SetDescription("")
+                    .Returns(MoveError.BadDestination);
+
+                board = fenTextToBoard.Translate("r1bqkbnr/pp1ppppp/2n5/2pP4/1N6/8/PPP1PPPP/R1BQKBNR w KQkq - 1 3");
+
+                yield return new TestCaseData(goodDestValidator, board, move)
+                    .SetName(
+                        "Validate Pawn Move Destination - should return MoveError.NoneSet when pawn is capturing and opponent has a piece on the dest square")
+                    .SetDescription("")
+                    .Returns(MoveError.NoneSet);
+                yield return new TestCaseData(goodDestValidator, board,
+                        MoveHelpers.GenerateMove("h3".SquareTextToIndex(), "h4".SquareTextToIndex()))
+                    .SetName("Validate Pawn Move Source - should return error when no piece is at source.")
+                    .SetDescription("Validates an error is returned when nothing is on source")
+                    .Returns(MoveError.ActivePlayerHasNoPieceOnSourceSquare);
             }
 
             public static IEnumerable GetBadDestinationTestCases()
@@ -181,17 +241,6 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
                     .SetName("Validate Move Destination - Bad Destination (Pawn Double Push e6-e4)")
                     .SetDescription(string.Format(description, "Black's"))
                     .Returns(MoveError.BadDestination);
-            }
-
-
-            [Test]
-            public void ShouldReturnProperError_WhenBlackPawnMoves3()
-            {
-                var board = fenTextToBoard.Translate("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
-                var move = MoveHelpers.GenerateMove("e7".SquareTextToIndex(), "e4".SquareTextToIndex());
-                var actual = pieceCanMoveToDestinationValidator.Validate(board, _postMoveBoard, move);
-                Assert.AreEqual(MoveError.BadDestination, actual,
-                    "Expected validation error. Pawns can't move 3 squares.");
             }
 
             #endregion
