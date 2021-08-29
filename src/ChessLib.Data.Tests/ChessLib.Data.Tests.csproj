@@ -17,6 +17,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Validators\MoveValidation\**" />
+    <EmbeddedResource Remove="Validators\MoveValidation\**" />
+    <None Remove="Validators\MoveValidation\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="moq" Version="4.16.1" />
     <PackageReference Include="nunit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
@@ -41,12 +47,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>PGN.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Validators\MoveValidation\CastlingRules\" />
-    <Folder Include="Validators\MoveValidation\EnPassantRules\" />
-    <Folder Include="Validators\MoveValidation\MoveRules\" />
   </ItemGroup>
 
 </Project>
