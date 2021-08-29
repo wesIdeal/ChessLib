@@ -24,11 +24,11 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
             switch (move.MoveType)
             {
                 case MoveType.Normal:
-                    _rules.Add(new PieceCanMoveToDestination());
+                    _rules.Add(new MoveDestinationValidator());
                     _rules.Add(new DestinationNotOccupiedByActiveColor());
                     break;
                 case MoveType.Promotion:
-                    _rules.Add(new PieceCanMoveToDestination());
+                    _rules.Add(new MoveDestinationValidator());
                     _rules.Add(new SourceIsPawn());
                     break;
                 case MoveType.EnPassant:

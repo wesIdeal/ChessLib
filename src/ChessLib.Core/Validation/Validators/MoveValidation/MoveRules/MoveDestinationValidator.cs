@@ -7,13 +7,13 @@ using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
 {
-    public class PieceCanMoveToDestination : IMoveRule
+    public class MoveDestinationValidator : IMoveRule
     {
-        public PieceCanMoveToDestination() : this(Bitboard.Instance)
+        public MoveDestinationValidator() : this(Bitboard.Instance)
         {
         }
 
-        public PieceCanMoveToDestination(IBitboard bitboard)
+        public MoveDestinationValidator(IBitboard bitboard)
         {
             _bitboard = bitboard;
         }
@@ -34,9 +34,9 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
             {
                 return MoveError.ActivePlayerHasNoPieceOnSourceSquare;
             }
-
+            var totalOccupancy = boardInfo.Occupancy.Occupancy();
             var moves = _bitboard.GetPseudoLegalMoves(move.SourceIndex, piece.Value, boardInfo.ActivePlayer,
-                boardInfo.Occupancy.Occupancy());
+                totalOccupancy);
             var isInMoveList = (moves & move.DestinationValue) == move.DestinationValue;
             if (isInMoveList && piece == Piece.Pawn)
             {

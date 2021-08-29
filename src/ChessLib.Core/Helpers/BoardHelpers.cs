@@ -160,8 +160,7 @@ namespace ChessLib.Core.Helpers
         /// <param name="boardIndex">Index on pieceLayout</param>
         /// <returns>
         ///     The object representing the piece at an index, or null if no piece occupies the supplied
-        ///     <param name="boardIndex">index</param>
-        ///     .
+        ///     <param name="boardIndex">index</param>.
         /// </returns>
         public static PieceOfColor? GetPieceOfColorAtIndex(this ulong[][] occupancy, ushort boardIndex)
         {
@@ -672,7 +671,7 @@ namespace ChessLib.Core.Helpers
         public static MoveType GetMoveType(ulong[][] occupancy, ushort source, ushort dest, ushort? enPassantIndex)
         {
             var relevantPieces = new[] { Piece.Pawn, Piece.King };
-           
+
             var sourcePiece = GetPieceOfColorAtIndex(occupancy, source);
             if (sourcePiece == null)
             {
@@ -755,7 +754,8 @@ namespace ChessLib.Core.Helpers
         /// <exception cref="ArgumentException">Thrown if boardIndex length, File, or Rank is invalid.</exception>
         public static ushort SquareTextToIndex(this string square)
         {
-            var squareIndex = BoardConstants.SquareNames.Select((sq, idx) => new { square = sq, index = (ushort)idx })
+            var squareIndex = BoardConstants.SquareNames
+                .Select((sq, idx) => new { square = sq, index = (ushort)idx })
                 .FirstOrDefault(x => x.square == square)?.index;
             if (squareIndex == null)
             {
@@ -764,6 +764,16 @@ namespace ChessLib.Core.Helpers
 
             Debug.Assert(squareIndex >= 0 && squareIndex < 64);
             return squareIndex.Value;
+        }
+
+        /// <summary>
+        /// Returns a board value for square text
+        /// </summary>
+        /// <param name="square"></param>
+        /// <returns></returns>
+        public static ulong SquareValue(this string square)
+        {
+            return SquareTextToIndex(square).GetBoardValueOfIndex();
         }
 
 
