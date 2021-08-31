@@ -10,10 +10,10 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
     internal class MoveDestinationValidatorTestData : MoveValidatorTestData
     {
         internal static readonly ulong PseudoLegalMovesIncludingDestinationSquare =
-            "c6".SquareValue() | "d6".SquareValue() | "e6".SquareValue();
+            "c6".ToBoardValue() | "d6".ToBoardValue() | "e6".ToBoardValue();
 
 
-        internal static readonly ulong PseudoLegalMovesNotIncludingDestinationSquare = ~"c6".SquareValue();
+        internal static readonly ulong PseudoLegalMovesNotIncludingDestinationSquare = ~"c6".ToBoardValue();
 
 
         public static IEnumerable<TestCaseData> GetMoveDestinationValidatorTestCases()

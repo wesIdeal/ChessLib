@@ -771,7 +771,7 @@ namespace ChessLib.Core.Helpers
         /// </summary>
         /// <param name="square"></param>
         /// <returns></returns>
-        public static ulong SquareValue(this string square)
+        public static ulong ToBoardValue(this string square)
         {
             return ToBoardIndex(square).GetBoardValueOfIndex();
         }
