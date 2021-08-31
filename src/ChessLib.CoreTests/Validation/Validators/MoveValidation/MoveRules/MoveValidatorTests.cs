@@ -1,5 +1,6 @@
 ﻿using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.TestData.DestinationIsValid;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.MoveValidation;
@@ -12,8 +13,8 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
     [TestFixture(TestOf = typeof(MoveValidator))]
     public class MoveValidatorTests
     {
-        [TestCaseSource(typeof(MoveValidatorTestData),
-            nameof(MoveValidatorTestData.GetMoveDestinationValidatorTestCases))]
+        [TestCaseSource(typeof(MoveDestinationValidatorTestData),
+            nameof(MoveDestinationValidatorTestData.GetMoveDestinationValidatorTestCases))]
         [TestOf(typeof(MoveDestinationValidator))]
         public MoveError TestMoveDestinationValidator(Board board, Move move, ulong pseudoLegalMovesReturnValue)
         {
@@ -32,16 +33,16 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
             return validationResult;
         }
 
-        [TestCaseSource(typeof(MoveValidatorTestData),
-            nameof(MoveValidatorTestData.GetKingNotInCheckAfterMoveValidatorTests))]
-        [TestOf(typeof(KingNotInCheckAfterMoveValidatorValidatorTests))]
+        [TestCaseSource(typeof(KingNotInCheckAfterMoveValidatorTestData),
+            nameof(KingNotInCheckAfterMoveValidatorTestData.GetKingNotInCheckAfterMoveValidatorTests))]
+        [TestOf(typeof(KingNotInCheckAfterMoveValidator))]
         public MoveError TestKingNotInCheckAfterMove(Board board, Board postMoveBoard, Move move,
             bool moveLeavesKingInCheck)
         {
             var bitboardMock = new Mock<IBitboard>();
 
             var verifiableMockedParamsExpression =
-                KingNotInCheckAfterMoveSetup.SetupKingInCheckMock(board, postMoveBoard, move,
+                KingNotInCheckAfterMoveValidatorTestData.SetupKingInCheckMock(board, postMoveBoard, move,
                     moveLeavesKingInCheck,
                     bitboardMock);
             var moveValidator = new KingNotInCheckAfterMoveValidator(bitboardMock.Object);

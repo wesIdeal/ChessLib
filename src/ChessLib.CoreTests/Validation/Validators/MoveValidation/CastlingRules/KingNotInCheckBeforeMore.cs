@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
 {
     [TestFixture]
-    class KingNotInCheckBeforeMove : Core.Validation.Validators.MoveValidation.CastlingRules.KingNotInCheckBeforeMove
+    internal class KingNotInCheckBeforeMoveValidatorTests : Core.Validation.Validators.MoveValidation.CastlingRules.KingNotInCheckBeforeMove
     {
         private static readonly FenTextToBoard fenToBoard = new FenTextToBoard();
         private readonly ulong[][] _postBoard = new ulong[2][];
