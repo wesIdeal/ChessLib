@@ -7,13 +7,13 @@ using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
 {
-    public class KingNotInCheckAfterMoveValidator : IMoveRule
+    public class NotInCheckAfterMoveValidator : IMoveRule
     {
-        public KingNotInCheckAfterMoveValidator() : this(Bitboard.Instance)
+        public NotInCheckAfterMoveValidator() : this(Bitboard.Instance)
         {
         }
 
-        internal KingNotInCheckAfterMoveValidator(IBitboard bitboardInstance)
+        internal NotInCheckAfterMoveValidator(IBitboard bitboardInstance)
         {
             _bitboardInstance = bitboardInstance;
         }

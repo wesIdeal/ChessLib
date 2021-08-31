@@ -7,26 +7,10 @@ using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using Moq;
 
-namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
+namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.TestData
 {
     internal class MoveDestinationValidatorTestParams
     {
-        private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
-
-
-
-
-        /// <summary>
-        ///     A move from an unoccupied source square
-        /// </summary>
-        internal static readonly Move EmptySourceMove =
-            MoveHelpers.GenerateMove("h3".ToBoardIndex(), "h4".ToBoardIndex());
-
-        internal static readonly Board EmptySourceBoard = new Board();
-
-
-
-
         private static Expression<Func<IBitboard, ulong>> MakePseudoLegalMoveSetupExpression(Move move, Board board)
         {
             var occupancy = board.Occupancy.Occupancy();
@@ -51,8 +35,5 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
         }
     }
 
-    internal class MoveValidatorTestData
-    {
-        protected static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
-    }
+   
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ChessLib.Core.Helpers;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
@@ -7,8 +8,9 @@ using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.TestData
 {
-    internal class MoveDestinationValidatorTestData : MoveValidatorTestData
+    internal class MoveDestinationValidatorTestData
     {
+        private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
         internal static readonly ulong PseudoLegalMovesIncludingDestinationSquare =
             "c6".ToBoardValue() | "d6".ToBoardValue() | "e6".ToBoardValue();
 
@@ -36,6 +38,33 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
                 yield return testCase
                     .SetName(pseudoTestCaseName + " - Move is not valid if piece does not exist at source.");
             }
+
+            foreach (var testCase in GetFriendlyPieceOccupyingDestinationTestCases())
+            {
+                yield return testCase;
+            }
+        }
+
+        private static IEnumerable<TestCaseData> GetFriendlyPieceOccupyingDestinationTestCases()
+        {
+            const string name = "Destination Occupation";
+            const string whiteOccupiesDestination = "rnbqkbnr/ppp2ppp/8/3pp3/3P4/4P3/PPP2PPP/RNBQKBNR w KQkq e6 0 3";
+            const string blackOccupiesDestination = "r1bqk1nr/pppp1ppp/2n5/3Np3/1bP5/P7/1P1PPPPP/R1BQKBNR b KQkq - 0 4";
+            var boardWhite = fenTextToBoard.Translate(whiteOccupiesDestination);
+            var boardBlack = fenTextToBoard.Translate(blackOccupiesDestination);
+            var d4 = "d4".ToBoardIndex();
+            var b4 = "b4".ToBoardIndex();
+            var whiteMove = MoveHelpers.GenerateMove("e3".ToBoardIndex(), d4);
+            var blackMove = MoveHelpers.GenerateMove("c6".ToBoardIndex(), b4);
+            yield return new TestCaseData(boardWhite, whiteMove, d4.GetBoardValueOfIndex())
+                .SetName($"{name} - Active color occupies destination")
+                .SetDescription("Check that active color does not occupy destination(White, Pe3 x Pe4)")
+                .Returns(MoveError.ActiveColorPieceAtDestination);
+
+            yield return new TestCaseData(boardBlack, blackMove, b4.GetBoardValueOfIndex())
+                .SetName($"{name} - Active color occupies destination (Black, Nb6 x Bb4")
+                .SetDescription("Check that active color does not occupy destination")
+                .Returns(MoveError.ActiveColorPieceAtDestination);
         }
 
         public static IEnumerable<TestCaseData> GetNoPieceAtSourceTestCases()

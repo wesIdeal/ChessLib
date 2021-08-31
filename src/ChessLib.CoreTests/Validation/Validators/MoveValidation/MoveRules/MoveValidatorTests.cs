@@ -5,6 +5,7 @@ using ChessLib.Core.Types;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.MoveValidation;
 using ChessLib.Core.Validation.Validators.MoveValidation.MoveRules;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol;
 using Moq;
 using NUnit.Framework;
 
@@ -20,56 +21,54 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
         {
             var bitboardMock = new Mock<IBitboard>();
             var sourcePieceAndColor = board.Occupancy.GetPieceOfColorAtIndex(move.SourceIndex);
-
+            var destinationPieceAndColor = board.Occupancy.GetPieceOfColorAtIndex(move.DestinationIndex);
+           
+            /*
+             * No calls expected if:
+             *  a) The source square is not occupied by the active color
+             *  b) The destination square is occupied by the active color
+             */
+            var numberOfExpectedCallsToMockedMethod = (sourcePieceAndColor?.Color != board.ActivePlayer ||
+                                                       (destinationPieceAndColor?.Color != null &&
+                                                        destinationPieceAndColor?.Color == board.ActivePlayer)) ? Times.Never() : Times.Once();
             var verifiableMockedParamsExpression =
                 MoveDestinationValidatorTestParams.SetupPseudoLegalMovesMock(board, move, pseudoLegalMovesReturnValue,
                     bitboardMock);
             var moveValidator = new MoveDestinationValidator(bitboardMock.Object);
             var validationResult = moveValidator.Validate(board, null, move);
 
-            //we don't expect any calls if the source square is not occupied
-            var numberOfCallsToMockedMethodExpected = sourcePieceAndColor.HasValue ? Times.Once() : Times.Never();
-            bitboardMock.Verify(verifiableMockedParamsExpression, numberOfCallsToMockedMethodExpected);
+            
+           
+            bitboardMock.Verify(verifiableMockedParamsExpression, numberOfExpectedCallsToMockedMethod);
             return validationResult;
         }
 
-        [TestCaseSource(typeof(KingNotInCheckAfterMoveValidatorTestData),
-            nameof(KingNotInCheckAfterMoveValidatorTestData.GetKingNotInCheckAfterMoveValidatorTests))]
-        [TestOf(typeof(KingNotInCheckAfterMoveValidator))]
+        [TestCaseSource(typeof(NotInCheckAfterMoveValidatorTestData),
+            nameof(NotInCheckAfterMoveValidatorTestData.GetKingNotInCheckAfterMoveValidatorTests))]
+        [TestOf(typeof(NotInCheckAfterMoveValidator))]
         public MoveError TestKingNotInCheckAfterMove(Board board, Board postMoveBoard, Move move,
             bool moveLeavesKingInCheck)
         {
             var bitboardMock = new Mock<IBitboard>();
 
             var verifiableMockedParamsExpression =
-                KingNotInCheckAfterMoveValidatorTestData.SetupKingInCheckMock(board, postMoveBoard, move,
+                NotInCheckAfterMoveValidatorTestData.SetupKingInCheckMock(board, postMoveBoard, move,
                     moveLeavesKingInCheck,
                     bitboardMock);
-            var moveValidator = new KingNotInCheckAfterMoveValidator(bitboardMock.Object);
+            var moveValidator = new NotInCheckAfterMoveValidator(bitboardMock.Object);
             var validationResult = moveValidator.Validate(board, postMoveBoard.Occupancy, move);
-
             bitboardMock.Verify(verifiableMockedParamsExpression, Times.Once);
-
             return validationResult;
         }
 
-        [TestCaseSource(typeof(KingNotInCheckAfterMoveValidatorTestData),
-            nameof(KingNotInCheckAfterMoveValidatorTestData.GetKingNotInCheckAfterMoveValidatorTests))]
+        [TestCaseSource(typeof(ActiveColorValidatorTestData),
+            nameof(ActiveColorValidatorTestData.GetActiveColorValidatorTestCases))]
         [TestOf(typeof(ActiveColorValidator))]
-        public MoveError TestActiveColorValidator(Board board, Board postMoveBoard, Move move,
-            bool moveLeavesKingInCheck)
+        public MoveError TestActiveColorValidator(Board board, Move move)
         {
-            var bitboardMock = new Mock<IBitboard>();
 
-            var verifiableMockedParamsExpression =
-                KingNotInCheckAfterMoveValidatorTestData.SetupKingInCheckMock(board, postMoveBoard, move,
-                    moveLeavesKingInCheck,
-                    bitboardMock);
-            var moveValidator = new KingNotInCheckAfterMoveValidator(bitboardMock.Object);
-            var validationResult = moveValidator.Validate(board, postMoveBoard.Occupancy, move);
-
-            bitboardMock.Verify(verifiableMockedParamsExpression, Times.Once);
-
+            var moveValidator = new ActiveColorValidator();
+            var validationResult = moveValidator.Validate(board, null, move);
             return validationResult;
         }
     }

@@ -29,16 +29,22 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
         /// <returns></returns>
         public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
-            var piece = BoardHelpers.GetPieceAtIndex(boardInfo.Occupancy, move.SourceIndex);
+            var piece = boardInfo.Occupancy.GetPieceOfColorAtIndex(move.SourceIndex);
             if (piece == null)
             {
                 return MoveError.ActivePlayerHasNoPieceOnSourceSquare;
             }
+
+            if ((boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer) & move.DestinationValue) != 0)
+            {
+                return MoveError.ActiveColorPieceAtDestination;
+            }
+
             var totalOccupancy = boardInfo.Occupancy.Occupancy();
-            var moves = _bitboard.GetPseudoLegalMoves(move.SourceIndex, piece.Value, boardInfo.ActivePlayer,
+            var moves = _bitboard.GetPseudoLegalMoves(move.SourceIndex, piece.Value.Piece, boardInfo.ActivePlayer,
                 totalOccupancy);
             var isInMoveList = (moves & move.DestinationValue) == move.DestinationValue;
-            if (piece == Piece.Pawn && isInMoveList)
+            if (piece.Value.Piece == Piece.Pawn && isInMoveList)
             {
                 // if this is a capture and nothing occupies the space, it could be invalid or en passant
                 if (move.DestinationIndex.GetFile() != move.SourceIndex.GetFile() &&
@@ -46,14 +52,11 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
                 {
                     if (move.DestinationIndex == boardInfo.EnPassantIndex)
                     {
-                        if (move.MoveType == MoveType.EnPassant)
-                        {
-                            isInMoveList = true;
-                        }
-                        else
+                        if (move.MoveType != MoveType.EnPassant)
                         {
                             return MoveError.EnPassantNotMarked;
                         }
+                        
                     }
                     else
                     {

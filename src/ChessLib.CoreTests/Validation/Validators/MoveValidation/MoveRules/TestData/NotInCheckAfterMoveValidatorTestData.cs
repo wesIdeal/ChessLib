@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
@@ -13,8 +14,9 @@ using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.TestData
 {
-    internal class KingNotInCheckAfterMoveValidatorTestData : MoveValidatorTestData
+    internal class NotInCheckAfterMoveValidatorTestData
     {
+        private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
         private static Expression<Func<IBitboard, bool>> SetupKingInCheckExpression(Board board, Board postMoveBoard)
         {
             var activeKingIndex =
@@ -40,7 +42,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
         }
 
         /// <summary>
-        ///     Get the test cases for testing <see cref="KingNotInCheckAfterMoveValidator" />
+        ///     Get the test cases for testing <see cref="NotInCheckAfterMoveValidator" />
         /// </summary>
         /// <returns></returns>
         public static IEnumerable<TestCaseData> GetKingNotInCheckAfterMoveValidatorTests()

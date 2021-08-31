@@ -20,12 +20,11 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
             //PostMoveBoard = board.GetPiecePlacement().GetBoardPostMove(board.ActivePlayer, move);
             PostMoveBoard = BoardHelpers.GetBoardPostMove(_board, move);
             _rules.Add(new ActiveColorValidator());
-            _rules.Add(new KingNotInCheckAfterMoveValidator());
+            _rules.Add(new NotInCheckAfterMoveValidator());
             switch (move.MoveType)
             {
                 case MoveType.Normal:
                     _rules.Add(new MoveDestinationValidator());
-                    _rules.Add(new DestinationNotOccupiedByActiveColor());
                     break;
                 case MoveType.Promotion:
                     _rules.Add(new MoveDestinationValidator());
