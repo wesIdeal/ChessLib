@@ -11,7 +11,7 @@ using ChessLib.Core.Validation.Validators.MoveValidation.MoveRules;
 using Moq;
 using NUnit.Framework;
 
-namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
+namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.TestData
 {
     internal class KingNotInCheckAfterMoveValidatorTestData : MoveValidatorTestData
     {

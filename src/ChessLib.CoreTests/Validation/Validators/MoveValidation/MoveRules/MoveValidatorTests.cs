@@ -1,6 +1,6 @@
 ﻿using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
-using ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.TestData.DestinationIsValid;
+using ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.TestData;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.MoveValidation;

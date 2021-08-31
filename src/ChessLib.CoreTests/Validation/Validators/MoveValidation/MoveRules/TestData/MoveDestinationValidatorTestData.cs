@@ -5,7 +5,7 @@ using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using NUnit.Framework;
 
-namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.TestData.DestinationIsValid
+namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.TestData
 {
     internal class MoveDestinationValidatorTestData : MoveValidatorTestData
     {
