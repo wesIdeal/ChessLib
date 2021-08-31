@@ -5,7 +5,7 @@ using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
 {
-    public class PieceMovingIsActiveColor : IMoveRule
+    public class ActiveColorValidator : IMoveRule
     {
         public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {

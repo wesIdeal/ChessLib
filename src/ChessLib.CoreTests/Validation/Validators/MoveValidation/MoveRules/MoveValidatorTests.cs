@@ -52,5 +52,25 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
 
             return validationResult;
         }
+
+        [TestCaseSource(typeof(KingNotInCheckAfterMoveValidatorTestData),
+            nameof(KingNotInCheckAfterMoveValidatorTestData.GetKingNotInCheckAfterMoveValidatorTests))]
+        [TestOf(typeof(ActiveColorValidator))]
+        public MoveError TestActiveColorValidator(Board board, Board postMoveBoard, Move move,
+            bool moveLeavesKingInCheck)
+        {
+            var bitboardMock = new Mock<IBitboard>();
+
+            var verifiableMockedParamsExpression =
+                KingNotInCheckAfterMoveValidatorTestData.SetupKingInCheckMock(board, postMoveBoard, move,
+                    moveLeavesKingInCheck,
+                    bitboardMock);
+            var moveValidator = new KingNotInCheckAfterMoveValidator(bitboardMock.Object);
+            var validationResult = moveValidator.Validate(board, postMoveBoard.Occupancy, move);
+
+            bitboardMock.Verify(verifiableMockedParamsExpression, Times.Once);
+
+            return validationResult;
+        }
     }
 }
