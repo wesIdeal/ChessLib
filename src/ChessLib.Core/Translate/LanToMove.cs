@@ -39,8 +39,8 @@ namespace ChessLib.Core.Translate
 
             var sourceString = lan.Substring(0, 2);
             var destString = lan.Substring(2, 2);
-            var source = sourceString.SquareTextToIndex();
-            var dest = destString.SquareTextToIndex();
+            var source = sourceString.ToBoardIndex();
+            var dest = destString.ToBoardIndex();
             var promotionChar = lan.Length == 5 ? lan[4] : (char?) null;
             var promotionPiece = PieceHelpers.GetPromotionPieceFromChar(promotionChar);
             var isPromotion = length == 5;

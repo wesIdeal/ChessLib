@@ -20,7 +20,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
         ///     A move from an unoccupied source square
         /// </summary>
         internal static readonly Move EmptySourceMove =
-            MoveHelpers.GenerateMove("h3".SquareTextToIndex(), "h4".SquareTextToIndex());
+            MoveHelpers.GenerateMove("h3".ToBoardIndex(), "h4".ToBoardIndex());
 
         internal static readonly Board EmptySourceBoard = new Board();
 

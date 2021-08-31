@@ -47,17 +47,17 @@ namespace ChessLib.Core.Tests.MagicBitboard
            
             var board = FenReader.Translate("8/1k6/8/3pP3/8/5K2/8/8 w - d6 0 4");
             yield return new TestCase<ulong, Board>(
-                "e5".SquareTextToIndex().GetBoardValueOfIndex(),
+                "e5".ToBoardIndex().GetBoardValueOfIndex(),
                 board,
                 "En Passant available from pawn on d6, after d7-d5",
-                "d6".SquareTextToIndex(),
+                "d6".ToBoardIndex(),
                 Color.White);
            
             board = FenReader.Translate("4k3/8/8/2p5/3P4/8/8/4K3 w - - 0 1");
-            yield return new TestCase<ulong, Board>("d4".SquareTextToIndex().GetBoardValueOfIndex(),
+            yield return new TestCase<ulong, Board>("d4".ToBoardIndex().GetBoardValueOfIndex(),
                 board,
                 "Normal pawn attack- White pawn on d4 attacks c5",
-                "c5".SquareTextToIndex(),
+                "c5".ToBoardIndex(),
                 Color.White);
         }
 
@@ -95,7 +95,7 @@ namespace ChessLib.Core.Tests.MagicBitboard
             ushort blackKingIndex = 60;
 
             var board = FenReader.Translate("r1bqk2r/ppp1bppp/2np1n2/4p3/2P5/2N2NP1/PP1PPPBP/R1BQK2R w KQkq - 2 6");
-            var kf1 = MoveHelpers.GenerateMove("e1".SquareTextToIndex(), "f1".SquareTextToIndex());
+            var kf1 = MoveHelpers.GenerateMove("e1".ToBoardIndex(), "f1".ToBoardIndex());
             var castleShort = MoveHelpers.WhiteCastleKingSide;
             var desc = "White should have Kf1 and O-O";
             var name = "Legal Moves - White King (O-O)";
@@ -104,7 +104,7 @@ namespace ChessLib.Core.Tests.MagicBitboard
                 .SetDescription(desc);
 
             board = FenReader.Translate("r1bqk2r/ppp1bppp/3p4/8/2Ppn3/2NP2P1/PPQBPP1P/R3KB1R w KQkq - 2 9");
-            var kd1 = MoveHelpers.GenerateMove("e1".SquareTextToIndex(), "d1".SquareTextToIndex());
+            var kd1 = MoveHelpers.GenerateMove("e1".ToBoardIndex(), "d1".ToBoardIndex());
             var castleLong = MoveHelpers.WhiteCastleQueenSide;
             desc = "White should have Kd1 and O-O-O";
             name = "Legal Moves - White King (O-O-O)";
@@ -113,7 +113,7 @@ namespace ChessLib.Core.Tests.MagicBitboard
 
 
             board = FenReader.Translate("r1bqk2r/ppp1bppp/3p4/8/2Ppn3/2NP2P1/PPQBPP1P/R3KB1R b KQkq - 2 9");
-            var kf8 = MoveHelpers.GenerateMove("e8".SquareTextToIndex(), "f8".SquareTextToIndex());
+            var kf8 = MoveHelpers.GenerateMove("e8".ToBoardIndex(), "f8".ToBoardIndex());
             castleShort = MoveHelpers.BlackCastleKingSide;
             desc = "Black should have Kf8 and O-O";
             name = "Legal Moves - Black King (O-O)";
@@ -122,7 +122,7 @@ namespace ChessLib.Core.Tests.MagicBitboard
                 .SetDescription(desc);
 
             board = FenReader.Translate("r3kb1r/pppqpppp/3pb3/3N4/2P1P3/6P1/PPQBPP1P/R3KB1R b KQkq - 0 11");
-            var kd8 = MoveHelpers.GenerateMove("e8".SquareTextToIndex(), "d8".SquareTextToIndex());
+            var kd8 = MoveHelpers.GenerateMove("e8".ToBoardIndex(), "d8".ToBoardIndex());
             castleLong = MoveHelpers.BlackCastleQueenSide;
             desc = "Black should have Kd8 and O-O-O";
             name = "Legal Moves - Black King (O-O-O)";
@@ -139,10 +139,10 @@ namespace ChessLib.Core.Tests.MagicBitboard
             board = FenReader.Translate("rnbqkbnr/ppp2ppp/8/2Ppp3/8/8/PP1PPPPP/RNBQKBNR w KQkq d6 0 3");
             desc = "En Passant available on d6";
             name = "Legal Moves - White En Passant";
-            var normalMove = MoveHelpers.GenerateMove("c5".SquareTextToIndex(), "c6".SquareTextToIndex());
+            var normalMove = MoveHelpers.GenerateMove("c5".ToBoardIndex(), "c6".ToBoardIndex());
             var epMove =
-                MoveHelpers.GenerateMove("c5".SquareTextToIndex(), "d6".SquareTextToIndex(), MoveType.EnPassant);
-            yield return new TestCaseData(board, new[] { epMove, normalMove }, "c5".SquareTextToIndex())
+                MoveHelpers.GenerateMove("c5".ToBoardIndex(), "d6".ToBoardIndex(), MoveType.EnPassant);
+            yield return new TestCaseData(board, new[] { epMove, normalMove }, "c5".ToBoardIndex())
                 .SetDescription(desc)
                 .SetName(name);
         }

@@ -119,34 +119,34 @@ namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
 
         protected static IEnumerable<EnPassantPawnLocationTestCase> GetPawnPlacementTestCases()
         {
-            yield return new EnPassantPawnLocationTestCase("d5".SquareTextToIndex().GetBoardValueOfIndex(), "d6".SquareTextToIndex(), true,
+            yield return new EnPassantPawnLocationTestCase("d5".ToBoardIndex().GetBoardValueOfIndex(), "d6".ToBoardIndex(), true,
                 "d5 pawn, d6 en passant square");
-            yield return new EnPassantPawnLocationTestCase("e4".SquareTextToIndex().GetBoardValueOfIndex(), "e3".SquareTextToIndex(), true,
+            yield return new EnPassantPawnLocationTestCase("e4".ToBoardIndex().GetBoardValueOfIndex(), "e3".ToBoardIndex(), true,
                 "d5 pawn, d6 en passant square");
-            yield return new EnPassantPawnLocationTestCase("d5".SquareTextToIndex().GetBoardValueOfIndex(), "e6".SquareTextToIndex(), false,
+            yield return new EnPassantPawnLocationTestCase("d5".ToBoardIndex().GetBoardValueOfIndex(), "e6".ToBoardIndex(), false,
                 "Bad En Passant: d5 pawn, e6 en passant square");
-            yield return new EnPassantPawnLocationTestCase("e4".SquareTextToIndex().GetBoardValueOfIndex(), "d3".SquareTextToIndex(), false,
+            yield return new EnPassantPawnLocationTestCase("e4".ToBoardIndex().GetBoardValueOfIndex(), "d3".ToBoardIndex(), false,
                 "Bad En Passant: e4 pawn, d3 en passant square");
 
         }
 
         public static IEnumerable<EnPassantSquareLocationTestCase> GetSquareTestCases()
         {
-            yield return new EnPassantSquareLocationTestCase("d5".SquareTextToIndex(), Color.Black, false,
+            yield return new EnPassantSquareLocationTestCase("d5".ToBoardIndex(), Color.Black, false,
                 "Non-en passant square(d5), black to move.");
-            yield return new EnPassantSquareLocationTestCase("d5".SquareTextToIndex(), Color.White, false,
+            yield return new EnPassantSquareLocationTestCase("d5".ToBoardIndex(), Color.White, false,
                 "Non-en passant square(d5), white to move.");
-            yield return new EnPassantSquareLocationTestCase("h8".SquareTextToIndex(), Color.Black, false,
+            yield return new EnPassantSquareLocationTestCase("h8".ToBoardIndex(), Color.Black, false,
                 "Non-en passant square(h8), black to move.");
-            yield return new EnPassantSquareLocationTestCase("h1".SquareTextToIndex(), Color.White, false,
+            yield return new EnPassantSquareLocationTestCase("h1".ToBoardIndex(), Color.White, false,
                 "Non-en passant square(h1), white to move.");
-            yield return new EnPassantSquareLocationTestCase("e3".SquareTextToIndex(), Color.White, false,
+            yield return new EnPassantSquareLocationTestCase("e3".ToBoardIndex(), Color.White, false,
                 "En passant square(e3), wrong color (white to move).");
-            yield return new EnPassantSquareLocationTestCase("e6".SquareTextToIndex(), Color.Black, false,
+            yield return new EnPassantSquareLocationTestCase("e6".ToBoardIndex(), Color.Black, false,
                 "En passant square(e6), wrong color (black to move).");
-            yield return new EnPassantSquareLocationTestCase("e3".SquareTextToIndex(), Color.Black, true,
+            yield return new EnPassantSquareLocationTestCase("e3".ToBoardIndex(), Color.Black, true,
                 "En passant square(e3), correct color (black to move).");
-            yield return new EnPassantSquareLocationTestCase("e6".SquareTextToIndex(), Color.White, true,
+            yield return new EnPassantSquareLocationTestCase("e6".ToBoardIndex(), Color.White, true,
                 "En passant square(e6), correct color (white to move).");
         }
     }

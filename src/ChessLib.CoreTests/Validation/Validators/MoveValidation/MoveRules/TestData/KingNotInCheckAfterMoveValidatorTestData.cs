@@ -48,7 +48,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
             const string pseudoTestCaseName = "Validator.Move.KingNotInCheckAfterMoveValidator";
             var board = fenTextToBoard.Translate("4k3/8/8/8/8/8/8/4K3 w - - 0 1");
             var postMoveBoard = fenTextToBoard.Translate("3k4/8/8/8/8/8/8/3K4 w - - 0 1");
-            var move = MoveHelpers.GenerateMove("e2".SquareTextToIndex(), "e4".SquareTextToIndex());
+            var move = MoveHelpers.GenerateMove("e2".ToBoardIndex(), "e4".ToBoardIndex());
 
             yield return
                 new TestCaseData(board, postMoveBoard, move, true)

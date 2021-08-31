@@ -41,8 +41,8 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
         public static IEnumerable<TestCaseData> GetNoPieceAtSourceTestCases()
         {
             const string name = "Source Square";
-            var source = "h3".SquareTextToIndex();
-            var destination = "h4".SquareTextToIndex();
+            var source = "h3".ToBoardIndex();
+            var destination = "h4".ToBoardIndex();
             var board = new Board();
             // Double-check that test case is valid
             Assert.AreEqual(0, board.Occupancy.Occupancy(board.ActivePlayer) & source.GetBoardValueOfIndex(), 0,
@@ -58,8 +58,8 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
         public static IEnumerable<TestCaseData> GetPawnAttackTestCases()
         {
             const string name = "Pawn Attacks";
-            var d5 = "d5".SquareTextToIndex();
-            var c6 = "c6".SquareTextToIndex();
+            var d5 = "d5".ToBoardIndex();
+            var c6 = "c6".ToBoardIndex();
 
             //Pseudolegal move, to test that move's destination square's presence in the Pseudolegal Move list
             var pseudoLegalMove =
@@ -91,8 +91,8 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
             // Pawn attacks empty square on board
             var pawnAttackingEmptySquareBoard = fenTextToBoard.Translate(pawnAttackingEmptySquareFen);
 
-            var d5 = "d5".SquareTextToIndex();
-            var c6 = "c6".SquareTextToIndex();
+            var d5 = "d5".ToBoardIndex();
+            var c6 = "c6".ToBoardIndex();
 
             //Pseudolegal move, to test that move's destination square's presence in the Pseudolegal Move list
             var pseudoLegalMove =
@@ -120,8 +120,8 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
 
         public static IEnumerable<TestCaseData> GetPseudoLegalMoveTestCases()
         {
-            var d5 = "d5".SquareTextToIndex();
-            var c6 = "c6".SquareTextToIndex();
+            var d5 = "d5".ToBoardIndex();
+            var c6 = "c6".ToBoardIndex();
             var pseudoLegalMove =
                 MoveHelpers.GenerateMove(d5, c6);
             var pseudoLegalMoveBoardFen = "r1bqkbnr/pp1ppppp/2n5/2pN4/8/8/PPPPPPPP/R1BQKBNR w KQkq - 1 3";

@@ -71,7 +71,7 @@ namespace ChessLib.Core.Translate
                 return null;
             }
 
-            return squareInfo.SquareTextToIndex();
+            return squareInfo.ToBoardIndex();
         }
 
         private static int GetHalfmoveClock(string[] fenPieces)

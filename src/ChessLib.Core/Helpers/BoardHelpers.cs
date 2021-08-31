@@ -752,7 +752,7 @@ namespace ChessLib.Core.Helpers
         /// </param>
         /// <returns>Square index</returns>
         /// <exception cref="ArgumentException">Thrown if boardIndex length, File, or Rank is invalid.</exception>
-        public static ushort SquareTextToIndex(this string square)
+        public static ushort ToBoardIndex(this string square)
         {
             var squareIndex = BoardConstants.SquareNames
                 .Select((sq, idx) => new { square = sq, index = (ushort)idx })
@@ -773,7 +773,7 @@ namespace ChessLib.Core.Helpers
         /// <returns></returns>
         public static ulong SquareValue(this string square)
         {
-            return SquareTextToIndex(square).GetBoardValueOfIndex();
+            return ToBoardIndex(square).GetBoardValueOfIndex();
         }
 
 

@@ -91,7 +91,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.EnPassantRule
         public void ShouldReturnNullWhenEnPassantIsAttackedBySource()
         {
             var board = FenReader.Translate("rnbqkbnr/pppp1ppp/8/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 2");
-            var move = MoveHelpers.GenerateMove("d5".SquareTextToIndex(), "e6".SquareTextToIndex(), MoveType.EnPassant);
+            var move = MoveHelpers.GenerateMove("d5".ToBoardIndex(), "e6".ToBoardIndex(), MoveType.EnPassant);
             Assert.AreEqual(MoveError.NoneSet, Validate(board, _pmb, move));
         }
     }

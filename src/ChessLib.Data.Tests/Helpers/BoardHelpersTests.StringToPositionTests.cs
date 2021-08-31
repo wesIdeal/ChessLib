@@ -16,7 +16,7 @@ namespace ChessLib.Data.Tests.Helpers
                 for (var f = 'a'; f <= 'h'; f++)
                 {
                     var text = new string(new[] {f, r});
-                    var idx = text.SquareTextToIndex();
+                    var idx = text.ToBoardIndex();
                     Assert.AreEqual(counter, idx);
                     counter++;
                 }
@@ -26,19 +26,19 @@ namespace ChessLib.Data.Tests.Helpers
         [Test]
         public static void SquareTextToIndex_ShouldReturnNull_OnUninterpretableSquare()
         {
-            Assert.AreEqual(null, "-".SquareTextToIndex());
+            Assert.AreEqual(null, "-".ToBoardIndex());
         }
 
         [Test]
         public static void SquareTextToIndex_ShouldThrowException_OnEmpty()
         {
-            Assert.Throws(typeof(ArgumentException), () => { "".SquareTextToIndex(); });
+            Assert.Throws(typeof(ArgumentException), () => { "".ToBoardIndex(); });
         }
 
         [Test]
         public static void SquareTextToIndex_ShouldThrowException_OnInputLessThan2Chars()
         {
-            Assert.Throws(typeof(ArgumentException), () => { "a".SquareTextToIndex(); });
+            Assert.Throws(typeof(ArgumentException), () => { "a".ToBoardIndex(); });
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace ChessLib.Data.Tests.Helpers
             {
                 try
                 {
-                    "a22".SquareTextToIndex();
+                    "a22".ToBoardIndex();
                 }
                 catch (ArgumentException a)
                 {
@@ -68,7 +68,7 @@ namespace ChessLib.Data.Tests.Helpers
             {
                 try
                 {
-                    "i2".SquareTextToIndex();
+                    "i2".ToBoardIndex();
                 }
                 catch (ArgumentException a)
                 {
@@ -87,7 +87,7 @@ namespace ChessLib.Data.Tests.Helpers
             {
                 try
                 {
-                    "a0".SquareTextToIndex();
+                    "a0".ToBoardIndex();
                 }
                 catch (ArgumentException a)
                 {
@@ -106,7 +106,7 @@ namespace ChessLib.Data.Tests.Helpers
             {
                 try
                 {
-                    "a9".SquareTextToIndex();
+                    "a9".ToBoardIndex();
                 }
                 catch (ArgumentException a)
                 {

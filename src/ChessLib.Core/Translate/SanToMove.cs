@@ -50,7 +50,7 @@ namespace ChessLib.Core.Translate
             else
             {
                 var pieceMoving = PieceHelpers.GetPiece(strMove[0]);
-                var destinationSquare = strMove.Substring(strMove.Length - 2, 2).SquareTextToIndex();
+                var destinationSquare = strMove.Substring(strMove.Length - 2, 2).ToBoardIndex();
                 var applicableBlockerBoard = board.Occupancy.Occupancy(colorMoving, pieceMoving);
                 var squaresAttackingTarget =
                     Bitboard.Instance.PiecesAttackingSquareByColor(board.Occupancy, destinationSquare, colorMoving);
@@ -118,7 +118,7 @@ namespace ChessLib.Core.Translate
             ushort source;
             if (mv.Length == 2)
             {
-                var sourceIdx = mv.SquareTextToIndex();
+                var sourceIdx = mv.ToBoardIndex();
                 source = sourceIdx;
             }
             else if (mv.Length == 1)
@@ -208,7 +208,7 @@ namespace ChessLib.Core.Translate
                 move = move.Substring(0, equalIndex);
             }
 
-            ushort? destIndex = move.SquareTextToIndex();
+            ushort? destIndex = move.ToBoardIndex();
             if (!destIndex.HasValue)
             {
                 throw new NoNullAllowedException("MoveTranslatorService: destIndex should not be null.");

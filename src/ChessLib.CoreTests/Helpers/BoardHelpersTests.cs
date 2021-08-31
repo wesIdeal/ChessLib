@@ -40,8 +40,8 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCase("e1", "h4", 0x402000ul)]
         public void InBetweenTest(string strFrom, string strTo, ulong expected)
         {
-            var from = strFrom.SquareTextToIndex();
-            var to = strTo.SquareTextToIndex();
+            var from = strFrom.ToBoardIndex();
+            var to = strTo.ToBoardIndex();
             Assert.IsNotNull(from);
             Assert.IsNotNull(to);
             var actual = BoardHelpers.InBetween(from, to);
@@ -533,8 +533,8 @@ namespace ChessLib.Core.Tests.Helpers
 
             yield return new TestCaseData(
                 FenReader.Translate("rnbqkbnr/ppp1pppp/8/4P3/3p4/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"),
-                "c2".SquareTextToIndex(),
-                "c4".SquareTextToIndex(),
+                "c2".ToBoardIndex(),
+                "c4".ToBoardIndex(),
                 (ushort?)null)
                 .SetDescription("Normal- White, c2-c4")
                 .SetName("GetMoveType - Normal")
@@ -542,9 +542,9 @@ namespace ChessLib.Core.Tests.Helpers
 
             yield return new TestCaseData(
                     FenReader.Translate("rnbqkbnr/ppp1pppp/8/4P3/2Pp4/8/PP1P1PPP/RNBQKBNR b KQkq c3 0 3"),
-                    "d4".SquareTextToIndex(),
-                    "c3".SquareTextToIndex(),
-                    "c3".SquareTextToIndex())
+                    "d4".ToBoardIndex(),
+                    "c3".ToBoardIndex(),
+                    "c3".ToBoardIndex())
                 .SetDescription("En Passant capture from black")
                 .SetName("GetMoveType - En Passant")
                 .Returns(MoveType.EnPassant);
@@ -583,16 +583,16 @@ namespace ChessLib.Core.Tests.Helpers
                 .Returns(MoveType.Castle);
 
             yield return new TestCaseData(FenReader.Translate("8/3P4/8/1p6/8/P1p3P1/1k2p3/4K3 w - - 0 49"),
-                    "d7".SquareTextToIndex(),
-                    "d8".SquareTextToIndex(),
+                    "d7".ToBoardIndex(),
+                    "d8".ToBoardIndex(),
                     (ushort?)null)
                 .SetDescription("Promotion - White")
                 .SetName("GetMoveType - Promotion")
                 .Returns(MoveType.Promotion);
 
             yield return new TestCaseData(FenReader.Translate("6Q1/8/8/p7/5K2/k7/1p4P1/8 b - - 0 55"),
-                    "b2".SquareTextToIndex(),
-                    "b1".SquareTextToIndex(),
+                    "b2".ToBoardIndex(),
+                    "b1".ToBoardIndex(),
                     (ushort?)null)
                 .SetDescription("Promotion - Black")
                 .SetName("GetMoveType - Promotion")
@@ -604,7 +604,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCaseSource(nameof(GetSquareToIndexTestCases))]
         public void SquareTextToIndexTest(TestCase<ushort, string> testCase)
         {
-            var actual = testCase.TestMethodInputValue.SquareTextToIndex();
+            var actual = testCase.TestMethodInputValue.ToBoardIndex();
             Assert.AreEqual(testCase.ExpectedValue, actual, testCase.ToString());
         }
 
@@ -614,7 +614,7 @@ namespace ChessLib.Core.Tests.Helpers
         [TestCase("z8")]
         public void SquareTextToIndexTestShouldThrowExceptionWhenOutOfRange(string testCase)
         {
-            Assert.Throws(typeof(ArgumentException), delegate { testCase.SquareTextToIndex(); });
+            Assert.Throws(typeof(ArgumentException), delegate { testCase.ToBoardIndex(); });
         }
 
         protected static IEnumerable<TestCase<ushort, string>> GetSquareToIndexTestCases()
