@@ -17,7 +17,6 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
 
         internal static readonly ulong PseudoLegalMovesNotIncludingDestinationSquare = ~"c6".ToBoardValue();
 
-
         public static IEnumerable<TestCaseData> GetMoveDestinationValidatorTestCases()
         {
             const string pseudoTestCaseName = "Validator.Move.MoveDestinationValidator";

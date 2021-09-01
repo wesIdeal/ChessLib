@@ -5,7 +5,7 @@ using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
 {
-    public class KingNotInCheckBeforeMove : IMoveRule
+    public class NotInCheckBeforeMoveValidator : IMoveRule
     {
         public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
         {
