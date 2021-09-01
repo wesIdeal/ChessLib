@@ -113,7 +113,6 @@ namespace ChessLib.Core.MagicBitboard
 
             var piece = pieceOfColor.Value.Piece;
             var color = pieceOfColor.Value.Color;
-            var board = new Board(occupancy, 0, enPassantIdx, null, castlingAvailability, color, 0, true);
 
             var relevantOccupancy = occupancy.Occupancy();
 
@@ -125,7 +124,7 @@ namespace ChessLib.Core.MagicBitboard
 
             var pseudoLegalMoves = GetPseudoLegalMoves(squareIndex, piece, color, relevantOccupancy);
             var moves = new List<IMove>();
-            var squareValue = squareIndex.GetBoardValueOfIndex();
+            
             foreach (var destinationIndex in pseudoLegalMoves.GetSetBits())
             {
                 var moveType = BoardHelpers.GetMoveType(occupancy, squareIndex, destinationIndex, enPassantIdx);

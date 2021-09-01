@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
@@ -14,7 +15,7 @@ namespace ChessLib.Core.Helpers
             WhiteCastleKingSide,
             WhiteCastleQueenSide;
 
-        public static IEnumerable<IMove> WhiteCastlingMoves
+        public static IEnumerable<Move> WhiteCastlingMoves
         {
             get
             {
@@ -31,6 +32,8 @@ namespace ChessLib.Core.Helpers
                 yield return BlackCastleQueenSide;
             }
         }
+
+        public static IEnumerable<Move> CastlingMoves => WhiteCastlingMoves.Concat(BlackCastlingMoves);
 
 
         static MoveHelpers()
@@ -56,6 +59,12 @@ namespace ChessLib.Core.Helpers
             return new Move((ushort)(mt | pp | origin | dest));
         }
 
+        /// <summary>
+        /// Gets the corresponding rook move for a castling move
+        /// </summary>
+        /// <param name="move"></param>
+        /// <returns>A move containing rook source and destination</returns>
+        /// <exception cref="MoveException">Thrown when move is not a castling move.</exception>
         public static IMove GetRookMoveForCastleMove(in IMove move)
         {
             switch (move.MoveValue)
