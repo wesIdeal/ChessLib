@@ -10,7 +10,7 @@ using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules.TestData
 {
-    internal class NoPieceBlocksCastlingMoveTestData
+    internal class NoPieceBlocksCastlingMoveValidatorTestData
     {
         private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
 

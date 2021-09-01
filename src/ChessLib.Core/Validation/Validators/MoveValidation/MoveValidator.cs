@@ -41,7 +41,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
                     _rules.Add(new HasCastlingAvailability());
                     _rules.Add(new KingNotInCheckBeforeMove());
                     _rules.Add(new CastlingSquaresNotAttacked());
-                    _rules.Add(new NoPieceBlocksCastlingMove());
+                    _rules.Add(new NoPieceBlocksCastlingMoveValidator());
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -9,15 +9,15 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
     /// <summary>
     ///     Test cases for castling through occupied and non-occupied squares between castling King and Rook
     /// </summary>
-    [TestFixture(TestOf = typeof(NoPieceBlocksCastlingMove))]
-    internal class NoPieceBlocksCastlingMoveTests
+    [TestFixture(TestOf = typeof(NoPieceBlocksCastlingMoveValidator))]
+    internal class NoPieceBlocksCastlingMoveValidatorTests
     {
-        [TestCaseSource(typeof(NoPieceBlocksCastlingMoveTestData),
-            nameof(NoPieceBlocksCastlingMoveTestData.GetTestCases))]
+        [TestCaseSource(typeof(NoPieceBlocksCastlingMoveValidatorTestData),
+            nameof(NoPieceBlocksCastlingMoveValidatorTestData.GetTestCases))]
         public MoveError TestCastlingWithPiecesBlocking(Board board, Move move)
         {
             TestContext.WriteLine(board.Fen);
-            var validator = new NoPieceBlocksCastlingMove();
+            var validator = new NoPieceBlocksCastlingMoveValidator();
             return validator.Validate(board, null, move);
         }
     }
