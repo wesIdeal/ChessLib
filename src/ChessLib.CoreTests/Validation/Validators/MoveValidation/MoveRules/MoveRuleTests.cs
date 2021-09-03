@@ -30,7 +30,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
         {
             var bitboardMock = new Mock<IBitboard>();
 
-            var verifiableMockedParamsExpression = board.SetupKingInCheckMock(postMoveBoard,
+            var verifiableMockedParamsExpression = board.SetupPostMoveCheckMock(postMoveBoard,
                 move,
                 moveLeavesKingInCheck,
                 bitboardMock);

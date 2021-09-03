@@ -22,7 +22,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation
             return setupExpression;
         }
 
-        internal static Expression<Func<IBitboard, bool>> SetupKingInCheckMock(this Board board, Board postMoveBoard,
+        internal static Expression<Func<IBitboard, bool>> SetupPostMoveCheckMock(this Board board, Board postMoveBoard,
             Move move, bool moveLeavesKingInCheck, Mock<IBitboard> bitboardMock)
         {
             var setupExpression = SetupKingInCheckExpression(board, postMoveBoard);
@@ -30,6 +30,32 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation
                 .Returns(moveLeavesKingInCheck)
                 .Verifiable();
             return setupExpression;
+        }
+
+        internal static Mock<IBitboard> SetupPreMoveCheckMock(this Board board, bool isKingInCheck)
+        {
+            var kingPosition = board.Occupancy.Occupancy(board.ActivePlayer, Piece.King).GetSetBits()[0];
+            var attackingColor = board.OpponentColor;
+            var occupancyAll = board.Occupancy.Occupancy();
+            var enPassantIndex = board.EnPassantIndex;
+            var bitboardMock = MakeSquareInCheckMock(kingPosition, attackingColor, occupancyAll, enPassantIndex,
+                isKingInCheck);
+            return bitboardMock;
+        }
+
+        private static Mock<IBitboard> MakeSquareInCheckMock(ushort kingPosition, Color attackingColor,
+            ulong totalOccupancy, ushort? enPassantIndex, bool returnValue)
+        {
+            var bitboardMock = new Mock<IBitboard>();
+            bitboardMock.Setup(x =>
+                    x.IsSquareAttackedByColor(
+                        It.Is<ushort>(c => c == kingPosition),
+                        It.Is<Color>(c => c == attackingColor),
+                        It.Is<ulong[][]>(c => c.Occupancy(null, null) == totalOccupancy),
+                        It.Is<ushort?>(c => c == enPassantIndex)))
+                .Returns(returnValue)
+                .Verifiable();
+            return bitboardMock;
         }
 
         private static Expression<Func<IBitboard, ulong>> MakePseudoLegalMoveSetupExpression(Move move, Board board)
