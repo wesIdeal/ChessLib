@@ -47,7 +47,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
                 .Returns(MoveError.BadDestination);
         }
 
-        private static IEnumerable<TestCaseData> GetCastlingMoves(Color color, Move move)
+        public static IEnumerable<TestCaseData> GetCastlingMoves(Color color, Move move)
         {
             const string emptyFenWhiteToMove = "4k3/8/8/8/8/8/8/4K3 w - - 0 1";
             const string emptyFenBlackToMove = "4k3/8/8/8/8/8/8/4K3 b - - 0 1";

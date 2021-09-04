@@ -1,8 +1,14 @@
-﻿using ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules.TestData;
+﻿using System;
+using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules.TestData;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules;
+using Moq;
 using NUnit.Framework;
+using System.Collections.Generic;
+using ChessLib.Core.Types.Enums;
+
 
 // ReSharper disable StringLiteralTypo
 
@@ -30,6 +36,26 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
             TestContext.WriteLine(board.Fen);
             var validator = new NoPieceBlocksCastlingMoveValidator();
             return validator.Validate(board, null, move);
+        }
+
+        [TestOf(typeof(AttackNotBlockingMoveValidator))]
+        [TestCaseSource(typeof(AttackNotBlockingMoveValidatorTestData),
+            nameof(AttackNotBlockingMoveValidatorTestData.GetCastlingMovesForColor), new object[] { Color.Black })]
+        [TestCaseSource(typeof(AttackNotBlockingMoveValidatorTestData),
+            nameof(AttackNotBlockingMoveValidatorTestData.GetCastlingMovesForColor), new object[] { Color.White })]
+        public MoveError CastlingPathAttackedTests(Mock<IBitboard> bitBoardMock, Board board, Move move)
+        {
+            var validator = new AttackNotBlockingMoveValidator(bitBoardMock.Object);
+            
+            var valid = validator.Validate(board, null, move);
+            foreach (var setup in bitBoardMock.Setups)
+            {
+                setup.Verify();
+            }
+            bitBoardMock.Verify();
+            
+            bitBoardMock.VerifyNoOtherCalls();
+            return valid;
         }
     }
 }

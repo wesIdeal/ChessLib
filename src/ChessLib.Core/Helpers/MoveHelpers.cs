@@ -35,6 +35,8 @@ namespace ChessLib.Core.Helpers
 
         public static IEnumerable<Move> CastlingMoves => WhiteCastlingMoves.Concat(BlackCastlingMoves);
 
+        public static IEnumerable<Move> QueenSideCastlingMoves => new[] { WhiteCastleQueenSide, BlackCastleQueenSide };
+        public static IEnumerable<Move> KingSideCastlingMoves => new[] { WhiteCastleKingSide, BlackCastleKingSide };
 
         static MoveHelpers()
         {
@@ -60,7 +62,7 @@ namespace ChessLib.Core.Helpers
         }
 
         /// <summary>
-        /// Gets the corresponding rook move for a castling move
+        ///     Gets the corresponding rook move for a castling move
         /// </summary>
         /// <param name="move"></param>
         /// <returns>A move containing rook source and destination</returns>

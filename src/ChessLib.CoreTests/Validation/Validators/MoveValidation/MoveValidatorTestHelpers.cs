@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
+using ChessLib.Core.MagicBitboard.Bitwise;
+using ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules.TestData;
+using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Types.Exceptions;
 using Moq;
+using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation
 {
@@ -84,5 +90,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation
                     It.Is<ulong[][]>(x => x.Occupancy(null, null) == postMoveOccupancy),
                     It.Is<ushort?>(x => x == board.EnPassantIndex));
         }
+
+       
     }
 }

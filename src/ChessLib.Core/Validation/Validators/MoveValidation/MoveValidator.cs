@@ -40,7 +40,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
                     _rules.Add(new HasValidDestinationSquare());
                     _rules.Add(new HasCastlingAvailability());
                     _rules.Add(new NotInCheckBeforeMoveValidator());
-                    _rules.Add(new CastlingSquaresNotAttacked());
+                    _rules.Add(new AttackNotBlockingMoveValidator());
                     _rules.Add(new NoPieceBlocksCastlingMoveValidator());
                     break;
                 default:
