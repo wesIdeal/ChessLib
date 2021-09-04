@@ -38,7 +38,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
                     break;
                 case MoveType.Castle:
                     _rules.Add(new HasValidDestinationSquare());
-                    _rules.Add(new HasCastlingAvailability());
+                    _rules.Add(new CastlingMoveIsAvailableValidator());
                     _rules.Add(new NotInCheckBeforeMoveValidator());
                     _rules.Add(new AttackNotBlockingMoveValidator());
                     _rules.Add(new NoPieceBlocksCastlingMoveValidator());

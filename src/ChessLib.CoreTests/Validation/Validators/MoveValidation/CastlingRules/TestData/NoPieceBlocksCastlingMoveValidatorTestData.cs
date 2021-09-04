@@ -14,13 +14,14 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
     {
         private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
 
+
         public static IEnumerable<TestCaseData> GetTestCases()
         {
             const string name = "Pieces blocking castling";
             const string emptyFenWhiteToMove = "4k3/8/8/8/8/8/8/4K3 w - - 0 1";
             foreach (var castlingMove in MoveHelpers.BlackCastlingMoves)
             {
-                var san = castlingMove.Equals(MoveHelpers.BlackCastleKingSide) ? "O-O" : "O-O-O";
+                var san = castlingMove.GetCastlingSan();
                 foreach (var testCaseData in GetCastlingMoves(Color.Black, castlingMove))
                 {
                     yield return testCaseData.SetName($"{name} - Black {san}: {testCaseData.TestName}");
@@ -29,7 +30,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
 
             foreach (var castlingMove in MoveHelpers.WhiteCastlingMoves)
             {
-                var san = castlingMove.Equals(MoveHelpers.WhiteCastleKingSide) ? "O-O" : "O-O-O";
+                var san = castlingMove.GetCastlingSan();
                 foreach (var testCaseData in GetCastlingMoves(Color.White, castlingMove))
                 {
                     yield return testCaseData.SetName($"{name} - White {san}: {testCaseData.TestName}");

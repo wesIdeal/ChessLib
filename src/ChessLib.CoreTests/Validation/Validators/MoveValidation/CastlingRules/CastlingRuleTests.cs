@@ -8,6 +8,7 @@ using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 using ChessLib.Core.Types.Enums;
+using EnumsNET;
 
 
 // ReSharper disable StringLiteralTypo
@@ -46,16 +47,29 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
         public MoveError CastlingPathAttackedTests(Mock<IBitboard> bitBoardMock, Board board, Move move)
         {
             var validator = new AttackNotBlockingMoveValidator(bitBoardMock.Object);
-            
+
             var valid = validator.Validate(board, null, move);
             foreach (var setup in bitBoardMock.Setups)
             {
                 setup.Verify();
             }
             bitBoardMock.Verify();
-            
+
             bitBoardMock.VerifyNoOtherCalls();
             return valid;
         }
+
+        [TestOf(typeof(CastlingMoveIsAvailableValidator))]
+        [TestCaseSource(typeof(CastlingMoveIsAvailableValidatorTestData),
+            nameof(CastlingMoveIsAvailableValidatorTestData.GetCastlingMoveTestCases), new object[] { Color.Black })]
+        [TestCaseSource(typeof(CastlingMoveIsAvailableValidatorTestData),
+            nameof(CastlingMoveIsAvailableValidatorTestData.GetCastlingMoveTestCases), new object[] { Color.White })]
+        public MoveError CastlingMoveIsAvailableValidatorTests(Board board, Move move)
+        {
+            var validator = new CastlingMoveIsAvailableValidator();
+            var result = validator.Validate(board, null, move);
+            return result;
+        }
+
     }
 }

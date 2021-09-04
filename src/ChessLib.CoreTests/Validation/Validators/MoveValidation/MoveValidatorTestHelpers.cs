@@ -91,6 +91,29 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation
                     It.Is<ushort?>(x => x == board.EnPassantIndex));
         }
 
-       
+        internal static IEnumerable<Move> GetCastlingMoves(this Color color)
+        {
+            return color == Color.Black ? MoveHelpers.BlackCastlingMoves : MoveHelpers.WhiteCastlingMoves;
+        }
+        internal static string GetCastlingSan(this Move castlingMove)
+        {
+            string san;
+            if (MoveHelpers.KingSideCastlingMoves.Contains(castlingMove))
+            {
+                san = "O-O";
+            }
+            else if (MoveHelpers.QueenSideCastlingMoves.Contains(castlingMove))
+            {
+                san = "O-O-O";
+            }
+            else
+            {
+                throw new ArgumentException($"Move {castlingMove} is not a Castling Move.");
+            }
+
+            return san;
+        }
+
+
     }
 }

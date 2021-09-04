@@ -5,7 +5,7 @@ using ChessLib.Core.Types.Interfaces;
 
 namespace ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules
 {
-    public class HasCastlingAvailability : IMoveRule
+    public class CastlingMoveIsAvailableValidator : IMoveRule
     {
         /// <summary>
         ///     Validates castling move with availability flags
