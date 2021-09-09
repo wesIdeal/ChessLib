@@ -1,14 +1,11 @@
-﻿using System;
-using ChessLib.Core.MagicBitboard;
+﻿using ChessLib.Core.MagicBitboard;
 using ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules.TestData;
 using ChessLib.Core.Types;
+using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules;
 using Moq;
 using NUnit.Framework;
-using System.Collections.Generic;
-using ChessLib.Core.Types.Enums;
-using EnumsNET;
 
 
 // ReSharper disable StringLiteralTypo
@@ -17,6 +14,8 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
 {
     internal class CastlingRuleTests
     {
+        private static readonly KingDestinationValidator kingDestinationValidator = new KingDestinationValidator();
+
         [TestOf(typeof(NotInCheckBeforeMoveValidator))]
         [TestCaseSource(typeof(NotInCheckBeforeMoveValidatorTestData),
             nameof(NotInCheckBeforeMoveValidatorTestData.GetNotInCheckBeforeMoveTestCases))]
@@ -53,6 +52,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
             {
                 setup.Verify();
             }
+
             bitBoardMock.Verify();
 
             bitBoardMock.VerifyNoOtherCalls();
@@ -71,5 +71,15 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
             return result;
         }
 
+        [TestOf(typeof(KingDestinationValidator))]
+        [TestCaseSource(typeof(KingDestinationValidatorTestData),
+            nameof(KingDestinationValidatorTestData.GetValidDestinationTestCases), new object[] { Color.Black })]
+        [TestCaseSource(typeof(KingDestinationValidatorTestData),
+            nameof(KingDestinationValidatorTestData.GetValidDestinationTestCases), new object[] { Color.White })]
+        public MoveError KingDestinationValidatorTests(Board board, Move move)
+        {
+            var validationResult = kingDestinationValidator.Validate(board, null, move);
+            return validationResult;
+        }
     }
 }

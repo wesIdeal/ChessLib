@@ -49,7 +49,7 @@ namespace ChessLib.Data.Tests.Helpers
         [TestCase("8/8/8/3pP2k/K7/8/8/8 w - d6 0 2", 36, 43, 0ul, 8796093022208ul)]
         public void ApplyMove_EnPassantCaptures(string fen, int src, int dst, ulong oppPawn, ulong actPawn)
         {
-            var move = MoveHelpers.GenerateMove((ushort) src, (ushort) dst, MoveType.EnPassant);
+            var move = MoveHelpers.GenerateMove((ushort)src, (ushort)dst, MoveType.EnPassant);
             var board = new FenTextToBoard().Translate(fen);
             var activeColor = board.ActivePlayer;
             var oppColor = board.ActivePlayer.Toggle();
@@ -88,7 +88,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftE(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftE()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftE()");
             }
         }
 
@@ -109,7 +109,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftS(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftS()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftS()");
             }
         }
 
@@ -125,7 +125,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftW(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftW()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftW()");
             }
         }
 
@@ -141,7 +141,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftN(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftN()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftN()");
             }
         }
 
@@ -163,7 +163,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].Shift2E(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.Shift2E()");
             }
         }
 
@@ -183,7 +183,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].Shift2S(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2S()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.Shift2S()");
             }
         }
 
@@ -203,7 +203,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].Shift2W(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2W()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.Shift2W()");
             }
         }
 
@@ -223,7 +223,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].Shift2N(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2N()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.Shift2N()");
             }
         }
 
@@ -249,7 +249,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftNNE(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftNNE()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftNNE()");
             }
         }
 
@@ -265,7 +265,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftNE(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.Shift2E()");
             }
         }
 
@@ -286,7 +286,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftENE(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftENE()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftENE()");
             }
         }
 
@@ -303,7 +303,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftESE(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftESE()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftESE()");
             }
         }
 
@@ -319,7 +319,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftSE(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftSE()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftSE()");
             }
         }
 
@@ -335,7 +335,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftSSE(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftSSE()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftSSE()");
             }
         }
 
@@ -351,7 +351,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftSSW(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftSSW()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftSSW()");
             }
         }
 
@@ -367,7 +367,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftSW(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.Shift2E()");
             }
         }
 
@@ -383,7 +383,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftWSW(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftWSW()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftWSW()");
             }
         }
 
@@ -399,7 +399,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftWNW(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftWNW()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftWNW()");
             }
         }
 
@@ -415,7 +415,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftNW(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.Shift2E()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.Shift2E()");
             }
         }
 
@@ -431,7 +431,7 @@ namespace ChessLib.Data.Tests.Helpers
                 }
 
                 Assert.AreEqual(expectedValue, BoardConstants.IndividualSquares[idx].ShiftNNW(),
-                    $"Expected value of {expectedValue} _From {idx.IndexToSquareDisplay()}.ShiftNNW()");
+                    $"Expected value of {expectedValue} _From {idx.ToSquareString()}.ShiftNNW()");
             }
         }
 

@@ -643,7 +643,7 @@ namespace ChessLib.Core.Tests.Helpers
                     var fileMask = BoardConstants.FileMasks[index];
                     if ((fileMask & sq.GetBoardValueOfIndex()) != 0)
                     {
-                        yield return new TestCase<ushort, ushort>(index, sq, $"{sq.IndexToSquareDisplay()}");
+                        yield return new TestCase<ushort, ushort>(index, sq, $"{sq.ToSquareString()}");
                         break;
                     }
                 }
@@ -666,7 +666,7 @@ namespace ChessLib.Core.Tests.Helpers
                     var rankMask = BoardConstants.RankMasks[index];
                     if ((rankMask & sq.GetBoardValueOfIndex()) != 0)
                     {
-                        yield return new TestCase<ushort, ushort>(index, sq, $"{sq.IndexToSquareDisplay()}");
+                        yield return new TestCase<ushort, ushort>(index, sq, $"{sq.ToSquareString()}");
                         break;
                     }
                 }
@@ -685,7 +685,7 @@ namespace ChessLib.Core.Tests.Helpers
         public void RankComplimentTest(ushort rank, ushort expected)
         {
             var actual = rank.RankCompliment();
-            Assert.AreEqual(expected, actual, rank.IndexToSquareDisplay());
+            Assert.AreEqual(expected, actual, rank.ToSquareString());
         }
     }
 }

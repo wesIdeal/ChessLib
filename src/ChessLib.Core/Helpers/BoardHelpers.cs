@@ -53,23 +53,23 @@ namespace ChessLib.Core.Helpers
         private static void InitializeInBetween()
         {
             for (var f = 0; f < 64; f++)
-                for (var t = f; t < 64; t++)
-                {
-                    const long m1 = -1;
-                    const long aFileBorder = 0x0001010101010100;
-                    const long b2DiagonalBorder = 0x0040201008040200;
-                    const long hFileBorder = 0x0002040810204080;
+            for (var t = f; t < 64; t++)
+            {
+                const long m1 = -1;
+                const long aFileBorder = 0x0001010101010100;
+                const long b2DiagonalBorder = 0x0040201008040200;
+                const long hFileBorder = 0x0002040810204080;
 
-                    var between = (m1 << f) ^ (m1 << t);
-                    long file = (t & 7) - (f & 7);
-                    long rank = ((t | 7) - f) >> 3;
-                    var line = ((file & 7) - 1) & aFileBorder;
-                    line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
-                    line += (((rank - file) & 15) - 1) & b2DiagonalBorder; /* b2g7 if same diagonal */
-                    line += (((rank + file) & 15) - 1) & hFileBorder; /* h1b7 if same anti-diagonal */
-                    line *= between & -between; /* mul acts like shift by smaller boardIndex */
-                    ArrInBetween[f, t] = (ulong)(line & between); /* return the bits on that line in-between */
-                }
+                var between = (m1 << f) ^ (m1 << t);
+                long file = (t & 7) - (f & 7);
+                long rank = ((t | 7) - f) >> 3;
+                var line = ((file & 7) - 1) & aFileBorder;
+                line += 2 * (((rank & 7) - 1) >> 58); /* b1g1 if same rank */
+                line += (((rank - file) & 15) - 1) & b2DiagonalBorder; /* b2g7 if same diagonal */
+                line += (((rank + file) & 15) - 1) & hFileBorder; /* h1b7 if same anti-diagonal */
+                line *= between & -between; /* mul acts like shift by smaller boardIndex */
+                ArrInBetween[f, t] = (ulong)(line & between); /* return the bits on that line in-between */
+            }
         }
 
         #endregion
@@ -160,7 +160,8 @@ namespace ChessLib.Core.Helpers
         /// <param name="boardIndex">Index on pieceLayout</param>
         /// <returns>
         ///     The object representing the piece at an index, or null if no piece occupies the supplied
-        ///     <param name="boardIndex">index</param>.
+        ///     <param name="boardIndex">index</param>
+        ///     .
         /// </returns>
         public static PieceOfColor? GetPieceOfColorAtIndex(this ulong[][] occupancy, ushort boardIndex)
         {
@@ -171,7 +172,7 @@ namespace ChessLib.Core.Helpers
                 var color = (Color)c;
                 var piecePosition = occupancy[c]
                     .Select((placementValue, arrIdx) => new
-                    { Color = color, PlacementValue = placementValue, Piece = (Piece)arrIdx })
+                        { Color = color, PlacementValue = placementValue, Piece = (Piece)arrIdx })
                     .FirstOrDefault(p => (p.PlacementValue & val) != 0);
 
                 if (piecePosition != null)
@@ -288,25 +289,25 @@ namespace ChessLib.Core.Helpers
             switch (pieceOfColor.Value.Color)
             {
                 case Color.Black:
+                {
+                    if ((move.SourceValue & BoardConstants.Rank7) != 0 &&
+                        (move.DestinationValue & BoardConstants.Rank5) != 0)
                     {
-                        if ((move.SourceValue & BoardConstants.Rank7) != 0 &&
-                            (move.DestinationValue & BoardConstants.Rank5) != 0)
-                        {
-                            return (ushort?)(move.SourceIndex - 8);
-                        }
-
-                        break;
+                        return (ushort?)(move.SourceIndex - 8);
                     }
+
+                    break;
+                }
                 default:
+                {
+                    if ((move.SourceValue & BoardConstants.Rank2) != 0 &&
+                        (move.DestinationValue & BoardConstants.Rank4) != 0)
                     {
-                        if ((move.SourceValue & BoardConstants.Rank2) != 0 &&
-                            (move.DestinationValue & BoardConstants.Rank4) != 0)
-                        {
-                            return (ushort?)(move.SourceIndex + 8);
-                        }
-
-                        break;
+                        return (ushort?)(move.SourceIndex + 8);
                     }
+
+                    break;
+                }
             }
 
             return null;
@@ -424,7 +425,7 @@ namespace ChessLib.Core.Helpers
             {
                 var rookMove = MoveHelpers.GetRookMoveForCastleMove(move);
                 piecePlacement[activeColor][(int)Piece.Rook] = piecePlacement[activeColor][(int)Piece.Rook] ^
-                                                                (rookMove.SourceValue | rookMove.DestinationValue);
+                                                               (rookMove.SourceValue | rookMove.DestinationValue);
             }
 
             return piecePlacement;
@@ -447,7 +448,7 @@ namespace ChessLib.Core.Helpers
             if (piece == null)
             {
                 throw new MoveException(
-                    $"No piece is present at the source indicated: {move.SourceIndex.IndexToSquareDisplay()}",
+                    $"No piece is present at the source indicated: {move.SourceIndex.ToSquareString()}",
                     boardInfo);
             }
 
@@ -675,7 +676,8 @@ namespace ChessLib.Core.Helpers
             var sourcePiece = GetPieceOfColorAtIndex(occupancy, source);
             if (sourcePiece == null)
             {
-                throw new PieceException("Error getting piece on source in Bitboard.GetMoveType(...):" + source.IndexToSquareDisplay() + "-" + dest.IndexToSquareDisplay());
+                throw new PieceException("Error getting piece on source in Bitboard.GetMoveType(...):" +
+                                         source.ToSquareString() + "-" + dest.ToSquareString());
             }
 
             var piece = sourcePiece.Value.Piece;
@@ -767,7 +769,7 @@ namespace ChessLib.Core.Helpers
         }
 
         /// <summary>
-        /// Returns a board value for square text
+        ///     Returns a board value for square text
         /// </summary>
         /// <param name="square"></param>
         /// <returns></returns>

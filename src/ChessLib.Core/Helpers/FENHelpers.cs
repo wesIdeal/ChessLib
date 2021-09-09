@@ -13,7 +13,7 @@ namespace ChessLib.Core.Helpers
     public static class FENHelpers
     {
         internal static readonly char[] ValidFENChars =
-            {'/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8'};
+            { '/', 'p', 'P', 'n', 'N', 'b', 'B', 'r', 'R', 'q', 'Q', 'k', 'K', '1', '2', '3', '4', '5', '6', '7', '8' };
 
 
         internal static string FENFromBoard(this Board board)
@@ -29,7 +29,7 @@ namespace ChessLib.Core.Helpers
 
         internal static string GetFENEnPassantString(this ushort? enPassantValue)
         {
-            return enPassantValue == null ? "-" : enPassantValue.Value.IndexToSquareDisplay();
+            return enPassantValue == null ? "-" : enPassantValue.Value.ToSquareString();
         }
 
 
@@ -53,7 +53,7 @@ namespace ChessLib.Core.Helpers
         /// <returns>the corresponding board index</returns>
         internal static int BoardIndexToFENIndex(ushort idx)
         {
-            var rankOffset = ((ushort) (idx / 8)).RankCompliment();
+            var rankOffset = ((ushort)(idx / 8)).RankCompliment();
             return rankOffset * 8 + idx % 8;
         }
 
@@ -67,7 +67,7 @@ namespace ChessLib.Core.Helpers
         internal static string GetFENPiece(this string fen, FENPieces piece)
         {
             var fenPieces = fen.Split(' ');
-            return fenPieces[(int) piece];
+            return fenPieces[(int)piece];
         }
 
 
@@ -78,7 +78,7 @@ namespace ChessLib.Core.Helpers
             for (var iPiece = 0; iPiece < 6; iPiece++)
             {
                 var pieceArray = piecesOnBoard[iColor][iPiece];
-                var charRepForPieceOfColor = PieceHelpers.GetFENCharPieceRepresentation((Color) iColor, (Piece) iPiece);
+                var charRepForPieceOfColor = PieceHelpers.GetFENCharPieceRepresentation((Color)iColor, (Piece)iPiece);
                 while (pieceArray != 0)
                 {
                     var squareIndex = BitHelpers.BitScanForward(pieceArray);

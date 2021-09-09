@@ -9,7 +9,7 @@ namespace ChessLib.Core.Translate
         public override string Translate(Move move)
         {
             return
-                $"{move.SourceIndex.IndexToSquareDisplay()}{move.DestinationIndex.IndexToSquareDisplay()}{PromotionPieceChar(move)}";
+                $"{move.SourceIndex.ToSquareString()}{move.DestinationIndex.ToSquareString()}{PromotionPieceChar(move)}";
         }
 
         private static char? PromotionPieceChar(Move move)

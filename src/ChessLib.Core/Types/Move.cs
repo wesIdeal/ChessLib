@@ -9,10 +9,16 @@ namespace ChessLib.Core.Types
     {
         internal const int NullMoveValue = 0;
 
+        public string SAN { get; set; }
+
+        public bool IsNullMove => MoveValue == NullMoveValue;
+        public static Move NullMove => NullMoveValue;
+
         internal Move()
         {
             MoveValue = NullMoveValue;
         }
+
         public Move(ushort move)
         {
             MoveValue = move;
@@ -20,11 +26,9 @@ namespace ChessLib.Core.Types
 
         protected Move(Move node)
         {
-            this.MoveValue = node.MoveValue;
-            this.SAN = node.SAN;
+            MoveValue = node.MoveValue;
+            SAN = node.SAN;
         }
-
-        public string SAN { get; set; }
 
         public object Clone()
         {
@@ -41,42 +45,17 @@ namespace ChessLib.Core.Types
             return MoveValue == other.MoveValue;
         }
 
-        public ushort SourceIndex => (ushort) ((MoveValue >> 6) & 63);
+        public ushort SourceIndex => (ushort)((MoveValue >> 6) & 63);
 
         public ulong SourceValue => 1ul << SourceIndex;
 
-        public ushort DestinationIndex => (ushort) (MoveValue & 63);
+        public ushort DestinationIndex => (ushort)(MoveValue & 63);
 
         public ulong DestinationValue => 1ul << DestinationIndex;
 
-        public MoveType MoveType => (MoveType) ((MoveValue >> 14) & 3);
+        public MoveType MoveType => (MoveType)((MoveValue >> 14) & 3);
 
-        public PromotionPiece PromotionPiece => (PromotionPiece) ((MoveValue >> 12) & 3);
-
-        public bool Equals(ushort other)
-        {
-            return MoveValue == other;
-        }
-
-        public static implicit operator Move(ushort uMove)
-        {
-            return new Move(uMove);
-        }
-
-        public static implicit operator ushort(Move move) => move.MoveValue;
-       
-
-        public override string ToString()
-        {
-            if (IsNullMove)
-            {
-                return "NULL_MOVE";
-            }
-
-            return !string.IsNullOrEmpty(SAN)
-                ? SAN
-                : $"{SourceIndex.IndexToSquareDisplay()}->{DestinationIndex.IndexToSquareDisplay()}";
-        }
+        public PromotionPiece PromotionPiece => (PromotionPiece)((MoveValue >> 12) & 3);
 
         public bool Equals(IMove other)
         {
@@ -90,8 +69,33 @@ namespace ChessLib.Core.Types
 
         public ushort MoveValue { get; }
 
-        public bool IsNullMove => MoveValue == NullMoveValue;
-        public static Move NullMove => NullMoveValue;
+        public bool Equals(ushort other)
+        {
+            return MoveValue == other;
+        }
+
+        public static implicit operator Move(ushort uMove)
+        {
+            return new Move(uMove);
+        }
+
+        public static implicit operator ushort(Move move)
+        {
+            return move.MoveValue;
+        }
+
+
+        public override string ToString()
+        {
+            if (IsNullMove)
+            {
+                return "NULL_MOVE";
+            }
+
+            return !string.IsNullOrEmpty(SAN)
+                ? SAN
+                : $"{SourceIndex.ToSquareString()}->{DestinationIndex.ToSquareString()}";
+        }
 
         public override bool Equals(object obj)
         {
@@ -100,7 +104,7 @@ namespace ChessLib.Core.Types
                 return false;
             }
 
-            return MoveValue == (obj as Move);
+            return MoveValue == obj as Move;
         }
 
         public override int GetHashCode()

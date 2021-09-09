@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ChessLib.Core;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
@@ -14,7 +13,6 @@ using EnumsNET;
 
 namespace ChessLib.EngineInterface
 {
-
     public static class EngineHelpers
     {
         public static readonly string[] OptionKeywords = { "name", "default", "min", "max", "var", "type" };
@@ -22,47 +20,64 @@ namespace ChessLib.EngineInterface
 
         public static EngineToAppCommand GetResponseType(string engineResponse)
         {
-            var success = Enums.TryParse<EngineToAppCommand>(engineResponse, true, out var matchingFlag, CommandAttribute.UciCommandFormat);
+            var success = Enums.TryParse<EngineToAppCommand>(engineResponse, true, out var matchingFlag,
+                CommandAttribute.UciCommandFormat);
             return success ? matchingFlag : EngineToAppCommand.None;
         }
 
-        public static bool IsInterruptCommand(this AppToUCICommand command) =>
-            (new[] { AppToUCICommand.Stop, AppToUCICommand.Quit }).Contains(command);
-
+        public static bool IsInterruptCommand(this AppToUCICommand command)
+        {
+            return new[] { AppToUCICommand.Stop, AppToUCICommand.Quit }.Contains(command);
+        }
 
 
         public static bool GetDefaultForCheckbox(this string option)
         {
-            if (string.IsNullOrWhiteSpace(option)) { return false; }
+            if (string.IsNullOrWhiteSpace(option))
+            {
+                return false;
+            }
+
             Debug.Assert(option.GetOptionType() == OptionType.Check);
             var val = option.GetStringDefault();
             if (bool.TryParse(val, out var rv))
             {
                 return rv;
             }
+
             return false;
         }
 
         public static string GetOptionName(this string option)
         {
             var rv = "";
-            if (string.IsNullOrWhiteSpace(option)) { return rv; }
+            if (string.IsNullOrWhiteSpace(option))
+            {
+                return rv;
+            }
+
             var splitOptions = option.Split(' ').Select(x => x.Trim()).ToArray();
             var keyFound = false;
             var value = "";
             foreach (var fields in splitOptions)
             {
-                string opt = fields;
-                if (keyFound && OptionKeywords.Contains(opt)) { break; }
+                var opt = fields;
+                if (keyFound && OptionKeywords.Contains(opt))
+                {
+                    break;
+                }
+
                 if (keyFound && !string.IsNullOrWhiteSpace(opt))
                 {
                     value += opt + " ";
                 }
+
                 if (opt == "name")
                 {
                     keyFound = true;
                 }
             }
+
             return value.Trim();
         }
 
@@ -74,17 +89,19 @@ namespace ChessLib.EngineInterface
             var value = "";
             foreach (var field in splitOptions)
             {
-                string opt = field;
+                var opt = field;
                 if (keyFound && !string.IsNullOrWhiteSpace(opt))
                 {
                     value = opt;
                     break;
                 }
+
                 if (opt == key)
                 {
                     keyFound = true;
                 }
             }
+
             return value.Trim();
         }
 
@@ -95,35 +112,45 @@ namespace ChessLib.EngineInterface
             var rv = new List<string>();
             foreach (var field in splitOptions)
             {
-                string opt = field;
+                var opt = field;
                 if (keyFound && !string.IsNullOrWhiteSpace(opt))
                 {
                     rv.Add(opt);
                     keyFound = false;
-
                 }
+
                 if (opt == "var")
                 {
                     keyFound = true;
                 }
             }
+
             return rv.ToArray();
         }
 
         public static double? GetNumericDefault(this string option)
         {
-            if (string.IsNullOrWhiteSpace(option)) { return null; }
+            if (string.IsNullOrWhiteSpace(option))
+            {
+                return null;
+            }
+
             var val = option.GetValueForUCIKeyValuePair("default");
-            if (double.TryParse(val, out double parsedVal))
+            if (double.TryParse(val, out var parsedVal))
             {
                 return parsedVal;
             }
+
             return null;
         }
 
         public static string GetStringDefault(this string option)
         {
-            if (string.IsNullOrWhiteSpace(option)) { return null; }
+            if (string.IsNullOrWhiteSpace(option))
+            {
+                return null;
+            }
+
             var val = option.GetValueForUCIKeyValuePair("default");
             return val;
         }
@@ -138,6 +165,7 @@ namespace ChessLib.EngineInterface
             {
                 return rv;
             }
+
             return null;
         }
 
@@ -148,6 +176,7 @@ namespace ChessLib.EngineInterface
             {
                 return OptionType.Null;
             }
+
             var value = option.GetValueForUCIKeyValuePair(key);
             foreach (var uciOptionType in Enum.GetValues(typeof(OptionType)).Cast<OptionType>())
             {
@@ -156,6 +185,7 @@ namespace ChessLib.EngineInterface
                     return uciOptionType;
                 }
             }
+
             return OptionType.Null;
         }
 
@@ -172,6 +202,7 @@ namespace ChessLib.EngineInterface
                 var option = GetOption(opt);
                 if (option != null) rv.Add(option);
             }
+
             return rv;
         }
 
@@ -200,12 +231,15 @@ namespace ChessLib.EngineInterface
         }
 
 
-
         private static UCIButtonOption ProcessButtonOption(this string opt)
-            => new UCIButtonOption { Name = opt.GetOptionName() };
+        {
+            return new UCIButtonOption { Name = opt.GetOptionName() };
+        }
 
         private static UCIStringOption ProcessStringOption(this string opt)
-            => new UCIStringOption { Default = opt.GetStringDefault(), Name = opt.GetOptionName() };
+        {
+            return new UCIStringOption { Default = opt.GetStringDefault(), Name = opt.GetOptionName() };
+        }
 
         private static UCIComboOption ProcessComboOption(this string opt)
         {
@@ -238,9 +272,6 @@ namespace ChessLib.EngineInterface
         }
 
 
-
-
-
         public static string UCIMovesFromMoveObjects(this IEnumerable<Move> moveCollection)
         {
             var moves = moveCollection.ToArray();
@@ -248,14 +279,14 @@ namespace ChessLib.EngineInterface
             {
                 return "";
             }
+
             return string.Join(" ", moves.Select(m =>
             {
-                var pString = m.MoveType == MoveType.Promotion ?
-                    char.ToLower(PieceHelpers.GetCharFromPromotionPiece(m.PromotionPiece)).ToString() : "";
-                return $"{m.SourceIndex.IndexToSquareDisplay()}{m.DestinationIndex.IndexToSquareDisplay()}{pString}";
+                var pString = m.MoveType == MoveType.Promotion
+                    ? char.ToLower(PieceHelpers.GetCharFromPromotionPiece(m.PromotionPiece)).ToString()
+                    : "";
+                return $"{m.SourceIndex.ToSquareString()}{m.DestinationIndex.ToSquareString()}{pString}";
             }));
         }
-
-
     }
 }

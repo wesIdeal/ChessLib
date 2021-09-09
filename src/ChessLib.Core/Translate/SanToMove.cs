@@ -13,6 +13,7 @@ using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.MoveValidation;
 
 [assembly: InternalsVisibleTo("ChessLib.Core.Tests")]
+
 namespace ChessLib.Core.Translate
 {
     internal class SanToMove
@@ -58,10 +59,9 @@ namespace ChessLib.Core.Translate
                 if (activePieces == 0)
                 {
                     throw new MoveException(
-                        $"No pieces on any squares are attacking the square {destinationSquare.IndexToSquareDisplay()}",
+                        $"No pieces on any squares are attacking the square {destinationSquare.ToSquareString()}",
                         board);
                 }
-
 
 
                 var attackerIndices = activePieces.GetSetBits();
@@ -70,7 +70,7 @@ namespace ChessLib.Core.Translate
                 if (attackerIndices.Length == 0)
                 {
                     throw new MoveException(
-                        $"Error with move {sanMove}:No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.IndexToSquareDisplay()}",
+                        $"Error with move {sanMove}:No pieces of type {pieceMoving.ToString()} are attacking the square {destinationSquare.ToSquareString()}",
                         board);
                 }
 
@@ -173,7 +173,7 @@ namespace ChessLib.Core.Translate
             if ((sourceVal & applicableBb) == 0)
             {
                 throw new MoveException(
-                    $"No pieces attack {destinationSquare.IndexToSquareDisplay()} from move {move}.");
+                    $"No pieces attack {destinationSquare.ToSquareString()} from move {move}.");
             }
 
             return MoveHelpers.GenerateMove(source, destinationSquare);

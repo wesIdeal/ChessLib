@@ -117,7 +117,7 @@ namespace ChessLib.Core.Tests.Types
         {
             foreach(var tc in Enumerable.Range(0, byte.MaxValue + 2))
             {
-                yield return new TestCaseData(tc).Returns((byte)tc).SetDescription(tc.IndexToSquareDisplay());
+                yield return new TestCaseData(tc).Returns((byte)tc).SetDescription(tc.ToSquareString());
             }
                
 

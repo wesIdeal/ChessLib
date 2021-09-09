@@ -23,13 +23,13 @@ namespace ChessLib.Core.Helpers
             HtmlPieceRepresentations.Add(Color.Black, new Dictionary<Piece, string>());
             var whiteStart = 9817;
             var blackStart = 9823;
-            foreach (var p in (Piece[]) Enum.GetValues(typeof(Piece)))
+            foreach (var p in (Piece[])Enum.GetValues(typeof(Piece)))
             {
                 HtmlPieceRepresentations[Color.White].Add(p, $"&#{whiteStart};");
                 whiteStart--;
             }
 
-            foreach (var p in (Piece[]) Enum.GetValues(typeof(Piece)))
+            foreach (var p in (Piece[])Enum.GetValues(typeof(Piece)))
             {
                 HtmlPieceRepresentations[Color.Black].Add(p, $"&#{blackStart};");
                 blackStart--;
@@ -38,7 +38,7 @@ namespace ChessLib.Core.Helpers
 
         public static string GetDisplayBits(this ulong u)
         {
-            var str = Convert.ToString((long) u, 2).PadLeft(64, '0');
+            var str = Convert.ToString((long)u, 2).PadLeft(64, '0');
             var sb = new StringBuilder();
             for (var i = 0; i < 8; i++)
             {
@@ -51,13 +51,13 @@ namespace ChessLib.Core.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static char IndexToFileDisplay(this ushort i)
         {
-            return (char) ('a' + i % 8);
+            return (char)('a' + i % 8);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static char IndexToRankDisplay(this ushort i)
         {
-            return (char) ('1' + i / 8);
+            return (char)('1' + i / 8);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace ChessLib.Core.Helpers
         /// <param name="i">Index of square, from 0(A1) to 63(H8)</param>
         /// <returns>A square display; ex. a2, c4, f6</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string IndexToSquareDisplay(this ushort i)
+        public static string ToSquareString(this ushort i)
         {
             return $"{i.IndexToFileDisplay()}{i.IndexToRankDisplay()}";
         }
@@ -77,10 +77,9 @@ namespace ChessLib.Core.Helpers
         /// <param name="i">Index of square, from 0(A1) to 63(H8)</param>
         /// <returns>A square display; ex. a2, c4, f6</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string IndexToSquareDisplay(this int i)
+        public static string ToSquareString(this int i)
         {
-            return $"{((ushort) i).IndexToFileDisplay()}{((ushort) i).IndexToRankDisplay()}";
+            return $"{((ushort)i).IndexToFileDisplay()}{((ushort)i).IndexToRankDisplay()}";
         }
-
     }
 }

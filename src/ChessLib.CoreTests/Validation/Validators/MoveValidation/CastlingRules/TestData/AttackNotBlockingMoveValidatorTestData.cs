@@ -76,7 +76,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules
                     SetupMock(board, squareBetween, totalOccupancy, enPassantSquare, bb, isAttacked);
                 }
 
-                var strBlockers = attackedSquares.Any()? string.Join(", ", attackedSquares) : "[None]";
+                var strBlockers = attackedSquares.Any() ? string.Join(", ", attackedSquares) : "[None]";
                 TestContext.WriteLine($"Returning test case for {attackedSquaresValue}");
                 var expectedReturnValue = attackedSquares.Any() ? MoveError.CastleThroughCheck : MoveError.NoneSet;
                 yield return new TestCaseData(bb, board, castlingMove)

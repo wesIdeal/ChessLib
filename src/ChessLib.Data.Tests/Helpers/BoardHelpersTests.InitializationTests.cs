@@ -329,17 +329,17 @@ namespace ChessLib.Data.Tests.Helpers
                 var expected = (ulong)0x00;
                 var actual = BoardHelpers.InBetween(3, 8);
                 Assert.AreEqual(expected, actual,
-                    $"Should not be any squares between {3.IndexToSquareDisplay()}{8.IndexToSquareDisplay()}");
+                    $"Should not be any squares between {3.ToSquareString()}{8.ToSquareString()}");
 
                 expected = 0x200;
                 actual = BoardHelpers.InBetween(16, 2);
                 Assert.AreEqual(expected, actual,
-                    $"Did not return correct value for in between {16.IndexToSquareDisplay()} - {2.IndexToSquareDisplay()}");
+                    $"Did not return correct value for in between {16.ToSquareString()} - {2.ToSquareString()}");
 
                 expected = 0x2040800000000;
                 actual = BoardHelpers.InBetween(28, 56);
                 Assert.AreEqual(expected, actual,
-                    $"Did not return correct value for in between {28.IndexToSquareDisplay()} - {56.IndexToSquareDisplay()}");
+                    $"Did not return correct value for in between {28.ToSquareString()} - {56.ToSquareString()}");
             }
         }
     }

@@ -37,25 +37,25 @@ namespace ChessLib.Core.Tests.MagicBitboard.MovingPieces
             var pieceFile = MovingPieceService.FileFromIdx(SquareIndex);
             var pawnDescription = $"{Color.AsString()}";
             var pieceDescription = $"Piece";
-            var pawnPlacement = $"on {DisplayHelpers.IndexToSquareDisplay(SquareIndex)} ";
+            var pawnPlacement = $"on {DisplayHelpers.ToSquareString(SquareIndex)} ";
             var expectedIndexes = MovingPieceService.GetSetBits(Expected);
             var playerOccupancy = MovingPieceService.GetSetBits(PlayerObstructions);
             var opponentOccupancy = MovingPieceService.GetSetBits(OpponentObstructions);
             var strMoves =
                 expectedIndexes.Any()
-                    ? $"move to {string.Join(", ", expectedIndexes.Select(DisplayHelpers.IndexToSquareDisplay))}"
+                    ? $"move to {string.Join(", ", expectedIndexes.Select(DisplayHelpers.ToSquareString))}"
                     : "[no moves expected]";
             var strPlayerOccupancy =
                 playerOccupancy.Any()
-                    ? string.Join(", ", playerOccupancy.Select(DisplayHelpers.IndexToSquareDisplay))
+                    ? string.Join(", ", playerOccupancy.Select(DisplayHelpers.ToSquareString))
                     : "[no player pieces]";
             var strOpponentOccupancy =
                 opponentOccupancy.Any()
-                    ? string.Join(", ", opponentOccupancy.Select(DisplayHelpers.IndexToSquareDisplay))
+                    ? string.Join(", ", opponentOccupancy.Select(DisplayHelpers.ToSquareString))
                     : "[no opponent pieces]";
             var attackedOpponentPieces = opponentOccupancy.Where(x => MovingPieceService.FileFromIdx(x) != pieceFile);
             var strAttack = attackedOpponentPieces.Any()
-                ? $"- Attack pieces on {string.Join(", ", attackedOpponentPieces.Select(DisplayHelpers.IndexToSquareDisplay))}"
+                ? $"- Attack pieces on {string.Join(", ", attackedOpponentPieces.Select(DisplayHelpers.ToSquareString))}"
                 : "[no attacked pieces]";
 
             return $"{pawnDescription} {pieceDescription} on {pawnPlacement} should be able to:{Environment.NewLine}" +
