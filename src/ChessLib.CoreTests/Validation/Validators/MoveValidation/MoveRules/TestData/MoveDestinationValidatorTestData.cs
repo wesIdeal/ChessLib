@@ -11,11 +11,21 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
     internal class MoveDestinationValidatorTestData
     {
         private static readonly FenTextToBoard fenTextToBoard = new FenTextToBoard();
+
         internal static readonly ulong PseudoLegalMovesIncludingDestinationSquare =
             "c6".ToBoardValue() | "d6".ToBoardValue() | "e6".ToBoardValue();
 
 
         internal static readonly ulong PseudoLegalMovesNotIncludingDestinationSquare = ~"c6".ToBoardValue();
+
+        private static readonly ushort d5 = "d5".ToBoardIndex();
+        private static readonly ushort c6 = "c6".ToBoardIndex();
+
+        /// <summary>
+        /// Pseudolegal move, to test that move's destination square's presence in the Pseudolegal Move list
+        /// </summary>
+        private static readonly Move pseudoLegalMove =
+            MoveHelpers.GenerateMove(d5, c6);
 
         public static IEnumerable<TestCaseData> GetMoveDestinationValidatorTestCases()
         {
@@ -86,25 +96,35 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
         public static IEnumerable<TestCaseData> GetPawnAttackTestCases()
         {
             const string name = "Pawn Attacks";
-            var d5 = "d5".ToBoardIndex();
-            var c6 = "c6".ToBoardIndex();
 
-            //Pseudolegal move, to test that move's destination square's presence in the Pseudolegal Move list
-            var pseudoLegalMove =
-                MoveHelpers.GenerateMove(d5, c6);
-            foreach (var testCaseData in GetNormalPawnAttackTestCases(name)) yield return testCaseData;
 
+            foreach (var testCaseData in GetNormalPawnAttackTestCases(name))
+            {
+                yield return testCaseData;
+            }
+
+            foreach (var testCaseData1 in GetEnPassantTestCases(name))
+            {
+                yield return testCaseData1;
+            }
+        }
+
+        private static IEnumerable<TestCaseData> GetEnPassantTestCases(string name)
+        {
             const string enPassantAvailableFen = "rnbqkbnr/1p1ppppp/8/p1pP4/8/8/PPP1PPPP/RNBQKBNR w KQkq c6 0 3";
             var pawnAttackingEnPassantSquareBoard = fenTextToBoard.Translate(enPassantAvailableFen);
 
             var enPassantCapture = MoveHelpers.GenerateMove(d5, c6, MoveType.EnPassant);
+
+            var occupancy = PseudoLegalMovesIncludingDestinationSquare;
             yield return new TestCaseData(pawnAttackingEnPassantSquareBoard, enPassantCapture,
-                    PseudoLegalMovesIncludingDestinationSquare)
+                    occupancy)
                 .SetName($"{name} - Pawn attacks en passant square")
                 .Returns(MoveError.NoneSet);
 
+
             yield return new TestCaseData(pawnAttackingEnPassantSquareBoard, pseudoLegalMove,
-                    PseudoLegalMovesIncludingDestinationSquare)
+                    occupancy)
                 .SetName($"{name} - Pawn attacks en passant square but move isn't marked correctly")
                 .Returns(MoveError.EnPassantNotMarked);
         }
@@ -119,12 +139,9 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
             // Pawn attacks empty square on board
             var pawnAttackingEmptySquareBoard = fenTextToBoard.Translate(pawnAttackingEmptySquareFen);
 
-            var d5 = "d5".ToBoardIndex();
-            var c6 = "c6".ToBoardIndex();
 
             //Pseudolegal move, to test that move's destination square's presence in the Pseudolegal Move list
-            var pseudoLegalMove =
-                MoveHelpers.GenerateMove(d5, c6);
+
             yield return new TestCaseData(pawnAttackingEmptySquareBoard, pseudoLegalMove,
                     PseudoLegalMovesIncludingDestinationSquare)
                 .SetName(
@@ -148,10 +165,6 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
 
         public static IEnumerable<TestCaseData> GetPseudoLegalMoveTestCases()
         {
-            var d5 = "d5".ToBoardIndex();
-            var c6 = "c6".ToBoardIndex();
-            var pseudoLegalMove =
-                MoveHelpers.GenerateMove(d5, c6);
             var pseudoLegalMoveBoardFen = "r1bqkbnr/pp1ppppp/2n5/2pN4/8/8/PPPPPPPP/R1BQKBNR w KQkq - 1 3";
             var pseudoLegalMoveBoard =
                 fenTextToBoard.Translate(pseudoLegalMoveBoardFen);

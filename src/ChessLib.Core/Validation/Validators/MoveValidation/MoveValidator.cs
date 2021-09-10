@@ -8,6 +8,7 @@ using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.Validators.MoveValidation.CastlingRules;
 using ChessLib.Core.Validation.Validators.MoveValidation.EnPassantRules;
 using ChessLib.Core.Validation.Validators.MoveValidation.MoveRules;
+using ChessLib.Core.Validation.Validators.MoveValidation.PromotionRules;
 
 namespace ChessLib.Core.Validation.Validators.MoveValidation
 {
@@ -28,13 +29,11 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
                     break;
                 case MoveType.Promotion:
                     _rules.Add(new MoveDestinationValidator());
-                    _rules.Add(new SourceIsPawn());
+                    _rules.Add(new SourceIsPawnValidator());
                     break;
                 case MoveType.EnPassant:
-                    _rules.Add(new EnPassantIsPossible());
-                    _rules.Add(new SourceIsPawn());
-                    _rules.Add(new SourceIsCorrectRank());
-                    _rules.Add(new EnPassantSquareIsAttackedBySource());
+                    _rules.Add(new MoveDestinationValidator());
+                    _rules.Add(new EnPassantDestinationValidator());
                     break;
                 case MoveType.Castle:
                     _rules.Add(new KingDestinationValidator());

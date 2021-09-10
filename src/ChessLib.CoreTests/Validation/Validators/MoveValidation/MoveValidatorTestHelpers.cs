@@ -4,14 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard;
-using ChessLib.Core.MagicBitboard.Bitwise;
-using ChessLib.Core.Tests.Validation.Validators.MoveValidation.CastlingRules.TestData;
-using ChessLib.Core.Translate;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Types.Exceptions;
 using Moq;
-using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation
 {
@@ -66,10 +61,12 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation
 
         private static Expression<Func<IBitboard, ulong>> MakePseudoLegalMoveSetupExpression(Move move, Board board)
         {
-            var occupancy = board.Occupancy.Occupancy();
             var sourcePieceAndColor = board.Occupancy.GetPieceOfColorAtIndex(move.SourceIndex);
             var piece = sourcePieceAndColor?.Piece;
             var color = sourcePieceAndColor?.Color;
+            var enPassantSquareValue =
+                piece.HasValue ? piece == Piece.Pawn ? board.EnPassantIndex?.GetBoardValueOfIndex() ?? 0 : 0 : 0;
+            var occupancy = board.Occupancy.Occupancy() | enPassantSquareValue;
             return mock => mock.GetPseudoLegalMoves(It.Is<ushort>(x => x == move.SourceIndex),
                 It.Is<Piece>(x => x == piece),
                 It.Is<Color>(x => x == color),
@@ -95,6 +92,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation
         {
             return color == Color.Black ? MoveHelpers.BlackCastlingMoves : MoveHelpers.WhiteCastlingMoves;
         }
+
         internal static string GetCastlingSan(this Move castlingMove)
         {
             string san;
@@ -113,7 +111,5 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation
 
             return san;
         }
-
-
     }
 }

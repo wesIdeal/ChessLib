@@ -41,8 +41,13 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation.MoveRules
             }
 
             var totalOccupancy = boardInfo.Occupancy.Occupancy();
+            if (piece.Value.Piece == Piece.Pawn)
+            {
+                totalOccupancy |= boardInfo.EnPassantIndex?.GetBoardValueOfIndex() ?? 0;
+            }
             var moves = _bitboard.GetPseudoLegalMoves(move.SourceIndex, piece.Value.Piece, boardInfo.ActivePlayer,
                 totalOccupancy);
+            
             var isInMoveList = (moves & move.DestinationValue) == move.DestinationValue;
             if (piece.Value.Piece == Piece.Pawn && isInMoveList)
             {

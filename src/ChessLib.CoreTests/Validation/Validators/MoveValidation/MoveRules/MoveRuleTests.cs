@@ -65,6 +65,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules
             var moveValidator = new MoveDestinationValidator(bitboardMock.Object);
             var validationResult = moveValidator.Validate(board, null, move);
 
+
             bitboardMock.Verify(verifiableMockedParamsExpression, numberOfExpectedCallsToMockedMethod);
             return validationResult;
         }

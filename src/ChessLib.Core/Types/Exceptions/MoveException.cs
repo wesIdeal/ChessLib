@@ -19,7 +19,7 @@ namespace ChessLib.Core.Types.Exceptions
         BadDestination,
         CastleKingInCheck,
         ActiveColorPieceAtDestination,
-        EpSourceIsNotPawn,
+        SourceIsNotPawn,
         EpWrongSourceRank,
         EpNotAttackedBySource,
         [Description("Move must be marked as type EnPassant in order to make move.")]
