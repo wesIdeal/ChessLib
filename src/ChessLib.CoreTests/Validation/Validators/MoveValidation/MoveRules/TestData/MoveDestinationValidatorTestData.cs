@@ -127,6 +127,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.MoveValidation.MoveRules.Tes
                     occupancy)
                 .SetName($"{name} - Pawn attacks en passant square but move isn't marked correctly")
                 .Returns(MoveError.EnPassantNotMarked);
+            
         }
 
         private static IEnumerable<TestCaseData> GetNormalPawnAttackTestCases(string name)

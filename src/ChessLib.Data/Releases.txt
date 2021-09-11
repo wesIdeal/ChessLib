@@ -1,2 +1,0 @@
-﻿v1.0.0.4b
-	Polyglot encoding / hashing methods added under PolyglotHelpers class

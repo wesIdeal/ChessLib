@@ -32,6 +32,7 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
                     _rules.Add(new SourceIsPawnValidator());
                     break;
                 case MoveType.EnPassant:
+                    _rules.Add(new SourceIsPawnValidator());
                     _rules.Add(new MoveDestinationValidator());
                     _rules.Add(new EnPassantDestinationValidator());
                     break;
@@ -63,7 +64,6 @@ namespace ChessLib.Core.Validation.Validators.MoveValidation
                     return moveIssue;
                 }
             }
-
             return MoveError.NoneSet;
         }
     }
