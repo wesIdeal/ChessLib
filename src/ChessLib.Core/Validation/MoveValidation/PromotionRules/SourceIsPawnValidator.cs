@@ -8,7 +8,7 @@ namespace ChessLib.Core.Validation.MoveValidation.PromotionRules
 {
     internal class SourceIsPawnValidator : IMoveRule
     {
-        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in IMove move)
         {
             var activePawnOccupancy = boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer, Piece.Pawn);
             var isSourcePawn = (move.SourceValue & activePawnOccupancy) == move.SourceValue;

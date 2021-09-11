@@ -58,7 +58,7 @@ namespace ChessLib.Core.Validation.MoveValidation
         {
             foreach (var rule in _rules)
             {
-                var moveIssue = rule.Validate(_board, PostMoveBoard, _move);
+                var moveIssue = rule.Validate(_board, _move);
                 if (moveIssue != MoveError.NoneSet)
                 {
                     return moveIssue;

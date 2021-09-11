@@ -15,7 +15,7 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.Promotion
         [TestCaseSource(typeof(SourceIsPawnValidatorTestData), nameof(SourceIsPawnValidatorTestData.GetTestCases))]
         public MoveError SourceIsPawnTests(Board board, Move move)
         {
-            var validationResult = validator.Validate(board, null, move);
+            var validationResult = validator.Validate(board, move);
             return validationResult;
         }
     }

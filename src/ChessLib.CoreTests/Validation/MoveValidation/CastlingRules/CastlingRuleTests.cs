@@ -23,7 +23,7 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.CastlingRules
         {
             var bitboard = board.SetupPreMoveCheckMock(kingInCheck);
             var validator = new NotInCheckBeforeMoveValidator(bitboard.Object);
-            var result = validator.Validate(board, null, move);
+            var result = validator.Validate(board, move);
             bitboard.Verify();
             return result;
         }
@@ -35,7 +35,7 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.CastlingRules
         {
             TestContext.WriteLine(board.Fen);
             var validator = new NoPieceBlocksCastlingMoveValidator();
-            return validator.Validate(board, null, move);
+            return validator.Validate(board, move);
         }
 
         [TestOf(typeof(AttackNotBlockingMoveValidator))]
@@ -47,7 +47,7 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.CastlingRules
         {
             var validator = new AttackNotBlockingMoveValidator(bitBoardMock.Object);
 
-            var valid = validator.Validate(board, null, move);
+            var valid = validator.Validate(board, move);
             foreach (var setup in bitBoardMock.Setups)
             {
                 setup.Verify();
@@ -67,7 +67,7 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.CastlingRules
         public MoveError CastlingMoveIsAvailableValidatorTests(Board board, Move move)
         {
             var validator = new CastlingMoveIsAvailableValidator();
-            var result = validator.Validate(board, null, move);
+            var result = validator.Validate(board, move);
             return result;
         }
 
@@ -78,7 +78,7 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.CastlingRules
             nameof(KingDestinationValidatorTestData.GetValidDestinationTestCases), new object[] { Color.White })]
         public MoveError KingDestinationValidatorTests(Board board, Move move)
         {
-            var validationResult = kingDestinationValidator.Validate(board, null, move);
+            var validationResult = kingDestinationValidator.Validate(board, move);
             return validationResult;
         }
     }

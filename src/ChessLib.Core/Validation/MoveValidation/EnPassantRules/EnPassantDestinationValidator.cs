@@ -9,7 +9,7 @@ namespace ChessLib.Core.Validation.MoveValidation.EnPassantRules
     /// </summary>
     public class EnPassantDestinationValidator : IMoveRule
     {
-        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in IMove move)
         {
             return boardInfo.EnPassantIndex != move.DestinationIndex
                 ? MoveError.EpNotAvailable

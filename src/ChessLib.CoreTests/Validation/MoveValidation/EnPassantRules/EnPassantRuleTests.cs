@@ -16,7 +16,7 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.EnPassantRules
             nameof(EnPassantDestinationValidatorTestData.GetEPDestinationValidatorTestCases))]
         public MoveError TestMethod(Board board, Move move)
         {
-            var validationResult = validator.Validate(board, null, move);
+            var validationResult = validator.Validate(board, move);
             return validationResult;
         }
     }

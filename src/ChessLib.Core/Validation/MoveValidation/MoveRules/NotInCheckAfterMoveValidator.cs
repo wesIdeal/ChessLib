@@ -20,7 +20,13 @@ namespace ChessLib.Core.Validation.MoveValidation.MoveRules
 
         private readonly IBitboard _bitboardInstance;
 
-        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in IMove move)
+        {
+            var postMoveBoard = BoardHelpers.GetBoardPostMove(boardInfo, move);
+            return Validate(boardInfo, postMoveBoard);
+        }
+
+        internal MoveError Validate(Board boardInfo, ulong[][] postMoveBoard)
         {
             var activeKingIndex = postMoveBoard[(int)boardInfo.ActivePlayer][(int)Piece.King].GetSetBits()[0];
             var attackerColor = boardInfo.ActivePlayer.Toggle();

@@ -23,7 +23,7 @@ namespace ChessLib.Core.Validation.MoveValidation.CastlingRules
 
         private readonly IBitboard _bitboard;
 
-        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in IMove move)
         {
             if (IsKingsPathInCheck(boardInfo.ActivePlayer.Toggle(), boardInfo.Occupancy, move,
                 boardInfo.EnPassantIndex))

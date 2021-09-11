@@ -24,10 +24,9 @@ namespace ChessLib.Core.Validation.MoveValidation.MoveRules
         ///     Validates that a proposed move is legally able to reach its destination
         /// </summary>
         /// <param name="boardInfo"></param>
-        /// <param name="postMoveBoard"></param>
         /// <param name="move"></param>
         /// <returns></returns>
-        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in IMove move)
         {
             var piece = boardInfo.Occupancy.GetPieceOfColorAtIndex(move.SourceIndex);
             if (piece == null)

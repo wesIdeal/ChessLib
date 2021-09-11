@@ -9,7 +9,7 @@ namespace ChessLib.Core.Validation.MoveValidation.CastlingRules
 {
     public class NoPieceBlocksCastlingMoveValidator : IMoveRule
     {
-        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in IMove move)
         {
             if (move.MoveType == MoveType.Castle)
             {

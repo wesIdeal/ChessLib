@@ -18,7 +18,7 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.MoveRules
         public MoveError ActiveColorValidatorTests(Board board, Move move)
         {
             var moveValidator = new ActiveColorValidator();
-            var validationResult = moveValidator.Validate(board, null, move);
+            var validationResult = moveValidator.Validate(board, move);
             return validationResult;
         }
 
@@ -35,7 +35,7 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.MoveRules
                 moveLeavesKingInCheck,
                 bitboardMock);
             var moveValidator = new NotInCheckAfterMoveValidator(bitboardMock.Object);
-            var validationResult = moveValidator.Validate(board, postMoveBoard.Occupancy, move);
+            var validationResult = moveValidator.Validate(board, postMoveBoard.Occupancy);
             bitboardMock.Verify(verifiableMockedParamsExpression, Times.Once);
             return validationResult;
         }
@@ -52,18 +52,25 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.MoveRules
             /*
              * No calls expected if:
              *  a) The source square is not occupied by the active color
-             *  b) The destination square is occupied by the active color
              */
-            var numberOfExpectedCallsToMockedMethod = sourcePieceAndColor?.Color != board.ActivePlayer ||
-                                                      destinationPieceAndColor?.Color != null &&
-                                                      destinationPieceAndColor?.Color == board.ActivePlayer
-                ? Times.Never()
-                : Times.Once();
+            var numberOfExpectedCallsToMockedMethod = Times.Once();
+            if (sourcePieceAndColor != null && (sourcePieceAndColor.Value.Color != board.ActivePlayer))
+            {
+                numberOfExpectedCallsToMockedMethod = Times.Never();
+            }
+            /*
+             *  or b) The destination square is occupied by the active color
+             */
+            if (destinationPieceAndColor != null && (destinationPieceAndColor.Value.Color == board.ActivePlayer))
+            {
+                numberOfExpectedCallsToMockedMethod = Times.Never();
+            }
+
             var verifiableMockedParamsExpression = board.SetupPseudoLegalMovesMock(move,
                 pseudoLegalMovesReturnValue,
                 bitboardMock);
             var moveValidator = new MoveDestinationValidator(bitboardMock.Object);
-            var validationResult = moveValidator.Validate(board, null, move);
+            var validationResult = moveValidator.Validate(board, move);
 
 
             bitboardMock.Verify(verifiableMockedParamsExpression, numberOfExpectedCallsToMockedMethod);

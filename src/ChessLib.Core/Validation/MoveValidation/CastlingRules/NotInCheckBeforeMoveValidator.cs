@@ -20,7 +20,7 @@ namespace ChessLib.Core.Validation.MoveValidation.CastlingRules
             _bitboard = bitboard;
         }
 
-        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in IMove move)
         {
             var kingIndex = boardInfo.Occupancy.Occupancy(boardInfo.ActivePlayer, Piece.King).GetSetBits()[0];
             var isOpponentInCheck = _bitboard.IsSquareAttackedByColor(kingIndex, boardInfo.OpponentColor, boardInfo.Occupancy, boardInfo.EnPassantIndex);

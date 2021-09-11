@@ -11,7 +11,7 @@ namespace ChessLib.Core.Validation.MoveValidation.CastlingRules
     {
         public readonly ushort[] ValidDestinationSquares = { 2, 6, 58, 62 };
 
-        public MoveError Validate(in Board boardInfo, in ulong[][] postMoveBoard, in IMove move)
+        public MoveError Validate(in Board boardInfo, in IMove move)
         {
             if (move.MoveType != MoveType.Castle)
             {
