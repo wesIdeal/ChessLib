@@ -8,7 +8,7 @@ using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
-using ChessLib.Core.Validation.Validators.MoveValidation;
+using ChessLib.Core.Validation.MoveValidation;
 using EnumsNET;
 
 namespace ChessLib.Core.Helpers

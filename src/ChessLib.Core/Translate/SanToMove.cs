@@ -10,7 +10,7 @@ using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Validation.Validators.MoveValidation;
+using ChessLib.Core.Validation.MoveValidation;
 
 [assembly: InternalsVisibleTo("ChessLib.Core.Tests")]
 
