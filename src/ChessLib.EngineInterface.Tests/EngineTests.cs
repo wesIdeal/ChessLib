@@ -5,13 +5,12 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using ChessLib.EngineInterface;
 using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands;
 using Moq;
 using NUnit.Framework;
 
-namespace ChessLib.UCI.Tests
+namespace ChessLib.EngineInterface.Tests
 {
     internal class EngineConstants
     {

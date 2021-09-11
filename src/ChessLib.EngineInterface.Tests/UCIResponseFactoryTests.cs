@@ -5,7 +5,7 @@ using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine.Options;
 using NUnit.Framework;
 
-namespace ChessLib.UCI.Tests
+namespace ChessLib.EngineInterface.Tests
 {
     [TestFixture]
     public class UCIResponseFactoryTests

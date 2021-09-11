@@ -1,14 +1,10 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using ChessLib.UCI;
+﻿using System;
 using System.Linq;
-using ChessLib.EngineInterface;
 using ChessLib.EngineInterface.UCI;
 using ChessLib.EngineInterface.UCI.Commands.FromEngine;
+using NUnit.Framework;
 
-namespace ChessLib.UCI.Tests
+namespace ChessLib.EngineInterface.Tests
 {
     [TestFixture]
     public class UCIOptionTests
