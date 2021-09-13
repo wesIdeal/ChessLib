@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Types.Interfaces;
 using ChessLib.Core.Validation.MoveValidation.CastlingRules;
 using ChessLib.Core.Validation.MoveValidation.EnPassantRules;
 using ChessLib.Core.Validation.MoveValidation.MoveRules;
@@ -14,56 +14,64 @@ namespace ChessLib.Core.Validation.MoveValidation
 {
     public class MoveValidator
     {
-        public MoveValidator(in Board board, in IMove move)
+        public MoveValidator()
         {
-            _board = board;
-            _move = move;
-            //PostMoveBoard = board.GetPiecePlacement().GetBoardPostMove(board.ActivePlayer, move);
-            PostMoveBoard = BoardHelpers.GetBoardPostMove(_board, move);
-            _rules.Add(new ActiveColorValidator());
-            _rules.Add(new NotInCheckAfterMoveValidator());
-            switch (move.MoveType)
-            {
-                case MoveType.Normal:
-                    _rules.Add(new MoveDestinationValidator());
-                    break;
-                case MoveType.Promotion:
-                    _rules.Add(new MoveDestinationValidator());
-                    _rules.Add(new SourceIsPawnValidator());
-                    break;
-                case MoveType.EnPassant:
-                    _rules.Add(new SourceIsPawnValidator());
-                    _rules.Add(new MoveDestinationValidator());
-                    _rules.Add(new EnPassantDestinationValidator());
-                    break;
-                case MoveType.Castle:
-                    _rules.Add(new KingDestinationValidator());
-                    _rules.Add(new CastlingMoveIsAvailableValidator());
-                    _rules.Add(new NotInCheckBeforeMoveValidator());
-                    _rules.Add(new AttackNotBlockingMoveValidator());
-                    _rules.Add(new NoPieceBlocksCastlingMoveValidator());
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+
         }
 
-        private readonly Board _board;
-        private readonly IMove _move;
-
-        private readonly List<IMoveRule> _rules = new List<IMoveRule>();
-        public readonly ulong[][] PostMoveBoard;
-
-        public MoveError Validate()
+        internal virtual List<IMoveRule> rules
         {
-            foreach (var rule in _rules)
+            get;
+            set;
+        }
+
+        private static readonly NotInCheckAfterMoveValidator notInCheckAfterMoveValidator =
+            new NotInCheckAfterMoveValidator();
+
+        internal virtual IEnumerable<IMoveRule> CompileRules(MoveType moveType)
+        {
+            switch (moveType)
             {
-                var moveIssue = rule.Validate(_board, _move);
+                case MoveType.Normal:
+                    break;
+
+                case MoveType.EnPassant:
+                    yield return new EnPassantDestinationValidator();
+                    break;
+                case MoveType.Promotion:
+                    yield return new SourceIsPawnValidator();
+                    break;
+                case MoveType.Castle:
+                    yield return new CastlingMoveIsAvailableValidator();
+                    yield return new KingDestinationValidator();
+                    yield return new NotInCheckBeforeMoveValidator();
+                    yield return new AttackNotBlockingMoveValidator();
+                    yield return new NoPieceBlocksCastlingMoveValidator();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(moveType), moveType, null);
+            }
+
+            yield return new ActiveColorValidator();
+            yield return new MoveDestinationValidator();
+            yield return notInCheckAfterMoveValidator;
+        }
+
+
+        public MoveError Validate(Board board, Move move, out ulong[][] postMoveBoard)
+        {
+            rules = CompileRules(move.MoveType).ToList();
+            foreach (var rule in rules)
+            {
+                var moveIssue = rule.Validate(board, move);
                 if (moveIssue != MoveError.NoneSet)
                 {
+                    postMoveBoard = null;
                     return moveIssue;
                 }
             }
+
+            postMoveBoard = notInCheckAfterMoveValidator.PostMoveBoard;
             return MoveError.NoneSet;
         }
     }

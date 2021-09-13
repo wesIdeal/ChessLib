@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
@@ -123,8 +124,8 @@ namespace ChessLib.Core.MagicBitboard
             }
 
             var pseudoLegalMoves = GetPseudoLegalMoves(squareIndex, piece, color, relevantOccupancy);
-            var moves = new List<IMove>();
-            
+            var moves = new List<Move>();
+
             foreach (var destinationIndex in pseudoLegalMoves.GetSetBits())
             {
                 var moveType = BoardHelpers.GetMoveType(occupancy, squareIndex, destinationIndex, enPassantIdx);
@@ -137,13 +138,13 @@ namespace ChessLib.Core.MagicBitboard
                 moves.AddRange(GetPseudoLegalCastlingMoves(color, castlingAvailability));
             }
 
+            var board = new Board(occupancy, 0, enPassantIdx, null, castlingAvailability, color, 0, true);
+
             foreach (var move in moves)
             {
                 var moveValidator =
-                    new MoveValidator(
-                        new Board(occupancy, 0, enPassantIdx, null, castlingAvailability, color, 0, true),
-                        move);
-                var validationResult = moveValidator.Validate();
+                    new MoveValidator();
+                var validationResult = moveValidator.Validate(board, move, out var postMoveBoard);
                 if (validationResult == MoveError.NoneSet)
                 {
                     yield return move;
@@ -152,7 +153,7 @@ namespace ChessLib.Core.MagicBitboard
         }
 
 
-        private IEnumerable<IMove> GetPseudoLegalCastlingMoves(Color color, CastlingAvailability castlingAvailability)
+        private IEnumerable<Move> GetPseudoLegalCastlingMoves(Color color, CastlingAvailability castlingAvailability)
         {
             switch (color)
             {
@@ -238,14 +239,19 @@ namespace ChessLib.Core.MagicBitboard
             var blackPawnAttacks = blackPawnPseudoAttacks & pawnBlack;
             var whitePawnPseudoAttacks = _pawn.GetAttacksFromSquare(squareIndex, Color.Black);
             var whitePawnAttacks = whitePawnPseudoAttacks & pawnWhite;
-            var rookAttackedSquares = GetAttackedSquares(Piece.Rook, squareIndex, total, Color.White) & rook;
+            var knightAttackedSquares = GetAttackedSquares(Piece.Knight, squareIndex, total, Color.White);
+            var bishopAttackedSquares = GetAttackedSquares(Piece.Bishop, squareIndex, total, Color.White);
+            var rookAttackedSquares = GetAttackedSquares(Piece.Rook, squareIndex, total, Color.White);
+            var queenAttackedSquares = GetAttackedSquares(Piece.Queen, squareIndex, total, Color.White);
+            var kingAttackedSquares = GetAttackedSquares(Piece.King, squareIndex, total, Color.White);
+           
             var allAttacks = (blackPawnAttacks
                               | whitePawnAttacks
-                              | (GetAttackedSquares(Piece.Knight, squareIndex, total, Color.White) & knight)
-                              | (GetAttackedSquares(Piece.Bishop, squareIndex, total, Color.White) & bishop)
-                              | rookAttackedSquares
-                              | (GetAttackedSquares(Piece.Queen, squareIndex, total, Color.White) & queen)
-                              | (GetAttackedSquares(Piece.King, squareIndex, total, Color.White) & king)) &
+                              | (knightAttackedSquares & knight)
+                              | (bishopAttackedSquares & bishop)
+                              | (rookAttackedSquares & rook)
+                              | (queenAttackedSquares & queen)
+                              | (kingAttackedSquares & king)) &
                              attackerColorMask;
             return allAttacks;
         }

@@ -325,8 +325,8 @@ namespace ChessLib.Core.Helpers
         {
             var board = (Board)currentBoard.Clone();
 
-            var moveValidator = new MoveValidator(board, move);
-            var validationError = moveValidator.Validate();
+            var moveValidator = new MoveValidator();
+            var validationError = moveValidator.Validate(board, move, out ulong[][] postMoveBoard);
             if (validationError != MoveError.NoneSet)
             {
                 Debugger.Break();
@@ -345,7 +345,7 @@ namespace ChessLib.Core.Helpers
                 GetCastlingAvailabilityPostMove(board.Occupancy, move, board.CastlingAvailability);
             var enPassantIndex = GetEnPassantIndex(board, move);
             var activePlayer = board.ActivePlayer.Toggle();
-            return new Board(moveValidator.PostMoveBoard, (byte)halfMoveClock, enPassantIndex, capturedPiece,
+            return new Board(postMoveBoard, (byte)halfMoveClock, enPassantIndex, capturedPiece,
                 castlingAvailability, activePlayer,
                 (ushort)fullMoveCounter, false);
         }

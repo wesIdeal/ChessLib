@@ -30,6 +30,7 @@ namespace ChessLib.Core.Types
             CastlingAvailability castlingAvailability, Color activePlayer, uint fullMoveCounter, bool bypassValidation)
             : base(halfMoveClock, enPassantIndex, capturedPiece, castlingAvailability, activePlayer, fullMoveCounter)
         {
+            Debug.Assert(occupancy != null);
             Occupancy = CloneOccupancy(occupancy);
             if (!bypassValidation)
             {

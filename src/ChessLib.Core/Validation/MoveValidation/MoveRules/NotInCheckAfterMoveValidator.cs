@@ -12,7 +12,7 @@ namespace ChessLib.Core.Validation.MoveValidation.MoveRules
         public NotInCheckAfterMoveValidator() : this(Bitboard.Instance)
         {
         }
-
+        public ulong[][] PostMoveBoard { get; private set; }
         internal NotInCheckAfterMoveValidator(IBitboard bitboardInstance)
         {
             _bitboardInstance = bitboardInstance;
@@ -22,8 +22,8 @@ namespace ChessLib.Core.Validation.MoveValidation.MoveRules
 
         public MoveError Validate(in Board boardInfo, in IMove move)
         {
-            var postMoveBoard = BoardHelpers.GetBoardPostMove(boardInfo, move);
-            return Validate(boardInfo, postMoveBoard);
+            PostMoveBoard = BoardHelpers.GetBoardPostMove(boardInfo, move);
+            return Validate(boardInfo, PostMoveBoard);
         }
 
         internal MoveError Validate(Board boardInfo, ulong[][] postMoveBoard)

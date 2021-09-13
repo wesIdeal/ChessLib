@@ -154,8 +154,8 @@ namespace ChessLib.Core.Translate
                 foreach (var square in possibleAttackersOfType)
                 {
                     var testMove = MoveHelpers.GenerateMove(square, destinationSquare);
-                    var moveValidator = new MoveValidator(board, testMove);
-                    if (moveValidator.Validate() == MoveError.NoneSet)
+                    var moveValidator = new MoveValidator();
+                    if (moveValidator.Validate(board, testMove, out _) == MoveError.NoneSet)
                     {
                         narrowedSquares.Add(square);
                     }

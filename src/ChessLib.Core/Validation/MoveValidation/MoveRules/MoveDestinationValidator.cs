@@ -28,6 +28,11 @@ namespace ChessLib.Core.Validation.MoveValidation.MoveRules
         /// <returns></returns>
         public MoveError Validate(in Board boardInfo, in IMove move)
         {
+            //Castling moves are evaluated separately
+            if (move.MoveType == MoveType.Castle)
+            {
+                return MoveError.NoneSet;
+            }
             var piece = boardInfo.Occupancy.GetPieceOfColorAtIndex(move.SourceIndex);
             if (piece == null)
             {

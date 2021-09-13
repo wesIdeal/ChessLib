@@ -54,10 +54,15 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.MoveRules
              *  a) The source square is not occupied by the active color
              */
             var numberOfExpectedCallsToMockedMethod = Times.Once();
-            if (sourcePieceAndColor != null && (sourcePieceAndColor.Value.Color != board.ActivePlayer))
+            if (sourcePieceAndColor == null)
             {
                 numberOfExpectedCallsToMockedMethod = Times.Never();
             }
+            else if ((sourcePieceAndColor.Value.Color != board.ActivePlayer))
+            {
+                numberOfExpectedCallsToMockedMethod = Times.Never();
+            }
+            
             /*
              *  or b) The destination square is occupied by the active color
              */

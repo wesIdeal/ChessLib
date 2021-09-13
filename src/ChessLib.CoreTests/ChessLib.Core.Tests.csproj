@@ -45,7 +45,6 @@
     <Folder Include="Validation\MoveValidation\CastlingRules\" />
     <Folder Include="Validation\MoveValidation\EnPassantRules\" />
     <Folder Include="Validation\MoveValidation\MoveRules\" />
-    <Folder Include="Validation\Validators\MoveValidation\" />
   </ItemGroup>
 
 </Project>
