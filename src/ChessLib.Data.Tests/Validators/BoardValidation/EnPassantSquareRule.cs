@@ -3,7 +3,7 @@
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
-using ChessLib.Core.Validation.Validators.BoardValidation.Rules;
+using ChessLib.Core.Validation.BoardValidation.Rules;
 using NUnit.Framework;
 
 #endregion

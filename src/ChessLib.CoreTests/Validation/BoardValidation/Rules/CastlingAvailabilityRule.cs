@@ -3,7 +3,7 @@ using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
-namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
+namespace ChessLib.Core.Tests.Validation.BoardValidation.Rules
 {
     [TestFixture]
     public sealed class CastlingAvailabilityRule
@@ -30,7 +30,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
         public static void TestCastling(string fen, BoardExceptionType expectedException, string message = "")
         {
             var board = FenReader.Translate(fen);
-            var rule = new Core.Validation.Validators.BoardValidation.Rules.CastlingAvailabilityRule();
+            var rule = new Core.Validation.BoardValidation.Rules.CastlingAvailabilityRule();
             var actual = rule.Validate(board);
             Assert.AreEqual(expectedException, actual, message);
         }

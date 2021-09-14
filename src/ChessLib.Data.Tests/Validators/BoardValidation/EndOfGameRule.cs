@@ -26,7 +26,7 @@ namespace ChessLib.Data.Validators.BoardValidation.Tests
         public static void ValidateEndOfGame(string fen, BoardExceptionType expectedException)
         {
             var board = FenReader.Translate(fen);
-            var rule = new Core.Validation.Validators.BoardValidation.Rules.EndOfGameRule();
+            var rule = new Core.Validation.BoardValidation.Rules.EndOfGameRule();
             var actual = rule.Validate(board);
             Assert.AreEqual(expectedException, actual);
         }

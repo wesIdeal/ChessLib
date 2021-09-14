@@ -5,7 +5,7 @@ using ChessLib.Core.Types.Enums;
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
-namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
+namespace ChessLib.Core.Validation.BoardValidation.Rules
 {
     /// <summary>
     ///     Validates that board parameters are correct in regards to en passant square

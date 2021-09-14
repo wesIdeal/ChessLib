@@ -2,7 +2,7 @@
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 
-namespace ChessLib.Core.Validation.Validators.BoardValidation.Rules
+namespace ChessLib.Core.Validation.BoardValidation.Rules
 {
     public class OpponentInCheckRule : IBoardRule
     {

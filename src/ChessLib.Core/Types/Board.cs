@@ -6,7 +6,7 @@ using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Types.Interfaces;
-using ChessLib.Core.Validation.Validators.BoardValidation;
+using ChessLib.Core.Validation.BoardValidation;
 
 namespace ChessLib.Core.Types
 {

@@ -1,7 +1,7 @@
 ﻿using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Validation.Validators.BoardValidation;
+using ChessLib.Core.Validation.BoardValidation;
 using NUnit.Framework;
 
 namespace ChessLib.Data.Validators.BoardValidation.Tests

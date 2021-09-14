@@ -1,11 +1,10 @@
 ﻿#region
 
-using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 
 #endregion
 
-namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
+namespace ChessLib.Core.Tests.Validation.BoardValidation.Rules
 {
     public class EnPassantPawnLocationTestCase : EnPassantSquareLocationTestCase
     {

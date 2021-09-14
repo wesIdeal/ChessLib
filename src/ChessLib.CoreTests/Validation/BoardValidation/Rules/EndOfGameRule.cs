@@ -2,7 +2,7 @@
 using ChessLib.Core.Types.Enums;
 using NUnit.Framework;
 
-namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
+namespace ChessLib.Core.Tests.Validation.BoardValidation.Rules
 {
     [TestFixture]
     public sealed class EndOfGameRule
@@ -26,7 +26,7 @@ namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
         public static void ValidateEndOfGame(string fen, BoardExceptionType expectedException)
         {
             var board = FenReader.Translate(fen);
-            var rule = new Core.Validation.Validators.BoardValidation.Rules.EndOfGameRule();
+            var rule = new Core.Validation.BoardValidation.Rules.EndOfGameRule();
             var actual = rule.Validate(board);
             Assert.AreEqual(expectedException, actual);
         }

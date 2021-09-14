@@ -2,10 +2,10 @@
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
-using ChessLib.Core.Validation.Validators.BoardValidation;
+using ChessLib.Core.Validation.BoardValidation;
 using NUnit.Framework;
 
-namespace ChessLib.Core.Tests.Validation.Validators.BoardValidation.Rules
+namespace ChessLib.Core.Tests.Validation.BoardValidation.Rules
 {
     [TestFixture]
     public sealed class PawnCountRule
