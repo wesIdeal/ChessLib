@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChessLib.Core.Helpers;
 using ChessLib.Core.Types;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
@@ -14,19 +13,10 @@ namespace ChessLib.Core.Validation.MoveValidation
 {
     public class MoveValidator
     {
-        public MoveValidator()
-        {
-
-        }
-
-        internal virtual List<IMoveRule> rules
-        {
-            get;
-            set;
-        }
-
         private static readonly NotInCheckAfterMoveValidator notInCheckAfterMoveValidator =
             new NotInCheckAfterMoveValidator();
+
+        internal virtual List<IMoveRule> rules { get; set; }
 
         internal virtual IEnumerable<IMoveRule> CompileRules(MoveType moveType)
         {
@@ -34,7 +24,6 @@ namespace ChessLib.Core.Validation.MoveValidation
             {
                 case MoveType.Normal:
                     break;
-
                 case MoveType.EnPassant:
                     yield return new EnPassantDestinationValidator();
                     break;

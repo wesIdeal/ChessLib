@@ -46,6 +46,14 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.CastlingRules.TestData
                     .Returns(MoveError.CastleBadDestinationSquare);
             }
 
+            var normalMoveWhite= MoveHelpers.GenerateMove("e2".ToBoardIndex(), "e4".ToBoardIndex(), MoveType.Normal);
+            var normalMoveBlack = MoveHelpers.GenerateMove("e7".ToBoardIndex(), "e5".ToBoardIndex(), MoveType.Normal);
+            yield return new TestCaseData(board, normalMoveWhite).SetName(
+                    $"{name} - White [normal move]")
+                .Returns(MoveError.NoneSet);
+            yield return new TestCaseData(board, normalMoveBlack).SetName(
+                    $"{name} - Black [normal move]")
+                .Returns(MoveError.NoneSet);
             var nonCastlingMoveWhiteSide = MoveHelpers.GenerateMove("e2".ToBoardIndex(), "e4".ToBoardIndex(), MoveType.Castle);
             var nonCastlingMoveBlackSide = MoveHelpers.GenerateMove("e7".ToBoardIndex(), "e5".ToBoardIndex(), MoveType.Castle);
             var nonCastlingMoves = new[] { nonCastlingMoveBlackSide, nonCastlingMoveWhiteSide };

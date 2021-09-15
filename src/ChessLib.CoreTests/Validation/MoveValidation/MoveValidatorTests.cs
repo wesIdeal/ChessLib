@@ -19,14 +19,14 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation
     [TestFixture(TestOf = typeof(MoveValidator))]
     public class MoveValidatorTests
     {
-        
+
         [TestCaseSource(nameof(GetCompileTestCases))]
         public void CompileShouldGetCorrectRules(MoveType moveType, IEnumerable<Type> expectedTypes)
         {
             var validator = new MoveValidator();
             var actualRules = validator.CompileRules(moveType).Select(x => x.GetType());
-            var expectedRuleTypes = expectedTypes.OrderBy(x=>x.GUID).ToArray();
-            var actualRuleTypes = actualRules.OrderBy(x=>x.GUID).ToArray();
+            var expectedRuleTypes = expectedTypes.OrderBy(x => x.GUID).ToArray();
+            var actualRuleTypes = actualRules.OrderBy(x => x.GUID).ToArray();
             Assert.AreEqual(expectedRuleTypes.Count(), actualRuleTypes.Count(), "Expected rule count is not equal to actual count.");
             var zRules = expectedRuleTypes.Zip(actualRuleTypes, (exp, act) => new { expected = exp, actual = act, areEqual = exp == act }).ToArray();
             var misMatchError = "Rule set has inequalities, expected vs actual";
@@ -51,11 +51,21 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation
         [TestCaseSource(nameof(GetValidationReturnTestCases))]
         public MoveError Validate_ShouldReturnCorrectResult(Mock<MoveValidator> validatorMock, Board board, Move move)
         {
-          var rv =  validatorMock.Object.Validate(board, move, out ulong[][] _);
-          return rv;
+            var rv = validatorMock.Object.Validate(board, move, out ulong[][] _);
+            return rv;
         }
 
+        [Test]
+        public void Compile_ShouldThrowExceptionWithBadMoveType()
+        {
+           
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                var validator = new MoveValidator();
+                var result = validator.CompileRules((MoveType)999).ToArray();
+            });
 
+        }
 
         protected static IEnumerable<TestCaseData> GetValidationReturnTestCases()
         {
@@ -79,10 +89,10 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation
 
         protected static IEnumerable<TestCaseData> GetCompileIntegrationTests()
         {
-           
+
             var e2 = "e2".ToBoardIndex();
             var e4 = "e4".ToBoardIndex();
-           
+
             foreach (var moveType in EnumsNET.Enums.GetValues<MoveType>())
             {
                 var mock = new Mock<MoveValidator>() { CallBase = true };
@@ -90,9 +100,9 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation
                 var board = new Board();
                 var move = MoveHelpers.GenerateMove(e2, e4, moveType);
                 genericValidator.Setup(x => x.Validate(board, move)).Returns(MoveError.NoneSet).Verifiable();
-                mock.SetupGet(x => x.rules).Returns(new List<IMoveRule>(new []{genericValidator.Object}));
+                mock.SetupGet(x => x.rules).Returns(new List<IMoveRule>(new[] { genericValidator.Object }));
                 mock.Setup(x => x.CompileRules(It.Is<MoveType>(x => x == moveType))).Returns(new List<IMoveRule>()).Verifiable();
-                yield return new TestCaseData(mock, genericValidator,  board, move).SetName($"Calling with {moveType}");
+                yield return new TestCaseData(mock, genericValidator, board, move).SetName($"Calling with {moveType}");
             }
         }
         private static readonly Type[] ubiquitousValidators = new Type[]

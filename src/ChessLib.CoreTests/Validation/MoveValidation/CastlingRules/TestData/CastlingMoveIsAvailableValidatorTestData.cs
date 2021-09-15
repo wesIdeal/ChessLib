@@ -19,10 +19,24 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.CastlingRules.TestData
             foreach (var move in castlingMovesForColor)
             {
                 var dict = GetCastingBoards(color, move);
-                yield return new TestCaseData(dict[true], move).Returns(MoveError.NoneSet);
-                yield return new TestCaseData(dict[false], move).Returns(MoveError.CastleUnavailable);
+                yield return new TestCaseData(dict[true], move).SetName("Castling Availability - Good")
+                    .Returns(MoveError.NoneSet);
+                yield return new TestCaseData(dict[false], move).SetName("Castling Availability - Not Available")
+                    .Returns(MoveError.CastleUnavailable);
             }
         }
+
+        public static IEnumerable<TestCaseData> GetExceptionTestCase()
+        {
+            var translator = new FenTextToBoard();
+            var whiteBoard = translator.Translate("r3k2r/8/8/8/8/8/8/R3K2R w - - 0 1");
+            var blackBoard = translator.Translate("r3k2r/8/8/8/8/8/8/R3K2R b - - 0 1");
+            yield return new TestCaseData(whiteBoard, MoveHelpers.GenerateMove("e2".ToBoardIndex(), "e4".ToBoardIndex(),
+                MoveType.Castle)).SetName("Castling Availability [Exception, White]");
+            yield return new TestCaseData(blackBoard, MoveHelpers.GenerateMove("e7".ToBoardIndex(), "e5".ToBoardIndex(),
+                MoveType.Castle)).SetName("Castling Availability [Exception, Black]");
+        }
+
 
         private static CastlingAvailability GetCastlingAvailabilityFromMove(Move move)
         {

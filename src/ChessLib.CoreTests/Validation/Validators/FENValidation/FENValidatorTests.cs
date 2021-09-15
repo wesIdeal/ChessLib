@@ -5,6 +5,7 @@ using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.FENValidation;
+using ChessLib.Core.Validation.Validators.FENValidation.Rules;
 using Moq;
 using Moq.Language.Flow;
 using NUnit.Framework;
@@ -22,6 +23,13 @@ namespace ChessLib.Core.Tests.Validation.Validators.FENValidation
         {
             _fenRuleMock = new Mock<IFENRule>();
 
+        }
+
+        [Test]
+        public void FenStructureRule_ShouldReturnInvalidString_WhenFenIsEmpty()
+        {
+            var validator = new FENStructureRule();
+            Assert.AreEqual(FENError.InvalidFENString, validator.Validate(string.Empty));
         }
 
         [Test]

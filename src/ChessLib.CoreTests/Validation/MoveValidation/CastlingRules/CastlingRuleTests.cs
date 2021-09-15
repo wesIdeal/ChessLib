@@ -71,6 +71,17 @@ namespace ChessLib.Core.Tests.Validation.MoveValidation.CastlingRules
             return result;
         }
 
+        [TestCaseSource(typeof(CastlingMoveIsAvailableValidatorTestData),
+            nameof(CastlingMoveIsAvailableValidatorTestData.GetExceptionTestCase))]
+       
+        public void CastlingMove_Exception(Board board, Move move)
+        {
+            var expected = new MoveException("Bad destination square for castling move.",
+                MoveError.CastleBadDestinationSquare, move, board.ActivePlayer);
+            var validator = new CastlingMoveIsAvailableValidator();
+            Assert.Throws(typeof(MoveException), () => { validator.Validate(board, move); });
+        }
+
         [TestOf(typeof(KingDestinationValidator))]
         [TestCaseSource(typeof(KingDestinationValidatorTestData),
             nameof(KingDestinationValidatorTestData.GetValidDestinationTestCases), new object[] { Color.Black })]

@@ -1,14 +1,16 @@
 ﻿using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Translate;
 using ChessLib.Core.Types.Enums;
+using ChessLib.Core.Validation.BoardValidation.Rules;
 using NUnit.Framework;
 
 namespace ChessLib.Core.Tests.Validation.BoardValidation.Rules
 {
     [TestFixture]
-    public sealed class CastlingAvailabilityRule
+    public sealed class CastlingAvailabilityRuleTests
     {
         private static readonly FenTextToBoard FenReader = new FenTextToBoard();
+        private static readonly CastlingAvailabilityRule validator = new CastlingAvailabilityRule();
 
         [TestCase(BoardConstants.FenStartingPosition, BoardExceptionType.None)]
         [TestCase("1r2k3/8/8/8/8/8/8/1R2K3 w Q - 0 1", BoardExceptionType.WhiteCastleLong,
@@ -30,9 +32,17 @@ namespace ChessLib.Core.Tests.Validation.BoardValidation.Rules
         public static void TestCastling(string fen, BoardExceptionType expectedException, string message = "")
         {
             var board = FenReader.Translate(fen);
-            var rule = new Core.Validation.BoardValidation.Rules.CastlingAvailabilityRule();
-            var actual = rule.Validate(board);
+
+            var actual = validator.Validate(board);
             Assert.AreEqual(expectedException, actual, message);
+        }
+
+        [Test]
+        public static void ShouldReturnNoErrorIfNoCastlingAvailable()
+        {
+            var board = FenReader.Translate("4k3/8/8/8/8/8/8/4K3 w - - 0 1");
+            var validationResult = validator.Validate(board);
+            Assert.AreEqual(BoardExceptionType.None, validationResult);
         }
     }
 }

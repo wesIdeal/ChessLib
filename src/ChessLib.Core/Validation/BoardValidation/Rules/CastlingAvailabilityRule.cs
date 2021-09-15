@@ -10,7 +10,10 @@ namespace ChessLib.Core.Validation.BoardValidation.Rules
         {
             var rv = BoardExceptionType.None;
             var castlingAvailability = boardInfo.CastlingAvailability;
-            if (castlingAvailability == CastlingAvailability.NoCastlingAvailable) return BoardExceptionType.None;
+            if (castlingAvailability == CastlingAvailability.NoCastlingAvailable)
+            {
+                return BoardExceptionType.None;
+            }
 
             var whiteRooks = boardInfo.Occupancy.Occupancy(Color.White, Piece.Rook);
             var blackRooks = boardInfo.Occupancy.Occupancy(Color.Black, Piece.Rook);

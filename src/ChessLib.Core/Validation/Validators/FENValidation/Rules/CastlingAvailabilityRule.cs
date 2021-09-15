@@ -14,7 +14,7 @@ namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
             return ValidateCastlingAvailabilityString(castlingAvailability);
         }
 
-        private static FENError ValidateCastlingAvailabilityString(string castleAvailability)
+        internal static FENError ValidateCastlingAvailabilityString(string castleAvailability)
         {
             var fenError = FENError.None;
             if (string.IsNullOrWhiteSpace(castleAvailability))
