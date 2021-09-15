@@ -75,18 +75,18 @@ namespace ChessLib.Core.Helpers
         {
             var pieceSection = new char[64];
             for (var iColor = 0; iColor < 2; iColor++)
-            for (var iPiece = 0; iPiece < 6; iPiece++)
-            {
-                var pieceArray = piecesOnBoard[iColor][iPiece];
-                var charRepForPieceOfColor = PieceHelpers.GetFENCharPieceRepresentation((Color)iColor, (Piece)iPiece);
-                while (pieceArray != 0)
+                for (var iPiece = 0; iPiece < 6; iPiece++)
                 {
-                    var squareIndex = BitHelpers.BitScanForward(pieceArray);
-                    var fenIndex = BoardIndexToFENIndex(squareIndex);
-                    pieceSection[fenIndex] = charRepForPieceOfColor;
-                    pieceArray &= pieceArray - 1;
+                    var pieceArray = piecesOnBoard[iColor][iPiece];
+                    var charRepForPieceOfColor = PieceHelpers.GetFENCharPieceRepresentation((Color)iColor, (Piece)iPiece);
+                    while (pieceArray != 0)
+                    {
+                        var squareIndex = BitHelpers.BitScanForward(pieceArray);
+                        var fenIndex = BoardIndexToFENIndex(squareIndex);
+                        pieceSection[fenIndex] = charRepForPieceOfColor;
+                        pieceArray &= pieceArray - 1;
+                    }
                 }
-            }
 
             var sb = new StringBuilder();
             for (var rank = 0; rank < 8; rank++) //start at PremoveFEN Rank of zero -> 7
@@ -127,7 +127,10 @@ namespace ChessLib.Core.Helpers
         internal static string MakeCastlingAvailabilityStringFromBitFlags(CastlingAvailability caBitFlags)
         {
             var s = "";
-            if (caBitFlags == 0) s = CastlingAvailability.NoCastlingAvailable.AsString(EnumFormat.Description);
+            if (caBitFlags == 0)
+            {
+                s = CastlingAvailability.NoCastlingAvailable.AsString(EnumFormat.Description);
+            }
             else
             {
                 foreach (var caFlag in caBitFlags.GetFlags().OrderBy(x => x))

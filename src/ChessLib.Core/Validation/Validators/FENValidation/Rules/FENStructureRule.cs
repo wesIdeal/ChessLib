@@ -9,11 +9,13 @@ namespace ChessLib.Core.Validation.Validators.FENValidation.Rules
 
         public FENError Validate(string fen)
         {
-            fen = FENHelpers.SanitizeFenString(fen);
             if (string.IsNullOrEmpty(fen))
             {
                 return FENError.InvalidFENString;
             }
+
+            fen = FENHelpers.SanitizeFenString(fen);
+           
 
             var splitSectionsLength = fen.Split(SeperationCharacter).Length;
             if (splitSectionsLength != 6)

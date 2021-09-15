@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ChessLib.Core.Helpers;
 using ChessLib.Core.MagicBitboard.Bitwise;
 using ChessLib.Core.Types.Enums;
 using ChessLib.Core.Types.Exceptions;
 using ChessLib.Core.Validation.Validators.FENValidation;
 using ChessLib.Core.Validation.Validators.FENValidation.Rules;
 using Moq;
-using Moq.Language.Flow;
 using NUnit.Framework;
 using Enums = EnumsNET.Enums;
 
-namespace ChessLib.Core.Tests.Validation.Validators.FENValidation
+namespace ChessLib.Core.Tests.Validation.FENValidation
 {
     [TestFixture()]
     public class FENValidatorTests
