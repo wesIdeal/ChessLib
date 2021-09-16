@@ -12,6 +12,10 @@ namespace ChessLib.Core.Types
 
     public class Tags : Dictionary<string, string>, IEquatable<Tags>
     {
+        internal Tags()
+        {
+
+        }
         public string Event
         {
             get => ContainsKey("Event") ? this["Event"] : "?";
@@ -163,7 +167,7 @@ namespace ChessLib.Core.Types
             {
                 return this[key];
             }
-
+           
             return "?";
         }
 
@@ -191,7 +195,7 @@ namespace ChessLib.Core.Types
         }
 
 
-        internal void SetFen(string fen)
+        internal virtual void SetFen(string fen)
         {
             this["FEN"] = fen;
             OnFENChanged(fen);
